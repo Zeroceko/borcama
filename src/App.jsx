@@ -665,6 +665,12 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
   const doner = kalemler.filter((k) => !k.sabitTaksit); // kart + KMH: faiz işleyen borçlar
   const sabit = kalemler.filter((k) => k.sabitTaksit);
 
+  const kartFaiz = doner.filter((k) => k.tur === "kart").reduce((t, k) => t + (k.bakiye * k.faiz) / 100, 0);
+  const ekFaiz = doner.filter((k) => k.tur === "ek").reduce((t, k) => t + (k.bakiye * k.faiz) / 100, 0);
+  const digerFaiz = doner.filter((k) => k.tur === "diger").reduce((t, k) => t + (k.bakiye * k.faiz) / 100, 0);
+  const gecikmisler = doner.filter((k) => k.gecikmis);
+  const gecikmisFaiz = gecikmisler.reduce((t, k) => t + (k.bakiye * k.faiz) / 100, 0);
+
   const sirali = useMemo(() => {
     const d = [...doner];
     if (strateji === "cig") d.sort((a, b) => b.faiz - a.faiz || b.bakiye - a.bakiye);
@@ -689,6 +695,29 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
 
   return (
     <div className="bt-stack">
+      <section className="bt-hero">
+        <div className="bt-hero-label">Bu ay işleyen tahmini toplam faiz</div>
+        <div className="bt-hero-tutar bt-display">{fmt0(aylikFaiz)}</div>
+        <div className="bt-delta notr">Yılda karşılığı ≈ {fmt0(aylikFaiz * 12)} — hiç ödeme yapmasanız bu borçlar bu hızla büyür</div>
+        <div className="bt-lejant" style={{ marginTop: 14 }}>
+          {kartFaiz > 0 && (
+            <div className="bt-lejant-item"><span className="bt-nokta" style={{ background: "var(--kart)" }} />Kredi kartları: <b>{fmt0(kartFaiz)}</b></div>
+          )}
+          {ekFaiz > 0 && (
+            <div className="bt-lejant-item"><span className="bt-nokta" style={{ background: "var(--ek)" }} />Ek hesap / KMH: <b>{fmt0(ekFaiz)}</b></div>
+          )}
+          {digerFaiz > 0 && (
+            <div className="bt-lejant-item"><span className="bt-nokta" style={{ background: "#94A3B8" }} />Gecikmiş / diğer: <b>{fmt0(digerFaiz)}</b></div>
+          )}
+        </div>
+        {gecikmisler.length > 0 && (
+          <div className="bt-faiz-chip">
+            <AlertTriangle size={14} />
+            {gecikmisler.length} kart vadesi geçmiş durumda, bunlardan ayda <b style={{ margin: "0 4px" }}>{fmt0(gecikmisFaiz)}</b> gecikme faizi işliyor
+          </div>
+        )}
+      </section>
+
       <div className="bt-ipucu">
         <Lightbulb size={16} color="var(--mint)" />
         <div>
