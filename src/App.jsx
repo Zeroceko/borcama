@@ -163,6 +163,15 @@ const kalanGun = (t) => {
   const s = bugun();
   return Math.round((t - new Date(s.getFullYear(), s.getMonth(), s.getDate())) / 86400000);
 };
+// Kartta tam tarih girilmişse (ör. Vakıfbank ekstresindeki "6.7.2026") o günü esas alıp
+// aylık tekrar eden ödeme takvimine çeviriyoruz; sadece gün girilmişse doğrudan onu kullanıyoruz.
+function kartSonOdemeTarihi(k) {
+  if (k.sonOdemeTarihi) {
+    const g = new Date(k.sonOdemeTarihi + "T00:00:00").getDate();
+    return sonrakiOdemeTarihi(g);
+  }
+  return sonrakiOdemeTarihi(k.sonOdemeGunu);
+}
 
 const KATEGORILER = ["Market","Yeme-İçme","Ulaşım","Fatura","Kira","Sağlık","Giyim","Eğlence","Eğitim","Diğer"];
 const BANKALAR = ["VakıfBank","Halkbank","QNB","Enpara","Akbank","Garanti BBVA"];
@@ -181,11 +190,14 @@ const TUR_META = {
 function borcKalemleri(veri) {
   const kalemler = [];
   veri.cards.forEach((k) => {
-    if ((+k.borc || 0) > 0)
+    // Dönem içi toplam girilmişse gerçek güncel borç odur (geçen ay kalanı + faiz + bu ayki yeni harcamalar);
+    // girilmemişse ekstre borcunu esas al.
+    const guncelBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
+    if (guncelBorc > 0)
       kalemler.push({
         id: "kart-" + k.id, tur: "kart", banka: (k.banka || "").trim(),
         ad: k.banka + (k.ad ? " · " + k.ad : " · Kredi kartı"),
-        bakiye: +k.borc,
+        bakiye: guncelBorc,
         faiz: +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ.kart,
         faizTahmini: !(+k.faiz > 0),
       });
@@ -275,9 +287,9 @@ export default function BorcTakip() {
   );
 
   const buAyOdenecek = useMemo(() => {
-    const asgari = veri.cards.reduce((t, k) => t + (+k.asgari || 0), 0);
+    const kartOdeme = veri.cards.reduce((t, k) => t + (+k.asgari > 0 ? +k.asgari : +k.borc || 0), 0);
     const taksit = veri.loans.reduce((t, k) => t + (+k.taksit || 0), 0);
-    return asgari + taksit;
+    return kartOdeme + taksit;
   }, [veri]);
 
   const gecenAyDelta = useMemo(() => {
@@ -295,8 +307,8 @@ export default function BorcTakip() {
       if ((+k.borc || 0) > 0)
         liste.push({
           id: "kart-" + k.id, ad: k.banka + (k.ad ? " · " + k.ad : ""), ikon: "kart",
-          tutar: +k.asgari > 0 ? +k.asgari : +k.borc, not: +k.asgari > 0 ? "asgari" : "borç",
-          tarih: sonrakiOdemeTarihi(k.sonOdemeGunu),
+          tutar: +k.asgari > 0 ? +k.asgari : +k.borc, not: +k.asgari > 0 ? "asgari" : "ekstre borcu",
+          tarih: kartSonOdemeTarihi(k),
           odendi: !!veri.paid["kart-" + k.id + "-" + ay], anahtar: "kart-" + k.id + "-" + ay,
         });
     });
@@ -733,8 +745,11 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
 /* ---------------- Borçlar ---------------- */
 function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
   const toplamLimit = veri.cards.reduce((t, k) => t + (+k.limit || 0), 0);
-  const toplamKartBorc = veri.cards.reduce((t, k) => t + (+k.borc || 0), 0);
-  const kullanim = toplamLimit > 0 ? Math.round((toplamKartBorc / toplamLimit) * 100) : null;
+  const toplamKullanilabilir = veri.cards.reduce((t, k) => t + (+k.kullanilabilirLimit || 0), 0);
+  const toplamKartBorc = veri.cards.reduce((t, k) => t + (+k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0), 0);
+  const kullanim = toplamLimit > 0
+    ? Math.round(((toplamKullanilabilir > 0 ? toplamLimit - toplamKullanilabilir : toplamKartBorc) / toplamLimit) * 100)
+    : null;
 
   return (
     <div className="bt-stack" style={{ gap: 20 }}>
@@ -745,37 +760,49 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
         alanlar={[
           { k: "banka", e: "Banka", t: "text", z: true },
           { k: "ad", e: "Kart adı (Bonus, World…)", t: "text" },
-          { k: "limit", e: "Limit (₺)", t: "number" },
-          { k: "borc", e: "Güncel borç (₺)", t: "number", z: true },
-          { k: "asgari", e: "Asgari ödeme (₺)", t: "number" },
+          { k: "limit", e: "Toplam limit (₺)", t: "number" },
+          { k: "kullanilabilirLimit", e: "Kullanılabilir limit (₺)", t: "number" },
+          { k: "borc", e: "Ekstre borcu (₺)", t: "number", z: true },
+          { k: "asgari", e: "Asgari ödeme (₺, yoksa 0)", t: "number" },
+          { k: "donemIciToplam", e: "Dönem içi toplam (₺)", t: "number" },
           { k: "faiz", e: "Aylık akdi faiz (%)", t: "number" },
           { k: "kesimGunu", e: "Ekstre kesim günü", t: "number" },
-          { k: "sonOdemeGunu", e: "Son ödeme günü", t: "number", z: true },
+          { k: "sonOdemeTarihi", e: "Son ödeme tarihi", t: "date", z: true },
         ]}
-        satir={(k) => (
-          <>
-            <div className="bt-satir-ana">
-              <div className="bt-satir-baslik">{k.banka}{k.ad && <span style={{ color: "var(--muted)", fontWeight: 500 }}> · {k.ad}</span>}</div>
-              <div className="bt-satir-alt">
-                Son ödeme: her ayın {k.sonOdemeGunu}. günü
-                {+k.asgari > 0 && <> · asgari {fmt(k.asgari)}</>}
-                {+k.faiz > 0 && <> · aylık %{k.faiz}</>}
+        aciklama="Ekstre borcu: bu ay ödemeniz istenen tutar. Dönem içi toplam: kartın şu anki gerçek toplam borcu — geçen ayın ödenmeyen kısmı + faiz + bu ayki yeni harcamalar. Sadece asgariyi öderseniz kalan tutar faiziyle birlikte gelecek ayın dönem içi toplamına eklenir."
+        satir={(k) => {
+          const donemIci = +k.donemIciToplam > 0 ? +k.donemIciToplam : null;
+          const kullanilabilirVar = +k.kullanilabilirLimit > 0;
+          const kullanilanTutar = kullanilabilirVar ? (+k.limit || 0) - (+k.kullanilabilirLimit) : +k.borc;
+          const kullanimOran = +k.limit > 0 ? kullanilanTutar / +k.limit : null;
+          return (
+            <>
+              <div className="bt-satir-ana">
+                <div className="bt-satir-baslik">{k.banka}{k.ad && <span style={{ color: "var(--muted)", fontWeight: 500 }}> · {k.ad}</span>}</div>
+                <div className="bt-satir-alt">
+                  Son ödeme: {k.sonOdemeTarihi ? k.sonOdemeTarihi.split("-").reverse().join(".") : (k.sonOdemeGunu ? "her ayın " + k.sonOdemeGunu + ". günü" : "—")}
+                  {+k.asgari > 0 ? <> · asgari {fmt(k.asgari)}</> : " · asgari yok"}
+                  {+k.faiz > 0 && <> · aylık %{k.faiz}</>}
+                </div>
+                {donemIci !== null && donemIci !== +k.borc && (
+                  <div className="bt-not" style={{ marginTop: 3 }}>Ekstre borcu {fmt(k.borc)} · dönem içi toplam {fmt(donemIci)}</div>
+                )}
+                {kullanimOran !== null && (
+                  <>
+                    <div className="bt-bar">
+                      <div style={{
+                        width: Math.min(kullanimOran * 100, 100) + "%",
+                        background: kullanimOran > 0.8 ? "var(--danger)" : "var(--kart)",
+                      }} />
+                    </div>
+                    <div className="bt-not" style={{ marginTop: 3 }}>Limitin %{Math.round(kullanimOran * 100)}'i kullanımda</div>
+                  </>
+                )}
               </div>
-              {+k.limit > 0 && (
-                <>
-                  <div className="bt-bar">
-                    <div style={{
-                      width: Math.min((+k.borc / +k.limit) * 100, 100) + "%",
-                      background: +k.borc / +k.limit > 0.8 ? "var(--danger)" : "var(--kart)",
-                    }} />
-                  </div>
-                  <div className="bt-not" style={{ marginTop: 3 }}>Limitin %{Math.round((+k.borc / +k.limit) * 100)}'i kullanımda</div>
-                </>
-              )}
-            </div>
-            <div className="bt-satir-tutar">{fmt(k.borc)}</div>
-          </>
-        )}
+              <div className="bt-satir-tutar">{fmt(donemIci !== null ? donemIci : k.borc)}</div>
+            </>
+          );
+        }}
       />
       <BorcBolumu
         baslik="Krediler" tur="kredi" liste="loans" kayitlar={veri.loans}
