@@ -193,13 +193,14 @@ function tcmbKartAzamiGecikmeFaizi(bakiye) {
   return 3.55;
 }
 const VARSAYILAN_FAIZ_EK_HESAP = 4.25; // TCMB azami KMH / nakit avans faiz oranı (1 Ocak 2026 itibarıyla)
-const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], paid: {}, ayarlar: {}, snapshots: {} };
+const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, ayarlar: {}, snapshots: {} };
 
 const TUR_META = {
   kart: { renk: "var(--kart)", Ikon: CreditCard, ad: "Kredi kartı" },
   kredi: { renk: "var(--kredi)", Ikon: Landmark, ad: "Kredi" },
   ek: { renk: "var(--ek)", Ikon: Wallet, ad: "Ek hesap" },
   diger: { renk: "#94A3B8", Ikon: AlertTriangle, ad: "Gecikmiş / diğer" },
+  gelir: { renk: "var(--mint)", Ikon: TrendingUp, ad: "Gelir" },
 };
 
 /* Tüm borçları tek listede toplayan model — plan ve banka kırılımı bunun üstünde çalışır */
@@ -363,6 +364,22 @@ export default function BorcTakip() {
     return { toplam, kategoriler, kaynaklar, adet: buAy.length };
   }, [veri]);
 
+  const buAyGelir = useMemo(() => {
+    const ay = ayAnahtari();
+    const kaynaklar = {};
+    let toplam = 0;
+    (veri.incomes || []).forEach((g) => {
+      const dahil = g.tekrar === "Tek seferlik" ? (g.tarih || "").startsWith(ay) : true;
+      if (dahil) {
+        toplam += +g.tutar || 0;
+        kaynaklar[g.ad] = (kaynaklar[g.ad] || 0) + (+g.tutar || 0);
+      }
+    });
+    return { toplam, kaynaklar };
+  }, [veri]);
+
+  const netNakit = buAyGelir.toplam > 0 ? buAyGelir.toplam - buAyOdenecek - buAyHarcama.toplam : null;
+
   function ekleGuncelle(liste, kayit) {
     const dizi = veri[liste];
     const varMi = dizi.some((x) => x.id === kayit.id);
@@ -426,6 +443,7 @@ export default function BorcTakip() {
             ["ozet", "Özet", <LayoutDashboard size={17} key="i" />],
             ["borclar", "Borçlar", <TrendingDown size={17} key="i" />],
             ["plan", "Borç Planı", <Target size={17} key="i" />],
+            ["gelir", "Gelir", <TrendingUp size={17} key="i" />],
             ["harcamalar", "Harcamalar", <Receipt size={17} key="i" />],
           ].map(([k, ad, ikon]) => (
             <button key={k} role="tab" aria-selected={sekme === k}
@@ -440,9 +458,10 @@ export default function BorcTakip() {
           <div className="bt-bos">Verileriniz yükleniyor…</div>
         ) : (
           <>
-            {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} odendiIsaretle={odendiIsaretle} setSekme={setSekme} ayarlar={veri.ayarlar || {}} ayarKaydet={ayarKaydet} />}
+            {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} buAyGelir={buAyGelir} netNakit={netNakit} odendiIsaretle={odendiIsaretle} setSekme={setSekme} />}
             {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} />}
             {sekme === "plan" && <Plan kalemler={kalemler} aylikFaiz={aylikFaiz} setSekme={setSekme} />}
+            {sekme === "gelir" && <Gelirler veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} buAyGelir={buAyGelir} />}
             {sekme === "harcamalar" && <Harcamalar veri={veri} form={form} setForm={setForm} harcamaKaydet={harcamaKaydet} sil={sil} buAyHarcama={buAyHarcama} />}
           </>
         )}
@@ -452,10 +471,8 @@ export default function BorcTakip() {
 }
 
 /* ---------------- Özet ---------------- */
-function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yaklasan, buAyHarcama, odendiIsaretle, setSekme, ayarlar, ayarKaydet }) {
-  const [gelirDuzenle, setGelirDuzenle] = useState(false);
-  const [gelirTaslak, setGelirTaslak] = useState("");
-  const gelir = +ayarlar.gelir || 0;
+function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yaklasan, buAyHarcama, buAyGelir, netNakit, odendiIsaretle, setSekme }) {
+  const gelir = buAyGelir.toplam;
   const oran = gelir > 0 ? (buAyOdenecek / gelir) * 100 : null;
   const oranRenk = oran === null ? "var(--muted)" : oran < 30 ? "var(--mint)" : oran < 50 ? "var(--amber)" : "var(--danger)";
   const oranMesaj = oran === null ? "" : oran < 30 ? "sağlıklı seviyede" : oran < 50 ? "dikkat gerektiren seviyede" : "riskli seviyede — Borç Planı sekmesine bakın";
@@ -525,22 +542,21 @@ function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yakl
         </section>
 
         <section className="bt-card">
-          <div className="bt-stat-label" style={{ justifyContent: "space-between" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 7 }}><PieChart size={15} /> Borç yükü</span>
-            <button className="bt-btn hayalet" style={{ padding: 3 }} title="Aylık geliri düzenle"
-              onClick={() => { setGelirTaslak(gelir || ""); setGelirDuzenle(!gelirDuzenle); }}>
-              <Pencil size={13} />
-            </button>
-          </div>
-          {gelirDuzenle ? (
-            <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-              <input className="bt-input" type="number" min={0} placeholder="Aylık net gelir (₺)"
-                value={gelirTaslak} onChange={(e) => setGelirTaslak(e.target.value)} />
-              <button className="bt-btn kucuk birincil" onClick={() => { ayarKaydet({ gelir: gelirTaslak }); setGelirDuzenle(false); }}>
-                <Check size={13} />
-              </button>
+          <div className="bt-stat-label"><TrendingUp size={15} color="var(--mint)" /> Bu ay geliriniz</div>
+          <div className="bt-stat-deger bt-display">{fmt(gelir)}</div>
+          {gelir > 0 ? (
+            <div className="bt-stat-alt">{Object.keys(buAyGelir.kaynaklar).length} kaynak</div>
+          ) : (
+            <div className="bt-stat-alt">
+              Henüz gelir eklemediniz.{" "}
+              <button className="bt-link" onClick={() => setSekme("gelir")}>Gelir sekmesinden</button> ekleyin.
             </div>
-          ) : gelir > 0 ? (
+          )}
+        </section>
+
+        <section className="bt-card">
+          <div className="bt-stat-label"><PieChart size={15} /> Borç yükü</div>
+          {gelir > 0 ? (
             <>
               <div className="bt-stat-deger bt-display" style={{ color: oranRenk }}>%{Math.round(oran)}</div>
               <div className="bt-stat-alt">Gelirinizin bu kadarı zorunlu borç ödemesine gidiyor — {oranMesaj}</div>
@@ -548,7 +564,7 @@ function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yakl
             </>
           ) : (
             <div className="bt-stat-alt" style={{ marginTop: 10 }}>
-              Aylık net gelirinizi girin; maaşınızın yüzde kaçının borca gittiğini görün. Bu bilgi de yalnızca sizin kaydınızda durur.
+              Gelir eklerseniz, maaşınızın yüzde kaçının borca gittiğini burada görürsünüz.
             </div>
           )}
         </section>
@@ -558,6 +574,16 @@ function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yakl
           <div className="bt-stat-deger bt-display">{fmt(buAyHarcama.toplam)}</div>
           <div className="bt-stat-alt">{buAyHarcama.adet} kayıt</div>
         </section>
+
+        {netNakit !== null && (
+          <section className="bt-card">
+            <div className="bt-stat-label"><Wallet size={15} color={netNakit >= 0 ? "var(--mint)" : "var(--danger)"} /> Net nakit akışı</div>
+            <div className="bt-stat-deger bt-display" style={{ color: netNakit >= 0 ? "var(--mint)" : "var(--danger)" }}>
+              {netNakit >= 0 ? "+" : ""}{fmt(netNakit)}
+            </div>
+            <div className="bt-stat-alt">Gelir − borç ödemeleri − harcamalar {netNakit >= 0 ? "(elinizde kalan)" : "(açık veriyorsunuz)"}</div>
+          </section>
+        )}
       </div>
 
       {bankalar.length > 0 && (
@@ -936,11 +962,17 @@ function BorcBolumu({ baslik, tur, liste, kayitlar, form, setForm, ekleGuncelle,
             {alanlar.map((a) => (
               <label key={a.k} className="bt-alan">
                 {a.e}{a.z ? " *" : ""}
-                <input className="bt-input" type={a.t} min={a.t === "number" ? 0 : undefined}
-                  step={a.k === "faiz" ? "0.01" : undefined}
-                  list={a.k === "banka" ? "bt-bankalar" : undefined}
-                  placeholder={a.k === "banka" ? "Seçin veya yazın" : undefined}
-                  value={f[a.k] ?? ""} onChange={(e) => setF({ ...f, [a.k]: e.target.value })} />
+                {a.t === "select" ? (
+                  <select className="bt-input" value={f[a.k] ?? a.options[0]} onChange={(e) => setF({ ...f, [a.k]: e.target.value })}>
+                    {a.options.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                ) : (
+                  <input className="bt-input" type={a.t} min={a.t === "number" ? 0 : undefined}
+                    step={a.k === "faiz" ? "0.01" : undefined}
+                    list={a.k === "banka" ? "bt-bankalar" : undefined}
+                    placeholder={a.k === "banka" ? "Seçin veya yazın" : undefined}
+                    value={f[a.k] ?? ""} onChange={(e) => setF({ ...f, [a.k]: e.target.value })} />
+                )}
               </label>
             ))}
           </div>
@@ -973,6 +1005,57 @@ function BorcBolumu({ baslik, tur, liste, kayitlar, form, setForm, ekleGuncelle,
         </div>
       )}
     </section>
+  );
+}
+
+/* ---------------- Gelirler ---------------- */
+function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir }) {
+  const kaynaklar = Object.entries(buAyGelir.kaynaklar).sort((a, b) => b[1] - a[1]);
+  const enBuyuk = Math.max(...Object.values(buAyGelir.kaynaklar), 1);
+
+  return (
+    <div className="bt-stack">
+      <BorcBolumu
+        baslik="Gelir kaynakları" tur="gelir" liste="incomes" kayitlar={veri.incomes || []}
+        form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil}
+        aciklama="Maaş, ek iş, kira geliri gibi tüm gelir kaynaklarınızı ekleyin. Düzenli olanlar her ay otomatik sayılır; tek seferlik olanlar (ör. bir aylık freelance işi) yalnızca o ay için sayılır."
+        alanlar={[
+          { k: "ad", e: "Kaynak adı (Maaş, Kira geliri…)", t: "text", z: true },
+          { k: "tutar", e: "Tutar (₺)", t: "number", z: true },
+          { k: "tekrar", e: "Tekrar", t: "select", options: ["Her ay", "Tek seferlik"] },
+          { k: "tarih", e: "Tarih (sadece tek seferlikse)", t: "date" },
+        ]}
+        satir={(g) => (
+          <>
+            <div className="bt-satir-ana">
+              <div className="bt-satir-baslik">{g.ad}</div>
+              <div className="bt-satir-alt">
+                {g.tekrar === "Tek seferlik"
+                  ? "Tek seferlik" + (g.tarih ? " · " + g.tarih.split("-").reverse().join(".") : "")
+                  : "Her ay tekrarlanıyor"}
+              </div>
+            </div>
+            <div className="bt-satir-tutar">{fmt(g.tutar)}</div>
+          </>
+        )}
+      />
+
+      {kaynaklar.length > 0 && (
+        <section className="bt-card">
+          <div className="bt-cardhead">
+            <h2 className="bt-h2"><PieChart size={16} color="var(--mint)" /> Bu ay gelir dağılımı</h2>
+            <div className="bt-not">{fmt(buAyGelir.toplam)} toplam</div>
+          </div>
+          {kaynaklar.map(([ad, tutar]) => (
+            <div key={ad} className="bt-kat">
+              <div className="bt-kat-ad" style={{ width: 130 }}>{ad}</div>
+              <div className="bt-kat-bar"><div style={{ width: (tutar / enBuyuk) * 100 + "%", background: "linear-gradient(90deg,var(--mint),#2FA57C)" }} /></div>
+              <div className="bt-kat-tutar">{fmt(tutar)}</div>
+            </div>
+          ))}
+        </section>
+      )}
+    </div>
   );
 }
 
