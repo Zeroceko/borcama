@@ -166,10 +166,10 @@ const kalanGun = (t) => {
 // Kartta tam tarih girilmişse (ör. Vakıfbank ekstresindeki "6.7.2026") o günü esas alıp
 // aylık tekrar eden ödeme takvimine çeviriyoruz; sadece gün girilmişse doğrudan onu kullanıyoruz.
 function kartSonOdemeTarihi(k) {
-  if (k.sonOdemeTarihi) {
-    const g = new Date(k.sonOdemeTarihi + "T00:00:00").getDate();
-    return sonrakiOdemeTarihi(g);
-  }
+  // Tam tarih girilmişse (ör. ekstrenin gerçek son ödeme tarihi) olduğu gibi kullan —
+  // geçmişse bu, borcun gerçekten gecikmiş olduğu anlamına gelir. Bir sonraki aya
+  // otomatik ileri sarmıyoruz; ekstre yenilendiğinde tarihi siz güncellersiniz.
+  if (k.sonOdemeTarihi) return new Date(k.sonOdemeTarihi + "T00:00:00");
   return sonrakiOdemeTarihi(k.sonOdemeGunu);
 }
 
