@@ -176,7 +176,23 @@ function kartSonOdemeTarihi(k) {
 const KATEGORILER = ["Market","Yeme-İçme","Ulaşım","Fatura","Kira","Sağlık","Giyim","Eğlence","Eğitim","Diğer"];
 const BANKALAR = ["VakıfBank","Halkbank","QNB","Enpara","Akbank","Garanti BBVA"];
 // Faiz girilmediyse kullanılan tahmini aylık oranlar — gerçek oranlarını girmen çok daha doğru sonuç verir
-const VARSAYILAN_FAIZ = { kart: 4.25, ek: 5.0 };
+// TCMB'nin "Kredi Kartı İşlemlerinde Uygulanacak Azami Faiz Oranları Hakkında Tebliğ" kapsamında
+// 1 Ocak 2026'dan itibaren yürürlükteki YASAL AZAMİ (üst sınır) akdi faiz oranları.
+// Kaynak: tcmb.gov.tr/.../Kredi_Karti_Islemlerinde_Uygulanacak_Azami_Faiz_Oranlari
+// Banka faiz oranınızı biliyorsanız kart formuna girin; girmezseniz bu yasal tavan tahmini kullanılır
+// (bankanız bu tavanın altında bir oran uyguluyor olabilir, üstünde asla uygulayamaz).
+function tcmbKartAzamiFaizi(bakiye) {
+  if (bakiye >= 180000) return 4.25;
+  if (bakiye >= 30000) return 3.75;
+  return 3.25;
+}
+// Son ödeme tarihi geçmiş, ödenmemiş borçlara uygulanan yasal azami gecikme faizi — akdi faizden daha yüksek, aynı borç dilimlerine göre.
+function tcmbKartAzamiGecikmeFaizi(bakiye) {
+  if (bakiye >= 180000) return 4.55;
+  if (bakiye >= 30000) return 4.05;
+  return 3.55;
+}
+const VARSAYILAN_FAIZ_EK_HESAP = 4.25; // TCMB azami KMH / nakit avans faiz oranı (1 Ocak 2026 itibarıyla)
 const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], paid: {}, ayarlar: {}, snapshots: {} };
 
 const TUR_META = {
@@ -193,14 +209,17 @@ function borcKalemleri(veri) {
     // Dönem içi toplam girilmişse gerçek güncel borç odur (geçen ay kalanı + faiz + bu ayki yeni harcamalar);
     // girilmemişse ekstre borcunu esas al.
     const guncelBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
-    if (guncelBorc > 0)
+    if (guncelBorc > 0) {
+      const gecikmis = kalanGun(kartSonOdemeTarihi(k)) < 0;
       kalemler.push({
         id: "kart-" + k.id, tur: "kart", banka: (k.banka || "").trim(),
         ad: k.banka + (k.ad ? " · " + k.ad : " · Kredi kartı"),
         bakiye: guncelBorc,
-        faiz: +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ.kart,
+        faiz: +k.faiz > 0 ? +k.faiz : (gecikmis ? tcmbKartAzamiGecikmeFaizi(guncelBorc) : tcmbKartAzamiFaizi(guncelBorc)),
         faizTahmini: !(+k.faiz > 0),
+        gecikmis,
       });
+    }
   });
   veri.overdrafts.forEach((k) => {
     if ((+k.kullanilan || 0) > 0)
@@ -208,7 +227,7 @@ function borcKalemleri(veri) {
         id: "ek-" + k.id, tur: "ek", banka: (k.banka || "").trim(),
         ad: k.banka + " · Ek hesap (KMH)",
         bakiye: +k.kullanilan,
-        faiz: +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ.ek,
+        faiz: +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ_EK_HESAP,
         faizTahmini: !(+k.faiz > 0),
       });
   });
@@ -287,7 +306,10 @@ export default function BorcTakip() {
   );
 
   const buAyOdenecek = useMemo(() => {
-    const kartOdeme = veri.cards.reduce((t, k) => t + (+k.asgari > 0 ? +k.asgari : +k.borc || 0), 0);
+    const kartOdeme = veri.cards.reduce((t, k) => {
+      const anaBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
+      return t + (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc));
+    }, 0);
     const taksit = veri.loans.reduce((t, k) => t + (+k.taksit || 0), 0);
     return kartOdeme + taksit;
   }, [veri]);
@@ -304,13 +326,16 @@ export default function BorcTakip() {
     const liste = [];
     const ay = ayAnahtari();
     veri.cards.forEach((k) => {
-      if ((+k.borc || 0) > 0)
+      const anaBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
+      if (anaBorc > 0) {
+        const tutar = +k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc);
         liste.push({
           id: "kart-" + k.id, ad: k.banka + (k.ad ? " · " + k.ad : ""), ikon: "kart",
-          tutar: +k.asgari > 0 ? +k.asgari : +k.borc, not: +k.asgari > 0 ? "asgari" : "ekstre borcu",
+          tutar, not: +k.asgari > 0 ? "asgari" : (+k.borc > 0 ? "ekstre borcu" : "toplam borç"),
           tarih: kartSonOdemeTarihi(k),
           odendi: !!veri.paid["kart-" + k.id + "-" + ay], anahtar: "kart-" + k.id + "-" + ay,
         });
+      }
     });
     veri.loans.forEach((k) => {
       if ((+k.kalanBorc || 0) > 0)
@@ -676,7 +701,7 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
                   <div className="bt-satir-ana">
                     <div className="bt-satir-baslik">{k.ad} {i === 0 && <span style={{ color: "var(--mint)", fontWeight: 700 }}>← önce bunu kapatın</span>}</div>
                     <div className="bt-satir-alt">
-                      Aylık %{k.faiz}{k.faizTahmini && " (tahmini — gerçek oranı Borçlar'dan girin)"} · ayda ≈ {fmt0(kFaiz)} faiz işliyor
+                      Aylık %{k.faiz}{k.faizTahmini && (k.gecikmis ? " (TCMB yasal azami GECİKME oranı — ödeme tarihi geçmiş)" : " (TCMB yasal azami oranı — gerçek oranınız daha düşük olabilir, biliyorsanız Borçlar'dan girin)")} · ayda ≈ {fmt0(kFaiz)} faiz işliyor
                     </div>
                   </div>
                   <div className="bt-satir-tutar">{fmt(k.bakiye)}</div>
@@ -760,20 +785,20 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
         alanlar={[
           { k: "banka", e: "Banka", t: "text", z: true },
           { k: "ad", e: "Kart adı (Bonus, World…)", t: "text" },
+          { k: "donemIciToplam", e: "Güncel toplam borç (₺)", t: "number", z: true },
           { k: "limit", e: "Toplam limit (₺)", t: "number" },
           { k: "kullanilabilirLimit", e: "Kullanılabilir limit (₺)", t: "number" },
-          { k: "borc", e: "Ekstre borcu (₺)", t: "number", z: true },
-          { k: "asgari", e: "Asgari ödeme (₺, yoksa 0)", t: "number" },
-          { k: "donemIciToplam", e: "Dönem içi toplam (₺)", t: "number" },
-          { k: "faiz", e: "Aylık akdi faiz (%)", t: "number" },
-          { k: "kesimGunu", e: "Ekstre kesim günü", t: "number" },
+          { k: "borc", e: "Bu ekstrenin borcu (varsa)", t: "number" },
+          { k: "asgari", e: "Asgari / minimum ödeme (varsa, yoksa 0)", t: "number" },
+          { k: "faiz", e: "Aylık akdi faiz (%) (varsa)", t: "number" },
+          { k: "kesimGunu", e: "Ekstre kesim günü (varsa)", t: "number" },
           { k: "sonOdemeTarihi", e: "Son ödeme tarihi", t: "date", z: true },
         ]}
-        aciklama="Ekstre borcu: bu ay ödemeniz istenen tutar. Dönem içi toplam: kartın şu anki gerçek toplam borcu — geçen ayın ödenmeyen kısmı + faiz + bu ayki yeni harcamalar. Sadece asgariyi öderseniz kalan tutar faiziyle birlikte gelecek ayın dönem içi toplamına eklenir."
+        aciklama={'Tek zorunlu rakam: bankanızın ekranındaki ana borç tutarı ("Toplam Borç", "Kalan Borç" ya da "Dönem İçi Toplamı" — hangi isimle geçiyorsa) — hiçbir çıkarma/toplama yapmadan olduğu gibi yapıştırın. Diğer alanlar varsa daha hassas takip sağlar, yoksa boş bırakın.'}
         satir={(k) => {
-          const donemIci = +k.donemIciToplam > 0 ? +k.donemIciToplam : null;
+          const guncelBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
           const kullanilabilirVar = +k.kullanilabilirLimit > 0;
-          const kullanilanTutar = kullanilabilirVar ? (+k.limit || 0) - (+k.kullanilabilirLimit) : +k.borc;
+          const kullanilanTutar = kullanilabilirVar ? (+k.limit || 0) - (+k.kullanilabilirLimit) : guncelBorc;
           const kullanimOran = +k.limit > 0 ? kullanilanTutar / +k.limit : null;
           return (
             <>
@@ -784,8 +809,8 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
                   {+k.asgari > 0 ? <> · asgari {fmt(k.asgari)}</> : " · asgari yok"}
                   {+k.faiz > 0 && <> · aylık %{k.faiz}</>}
                 </div>
-                {donemIci !== null && donemIci !== +k.borc && (
-                  <div className="bt-not" style={{ marginTop: 3 }}>Ekstre borcu {fmt(k.borc)} · dönem içi toplam {fmt(donemIci)}</div>
+                {+k.borc > 0 && +k.borc !== guncelBorc && (
+                  <div className="bt-not" style={{ marginTop: 3 }}>Bu ekstrede ödenecek {fmt(k.borc)} · güncel toplam borç {fmt(guncelBorc)}</div>
                 )}
                 {kullanimOran !== null && (
                   <>
@@ -799,7 +824,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
                   </>
                 )}
               </div>
-              <div className="bt-satir-tutar">{fmt(donemIci !== null ? donemIci : k.borc)}</div>
+              <div className="bt-satir-tutar">{fmt(guncelBorc)}</div>
             </>
           );
         }}
