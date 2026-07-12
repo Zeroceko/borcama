@@ -240,21 +240,32 @@ function kartHesabi(k) {
   const asgariOran = (+k.limit || 0) <= 50000 ? 20 : 40;
   return { onceki, odeme, devreden, yeni, faiz, oran, toplam, asgari: (onceki * asgariOran) / 100 };
 }
-function gecmisEkstreKayitHatasiniDuzelt(veri) {
-  let degisti = false; const buAy = ayAnahtari();
-  const cards = (veri.cards || []).map((k) => {
-    if (!k.ekstreAyi || k.ekstreAyi >= buAy || k.toplamEkstreBorcu === undefined) return k;
-    const gecmis = [...(k.ekstreGecmisi || [])];
-    const dahaYeni = gecmis.filter((e) => e.ekstreAyi > k.ekstreAyi && e.toplamEkstreBorcu !== undefined).sort((a, b) => b.ekstreAyi.localeCompare(a.ekstreAyi))[0];
-    const bosAyniAy = gecmis.some((e) => e.ekstreAyi === k.ekstreAyi && e.toplamEkstreBorcu === undefined && e.oncekiDonemBorcu === undefined);
-    if (!dahaYeni && !(bosAyniAy && (+k.borc > 0 || +k.donemIciToplam > 0))) return k;
-    const yanlisGuncel = { ekstreAyi: k.ekstreAyi, toplamEkstreBorcu: k.toplamEkstreBorcu, oncekiAydanKalan: k.oncekiAydanKalan, yapilanOdeme: k.yapilanOdeme, kesimGunu: k.kesimGunu, sonOdemeGunu: k.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
-    const temizGecmis = gecmis.filter((e) => e !== dahaYeni && !(bosAyniAy && e.ekstreAyi === k.ekstreAyi && e.toplamEkstreBorcu === undefined));
-    const duzeltilmis = { ...k, ...(dahaYeni || {}), ekstreAyi: dahaYeni?.ekstreAyi || buAy, ekstreGecmisi: [...temizGecmis.filter((e) => e.ekstreAyi !== yanlisGuncel.ekstreAyi), yanlisGuncel] };
-    if (!dahaYeni) { delete duzeltilmis.toplamEkstreBorcu; delete duzeltilmis.oncekiDonemBorcu; delete duzeltilmis.oncekiAydanKalan; delete duzeltilmis.yapilanOdeme; }
-    degisti = true; return duzeltilmis;
+function ekstreSnapshot(k, ekstreAyi = k.ekstreAyi) {
+  return { ekstreAyi, toplamEkstreBorcu: k.toplamEkstreBorcu ?? k.oncekiDonemBorcu, oncekiAydanKalan: k.oncekiAydanKalan, yapilanOdeme: k.yapilanOdeme, kesimGunu: k.kesimGunu, sonOdemeGunu: k.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
+}
+
+// İlk kullanıcı kayıtları Temmuz etiketiyle oluşmuştu; gerçekte Haziran 2026 ekstreleriydi.
+// Bu dönüşüm kullanıcı başına yalnızca bir kez çalışır ve en ileri dönemi kartın güncel ekstresi yapar.
+function ekstreDonemleriniDuzelt(veri) {
+  const ayarlar = veri.ayarlar || {};
+  if (ayarlar.ekstreDonemleriV2) return { veri, degisti: false };
+  const cards = (veri.cards || []).map((kart) => {
+    const k = { ...kart };
+    const guncelVar = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
+    const guncelAy = k.ekstreAyi === "2026-07" ? "2026-06" : (k.ekstreAyi || (guncelVar ? "2026-06" : ""));
+    const gecmis = (k.ekstreGecmisi || []).map((e) => ({ ...e, ekstreAyi: e.ekstreAyi === "2026-07" ? "2026-06" : e.ekstreAyi }));
+    const adaylar = [...gecmis];
+    if (guncelVar && guncelAy) adaylar.push(ekstreSnapshot(k, guncelAy));
+    if (!adaylar.length) return k;
+    const sonAy = adaylar.map((e) => e.ekstreAyi).filter(Boolean).sort().at(-1);
+    // Aynı aya çakışan kayıtlarda ekranda güncel olan açık kaydı koru.
+    const sonKayit = [...adaylar].reverse().find((e) => e.ekstreAyi === sonAy);
+    const arsiv = adaylar.filter((e) => e !== sonKayit && e.ekstreAyi && e.ekstreAyi !== sonAy)
+      .filter((e, i, a) => a.findIndex((x) => x.ekstreAyi === e.ekstreAyi) === i);
+    const duzeltilmis = { ...k, ...sonKayit, ekstreAyi: sonAy, ekstreGecmisi: arsiv };
+    return duzeltilmis;
   });
-  return { veri: degisti ? { ...veri, cards } : veri, degisti };
+  return { veri: { ...veri, cards, ayarlar: { ...ayarlar, ekstreDonemleriV2: true } }, degisti: true };
 }
 const VARSAYILAN_FAIZ_EK_HESAP = 4.25;
 const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, loanPaymentHistory: {}, ayarlar: {}, snapshots: {} };
@@ -350,9 +361,11 @@ export default function BorcTakip() {
       try {
         const s = await window.storage.get("borctakip:v1");
         if (s && s.value) {
-          const sonuc = gecmisEkstreKayitHatasiniDuzelt({ ...BOS_VERI, ...JSON.parse(s.value) });
+          const sonuc = ekstreDonemleriniDuzelt({ ...BOS_VERI, ...JSON.parse(s.value) });
           setVeri(sonuc.veri);
           if (sonuc.degisti) await window.storage.set("borctakip:v1", JSON.stringify(sonuc.veri));
+        } else {
+          setVeri({ ...BOS_VERI, ayarlar: { ekstreDonemleriV2: true } });
         }
       } catch (e) { setHata("Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin."); }
       finally { setYukleniyor(false); }
@@ -761,6 +774,10 @@ function Borclar({ veri, form, setForm, ekleGuncelle, veriKaydet, sil, bankalar,
   const [ilkEkstrePenceresi, setIlkEkstrePenceresi] = useState(false);
   const [ilkEkstreAyi, setIlkEkstreAyi] = useState(() => ayEkle(ayAnahtari(), -1));
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
+  const guncelEkstreAyi = useMemo(() => {
+    const aylar = veri.cards.flatMap((k) => [k.ekstreAyi, ...(k.ekstreGecmisi || []).map((e) => e.ekstreAyi)]).filter(Boolean).sort();
+    return aylar.at(-1) || ayAnahtari();
+  }, [veri.cards]);
   const ekstreAylar = useMemo(() => [...new Set(veri.cards.flatMap((k) => (k.ekstreGecmisi || []).map((e) => e.ekstreAyi)).filter(Boolean))].sort().reverse(), [veri.cards]);
   const gelecekKrediAylar = useMemo(() => Array.from({ length: 6 }, (_, i) => ayEkle(ayAnahtari(), i + 1)), []);
   const krediAylar = useMemo(() => [...new Set([
@@ -818,12 +835,13 @@ function Borclar({ veri, form, setForm, ekleGuncelle, veriKaydet, sil, bankalar,
     if (!acik) return;
     if (form.yeniEkstre) {
       const eski = form.veri || {};
-      setF({ ekstreAyi: ayAnahtari(), toplamEkstreBorcu: "", oncekiAydanKalan: kartHesabi(eski).toplam || "", yapilanOdeme: "0", limit: eski.limit || "", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || "" });
+      const sonDonem = [eski.ekstreAyi, ...(eski.ekstreGecmisi || []).map((e) => e.ekstreAyi)].filter(Boolean).sort().at(-1);
+      setF({ ekstreAyi: sonDonem ? ayEkle(sonDonem, 1) : guncelEkstreAyi, toplamEkstreBorcu: "", oncekiAydanKalan: kartHesabi(eski).toplam || "", yapilanOdeme: "0", limit: eski.limit || "", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || "" });
     } else if (form.ekstreDuzenle) {
       const eski = form.veri || {}; const yeniModel = eski.toplamEkstreBorcu !== undefined || eski.oncekiDonemBorcu !== undefined;
       setF({ ekstreAyi: eski.ekstreAyi || ayAnahtari(), toplamEkstreBorcu: yeniModel ? (eski.toplamEkstreBorcu ?? eski.oncekiDonemBorcu ?? "") : "", oncekiAydanKalan: eski.oncekiAydanKalan || "", yapilanOdeme: yeniModel ? (eski.yapilanOdeme || "0") : "", limit: eski.limit || "", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || (eski.sonOdemeTarihi ? +eski.sonOdemeTarihi.slice(-2) : "") });
     } else setF(form.veri || {});
-  }, [acik, form, kategori]);
+  }, [acik, form, kategori, guncelEkstreAyi]);
 
   const ALAN_TANIMLARI = {
     cards: [
@@ -882,15 +900,14 @@ function Borclar({ veri, form, setForm, ekleGuncelle, veriKaydet, sil, bankalar,
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
     if (yeniEkstreModu) {
       const eski = form.veri;
-      const mevcutDonem = eski.ekstreAyi || ayAnahtari();
+      const mevcutDonem = eski.ekstreAyi || guncelEkstreAyi;
       if (f.ekstreAyi < mevcutDonem) {
         const arsiv = { ekstreAyi: f.ekstreAyi, toplamEkstreBorcu: f.toplamEkstreBorcu, oncekiAydanKalan: f.oncekiAydanKalan, yapilanOdeme: f.yapilanOdeme, kesimGunu: f.kesimGunu, sonOdemeGunu: f.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
         ekleGuncelle("cards", { ...eski, ekstreGecmisi: [...(eski.ekstreGecmisi || []).filter((e) => e.ekstreAyi !== f.ekstreAyi), arsiv] });
         return;
       }
-      const oncekiAy = new Date(); oncekiAy.setMonth(oncekiAy.getMonth() - 1);
-      const arsiv = { ekstreAyi: eski.ekstreAyi || ayAnahtari(oncekiAy), toplamEkstreBorcu: eski.toplamEkstreBorcu, oncekiAydanKalan: eski.oncekiAydanKalan, yapilanOdeme: eski.yapilanOdeme, kesimGunu: eski.kesimGunu, sonOdemeGunu: eski.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
-      ekleGuncelle("cards", { ...eski, ...f, ekstreGecmisi: [...(eski.ekstreGecmisi || []), arsiv] });
+      const arsiv = ekstreSnapshot(eski, mevcutDonem);
+      ekleGuncelle("cards", { ...eski, ...f, ekstreGecmisi: [...(eski.ekstreGecmisi || []).filter((e) => e.ekstreAyi !== mevcutDonem), arsiv] });
       return;
     }
     if (ekstreDuzenleModu) {
@@ -942,7 +959,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, veriKaydet, sil, bankalar,
           onClick={() => { setKategori("kontrol"); setForm(null); }}>Ekstre kontrolü</button>
       </div>
 
-      {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>{eskiFormatKartSayisi > 0 && <button className="bt-btn kucuk ikincil" onClick={() => setIlkEkstrePenceresi(true)}>İlk ekstreleri geçmişe taşı</button>}<select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{ekstreAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div></div>}
+      {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>{eskiFormatKartSayisi > 0 && <button className="bt-btn kucuk ikincil" onClick={() => setIlkEkstrePenceresi(true)}>İlk ekstreleri geçmişe taşı</button>}<select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(guncelEkstreAyi)} (Güncel)</option>{ekstreAylar.filter((ay) => ay !== guncelEkstreAyi).map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div></div>}
       {kategori === "loans" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Kredi ödeme dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel, gelecek 6 ay veya geçmişte ödenen taksitleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliKrediAyi} onChange={(e) => { setSeciliKrediAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Gelecek)</option>)}{krediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Geçmiş)</option>)}</select></div></div>}
 
       {kategori === "kontrol" ? <EkstreKontrol veri={veri} /> : <div className="bt-card">
