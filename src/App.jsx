@@ -173,6 +173,8 @@ const fmt = (n) => TLk.format(Number(n) || 0);
 const fmt0 = (n) => TL.format(Number(n) || 0);
 const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 const ayEtiketi = (ay) => { const [y, m] = String(ay || "").split("-"); return y && m ? AYLAR[(+m || 1) - 1] + " " + y : ay; };
+const ayEkle = (ay, adet) => { const [y, m] = String(ay).split("-").map(Number); return ayAnahtari(new Date(y, m - 1 + adet, 1)); };
+const ayFarki = (ilk, son) => { const [iy, im] = ilk.split("-").map(Number); const [sy, sm] = son.split("-").map(Number); return (sy - iy) * 12 + sm - im; };
 const bugun = () => new Date();
 const ayAnahtari = (d = bugun()) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -738,12 +740,14 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const ekstreAylar = useMemo(() => [...new Set(veri.cards.flatMap((k) => (k.ekstreGecmisi || []).map((e) => e.ekstreAyi)).filter(Boolean))].sort().reverse(), [veri.cards]);
+  const gelecekKrediAylar = useMemo(() => Array.from({ length: 6 }, (_, i) => ayEkle(ayAnahtari(), i + 1)), []);
   const krediAylar = useMemo(() => [...new Set([
     ...Object.keys(veri.loanPaymentHistory || {}).filter((ay) => Object.keys(veri.loanPaymentHistory?.[ay] || {}).length > 0),
     ...Object.keys(veri.paid || {}).filter((k) => k.startsWith("kredi-") && veri.paid[k]).map((k) => k.slice(-7)),
   ].filter((ay) => ay && ay !== ayAnahtari()))].sort().reverse(), [veri.loanPaymentHistory, veri.paid]);
   const arsivGorunumu = kategori === "cards" && seciliEkstreAyi !== "guncel";
-  const krediArsivGorunumu = kategori === "loans" && seciliKrediAyi !== "guncel";
+  const krediGelecekGorunumu = kategori === "loans" && gelecekKrediAylar.includes(seciliKrediAyi);
+  const krediArsivGorunumu = kategori === "loans" && seciliKrediAyi !== "guncel" && !krediGelecekGorunumu;
   const kayitlar = kategori === "kontrol" ? [] : arsivGorunumu
     ? veri.cards.flatMap((k) => { const e = [...(k.ekstreGecmisi || [])].reverse().find((x) => x.ekstreAyi === seciliEkstreAyi); return e ? [{ ...k, ...e, _arsiv: true }] : []; })
     : krediArsivGorunumu ? veri.loans.flatMap((k) => {
@@ -751,8 +755,13 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       const odendi = !!veri.paid?.["kredi-" + k.id + "-" + seciliKrediAyi];
       return gecmis || odendi ? [{ ...k, ...(gecmis || {}), _arsiv: true, _odendi: odendi, _donem: seciliKrediAyi }] : [];
     })
+    : krediGelecekGorunumu ? veri.loans.flatMap((k) => {
+      const fark = ayFarki(ayAnahtari(), seciliKrediAyi); const kalanTaksit = +k.kalanTaksit || null;
+      if ((+k.kalanBorc || 0) <= 0 || (kalanTaksit !== null && kalanTaksit <= fark)) return [];
+      return [{ ...k, _gelecek: true, _donem: seciliKrediAyi, _kalanTaksitProj: kalanTaksit === null ? null : Math.max(kalanTaksit - fark - 1, 0) }];
+    })
     : (veri[meta.liste] || []);
-  const herhangiArsiv = arsivGorunumu || krediArsivGorunumu;
+  const saltOkunurGorunum = arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
   const acik = form && form.liste === meta.liste;
   const yeniEkstreModu = kategori === "cards" && acik && form.yeniEkstre;
   const [f, setF] = useState({});
@@ -828,14 +837,14 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
 
   function toplamHesapla() {
     if (kategori === "cards") return kayitlar.reduce((t, k) => t + kartHesabi(k).toplam, 0);
-    if (kategori === "loans") return kayitlar.reduce((t, k) => t + (krediArsivGorunumu ? (+k.taksit || 0) : (+k.kalanBorc || 0)), 0);
+    if (kategori === "loans") return kayitlar.reduce((t, k) => t + (krediArsivGorunumu || krediGelecekGorunumu ? (+k.taksit || 0) : (+k.kalanBorc || 0)), 0);
     if (kategori === "od") return kayitlar.reduce((t, k) => t + (+k.kullanilan || 0), 0);
     return kayitlar.reduce((t, k) => t + (+k.tutar || 0), 0);
   }
   function sayacHesapla() {
     const n = kayitlar.length;
     if (kategori === "cards") return n + " kredi kartı";
-    if (kategori === "loans") return krediArsivGorunumu ? n + " ödenmiş taksit" : n + " kredi";
+    if (kategori === "loans") return krediArsivGorunumu ? n + " ödenmiş taksit" : krediGelecekGorunumu ? n + " planlanan taksit" : n + " kredi";
     if (kategori === "od") return n + " ek hesap / KMH";
     return n + " kayıt";
   }
@@ -874,14 +883,14 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       </div>
 
       {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{ekstreAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div>}
-      {kategori === "loans" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Kredi ödeme dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kredileri veya geçmiş aylarda ödenen taksitleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliKrediAyi} onChange={(e) => { setSeciliKrediAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{krediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div>}
+      {kategori === "loans" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Kredi ödeme dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel, gelecek 6 ay veya geçmişte ödenen taksitleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliKrediAyi} onChange={(e) => { setSeciliKrediAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Gelecek)</option>)}{krediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Geçmiş)</option>)}</select></div></div>}
 
       {kategori === "kontrol" ? <EkstreKontrol veri={veri} /> : <div className="bt-card">
         <div className="bt-strip">
           <div className="bt-strip-count">{sayacHesapla()}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div className="bt-strip-total bt-mono">{fmt(toplamHesapla())}</div>
-            {!acik && !herhangiArsiv && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> {kategori === "cards" ? "Yeni kart ekle" : kategori === "loans" ? "Yeni kredi ekle" : kategori === "od" ? "Yeni ek hesap ekle" : "Yeni borç ekle"}</button>}
+            {!acik && !saltOkunurGorunum && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> {kategori === "cards" ? "Yeni kart ekle" : kategori === "loans" ? "Yeni kredi ekle" : kategori === "od" ? "Yeni ek hesap ekle" : "Yeni borç ekle"}</button>}
           </div>
         </div>
 
@@ -929,11 +938,11 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
         </div>}
 
         {kayitlar.length === 0 && !acik && !(kategori === "others" && otomatikGecikenler.length > 0) ? (
-          <div className="bt-bos">{arsivGorunumu ? ayEtiketi(seciliEkstreAyi) + " için arşivlenmiş ekstre yok." : krediArsivGorunumu ? ayEtiketi(seciliKrediAyi) + " için ödenmiş kredi taksiti kaydı yok." : "Henüz kayıt yok."}</div>
+          <div className="bt-bos">{arsivGorunumu ? ayEtiketi(seciliEkstreAyi) + " için arşivlenmiş ekstre yok." : krediArsivGorunumu ? ayEtiketi(seciliKrediAyi) + " için ödenmiş kredi taksiti kaydı yok." : krediGelecekGorunumu ? ayEtiketi(seciliKrediAyi) + " döneminde planlanan kredi taksiti yok." : "Henüz kayıt yok."}</div>
         ) : (
           <div className="bt-stack" style={{ gap: 12 }}>
             {kayitlar.map((k, i) => (
-              <BorclarSatiri key={k.id} k={k} i={i} kategori={kategori} meta={meta} setForm={setForm} sil={sil} paid={veri.paid} arsiv={herhangiArsiv} />
+              <BorclarSatiri key={k.id} k={k} i={i} kategori={kategori} meta={meta} setForm={setForm} sil={sil} paid={veri.paid} arsiv={saltOkunurGorunum} />
             ))}
           </div>
         )}
@@ -1021,7 +1030,7 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
     }
   } else if (kategori === "loans") {
     tutar = arsiv ? (+k.taksit || 0) : (+k.kalanBorc || 0);
-    altMeta = arsiv ? ayEtiketi(k._donem) + " · taksit ödendi" + (+k.kalanBorc > 0 ? " · kayıt anındaki kalan borç " + fmt(k.kalanBorc) : "") : "Taksit " + fmt(k.taksit) + " · her ayın " + k.odemeGunu + ". günü" + (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "");
+    altMeta = k._gelecek ? ayEtiketi(k._donem) + " · planlanan taksit · ayın " + k.odemeGunu + ". günü" + (k._kalanTaksitProj !== null ? " · ödeme sonrası " + k._kalanTaksitProj + " taksit kalacak" : "") : arsiv ? ayEtiketi(k._donem) + " · taksit ödendi" + (+k.kalanBorc > 0 ? " · kayıt anındaki kalan borç " + fmt(k.kalanBorc) : "") : "Taksit " + fmt(k.taksit) + " · her ayın " + k.odemeGunu + ". günü" + (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "");
   } else if (kategori === "od") {
     tutar = +k.kullanilan || 0;
     altMeta = +k.limit > 0 ? "Limit " + fmt(k.limit) : "Limit girilmedi";
