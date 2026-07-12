@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "./supabaseClient.js";
+import { supabase, supabaseHazir } from "./supabaseClient.js";
 import {
   ArrowLeft,
   Mail,
@@ -184,6 +184,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   async function sifirlamaLinkiGonder(e) {
     e.preventDefault();
     if (!eposta.trim()) return;
+    if (!supabaseHazir) {
+      setHata("Yerel önizleme e-posta gönderemez. Parola yenileme işlemini canlı borcama.com giriş ekranından yapmalısınız.");
+      return;
+    }
     setGonderiliyor(true);
     setHata("");
     const { error } = await supabase.auth.resetPasswordForEmail(eposta.trim(), {
