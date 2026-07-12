@@ -943,13 +943,14 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     if (kategori === "cards") return kayitlar.reduce((t, k) => t + kartHesabi(k).toplam, 0);
     if (kategori === "loans") return kayitlar.reduce((t, k) => t + (krediArsivGorunumu || krediGelecekGorunumu ? (+k.taksit || 0) : (+k.kalanBorc || 0)), 0);
     if (kategori === "od") return kayitlar.reduce((t, k) => t + ekHesapHesabi(k).kalan, 0);
-    return kayitlar.reduce((t, k) => t + (+k.tutar || 0), 0);
+    return kayitlar.reduce((t, k) => t + (+k.tutar || 0), 0) + (kategori === "others" ? otomatikGecikenler.reduce((t, k) => t + (+k.bakiye || 0), 0) : 0);
   }
   function sayacHesapla() {
     const n = kayitlar.length;
     if (kategori === "cards") return n + " kredi kartı";
     if (kategori === "loans") return krediArsivGorunumu ? n + " ödenmiş taksit" : krediGelecekGorunumu ? n + " planlanan taksit" : n + " kredi";
     if (kategori === "od") return n + " ek hesap / KMH";
+    if (kategori === "others") return (n + otomatikGecikenler.length) + " borç";
     return n + " kayıt";
   }
 
@@ -1031,7 +1032,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           <div className="bt-strip-count">{sayacHesapla()}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div className="bt-strip-total bt-mono">{fmt(toplamHesapla())}</div>
-            {!acik && !saltOkunurGorunum && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> {kategori === "cards" ? "Yeni kart ekle" : kategori === "loans" ? "Yeni kredi ekle" : kategori === "od" ? "Yeni ek hesap ekle" : "Yeni borç ekle"}</button>}
+            {!acik && !saltOkunurGorunum && kategori !== "others" && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> {kategori === "cards" ? "Yeni kart ekle" : kategori === "loans" ? "Yeni kredi ekle" : "Yeni ek hesap ekle"}</button>}
           </div>
         </div>
 
@@ -1088,6 +1089,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           <div className="bt-bos">{arsivGorunumu ? ayEtiketi(seciliEkstreAyi) + " için arşivlenmiş ekstre yok." : krediArsivGorunumu ? ayEtiketi(seciliKrediAyi) + " için ödenmiş kredi taksiti kaydı yok." : krediGelecekGorunumu ? ayEtiketi(seciliKrediAyi) + " döneminde planlanan kredi taksiti yok." : "Henüz kayıt yok."}</div>
         ) : (
           <div className="bt-stack" style={{ gap: 12 }}>
+            {kategori === "others" && kayitlar.length > 0 && <div><div className="bt-h2" style={{ marginBottom: 5 }}>Diğer kayıtlı borçlar</div><div style={{ fontSize: 11.5, color: "var(--dim)" }}>Daha önce manuel eklenmiş borçlar.</div></div>}
             {kayitlar.map((k, i) => (
               <BorclarSatiri key={k.id} k={k} i={i} kategori={kategori} meta={meta} setForm={setForm} sil={sil} ekHesapOdemesiSil={ekHesapOdemesiSil} paid={veri.paid} arsiv={saltOkunurGorunum} />
             ))}
