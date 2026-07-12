@@ -410,15 +410,17 @@ export default function BorcTakip() {
       const h = kartHesabi(k); const anaBorc = h.toplam;
       if (anaBorc > 0) {
         const yeniModel = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
-        const hedefTutar = yeniModel ? h.onceki * ((+k.limit || 0) <= 50000 ? .20 : .40) : (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc));
+        const yasalOran = (+k.limit || 0) <= 50000 ? .20 : .40;
+        const hedefTutar = yeniModel ? h.onceki * yasalOran : (+k.asgari > 0 ? +k.asgari : anaBorc * yasalOran);
         const elleOdendi = !!veri.paid["kart-" + k.id + "-" + ay];
+        const odemeBilgisiYok = !yeniModel && !elleOdendi;
         const girilenOdeme = yeniModel ? h.odeme : 0;
         const yapilanOdeme = elleOdendi ? Math.max(girilenOdeme, hedefTutar) : girilenOdeme;
         const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
         const otomatikOdendi = !elleOdendi && hedefTutar > 0 && tutar <= 0;
         liste.push({
           id: "kart-" + k.id, banka: k.banka, ad: k.banka + (k.ad ? " · " + k.ad : ""),
-          tutar, hedefTutar, yapilanOdeme, not: "kalan minimum ödeme",
+          tutar, hedefTutar, yapilanOdeme, odemeBilgisiYok, not: "kalan minimum ödeme",
           tarih: kartGecikmeTarihi(k),
           odendi: elleOdendi || otomatikOdendi, otomatikOdendi, anahtar: "kart-" + k.id + "-" + ay,
         });
@@ -687,7 +689,7 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle }) {
       <div style={{ textAlign: "right" }}>
         <div className="bt-satirD-tutar">{fmt(o.tutar)}</div>
         <div className="bt-satirD-tur">{o.not}</div>
-        <div className="bt-satirD-tur" style={{ color: "#5D7A2E", fontWeight: 700 }}>Yapılan ödeme: {fmt(o.yapilanOdeme)}</div>
+        <div className="bt-satirD-tur" style={{ color: o.odemeBilgisiYok ? "#8a8c7e" : "#5D7A2E", fontWeight: 700 }}>Yapılan ödeme: {o.odemeBilgisiYok ? "Eski kayıtta bilgi yok" : fmt(o.yapilanOdeme)}</div>
       </div>
       {o.otomatikOdendi ? <div className="bt-btn kucuk heroghost" style={{ cursor: "default" }}><Check size={12}/> Ekstreye işlendi</div> : <button className="bt-btn kucuk heroghost" onClick={() => odendiIsaretle(o.anahtar, !o.odendi)}>
         {o.odendi ? <><RotateCcw size={12} /> Geri al</> : <><Check size={12} /> Ödendi</>}
@@ -704,12 +706,14 @@ function Odemeler({ yaklasan, odendiIsaretle }) {
   const kalan = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
   const odenen = sirali.reduce((t, x) => t + (+x.yapilanOdeme || 0), 0);
   const simdi = bugun();
+  const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return <div className="bt-stack">
     <div className="bt-card">
       <div className="bt-cardhead"><div><div className="bt-eyebrow">{AYLAR[simdi.getMonth()]} {simdi.getFullYear()}</div><div className="bt-h2" style={{ margin: "5px 0 0" }}>Aylık ödeme listesi</div></div><div className="bt-mono" style={{ fontWeight: 800 }}>{odendi.length}/{sirali.length} tamamlandı</div></div>
       <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Bu ay ödeme hedefi</div><div className="bt-metric-amt">{fmt(toplam)}</div><div className="bt-metric-cap">Kart minimumları ve kredi taksitleri</div></div><div className="bt-metric"><div className="bt-metric-lbl">Yapılan ödemeler</div><div className="bt-metric-amt">{fmt(odenen)}</div><div className="bt-metric-cap">Kalan {fmt(kalan)}</div></div></div>
     </div>
     <div className="bt-ipucu"><CalendarCheck size={16}/><div>Ödemeyi yaptığınızda işaretleyin. Kayıt yalnızca bu aya aittir; yeni ay başladığında yeni ödeme listesi otomatik oluşur.</div></div>
+    {eskiKayitSayisi>0&&<div className="bt-ipucu" style={{ borderColor: CORAL }}><Lightbulb size={16}/><div><b>{eskiKayitSayisi} eski kart kaydı:</b> Kart ve borç bilgileri korunuyor; ancak eski formatta yapılan ödeme ayrı tutulmadığı için ödeme tutarı “bilgi yok” olarak gösteriliyor. Yeni ekstre girişinden itibaren bu alan otomatik takip edilir.</div></div>}
     <div className="bt-card"><div className="bt-h2">Bekleyen ödemeler</div>{bekleyen.length===0?<div className="bt-bos">Bu ay için bekleyen ödeme yok.</div>:<div className="bt-stack" style={{gap:10}}>{bekleyen.map((o,i)=><OdemeSatiri key={o.id} o={o} i={i} gecikmis={kalanGun(o.tarih)<0} odendiIsaretle={odendiIsaretle}/>)}</div>}</div>
     {odendi.length>0&&<div className="bt-card"><div className="bt-h2">Tamamlananlar</div><div className="bt-stack" style={{gap:10}}>{odendi.map((o,i)=><OdemeSatiri key={o.id} o={o} i={i} gecikmis={false} odendiIsaretle={odendiIsaretle}/>)}</div></div>}
   </div>;
