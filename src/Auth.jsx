@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient.js";
-import { ArrowLeft, Mail, ShieldCheck, LogOut, CheckCircle2, KeyRound, Eye, EyeOff } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  ShieldCheck,
+  LogOut,
+  CheckCircle2,
+  KeyRound,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -39,8 +48,10 @@ const CSS = `
 .auth-remember input{appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;border:2px solid #14160f;border-radius:5px;background:#fff;display:grid;place-items:center;cursor:pointer}
 .auth-remember input:checked{background:#cdf564}
 .auth-remember input:checked::after{content:'✓';font-size:13px;font-weight:900;line-height:1;color:#14160f}
+.auth-consents{display:grid;gap:10px;margin:4px 0 16px;padding:13px;background:#f4efe0;border:1px solid #d9d5c7;border-radius:12px}.auth-consents .auth-remember{align-items:flex-start;margin:0;font-size:11.5px;line-height:1.45}.auth-consents a,.auth-legal a{color:#315c47;font-weight:800;text-underline-offset:2px}
 .auth-switch{margin-top:17px;padding-top:16px;border-top:1px solid #dedbce;text-align:center;font-size:12.5px;color:#66695d}
 .auth-switch a{color:#14160f;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.auth-legal{text-align:center;margin-top:11px;font-size:10.5px;color:#8a8c7e}.auth-legal span{margin:0 5px}
 .auth-btn{
   width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
   font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
@@ -60,7 +71,10 @@ export function useSession() {
 
   useEffect(() => {
     const oturumuYukle = async () => {
-      if (localStorage.getItem("borcama_session_only") === "1" && sessionStorage.getItem("borcama_session_active") !== "1") {
+      if (
+        localStorage.getItem("borcama_session_only") === "1" &&
+        sessionStorage.getItem("borcama_session_active") !== "1"
+      ) {
         localStorage.removeItem("borcama_session_only");
         await supabase.auth.signOut();
         setSession(null);
@@ -70,7 +84,9 @@ export function useSession() {
       setSession(data.session);
     };
     oturumuYukle();
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) =>
+      setSession(session),
+    );
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -84,6 +100,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [parolaTekrar, setParolaTekrar] = useState("");
   const [parolaGorunur, setParolaGorunur] = useState(false);
   const [oturumuAcikTut, setOturumuAcikTut] = useState(true);
+  const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
+  const [aydinlatmaOkundu, setAydinlatmaOkundu] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
@@ -118,17 +136,34 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       },
     });
     setGonderiliyor(false);
-    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." : kayitModu ? "Kayıt bağlantısı gönderilemedi. Lütfen tekrar deneyin." : "Bu e-postayla kayıtlı bir hesap bulunamadı veya giriş bağlantısı gönderilemedi.");
+    if (error)
+      setHata(
+        error.status === 429
+          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin."
+          : kayitModu
+            ? "Kayıt bağlantısı gönderilemedi. Lütfen tekrar deneyin."
+            : "Bu e-postayla kayıtlı bir hesap bulunamadı veya giriş bağlantısı gönderilemedi.",
+      );
     else setGonderildi(true);
   }
 
   async function parolaylaGiris(e) {
     e.preventDefault();
     if (!eposta.trim() || !parola) return;
-    setGonderiliyor(true); setHata("");
-    const { error } = await supabase.auth.signInWithPassword({ email: eposta.trim(), password: parola, options: { captchaToken: captchaToken || undefined } });
+    setGonderiliyor(true);
+    setHata("");
+    const { error } = await supabase.auth.signInWithPassword({
+      email: eposta.trim(),
+      password: parola,
+      options: { captchaToken: captchaToken || undefined },
+    });
     setGonderiliyor(false);
-    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin." : "E-posta veya parola hatalı. Parolanız yoksa giriş linki kullanabilirsiniz.");
+    if (error)
+      setHata(
+        error.status === 429
+          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
+          : "E-posta veya parola hatalı. Parolanız yoksa giriş linki kullanabilirsiniz.",
+      );
     else {
       if (oturumuAcikTut) {
         localStorage.removeItem("borcama_session_only");
@@ -144,59 +179,269 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   async function parolaylaKayit(e) {
     e.preventDefault();
     if (!eposta.trim() || !parola) return;
+    if (!sozlesmeKabul || !aydinlatmaOkundu)
+      return setHata(
+        "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
+      );
     if (parola.length < 8) return setHata("Parolanız en az 8 karakter olmalı.");
-    if (parola !== parolaTekrar) return setHata("Parolalar birbiriyle eşleşmiyor.");
-    setGonderiliyor(true); setHata("");
+    if (parola !== parolaTekrar)
+      return setHata("Parolalar birbiriyle eşleşmiyor.");
+    setGonderiliyor(true);
+    setHata("");
     const { data, error } = await supabase.auth.signUp({
       email: eposta.trim(),
       password: parola,
-      options: { emailRedirectTo: window.location.origin + redirectTo, captchaToken: captchaToken || undefined },
+      options: {
+        emailRedirectTo: window.location.origin + redirectTo,
+        captchaToken: captchaToken || undefined,
+        data: {
+          terms_version: "1.0",
+          terms_accepted_at: new Date().toISOString(),
+          privacy_version: "1.0",
+          privacy_notice_read_at: new Date().toISOString(),
+        },
+      },
     });
     setGonderiliyor(false);
-    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin." : "Hesap oluşturulamadı. E-posta adresini ve parolanı kontrol edip tekrar dene.");
+    if (error)
+      setHata(
+        error.status === 429
+          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
+          : "Hesap oluşturulamadı. E-posta adresini ve parolanı kontrol edip tekrar dene.",
+      );
     else if (data?.session) window.location.href = redirectTo;
     else setGonderildi(true);
   }
 
   function yontemDegistir(yeni) {
-    setYontem(yeni); setHata(""); setGonderildi(false);
+    setYontem(yeni);
+    setHata("");
+    setGonderildi(false);
   }
 
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
-      <a className="auth-back" href="/"><ArrowLeft size={15} /> Ana sayfaya dön</a>
+      <a className="auth-back" href="/">
+        <ArrowLeft size={15} /> Ana sayfaya dön
+      </a>
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
-        <div className="auth-welcome">{kayitModu ? "Ücretsiz hesabını oluştur" : "Hesabına giriş yap"}</div>
-        <div className="auth-sub">{kayitModu ? "E-posta adresini ve parolanı belirle, borçlarını tek yerde takip etmeye başla." : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}</div>
-        {!kayitModu && <div className="auth-tabs"><button className={"auth-tab " + (yontem === "parola" ? "active" : "")} onClick={() => yontemDegistir("parola")} type="button">Parola</button><button className={"auth-tab " + (yontem === "link" ? "active" : "")} onClick={() => yontemDegistir("link")} type="button">E-posta linki</button></div>}
+        <div className="auth-welcome">
+          {kayitModu ? "Ücretsiz hesabını oluştur" : "Hesabına giriş yap"}
+        </div>
+        <div className="auth-sub">
+          {kayitModu
+            ? "E-posta adresini ve parolanı belirle, borçlarını tek yerde takip etmeye başla."
+            : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
+        </div>
+        {!kayitModu && (
+          <div className="auth-tabs">
+            <button
+              className={"auth-tab " + (yontem === "parola" ? "active" : "")}
+              onClick={() => yontemDegistir("parola")}
+              type="button"
+            >
+              Parola
+            </button>
+            <button
+              className={"auth-tab " + (yontem === "link" ? "active" : "")}
+              onClick={() => yontemDegistir("link")}
+              type="button"
+            >
+              E-posta linki
+            </button>
+          </div>
+        )}
 
         {hata && <div className="auth-error">{hata}</div>}
 
         {gonderildi ? (
           <div className="auth-sent">
             <CheckCircle2 size={34} />
-            <div style={{ fontWeight: 700, fontSize: 15 }}>{kayitModu ? "E-postanı kontrol et" : "Link gönderildi"}</div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>
+              {kayitModu ? "E-postanı kontrol et" : "Link gönderildi"}
+            </div>
             <div style={{ fontSize: 13, color: "#55584c" }}>
-              <b style={{ color: "#14160f" }}>{eposta}</b> adresine {kayitModu ? "hesabını doğrulayacağın bir bağlantı" : "bir giriş linki"} yolladık. Gelen kutunu
-              (ve spam klasörünü) kontrol edip bağlantıya tıkla.
+              <b style={{ color: "#14160f" }}>{eposta}</b> adresine{" "}
+              {kayitModu
+                ? "hesabını doğrulayacağın bir bağlantı"
+                : "bir giriş linki"}{" "}
+              yolladık. Gelen kutunu (ve spam klasörünü) kontrol edip bağlantıya
+              tıkla.
             </div>
           </div>
         ) : yontem === "link" ? (
           <form onSubmit={linkGonder}>
             <input
-              className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta}
-              onChange={(e) => setEposta(e.target.value)} autoFocus required
+              className="auth-input"
+              type="email"
+              placeholder="ornek@eposta.com"
+              value={eposta}
+              onChange={(e) => setEposta(e.target.value)}
+              autoFocus
+              required
             />
-            {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }} />}
-            <button className="auth-btn" type="submit" disabled={gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)}>
-              <Mail size={16} /> {gonderiliyor ? "Gönderiliyor…" : kayitModu ? "Kayıt linki gönder" : "Giriş linki gönder"}
+            {turnstileSiteKey && (
+              <div
+                className="cf-turnstile"
+                data-sitekey={turnstileSiteKey}
+                data-callback="borcamaCaptchaTamam"
+                style={{ marginBottom: 12 }}
+              />
+            )}
+            <button
+              className="auth-btn"
+              type="submit"
+              disabled={
+                gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)
+              }
+            >
+              <Mail size={16} />{" "}
+              {gonderiliyor
+                ? "Gönderiliyor…"
+                : kayitModu
+                  ? "Kayıt linki gönder"
+                  : "Giriş linki gönder"}
             </button>
           </form>
-        ) : <form onSubmit={kayitModu ? parolaylaKayit : parolaylaGiris}><input className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta} onChange={(e) => setEposta(e.target.value)} autoFocus required/><div className="auth-password"><input className="auth-input" type={parolaGorunur ? "text" : "password"} placeholder={kayitModu ? "En az 8 karakter parola" : "Parolanız"} value={parola} onChange={(e) => setParola(e.target.value)} minLength={kayitModu ? 8 : undefined} required/><button className="auth-eye" type="button" aria-label={parolaGorunur ? "Parolayı gizle" : "Parolayı göster"} onClick={() => setParolaGorunur(!parolaGorunur)}>{parolaGorunur ? <EyeOff size={17}/> : <Eye size={17}/>}</button></div>{kayitModu && <input className="auth-input" type={parolaGorunur ? "text" : "password"} placeholder="Parolayı tekrar yaz" value={parolaTekrar} onChange={(e) => setParolaTekrar(e.target.value)} required/>}<div className="auth-help">{kayitModu ? "Parolan en az 8 karakter olmalı." : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}</div>{!kayitModu && <label className="auth-remember"><input type="checkbox" checked={oturumuAcikTut} onChange={(e) => setOturumuAcikTut(e.target.checked)}/><span>Bu tarayıcıda oturumu açık tut</span></label>}{turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }}/>}<button className="auth-btn" type="submit" disabled={gonderiliyor || !parola || Boolean(turnstileSiteKey && !captchaToken)}><KeyRound size={16}/>{gonderiliyor ? (kayitModu ? "Hesap oluşturuluyor…" : "Giriş yapılıyor…") : (kayitModu ? "Hesap oluştur" : "Parolayla giriş yap")}</button></form>}
+        ) : (
+          <form onSubmit={kayitModu ? parolaylaKayit : parolaylaGiris}>
+            <input
+              className="auth-input"
+              type="email"
+              placeholder="ornek@eposta.com"
+              value={eposta}
+              onChange={(e) => setEposta(e.target.value)}
+              autoFocus
+              required
+            />
+            <div className="auth-password">
+              <input
+                className="auth-input"
+                type={parolaGorunur ? "text" : "password"}
+                placeholder={
+                  kayitModu ? "En az 8 karakter parola" : "Parolanız"
+                }
+                value={parola}
+                onChange={(e) => setParola(e.target.value)}
+                minLength={kayitModu ? 8 : undefined}
+                required
+              />
+              <button
+                className="auth-eye"
+                type="button"
+                aria-label={
+                  parolaGorunur ? "Parolayı gizle" : "Parolayı göster"
+                }
+                onClick={() => setParolaGorunur(!parolaGorunur)}
+              >
+                {parolaGorunur ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+            {kayitModu && (
+              <input
+                className="auth-input"
+                type={parolaGorunur ? "text" : "password"}
+                placeholder="Parolayı tekrar yaz"
+                value={parolaTekrar}
+                onChange={(e) => setParolaTekrar(e.target.value)}
+                required
+              />
+            )}
+            <div className="auth-help">
+              {kayitModu
+                ? "Parolan en az 8 karakter olmalı."
+                : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}
+            </div>
+            {kayitModu && (
+              <div className="auth-consents">
+                <label className="auth-remember">
+                  <input
+                    type="checkbox"
+                    checked={sozlesmeKabul}
+                    onChange={(e) => setSozlesmeKabul(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    <a href="/terms" target="_blank" rel="noreferrer">
+                      Kullanıcı Sözleşmesi
+                    </a>
+                    'ni okudum ve kabul ediyorum.
+                  </span>
+                </label>
+                <label className="auth-remember">
+                  <input
+                    type="checkbox"
+                    checked={aydinlatmaOkundu}
+                    onChange={(e) => setAydinlatmaOkundu(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    <a href="/privacy" target="_blank" rel="noreferrer">
+                      Gizlilik ve KVKK Aydınlatma Metni
+                    </a>
+                    'ni okudum.
+                  </span>
+                </label>
+              </div>
+            )}
+            {!kayitModu && (
+              <label className="auth-remember">
+                <input
+                  type="checkbox"
+                  checked={oturumuAcikTut}
+                  onChange={(e) => setOturumuAcikTut(e.target.checked)}
+                />
+                <span>Bu tarayıcıda oturumu açık tut</span>
+              </label>
+            )}
+            {turnstileSiteKey && (
+              <div
+                className="cf-turnstile"
+                data-sitekey={turnstileSiteKey}
+                data-callback="borcamaCaptchaTamam"
+                style={{ marginBottom: 12 }}
+              />
+            )}
+            <button
+              className="auth-btn"
+              type="submit"
+              disabled={
+                gonderiliyor ||
+                !parola ||
+                (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu)) ||
+                Boolean(turnstileSiteKey && !captchaToken)
+              }
+            >
+              <KeyRound size={16} />
+              {gonderiliyor
+                ? kayitModu
+                  ? "Hesap oluşturuluyor…"
+                  : "Giriş yapılıyor…"
+                : kayitModu
+                  ? "Hesap oluştur"
+                  : "Parolayla giriş yap"}
+            </button>
+          </form>
+        )}
 
-        <div className="auth-switch">{kayitModu ? <>Zaten hesabın var mı? <a href="/login">Giriş yap</a></> : <>Henüz hesabın yok mu? <a href="/register">Kayıt ol</a></>}</div>
+        <div className="auth-switch">
+          {kayitModu ? (
+            <>
+              Zaten hesabın var mı? <a href="/login">Giriş yap</a>
+            </>
+          ) : (
+            <>
+              Henüz hesabın yok mu? <a href="/register">Kayıt ol</a>
+            </>
+          )}
+        </div>
+        <div className="auth-legal">
+          <a href="/terms">Kullanıcı Sözleşmesi</a>
+          <span>·</span>
+          <a href="/privacy">Gizlilik ve KVKK</a>
+        </div>
 
         <div className="auth-foot">
           <ShieldCheck size={13} />
@@ -209,7 +454,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
 
 export function CikisButonu({ className }) {
   return (
-    <button className={className} onClick={() => supabase.auth.signOut()} title="Çıkış yap">
+    <button
+      className={className}
+      onClick={() => supabase.auth.signOut()}
+      title="Çıkış yap"
+    >
       <LogOut size={15} /> Çıkış
     </button>
   );

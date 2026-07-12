@@ -289,6 +289,10 @@ export default function LandingAlt() {
           </div>
           <div className="la-footline">
             <span>Kişisel borç ve harcama takip aracı.</span>
+            <span>
+              <a href="/terms">Kullanıcı Sözleşmesi</a> ·{" "}
+              <a href="/privacy">Gizlilik ve KVKK</a>
+            </span>
             <span>Finansal tavsiye değildir.</span>
           </div>
         </div>

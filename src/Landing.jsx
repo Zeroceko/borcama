@@ -1,5 +1,16 @@
 import React from "react";
-import { ArrowRight, BarChart3, CalendarCheck, Check, CreditCard, Layers3, ShieldCheck, Sparkles, Target, WalletCards } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  CalendarCheck,
+  Check,
+  CreditCard,
+  Layers3,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  WalletCards,
+} from "lucide-react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -12,20 +23,228 @@ const appUrl = "/register";
 const loginUrl = "/login";
 
 export default function Landing() {
-  return <div className="lp"><style>{CSS}</style>
-    <header className="lp-shell lp-nav"><a className="lp-logo" href="/"><img src="/borcama-logo.png" alt="Borcama" /></a><nav className="lp-navlinks"><a href="#ozellikler">Neler yapar?</a><a href="#nasil">Nasıl çalışır?</a><a className="lp-login" href={loginUrl}>Giriş yap</a><a className="lp-btn" href={appUrl}>Hemen Başla! <ArrowRight size={16}/></a></nav></header>
-    <main>
-      <section className="lp-shell lp-hero"><div><div className="lp-kicker">Borçlarını tek yerde topla</div><h1 className="lp-h1">Paran nereye gidiyor, <span>borcun ne zaman bitiyor?</span></h1><p className="lp-lead">Kredi kartı, kredi ve ek hesap borçlarını tek ekranda gör. Ekstreni kontrol et, yaklaşan ödemeleri kaçırma ve sana uygun kapatma sırasını oluştur.</p><div className="lp-actions"><a className="lp-btn" href={appUrl}>Borçlarımı toparla <ArrowRight size={17}/></a><a className="lp-btn alt" href="#nasil">Nasıl çalışır?</a></div><div className="lp-note"><ShieldCheck size={15}/> Diğer kullanıcılar hesap verilerine erişemez.</div></div>
-        <div className="lp-product" aria-label="Borcama uygulama önizlemesi"><div className="lp-window"><i/><i/><i/></div><div className="lp-total-label">Tüm bankalardaki toplam borcun</div><div className="lp-total">₺284.750</div><div className="lp-mini-grid"><div className="lp-mini"><small>BU AY ÖDENECEK</small><b>₺42.600</b></div><div className="lp-mini"><small>TAHMİNİ AYLIK FAİZ</small><b>₺7.840</b></div><div className="lp-mini"><small>KREDİ KARTLARI</small><b>₺164.750</b></div><div className="lp-mini"><small>KREDİLER</small><b>₺120.000</b></div></div><div className="lp-pay"><span className="lp-pay-icon"><CalendarCheck size={18}/></span><div><strong>Yapı Kredi · World</strong><small>4 gün kaldı · minimum ödeme</small></div><strong>₺18.400</strong></div></div>
-      </section>
-      <div className="lp-band"><div className="lp-shell lp-band-inner"><div className="lp-proof"><Check size={20}/><div><b>Tüm bankalar tek ekranda</b><span>Kart, kredi, KMH ve diğer borçlar</span></div></div><div className="lp-proof"><Check size={20}/><div><b>Ekstreyle sağlama</b><span>Manuel harcamaları bankanla karşılaştır</span></div></div><div className="lp-proof"><Check size={20}/><div><b>Sana ait borç planı</b><span>Çığ veya kartopu yöntemiyle ilerle</span></div></div></div></div>
-      <section id="ozellikler" className="lp-shell lp-section"><div className="lp-section-head"><div className="lp-eyebrow">Net tablo, net karar</div><h2 className="lp-h2">Borç yönetmek için gerçekten gerekenler.</h2><p>Farklı banka uygulamaları arasında kaybolmadan bugün ne durumda olduğunu ve sıradaki adımını gör.</p></div><div className="lp-features">
-        <Feature icon={<Layers3/>} title="Tek borç ekranı" text="Kredi kartı, kredi, ek hesap ve gecikmiş borçları banka banka bir arada gör."/><Feature icon={<CalendarCheck/>} title="Ödeme takvimi" text="Son ödeme günlerini takip et; yaklaşan ve gecikmiş ödemeleri anında fark et."/><Feature icon={<Sparkles/>} title="Tahmini yasal faiz" text="Devreden kart borcunun oluşturacağı faizi güncel azami oranlarla yaklaşık hesapla."/><Feature icon={<BarChart3/>} title="Ekstre kontrolü" text="Kendi girdiğin harcamalarla bankadan gelen ekstreyi karşılaştır, farkı erkenden yakala."/><Feature icon={<Target/>} title="Kapatma sırası" text="En az faiz için çığ, hızlı kazanımlar için kartopu yöntemini seç."/><Feature icon={<WalletCards/>} title="Gelir ve harcama dengesi" text="Aylık gelirini, harcamanı ve zorunlu borç ödemelerini aynı tabloda değerlendir."/>
-      </div></section>
-      <section id="nasil" className="lp-shell lp-section lp-how"><div className="lp-section-head"><div className="lp-eyebrow">3 adımda başla</div><h2 className="lp-h2">Dağınık borçlardan uygulanabilir bir plana.</h2><p>Banka hesaplarına otomatik erişim istemeden, kontrolü sende tutan basit bir akış.</p></div><div className="lp-steps"><Step n="01" title="Borçlarını ekle" text="Kart limitini, ekstre borcunu, yaptığın ödemeyi ve son ödeme gününü gir."/><Step n="02" title="Tablonu kontrol et" text="Toplam borcunu, minimum ödemelerini, tahmini faizi ve banka bazında dağılımı gör."/><Step n="03" title="Sırayla kapat" text="Seçtiğin stratejiye göre ekstra paranı hangi borca yönlendireceğini netleştir."/></div></section>
-      <section className="lp-shell lp-cta"><div className="lp-cta-box"><h2>Borçlarını görmezden gelme. Bir plana dönüştür.</h2><p>Bugün toplam tabloyu çıkar, sıradaki ödemeni ve ilk kapatacağın borcu netleştir.</p><a className="lp-btn" href={appUrl}>Borcama'yı kullanmaya başla <ArrowRight size={17}/></a></div></section>
-    </main><footer className="lp-shell lp-footer"><div><b>Borcama</b> · Borç ve harcamaların için net bir plan.</div><div>Finansal tavsiye değil, kişisel takip aracıdır.</div></footer>
-  </div>;
+  return (
+    <div className="lp">
+      <style>{CSS}</style>
+      <header className="lp-shell lp-nav">
+        <a className="lp-logo" href="/">
+          <img src="/borcama-logo.png" alt="Borcama" />
+        </a>
+        <nav className="lp-navlinks">
+          <a href="#ozellikler">Neler yapar?</a>
+          <a href="#nasil">Nasıl çalışır?</a>
+          <a className="lp-login" href={loginUrl}>
+            Giriş yap
+          </a>
+          <a className="lp-btn" href={appUrl}>
+            Hemen Başla! <ArrowRight size={16} />
+          </a>
+        </nav>
+      </header>
+      <main>
+        <section className="lp-shell lp-hero">
+          <div>
+            <div className="lp-kicker">Borçlarını tek yerde topla</div>
+            <h1 className="lp-h1">
+              Paran nereye gidiyor, <span>borcun ne zaman bitiyor?</span>
+            </h1>
+            <p className="lp-lead">
+              Kredi kartı, kredi ve ek hesap borçlarını tek ekranda gör.
+              Ekstreni kontrol et, yaklaşan ödemeleri kaçırma ve sana uygun
+              kapatma sırasını oluştur.
+            </p>
+            <div className="lp-actions">
+              <a className="lp-btn" href={appUrl}>
+                Borçlarımı toparla <ArrowRight size={17} />
+              </a>
+              <a className="lp-btn alt" href="#nasil">
+                Nasıl çalışır?
+              </a>
+            </div>
+            <div className="lp-note">
+              <ShieldCheck size={15} /> Diğer kullanıcılar hesap verilerine
+              erişemez.
+            </div>
+          </div>
+          <div className="lp-product" aria-label="Borcama uygulama önizlemesi">
+            <div className="lp-window">
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className="lp-total-label">Tüm bankalardaki toplam borcun</div>
+            <div className="lp-total">₺284.750</div>
+            <div className="lp-mini-grid">
+              <div className="lp-mini">
+                <small>BU AY ÖDENECEK</small>
+                <b>₺42.600</b>
+              </div>
+              <div className="lp-mini">
+                <small>TAHMİNİ AYLIK FAİZ</small>
+                <b>₺7.840</b>
+              </div>
+              <div className="lp-mini">
+                <small>KREDİ KARTLARI</small>
+                <b>₺164.750</b>
+              </div>
+              <div className="lp-mini">
+                <small>KREDİLER</small>
+                <b>₺120.000</b>
+              </div>
+            </div>
+            <div className="lp-pay">
+              <span className="lp-pay-icon">
+                <CalendarCheck size={18} />
+              </span>
+              <div>
+                <strong>Yapı Kredi · World</strong>
+                <small>4 gün kaldı · minimum ödeme</small>
+              </div>
+              <strong>₺18.400</strong>
+            </div>
+          </div>
+        </section>
+        <div className="lp-band">
+          <div className="lp-shell lp-band-inner">
+            <div className="lp-proof">
+              <Check size={20} />
+              <div>
+                <b>Tüm bankalar tek ekranda</b>
+                <span>Kart, kredi, KMH ve diğer borçlar</span>
+              </div>
+            </div>
+            <div className="lp-proof">
+              <Check size={20} />
+              <div>
+                <b>Ekstreyle sağlama</b>
+                <span>Manuel harcamaları bankanla karşılaştır</span>
+              </div>
+            </div>
+            <div className="lp-proof">
+              <Check size={20} />
+              <div>
+                <b>Sana ait borç planı</b>
+                <span>Çığ veya kartopu yöntemiyle ilerle</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section id="ozellikler" className="lp-shell lp-section">
+          <div className="lp-section-head">
+            <div className="lp-eyebrow">Net tablo, net karar</div>
+            <h2 className="lp-h2">Borç yönetmek için gerçekten gerekenler.</h2>
+            <p>
+              Farklı banka uygulamaları arasında kaybolmadan bugün ne durumda
+              olduğunu ve sıradaki adımını gör.
+            </p>
+          </div>
+          <div className="lp-features">
+            <Feature
+              icon={<Layers3 />}
+              title="Tek borç ekranı"
+              text="Kredi kartı, kredi, ek hesap ve gecikmiş borçları banka banka bir arada gör."
+            />
+            <Feature
+              icon={<CalendarCheck />}
+              title="Ödeme takvimi"
+              text="Son ödeme günlerini takip et; yaklaşan ve gecikmiş ödemeleri anında fark et."
+            />
+            <Feature
+              icon={<Sparkles />}
+              title="Tahmini yasal faiz"
+              text="Devreden kart borcunun oluşturacağı faizi güncel azami oranlarla yaklaşık hesapla."
+            />
+            <Feature
+              icon={<BarChart3 />}
+              title="Ekstre kontrolü"
+              text="Kendi girdiğin harcamalarla bankadan gelen ekstreyi karşılaştır, farkı erkenden yakala."
+            />
+            <Feature
+              icon={<Target />}
+              title="Kapatma sırası"
+              text="En az faiz için çığ, hızlı kazanımlar için kartopu yöntemini seç."
+            />
+            <Feature
+              icon={<WalletCards />}
+              title="Gelir ve harcama dengesi"
+              text="Aylık gelirini, harcamanı ve zorunlu borç ödemelerini aynı tabloda değerlendir."
+            />
+          </div>
+        </section>
+        <section id="nasil" className="lp-shell lp-section lp-how">
+          <div className="lp-section-head">
+            <div className="lp-eyebrow">3 adımda başla</div>
+            <h2 className="lp-h2">
+              Dağınık borçlardan uygulanabilir bir plana.
+            </h2>
+            <p>
+              Banka hesaplarına otomatik erişim istemeden, kontrolü sende tutan
+              basit bir akış.
+            </p>
+          </div>
+          <div className="lp-steps">
+            <Step
+              n="01"
+              title="Borçlarını ekle"
+              text="Kart limitini, ekstre borcunu, yaptığın ödemeyi ve son ödeme gününü gir."
+            />
+            <Step
+              n="02"
+              title="Tablonu kontrol et"
+              text="Toplam borcunu, minimum ödemelerini, tahmini faizi ve banka bazında dağılımı gör."
+            />
+            <Step
+              n="03"
+              title="Sırayla kapat"
+              text="Seçtiğin stratejiye göre ekstra paranı hangi borca yönlendireceğini netleştir."
+            />
+          </div>
+        </section>
+        <section className="lp-shell lp-cta">
+          <div className="lp-cta-box">
+            <h2>Borçlarını görmezden gelme. Bir plana dönüştür.</h2>
+            <p>
+              Bugün toplam tabloyu çıkar, sıradaki ödemeni ve ilk kapatacağın
+              borcu netleştir.
+            </p>
+            <a className="lp-btn" href={appUrl}>
+              Borcama'yı kullanmaya başla <ArrowRight size={17} />
+            </a>
+          </div>
+        </section>
+      </main>
+      <footer className="lp-shell lp-footer">
+        <div>
+          <b>Borcama</b> · Borç ve harcamaların için net bir plan.
+        </div>
+        <div>
+          <a href="/terms">Kullanıcı Sözleşmesi</a> ·{" "}
+          <a href="/privacy">Gizlilik ve KVKK</a>
+        </div>
+        <div>Finansal tavsiye değil, kişisel takip aracıdır.</div>
+      </footer>
+    </div>
+  );
 }
-function Feature({icon,title,text}){return <article className="lp-feature"><div className="lp-feature-icon">{React.cloneElement(icon,{size:21})}</div><h3>{title}</h3><p>{text}</p></article>}
-function Step({n,title,text}){return <div className="lp-step"><div className="lp-step-num">{n}</div><div><h3>{title}</h3><p>{text}</p></div></div>}
+function Feature({ icon, title, text }) {
+  return (
+    <article className="lp-feature">
+      <div className="lp-feature-icon">
+        {React.cloneElement(icon, { size: 21 })}
+      </div>
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </article>
+  );
+}
+function Step({ n, title, text }) {
+  return (
+    <div className="lp-step">
+      <div className="lp-step-num">{n}</div>
+      <div>
+        <h3>{title}</h3>
+        <p>{text}</p>
+      </div>
+    </div>
+  );
+}
