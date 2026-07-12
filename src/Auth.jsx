@@ -3,34 +3,38 @@ import { supabase } from "./supabaseClient.js";
 import { Mail, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
 
 const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 .auth-wrap{
   min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
-  font-family:'Inter',system-ui,sans-serif;
-  background:radial-gradient(1100px 500px at 80% -10%, #17233C 0%, #0E1420 55%);
-  color:#EDF1F9;
+  font-family:'Space Grotesk',sans-serif;
+  background:#f4efe0;
+  color:#14160f;
 }
 .auth-card{
-  width:100%; max-width:380px; background:#161E2E; border:1px solid #26324A;
-  border-radius:20px; padding:32px 28px;
+  width:100%; max-width:380px; background:#ffffff; border:2px solid #14160f;
+  border-radius:24px; padding:32px 28px;
 }
-.auth-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;color:#43D9A3;text-transform:uppercase}
-.auth-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin:6px 0 4px;letter-spacing:-0.02em}
-.auth-sub{font-size:13.5px;color:#8C99B3;line-height:1.5;margin-bottom:22px}
+.auth-eyebrow{display:inline-block;background:#cdf564;border:2px solid #14160f;border-radius:6px;padding:4px 10px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#14160f;
+  margin-bottom:14px;transform:rotate(-1deg)}
+.auth-title{font-family:'Archivo Black',sans-serif;font-size:22px;margin:6px 0 4px;letter-spacing:-0.01em;
+  color:#14160f;text-shadow:3px 3px 0 #cdf564,5px 5px 0 #ff6f59}
+.auth-sub{font-size:13.5px;color:#55584c;line-height:1.5;margin-bottom:22px}
 .auth-input{
-  width:100%; padding:12px 14px; border-radius:10px; border:1px solid #26324A;
-  background:#0E1420; color:#EDF1F9; font-size:14px; font-family:inherit; margin-bottom:12px;
+  width:100%; padding:12px 14px; border-radius:10px; border:2px solid #14160f;
+  background:#f4efe0; color:#14160f; font-size:14px; font-family:inherit; margin-bottom:12px;
 }
-.auth-input::placeholder{color:#5B6880}
+.auth-input::placeholder{color:#8a8c7e}
 .auth-btn{
-  width:100%; padding:12px 0; border-radius:10px; border:none; background:#43D9A3; color:#08251B;
+  width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
   font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
 }
 .auth-btn:disabled{opacity:.6; cursor:default}
-.auth-btn:hover:not(:disabled){filter:brightness(1.08)}
-.auth-error{background:#3A1E22;border:1px solid #5C2B31;color:#F87171;font-size:13px;border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.auth-btn:hover:not(:disabled){filter:brightness(0.96)}
+.auth-error{background:#ff6f5922;border:2px solid #ff6f59;color:#a53a2a;font-size:13px;border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .auth-sent{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:10px 0}
-.auth-sent svg{color:#43D9A3}
-.auth-foot{margin-top:18px;font-size:12px;color:#5B6880;text-align:center;line-height:1.5}
+.auth-sent svg{color:#5D7A2E}
+.auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;text-align:center;line-height:1.5}
 `;
 
 export function useSession() {
@@ -82,8 +86,8 @@ export function GirisEkrani() {
           <div className="auth-sent">
             <CheckCircle2 size={34} />
             <div style={{ fontWeight: 700, fontSize: 15 }}>Link gönderildi</div>
-            <div style={{ fontSize: 13, color: "#8C99B3" }}>
-              <b style={{ color: "#EDF1F9" }}>{eposta}</b> adresine bir giriş linki yolladık. Gelen kutunuzu
+            <div style={{ fontSize: 13, color: "#55584c" }}>
+              <b style={{ color: "#14160f" }}>{eposta}</b> adresine bir giriş linki yolladık. Gelen kutunuzu
               (ve spam klasörünü) kontrol edip linke tıklayın — bu sekmeye otomatik döneceksiniz.
             </div>
           </div>

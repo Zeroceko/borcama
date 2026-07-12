@@ -11,7 +11,7 @@ function Kok() {
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#0E1420', color: '#8C99B3', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14,
+        background: '#f4efe0', color: '#55584c', fontFamily: 'Space Grotesk, system-ui, sans-serif', fontSize: 14,
       }}>
         Yükleniyor…
       </div>
