@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient.js";
-import { Mail, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -8,16 +8,24 @@ const CSS = `
 .auth-wrap{
   min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
   font-family:'Space Grotesk',sans-serif;
-  background:#f4efe0;
+  background:
+    radial-gradient(circle at 88% 12%,#ff6f5966 0 8%,transparent 8.3%),
+    radial-gradient(circle at 12% 88%,#cdf56499 0 12%,transparent 12.3%),
+    linear-gradient(135deg,#f4efe0 0 64%,#d8e6df 64% 100%);
   color:#14160f;
+  position:relative;overflow:hidden;
 }
+.auth-wrap::before{content:'';position:absolute;width:170px;height:170px;border:3px solid #14160f;border-radius:38px;right:-65px;bottom:-65px;transform:rotate(18deg);background:#ff6f59}
+.auth-back{position:absolute;top:24px;left:clamp(20px,4vw,48px);z-index:2;display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border:2px solid #14160f;border-radius:999px;background:#fff;color:#14160f;text-decoration:none;font-size:13px;font-weight:700;box-shadow:3px 3px 0 #14160f}
+.auth-back:hover{transform:translate(2px,2px);box-shadow:1px 1px 0 #14160f}
 .auth-card{
-  width:100%; max-width:380px; background:#ffffff; border:2px solid #14160f;
-  border-radius:24px; padding:32px 28px;
+  position:relative;z-index:1;width:100%; max-width:440px; background:#ffffff; border:3px solid #14160f;
+  border-radius:26px; padding:40px 36px;box-shadow:12px 12px 0 #ff6f59;
 }
-.auth-title{font-family:'Archivo Black',sans-serif;font-size:30px;margin:0 0 10px;letter-spacing:-0.02em;line-height:1;
+.auth-title{font-family:'Archivo Black',sans-serif;font-size:38px;margin:0 0 12px;letter-spacing:-0.03em;line-height:1;
   color:#14160f;text-shadow:3px 3px 0 #cdf564,5px 5px 0 #ff6f59}
-.auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 22px}
+.auth-welcome{font-size:17px;font-weight:800;margin-bottom:7px}
+.auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 24px}
 .auth-input{
   width:100%; padding:12px 14px; border-radius:10px; border:2px solid #14160f;
   background:#f4efe0; color:#14160f; font-size:14px; font-family:inherit; margin-bottom:12px;
@@ -34,6 +42,7 @@ const CSS = `
 .auth-sent svg{color:#5D7A2E}
 .auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
 .auth-foot svg{flex:0 0 auto;margin-top:2px}
+@media(max-width:520px){.auth-card{padding:34px 24px;box-shadow:7px 7px 0 #ff6f59}.auth-back{top:16px;left:16px}.auth-title{font-size:34px}.auth-wrap{padding-top:80px}}
 `;
 
 export function useSession() {
@@ -71,11 +80,12 @@ export function GirisEkrani() {
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
+      <a className="auth-back" href="/"><ArrowLeft size={15} /> Ana sayfaya dön</a>
       <div className="auth-card">
         <div className="auth-title">Borcama</div>
+        <div className="auth-welcome">Hesabına giriş yap</div>
         <div className="auth-sub">
-          Verilerinize her cihazdan ulaşmak için e-posta adresinizle giriş yapın. Şifre yok — e-postanıza
-          gelen linke tıklamanız yeterli.
+          E-posta adresini yaz; sana tek kullanımlık bir giriş linki gönderelim. Şifre hatırlamana gerek yok.
         </div>
 
         {hata && <div className="auth-error">{hata}</div>}
