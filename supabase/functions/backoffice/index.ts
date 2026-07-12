@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     if (data.users.length < 1000) break;
   }
 
-  const { data: kayitlar, error: kayitHatasi } = await admin.from("kv_store").select("user_id,updated_at");
+  const { data: kayitlar, error: kayitHatasi } = await admin.from("kv_store").select("user_id,updated_at,value");
   if (kayitHatasi) return new Response(JSON.stringify({ error: "DATA_UNAVAILABLE" }), { status: 500, headers });
   const veriDurumu = new Map((kayitlar || []).map((x) => [x.user_id, x.updated_at]));
   const simdi = Date.now();
@@ -71,5 +71,48 @@ Deno.serve(async (req) => {
     new_7d: satirlar.filter((x) => simdi - new Date(x.created_at).getTime() <= 7 * gun).length,
   };
 
-  return new Response(JSON.stringify({ summary: ozet, users: satirlar }), { status: 200, headers });
+  const finansal = topluFinansalIstatistik(kayitlar || []);
+  return new Response(JSON.stringify({ summary: ozet, financial: finansal, users: satirlar }), { status: 200, headers });
 });
+
+const sayi = (deger: unknown) => {
+  const n = Number(deger);
+  return Number.isFinite(n) && n >= 0 && n <= 1_000_000_000_000 ? n : 0;
+};
+
+function kartBorcu(k: Record<string, unknown>) {
+  const yeniModel = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined || k.yapilanOdeme !== undefined;
+  if (!yeniModel) return (sayi(k.donemIciToplam) || sayi(k.borc)) + sayi(k.donemIciEklenen);
+  const ekstre = sayi(k.toplamEkstreBorcu) || sayi(k.oncekiDonemBorcu);
+  const devreden = Math.max(ekstre - Math.min(sayi(k.yapilanOdeme), ekstre), 0);
+  const oran = ekstre >= 180000 ? 4.25 : ekstre >= 30000 ? 3.75 : 3.25;
+  return devreden + (devreden * oran) / 100;
+}
+
+function topluFinansalIstatistik(kayitlar: Array<{ user_id: string; value: string }>) {
+  const ay = new Date().toISOString().slice(0, 7);
+  const toplam = { debt: 0, income: 0, expense: 0, cards: 0, loans: 0, overdrafts: 0, others: 0 };
+  let katilan = 0;
+  for (const kayit of kayitlar) {
+    try {
+      const veri = JSON.parse(kayit.value);
+      if (!veri || typeof veri !== "object") continue;
+      const cards = Array.isArray(veri.cards) ? veri.cards.reduce((t: number, x: Record<string, unknown>) => t + kartBorcu(x), 0) : 0;
+      const loans = Array.isArray(veri.loans) ? veri.loans.reduce((t: number, x: Record<string, unknown>) => t + sayi(x.kalanBorc), 0) : 0;
+      const overdrafts = Array.isArray(veri.overdrafts) ? veri.overdrafts.reduce((t: number, x: Record<string, unknown>) => t + sayi(x.kullanilan), 0) : 0;
+      const others = Array.isArray(veri.others) ? veri.others.reduce((t: number, x: Record<string, unknown>) => t + sayi(x.tutar), 0) : 0;
+      const income = Array.isArray(veri.incomes) ? veri.incomes.reduce((t: number, x: Record<string, unknown>) => t + (x.tekrar === "Tek seferlik" && !String(x.tarih || "").startsWith(ay) ? 0 : sayi(x.tutar)), 0) : 0;
+      const expense = Array.isArray(veri.expenses) ? veri.expenses.reduce((t: number, x: Record<string, unknown>) => t + (String(x.tarih || "").startsWith(ay) ? sayi(x.tutar) : 0), 0) : 0;
+      toplam.cards += cards; toplam.loans += loans; toplam.overdrafts += overdrafts; toplam.others += others;
+      toplam.debt += cards + loans + overdrafts + others; toplam.income += income; toplam.expense += expense;
+      katilan += 1;
+    } catch { /* Bozuk veya eski kayıt toplama dahil edilmez. */ }
+  }
+  if (katilan < 3) return { available: false, participant_count: katilan, minimum_required: 3 };
+  return {
+    available: true, participant_count: katilan,
+    total_debt: toplam.debt, monthly_income: toplam.income, monthly_expense: toplam.expense,
+    debt_to_monthly_income: toplam.income > 0 ? toplam.debt / toplam.income : null,
+    breakdown: { cards: toplam.cards, loans: toplam.loans, overdrafts: toplam.overdrafts, others: toplam.others },
+  };
+}
