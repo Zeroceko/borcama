@@ -492,10 +492,7 @@ export default function BorcTakip() {
       <datalist id="bt-bankalar">{bankalar.map((b) => <option key={b} value={b} />)}</datalist>
       <div className="bt-wrap">
         <header className="bt-header">
-          <div>
-            <div className="bt-eyebrow">Kişisel Finans Defteri</div>
-            <h1 style={baslikGolgesiStil(isDark, "clamp(26px,6.5vw,40px)")}>Borç &amp; Harcama Takibi</h1>
-          </div>
+          <div><img src="/borcama-logo.png" alt="Borcama" style={{ width: "clamp(150px,22vw,220px)", height: "auto", display: "block" }} /></div>
           <div className="bt-headright">
             <div className="bt-date">{s.getDate()} {AYLAR[s.getMonth()]} {s.getFullYear()}{kaydediliyor && <span style={{ marginLeft: 8 }}>● kaydediliyor</span>}</div>
             <button className="bt-themebtn" onClick={temaAnahtarlarSwitch} title="Tema değiştir">

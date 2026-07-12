@@ -22,8 +22,7 @@ const CSS = `
   position:relative;z-index:1;width:100%; max-width:440px; background:#ffffff; border:3px solid #14160f;
   border-radius:26px; padding:40px 36px;box-shadow:12px 12px 0 #ff6f59;
 }
-.auth-title{font-family:'Archivo Black',sans-serif;font-size:38px;margin:0 0 12px;letter-spacing:-0.03em;line-height:1;
-  color:#14160f;text-shadow:3px 3px 0 #cdf564,5px 5px 0 #ff6f59}
+.auth-title{display:block;width:190px;height:auto;margin:0 0 18px}
 .auth-welcome{font-size:17px;font-weight:800;margin-bottom:7px}
 .auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 24px}
 .auth-input{
@@ -42,7 +41,7 @@ const CSS = `
 .auth-sent svg{color:#5D7A2E}
 .auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
 .auth-foot svg{flex:0 0 auto;margin-top:2px}
-@media(max-width:520px){.auth-card{padding:34px 24px;box-shadow:7px 7px 0 #ff6f59}.auth-back{top:16px;left:16px}.auth-title{font-size:34px}.auth-wrap{padding-top:80px}}
+@media(max-width:520px){.auth-card{padding:34px 24px;box-shadow:7px 7px 0 #ff6f59}.auth-back{top:16px;left:16px}.auth-title{width:170px}.auth-wrap{padding-top:80px}}
 `;
 
 export function useSession() {
@@ -98,7 +97,7 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
       <style>{CSS}</style>
       <a className="auth-back" href="/"><ArrowLeft size={15} /> Ana sayfaya dön</a>
       <div className="auth-card">
-        <div className="auth-title">Borcama</div>
+        <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">Hesabına giriş yap</div>
         <div className="auth-sub">
           E-posta adresini yaz; sana tek kullanımlık bir giriş linki gönderelim. Şifre hatırlamana gerek yok.
