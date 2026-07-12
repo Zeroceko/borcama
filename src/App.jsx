@@ -852,7 +852,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           onClick={() => { setKategori("kontrol"); setForm(null); }}>Ekstre kontrolü</button>
       </div>
 
-      {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">Güncel ekstreler</option>{ekstreAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div>}
+      {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{ekstreAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div>}
 
       {kategori === "kontrol" ? <EkstreKontrol veri={veri} /> : <div className="bt-card">
         <div className="bt-strip">
