@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabaseClient.js";
-import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus, MessageCircle, Send, KeyRound, AtSign, Palette, LogOut, Bell, Building2, Database } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus, MessageCircle, Send, KeyRound, AtSign, Palette, LogOut, Bell, Building2, Database, Settings } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -48,6 +48,7 @@ const CSS = `
   font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${INK};margin-bottom:14px;transform:rotate(-1deg)}
 .bt-headright{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .bt-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim)}
+.bt-settings-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);padding:7px 11px;font:700 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-settings-link:hover,.bt-settings-link.aktif{background:${LIME};color:${INK};border-color:${INK}}
 .bt-themebtn{position:relative;width:54px;height:30px;border-radius:16px;border:2px solid var(--line);background:var(--panel);cursor:pointer;padding:0;flex:0 0 auto}
 .bt-themeknob{position:absolute;top:2px;width:22px;height:22px;border-radius:50%;background:${LIME};border:2px solid ${INK};transition:left .18s ease}
 .bt-themelabel{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);width:34px}
@@ -656,6 +657,7 @@ export default function BorcTakip() {
           <div><img src="/borcama-logo.png" alt="Borcama" style={{ width: "clamp(150px,22vw,220px)", height: "auto", display: "block" }} /></div>
           <div className="bt-headright">
             <div className="bt-date">{s.getDate()} {AYLAR[s.getMonth()]} {s.getFullYear()}{kaydediliyor && <span style={{ marginLeft: 8 }}>● kaydediliyor</span>}</div>
+            <button className={"bt-settings-link " + (sekme === "ayarlar" ? "aktif" : "")} onClick={() => { setSekme("ayarlar"); setForm(null); }}><Settings size={14}/> Ayarlar</button>
             <button className="bt-themebtn" onClick={temaAnahtarlarSwitch} title="Tema değiştir">
               <span className="bt-themeknob" style={{ left: isDark ? 26 : 2 }} />
             </button>
@@ -665,7 +667,7 @@ export default function BorcTakip() {
         </header>
 
         <nav className="bt-nav">
-          {[["ozet","Özet"],["borclar","Borçlar"],["odemeler","Ödemeler"],["plan","Borç Planı"],["gelir","Gelir"],["harcamalar","Harcamalar"],["ayarlar","Ayarlar"]].map(([k, ad]) => (
+          {[["ozet","Özet"],["borclar","Borçlar"],["odemeler","Ödemeler"],["plan","Borç Planı"],["gelir","Gelir"],["harcamalar","Harcamalar"]].map(([k, ad]) => (
             <button key={k} className={"bt-pill " + (sekme === k ? "aktif" : "pasif")} onClick={() => { setSekme(k); setForm(null); }}>{ad}</button>
           ))}
         </nav>
