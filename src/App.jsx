@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabaseClient.js";
-import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus, MessageCircle, Send } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -176,6 +176,9 @@ const CSS = `
 .bt-link{border:none;background:none;color:${CORAL};font-weight:700;cursor:pointer;font-size:inherit;padding:0;font-family:inherit}
 .bt-modal-arka{position:fixed;inset:0;z-index:50;background:#0f110acc;display:flex;align-items:center;justify-content:center;padding:20px}
 .bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
+.bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
+.bt-feedback-trigger:hover{transform:translateY(-1px)}
+.bt-feedback-textarea{min-height:130px;resize:vertical;line-height:1.5;padding-top:12px}
 
 @media (max-width:600px){
   .bt-pill span{display:none}
@@ -318,7 +321,7 @@ function ekHesapHesabi(k) {
 }
 const odemeGecmisiToplami = (gecmis = []) => gecmis.reduce((t, o) => t + Math.max(+o.tutar || 0, 0), 0);
 const gecmisDisiEkHesapOdemesi = (k) => Math.max((+k.yapilanOdeme || 0) - odemeGecmisiToplami(k.odemeGecmisi || []), 0);
-const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, loanPaymentHistory: {}, ayarlar: {}, snapshots: {} };
+const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], feedbacks: [], paid: {}, loanPaymentHistory: {}, ayarlar: {}, snapshots: {} };
 
 const KATEGORI_META = {
   cards: { ad: "Kredi kartları", liste: "cards", rozetBg: LIME },
@@ -406,6 +409,9 @@ export default function BorcTakip() {
   const [sekme, setSekmeState] = useState(() => YOL_SEKMELERI[window.location.pathname] || "ozet");
   const [form, setForm] = useState(null);
   const [kaydediliyor, setKaydediliyor] = useState(false);
+  const [geriBildirimPenceresi, setGeriBildirimPenceresi] = useState(false);
+  const [geriBildirimFormu, setGeriBildirimFormu] = useState({ tur: "Fikir", mesaj: "" });
+  const [geriBildirimGonderildi, setGeriBildirimGonderildi] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -602,6 +608,22 @@ export default function BorcTakip() {
     setForm(null);
   }
 
+  async function geriBildirimGonder(e) {
+    e.preventDefault();
+    const mesaj = geriBildirimFormu.mesaj.trim();
+    if (mesaj.length < 3) return;
+    const kayit = { id: uid(), tur: geriBildirimFormu.tur, mesaj: mesaj.slice(0, 1000), ekran: window.location.pathname, created_at: new Date().toISOString(), durum: "yeni" };
+    await kaydet({ ...veri, feedbacks: [...(veri.feedbacks || []), kayit] });
+    setGeriBildirimGonderildi(true);
+    setGeriBildirimFormu({ tur: "Fikir", mesaj: "" });
+  }
+
+  function geriBildirimKapat() {
+    setGeriBildirimPenceresi(false);
+    setGeriBildirimGonderildi(false);
+    setGeriBildirimFormu({ tur: "Fikir", mesaj: "" });
+  }
+
   const s = bugun();
 
   return (
@@ -641,6 +663,10 @@ export default function BorcTakip() {
           </>
         )}
       </div>
+      <button className="bt-feedback-trigger" onClick={() => setGeriBildirimPenceresi(true)}><MessageCircle size={16}/> Görüş bildir</button>
+      {geriBildirimPenceresi && <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) geriBildirimKapat(); }}><form className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-feedback-baslik" onSubmit={geriBildirimGonder}>
+        {geriBildirimGonderildi ? <><div style={{ width: 44, height: 44, border: "2px solid var(--line)", borderRadius: 13, background: LIME, display: "grid", placeItems: "center", marginBottom: 14 }}><Check size={21}/></div><div id="bt-feedback-baslik" className="bt-h2" style={{ marginBottom: 8 }}>Görüşün bize ulaştı.</div><div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55 }}>Teşekkürler. Bu geri bildirim Borcama yönetim ekranında değerlendirilmek üzere kaydedildi.</div><div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={geriBildirimKapat}>Tamam</button></div></> : <><div id="bt-feedback-baslik" className="bt-h2" style={{ marginBottom: 8 }}><MessageCircle size={19}/> Görüş bildir</div><div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55, marginBottom: 16 }}>Borcama’yı daha iyi yapmak için fikrini veya yaşadığın sorunu paylaş.</div><label className="bt-alan" style={{ display: "grid" }}>Geri bildirim türü<select className="bt-input" value={geriBildirimFormu.tur} onChange={(e) => setGeriBildirimFormu({ ...geriBildirimFormu, tur: e.target.value })}><option>Fikir</option><option>İyileştirme</option><option>Sorun</option></select></label><label className="bt-alan" style={{ display: "grid", marginTop: 12 }}>Mesaj<textarea className="bt-input bt-feedback-textarea" maxLength={1000} placeholder="Ne düşünüyorsun?" value={geriBildirimFormu.mesaj} onChange={(e) => setGeriBildirimFormu({ ...geriBildirimFormu, mesaj: e.target.value })}/></label><div style={{ fontSize: 10.5, color: "var(--faint)", textAlign: "right", marginTop: 5 }}>{geriBildirimFormu.mesaj.length}/1000</div><div className="bt-form-butonlar"><button className="bt-btn birincil" type="submit" disabled={geriBildirimFormu.mesaj.trim().length < 3}><Send size={14}/> Gönder</button><button className="bt-btn ikincil" type="button" onClick={geriBildirimKapat}>Vazgeç</button></div></>}
+      </form></div>}
     </div>
   );
 }

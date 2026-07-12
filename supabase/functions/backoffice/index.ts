@@ -83,13 +83,32 @@ Deno.serve(async (req) => {
 
   const finansal = topluFinansalIstatistik(kayitlar || []);
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
-  return new Response(JSON.stringify({ summary: ozet, financial: finansal, management: yonetim, users: satirlar }), { status: 200, headers });
+  const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
+  return new Response(JSON.stringify({ summary: ozet, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
 });
 
 const sayi = (deger: unknown) => {
   const n = Number(deger);
   return Number.isFinite(n) && n >= 0 && n <= 1_000_000_000_000 ? n : 0;
 };
+
+function geriBildirimleriHazirla(kullanicilar: Array<{ id: string; email?: string }>, kayitlar: Array<{ user_id: string; updated_at: string; value: string }>) {
+  const epostalar = new Map(kullanicilar.map((u) => [u.id, epostaMaskele(u.email || "")]));
+  const izinliTurler = new Set(["Fikir", "İyileştirme", "Sorun"]);
+  const liste: Array<{ id: string; email: string; type: string; message: string; screen: string; created_at: string; status: string }> = [];
+  for (const kayit of kayitlar) {
+    try {
+      const veri = JSON.parse(kayit.value);
+      for (const x of Array.isArray(veri?.feedbacks) ? veri.feedbacks : []) {
+        const mesaj = String(x?.mesaj || "").trim().slice(0, 1000);
+        if (!mesaj) continue;
+        const tur = String(x?.tur || "Fikir");
+        liste.push({ id: String(x?.id || crypto.randomUUID()), email: epostalar.get(kayit.user_id) || "***", type: izinliTurler.has(tur) ? tur : "Fikir", message: mesaj, screen: String(x?.ekran || "/").slice(0, 80), created_at: String(x?.created_at || kayit.updated_at), status: String(x?.durum || "yeni") === "yeni" ? "yeni" : "incelendi" });
+      }
+    } catch { /* Geçersiz kullanıcı verisi geri bildirime dahil edilmez. */ }
+  }
+  return liste.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 100);
+}
 
 function kartBorcu(k: Record<string, unknown>) {
   const yeniModel = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined || k.yapilanOdeme !== undefined;
