@@ -177,6 +177,7 @@ const ayEkle = (ay, adet) => { const [y, m] = String(ay).split("-").map(Number);
 const ayFarki = (ilk, son) => { const [iy, im] = ilk.split("-").map(Number); const [sy, sm] = son.split("-").map(Number); return (sy - iy) * 12 + sm - im; };
 const bugun = () => new Date();
 const ayAnahtari = (d = bugun()) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+const tarihSaatEtiketi = (deger) => { const d = new Date(deger); return Number.isNaN(d.getTime()) ? "Tarih bilgisi yok" : d.toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }); };
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 function sonrakiOdemeTarihi(gun) {
@@ -1177,6 +1178,7 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
           <div className="bt-bar"><div style={{ width: Math.min(barOran * 100, 100) + "%", background: barRenk }} /></div>
         )}
         {kartDetay && <EkstreSatirDetayi detay={kartDetay} />}
+        {kategori === "od" && (k.odemeGecmisi || []).length > 0 && <details style={{ marginTop: 10 }}><summary style={{ cursor: "pointer", color: CORAL, fontSize: 11.5, fontWeight: 800 }}>{k.odemeGecmisi.length} ödeme kaydını görüntüle</summary><div className="bt-stack" style={{ gap: 7, marginTop: 9 }}>{[...k.odemeGecmisi].reverse().map((o) => <div key={o.id || o.tarih} className="bt-metric" style={{ padding: "9px 11px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14 }}><div><div className="bt-metric-lbl">Ödeme girişi</div><div style={{ fontSize: 11, color: "var(--dim)", marginTop: 2 }}>{tarihSaatEtiketi(o.tarih)}</div></div><div className="bt-mono" style={{ fontWeight: 800, whiteSpace: "nowrap" }}>{fmt(o.tutar)}</div></div>)}</div></details>}
       </div>
       <div style={{ textAlign: "right" }}>
         <div className="bt-satir-tutar">{fmt(tutar)}</div>
