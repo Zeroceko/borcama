@@ -1,73 +1,91 @@
-# Borç & Harcama Takibi
+# Borcama
 
-Tüm bankalardaki kredi kartı, kredi, ek hesap (KMH) ve gecikmiş borçları tek yerden
-takip etmek, harcamaları yönetmek ve borç kapatma planı çıkarmak için kişisel web uygulaması.
+**Borçlarını gör, ekstreni kontrol et, kapatma planını oluştur.**
 
-Artık her cihazdan (telefon, bilgisayar, tablet) aynı verilere e-posta ile şifresiz
-giriş yaparak ulaşabilirsiniz. Veriler Supabase'te, yalnızca sizin hesabınıza bağlı
-olarak saklanır — başka hiç kimse göremez.
+Borcama; farklı bankalardaki kredi kartı, kredi, ek hesap (KMH) ve diğer borçları tek ekranda takip etmeyi kolaylaştıran kişisel finans web uygulamasıdır.
 
----
+Kullanıcılar yaklaşan ödemelerini görebilir, banka ekstresiyle kendi harcama kayıtlarını karşılaştırabilir ve borçlarını çığ veya kartopu yöntemine göre sıralayabilir.
 
-## 1. Supabase projesi oluşturma (ücretsiz, ~5 dakika)
+## Özellikler
 
-1. https://supabase.com adresine gidip ücretsiz hesap açın, "New Project" deyin.
-2. Proje adı ve bölge (Frankfurt/EU önerilir) seçip oluşturun — hazırlanması 1-2 dakika sürer.
-3. Sol menüden **SQL Editor**'ü açın, **New query** deyip bu klasördeki `supabase.sql`
-   dosyasının tüm içeriğini yapıştırıp **Run** butonuna basın. Bu, verilerinizin
-   saklanacağı tabloyu ve "herkes sadece kendi verisini görür" kuralını kurar.
-4. Sol menüden **Authentication → Providers → Email**'i açın; "Confirm email"
-   kapalıysa açık bırakın, "Enable email OTP / Magic Link" seçeneğinin açık
-   olduğundan emin olun (varsayılan olarak açıktır).
-5. Sol menüden **Project Settings → API**'ye girin. Burada iki değer lazım:
-   - **Project URL** (örn. `https://xxxxxxxx.supabase.co`)
-   - **anon public** anahtarı (uzun bir metin)
+- Kredi kartı, kredi, ek hesap/KMH ve diğer borçları tek yerde takip etme
+- Banka bazında toplam borç dağılımı
+- Yaklaşan ve gecikmiş ödeme takvimi
+- Kart limitine göre otomatik yasal minimum ödeme hesabı
+- Devreden kredi kartı borcu için tahmini faiz hesabı
+- Manuel harcamaları banka ekstresiyle karşılaştıran ekstre kontrolü
+- Çığ ve kartopu borç kapatma stratejileri
+- Ekstra ödeme ve faiz tasarrufu simülasyonu
+- Aylık gelir, harcama ve net nakit akışı takibi
+- Kullanıcı tarafından yeni banka ekleme
+- Açık ve koyu tema
+- Mobil, tablet ve masaüstü uyumlu arayüz
+- E-posta Magic Link ile şifresiz giriş
 
-## 2. Bu projeye bağlama
+## Kullanım akışı
 
-`.env.example` dosyasını `.env.local` olarak kopyalayıp içine az önce aldığınız
-iki değeri yapıştırın:
+1. Kart, kredi ve diğer borçlarınızı ekleyin.
+2. Ekstre borcunuzu ve yaptığınız ödemeyi girin.
+3. Yaklaşan minimum ödemeleri ve tahmini faizi görün.
+4. Harcamalarınızı doğru kart veya banka hesabıyla kaydedin.
+5. Ekstre kontrolü ekranında banka verileriyle kendi kayıtlarınızı karşılaştırın.
+6. Borç planından kapatmak istediğiniz sırayı belirleyin.
 
-    VITE_SUPABASE_URL=https://xxxxxxxx.supabase.co
-    VITE_SUPABASE_ANON_KEY=eyJhbGci...
+## Teknolojiler
 
-## 3. Bilgisayarda deneme
+- React 18
+- Vite 5
+- Supabase Authentication ve Database
+- Lucide React
+- Vercel uyumlu deployment
 
-    npm install
-    npm run dev
+## Yerel geliştirme
 
-Tarayıcıda http://localhost:5173 açılır. E-posta adresinizi girip "Giriş linki gönder"e
-basın, gelen kutunuzdaki linke tıklayın — otomatik giriş yapılır.
+Gereksinimler: Node.js 18 veya daha yeni bir sürüm.
 
-## 4. Vercel'e yayınlama
+```bash
+npm install
+npm run dev
+```
 
-1. Bu klasörü GitHub'da **Private** bir repoya yükleyin.
-2. https://vercel.com'da GitHub hesabınızla giriş yapıp "Add New → Project" ile
-   reponuzu seçin.
-3. **Environment Variables** bölümüne `.env.local` dosyanızdaki iki satırı
-   (VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY) aynen ekleyin — bu adım kritik,
-   atlarsanız site açılır ama giriş çalışmaz.
-4. **Deploy**'a basın. 1 dakika içinde `xxx.vercel.app` adresiniz hazır olur.
-5. Son bir adım: Supabase panelinde **Authentication → URL Configuration**'a girip
-   "Site URL" ve "Redirect URLs" alanlarına Vercel'in verdiği adresi
-   (`https://xxx.vercel.app`) ekleyin. Bu olmadan giriş linki sizi doğru sayfaya
-   yönlendirmez.
+Supabase ortam değişkenleri tanımlı değilse uygulama yerel demo modunda açılır. Demo verileri yalnızca tarayıcınızda saklanır.
 
-Bundan sonra repoya her push ettiğinizde site otomatik güncellenir.
+Production build oluşturmak için:
 
-## Nasıl çalışıyor, veriler nerede duruyor?
+```bash
+npm run build
+```
 
-- Her e-posta adresi Supabase'te ayrı bir kullanıcı olarak kaydolur (şifre yok,
-  her girişte yeni bir link istenir).
-- Verileriniz Supabase'in veritabanında, yalnızca sizin kullanıcı kimliğinizle
-  eşleşen satırlarda tutulur (satır seviyesi güvenlik / RLS ile korunur) —
-  Supabase hesabınıza başka biri erişmediği sürece veriler size özeldir.
-- Aynı e-posta ile hangi cihazdan giriş yaparsanız yapın aynı verileri görürsünüz.
+## Supabase kurulumu
 
-## Önemli notlar
+1. [Supabase](https://supabase.com) üzerinde yeni bir proje oluşturun.
+2. SQL Editor ekranında [`supabase.sql`](./supabase.sql) dosyasını çalıştırın.
+3. Authentication bölümünden Email / Magic Link girişini etkinleştirin.
+4. `.env.example` dosyasını `.env.local` adıyla kopyalayın.
+5. Supabase proje bilgilerinizi ekleyin:
 
-- `.env.local` dosyasını asla GitHub'a yüklemeyin (`.gitignore` zaten engelliyor) —
-  içindeki anon anahtar herkese açık olsa da, bu proje Supabase URL'nizi
-  gizli tutmak isteyenler için önemlidir.
-- Finansal veriler hassastır: Supabase panelinizin şifresini kimseyle paylaşmayın.
-- Ücretsiz Supabase katmanı bu ölçekteki kişisel kullanım için fazlasıyla yeterlidir.
+```env
+VITE_SUPABASE_URL=https://xxxxxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Supabase Row Level Security (RLS) politikaları sayesinde her kullanıcı yalnızca kendi kayıtlarına erişir.
+
+## Vercel'e yayınlama
+
+1. GitHub deposunu Vercel'e bağlayın.
+2. `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY` değerlerini Vercel Environment Variables bölümüne ekleyin.
+3. Projeyi deploy edin.
+4. Vercel adresinizi Supabase **Authentication → URL Configuration** alanında Site URL ve Redirect URL olarak tanımlayın.
+
+## Veri modeli
+
+Uygulama verileri Supabase'teki `kv_store` tablosunda kullanıcı hesabına bağlı olarak saklanır. Oturum açan kullanıcı aynı verilere telefon, tablet veya bilgisayarından ulaşabilir.
+
+## Sürümler
+
+Kararlı sürümler ve indirilebilir kaynak arşivleri için [Releases](https://github.com/Zeroceko/borcama/releases) sayfasını ziyaret edebilirsiniz.
+
+## Not
+
+Borcama bir kişisel takip ve planlama aracıdır; finansal danışmanlık hizmeti sunmaz. Faiz hesapları yaklaşık sonuç verir ve banka ekstresinin yerine geçmez.
