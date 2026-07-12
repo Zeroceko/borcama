@@ -185,7 +185,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     e.preventDefault();
     if (!eposta.trim()) return;
     if (!supabaseHazir) {
-      setHata("Yerel önizleme e-posta gönderemez. Parola yenileme işlemini canlı borcama.com giriş ekranından yapmalısınız.");
+      setHata(
+        "Yerel önizleme e-posta gönderemez. Parola yenileme işlemini canlı borcama.com giriş ekranından yapmalısınız.",
+      );
       return;
     }
     setGonderiliyor(true);
@@ -624,11 +626,29 @@ export function ParolaYenileEkrani() {
       });
     setDurum({ kaydediliyor: true, hata: "", tamam: false });
     const { error } = await supabase.auth.updateUser({ password: parola });
+    let hataMesaji = "";
+    if (error?.code === "same_password")
+      hataMesaji =
+        "Yeni parolan önceki parolanla aynı olamaz. Farklı bir parola seç.";
+    else if (error?.code === "weak_password")
+      hataMesaji =
+        "Bu parola yeterince güçlü değil. Daha uzun; harf, rakam ve sembol içeren bir parola seç.";
+    else if (
+      [
+        "reauthentication_needed",
+        "reauth_nonce_missing",
+        "reauthentication_not_valid",
+      ].includes(error?.code)
+    )
+      hataMesaji =
+        "Güvenlik doğrulaması yenilenmeli. Giriş ekranından yeni bir parola yenileme bağlantısı iste.";
+    else if (error)
+      hataMesaji = `Parola yenilenemedi. Yeni bir bağlantı isteyip tekrar dene${error.code ? ` (Hata: ${error.code})` : ""}.`;
     setDurum(
       error
         ? {
             kaydediliyor: false,
-            hata: "Parola yenilenemedi. Bağlantının süresi dolmuş olabilir.",
+            hata: hataMesaji,
             tamam: false,
           }
         : { kaydediliyor: false, hata: "", tamam: true },
@@ -683,8 +703,8 @@ export function ParolaYenileEkrani() {
           <>
             <div className="auth-welcome">Yeni parolanı belirle</div>
             <div className="auth-sub">
-              En az 8 karakterli, başka hesaplarında kullanmadığın bir parola
-              seç.
+              En az 8 karakterli, önceki parolandan farklı ve başka hesaplarında
+              kullanmadığın bir parola seç.
             </div>
             {durum.hata && <div className="auth-error">{durum.hata}</div>}
             <form onSubmit={parolayiKaydet}>
