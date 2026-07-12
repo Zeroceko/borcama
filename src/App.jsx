@@ -235,6 +235,8 @@ const KATEGORI_META = {
   od: { ad: "Ek hesap / KMH", liste: "overdrafts", rozetBg: CORAL },
   others: { ad: "Gecikmiş / diğer", liste: "others", rozetBg: "#d8c9a0" },
 };
+const SEKME_YOLLARI = { ozet: "/summary", borclar: "/debts", plan: "/debt-plan", gelir: "/income", harcamalar: "/expenses" };
+const YOL_SEKMELERI = Object.fromEntries(Object.entries(SEKME_YOLLARI).map(([sekme, yol]) => [yol, sekme]));
 
 /* Tüm borçları tek listede toplayan model — plan ve banka kırılımı bunun üstünde çalışır */
 function borcKalemleri(veri) {
@@ -302,11 +304,14 @@ function borcKalemleri(veri) {
 /* ---------------- Ana bileşen ---------------- */
 export default function BorcTakip() {
   // Bu satır web sürümünde (supabaseClient bağlı) gerçek çıkışla değiştirilir; artifact önizlemesinde zararsızdır.
-  const cikisYap = () => supabase.auth.signOut();
+  const cikisYap = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
   const [veri, setVeri] = useState(BOS_VERI);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState("");
-  const [sekme, setSekme] = useState("ozet");
+  const [sekme, setSekmeState] = useState(() => YOL_SEKMELERI[window.location.pathname] || "ozet");
   const [form, setForm] = useState(null);
   const [kaydediliyor, setKaydediliyor] = useState(false);
 
@@ -319,6 +324,18 @@ export default function BorcTakip() {
       finally { setYukleniyor(false); }
     })();
   }, []);
+
+  useEffect(() => {
+    const geriIleri = () => setSekmeState(YOL_SEKMELERI[window.location.pathname] || "ozet");
+    window.addEventListener("popstate", geriIleri);
+    return () => window.removeEventListener("popstate", geriIleri);
+  }, []);
+
+  function setSekme(yeniSekme) {
+    setSekmeState(yeniSekme);
+    const yol = SEKME_YOLLARI[yeniSekme];
+    if (yol && window.location.pathname !== yol) window.history.pushState({}, "", yol);
+  }
 
   async function kaydet(yeni) {
     const kalemler = borcKalemleri(yeni);

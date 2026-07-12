@@ -70,7 +70,7 @@ export function GirisEkrani() {
     setHata("");
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
-      options: { emailRedirectTo: window.location.origin + "/?app=1" },
+      options: { emailRedirectTo: window.location.origin + "/summary" },
     });
     setGonderiliyor(false);
     if (error) setHata("Link gönderilemedi: " + error.message);

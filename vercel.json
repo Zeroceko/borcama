@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/classic", "destination": "/index.html" },
+    { "source": "/summary", "destination": "/index.html" },
+    { "source": "/debts", "destination": "/index.html" },
+    { "source": "/debt-plan", "destination": "/index.html" },
+    { "source": "/income", "destination": "/index.html" },
+    { "source": "/expenses", "destination": "/index.html" }
+  ]
+}

@@ -8,11 +8,11 @@ import { supabaseHazir } from './supabaseClient.js'
 import './storage.js'
 
 function Kok() {
-  const params = new URLSearchParams(window.location.search)
-  const girisOnizleme = params.get('auth') === '1'
-  if (girisOnizleme) return <GirisEkrani />
-  if (params.get('landing') === 'classic') return <Landing />
-  if (params.get('app') !== '1') return <LandingAlt />
+  const yol = window.location.pathname.replace(/\/+$/, '') || '/'
+  if (yol === '/login') return <GirisEkrani />
+  if (yol === '/classic') return <Landing />
+  const uygulamaYollari = ['/summary', '/debts', '/debt-plan', '/income', '/expenses']
+  if (!uygulamaYollari.includes(yol)) return <LandingAlt />
   if (!supabaseHazir) return <App />
   return <KimlikliKok />
 }
