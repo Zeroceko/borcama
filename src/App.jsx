@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabaseClient.js";
-import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus, MessageCircle, Send } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus, MessageCircle, Send, KeyRound, AtSign, Palette, LogOut, Bell, Building2, Database } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -179,6 +179,7 @@ const CSS = `
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
 .bt-feedback-textarea{min-height:130px;resize:vertical;line-height:1.5;padding-top:12px}
+.bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:20px}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--line) 22%,transparent)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
 
 @media (max-width:600px){
   .bt-pill span{display:none}
@@ -329,7 +330,7 @@ const KATEGORI_META = {
   od: { ad: "Ek hesap / KMH", liste: "overdrafts", rozetBg: CORAL },
   others: { ad: "Devreden / gecikmiş / diğer", liste: "others", rozetBg: "#d8c9a0" },
 };
-const SEKME_YOLLARI = { ozet: "/summary", borclar: "/debts", odemeler: "/payments", plan: "/debt-plan", gelir: "/income", harcamalar: "/expenses" };
+const SEKME_YOLLARI = { ozet: "/summary", borclar: "/debts", odemeler: "/payments", plan: "/debt-plan", gelir: "/income", harcamalar: "/expenses", ayarlar: "/settings" };
 const YOL_SEKMELERI = Object.fromEntries(Object.entries(SEKME_YOLLARI).map(([sekme, yol]) => [yol, sekme]));
 
 /* Tüm borçları tek listede toplayan model — plan ve banka kırılımı bunun üstünde çalışır */
@@ -412,6 +413,10 @@ export default function BorcTakip() {
   const [geriBildirimPenceresi, setGeriBildirimPenceresi] = useState(false);
   const [geriBildirimFormu, setGeriBildirimFormu] = useState({ tur: "Fikir", mesaj: "" });
   const [geriBildirimGonderildi, setGeriBildirimGonderildi] = useState(false);
+  const [parolaPenceresi, setParolaPenceresi] = useState(false);
+  const [parolaFormu, setParolaFormu] = useState({ parola: "", tekrar: "", gorunur: false });
+  const [parolaDurumu, setParolaDurumu] = useState({ kaydediliyor: false, hata: "", tamam: false });
+  const [kullaniciEposta, setKullaniciEposta] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -435,6 +440,8 @@ export default function BorcTakip() {
     window.addEventListener("popstate", geriIleri);
     return () => window.removeEventListener("popstate", geriIleri);
   }, []);
+
+  useEffect(() => { supabase.auth.getUser().then(({ data }) => setKullaniciEposta(data?.user?.email || "")); }, []);
 
   function setSekme(yeniSekme) {
     setSekmeState(yeniSekme);
@@ -624,6 +631,20 @@ export default function BorcTakip() {
     setGeriBildirimFormu({ tur: "Fikir", mesaj: "" });
   }
 
+  async function parolaKaydet(e) {
+    e.preventDefault();
+    if (parolaFormu.parola.length < 8) return setParolaDurumu({ kaydediliyor: false, hata: "Parolanız en az 8 karakter olmalı.", tamam: false });
+    if (parolaFormu.parola !== parolaFormu.tekrar) return setParolaDurumu({ kaydediliyor: false, hata: "Parolalar birbiriyle eşleşmiyor.", tamam: false });
+    setParolaDurumu({ kaydediliyor: true, hata: "", tamam: false });
+    const { error } = await supabase.auth.updateUser({ password: parolaFormu.parola });
+    setParolaDurumu(error ? { kaydediliyor: false, hata: "Parola kaydedilemedi. Lütfen tekrar deneyin.", tamam: false } : { kaydediliyor: false, hata: "", tamam: true });
+    if (!error) setParolaFormu({ parola: "", tekrar: "", gorunur: false });
+  }
+
+  function parolaPenceresiniKapat() {
+    setParolaPenceresi(false); setParolaFormu({ parola: "", tekrar: "", gorunur: false }); setParolaDurumu({ kaydediliyor: false, hata: "", tamam: false });
+  }
+
   const s = bugun();
 
   return (
@@ -644,7 +665,7 @@ export default function BorcTakip() {
         </header>
 
         <nav className="bt-nav">
-          {[["ozet","Özet"],["borclar","Borçlar"],["odemeler","Ödemeler"],["plan","Borç Planı"],["gelir","Gelir"],["harcamalar","Harcamalar"]].map(([k, ad]) => (
+          {[["ozet","Özet"],["borclar","Borçlar"],["odemeler","Ödemeler"],["plan","Borç Planı"],["gelir","Gelir"],["harcamalar","Harcamalar"],["ayarlar","Ayarlar"]].map(([k, ad]) => (
             <button key={k} className={"bt-pill " + (sekme === k ? "aktif" : "pasif")} onClick={() => { setSekme(k); setForm(null); }}>{ad}</button>
           ))}
         </nav>
@@ -660,6 +681,7 @@ export default function BorcTakip() {
             {sekme === "plan" && <Plan kalemler={kalemler} aylikFaiz={aylikFaiz} setSekme={setSekme} />}
             {sekme === "gelir" && <Gelirler veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} buAyGelir={buAyGelir} />}
             {sekme === "harcamalar" && <Harcamalar veri={veri} form={form} setForm={setForm} harcamaKaydet={harcamaKaydet} sil={sil} buAyHarcama={buAyHarcama} bankalar={bankalar} />}
+            {sekme === "ayarlar" && <Ayarlar eposta={kullaniciEposta} isDark={isDark} temaDegistir={temaAnahtarlarSwitch} parolaAc={() => setParolaPenceresi(true)} cikisYap={cikisYap} />}
           </>
         )}
       </div>
@@ -667,8 +689,21 @@ export default function BorcTakip() {
       {geriBildirimPenceresi && <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) geriBildirimKapat(); }}><form className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-feedback-baslik" onSubmit={geriBildirimGonder}>
         {geriBildirimGonderildi ? <><div style={{ width: 44, height: 44, border: "2px solid var(--line)", borderRadius: 13, background: LIME, display: "grid", placeItems: "center", marginBottom: 14 }}><Check size={21}/></div><div id="bt-feedback-baslik" className="bt-h2" style={{ marginBottom: 8 }}>Görüşün bize ulaştı.</div><div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55 }}>Teşekkürler. Bu geri bildirim Borcama yönetim ekranında değerlendirilmek üzere kaydedildi.</div><div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={geriBildirimKapat}>Tamam</button></div></> : <><div id="bt-feedback-baslik" className="bt-h2" style={{ marginBottom: 8 }}><MessageCircle size={19}/> Görüş bildir</div><div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55, marginBottom: 16 }}>Borcama’yı daha iyi yapmak için fikrini veya yaşadığın sorunu paylaş.</div><label className="bt-alan" style={{ display: "grid" }}>Geri bildirim türü<select className="bt-input" value={geriBildirimFormu.tur} onChange={(e) => setGeriBildirimFormu({ ...geriBildirimFormu, tur: e.target.value })}><option>Fikir</option><option>İyileştirme</option><option>Sorun</option></select></label><label className="bt-alan" style={{ display: "grid", marginTop: 12 }}>Mesaj<textarea className="bt-input bt-feedback-textarea" maxLength={1000} placeholder="Ne düşünüyorsun?" value={geriBildirimFormu.mesaj} onChange={(e) => setGeriBildirimFormu({ ...geriBildirimFormu, mesaj: e.target.value })}/></label><div style={{ fontSize: 10.5, color: "var(--faint)", textAlign: "right", marginTop: 5 }}>{geriBildirimFormu.mesaj.length}/1000</div><div className="bt-form-butonlar"><button className="bt-btn birincil" type="submit" disabled={geriBildirimFormu.mesaj.trim().length < 3}><Send size={14}/> Gönder</button><button className="bt-btn ikincil" type="button" onClick={geriBildirimKapat}>Vazgeç</button></div></>}
       </form></div>}
+      {parolaPenceresi && <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) parolaPenceresiniKapat(); }}><form className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-parola-baslik" onSubmit={parolaKaydet}>
+        {parolaDurumu.tamam ? <><div style={{ width: 44, height: 44, border: "2px solid var(--line)", borderRadius: 13, background: LIME, display: "grid", placeItems: "center", marginBottom: 14 }}><Check size={21}/></div><div id="bt-parola-baslik" className="bt-h2" style={{ marginBottom: 8 }}>Parolan hazır.</div><div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55 }}>Bundan sonra giriş ekranından e-posta ve parolanla giriş yapabilirsin. E-posta linki seçeneği de kullanılmaya devam edecek.</div><div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={parolaPenceresiniKapat}>Tamam</button></div></> : <><div id="bt-parola-baslik" className="bt-h2" style={{ marginBottom: 8 }}><KeyRound size={19}/> Parola belirle veya değiştir</div><div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55, marginBottom: 16 }}>En az 8 karakterli bir parola belirle. Parolan Supabase tarafından güvenli biçimde saklanır.</div>{parolaDurumu.hata && <div className="bt-card" style={{ padding: 10, borderColor: CORAL, color: CORAL, fontSize: 12, marginBottom: 12 }}>{parolaDurumu.hata}</div>}<label className="bt-alan" style={{ display: "grid" }}>Yeni parola<div style={{ position: "relative" }}><input className="bt-input" style={{ paddingRight: 45 }} type={parolaFormu.gorunur ? "text" : "password"} value={parolaFormu.parola} onChange={(e) => setParolaFormu({ ...parolaFormu, parola: e.target.value })} autoFocus required/><button className="bt-btn hayalet" style={{ position: "absolute", right: 5, top: 5 }} type="button" aria-label={parolaFormu.gorunur ? "Parolayı gizle" : "Parolayı göster"} onClick={() => setParolaFormu({ ...parolaFormu, gorunur: !parolaFormu.gorunur })}>{parolaFormu.gorunur ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label><label className="bt-alan" style={{ display: "grid", marginTop: 12 }}>Yeni parola tekrar<input className="bt-input" type={parolaFormu.gorunur ? "text" : "password"} value={parolaFormu.tekrar} onChange={(e) => setParolaFormu({ ...parolaFormu, tekrar: e.target.value })} required/></label><div className="bt-form-butonlar"><button className="bt-btn birincil" type="submit" disabled={parolaDurumu.kaydediliyor}><KeyRound size={14}/>{parolaDurumu.kaydediliyor ? "Kaydediliyor…" : "Parolayı kaydet"}</button><button className="bt-btn ikincil" type="button" onClick={parolaPenceresiniKapat}>Vazgeç</button></div></>}
+      </form></div>}
     </div>
   );
+}
+
+function Ayarlar({ eposta, isDark, temaDegistir, parolaAc, cikisYap }) {
+  return <div className="bt-stack"><div><div className="bt-eyebrow">Hesabın</div><div className="bt-display" style={{ fontSize: "clamp(28px,5vw,42px)" }}>Ayarlar</div><div style={{ color: "var(--dim)", fontSize: 13, marginTop: 7 }}>Hesap, giriş, görünüm ve veri tercihlerini buradan yönet.</div></div><div className="bt-settings-grid">
+    <section className="bt-settings-card"><div className="bt-settings-title"><AtSign size={18}/> Hesap</div><div className="bt-setting-row"><div><strong>E-posta adresi</strong><small>{eposta || "Yükleniyor…"}</small></div></div><div className="bt-setting-row"><div><strong>Parola</strong><small>Parola belirle veya mevcut parolanı değiştir.</small></div><button className="bt-btn kucuk ikincil" onClick={parolaAc}><KeyRound size={14}/> Parolayı yönet</button></div><div className="bt-setting-row"><div><strong>Oturum</strong><small>Bu cihazdaki Borcama oturumunu kapat.</small></div><button className="bt-btn kucuk ikincil" onClick={cikisYap}><LogOut size={14}/> Çıkış yap</button></div></section>
+    <section className="bt-settings-card"><div className="bt-settings-title"><KeyRound size={18}/> Giriş yöntemleri</div><div className="bt-setting-row"><div><strong>E-posta linki</strong><small>Tek kullanımlık güvenli bağlantıyla parolasız giriş.</small></div><span className="bt-yakinda" style={{ color: "#5D7A2E" }}>Aktif</span></div><div className="bt-setting-row"><div><strong>Parola ile giriş</strong><small>Parola belirledikten sonra e-posta ve parolanı kullan.</small></div><span className="bt-yakinda" style={{ color: "#5D7A2E" }}>Kullanılabilir</span></div></section>
+    <section className="bt-settings-card"><div className="bt-settings-title"><Palette size={18}/> Görünüm</div><div className="bt-setting-row"><div><strong>Tema</strong><small>Şu an {isDark ? "koyu" : "açık"} tema kullanılıyor.</small></div><button className="bt-btn kucuk ikincil" onClick={temaDegistir}>{isDark ? "Açık temaya geç" : "Koyu temaya geç"}</button></div></section>
+    <section className="bt-settings-card"><div className="bt-settings-title"><Bell size={18}/> Bildirimler</div><div className="bt-setting-row"><div><strong>Ödeme hatırlatmaları</strong><small>Yaklaşan kredi ve kart ödemeleri.</small></div><span className="bt-yakinda">Yakında</span></div><div className="bt-setting-row"><div><strong>Ekstre hatırlatmaları</strong><small>Yeni dönem ekstresi giriş zamanı.</small></div><span className="bt-yakinda">Yakında</span></div></section>
+    <section className="bt-settings-card wide"><div className="bt-settings-title"><Database size={18}/> Veri ve yönetim</div><div className="bt-setting-row"><div><strong>Bankaları yönet</strong><small>Özel banka adlarını düzenle veya kaldır.</small></div><span className="bt-yakinda"><Building2 size={11}/> Yakında</span></div><div className="bt-setting-row"><div><strong>Verileri dışa aktar</strong><small>Borcama kayıtlarının kişisel bir kopyasını indir.</small></div><span className="bt-yakinda">Yakında</span></div><div className="bt-setting-row"><div><strong>Hesabı ve verileri sil</strong><small>Tüm Borcama verilerini kalıcı olarak kaldır.</small></div><span className="bt-yakinda">Yakında</span></div></section>
+  </div></div>;
 }
 
 /* ---------------- Özet ---------------- */

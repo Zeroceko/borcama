@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient.js";
-import { ArrowLeft, Mail, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, ShieldCheck, LogOut, CheckCircle2, KeyRound, Eye, EyeOff } from "lucide-react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -30,6 +30,11 @@ const CSS = `
   background:#f4efe0; color:#14160f; font-size:14px; font-family:inherit; margin-bottom:12px;
 }
 .auth-input::placeholder{color:#8a8c7e}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;border:2px solid #14160f;border-radius:999px;background:#f4efe0;margin-bottom:18px}
+.auth-tab{border:0;border-radius:999px;padding:8px 10px;background:transparent;color:#55584c;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.auth-tab.active{background:#14160f;color:#fff}
+.auth-password{position:relative}.auth-password .auth-input{padding-right:46px}.auth-eye{position:absolute;right:7px;top:7px;width:34px;height:34px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:#55584c}
+.auth-help{font-size:11.5px;color:#777a6d;line-height:1.45;margin:-2px 0 12px}
 .auth-btn{
   width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
   font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
@@ -57,7 +62,10 @@ export function useSession() {
 }
 
 export function GirisEkrani({ redirectTo = "/summary" }) {
+  const [yontem, setYontem] = useState("link");
   const [eposta, setEposta] = useState("");
+  const [parola, setParola] = useState("");
+  const [parolaGorunur, setParolaGorunur] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
@@ -92,6 +100,20 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
     else setGonderildi(true);
   }
 
+  async function parolaylaGiris(e) {
+    e.preventDefault();
+    if (!eposta.trim() || !parola) return;
+    setGonderiliyor(true); setHata("");
+    const { error } = await supabase.auth.signInWithPassword({ email: eposta.trim(), password: parola, options: { captchaToken: captchaToken || undefined } });
+    setGonderiliyor(false);
+    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin." : "E-posta veya parola hatalı. Parolanız yoksa giriş linki kullanabilirsiniz.");
+    else window.location.href = redirectTo;
+  }
+
+  function yontemDegistir(yeni) {
+    setYontem(yeni); setHata(""); setGonderildi(false);
+  }
+
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
@@ -99,13 +121,12 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">Hesabına giriş yap</div>
-        <div className="auth-sub">
-          E-posta adresini yaz; sana tek kullanımlık bir giriş linki gönderelim. Şifre hatırlamana gerek yok.
-        </div>
+        <div className="auth-sub">Giriş yöntemini seç. İstersen tek kullanımlık bağlantı, istersen parolanı kullan.</div>
+        <div className="auth-tabs"><button className={"auth-tab " + (yontem === "link" ? "active" : "")} onClick={() => yontemDegistir("link")} type="button">E-posta linki</button><button className={"auth-tab " + (yontem === "parola" ? "active" : "")} onClick={() => yontemDegistir("parola")} type="button">Parola</button></div>
 
         {hata && <div className="auth-error">{hata}</div>}
 
-        {gonderildi ? (
+        {gonderildi && yontem === "link" ? (
           <div className="auth-sent">
             <CheckCircle2 size={34} />
             <div style={{ fontWeight: 700, fontSize: 15 }}>Link gönderildi</div>
@@ -114,7 +135,7 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
               (ve spam klasörünü) kontrol edip linke tıklayın — bu sekmeye otomatik döneceksiniz.
             </div>
           </div>
-        ) : (
+        ) : yontem === "link" ? (
           <form onSubmit={linkGonder}>
             <input
               className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta}
@@ -125,7 +146,7 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
               <Mail size={16} /> {gonderiliyor ? "Gönderiliyor…" : "Giriş linki gönder"}
             </button>
           </form>
-        )}
+        ) : <form onSubmit={parolaylaGiris}><input className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta} onChange={(e) => setEposta(e.target.value)} autoFocus required/><div className="auth-password"><input className="auth-input" type={parolaGorunur ? "text" : "password"} placeholder="Parolanız" value={parola} onChange={(e) => setParola(e.target.value)} required/><button className="auth-eye" type="button" aria-label={parolaGorunur ? "Parolayı gizle" : "Parolayı göster"} onClick={() => setParolaGorunur(!parolaGorunur)}>{parolaGorunur ? <EyeOff size={17}/> : <Eye size={17}/>}</button></div><div className="auth-help">Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz.</div>{turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }}/>}<button className="auth-btn" type="submit" disabled={gonderiliyor || !parola || Boolean(turnstileSiteKey && !captchaToken)}><KeyRound size={16}/>{gonderiliyor ? "Giriş yapılıyor…" : "Parolayla giriş yap"}</button></form>}
 
         <div className="auth-foot">
           <ShieldCheck size={13} />
