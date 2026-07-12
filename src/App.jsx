@@ -811,6 +811,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
   const [yeniBanka, setYeniBanka] = useState("");
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
+  const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const guncelEkstreAyi = useMemo(() => {
     const aylar = veri.cards.flatMap((k) => [k.ekstreAyi, ...(k.ekstreGecmisi || []).map((e) => e.ekstreAyi)]).filter(Boolean).sort();
@@ -989,10 +990,16 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   }
 
   function ekHesapOdemesiSil(kart, odeme) {
-    if (!window.confirm(fmt(odeme.tutar) + " tutarındaki ödeme kaydı silinsin mi?")) return;
+    setSilinecekEkHesapOdemesi({ kart, odeme });
+  }
+
+  function ekHesapOdemesiSilmeyiOnayla() {
+    if (!silinecekEkHesapOdemesi) return;
+    const { kart, odeme } = silinecekEkHesapOdemesi;
     const odemeGecmisi = (kart.odemeGecmisi || []).filter((o) => odeme.id ? o.id !== odeme.id : o.tarih !== odeme.tarih);
     const yapilanOdeme = gecmisDisiEkHesapOdemesi(kart) + odemeGecmisiToplami(odemeGecmisi);
     ekleGuncelle("overdrafts", { ...kart, yapilanOdeme, odemeGecmisi });
+    setSilinecekEkHesapOdemesi(null);
   }
 
   return (
@@ -1089,6 +1096,20 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
               <button className="bt-btn ikincil" type="button" onClick={() => { setBankaPenceresi(false); setYeniBanka(""); }}>Vazgeç</button>
             </div>
           </form>
+        </div>
+      )}
+      {silinecekEkHesapOdemesi && (
+        <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setSilinecekEkHesapOdemesi(null); }}>
+          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-odeme-sil-baslik">
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: CORAL, border: "2px solid var(--line)", display: "grid", placeItems: "center", marginBottom: 14 }}><Trash2 size={20}/></div>
+            <div id="bt-odeme-sil-baslik" className="bt-h2" style={{ marginBottom: 8 }}>Ödeme kaydı silinsin mi?</div>
+            <div style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55 }}>Bu işlem <b style={{ color: "var(--text)" }}>{silinecekEkHesapOdemesi.kart.banka}</b> ek hesabındaki <b style={{ color: "var(--text)" }}>{fmt(silinecekEkHesapOdemesi.odeme.tutar)}</b> tutarındaki ödeme kaydını kaldıracak. Kalan borç ve faiz yeniden hesaplanacak.</div>
+            <div className="bt-metric" style={{ padding: 11, marginTop: 14 }}><div className="bt-metric-lbl">Kayıt tarihi</div><div style={{ fontWeight: 700, marginTop: 3 }}>{tarihSaatEtiketi(silinecekEkHesapOdemesi.odeme.tarih)}</div></div>
+            <div className="bt-form-butonlar">
+              <button className="bt-btn birincil" style={{ background: CORAL }} type="button" onClick={ekHesapOdemesiSilmeyiOnayla}><Trash2 size={14}/> Evet, sil</button>
+              <button className="bt-btn ikincil" type="button" onClick={() => setSilinecekEkHesapOdemesi(null)}>Vazgeç</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
