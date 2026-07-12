@@ -840,7 +840,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           <div className="bt-strip-count">{sayacHesapla()}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div className="bt-strip-total bt-mono">{fmt(toplamHesapla())}</div>
-            {!acik && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> Ekle</button>}
+            {!acik && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> {kategori === "cards" ? "Yeni kart ekle" : kategori === "loans" ? "Yeni kredi ekle" : kategori === "od" ? "Yeni ek hesap ekle" : "Yeni borç ekle"}</button>}
           </div>
         </div>
 
