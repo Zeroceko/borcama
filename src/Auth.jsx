@@ -626,11 +626,12 @@ export function ParolaYenileEkrani() {
       });
     setDurum({ kaydediliyor: true, hata: "", tamam: false });
     const { error } = await supabase.auth.updateUser({ password: parola });
+    if (error?.code === "same_password") {
+      setDurum({ kaydediliyor: false, hata: "", tamam: true });
+      return;
+    }
     let hataMesaji = "";
-    if (error?.code === "same_password")
-      hataMesaji =
-        "Yeni parolan önceki parolanla aynı olamaz. Farklı bir parola seç.";
-    else if (error?.code === "weak_password")
+    if (error?.code === "weak_password")
       hataMesaji =
         "Bu parola yeterince güçlü değil. Daha uzun; harf, rakam ve sembol içeren bir parola seç.";
     else if (
@@ -685,12 +686,12 @@ export function ParolaYenileEkrani() {
         ) : durum.tamam ? (
           <div className="auth-sent">
             <CheckCircle2 size={34} />
-            <div style={{ fontWeight: 700, fontSize: 15 }}>
-              Parolan yenilendi
-            </div>
-            <div style={{ fontSize: 13, color: "#55584c" }}>
-              Yeni parolanla hesabını kullanmaya devam edebilirsin.
-            </div>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>
+                Parolan hazır
+              </div>
+              <div style={{ fontSize: 13, color: "#55584c" }}>
+                Bu parolayla hesabını kullanmaya devam edebilirsin.
+              </div>
             <a
               className="auth-btn"
               href="/summary"
@@ -703,8 +704,7 @@ export function ParolaYenileEkrani() {
           <>
             <div className="auth-welcome">Yeni parolanı belirle</div>
             <div className="auth-sub">
-              En az 8 karakterli, önceki parolandan farklı ve başka hesaplarında
-              kullanmadığın bir parola seç.
+              En az 8 karakterli ve kolay tahmin edilemeyecek bir parola seç.
             </div>
             {durum.hata && <div className="auth-error">{durum.hata}</div>}
             <form onSubmit={parolayiKaydet}>
