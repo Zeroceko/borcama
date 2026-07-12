@@ -163,13 +163,29 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       options: { captchaToken: captchaToken || undefined },
     });
     setGonderiliyor(false);
-    if (error)
-      setHata(
-        error.status === 429
-          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
-          : "E-posta veya parola hatalı. Parolanız yoksa giriş linki kullanabilirsiniz.",
-      );
-    else {
+    if (error) {
+      const kod = error.code || "";
+      if (error.status === 429 || kod === "over_request_rate_limit")
+        setHata("Çok fazla deneme yapıldı. Lütfen biraz bekleyin.");
+      else if (["captcha_failed", "captcha_provider_disabled"].includes(kod))
+        setHata(
+          "Güvenlik doğrulaması başarısız oldu. Sayfayı yenileyip tekrar deneyin.",
+        );
+      else if (kod === "email_not_confirmed")
+        setHata(
+          "E-posta adresiniz henüz doğrulanmamış. Gelen kutunuzdaki doğrulama bağlantısını açın.",
+        );
+      else if (kod === "user_banned")
+        setHata("Bu hesabın girişi geçici olarak durdurulmuş.");
+      else if (kod === "invalid_credentials")
+        setHata(
+          "E-posta veya parola eşleşmiyor. Parolanızı kontrol edin ya da yenileme bağlantısı isteyin.",
+        );
+      else
+        setHata(
+          `Giriş tamamlanamadı${kod ? ` (Hata: ${kod})` : ""}. Lütfen tekrar deneyin.`,
+        );
+    } else {
       if (oturumuAcikTut) {
         localStorage.removeItem("borcama_session_only");
         sessionStorage.removeItem("borcama_session_active");
@@ -686,12 +702,10 @@ export function ParolaYenileEkrani() {
         ) : durum.tamam ? (
           <div className="auth-sent">
             <CheckCircle2 size={34} />
-              <div style={{ fontWeight: 700, fontSize: 15 }}>
-                Parolan hazır
-              </div>
-              <div style={{ fontSize: 13, color: "#55584c" }}>
-                Bu parolayla hesabını kullanmaya devam edebilirsin.
-              </div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>Parolan hazır</div>
+            <div style={{ fontSize: 13, color: "#55584c" }}>
+              Bu parolayla hesabını kullanmaya devam edebilirsin.
+            </div>
             <a
               className="auth-btn"
               href="/summary"
