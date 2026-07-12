@@ -35,6 +35,8 @@ const CSS = `
 .auth-tab.active{background:#14160f;color:#fff}
 .auth-password{position:relative}.auth-password .auth-input{padding-right:46px}.auth-eye{position:absolute;right:7px;top:7px;width:34px;height:34px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:#55584c}
 .auth-help{font-size:11.5px;color:#777a6d;line-height:1.45;margin:-2px 0 12px}
+.auth-switch{margin-top:17px;padding-top:16px;border-top:1px solid #dedbce;text-align:center;font-size:12.5px;color:#66695d}
+.auth-switch a{color:#14160f;font-weight:800;text-decoration:underline;text-underline-offset:3px}
 .auth-btn{
   width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
   font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
@@ -61,10 +63,11 @@ export function useSession() {
   return session;
 }
 
-export function GirisEkrani({ redirectTo = "/summary" }) {
+export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [yontem, setYontem] = useState("link");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
+  const [parolaTekrar, setParolaTekrar] = useState("");
   const [parolaGorunur, setParolaGorunur] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
@@ -93,10 +96,14 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
     setHata("");
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
-      options: { emailRedirectTo: window.location.origin + redirectTo, captchaToken: captchaToken || undefined },
+      options: {
+        emailRedirectTo: window.location.origin + redirectTo,
+        captchaToken: captchaToken || undefined,
+        shouldCreateUser: kayitModu,
+      },
     });
     setGonderiliyor(false);
-    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." : "Giriş bağlantısı gönderilemedi. Lütfen tekrar deneyin.");
+    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." : kayitModu ? "Kayıt bağlantısı gönderilemedi. Lütfen tekrar deneyin." : "Bu e-postayla kayıtlı bir hesap bulunamadı veya giriş bağlantısı gönderilemedi.");
     else setGonderildi(true);
   }
 
@@ -110,6 +117,23 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
     else window.location.href = redirectTo;
   }
 
+  async function parolaylaKayit(e) {
+    e.preventDefault();
+    if (!eposta.trim() || !parola) return;
+    if (parola.length < 8) return setHata("Parolanız en az 8 karakter olmalı.");
+    if (parola !== parolaTekrar) return setHata("Parolalar birbiriyle eşleşmiyor.");
+    setGonderiliyor(true); setHata("");
+    const { data, error } = await supabase.auth.signUp({
+      email: eposta.trim(),
+      password: parola,
+      options: { emailRedirectTo: window.location.origin + redirectTo, captchaToken: captchaToken || undefined },
+    });
+    setGonderiliyor(false);
+    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin." : "Hesap oluşturulamadı. E-posta adresini ve parolanı kontrol edip tekrar dene.");
+    else if (data?.session) window.location.href = redirectTo;
+    else setGonderildi(true);
+  }
+
   function yontemDegistir(yeni) {
     setYontem(yeni); setHata(""); setGonderildi(false);
   }
@@ -120,19 +144,19 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
       <a className="auth-back" href="/"><ArrowLeft size={15} /> Ana sayfaya dön</a>
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
-        <div className="auth-welcome">Hesabına giriş yap</div>
-        <div className="auth-sub">Giriş yöntemini seç. İstersen tek kullanımlık bağlantı, istersen parolanı kullan.</div>
-        <div className="auth-tabs"><button className={"auth-tab " + (yontem === "link" ? "active" : "")} onClick={() => yontemDegistir("link")} type="button">E-posta linki</button><button className={"auth-tab " + (yontem === "parola" ? "active" : "")} onClick={() => yontemDegistir("parola")} type="button">Parola</button></div>
+        <div className="auth-welcome">{kayitModu ? "Ücretsiz hesabını oluştur" : "Hesabına giriş yap"}</div>
+        <div className="auth-sub">{kayitModu ? "Borçlarını tek yerde takip etmeye başla. Kayıt yöntemini seç." : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}</div>
+        <div className="auth-tabs"><button className={"auth-tab " + (yontem === "link" ? "active" : "")} onClick={() => yontemDegistir("link")} type="button">E-posta linki</button><button className={"auth-tab " + (yontem === "parola" ? "active" : "")} onClick={() => yontemDegistir("parola")} type="button">{kayitModu ? "Parola oluştur" : "Parola"}</button></div>
 
         {hata && <div className="auth-error">{hata}</div>}
 
         {gonderildi && yontem === "link" ? (
           <div className="auth-sent">
             <CheckCircle2 size={34} />
-            <div style={{ fontWeight: 700, fontSize: 15 }}>Link gönderildi</div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{kayitModu ? "E-postanı kontrol et" : "Link gönderildi"}</div>
             <div style={{ fontSize: 13, color: "#55584c" }}>
-              <b style={{ color: "#14160f" }}>{eposta}</b> adresine bir giriş linki yolladık. Gelen kutunuzu
-              (ve spam klasörünü) kontrol edip linke tıklayın — bu sekmeye otomatik döneceksiniz.
+              <b style={{ color: "#14160f" }}>{eposta}</b> adresine {kayitModu ? "hesabını doğrulayacağın bir bağlantı" : "bir giriş linki"} yolladık. Gelen kutunu
+              (ve spam klasörünü) kontrol edip bağlantıya tıkla.
             </div>
           </div>
         ) : yontem === "link" ? (
@@ -143,10 +167,12 @@ export function GirisEkrani({ redirectTo = "/summary" }) {
             />
             {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }} />}
             <button className="auth-btn" type="submit" disabled={gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)}>
-              <Mail size={16} /> {gonderiliyor ? "Gönderiliyor…" : "Giriş linki gönder"}
+              <Mail size={16} /> {gonderiliyor ? "Gönderiliyor…" : kayitModu ? "Kayıt linki gönder" : "Giriş linki gönder"}
             </button>
           </form>
-        ) : <form onSubmit={parolaylaGiris}><input className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta} onChange={(e) => setEposta(e.target.value)} autoFocus required/><div className="auth-password"><input className="auth-input" type={parolaGorunur ? "text" : "password"} placeholder="Parolanız" value={parola} onChange={(e) => setParola(e.target.value)} required/><button className="auth-eye" type="button" aria-label={parolaGorunur ? "Parolayı gizle" : "Parolayı göster"} onClick={() => setParolaGorunur(!parolaGorunur)}>{parolaGorunur ? <EyeOff size={17}/> : <Eye size={17}/>}</button></div><div className="auth-help">Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz.</div>{turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }}/>}<button className="auth-btn" type="submit" disabled={gonderiliyor || !parola || Boolean(turnstileSiteKey && !captchaToken)}><KeyRound size={16}/>{gonderiliyor ? "Giriş yapılıyor…" : "Parolayla giriş yap"}</button></form>}
+        ) : <form onSubmit={kayitModu ? parolaylaKayit : parolaylaGiris}><input className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta} onChange={(e) => setEposta(e.target.value)} autoFocus required/><div className="auth-password"><input className="auth-input" type={parolaGorunur ? "text" : "password"} placeholder={kayitModu ? "En az 8 karakter parola" : "Parolanız"} value={parola} onChange={(e) => setParola(e.target.value)} minLength={kayitModu ? 8 : undefined} required/><button className="auth-eye" type="button" aria-label={parolaGorunur ? "Parolayı gizle" : "Parolayı göster"} onClick={() => setParolaGorunur(!parolaGorunur)}>{parolaGorunur ? <EyeOff size={17}/> : <Eye size={17}/>}</button></div>{kayitModu && <input className="auth-input" type={parolaGorunur ? "text" : "password"} placeholder="Parolayı tekrar yaz" value={parolaTekrar} onChange={(e) => setParolaTekrar(e.target.value)} required/>}<div className="auth-help">{kayitModu ? "Parolan en az 8 karakter olmalı." : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}</div>{turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }}/>}<button className="auth-btn" type="submit" disabled={gonderiliyor || !parola || Boolean(turnstileSiteKey && !captchaToken)}><KeyRound size={16}/>{gonderiliyor ? (kayitModu ? "Hesap oluşturuluyor…" : "Giriş yapılıyor…") : (kayitModu ? "Hesap oluştur" : "Parolayla giriş yap")}</button></form>}
+
+        <div className="auth-switch">{kayitModu ? <>Zaten hesabın var mı? <a href="/login">Giriş yap</a></> : <>Henüz hesabın yok mu? <a href="/register">Kayıt ol</a></>}</div>
 
         <div className="auth-foot">
           <ShieldCheck size={13} />

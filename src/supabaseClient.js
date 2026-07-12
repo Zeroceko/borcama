@@ -19,6 +19,7 @@ const demoAuth = {
   onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
   signInWithOtp: async () => ({ error: new Error("Demo modunda e-posta girişi kullanılamaz") }),
   signInWithPassword: async () => ({ error: new Error("Demo modunda parola girişi kullanılamaz") }),
+  signUp: async () => ({ data: null, error: new Error("Demo modunda kayıt kullanılamaz") }),
   updateUser: async () => ({ error: new Error("Demo modunda parola belirlenemez") }),
   signOut: async () => ({ error: null }),
 };

@@ -1,7 +1,17 @@
 import React from "react";
-import { ArrowRight, CalendarCheck, Check, CreditCard, ReceiptText, ShieldCheck, Sparkles, Target, WalletCards } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarCheck,
+  Check,
+  CreditCard,
+  ReceiptText,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  WalletCards,
+} from "lucide-react";
 
-const CSS=`
+const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 .la,.la *{box-sizing:border-box}.la{--green:#062d20;--lime:#baff25;--ice:#edf5e7;--ink:#09291f;background:#fff;color:var(--ink);font-family:'Space Grotesk',sans-serif}.la a{color:inherit;text-decoration:none}.la-shell{width:min(1160px,calc(100% - 32px));margin:auto}.la-nav{height:68px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:3}.la-logo{font-family:'Archivo Black';font-size:22px;color:var(--lime);text-shadow:2px 2px 0 var(--green)}.la-links{display:flex;gap:22px;align-items:center;font-size:12px;font-weight:700}.la-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--lime);color:var(--green);border:1.5px solid var(--green);border-radius:999px;padding:11px 18px;font-size:12px;font-weight:800;box-shadow:2px 3px 0 var(--green)}.la-hero{min-height:620px;background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.75) 34%,rgba(255,255,255,0) 62%),url('/borcama-hero-alt.png') center/cover;border-radius:0 0 22px 22px;position:relative;margin-top:-68px;padding-top:68px}.la-hero-in{min-height:552px;display:flex;align-items:center}.la-copy{width:min(540px,52%)}.la-tag{font-size:12px;font-weight:800;color:#51704f;margin-bottom:14px}.la-h1,.la-h2{font-family:'Archivo Black';letter-spacing:-.05em;line-height:.93;margin:0}.la-h1{font-size:clamp(54px,7vw,88px)}.la-mark{display:inline-block;color:var(--lime);text-shadow:3px 4px 0 var(--green);transform:rotate(-2deg)}.la-lead{font-size:16px;line-height:1.6;max-width:440px;margin:22px 0}.la-trust{padding:38px 0;text-align:center;font-size:11px;font-weight:700}.la-trust-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}.la-chip{background:var(--ice);border-radius:6px;padding:10px 15px;font-size:11px}.la-section{padding:90px 0}.la-head{max-width:650px;margin-bottom:38px}.la-h2{font-size:clamp(42px,6vw,68px)}.la-head p{color:#617269;line-height:1.6}.la-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.la-tool{background:var(--ice);border-radius:12px;padding:12px;min-height:390px;display:flex;flex-direction:column}.la-shot{height:190px;border-radius:9px;background:#fff;border:1px solid #c8d8c5;padding:16px;overflow:hidden}.la-shot-total{font-family:'Archivo Black';font-size:30px;margin:10px 0;color:var(--green)}.la-bars i{display:block;height:9px;background:#dce8d7;margin:8px 0;border-radius:5px}.la-bars i:nth-child(2){width:74%;background:var(--lime)}.la-bars i:nth-child(3){width:48%}.la-tool h3{font-size:18px;margin:20px 8px 8px}.la-tool p{font-size:13px;line-height:1.5;color:#586a60;margin:0 8px 18px;flex:1}.la-tool .la-btn{align-self:flex-start;margin:0 8px 8px}.la-dark{background:var(--green);color:white;border-radius:20px;padding:100px 0;overflow:hidden}.la-dark .la-head{text-align:center;margin:0 auto 44px}.la-dark .la-h2 span{color:var(--lime);text-shadow:2px 3px 0 #000}.la-orbit{width:min(820px,90%);min-height:330px;margin:auto;position:relative;border-radius:50% 50% 0 0;background:radial-gradient(circle at 50% 100%,#80bad2 0 24%,#8475ee 25% 38%,#172e59 39% 54%,transparent 55%);border-bottom:1px solid #53675e}.la-bubble{position:absolute;background:#eef3eb;color:var(--green);padding:10px 15px;border-radius:999px;font-size:11px;font-weight:800;box-shadow:0 5px 20px #0005}.la-bubble:nth-child(1){left:8%;top:22%}.la-bubble:nth-child(2){right:6%;top:18%}.la-bubble:nth-child(3){left:28%;top:52%}.la-bubble:nth-child(4){right:28%;top:58%}.la-story{background:var(--ice);border-radius:20px;padding:90px 0}.la-story .la-head{text-align:center;margin:0 auto 48px}.la-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.la-flow-card{text-align:center}.la-icon{width:78px;height:78px;margin:0 auto 16px;border:2px solid var(--green);background:white;border-radius:18px;display:grid;place-items:center;box-shadow:6px 6px 0 var(--lime);transform:rotate(-2deg)}.la-flow-card h3{font-size:15px;margin:0 0 6px}.la-flow-card p{font-size:12px;color:#607268;line-height:1.45}.la-split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.la-phone{background:var(--green);border-radius:30px;padding:26px;box-shadow:14px 14px 0 var(--lime);color:white;transform:rotate(1deg)}.la-phone-top{display:flex;justify-content:space-between;color:#a8b9b0;font-size:11px}.la-debt{font-family:'Archivo Black';font-size:48px;color:var(--lime);margin:18px 0}.la-row{display:flex;justify-content:space-between;align-items:center;background:#123c2e;padding:14px;border-radius:12px;margin-top:9px;font-size:12px}.la-row b{font-size:14px}.la-cta{padding:90px 0}.la-cta-box{background:linear-gradient(120deg,#b7e5ed,#e9efa5);border-radius:22px;padding:70px;text-align:center}.la-cta-box .la-h2{max-width:820px;margin:auto}.la-cta-box p{max-width:550px;margin:20px auto 28px;line-height:1.6}.la-footer{background:#8fd8d8;padding:70px 0 25px}.la-footer-logo{font-family:'Archivo Black';font-size:clamp(70px,13vw,160px);color:var(--lime);text-shadow:6px 8px 0 var(--green);line-height:1;text-align:center}.la-footline{display:flex;justify-content:space-between;border-top:1px solid #3c7772;padding-top:20px;margin-top:45px;font-size:11px}
 @media(max-width:850px){.la-tools{grid-template-columns:1fr}.la-tool{min-height:0}.la-flow{grid-template-columns:repeat(2,1fr)}.la-split{grid-template-columns:1fr}.la-copy{width:70%}.la-links>a:not(.la-btn){display:none}}
@@ -19,14 +29,309 @@ const CSS=`
 @media(max-width:600px){.la-hero{background:linear-gradient(145deg,#f4efe0 0 70%,#d8e6df 70%)}.la-demo-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.la-command{grid-template-columns:1fr}.la-progress{grid-template-columns:1fr}}
 `;
-export default function LandingAlt(){return <div className="la"><style>{CSS}</style><header className="la-shell la-nav"><a className="la-logo" href="/"><img src="/borcama-logo.png" alt="Borcama" /></a><nav className="la-links"><a href="#araclar">Özellikler</a><a href="#kontrol">Nasıl çalışır?</a><a href="/login">Giriş yap</a><a className="la-btn" href="/summary">Hemen Başla! <ArrowRight size={14}/></a></nav></header><main>
-<section className="la-hero"><div className="la-shell la-hero-in"><div className="la-copy"><div className="la-tag">Borçlarının kontrolü yeniden sende.</div><h1 className="la-h1">Rakamları gör.<br/><span className="la-mark">Rahatça ilerle.</span></h1><p className="la-lead">Borcama, farklı bankalardaki borçlarını tek bir plana dönüştürür. Ne ödeyeceğini, ne kadar faiz işlediğini ve sırada hangi borcun olduğunu bil.</p><a className="la-btn" href="/summary">Planımı oluştur <ArrowRight size={14}/></a></div><div className="la-demo"><div className="la-demo-top"><div className="la-demo-dots"><i/><i/><i/></div><span>BORCAMA ÖZET</span></div><div className="la-demo-label">TÜM BANKALARDAKİ TOPLAM BORCUN</div><div className="la-demo-total">₺284.750</div><div className="la-demo-grid"><div className="la-demo-cell"><small>BU AY ÖDENECEK</small><b>₺42.600</b></div><div className="la-demo-cell"><small>TAHMİNİ FAİZ</small><b>₺7.840</b></div><div className="la-demo-cell"><small>KREDİ KARTLARI</small><b>₺164.750</b></div><div className="la-demo-cell"><small>KREDİLER</small><b>₺120.000</b></div></div><div className="la-demo-pay"><div><strong>Yapı Kredi · World</strong><span>4 gün kaldı · minimum ödeme</span></div><strong>₺18.400</strong></div></div></div></section>
-<section className="la-trust"><div className="la-shell">Tek yerde takip edebileceğin borç türleri<div className="la-trust-row"><span className="la-chip">Kredi kartı</span><span className="la-chip">Tüketici kredisi</span><span className="la-chip">Ek hesap / KMH</span><span className="la-chip">Gecikmiş borç</span><span className="la-chip">Gelir & harcama</span></div></div></section>
-<section id="araclar" className="la-shell la-section"><div className="la-head"><h2 className="la-h2">Toparlanmak için<br/><span className="la-mark">ihtiyacın olan araçlar.</span></h2></div><div className="la-tools"><Tool icon={<WalletCards/>} title="Borç merkezi" text="Kart, kredi ve ek hesaplarını banka banka tek ekranda gör."/><Tool icon={<ReceiptText/>} title="Ekstre sağlaması" text="Manuel kayıtlarınla bankadan gelen ekstre arasındaki farkı yakala."/><Tool icon={<Target/>} title="Kapatma planı" text="Çığ veya kartopu yöntemiyle hangi borçtan başlayacağını seç."/></div></section>
-<section className="la-dark"><div className="la-shell"><div className="la-head"><h2 className="la-h2">Borcu azaltan şey,<br/><span>net bir sıra.</span></h2><p>Borcama her ay dört soruyu cevaplar: Ne yaklaşıyor, rakamlar tutuyor mu, ne kadar faiz işliyor ve önce hangisi kapanmalı?</p></div><div className="la-command"><Command n="01" title="Takvimi kontrol et" text="Yaklaşan ve gecikmiş ödemeleri tek listede gör." value="4 gün"/><Command n="02" title="Ekstreyi sağla" text="Manuel harcamalarınla banka ekstresini karşılaştır." value="Eşleşiyor"/><Command n="03" title="Faizi gör" text="Devreden borcun aylık tahmini maliyetini bil." value="₺7.840"/><Command n="04" title="Hedefi seç" text="Çığ veya kartopu planında ilk borcunu belirle." value="World kart"/></div><div className="la-progress"><span>TOPLAM BORÇTA İLERLEME</span><div className="la-progress-track"><i/></div><strong>%38</strong></div></div></section>
-<section id="kontrol" className="la-story"><div className="la-shell"><div className="la-head"><h2 className="la-h2">Ekstre geldiğinde<br/><span className="la-mark">sürpriz olmasın.</span></h2><p>Harcamanı kaydet, hangi kart veya hesaba yazıldığını gör ve banka ekstresiyle sağlamasını yap.</p></div><div className="la-flow"><Flow icon={<CreditCard/>} title="Kartı seç" text="Harcamayı doğru kaynağa yaz."/><Flow icon={<ReceiptText/>} title="Ekstreyi gir" text="Toplam borcu kolayca ekle."/><Flow icon={<Sparkles/>} title="Farkı gör" text="Eksik kayıt ve ücretleri yakala."/><Flow icon={<Check/>} title="Sağlamayı bitir" text="Rakamların eşleştiğinden emin ol."/></div></div></section>
-<section className="la-shell la-section la-split"><div><div className="la-head"><h2 className="la-h2">Tek platform.<br/><span className="la-mark">Tek net tablo.</span></h2><p>Aylık zorunlu ödemelerin, gelirlerin ve harcamaların aynı yerde. Fazladan paranın nereye gitmesi gerektiği de.</p></div><a className="la-btn" href="/summary">Borcama'yı dene</a></div><div className="la-phone"><div className="la-phone-top"><span>TOPLAM BORCUN</span><ShieldCheck size={15}/></div><div className="la-debt">₺284.750</div><div className="la-row"><span>Bu ay ödenecek</span><b>₺42.600</b></div><div className="la-row"><span>Tahmini faiz</span><b>₺7.840</b></div><div className="la-row"><span>Sonraki ödeme</span><b>4 gün</b></div></div></section>
-<section className="la-shell la-cta"><div className="la-cta-box"><h2 className="la-h2">Borçlarını toparlamak için doğru zaman: şimdi.</h2><p>Bugün net tabloyu çıkar. Yarın hangi adımı atacağını bil.</p><a className="la-btn" href="/summary">Hemen Başla! <ArrowRight size={14}/></a></div></section></main><footer className="la-footer"><div className="la-shell"><div className="la-footer-logo"><img src="/borcama-logo.png" alt="Borcama" style={{width:"min(620px,90%)",height:"auto"}} /></div><div className="la-footline"><span>Kişisel borç ve harcama takip aracı.</span><span>Finansal tavsiye değildir.</span></div></div></footer></div>}
-function Tool({icon,title,text}){return <article className="la-tool"><div className="la-shot"><div className="la-tag">BORCAMA</div><div className="la-shot-total">₺284.750</div><div className="la-bars"><i/><i/><i/></div></div><h3>{title}</h3><p>{text}</p><a href="/summary" className="la-btn">Keşfet</a></article>}
-function Flow({icon,title,text}){return <div className="la-flow-card"><div className="la-icon">{React.cloneElement(icon,{size:30})}</div><h3>{title}</h3><p>{text}</p></div>}
-function Command({n,title,text,value}){return <article className="la-command-card"><div className="la-command-no">{n}</div><h3>{title}</h3><p>{text}</p><b>{value}</b></article>}
+export default function LandingAlt() {
+  return (
+    <div className="la">
+      <style>{CSS}</style>
+      <header className="la-shell la-nav">
+        <a className="la-logo" href="/">
+          <img src="/borcama-logo.png" alt="Borcama" />
+        </a>
+        <nav className="la-links">
+          <a href="#araclar">Özellikler</a>
+          <a href="#kontrol">Nasıl çalışır?</a>
+          <a href="/login">Giriş yap</a>
+          <a className="la-btn" href="/register">
+            Hemen Başla! <ArrowRight size={14} />
+          </a>
+        </nav>
+      </header>
+      <main>
+        <section className="la-hero">
+          <div className="la-shell la-hero-in">
+            <div className="la-copy">
+              <div className="la-tag">Borçlarının kontrolü yeniden sende.</div>
+              <h1 className="la-h1">
+                Rakamları gör.
+                <br />
+                <span className="la-mark">Rahatça ilerle.</span>
+              </h1>
+              <p className="la-lead">
+                Borcama, farklı bankalardaki borçlarını tek bir plana
+                dönüştürür. Ne ödeyeceğini, ne kadar faiz işlediğini ve sırada
+                hangi borcun olduğunu bil.
+              </p>
+              <a className="la-btn" href="/register">
+                Planımı oluştur <ArrowRight size={14} />
+              </a>
+            </div>
+            <div className="la-demo">
+              <div className="la-demo-top">
+                <div className="la-demo-dots">
+                  <i />
+                  <i />
+                  <i />
+                </div>
+                <span>BORCAMA ÖZET</span>
+              </div>
+              <div className="la-demo-label">
+                TÜM BANKALARDAKİ TOPLAM BORCUN
+              </div>
+              <div className="la-demo-total">₺284.750</div>
+              <div className="la-demo-grid">
+                <div className="la-demo-cell">
+                  <small>BU AY ÖDENECEK</small>
+                  <b>₺42.600</b>
+                </div>
+                <div className="la-demo-cell">
+                  <small>TAHMİNİ FAİZ</small>
+                  <b>₺7.840</b>
+                </div>
+                <div className="la-demo-cell">
+                  <small>KREDİ KARTLARI</small>
+                  <b>₺164.750</b>
+                </div>
+                <div className="la-demo-cell">
+                  <small>KREDİLER</small>
+                  <b>₺120.000</b>
+                </div>
+              </div>
+              <div className="la-demo-pay">
+                <div>
+                  <strong>Yapı Kredi · World</strong>
+                  <span>4 gün kaldı · minimum ödeme</span>
+                </div>
+                <strong>₺18.400</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="la-trust">
+          <div className="la-shell">
+            Tek yerde takip edebileceğin borç türleri
+            <div className="la-trust-row">
+              <span className="la-chip">Kredi kartı</span>
+              <span className="la-chip">Tüketici kredisi</span>
+              <span className="la-chip">Ek hesap / KMH</span>
+              <span className="la-chip">Gecikmiş borç</span>
+              <span className="la-chip">Gelir & harcama</span>
+            </div>
+          </div>
+        </section>
+        <section id="araclar" className="la-shell la-section">
+          <div className="la-head">
+            <h2 className="la-h2">
+              Toparlanmak için
+              <br />
+              <span className="la-mark">ihtiyacın olan araçlar.</span>
+            </h2>
+          </div>
+          <div className="la-tools">
+            <Tool
+              icon={<WalletCards />}
+              title="Borç merkezi"
+              text="Kart, kredi ve ek hesaplarını banka banka tek ekranda gör."
+            />
+            <Tool
+              icon={<ReceiptText />}
+              title="Ekstre sağlaması"
+              text="Manuel kayıtlarınla bankadan gelen ekstre arasındaki farkı yakala."
+            />
+            <Tool
+              icon={<Target />}
+              title="Kapatma planı"
+              text="Çığ veya kartopu yöntemiyle hangi borçtan başlayacağını seç."
+            />
+          </div>
+        </section>
+        <section className="la-dark">
+          <div className="la-shell">
+            <div className="la-head">
+              <h2 className="la-h2">
+                Borcu azaltan şey,
+                <br />
+                <span>net bir sıra.</span>
+              </h2>
+              <p>
+                Borcama her ay dört soruyu cevaplar: Ne yaklaşıyor, rakamlar
+                tutuyor mu, ne kadar faiz işliyor ve önce hangisi kapanmalı?
+              </p>
+            </div>
+            <div className="la-command">
+              <Command
+                n="01"
+                title="Takvimi kontrol et"
+                text="Yaklaşan ve gecikmiş ödemeleri tek listede gör."
+                value="4 gün"
+              />
+              <Command
+                n="02"
+                title="Ekstreyi sağla"
+                text="Manuel harcamalarınla banka ekstresini karşılaştır."
+                value="Eşleşiyor"
+              />
+              <Command
+                n="03"
+                title="Faizi gör"
+                text="Devreden borcun aylık tahmini maliyetini bil."
+                value="₺7.840"
+              />
+              <Command
+                n="04"
+                title="Hedefi seç"
+                text="Çığ veya kartopu planında ilk borcunu belirle."
+                value="World kart"
+              />
+            </div>
+            <div className="la-progress">
+              <span>TOPLAM BORÇTA İLERLEME</span>
+              <div className="la-progress-track">
+                <i />
+              </div>
+              <strong>%38</strong>
+            </div>
+          </div>
+        </section>
+        <section id="kontrol" className="la-story">
+          <div className="la-shell">
+            <div className="la-head">
+              <h2 className="la-h2">
+                Ekstre geldiğinde
+                <br />
+                <span className="la-mark">sürpriz olmasın.</span>
+              </h2>
+              <p>
+                Harcamanı kaydet, hangi kart veya hesaba yazıldığını gör ve
+                banka ekstresiyle sağlamasını yap.
+              </p>
+            </div>
+            <div className="la-flow">
+              <Flow
+                icon={<CreditCard />}
+                title="Kartı seç"
+                text="Harcamayı doğru kaynağa yaz."
+              />
+              <Flow
+                icon={<ReceiptText />}
+                title="Ekstreyi gir"
+                text="Toplam borcu kolayca ekle."
+              />
+              <Flow
+                icon={<Sparkles />}
+                title="Farkı gör"
+                text="Eksik kayıt ve ücretleri yakala."
+              />
+              <Flow
+                icon={<Check />}
+                title="Sağlamayı bitir"
+                text="Rakamların eşleştiğinden emin ol."
+              />
+            </div>
+          </div>
+        </section>
+        <section className="la-shell la-section la-split">
+          <div>
+            <div className="la-head">
+              <h2 className="la-h2">
+                Tek platform.
+                <br />
+                <span className="la-mark">Tek net tablo.</span>
+              </h2>
+              <p>
+                Aylık zorunlu ödemelerin, gelirlerin ve harcamaların aynı yerde.
+                Fazladan paranın nereye gitmesi gerektiği de.
+              </p>
+            </div>
+            <a className="la-btn" href="/register">
+              Borcama'yı dene
+            </a>
+          </div>
+          <div className="la-phone">
+            <div className="la-phone-top">
+              <span>TOPLAM BORCUN</span>
+              <ShieldCheck size={15} />
+            </div>
+            <div className="la-debt">₺284.750</div>
+            <div className="la-row">
+              <span>Bu ay ödenecek</span>
+              <b>₺42.600</b>
+            </div>
+            <div className="la-row">
+              <span>Tahmini faiz</span>
+              <b>₺7.840</b>
+            </div>
+            <div className="la-row">
+              <span>Sonraki ödeme</span>
+              <b>4 gün</b>
+            </div>
+          </div>
+        </section>
+        <section className="la-shell la-cta">
+          <div className="la-cta-box">
+            <h2 className="la-h2">
+              Borçlarını toparlamak için doğru zaman: şimdi.
+            </h2>
+            <p>Bugün net tabloyu çıkar. Yarın hangi adımı atacağını bil.</p>
+            <a className="la-btn" href="/register">
+              Hemen Başla! <ArrowRight size={14} />
+            </a>
+          </div>
+        </section>
+      </main>
+      <footer className="la-footer">
+        <div className="la-shell">
+          <div className="la-footer-logo">
+            <img
+              src="/borcama-logo.png"
+              alt="Borcama"
+              style={{ width: "min(620px,90%)", height: "auto" }}
+            />
+          </div>
+          <div className="la-footline">
+            <span>Kişisel borç ve harcama takip aracı.</span>
+            <span>Finansal tavsiye değildir.</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+function Tool({ icon, title, text }) {
+  return (
+    <article className="la-tool">
+      <div className="la-shot">
+        <div className="la-tag">BORCAMA</div>
+        <div className="la-shot-total">₺284.750</div>
+        <div className="la-bars">
+          <i />
+          <i />
+          <i />
+        </div>
+      </div>
+      <h3>{title}</h3>
+      <p>{text}</p>
+      <a href="/register" className="la-btn">
+        Keşfet
+      </a>
+    </article>
+  );
+}
+function Flow({ icon, title, text }) {
+  return (
+    <div className="la-flow-card">
+      <div className="la-icon">{React.cloneElement(icon, { size: 30 })}</div>
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </div>
+  );
+}
+function Command({ n, title, text, value }) {
+  return (
+    <article className="la-command-card">
+      <div className="la-command-no">{n}</div>
+      <h3>{title}</h3>
+      <p>{text}</p>
+      <b>{value}</b>
+    </article>
+  );
+}

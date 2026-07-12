@@ -15,6 +15,7 @@
   ],
   "rewrites": [
     { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
     { "source": "/classic", "destination": "/index.html" },
     { "source": "/summary", "destination": "/index.html" },
     { "source": "/debts", "destination": "/index.html" },

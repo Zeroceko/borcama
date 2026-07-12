@@ -8,7 +8,7 @@ const CSS = `
 @media(max-width:620px){.lp-shell{width:min(100% - 24px,1160px)}.lp-navlinks>a:not(.lp-btn){display:none}.lp-nav{height:70px}.lp-hero{padding:36px 0 68px}.lp-h1{font-size:45px}.lp-lead{font-size:16px}.lp-actions .lp-btn{width:100%}.lp-product{padding:18px;box-shadow:8px 8px 0 var(--coral)}.lp-mini-grid,.lp-features{grid-template-columns:1fr}.lp-section{padding:72px 0}.lp-feature:nth-child(2),.lp-feature:nth-child(5){transform:none}.lp-footer{flex-direction:column}.lp-cta{padding-bottom:72px}}
 `;
 
-const appUrl = "/summary";
+const appUrl = "/register";
 const loginUrl = "/login";
 
 export default function Landing() {

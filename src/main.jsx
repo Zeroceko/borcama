@@ -12,6 +12,7 @@ import './storage.js'
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, '') || '/'
   if (yol === '/login') return supabaseHazir ? <GirisEkrani /> : demoModu ? <GirisEkrani /> : <YapilandirmaEksik />
+  if (yol === '/register') return supabaseHazir ? <GirisEkrani kayitModu /> : demoModu ? <GirisEkrani kayitModu /> : <YapilandirmaEksik />
   if (yol === '/classic') return <Landing />
   if (yol === '/backoffice') return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />
   if (yol === '/ceo') return supabaseHazir ? <KimlikliYonetim tur="ceo" /> : <YapilandirmaEksik />
