@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient.js";
+import { supabase, supabaseHazir } from "./supabaseClient.js";
 
 // App.jsx window.storage.get/set/delete/list arayüzünü kullanıyor.
 // Burada aynı arayüzü Supabase'teki "kv_store" tablosuna bağlıyoruz.
@@ -13,6 +13,11 @@ async function userId() {
 
 const storage = {
   async get(key) {
+    if (!supabaseHazir) {
+      const value = localStorage.getItem(key);
+      if (value === null) throw new Error("Kayıt bulunamadı: " + key);
+      return { key, value };
+    }
     const uid = await userId();
     const { data, error } = await supabase
       .from("kv_store")
@@ -26,6 +31,10 @@ const storage = {
   },
 
   async set(key, value) {
+    if (!supabaseHazir) {
+      localStorage.setItem(key, value);
+      return { key, value };
+    }
     const uid = await userId();
     const { error } = await supabase
       .from("kv_store")
@@ -35,6 +44,10 @@ const storage = {
   },
 
   async delete(key) {
+    if (!supabaseHazir) {
+      localStorage.removeItem(key);
+      return { key, deleted: true };
+    }
     const uid = await userId();
     const { error } = await supabase.from("kv_store").delete().eq("user_id", uid).eq("key", key);
     if (error) throw error;
@@ -42,6 +55,10 @@ const storage = {
   },
 
   async list(prefix = "") {
+    if (!supabaseHazir) {
+      const keys = Object.keys(localStorage).filter((key) => key.startsWith(prefix));
+      return { keys, prefix };
+    }
     const uid = await userId();
     let q = supabase.from("kv_store").select("key").eq("user_id", uid);
     if (prefix) q = q.like("key", prefix + "%");

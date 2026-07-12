@@ -1,10 +1,23 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import Landing from './Landing.jsx'
+import LandingAlt from './LandingAlt.jsx'
 import { useSession, GirisEkrani } from './Auth.jsx'
+import { supabaseHazir } from './supabaseClient.js'
 import './storage.js'
 
 function Kok() {
+  const params = new URLSearchParams(window.location.search)
+  const girisOnizleme = params.get('auth') === '1'
+  if (girisOnizleme) return <GirisEkrani />
+  if (params.get('landing') === 'classic') return <Landing />
+  if (params.get('app') !== '1') return <LandingAlt />
+  if (!supabaseHazir) return <App />
+  return <KimlikliKok />
+}
+
+function KimlikliKok() {
   const session = useSession()
 
   if (session === undefined) {

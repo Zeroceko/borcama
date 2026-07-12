@@ -12,7 +12,7 @@ const ROTASYONLAR = [-1.2, 1, -0.6, 1.4, -1];
 const ACIK_TEMA = { bg: CREAM, panel: "#ffffff", panel2: "#f6f3e8", text: INK, dim: "#55584c", faint: "#8a8c7e", line: INK };
 const KOYU_TEMA = { bg: "#0f110a", panel: "#191c12", panel2: "#22261a", text: CREAM, dim: "#b5b2a0", faint: "#8a8c7e", line: "#e8e4d2" };
 
-const BANKA_KOD = { "VakıfBank": "VB", "Halkbank": "HB", "Enpara": "EP", "Garanti BBVA": "GB", "QNB": "QNB", "Akbank": "AKB" };
+const BANKA_KOD = { "VakıfBank": "VB", "Halkbank": "HB", "Enpara": "EP", "Garanti BBVA": "GB", "QNB": "QNB", "Akbank": "AKB", "İş Bankası": "İŞ", "Yapı Kredi": "YK", "Kuveyt Türk": "KT", "Fibabanka": "FB" };
 function bankaKodu(banka) {
   const b = (banka || "").trim();
   if (BANKA_KOD[b]) return BANKA_KOD[b];
@@ -128,10 +128,10 @@ const CSS = `
 .bt-btn.heroghost:hover{background:#2a2c22}
 
 .bt-form{background:var(--panel2);border:2px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
-.bt-alanlar{display:flex;flex-wrap:wrap;gap:12px}
-.bt-alan{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--dim);flex:1 1 150px}
+.bt-alanlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;align-items:start}
+.bt-alan{display:grid;grid-template-rows:minmax(38px,auto) 44px;align-content:start;gap:5px;min-width:0;font-size:12px;font-weight:600;color:var(--dim)}
 .bt-input{padding:10px 13px;border-radius:10px;border:2px solid var(--line);font-size:14px;color:var(--text);
-  background:var(--panel);font-family:'Space Grotesk',sans-serif;width:100%}
+  background:var(--panel);font-family:'Space Grotesk',sans-serif;width:100%;height:44px;min-width:0}
 .bt-input::placeholder{color:var(--faint)}
 .bt-form-butonlar{display:flex;gap:8px;margin-top:14px}
 
@@ -152,12 +152,17 @@ const CSS = `
 
 .bt-bos{text-align:center;padding:48px 0;color:var(--faint);font-size:14px}
 .bt-link{border:none;background:none;color:${CORAL};font-weight:700;cursor:pointer;font-size:inherit;padding:0;font-family:inherit}
+.bt-modal-arka{position:fixed;inset:0;z-index:50;background:#0f110acc;display:flex;align-items:center;justify-content:center;padding:20px}
+.bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
 
 @media (max-width:600px){
   .bt-pill span{display:none}
   .bt-kat-ad{width:70px}
   .bt-kat-tutar{width:90px}
+  .bt-alanlar{grid-template-columns:1fr}
+  .bt-alan{grid-template-rows:auto 44px}
 }
+@media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
 `;
 
@@ -194,7 +199,7 @@ function kartSonOdemeTarihi(k) {
 }
 
 const KATEGORILER = ["Market","Yeme-İçme","Ulaşım","Fatura","Kira","Sağlık","Giyim","Eğlence","Eğitim","Diğer"];
-const BANKALAR = ["VakıfBank","Halkbank","QNB","Enpara","Akbank","Garanti BBVA"];
+const BANKALAR = ["VakıfBank","Halkbank","QNB","Enpara","Akbank","Garanti BBVA","İş Bankası","Yapı Kredi","Kuveyt Türk","Fibabanka"];
 function tcmbKartAzamiFaizi(bakiye) {
   if (bakiye >= 180000) return 4.25;
   if (bakiye >= 30000) return 3.75;
@@ -204,6 +209,22 @@ function tcmbKartAzamiGecikmeFaizi(bakiye) {
   if (bakiye >= 180000) return 4.55;
   if (bakiye >= 30000) return 4.05;
   return 3.55;
+}
+function kartHesabi(k) {
+  const yeniModel = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined || k.yapilanOdeme !== undefined;
+  if (!yeniModel) {
+    const ana = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
+    return { onceki: ana, odeme: 0, devreden: ana, yeni: +k.donemIciEklenen || 0, faiz: 0, oran: tcmbKartAzamiFaizi(ana), toplam: ana + (+k.donemIciEklenen || 0), asgari: +k.asgari || 0 };
+  }
+  const onceki = +k.toplamEkstreBorcu || +k.oncekiDonemBorcu || 0;
+  const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), onceki);
+  const devreden = Math.max(onceki - odeme, 0);
+  const yeni = 0;
+  const oran = tcmbKartAzamiFaizi(onceki);
+  const faiz = (devreden * oran) / 100;
+  const toplam = devreden + faiz + yeni;
+  const asgariOran = (+k.limit || 0) <= 50000 ? 20 : 40;
+  return { onceki, odeme, devreden, yeni, faiz, oran, toplam, asgari: (toplam * asgariOran) / 100 };
 }
 const VARSAYILAN_FAIZ_EK_HESAP = 4.25;
 const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, ayarlar: {}, snapshots: {} };
@@ -219,15 +240,16 @@ const KATEGORI_META = {
 function borcKalemleri(veri) {
   const kalemler = [];
   veri.cards.forEach((k) => {
-    const anaBakiye = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
-    const yeniHarcama = +k.donemIciEklenen || 0;
-    const guncelBorc = anaBakiye + yeniHarcama;
+    const hesap = kartHesabi(k);
+    const anaBakiye = hesap.devreden;
+    const yeniHarcama = hesap.yeni;
+    const guncelBorc = hesap.toplam;
     if (guncelBorc > 0) {
       const gecikmis = kalanGun(kartSonOdemeTarihi(k)) < 0;
       const akdiOran = tcmbKartAzamiFaizi(guncelBorc);
       const gecikmeOran = tcmbKartAzamiGecikmeFaizi(guncelBorc);
       const ozelFaizVar = +k.faiz > 0;
-      const faizTutari = ozelFaizVar
+      const faizTutari = (k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined) ? hesap.faiz : ozelFaizVar
         ? (guncelBorc * (+k.faiz)) / 100
         : gecikmis
           ? (anaBakiye * gecikmeOran) / 100 + (yeniHarcama * akdiOran) / 100
@@ -236,7 +258,7 @@ function borcKalemleri(veri) {
         id: "kart-" + k.id, tur: "kart", banka: (k.banka || "").trim(),
         ad: k.banka + (k.ad ? " · " + k.ad : " · Kredi kartı"),
         bakiye: guncelBorc,
-        faiz: ozelFaizVar ? +k.faiz : (guncelBorc > 0 ? (faizTutari / guncelBorc) * 100 : akdiOran),
+        faiz: (k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined) ? hesap.oran : ozelFaizVar ? +k.faiz : (guncelBorc > 0 ? (faizTutari / guncelBorc) * 100 : akdiOran),
         faizTutari, faizTahmini: !ozelFaizVar, gecikmis, yeniHarcama,
       });
     }
@@ -313,6 +335,8 @@ export default function BorcTakip() {
   }
 
   const isDark = (veri.ayarlar || {}).tema === "dark";
+  const ozelBankalar = (veri.ayarlar || {}).ozelBankalar || [];
+  const bankalar = useMemo(() => [...new Set([...BANKALAR, ...ozelBankalar])], [ozelBankalar]);
   const temaAnahtarlarSwitch = () => ayarKaydet({ tema: isDark ? "light" : "dark" });
   const t = isDark ? KOYU_TEMA : ACIK_TEMA;
   const rootStyle = { "--bg": t.bg, "--panel": t.panel, "--panel2": t.panel2, "--text": t.text, "--dim": t.dim, "--faint": t.faint, "--line": t.line };
@@ -334,8 +358,8 @@ export default function BorcTakip() {
 
   const buAyOdenecek = useMemo(() => {
     const kartOdeme = veri.cards.reduce((t, k) => {
-      const anaBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
-      return t + (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc));
+      const h = kartHesabi(k);
+      return t + (k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined ? h.asgari : (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : h.onceki)));
     }, 0);
     const taksit = veri.loans.reduce((t, k) => t + (+k.taksit || 0), 0);
     return kartOdeme + taksit;
@@ -353,12 +377,12 @@ export default function BorcTakip() {
     const liste = [];
     const ay = ayAnahtari();
     veri.cards.forEach((k) => {
-      const anaBorc = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
+      const h = kartHesabi(k); const anaBorc = h.toplam;
       if (anaBorc > 0) {
-        const tutar = +k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc);
+        const tutar = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined ? h.asgari : (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc));
         liste.push({
           id: "kart-" + k.id, banka: k.banka, ad: k.banka + (k.ad ? " · " + k.ad : ""),
-          tutar, not: +k.asgari > 0 ? "asgari" : (+k.borc > 0 ? "ekstre borcu" : "toplam borç"),
+          tutar, not: "minimum ödeme",
           tarih: kartSonOdemeTarihi(k),
           odendi: !!veri.paid["kart-" + k.id + "-" + ay], anahtar: "kart-" + k.id + "-" + ay,
         });
@@ -415,6 +439,14 @@ export default function BorcTakip() {
   const sil = (liste, id) => kaydet({ ...veri, [liste]: veri[liste].filter((x) => x.id !== id) });
   const odendiIsaretle = (anahtar, durum) => kaydet({ ...veri, paid: { ...veri.paid, [anahtar]: durum } });
   const ayarKaydet = (a) => kaydet({ ...veri, ayarlar: { ...veri.ayarlar, ...a } });
+  const bankaEkle = (ad) => {
+    const temiz = ad.trim();
+    if (!temiz) return "";
+    const mevcut = bankalar.find((b) => b.toLocaleLowerCase("tr-TR") === temiz.toLocaleLowerCase("tr-TR"));
+    if (mevcut) return mevcut;
+    ayarKaydet({ ozelBankalar: [...ozelBankalar, temiz] });
+    return temiz;
+  };
 
   function harcamaKaydet(kayit, kartaEkle) {
     const dizi = veri.expenses;
@@ -438,7 +470,7 @@ export default function BorcTakip() {
   return (
     <div className="bt-app" style={rootStyle}>
       <style>{CSS}</style>
-      <datalist id="bt-bankalar">{BANKALAR.map((b) => <option key={b} value={b} />)}</datalist>
+      <datalist id="bt-bankalar">{bankalar.map((b) => <option key={b} value={b} />)}</datalist>
       <div className="bt-wrap">
         <header className="bt-header">
           <div>
@@ -467,10 +499,10 @@ export default function BorcTakip() {
           <>
             {hata && <div className="bt-card" style={{ borderColor: CORAL, marginBottom: 16, fontSize: 13 }}>{hata}</div>}
             {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} buAyGelir={buAyGelir} netNakit={netNakit} odendiIsaretle={odendiIsaretle} setSekme={setSekme} />}
-            {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} />}
+            {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} bankalar={bankalar} bankaEkle={bankaEkle} />}
             {sekme === "plan" && <Plan kalemler={kalemler} aylikFaiz={aylikFaiz} setSekme={setSekme} />}
             {sekme === "gelir" && <Gelirler veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} buAyGelir={buAyGelir} />}
-            {sekme === "harcamalar" && <Harcamalar veri={veri} form={form} setForm={setForm} harcamaKaydet={harcamaKaydet} sil={sil} buAyHarcama={buAyHarcama} />}
+            {sekme === "harcamalar" && <Harcamalar veri={veri} form={form} setForm={setForm} harcamaKaydet={harcamaKaydet} sil={sil} buAyHarcama={buAyHarcama} bankalar={bankalar} />}
           </>
         )}
       </div>
@@ -628,26 +660,26 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle }) {
 }
 
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
-function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
+function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }) {
   const [kategori, setKategori] = useState("cards");
-  const meta = KATEGORI_META[kategori];
-  const kayitlar = veri[meta.liste] || [];
+  const [yeniBanka, setYeniBanka] = useState("");
+  const [bankaPenceresi, setBankaPenceresi] = useState(false);
+  const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
+  const kayitlar = kategori === "kontrol" ? [] : (veri[meta.liste] || []);
   const acik = form && form.liste === meta.liste;
   const [f, setF] = useState({});
-  useEffect(() => { if (acik) setF(form.veri || {}); }, [acik, form]);
+  useEffect(() => { if (acik) setF(form.veri || {}); }, [acik, form, kategori]);
 
   const ALAN_TANIMLARI = {
     cards: [
       { k: "banka", e: "Banka", t: "text", z: true },
       { k: "ad", e: "Kart adı (Bonus, World…)", t: "text" },
-      { k: "donemIciToplam", e: "Güncel toplam borç (₺)", t: "number", z: true },
-      { k: "limit", e: "Toplam limit (₺)", t: "number" },
-      { k: "kullanilabilirLimit", e: "Kullanılabilir limit (₺)", t: "number" },
-      { k: "borc", e: "Bu ekstrenin borcu (varsa)", t: "number" },
-      { k: "asgari", e: "Asgari / minimum ödeme (varsa, yoksa 0)", t: "number" },
-      { k: "faiz", e: "Aylık akdi faiz (%) (varsa)", t: "number" },
+      { k: "limit", e: "Toplam kart limiti (₺)", t: "number", z: true },
+      { k: "toplamEkstreBorcu", e: "Toplam ekstre borcu (₺)", t: "number", z: true },
+      { k: "oncekiAydanKalan", e: "Önceki aydan kalan (₺)", t: "number" },
+      { k: "yapilanOdeme", e: "Bu borca yaptığınız ödeme (₺)", t: "number", z: true },
       { k: "kesimGunu", e: "Ekstre kesim günü (varsa)", t: "number" },
-      { k: "sonOdemeTarihi", e: "Son ödeme tarihi", t: "date", z: true },
+      { k: "sonOdemeGunu", e: "Son ödeme günü (ayın kaçı)", t: "number", z: true },
     ],
     loans: [
       { k: "banka", e: "Banka", t: "text", z: true },
@@ -674,7 +706,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
   const alanlar = ALAN_TANIMLARI[kategori];
 
   function toplamHesapla() {
-    if (kategori === "cards") return kayitlar.reduce((t, k) => t + (+k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0) + (+k.donemIciEklenen || 0), 0);
+    if (kategori === "cards") return kayitlar.reduce((t, k) => t + kartHesabi(k).toplam, 0);
     if (kategori === "loans") return kayitlar.reduce((t, k) => t + (+k.kalanBorc || 0), 0);
     if (kategori === "od") return kayitlar.reduce((t, k) => t + (+k.kullanilan || 0), 0);
     return kayitlar.reduce((t, k) => t + (+k.tutar || 0), 0);
@@ -692,6 +724,16 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
     ekleGuncelle(meta.liste, { id: f.id || uid(), ...f });
   }
 
+  function bankaGonder(e) {
+    e.preventDefault();
+    const temiz = yeniBanka.trim();
+    if (!temiz) return;
+    const banka = bankaEkle(temiz);
+    setF({ ...f, banka });
+    setYeniBanka("");
+    setBankaPenceresi(false);
+  }
+
   return (
     <div className="bt-stack">
       <div className="bt-nav" style={{ marginBottom: 0 }}>
@@ -699,9 +741,11 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
           <button key={key} className={"bt-pill " + (kategori === key ? "aktif" : "pasif")} style={{ fontSize: 13.5 }}
             onClick={() => { setKategori(key); setForm(null); }}>{m.ad}</button>
         ))}
+        <button className={"bt-pill " + (kategori === "kontrol" ? "aktif" : "pasif")} style={{ fontSize: 13.5 }}
+          onClick={() => { setKategori("kontrol"); setForm(null); }}>Ekstre kontrolü</button>
       </div>
 
-      <div className="bt-card">
+      {kategori === "kontrol" ? <EkstreKontrol veri={veri} /> : <div className="bt-card">
         <div className="bt-strip">
           <div className="bt-strip-count">{sayacHesapla()}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -716,14 +760,29 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
               {alanlar.map((a) => (
                 <label key={a.k} className="bt-alan">
                   {a.e}{a.z ? " *" : ""}
-                  <input className="bt-input" type={a.t} min={a.t === "number" ? 0 : undefined}
-                    step={a.k === "faiz" ? "0.01" : undefined}
-                    list={a.k === "banka" ? "bt-bankalar" : undefined}
-                    placeholder={a.k === "banka" ? "Seçin veya yazın" : undefined}
-                    value={f[a.k] ?? ""} onChange={(e) => setF({ ...f, [a.k]: e.target.value })} />
+                  {a.k === "banka" && kategori !== "others" ? (
+                    <select className="bt-input" value={f.banka ?? ""} onChange={(e) => {
+                      if (e.target.value === "__diger__") setBankaPenceresi(true);
+                      else setF({ ...f, banka: e.target.value });
+                    }}>
+                      <option value="">Banka seçin…</option>
+                      {bankalar.map((b) => <option key={b} value={b}>{b}</option>)}
+                      <option value="__diger__">Diğer…</option>
+                    </select>
+                  ) : (
+                    <input className="bt-input" type={a.t} min={a.t === "number" ? 0 : undefined}
+                      step={a.k === "faiz" ? "0.01" : undefined}
+                      value={f[a.k] ?? ""} onChange={(e) => setF({ ...f, [a.k]: e.target.value })} />
+                  )}
                 </label>
               ))}
             </div>
+            {kategori === "cards" && f.toplamEkstreBorcu && (() => {
+              const h = kartHesabi(f);
+              return <div className="bt-ipucu" style={{ marginTop: 14 }}><Lightbulb size={16} /><div>
+                <b>Otomatik hesap:</b> Ekstre borcu {fmt(h.onceki)} − ödeme {fmt(h.odeme)} = {fmt(h.devreden)} kalan. Tahmini aylık faiz {fmt(h.faiz)} (%{h.oran.toFixed(2)}) ile güncel tahmini borç <b>{fmt(h.toplam)}</b>. Yasal minimum ödeme: <b>{fmt(h.asgari)}</b> ({(+f.limit || 0) <= 50000 ? "%20" : "%40"}, kart limitine göre).
+              </div></div>;
+            })()}
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" onClick={gonder}><Check size={14} /> {f.id ? "Güncelle" : "Kaydet"}</button>
               <button className="bt-btn ikincil" onClick={() => setForm(null)}>Vazgeç</button>
@@ -740,25 +799,77 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil }) {
             ))}
           </div>
         )}
-      </div>
+      </div>}
+
+      {bankaPenceresi && (
+        <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setBankaPenceresi(false); }}>
+          <form className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-yeni-banka-baslik" onSubmit={bankaGonder}>
+            <div id="bt-yeni-banka-baslik" className="bt-h2" style={{ marginBottom: 8 }}>Yeni banka ekle</div>
+            <div style={{ fontSize: 12.5, color: "var(--dim)", marginBottom: 16 }}>Banka adı bir kez kaydedilir ve bundan sonra tüm banka listelerinde görünür.</div>
+            <input className="bt-input" autoFocus placeholder="Banka veya finans kurumu adı" value={yeniBanka} onChange={(e) => setYeniBanka(e.target.value)} />
+            <div className="bt-form-butonlar">
+              <button className="bt-btn birincil" type="submit"><Plus size={14} /> Ekle ve seç</button>
+              <button className="bt-btn ikincil" type="button" onClick={() => { setBankaPenceresi(false); setYeniBanka(""); }}>Vazgeç</button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
+}
+
+function ekstreDonemi(kart) {
+  const gun = Math.min(Math.max(+kart.kesimGunu || 1, 1), 31);
+  const simdi = bugun();
+  let bitis = new Date(simdi.getFullYear(), simdi.getMonth(), Math.min(gun, new Date(simdi.getFullYear(), simdi.getMonth() + 1, 0).getDate()));
+  if (bitis > simdi) bitis = new Date(simdi.getFullYear(), simdi.getMonth() - 1, Math.min(gun, new Date(simdi.getFullYear(), simdi.getMonth(), 0).getDate()));
+  const oncekiKesim = new Date(bitis.getFullYear(), bitis.getMonth() - 1, Math.min(gun, new Date(bitis.getFullYear(), bitis.getMonth(), 0).getDate()));
+  const baslangic = new Date(oncekiKesim); baslangic.setDate(baslangic.getDate() + 1);
+  const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  return { baslangic: iso(baslangic), bitis: iso(bitis) };
+}
+
+function EkstreKontrol({ veri }) {
+  const kaynaklar = useMemo(() => {
+    const m = {};
+    veri.expenses.forEach((h) => {
+      const kaynak = h.kaynak || "Kaynak belirtilmemiş";
+      if (!m[kaynak]) m[kaynak] = { toplam: 0, adet: 0 };
+      m[kaynak].toplam += +h.tutar || 0; m[kaynak].adet += 1;
+    });
+    return Object.entries(m).sort((a, b) => b[1].toplam - a[1].toplam);
+  }, [veri.expenses]);
+
+  return <div className="bt-stack">
+    <div className="bt-ipucu"><Lightbulb size={16} /><div><b>Ekstre sağlaması:</b> Manuel harcamalarınız, kartın hesap kesim gününe göre ilgili ekstre dönemiyle karşılaştırılır. Fark; eksik kayıt, iade, faiz, vergi veya kart ücretinden kaynaklanabilir.</div></div>
+    {veri.cards.length === 0 ? <div className="bt-card"><div className="bt-bos">Kontrol için önce bir kredi kartı ekleyin.</div></div> : veri.cards.map((k, i) => {
+      const donem = ekstreDonemi(k); const etiket = k.banka + " · " + (k.ad || "Kredi kartı");
+      const manuel = veri.expenses.filter((h) => h.kaynak === etiket && h.tarih >= donem.baslangic && h.tarih <= donem.bitis).reduce((t, h) => t + (+h.tutar || 0), 0);
+      const ekstreYeni = Math.max((+k.toplamEkstreBorcu || 0) - (+k.oncekiAydanKalan || 0), 0); const fark = ekstreYeni - manuel;
+      return <div className="bt-card" key={k.id}>
+        <div className="bt-cardhead"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={rozetStil(LIME, ROTASYONLAR[i % ROTASYONLAR.length], 36)}>{bankaKodu(k.banka)}</div><div><div className="bt-satir-ad">{etiket}</div><div className="bt-satir-meta">{donem.baslangic.split("-").reverse().join(".")} – {donem.bitis.split("-").reverse().join(".")}</div></div></div><div className="bt-mono" style={{ fontWeight: 700, color: Math.abs(fark) < 1 ? "#5D7A2E" : CORAL }}>{Math.abs(fark) < 1 ? "Eşleşiyor" : "Fark " + fmt(fark)}</div></div>
+        <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Ekstrede yeni oluşan tutar</div><div className="bt-metric-amt">{fmt(ekstreYeni)}</div><div className="bt-metric-cap">Toplam ekstre − önceki aydan kalan</div></div><div className="bt-metric"><div className="bt-metric-lbl">Manuel kaydedilen harcamalar</div><div className="bt-metric-amt">{fmt(manuel)}</div><div className="bt-metric-cap">Bu kart ve ekstre dönemi</div></div></div>
+      </div>;
+    })}
+    {kaynaklar.length > 0 && <div className="bt-card"><div className="bt-h2"><Wallet size={16} /> Tüm harcamalar hangi kaynağa yazıldı?</div>{kaynaklar.map(([ad, x]) => <div className="bt-kat" key={ad}><div className="bt-kat-ad" style={{ width: 180 }}>{ad}</div><div className="bt-kat-bar"><div style={{ width: "100%", background: CORAL }} /></div><div className="bt-kat-tutar">{fmt(x.toplam)} <span style={{ color: "var(--faint)", fontSize: 10 }}>({x.adet})</span></div></div>)}</div>}
+  </div>;
 }
 
 function BorclarSatiri({ k, i, kategori, meta, setForm, sil }) {
   let baslik = k.banka, ekAd = k.ad, tutar, altMeta, barGoster = false, barOran = null, barRenk = LIME, altYazi = null, kod = bankaKodu(k.banka);
 
   if (kategori === "cards") {
-    const anaBakiye = +k.donemIciToplam > 0 ? +k.donemIciToplam : +k.borc || 0;
-    tutar = anaBakiye + (+k.donemIciEklenen || 0);
+    const hesap = kartHesabi(k);
+    tutar = hesap.toplam;
     const kullanilabilirVar = +k.kullanilabilirLimit > 0;
     const kullanilan = kullanilabilirVar ? (+k.limit || 0) - (+k.kullanilabilirLimit) : tutar;
     barOran = +k.limit > 0 ? kullanilan / +k.limit : null;
     const gecikmis = kalanGun(kartSonOdemeTarihi(k)) < 0;
     barRenk = gecikmis ? CORAL : LIME;
     barGoster = barOran !== null;
-    altMeta = "Son ödeme: " + (k.sonOdemeTarihi ? k.sonOdemeTarihi.split("-").reverse().join(".") : (k.sonOdemeGunu ? "her ayın " + k.sonOdemeGunu + ". günü" : "—"))
-      + (+k.asgari > 0 ? " · asgari " + fmt(k.asgari) : " · asgari yok");
+    altMeta = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
+      ? "Ekstre " + fmt(hesap.onceki) + " · ödendi " + fmt(hesap.odeme) + " · kalan " + fmt(hesap.devreden) + " · tahmini faiz " + fmt(hesap.faiz)
+      : "Son ödeme: " + (k.sonOdemeTarihi ? k.sonOdemeTarihi.split("-").reverse().join(".") : "—");
     if (gecikmis) altYazi = (-kalanGun(kartSonOdemeTarihi(k))) + " gün gecikti";
   } else if (kategori === "loans") {
     tutar = +k.kalanBorc || 0;
@@ -1016,28 +1127,21 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir }) {
 }
 
 /* ---------------- Harcamalar ---------------- */
-function Harcamalar({ veri, form, setForm, harcamaKaydet, sil, buAyHarcama }) {
+function Harcamalar({ veri, form, setForm, harcamaKaydet, sil, buAyHarcama, bankalar }) {
   const acik = form && form.liste === "expenses";
   const [f, setF] = useState({});
-  const [kartaEkle, setKartaEkle] = useState(false);
   useEffect(() => {
     if (acik) {
       setF(form.veri.id ? form.veri : { tarih: new Date().toISOString().slice(0, 10), kategori: "Market", ...form.veri });
-      setKartaEkle(false);
     }
   }, [acik, form]);
-
-  const kartEtiketleri = useMemo(() => veri.cards.map((k) => k.banka + " · " + (k.ad || "Kredi kartı")), [veri.cards]);
-  const kaynakKartMi = kartEtiketleri.includes(f.kaynak);
-  const secilenKart = useMemo(() => veri.cards.find((k) => k.banka + " · " + (k.ad || "Kredi kartı") === f.kaynak), [veri.cards, f.kaynak]);
-  const secilenKartGecikmis = secilenKart ? kalanGun(kartSonOdemeTarihi(secilenKart)) < 0 : false;
 
   const sirali = useMemo(() => [...veri.expenses].sort((a, b) => (b.tarih || "").localeCompare(a.tarih || "")), [veri.expenses]);
   const enBuyuk = Math.max(...Object.values(buAyHarcama.kategoriler), 1);
 
   function gonder() {
     if (!f.tutar || !f.tarih) return;
-    harcamaKaydet({ id: f.id || uid(), ...f, tutar: +f.tutar }, kaynakKartMi && kartaEkle && !f.id);
+    harcamaKaydet({ id: f.id || uid(), ...f, tutar: +f.tutar }, false);
   }
 
   return (
@@ -1060,7 +1164,7 @@ function Harcamalar({ veri, form, setForm, harcamaKaydet, sil, buAyHarcama }) {
                     {veri.cards.length > 0 ? veri.cards.map((k) => { const ad = k.banka + " · " + (k.ad || "Kredi kartı"); return <option key={k.id} value={ad}>{ad}</option>; }) : <option disabled>Henüz kart yok</option>}
                   </optgroup>
                   <optgroup label="Banka hesabı">
-                    {BANKALAR.map((b) => <option key={b} value={b + " · Hesap"}>{b} · Hesap</option>)}
+                    {bankalar.map((b) => <option key={b} value={b + " · Hesap"}>{b} · Hesap</option>)}
                   </optgroup>
                 </select>
               </label>
@@ -1071,17 +1175,6 @@ function Harcamalar({ veri, form, setForm, harcamaKaydet, sil, buAyHarcama }) {
               </label>
               <label className="bt-alan">Açıklama<input className="bt-input" type="text" placeholder="ör. haftalık market" value={f.aciklama ?? ""} onChange={(e) => setF({ ...f, aciklama: e.target.value })} /></label>
             </div>
-            {kaynakKartMi && !f.id && (
-              <label style={{ display: "flex", alignItems: "flex-start", gap: 9, marginTop: 12, fontSize: 13, color: "var(--dim)", cursor: "pointer" }}>
-                <input type="checkbox" checked={kartaEkle} onChange={(e) => setKartaEkle(e.target.checked)} style={{ marginTop: 2, accentColor: LIME }} />
-                <span>
-                  Bu tutarı <b style={{ color: "var(--text)" }}>{f.kaynak}</b> kartının dönem içi harcamalarına da ekle.
-                  <span style={{ display: "block", marginTop: 2, fontSize: 11, color: "var(--faint)" }}>
-                    {secilenKartGecikmis ? "Kart vadesi geçmiş olsa da sorun değil — ayrı sayaçta tutulur, gecikme faizine karışmaz." : "Kart borcunu ekstreden elle güncelliyorsanız işaretlemeyin — tutar iki kez sayılır."}
-                  </span>
-                </span>
-              </label>
-            )}
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" onClick={gonder}><Check size={14} /> {f.id ? "Güncelle" : "Kaydet"}</button>
               <button className="bt-btn ikincil" onClick={() => setForm(null)}>Vazgeç</button>

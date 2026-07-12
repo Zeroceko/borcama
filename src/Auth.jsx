@@ -4,6 +4,7 @@ import { Mail, ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+.auth-wrap,.auth-wrap *{box-sizing:border-box}
 .auth-wrap{
   min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
   font-family:'Space Grotesk',sans-serif;
@@ -14,12 +15,9 @@ const CSS = `
   width:100%; max-width:380px; background:#ffffff; border:2px solid #14160f;
   border-radius:24px; padding:32px 28px;
 }
-.auth-eyebrow{display:inline-block;background:#cdf564;border:2px solid #14160f;border-radius:6px;padding:4px 10px;
-  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#14160f;
-  margin-bottom:14px;transform:rotate(-1deg)}
-.auth-title{font-family:'Archivo Black',sans-serif;font-size:22px;margin:6px 0 4px;letter-spacing:-0.01em;
+.auth-title{font-family:'Archivo Black',sans-serif;font-size:30px;margin:0 0 10px;letter-spacing:-0.02em;line-height:1;
   color:#14160f;text-shadow:3px 3px 0 #cdf564,5px 5px 0 #ff6f59}
-.auth-sub{font-size:13.5px;color:#55584c;line-height:1.5;margin-bottom:22px}
+.auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 22px}
 .auth-input{
   width:100%; padding:12px 14px; border-radius:10px; border:2px solid #14160f;
   background:#f4efe0; color:#14160f; font-size:14px; font-family:inherit; margin-bottom:12px;
@@ -34,7 +32,8 @@ const CSS = `
 .auth-error{background:#ff6f5922;border:2px solid #ff6f59;color:#a53a2a;font-size:13px;border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .auth-sent{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:10px 0}
 .auth-sent svg{color:#5D7A2E}
-.auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;text-align:center;line-height:1.5}
+.auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
+.auth-foot svg{flex:0 0 auto;margin-top:2px}
 `;
 
 export function useSession() {
@@ -62,7 +61,7 @@ export function GirisEkrani() {
     setHata("");
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: window.location.origin + "/?app=1" },
     });
     setGonderiliyor(false);
     if (error) setHata("Link gönderilemedi: " + error.message);
@@ -73,8 +72,7 @@ export function GirisEkrani() {
     <div className="auth-wrap">
       <style>{CSS}</style>
       <div className="auth-card">
-        <div className="auth-eyebrow">Kişisel finans defteri</div>
-        <div className="auth-title">Borç &amp; Harcama Takibi</div>
+        <div className="auth-title">Borcama</div>
         <div className="auth-sub">
           Verilerinize her cihazdan ulaşmak için e-posta adresinizle giriş yapın. Şifre yok — e-postanıza
           gelen linke tıklamanız yeterli.
@@ -104,8 +102,8 @@ export function GirisEkrani() {
         )}
 
         <div className="auth-foot">
-          <ShieldCheck size={13} style={{ verticalAlign: "-2px", marginRight: 4 }} />
-          Verileriniz yalnızca sizin hesabınıza bağlıdır, başka kimse göremez.
+          <ShieldCheck size={13} />
+          <span>Verileriniz yalnızca sizin hesabınıza bağlıdır, başka kimse göremez.</span>
         </div>
       </div>
     </div>
