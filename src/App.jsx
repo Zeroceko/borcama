@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabaseClient.js";
-import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck, Eye, EyeOff, Minus } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -78,6 +78,10 @@ const CSS = `
 .bt-chip .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
 .bt-chip .lbl{color:#c8c9be}
 .bt-chip .amt{font-family:'JetBrains Mono',monospace;color:${CREAM};font-weight:700}
+.bt-chip.secilebilir{font-family:'Space Grotesk',sans-serif;cursor:pointer;color:inherit;transition:opacity .15s,transform .15s}
+.bt-chip.secilebilir:hover{transform:translateY(-1px)}
+.bt-chip.haric{opacity:.45;border-style:dashed}
+.bt-chip.haric .lbl,.bt-chip.haric .amt{text-decoration:line-through}
 
 .bt-metric{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:22px}
 .bt-metric-lbl{font-size:12.5px;font-weight:600;color:var(--dim);margin-bottom:10px}
@@ -620,7 +624,7 @@ export default function BorcTakip() {
         ) : (
           <>
             {hata && <div className="bt-card" style={{ borderColor: CORAL, marginBottom: 16, fontSize: 13 }}>{hata}</div>}
-            {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} buAyGelir={buAyGelir} netNakit={netNakit} odendiIsaretle={odendiIsaretle} setSekme={setSekme} />}
+            {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} buAyGelir={buAyGelir} netNakit={netNakit} odendiIsaretle={odendiIsaretle} setSekme={setSekme} tutarlarGizli={!!veri.ayarlar?.ozetTutarlariGizli} tutarlariGizle={(gizli) => ayarKaydet({ ozetTutarlariGizli: gizli })} />}
             {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} bankalar={bankalar} bankaEkle={bankaEkle} />}
             {sekme === "odemeler" && <Odemeler yaklasan={yaklasan} odendiIsaretle={odendiIsaretle} />}
             {sekme === "plan" && <Plan kalemler={kalemler} aylikFaiz={aylikFaiz} setSekme={setSekme} />}
@@ -634,17 +638,21 @@ export default function BorcTakip() {
 }
 
 /* ---------------- Özet ---------------- */
-function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yaklasan, buAyHarcama, buAyGelir, netNakit, odendiIsaretle, setSekme }) {
+function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yaklasan, buAyHarcama, buAyGelir, netNakit, odendiIsaretle, setSekme, tutarlarGizli, tutarlariGizle }) {
   const [tumBankalar, setTumBankalar] = useState(false);
+  const [haricTurler, setHaricTurler] = useState([]);
   const gelir = buAyGelir.toplam;
   const oran = gelir > 0 ? (buAyOdenecek / gelir) * 100 : null;
 
   const parcalar = [
-    { ad: "Kredi kartları", tutar: toplamlar.kart, renk: LIME },
-    { ad: "Krediler", tutar: toplamlar.kredi, renk: CORAL },
-    { ad: "Ek hesap / KMH", tutar: toplamlar.ek, renk: "#c8c9be" },
-    { ad: "Gecikmiş / diğer", tutar: toplamlar.diger, renk: "#55584c" },
+    { tur: "kart", ad: "Kredi kartları", tutar: toplamlar.kart, renk: LIME },
+    { tur: "kredi", ad: "Krediler", tutar: toplamlar.kredi, renk: CORAL },
+    { tur: "ek", ad: "Ek hesap / KMH", tutar: toplamlar.ek, renk: "#c8c9be" },
+    { tur: "diger", ad: "Gecikmiş / diğer", tutar: toplamlar.diger, renk: "#55584c" },
   ];
+  const gosterilenToplam = parcalar.filter((p) => !haricTurler.includes(p.tur)).reduce((t, p) => t + p.tutar, 0);
+  const tutarGoster = (tutar) => tutarlarGizli ? "₺ ••••••" : fmt(tutar);
+  const turDegistir = (tur) => setHaricTurler((eski) => eski.includes(tur) ? eski.filter((x) => x !== tur) : [...eski, tur]);
 
   const bankalar = useMemo(() => {
     const m = {};
@@ -668,23 +676,25 @@ function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yakl
     <div className="bt-stack">
       <div className="bt-hero">
         <span className="deko-daire" /><span className="deko-kare" />
-        <div className="bt-hero-label">Tüm bankalardaki toplam borcunuz</div>
-        <div className="bt-hero-tutar">{fmt(toplamlar.genel)}</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, position: "relative", zIndex: 1 }}><div className="bt-hero-label" style={{ margin: 0 }}>{haricTurler.length ? "Seçili borçların toplamı" : "Tüm bankalardaki toplam borcunuz"}</div><button className="bt-btn hayalet" style={{ color: CREAM, padding: 7 }} title={tutarlarGizli ? "Tutarları göster" : "Tutarları gizle"} aria-label={tutarlarGizli ? "Tutarları göster" : "Tutarları gizle"} onClick={() => tutarlariGizle(!tutarlarGizli)}>{tutarlarGizli ? <Eye size={18}/> : <EyeOff size={18}/>}</button></div>
+        <div className="bt-hero-tutar" style={{ marginTop: 16 }}>{tutarGoster(gosterilenToplam)}</div>
+        {haricTurler.length > 0 && <div style={{ color: "#c8c9be", fontSize: 11.5, margin: "-7px 0 13px", position: "relative", zIndex: 1 }}>{haricTurler.length} kategori toplamdan çıkarıldı · <button className="bt-link" style={{ color: LIME }} onClick={() => setHaricTurler([])}>Tümünü geri ekle</button></div>}
         {gecenAyDelta && (
           <div className="bt-hero-delta" style={{ background: gecenAyDelta.fark <= 0 ? "#cdf56428" : "#ff6f5928", color: gecenAyDelta.fark <= 0 ? LIME : CORAL }}>
-            {gecenAyDelta.fark === 0 ? "Geçen aydan bu yana değişmedi" : (gecenAyDelta.fark < 0 ? fmt0(-gecenAyDelta.fark) + " azaldı" : fmt0(gecenAyDelta.fark) + " arttı") + " (geçen aya göre)"}
+            {tutarlarGizli ? "Geçen aya göre değişim gizli" : gecenAyDelta.fark === 0 ? "Geçen aydan bu yana değişmedi" : (gecenAyDelta.fark < 0 ? fmt0(-gecenAyDelta.fark) + " azaldı" : fmt0(gecenAyDelta.fark) + " arttı") + " (geçen aya göre)"}
           </div>
         )}
         <div className="bt-serit">
-          {toplamlar.genel > 0 && parcalar.map((p) => p.tutar > 0 ? <div key={p.ad} style={{ width: (p.tutar / toplamlar.genel) * 100 + "%", background: p.renk }} /> : null)}
+          {gosterilenToplam > 0 && parcalar.filter((p) => !haricTurler.includes(p.tur)).map((p) => p.tutar > 0 ? <div key={p.ad} style={{ width: (p.tutar / gosterilenToplam) * 100 + "%", background: p.renk }} /> : null)}
         </div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", position: "relative", zIndex: 1 }}>
           {parcalar.map((p) => (
-            <div key={p.ad} className="bt-chip">
+            <button key={p.ad} className={"bt-chip secilebilir " + (haricTurler.includes(p.tur) ? "haric" : "")} title={haricTurler.includes(p.tur) ? "Toplama geri ekle" : "Toplamdan çıkar"} onClick={() => turDegistir(p.tur)}>
               <span className="dot" style={{ background: p.renk }} />
               <span className="lbl">{p.ad}</span>
-              <span className="amt">{fmt(p.tutar)}</span>
-            </div>
+              <span className="amt">{tutarGoster(p.tutar)}</span>
+              {haricTurler.includes(p.tur) && <Minus size={12} color={CREAM}/>}
+            </button>
           ))}
         </div>
       </div>
@@ -716,7 +726,7 @@ function Ozet({ toplamlar, kalemler, aylikFaiz, gecenAyDelta, buAyOdenecek, yakl
           <div className="bt-h2">Banka bazında yükünüz</div>
           {gorunenBankalar.map(([banka, tutar]) => (
             <div key={banka} className="bt-banka-row">
-              <div className="bt-banka-top"><span>{banka}</span><span className="bt-mono">{fmt(tutar)}</span></div>
+              <div className="bt-banka-top"><span>{banka}</span><span className="bt-mono">{tutarGoster(tutar)}</span></div>
               <div className="bt-banka-bar"><div style={{ width: Math.max(2, Math.round((tutar / maxBanka) * 100)) + "%" }} /></div>
             </div>
           ))}
