@@ -4,18 +4,27 @@ import App from './App.jsx'
 import Landing from './Landing.jsx'
 import LandingAlt from './LandingAlt.jsx'
 import { useSession, GirisEkrani } from './Auth.jsx'
-import { supabaseHazir } from './supabaseClient.js'
+import { demoModu, supabaseHazir } from './supabaseClient.js'
 import './storage.js'
 
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, '') || '/'
-  if (yol === '/login') return <GirisEkrani />
+  if (yol === '/login') return supabaseHazir ? <GirisEkrani /> : demoModu ? <GirisEkrani /> : <YapilandirmaEksik />
   if (yol === '/classic') return <Landing />
   const uygulamaYollari = ['/summary', '/debts', '/debt-plan', '/income', '/expenses']
   if (yol === '/') return supabaseHazir ? <AnaSayfa /> : <LandingAlt />
   if (!uygulamaYollari.includes(yol)) return <LandingAlt />
-  if (!supabaseHazir) return <App />
+  if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />
   return <KimlikliKok />
+}
+
+function YapilandirmaEksik() {
+  return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: '#f4efe0', color: '#14160f', fontFamily: 'Space Grotesk, system-ui, sans-serif' }}>
+    <div style={{ maxWidth: 480, padding: 28, border: '2px solid #14160f', borderRadius: 20, background: '#fff' }}>
+      <h1 style={{ marginTop: 0, fontSize: 22 }}>Uygulama geçici olarak kullanılamıyor</h1>
+      <p style={{ marginBottom: 0, color: '#55584c', lineHeight: 1.6 }}>Güvenli bağlantı ayarları tamamlanmadı. Lütfen daha sonra tekrar deneyin.</p>
+    </div>
+  </div>
 }
 
 function AnaSayfa() {

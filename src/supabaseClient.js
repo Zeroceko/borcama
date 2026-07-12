@@ -3,10 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabaseHazir = Boolean(url && anonKey);
+export const demoModu = import.meta.env.DEV && !supabaseHazir;
 
 if (!supabaseHazir) {
   console.warn(
-    "Supabase ayarları eksik; uygulama yerel demo modunda çalışıyor."
+    demoModu
+      ? "Supabase ayarları eksik; uygulama yerel demo modunda çalışıyor."
+      : "Supabase ayarları eksik; production uygulama alanı devre dışı."
   );
 }
 

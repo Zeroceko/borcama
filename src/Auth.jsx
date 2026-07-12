@@ -62,6 +62,22 @@ export function GirisEkrani() {
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+
+  useEffect(() => {
+    if (!turnstileSiteKey) return;
+    window.borcamaCaptchaTamam = (token) => setCaptchaToken(token);
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    return () => {
+      delete window.borcamaCaptchaTamam;
+      script.remove();
+    };
+  }, [turnstileSiteKey]);
 
   async function linkGonder(e) {
     e.preventDefault();
@@ -70,10 +86,10 @@ export function GirisEkrani() {
     setHata("");
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
-      options: { emailRedirectTo: window.location.origin + "/summary" },
+      options: { emailRedirectTo: window.location.origin + "/summary", captchaToken: captchaToken || undefined },
     });
     setGonderiliyor(false);
-    if (error) setHata("Link gönderilemedi: " + error.message);
+    if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." : "Giriş bağlantısı gönderilemedi. Lütfen tekrar deneyin.");
     else setGonderildi(true);
   }
 
@@ -105,7 +121,8 @@ export function GirisEkrani() {
               className="auth-input" type="email" placeholder="ornek@eposta.com" value={eposta}
               onChange={(e) => setEposta(e.target.value)} autoFocus required
             />
-            <button className="auth-btn" type="submit" disabled={gonderiliyor}>
+            {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="borcamaCaptchaTamam" style={{ marginBottom: 12 }} />}
+            <button className="auth-btn" type="submit" disabled={gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)}>
               <Mail size={16} /> {gonderiliyor ? "Gönderiliyor…" : "Giriş linki gönder"}
             </button>
           </form>
@@ -113,7 +130,7 @@ export function GirisEkrani() {
 
         <div className="auth-foot">
           <ShieldCheck size={13} />
-          <span>Verileriniz yalnızca sizin hesabınıza bağlıdır, başka kimse göremez.</span>
+          <span>Diğer kullanıcılar hesap verilerinize erişemez.</span>
         </div>
       </div>
     </div>

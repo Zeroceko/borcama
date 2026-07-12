@@ -320,7 +320,7 @@ export default function BorcTakip() {
       try {
         const s = await window.storage.get("borctakip:v1");
         if (s && s.value) setVeri({ ...BOS_VERI, ...JSON.parse(s.value) });
-      } catch (e) { /* ilk kullanım */ }
+      } catch (e) { setHata("Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin."); }
       finally { setYukleniyor(false); }
     })();
   }, []);
@@ -347,7 +347,9 @@ export default function BorcTakip() {
       await window.storage.set("borctakip:v1", JSON.stringify(yeni));
       setHata("");
     } catch (e) {
-      setHata("Kayıt sırasında bir sorun oluştu. Değişiklikler bu oturumda duruyor; bir sonraki işlemde tekrar denenecek.");
+      setHata(e?.message === "VERI_CAKISMASI"
+        ? "Verileriniz başka bir cihazda değiştirilmiş. Kayıp yaşanmaması için sayfayı yenileyip tekrar deneyin."
+        : "Kayıt sırasında bir sorun oluştu. Değişiklikler bu oturumda duruyor; bir sonraki işlemde tekrar denenecek.");
     } finally { setKaydediliyor(false); }
   }
 

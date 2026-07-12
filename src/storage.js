@@ -1,4 +1,10 @@
-import { supabase, supabaseHazir } from "./supabaseClient.js";
+import { supabase, demoModu } from "./supabaseClient.js";
+
+const AZAMI_VERI_BOYUTU = 2 * 1024 * 1024;
+const surumler = new Map();
+function anahtarKontrol(key) {
+  if (typeof key !== "string" || !/^borctakip:v\d+$/.test(key)) throw new Error("Geçersiz veri anahtarı");
+}
 
 // App.jsx window.storage.get/set/delete/list arayüzünü kullanıyor.
 // Burada aynı arayüzü Supabase'teki "kv_store" tablosuna bağlıyoruz.
@@ -13,38 +19,56 @@ async function userId() {
 
 const storage = {
   async get(key) {
-    if (!supabaseHazir) {
+    anahtarKontrol(key);
+    if (demoModu) {
       const value = localStorage.getItem(key);
-      if (value === null) throw new Error("Kayıt bulunamadı: " + key);
+      if (value === null) return { key, value: null };
       return { key, value };
     }
     const uid = await userId();
     const { data, error } = await supabase
       .from("kv_store")
-      .select("value")
+      .select("value,updated_at")
       .eq("user_id", uid)
       .eq("key", key)
       .maybeSingle();
     if (error) throw error;
-    if (!data) throw new Error("Kayıt bulunamadı: " + key);
+    if (!data) {
+      surumler.delete(key);
+      return { key, value: null };
+    }
+    surumler.set(key, data.updated_at);
     return { key, value: data.value };
   },
 
   async set(key, value) {
-    if (!supabaseHazir) {
+    anahtarKontrol(key);
+    if (typeof value !== "string" || new Blob([value]).size > AZAMI_VERI_BOYUTU) throw new Error("Veri boyutu sınırı aşıldı");
+    if (demoModu) {
       localStorage.setItem(key, value);
       return { key, value };
     }
     const uid = await userId();
-    const { error } = await supabase
-      .from("kv_store")
-      .upsert({ user_id: uid, key, value, updated_at: new Date().toISOString() }, { onConflict: "user_id,key" });
-    if (error) throw error;
+    const updatedAt = new Date().toISOString();
+    const oncekiSurum = surumler.get(key);
+    if (oncekiSurum) {
+      const { data, error } = await supabase.from("kv_store").update({ value, updated_at: updatedAt })
+        .eq("user_id", uid).eq("key", key).eq("updated_at", oncekiSurum).select("updated_at").maybeSingle();
+      if (error) throw error;
+      if (!data) throw new Error("VERI_CAKISMASI");
+      surumler.set(key, data.updated_at);
+    } else {
+      const { data, error } = await supabase.from("kv_store").insert({ user_id: uid, key, value, updated_at: updatedAt }).select("updated_at").single();
+      if (error?.code === "23505") throw new Error("VERI_CAKISMASI");
+      if (error) throw error;
+      surumler.set(key, data.updated_at);
+    }
     return { key, value };
   },
 
   async delete(key) {
-    if (!supabaseHazir) {
+    anahtarKontrol(key);
+    if (demoModu) {
       localStorage.removeItem(key);
       return { key, deleted: true };
     }
@@ -55,7 +79,8 @@ const storage = {
   },
 
   async list(prefix = "") {
-    if (!supabaseHazir) {
+    if (prefix && !/^borctakip:v\d*$/.test(prefix)) throw new Error("Geçersiz veri anahtarı");
+    if (demoModu) {
       const keys = Object.keys(localStorage).filter((key) => key.startsWith(prefix));
       return { keys, prefix };
     }
