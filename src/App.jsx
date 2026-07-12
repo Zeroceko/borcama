@@ -762,19 +762,16 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     if (!acik) return;
     if (form.yeniEkstre) {
       const eski = form.veri || {};
-      setF({ ekstreAyi: ayAnahtari(), toplamEkstreBorcu: "", oncekiAydanKalan: kartHesabi(eski).toplam || "", yapilanOdeme: "0", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || "" });
+      setF({ ekstreAyi: ayAnahtari(), toplamEkstreBorcu: "", oncekiAydanKalan: kartHesabi(eski).toplam || "", yapilanOdeme: "0", limit: eski.limit || "", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || "" });
     } else setF(form.veri || {});
   }, [acik, form, kategori]);
 
   const ALAN_TANIMLARI = {
     cards: [
       { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "ad", e: "Kart adı (Bonus, World…)", t: "text" },
+      { k: "ad", e: "Kart adı (Bonus, World…)", t: "text", z: true },
       { k: "limit", e: "Toplam kart limiti (₺)", t: "number", z: true },
-      { k: "toplamEkstreBorcu", e: "Toplam ekstre borcu (₺)", t: "number", z: true },
-      { k: "oncekiAydanKalan", e: "Önceki aydan kalan (₺)", t: "number" },
-      { k: "yapilanOdeme", e: "Bu borca yaptığınız ödeme (₺)", t: "number", z: true },
-      { k: "kesimGunu", e: "Ekstre kesim günü (varsa)", t: "number" },
+      { k: "kesimGunu", e: "Ekstre kesim günü", t: "number", z: true },
       { k: "sonOdemeGunu", e: "Son ödeme günü (ayın kaçı)", t: "number", z: true },
     ],
     loans: [
@@ -831,7 +828,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       ekleGuncelle("cards", { ...eski, ...f, ekstreGecmisi: [...(eski.ekstreGecmisi || []), arsiv] });
       return;
     }
-    ekleGuncelle(meta.liste, { id: f.id || uid(), ...f, ...(kategori === "cards" && !f.ekstreAyi ? { ekstreAyi: ayAnahtari() } : {}) });
+    ekleGuncelle(meta.liste, { id: f.id || uid(), ...f });
   }
 
   function bankaGonder(e) {
@@ -979,6 +976,7 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
 
   if (kategori === "cards") {
     const hesap = kartHesabi(k);
+    const ekstreVar = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined || +k.borc > 0 || +k.donemIciToplam > 0;
     tutar = hesap.toplam;
     const kullanilabilirVar = +k.kullanilabilirLimit > 0;
     const kullanilan = kullanilabilirVar ? (+k.limit || 0) - (+k.kullanilabilirLimit) : tutar;
@@ -988,10 +986,10 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
     const asgariOran = (+k.limit || 0) <= 50000 ? .20 : .40;
     const asgariTamam = hesap.odeme >= hesap.onceki * asgariOran;
     const odendi = !!paid?.["kart-" + k.id + "-" + ayAnahtari()];
-    const gecikmis = gecikenGun > 0 && !asgariTamam && !odendi;
+    const gecikmis = ekstreVar && gecikenGun > 0 && !asgariTamam && !odendi;
     barRenk = gecikmis ? CORAL : LIME;
     barGoster = barOran !== null;
-    altMeta = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
+    altMeta = !ekstreVar ? "Henüz ekstre girilmedi · kesim ayın " + k.kesimGunu + ". günü · son ödeme ayın " + k.sonOdemeGunu + ". günü" : k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
       ? "Ekstre " + fmt(hesap.onceki) + " · ödendi " + fmt(hesap.odeme) + " · kalan " + fmt(hesap.devreden) + (arsiv ? " · " + ayEtiketi(k.ekstreAyi) : " · son ödeme " + gecikmeTarihi.toLocaleDateString("tr-TR"))
       : "Son ödeme: " + gecikmeTarihi.toLocaleDateString("tr-TR");
     if (gecikmis) {
