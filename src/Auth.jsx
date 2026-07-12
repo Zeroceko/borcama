@@ -9,6 +9,7 @@ import {
   KeyRound,
   Eye,
   EyeOff,
+  X,
 } from "lucide-react";
 
 const CSS = `
@@ -48,10 +49,11 @@ const CSS = `
 .auth-remember input{appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;border:2px solid #14160f;border-radius:5px;background:#fff;display:grid;place-items:center;cursor:pointer}
 .auth-remember input:checked{background:#cdf564}
 .auth-remember input:checked::after{content:'✓';font-size:13px;font-weight:900;line-height:1;color:#14160f}
-.auth-consents{display:grid;gap:10px;margin:4px 0 16px;padding:13px;background:#f4efe0;border:1px solid #d9d5c7;border-radius:12px}.auth-consents .auth-remember{align-items:flex-start;margin:0;font-size:11.5px;line-height:1.45}.auth-consents a,.auth-legal a{color:#315c47;font-weight:800;text-underline-offset:2px}
+.auth-consents{display:grid;gap:10px;margin:4px 0 16px;padding:13px;background:#f4efe0;border:1px solid #d9d5c7;border-radius:12px}.auth-consents .auth-remember{align-items:flex-start;margin:0;font-size:11.5px;line-height:1.45}
 .auth-switch{margin-top:17px;padding-top:16px;border-top:1px solid #dedbce;text-align:center;font-size:12.5px;color:#66695d}
 .auth-switch a{color:#14160f;font-weight:800;text-decoration:underline;text-underline-offset:3px}
 .auth-legal{text-align:center;margin-top:11px;font-size:10.5px;color:#8a8c7e}.auth-legal span{margin:0 5px}
+.auth-legal button,.auth-consents button{padding:0;border:0;background:none;color:#315c47;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.auth-legal-modal{position:fixed;z-index:20;inset:0;background:#09291fcc;display:grid;place-items:center;padding:18px}.auth-legal-dialog{width:min(860px,100%);height:min(760px,92vh);background:#f4efe0;border:3px solid #14160f;border-radius:24px;box-shadow:10px 10px 0 #cdf564;display:flex;flex-direction:column;overflow:hidden}.auth-legal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:#fff;border-bottom:2px solid #14160f;font-size:14px;font-weight:800}.auth-legal-close{width:36px;height:36px;border:2px solid #14160f;border-radius:50%;background:#cdf564;display:grid;place-items:center;cursor:pointer}.auth-legal-frame{width:100%;flex:1;border:0;background:#f4efe0}
 .auth-btn{
   width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
   font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
@@ -102,6 +104,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [oturumuAcikTut, setOturumuAcikTut] = useState(true);
   const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
   const [aydinlatmaOkundu, setAydinlatmaOkundu] = useState(false);
+  const [yasalMetin, setYasalMetin] = useState(null);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
@@ -364,9 +367,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                     required
                   />
                   <span>
-                    <a href="/terms" target="_blank" rel="noreferrer">
+                    <button
+                      type="button"
+                      onClick={() => setYasalMetin("terms")}
+                    >
                       Kullanıcı Sözleşmesi
-                    </a>
+                    </button>
                     'ni okudum ve kabul ediyorum.
                   </span>
                 </label>
@@ -378,9 +384,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                     required
                   />
                   <span>
-                    <a href="/privacy" target="_blank" rel="noreferrer">
+                    <button
+                      type="button"
+                      onClick={() => setYasalMetin("privacy")}
+                    >
                       Gizlilik ve KVKK Aydınlatma Metni
-                    </a>
+                    </button>
                     'ni okudum.
                   </span>
                 </label>
@@ -438,9 +447,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           )}
         </div>
         <div className="auth-legal">
-          <a href="/terms">Kullanıcı Sözleşmesi</a>
+          <button type="button" onClick={() => setYasalMetin("terms")}>
+            Kullanıcı Sözleşmesi
+          </button>
           <span>·</span>
-          <a href="/privacy">Gizlilik ve KVKK</a>
+          <button type="button" onClick={() => setYasalMetin("privacy")}>
+            Gizlilik ve KVKK
+          </button>
         </div>
 
         <div className="auth-foot">
@@ -448,6 +461,49 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           <span>Diğer kullanıcılar hesap verilerinize erişemez.</span>
         </div>
       </div>
+      {yasalMetin && (
+        <div
+          className="auth-legal-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={
+            yasalMetin === "terms"
+              ? "Kullanıcı Sözleşmesi"
+              : "Gizlilik ve KVKK Aydınlatma Metni"
+          }
+          onClick={() => setYasalMetin(null)}
+        >
+          <div
+            className="auth-legal-dialog"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="auth-legal-head">
+              <span>
+                {yasalMetin === "terms"
+                  ? "Kullanıcı Sözleşmesi"
+                  : "Gizlilik ve KVKK Aydınlatma Metni"}
+              </span>
+              <button
+                className="auth-legal-close"
+                type="button"
+                aria-label="Metni kapat"
+                onClick={() => setYasalMetin(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <iframe
+              className="auth-legal-frame"
+              title={
+                yasalMetin === "terms"
+                  ? "Kullanıcı Sözleşmesi"
+                  : "Gizlilik ve KVKK Aydınlatma Metni"
+              }
+              src={`/${yasalMetin}?embed=1`}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
