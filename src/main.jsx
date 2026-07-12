@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import Landing from './Landing.jsx'
 import LandingAlt from './LandingAlt.jsx'
+import Backoffice from './Backoffice.jsx'
 import { useSession, GirisEkrani } from './Auth.jsx'
 import { demoModu, supabaseHazir } from './supabaseClient.js'
 import './storage.js'
@@ -11,11 +12,23 @@ function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, '') || '/'
   if (yol === '/login') return supabaseHazir ? <GirisEkrani /> : demoModu ? <GirisEkrani /> : <YapilandirmaEksik />
   if (yol === '/classic') return <Landing />
+  if (yol === '/backoffice') return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />
   const uygulamaYollari = ['/summary', '/debts', '/debt-plan', '/income', '/expenses']
   if (yol === '/') return supabaseHazir ? <AnaSayfa /> : <LandingAlt />
   if (!uygulamaYollari.includes(yol)) return <LandingAlt />
   if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />
   return <KimlikliKok />
+}
+
+function KimlikliBackoffice() {
+  const session = useSession()
+  if (session === undefined) return <Yukleniyor />
+  if (!session) return <GirisEkrani redirectTo="/backoffice" />
+  return <Backoffice />
+}
+
+function Yukleniyor() {
+  return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4efe0', color: '#55584c', fontFamily: 'Space Grotesk, system-ui, sans-serif', fontSize: 14 }}>Yükleniyor…</div>
 }
 
 function YapilandirmaEksik() {
@@ -35,14 +48,7 @@ function AnaSayfa() {
   }, [session])
 
   if (session === undefined) {
-    return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#f4efe0', color: '#55584c', fontFamily: 'Space Grotesk, system-ui, sans-serif', fontSize: 14,
-      }}>
-        Yükleniyor…
-      </div>
-    )
+    return <Yukleniyor />
   }
 
   return session ? <App /> : <LandingAlt />
@@ -52,14 +58,7 @@ function KimlikliKok() {
   const session = useSession()
 
   if (session === undefined) {
-    return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#f4efe0', color: '#55584c', fontFamily: 'Space Grotesk, system-ui, sans-serif', fontSize: 14,
-      }}>
-        Yükleniyor…
-      </div>
-    )
+    return <Yukleniyor />
   }
 
   if (!session) return <GirisEkrani />

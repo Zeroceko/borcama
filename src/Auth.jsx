@@ -57,7 +57,7 @@ export function useSession() {
   return session;
 }
 
-export function GirisEkrani() {
+export function GirisEkrani({ redirectTo = "/summary" }) {
   const [eposta, setEposta] = useState("");
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
@@ -86,7 +86,7 @@ export function GirisEkrani() {
     setHata("");
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
-      options: { emailRedirectTo: window.location.origin + "/summary", captchaToken: captchaToken || undefined },
+      options: { emailRedirectTo: window.location.origin + redirectTo, captchaToken: captchaToken || undefined },
     });
     setGonderiliyor(false);
     if (error) setHata(error.status === 429 ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." : "Giriş bağlantısı gönderilemedi. Lütfen tekrar deneyin.");
