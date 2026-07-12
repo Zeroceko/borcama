@@ -6,7 +6,7 @@ import LandingAlt from "./LandingAlt.jsx";
 import Backoffice from "./Backoffice.jsx";
 import CeoDashboard from "./CeoDashboard.jsx";
 import { KullaniciSozlesmesi, GizlilikMetni } from "./Legal.jsx";
-import { useSession, GirisEkrani } from "./Auth.jsx";
+import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import "./storage.js";
 
@@ -28,6 +28,8 @@ function Kok() {
     ) : (
       <YapilandirmaEksik />
     );
+  if (yol === "/reset-password")
+    return supabaseHazir || demoModu ? <ParolaYenileEkrani /> : <YapilandirmaEksik />;
   if (yol === "/terms") return <KullaniciSozlesmesi />;
   if (yol === "/privacy") return <GizlilikMetni />;
   if (yol === "/classic") return <Landing />;

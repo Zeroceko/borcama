@@ -45,6 +45,7 @@ const CSS = `
 .auth-tab.active{background:#14160f;color:#fff}
 .auth-password{position:relative}.auth-password .auth-input{padding-right:46px}.auth-eye{position:absolute;right:7px;top:7px;width:34px;height:34px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:#55584c}
 .auth-help{font-size:11.5px;color:#777a6d;line-height:1.45;margin:-2px 0 12px}
+.auth-reset-link{display:block;margin:-4px 0 13px auto;padding:0;border:0;background:none;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .auth-remember{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:12.5px;font-weight:600;color:#55584c;cursor:pointer}
 .auth-remember input{appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;border:2px solid #14160f;border-radius:5px;background:#fff;display:grid;place-items:center;cursor:pointer}
 .auth-remember input:checked{background:#cdf564}
@@ -105,6 +106,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
   const [aydinlatmaOkundu, setAydinlatmaOkundu] = useState(false);
   const [yasalMetin, setYasalMetin] = useState(null);
+  const [sifirlamaModu, setSifirlamaModu] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
@@ -177,6 +179,25 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       }
       window.location.href = redirectTo;
     }
+  }
+
+  async function sifirlamaLinkiGonder(e) {
+    e.preventDefault();
+    if (!eposta.trim()) return;
+    setGonderiliyor(true);
+    setHata("");
+    const { error } = await supabase.auth.resetPasswordForEmail(eposta.trim(), {
+      redirectTo: window.location.origin + "/reset-password",
+      captchaToken: captchaToken || undefined,
+    });
+    setGonderiliyor(false);
+    if (error)
+      setHata(
+        error.status === 429
+          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
+          : "Parola yenileme bağlantısı gönderilemedi. Lütfen tekrar deneyin.",
+      );
+    else setGonderildi(true);
   }
 
   async function parolaylaKayit(e) {
@@ -263,17 +284,68 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           <div className="auth-sent">
             <CheckCircle2 size={34} />
             <div style={{ fontWeight: 700, fontSize: 15 }}>
-              {kayitModu ? "E-postanı kontrol et" : "Link gönderildi"}
+              {sifirlamaModu
+                ? "Parola yenileme bağlantısı gönderildi"
+                : kayitModu
+                  ? "E-postanı kontrol et"
+                  : "Link gönderildi"}
             </div>
             <div style={{ fontSize: 13, color: "#55584c" }}>
               <b style={{ color: "#14160f" }}>{eposta}</b> adresine{" "}
-              {kayitModu
-                ? "hesabını doğrulayacağın bir bağlantı"
-                : "bir giriş linki"}{" "}
+              {sifirlamaModu
+                ? "parolanı yenileyebileceğin bir bağlantı"
+                : kayitModu
+                  ? "hesabını doğrulayacağın bir bağlantı"
+                  : "bir giriş linki"}{" "}
               yolladık. Gelen kutunu (ve spam klasörünü) kontrol edip bağlantıya
               tıkla.
             </div>
           </div>
+        ) : sifirlamaModu ? (
+          <form onSubmit={sifirlamaLinkiGonder}>
+            <div className="auth-help" style={{ marginBottom: 14 }}>
+              Hesabındaki e-posta adresini yaz. Yeni parola belirleyebileceğin
+              güvenli bağlantıyı gönderelim.
+            </div>
+            <input
+              className="auth-input"
+              type="email"
+              placeholder="ornek@eposta.com"
+              value={eposta}
+              onChange={(e) => setEposta(e.target.value)}
+              autoFocus
+              required
+            />
+            {turnstileSiteKey && (
+              <div
+                className="cf-turnstile"
+                data-sitekey={turnstileSiteKey}
+                data-callback="borcamaCaptchaTamam"
+                style={{ marginBottom: 12 }}
+              />
+            )}
+            <button
+              className="auth-btn"
+              type="submit"
+              disabled={
+                gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)
+              }
+            >
+              <Mail size={16} />{" "}
+              {gonderiliyor ? "Gönderiliyor…" : "Parola yenileme linki gönder"}
+            </button>
+            <button
+              className="auth-reset-link"
+              style={{ margin: "14px auto 0" }}
+              type="button"
+              onClick={() => {
+                setSifirlamaModu(false);
+                setHata("");
+              }}
+            >
+              Giriş ekranına dön
+            </button>
+          </form>
         ) : yontem === "link" ? (
           <form onSubmit={linkGonder}>
             <input
@@ -357,6 +429,19 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                 ? "Parolan en az 8 karakter olmalı."
                 : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}
             </div>
+            {!kayitModu && (
+              <button
+                className="auth-reset-link"
+                type="button"
+                onClick={() => {
+                  setSifirlamaModu(true);
+                  setHata("");
+                  setGonderildi(false);
+                }}
+              >
+                Parolamı unuttum
+              </button>
+            )}
             {kayitModu && (
               <div className="auth-consents">
                 <label className="auth-remember">
@@ -504,6 +589,142 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function ParolaYenileEkrani() {
+  const session = useSession();
+  const [parola, setParola] = useState("");
+  const [tekrar, setTekrar] = useState("");
+  const [gorunur, setGorunur] = useState(false);
+  const [durum, setDurum] = useState({
+    kaydediliyor: false,
+    hata: "",
+    tamam: false,
+  });
+
+  async function parolayiKaydet(e) {
+    e.preventDefault();
+    if (parola.length < 8)
+      return setDurum({
+        kaydediliyor: false,
+        hata: "Parolanız en az 8 karakter olmalı.",
+        tamam: false,
+      });
+    if (parola !== tekrar)
+      return setDurum({
+        kaydediliyor: false,
+        hata: "Parolalar birbiriyle eşleşmiyor.",
+        tamam: false,
+      });
+    setDurum({ kaydediliyor: true, hata: "", tamam: false });
+    const { error } = await supabase.auth.updateUser({ password: parola });
+    setDurum(
+      error
+        ? {
+            kaydediliyor: false,
+            hata: "Parola yenilenemedi. Bağlantının süresi dolmuş olabilir.",
+            tamam: false,
+          }
+        : { kaydediliyor: false, hata: "", tamam: true },
+    );
+  }
+
+  return (
+    <div className="auth-wrap">
+      <style>{CSS}</style>
+      <a className="auth-back" href="/login">
+        <ArrowLeft size={15} /> Giriş ekranına dön
+      </a>
+      <div className="auth-card">
+        <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
+        {session === undefined ? (
+          <div className="auth-sub">Güvenli bağlantı kontrol ediliyor…</div>
+        ) : !session ? (
+          <>
+            <div className="auth-welcome">
+              Bağlantı geçersiz veya süresi dolmuş
+            </div>
+            <div className="auth-sub">
+              Giriş ekranındaki “Parolamı unuttum” bağlantısından yeni bir
+              parola yenileme e-postası isteyebilirsin.
+            </div>
+            <a
+              className="auth-btn"
+              href="/login"
+              style={{ textDecoration: "none" }}
+            >
+              Yeni bağlantı iste
+            </a>
+          </>
+        ) : durum.tamam ? (
+          <div className="auth-sent">
+            <CheckCircle2 size={34} />
+            <div style={{ fontWeight: 700, fontSize: 15 }}>
+              Parolan yenilendi
+            </div>
+            <div style={{ fontSize: 13, color: "#55584c" }}>
+              Yeni parolanla hesabını kullanmaya devam edebilirsin.
+            </div>
+            <a
+              className="auth-btn"
+              href="/summary"
+              style={{ textDecoration: "none", marginTop: 8 }}
+            >
+              Borcama'ya devam et
+            </a>
+          </div>
+        ) : (
+          <>
+            <div className="auth-welcome">Yeni parolanı belirle</div>
+            <div className="auth-sub">
+              En az 8 karakterli, başka hesaplarında kullanmadığın bir parola
+              seç.
+            </div>
+            {durum.hata && <div className="auth-error">{durum.hata}</div>}
+            <form onSubmit={parolayiKaydet}>
+              <div className="auth-password">
+                <input
+                  className="auth-input"
+                  type={gorunur ? "text" : "password"}
+                  placeholder="Yeni parola"
+                  value={parola}
+                  onChange={(e) => setParola(e.target.value)}
+                  autoFocus
+                  required
+                  minLength={8}
+                />
+                <button
+                  className="auth-eye"
+                  type="button"
+                  aria-label={gorunur ? "Parolayı gizle" : "Parolayı göster"}
+                  onClick={() => setGorunur(!gorunur)}
+                >
+                  {gorunur ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+              <input
+                className="auth-input"
+                type={gorunur ? "text" : "password"}
+                placeholder="Yeni parolayı tekrar yaz"
+                value={tekrar}
+                onChange={(e) => setTekrar(e.target.value)}
+                required
+                minLength={8}
+              />
+              <button
+                className="auth-btn"
+                type="submit"
+                disabled={durum.kaydediliyor || !parola || !tekrar}
+              >
+                <KeyRound size={16} />
+                {durum.kaydediliyor ? "Kaydediliyor…" : "Yeni parolayı kaydet"}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </div>
   );
 }
