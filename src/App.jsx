@@ -247,7 +247,7 @@ const KATEGORI_META = {
   cards: { ad: "Kredi kartları", liste: "cards", rozetBg: LIME },
   loans: { ad: "Krediler", liste: "loans", rozetBg: "#c8c9be" },
   od: { ad: "Ek hesap / KMH", liste: "overdrafts", rozetBg: CORAL },
-  others: { ad: "Gecikmiş / diğer", liste: "others", rozetBg: "#d8c9a0" },
+  others: { ad: "Devreden / gecikmiş / diğer", liste: "others", rozetBg: "#d8c9a0" },
 };
 const SEKME_YOLLARI = { ozet: "/summary", borclar: "/debts", odemeler: "/payments", plan: "/debt-plan", gelir: "/income", harcamalar: "/expenses" };
 const YOL_SEKMELERI = Object.fromEntries(Object.entries(SEKME_YOLLARI).map(([sekme, yol]) => [yol, sekme]));
@@ -773,9 +773,10 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       const asgariOran = (+k.limit || 0) <= 50000 ? .20 : .40;
       const asgariTamam = h.odeme >= h.onceki * asgariOran;
       const odendi = !!veri.paid?.["kart-" + k.id + "-" + ay];
-      if (gun > 0 && h.toplam > 0 && !asgariTamam && !odendi) {
-        const oran = tcmbKartAzamiGecikmeFaizi(h.onceki || h.toplam);
-        liste.push({ id: "kart-" + k.id, tur: "Kredi kartı", banka: k.banka, ad: k.ad || "Kredi kartı", tarih, gun, bakiye: h.toplam, oran, faiz: gunlukBirikmisFaiz(h.toplam, oran, gun) });
+      if (gun > 0 && h.toplam > 0) {
+        const minimumTamam = asgariTamam || odendi;
+        const oran = minimumTamam ? tcmbKartAzamiFaizi(h.onceki || h.toplam) : tcmbKartAzamiGecikmeFaizi(h.onceki || h.toplam);
+        liste.push({ id: "kart-" + k.id, tur: minimumTamam ? "Devreden kart borcu" : "Gecikmiş kart borcu", durum: minimumTamam ? "devreden" : "gecikmis", banka: k.banka, ad: k.ad || "Kredi kartı", tarih, gun, bakiye: h.toplam, oran, faiz: minimumTamam ? (h.toplam * oran) / 100 : gunlukBirikmisFaiz(h.toplam, oran, gun) });
       }
     });
     veri.loans.forEach((k) => {
@@ -932,8 +933,8 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
         )}
 
         {kategori === "others" && otomatikGecikenler.length > 0 && <div style={{ marginBottom: 20 }}>
-          <div className="bt-h2" style={{ marginBottom: 6 }}>Otomatik tespit edilen gecikmeler</div>
-          <div style={{ fontSize: 11.5, color: "var(--dim)", marginBottom: 12 }}>Kart ve kredi ödeme tarihlerinden otomatik hesaplanır. Faiz tutarı yaklaşık değerdir.</div>
+          <div className="bt-h2" style={{ marginBottom: 6 }}>Devreden ve geciken borçlar</div>
+          <div style={{ fontSize: 11.5, color: "var(--dim)", marginBottom: 12 }}>Asgarisi ödenen kart bakiyesi devreden borç, asgarisi karşılanmayan bakiye gecikmiş borç olarak gösterilir. Faizler yaklaşık değerdir.</div>
           <div className="bt-stack" style={{ gap: 10 }}>{otomatikGecikenler.map((g, i) => <GecikmisBorcSatiri key={g.id} g={g} i={i} />)}</div>
         </div>}
 
@@ -1003,7 +1004,7 @@ function EkstreKontrol({ veri }) {
 }
 
 function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false }) {
-  let baslik = k.banka, ekAd = k.ad, tutar, altMeta, barGoster = false, barOran = null, barRenk = LIME, altYazi = null, kod = bankaKodu(k.banka);
+  let baslik = k.banka, ekAd = k.ad, tutar, altMeta, barGoster = false, barOran = null, barRenk = LIME, altYazi = null, tutarEtiketi = null, kartDetay = null, kod = bankaKodu(k.banka);
 
   if (kategori === "cards") {
     const hesap = kartHesabi(k);
@@ -1016,7 +1017,10 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
     const gecikenGun = arsiv ? 0 : Math.max(-kalanGun(gecikmeTarihi), 0);
     const asgariOran = (+k.limit || 0) <= 50000 ? .20 : .40;
     const asgariTamam = hesap.odeme >= hesap.onceki * asgariOran;
-    const odendi = !!paid?.["kart-" + k.id + "-" + ayAnahtari()];
+    const donem = arsiv ? k.ekstreAyi : (k.ekstreAyi || ayAnahtari());
+    const odendi = !!paid?.["kart-" + k.id + "-" + donem] || (ekstreVar && hesap.toplam <= 0);
+    const borcKapandi = ekstreVar && hesap.toplam <= 0;
+    const durum = borcKapandi ? "Ödendi" : hesap.odeme > 0 || odendi ? "Kısmi ödendi · kalan borç var" : "Ödenmemiş";
     const gecikmis = ekstreVar && gecikenGun > 0 && !asgariTamam && !odendi;
     barRenk = gecikmis ? CORAL : LIME;
     barGoster = barOran !== null;
@@ -1028,6 +1032,8 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
       const birikenFaiz = gunlukBirikmisFaiz(hesap.toplam, gecikmeOrani, gecikenGun);
       altYazi = gecikenGun + " gün gecikti · tahmini biriken faiz " + fmt(birikenFaiz);
     }
+    tutarEtiketi = ekstreVar ? "Kalan borç · " + durum : "Ekstre bekleniyor";
+    kartDetay = ekstreVar ? { donem, ekstre: hesap.onceki, devreden: +k.oncekiAydanKalan || 0, odeme: hesap.odeme, kalan: hesap.toplam, odemeBilgisiYok: k.toplamEkstreBorcu === undefined && k.oncekiDonemBorcu === undefined, durum } : null;
   } else if (kategori === "loans") {
     tutar = arsiv ? (+k.taksit || 0) : (+k.kalanBorc || 0);
     altMeta = k._gelecek ? ayEtiketi(k._donem) + " · planlanan taksit · ayın " + k.odemeGunu + ". günü" + (k._kalanTaksitProj !== null ? " · ödeme sonrası " + k._kalanTaksitProj + " taksit kalacak" : "") : arsiv ? ayEtiketi(k._donem) + " · taksit ödendi" + (+k.kalanBorc > 0 ? " · kayıt anındaki kalan borç " + fmt(k.kalanBorc) : "") : "Taksit " + fmt(k.taksit) + " · her ayın " + k.odemeGunu + ". günü" + (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "");
@@ -1049,9 +1055,11 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
         {barGoster && (
           <div className="bt-bar"><div style={{ width: Math.min(barOran * 100, 100) + "%", background: barRenk }} /></div>
         )}
+        {kartDetay && <EkstreSatirDetayi detay={kartDetay} />}
       </div>
       <div style={{ textAlign: "right" }}>
         <div className="bt-satir-tutar">{fmt(tutar)}</div>
+        {tutarEtiketi && <div className="bt-satirD-tur" style={{ fontWeight: 800, color: tutar > 0 ? CORAL : "#5D7A2E" }}>{tutarEtiketi}</div>}
         {altYazi && <div className="bt-satir-alt">{altYazi}</div>}
       </div>
       {!arsiv && <div style={{ display: "flex", gap: 2 }}>
@@ -1063,11 +1071,21 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
   );
 }
 
+function EkstreSatirDetayi({ detay }) {
+  return <details style={{ marginTop: 10 }}><summary style={{ cursor: "pointer", color: CORAL, fontSize: 11.5, fontWeight: 800 }}>{ayEtiketi(detay.donem)} ekstresini görüntüle</summary><div className="bt-grid" style={{ marginTop: 10, gap: 8 }}>
+    <div className="bt-metric" style={{ padding: 11 }}><div className="bt-metric-lbl">Toplam ekstre</div><div className="bt-mono" style={{ fontWeight: 800 }}>{fmt(detay.ekstre)}</div></div>
+    <div className="bt-metric" style={{ padding: 11 }}><div className="bt-metric-lbl">Önceki aydan devreden</div><div className="bt-mono" style={{ fontWeight: 800 }}>{fmt(detay.devreden)}</div></div>
+    <div className="bt-metric" style={{ padding: 11 }}><div className="bt-metric-lbl">Yapılan ödeme</div><div className="bt-mono" style={{ fontWeight: 800 }}>{detay.odemeBilgisiYok ? "Bilgi yok" : fmt(detay.odeme)}</div></div>
+    <div className="bt-metric" style={{ padding: 11 }}><div className="bt-metric-lbl">Kalan borç</div><div className="bt-mono" style={{ fontWeight: 800 }}>{fmt(detay.kalan)}</div></div>
+    <div style={{ gridColumn: "1/-1", fontSize: 11.5, fontWeight: 800, color: detay.durum === "Ödendi" ? "#5D7A2E" : CORAL }}>Durum: {detay.durum}</div>
+  </div></details>;
+}
+
 function GecikmisBorcSatiri({ g, i }) {
   return <div className="bt-satir" style={{ borderColor: CORAL }}>
     <div style={rozetStil(CORAL, ROTASYONLAR[i % ROTASYONLAR.length])}>{bankaKodu(g.banka)}</div>
     <div style={{ flex: 1, minWidth: 150 }}><div className="bt-satir-ad">{g.banka} <span style={{ color: "var(--dim)", fontWeight: 500 }}>· {g.ad}</span></div><div className="bt-satir-meta">{g.tur} · son ödeme {g.tarih.toLocaleDateString("tr-TR")} · aylık %{g.oran.toFixed(2)}</div></div>
-    <div style={{ textAlign: "right" }}><div className="bt-satir-tutar">{fmt(g.bakiye)}</div><div className="bt-satir-alt">{g.gun} gün gecikti · tahmini faiz {fmt(g.faiz)}</div></div>
+    <div style={{ textAlign: "right" }}><div className="bt-satir-tutar">{fmt(g.bakiye)}</div><div className="bt-satirD-tur" style={{ fontWeight: 800 }}>Kalan borç</div><div className="bt-satir-alt">{g.durum === "devreden" ? "Asgari ödendi · tahmini aylık akdi faiz " + fmt(g.faiz) : g.gun + " gün gecikti · biriken tahmini gecikme faizi " + fmt(g.faiz)}</div></div>
   </div>;
 }
 
