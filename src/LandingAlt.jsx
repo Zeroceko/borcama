@@ -28,6 +28,8 @@ const CSS = `
 @media(max-width:850px){.la-command{grid-template-columns:repeat(2,1fr)}.la-command:before{display:none}}
 @media(max-width:600px){.la-hero{background:linear-gradient(145deg,#f4efe0 0 70%,#d8e6df 70%)}.la-demo-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.la-command{grid-template-columns:1fr}.la-progress{grid-template-columns:1fr}}
+@media(max-width:850px){.la-links>.la-login{display:inline-flex!important}.la-nav-anchor{display:none!important}.la-links{gap:12px}}
+@media(max-width:600px){.la-shell{width:min(100% - 24px,1160px)}.la-nav{height:64px}.la-logo{width:118px}.la-links{gap:8px}.la-login{font-size:11px;white-space:nowrap}.la-nav .la-btn{padding:9px 11px;font-size:11px;box-shadow:2px 2px 0 var(--green)}.la-nav .la-btn svg{display:none}.la-hero-in{padding:48px 0 58px;gap:42px}.la-h1{font-size:clamp(42px,13vw,52px);overflow-wrap:anywhere}.la-h2{font-size:clamp(36px,11vw,48px);overflow-wrap:anywhere}.la-lead{font-size:15px}.la-demo{width:calc(100% - 7px);padding:17px;border-radius:20px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-demo-total{font-size:38px}.la-demo-pay{align-items:flex-start}.la-demo-pay>strong{font-size:11px}.la-trust{padding:38px 0 18px}.la-chip{padding:10px 12px;font-size:11px}.la-dark,.la-story{padding:64px 0}.la-command-card{min-height:0}.la-phone{padding:19px;border-radius:22px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-debt{font-size:38px}.la-cta{padding:62px 0}.la-cta-box{box-shadow:6px 6px 0 var(--green)}.la-footer{padding-top:48px}.la-footer-logo img{width:100%!important}.la-footline{margin-top:28px}}
 `;
 export default function LandingAlt() {
   return (
@@ -38,9 +40,15 @@ export default function LandingAlt() {
           <img src="/borcama-logo.png" alt="Borcama" />
         </a>
         <nav className="la-links">
-          <a href="#araclar">Özellikler</a>
-          <a href="#kontrol">Nasıl çalışır?</a>
-          <a href="/login">Giriş yap</a>
+          <a className="la-nav-anchor" href="#araclar">
+            Özellikler
+          </a>
+          <a className="la-nav-anchor" href="#kontrol">
+            Nasıl çalışır?
+          </a>
+          <a className="la-login" href="/login">
+            Giriş yap
+          </a>
           <a className="la-btn" href="/register">
             Hemen Başla! <ArrowRight size={14} />
           </a>

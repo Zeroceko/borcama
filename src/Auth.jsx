@@ -65,7 +65,7 @@ const CSS = `
 .auth-sent svg{color:#5D7A2E}
 .auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
 .auth-foot svg{flex:0 0 auto;margin-top:2px}
-@media(max-width:520px){.auth-card{padding:34px 24px;box-shadow:7px 7px 0 #ff6f59}.auth-back{top:16px;left:16px}.auth-title{width:170px}.auth-wrap{padding-top:80px}}
+@media(max-width:520px){.auth-wrap{align-items:flex-start;min-height:100dvh;padding:78px 12px 32px;overflow-x:hidden;overflow-y:auto}.auth-card{padding:28px 20px;box-shadow:6px 6px 0 #ff6f59;border-radius:20px}.auth-back{top:15px;left:12px}.auth-title{width:155px}.auth-tabs{margin-bottom:15px}.auth-legal-modal{padding:7px}.auth-legal-dialog{height:96dvh;border-radius:16px;box-shadow:4px 4px 0 #cdf564}.auth-legal-head{padding:10px 12px}.auth-consents{padding:11px}.auth-btn{min-height:46px}}
 `;
 
 export function useSession() {
