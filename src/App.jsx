@@ -409,23 +409,31 @@ export default function BorcTakip() {
     veri.cards.forEach((k) => {
       const h = kartHesabi(k); const anaBorc = h.toplam;
       if (anaBorc > 0) {
-        const tutar = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined ? h.asgari : (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc));
+        const yeniModel = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
+        const hedefTutar = yeniModel ? h.onceki * ((+k.limit || 0) <= 50000 ? .20 : .40) : (+k.asgari > 0 ? +k.asgari : (+k.borc > 0 ? +k.borc : anaBorc));
+        const elleOdendi = !!veri.paid["kart-" + k.id + "-" + ay];
+        const girilenOdeme = yeniModel ? h.odeme : 0;
+        const yapilanOdeme = elleOdendi ? Math.max(girilenOdeme, hedefTutar) : girilenOdeme;
+        const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
+        const otomatikOdendi = !elleOdendi && hedefTutar > 0 && tutar <= 0;
         liste.push({
           id: "kart-" + k.id, banka: k.banka, ad: k.banka + (k.ad ? " · " + k.ad : ""),
-          tutar, not: "minimum ödeme",
+          tutar, hedefTutar, yapilanOdeme, not: "kalan minimum ödeme",
           tarih: kartGecikmeTarihi(k),
-          odendi: !!veri.paid["kart-" + k.id + "-" + ay], anahtar: "kart-" + k.id + "-" + ay,
+          odendi: elleOdendi || otomatikOdendi, otomatikOdendi, anahtar: "kart-" + k.id + "-" + ay,
         });
       }
     });
     veri.loans.forEach((k) => {
-      if ((+k.kalanBorc || 0) > 0)
+      if ((+k.kalanBorc || 0) > 0) {
+        const elleOdendi = !!veri.paid["kredi-" + k.id + "-" + ay];
         liste.push({
           id: "kredi-" + k.id, banka: k.banka, ad: k.banka + (k.ad ? " · " + k.ad : ""),
-          tutar: +k.taksit || 0, not: "taksit",
+          tutar: elleOdendi ? 0 : (+k.taksit || 0), hedefTutar: +k.taksit || 0, yapilanOdeme: elleOdendi ? (+k.taksit || 0) : 0, not: "kalan taksit",
           tarih: buAyOdemeTarihi(k.odemeGunu),
-          odendi: !!veri.paid["kredi-" + k.id + "-" + ay], anahtar: "kredi-" + k.id + "-" + ay,
+          odendi: elleOdendi, anahtar: "kredi-" + k.id + "-" + ay,
         });
+      }
     });
     return liste.sort((a, b) => a.tarih - b.tarih);
   }, [veri]);
@@ -679,10 +687,11 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle }) {
       <div style={{ textAlign: "right" }}>
         <div className="bt-satirD-tutar">{fmt(o.tutar)}</div>
         <div className="bt-satirD-tur">{o.not}</div>
+        <div className="bt-satirD-tur" style={{ color: "#5D7A2E", fontWeight: 700 }}>Yapılan ödeme: {fmt(o.yapilanOdeme)}</div>
       </div>
-      <button className="bt-btn kucuk heroghost" onClick={() => odendiIsaretle(o.anahtar, !o.odendi)}>
+      {o.otomatikOdendi ? <div className="bt-btn kucuk heroghost" style={{ cursor: "default" }}><Check size={12}/> Ekstreye işlendi</div> : <button className="bt-btn kucuk heroghost" onClick={() => odendiIsaretle(o.anahtar, !o.odendi)}>
         {o.odendi ? <><RotateCcw size={12} /> Geri al</> : <><Check size={12} /> Ödendi</>}
-      </button>
+      </button>}
     </div>
   );
 }
@@ -691,13 +700,14 @@ function Odemeler({ yaklasan, odendiIsaretle }) {
   const sirali = [...yaklasan].sort((a, b) => a.tarih - b.tarih);
   const odendi = sirali.filter((x) => x.odendi);
   const bekleyen = sirali.filter((x) => !x.odendi);
-  const toplam = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
-  const odenen = odendi.reduce((t, x) => t + (+x.tutar || 0), 0);
+  const toplam = sirali.reduce((t, x) => t + (+x.hedefTutar || 0), 0);
+  const kalan = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
+  const odenen = sirali.reduce((t, x) => t + (+x.yapilanOdeme || 0), 0);
   const simdi = bugun();
   return <div className="bt-stack">
     <div className="bt-card">
       <div className="bt-cardhead"><div><div className="bt-eyebrow">{AYLAR[simdi.getMonth()]} {simdi.getFullYear()}</div><div className="bt-h2" style={{ margin: "5px 0 0" }}>Aylık ödeme listesi</div></div><div className="bt-mono" style={{ fontWeight: 800 }}>{odendi.length}/{sirali.length} tamamlandı</div></div>
-      <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Bu ay ödenecek</div><div className="bt-metric-amt">{fmt(toplam)}</div><div className="bt-metric-cap">Kart minimumları ve kredi taksitleri</div></div><div className="bt-metric"><div className="bt-metric-lbl">İşaretlenen ödeme</div><div className="bt-metric-amt">{fmt(odenen)}</div><div className="bt-metric-cap">Kalan {fmt(Math.max(toplam - odenen, 0))}</div></div></div>
+      <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Bu ay ödeme hedefi</div><div className="bt-metric-amt">{fmt(toplam)}</div><div className="bt-metric-cap">Kart minimumları ve kredi taksitleri</div></div><div className="bt-metric"><div className="bt-metric-lbl">Yapılan ödemeler</div><div className="bt-metric-amt">{fmt(odenen)}</div><div className="bt-metric-cap">Kalan {fmt(kalan)}</div></div></div>
     </div>
     <div className="bt-ipucu"><CalendarCheck size={16}/><div>Ödemeyi yaptığınızda işaretleyin. Kayıt yalnızca bu aya aittir; yeni ay başladığında yeni ödeme listesi otomatik oluşur.</div></div>
     <div className="bt-card"><div className="bt-h2">Bekleyen ödemeler</div>{bekleyen.length===0?<div className="bt-bos">Bu ay için bekleyen ödeme yok.</div>:<div className="bt-stack" style={{gap:10}}>{bekleyen.map((o,i)=><OdemeSatiri key={o.id} o={o} i={i} gecikmis={kalanGun(o.tarih)<0} odendiIsaretle={odendiIsaretle}/>)}</div>}</div>
