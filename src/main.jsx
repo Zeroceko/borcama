@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import Landing from './Landing.jsx'
@@ -12,9 +12,31 @@ function Kok() {
   if (yol === '/login') return <GirisEkrani />
   if (yol === '/classic') return <Landing />
   const uygulamaYollari = ['/summary', '/debts', '/debt-plan', '/income', '/expenses']
+  if (yol === '/') return supabaseHazir ? <AnaSayfa /> : <LandingAlt />
   if (!uygulamaYollari.includes(yol)) return <LandingAlt />
   if (!supabaseHazir) return <App />
   return <KimlikliKok />
+}
+
+function AnaSayfa() {
+  const session = useSession()
+
+  useEffect(() => {
+    if (session) window.history.replaceState({}, '', '/summary')
+  }, [session])
+
+  if (session === undefined) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#f4efe0', color: '#55584c', fontFamily: 'Space Grotesk, system-ui, sans-serif', fontSize: 14,
+      }}>
+        Yükleniyor…
+      </div>
+    )
+  }
+
+  return session ? <App /> : <LandingAlt />
 }
 
 function KimlikliKok() {
