@@ -15,7 +15,7 @@ function Kok() {
   if (yol === '/classic') return <Landing />
   if (yol === '/backoffice') return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />
   if (yol === '/ceo') return supabaseHazir ? <KimlikliYonetim tur="ceo" /> : <YapilandirmaEksik />
-  const uygulamaYollari = ['/summary', '/debts', '/debt-plan', '/income', '/expenses']
+  const uygulamaYollari = ['/summary', '/debts', '/payments', '/debt-plan', '/income', '/expenses']
   if (yol === '/') return supabaseHazir ? <AnaSayfa /> : <LandingAlt />
   if (!uygulamaYollari.includes(yol)) return <LandingAlt />
   if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />

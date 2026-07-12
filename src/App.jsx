@@ -246,7 +246,7 @@ const KATEGORI_META = {
   od: { ad: "Ek hesap / KMH", liste: "overdrafts", rozetBg: CORAL },
   others: { ad: "Gecikmiş / diğer", liste: "others", rozetBg: "#d8c9a0" },
 };
-const SEKME_YOLLARI = { ozet: "/summary", borclar: "/debts", plan: "/debt-plan", gelir: "/income", harcamalar: "/expenses" };
+const SEKME_YOLLARI = { ozet: "/summary", borclar: "/debts", odemeler: "/payments", plan: "/debt-plan", gelir: "/income", harcamalar: "/expenses" };
 const YOL_SEKMELERI = Object.fromEntries(Object.entries(SEKME_YOLLARI).map(([sekme, yol]) => [yol, sekme]));
 
 /* Tüm borçları tek listede toplayan model — plan ve banka kırılımı bunun üstünde çalışır */
@@ -413,7 +413,7 @@ export default function BorcTakip() {
         liste.push({
           id: "kart-" + k.id, banka: k.banka, ad: k.banka + (k.ad ? " · " + k.ad : ""),
           tutar, not: "minimum ödeme",
-          tarih: kartSonOdemeTarihi(k),
+          tarih: kartGecikmeTarihi(k),
           odendi: !!veri.paid["kart-" + k.id + "-" + ay], anahtar: "kart-" + k.id + "-" + ay,
         });
       }
@@ -423,7 +423,7 @@ export default function BorcTakip() {
         liste.push({
           id: "kredi-" + k.id, banka: k.banka, ad: k.banka + (k.ad ? " · " + k.ad : ""),
           tutar: +k.taksit || 0, not: "taksit",
-          tarih: sonrakiOdemeTarihi(k.odemeGunu),
+          tarih: buAyOdemeTarihi(k.odemeGunu),
           odendi: !!veri.paid["kredi-" + k.id + "-" + ay], anahtar: "kredi-" + k.id + "-" + ay,
         });
     });
@@ -515,7 +515,7 @@ export default function BorcTakip() {
         </header>
 
         <nav className="bt-nav">
-          {[["ozet","Özet"],["borclar","Borçlar"],["plan","Borç Planı"],["gelir","Gelir"],["harcamalar","Harcamalar"]].map(([k, ad]) => (
+          {[["ozet","Özet"],["borclar","Borçlar"],["odemeler","Ödemeler"],["plan","Borç Planı"],["gelir","Gelir"],["harcamalar","Harcamalar"]].map(([k, ad]) => (
             <button key={k} className={"bt-pill " + (sekme === k ? "aktif" : "pasif")} onClick={() => { setSekme(k); setForm(null); }}>{ad}</button>
           ))}
         </nav>
@@ -527,6 +527,7 @@ export default function BorcTakip() {
             {hata && <div className="bt-card" style={{ borderColor: CORAL, marginBottom: 16, fontSize: 13 }}>{hata}</div>}
             {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} buAyGelir={buAyGelir} netNakit={netNakit} odendiIsaretle={odendiIsaretle} setSekme={setSekme} />}
             {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} bankalar={bankalar} bankaEkle={bankaEkle} />}
+            {sekme === "odemeler" && <Odemeler yaklasan={yaklasan} odendiIsaretle={odendiIsaretle} />}
             {sekme === "plan" && <Plan kalemler={kalemler} aylikFaiz={aylikFaiz} setSekme={setSekme} />}
             {sekme === "gelir" && <Gelirler veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} buAyGelir={buAyGelir} />}
             {sekme === "harcamalar" && <Harcamalar veri={veri} form={form} setForm={setForm} harcamaKaydet={harcamaKaydet} sil={sil} buAyHarcama={buAyHarcama} bankalar={bankalar} />}
@@ -684,6 +685,24 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle }) {
       </button>
     </div>
   );
+}
+
+function Odemeler({ yaklasan, odendiIsaretle }) {
+  const sirali = [...yaklasan].sort((a, b) => a.tarih - b.tarih);
+  const odendi = sirali.filter((x) => x.odendi);
+  const bekleyen = sirali.filter((x) => !x.odendi);
+  const toplam = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
+  const odenen = odendi.reduce((t, x) => t + (+x.tutar || 0), 0);
+  const simdi = bugun();
+  return <div className="bt-stack">
+    <div className="bt-card">
+      <div className="bt-cardhead"><div><div className="bt-eyebrow">{AYLAR[simdi.getMonth()]} {simdi.getFullYear()}</div><div className="bt-h2" style={{ margin: "5px 0 0" }}>Aylık ödeme listesi</div></div><div className="bt-mono" style={{ fontWeight: 800 }}>{odendi.length}/{sirali.length} tamamlandı</div></div>
+      <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Bu ay ödenecek</div><div className="bt-metric-amt">{fmt(toplam)}</div><div className="bt-metric-cap">Kart minimumları ve kredi taksitleri</div></div><div className="bt-metric"><div className="bt-metric-lbl">İşaretlenen ödeme</div><div className="bt-metric-amt">{fmt(odenen)}</div><div className="bt-metric-cap">Kalan {fmt(Math.max(toplam - odenen, 0))}</div></div></div>
+    </div>
+    <div className="bt-ipucu"><CalendarCheck size={16}/><div>Ödemeyi yaptığınızda işaretleyin. Kayıt yalnızca bu aya aittir; yeni ay başladığında yeni ödeme listesi otomatik oluşur.</div></div>
+    <div className="bt-card"><div className="bt-h2">Bekleyen ödemeler</div>{bekleyen.length===0?<div className="bt-bos">Bu ay için bekleyen ödeme yok.</div>:<div className="bt-stack" style={{gap:10}}>{bekleyen.map((o,i)=><OdemeSatiri key={o.id} o={o} i={i} gecikmis={kalanGun(o.tarih)<0} odendiIsaretle={odendiIsaretle}/>)}</div>}</div>
+    {odendi.length>0&&<div className="bt-card"><div className="bt-h2">Tamamlananlar</div><div className="bt-stack" style={{gap:10}}>{odendi.map((o,i)=><OdemeSatiri key={o.id} o={o} i={i} gecikmis={false} odendiIsaretle={odendiIsaretle}/>)}</div></div>}
+  </div>;
 }
 
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
@@ -939,9 +958,6 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid }) {
   } else if (kategori === "loans") {
     tutar = +k.kalanBorc || 0;
     altMeta = "Taksit " + fmt(k.taksit) + " · her ayın " + k.odemeGunu + ". günü" + (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "");
-    const tarih = buAyOdemeTarihi(k.odemeGunu); const gecikenGun = Math.max(-kalanGun(tarih), 0);
-    const odendi = !!paid?.["kredi-" + k.id + "-" + ayAnahtari()];
-    if (gecikenGun > 0 && !odendi) altYazi = gecikenGun + " gün gecikti" + (+k.faiz > 0 ? " · tahmini biriken faiz " + fmt(gunlukBirikmisFaiz(+k.taksit || 0, +k.faiz, gecikenGun)) : "");
   } else if (kategori === "od") {
     tutar = +k.kullanilan || 0;
     altMeta = +k.limit > 0 ? "Limit " + fmt(k.limit) : "Limit girilmedi";
