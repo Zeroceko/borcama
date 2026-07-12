@@ -115,9 +115,10 @@ const CSS = `
 .bt-odeme-gecmisi summary:before{content:'›';font-size:17px;line-height:1;transition:transform .15s}
 .bt-odeme-gecmisi[open] summary:before{transform:rotate(90deg)}
 .bt-odeme-liste{display:grid;gap:6px;margin-top:9px}
-.bt-odeme-kaydi{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:9px 12px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px}
+.bt-odeme-kaydi{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:8px 10px 8px 12px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px}
 .bt-odeme-tarih{font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bt-odeme-tutar{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:800;color:var(--text);white-space:nowrap}
+.bt-odeme-islemler{display:flex;align-items:center;gap:1px}
 
 .bt-strip{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:20px;border-bottom:2px solid var(--line);margin-bottom:22px}
 .bt-strip-count{font-size:13px;font-weight:600;color:var(--dim)}
@@ -187,6 +188,7 @@ const ayFarki = (ilk, son) => { const [iy, im] = ilk.split("-").map(Number); con
 const bugun = () => new Date();
 const ayAnahtari = (d = bugun()) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
 const tarihSaatEtiketi = (deger) => { const d = new Date(deger); return Number.isNaN(d.getTime()) ? "Tarih bilgisi yok" : d.toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" }); };
+const yerelTarihSaatDegeri = (deger = new Date()) => { const d = new Date(deger); if (Number.isNaN(d.getTime())) return ""; const yerel = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return yerel.toISOString().slice(0, 16); };
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 function sonrakiOdemeTarihi(gun) {
@@ -302,6 +304,8 @@ function ekHesapHesabi(k) {
   const oran = +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ_EK_HESAP;
   return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100 };
 }
+const odemeGecmisiToplami = (gecmis = []) => gecmis.reduce((t, o) => t + Math.max(+o.tutar || 0, 0), 0);
+const gecmisDisiEkHesapOdemesi = (k) => Math.max((+k.yapilanOdeme || 0) - odemeGecmisiToplami(k.odemeGecmisi || []), 0);
 const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, loanPaymentHistory: {}, ayarlar: {}, snapshots: {} };
 
 const KATEGORI_META = {
@@ -839,7 +843,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   const yeniEkstreModu = kategori === "cards" && acik && form.yeniEkstre;
   const ekstreDuzenleModu = kategori === "cards" && acik && form.ekstreDuzenle;
   const ekstreFormu = yeniEkstreModu || ekstreDuzenleModu;
-  const ekHesapOdemeModu = kategori === "od" && acik && form.odemeGir;
+  const ekHesapOdemeModu = kategori === "od" && acik && (form.odemeGir || form.odemeDuzenle);
   const [f, setF] = useState({});
   const otomatikGecikenler = useMemo(() => {
     const ay = ayAnahtari();
@@ -867,9 +871,9 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   }, [veri]);
   useEffect(() => {
     if (!acik) return;
-    if (form.odemeGir) {
+    if (form.odemeGir || form.odemeDuzenle) {
       const hesap = ekHesapHesabi(form.veri || {});
-      setF({ odemeTutari: form.kapat ? hesap.kalan : "" });
+      setF({ odemeTutari: form.odemeDuzenle ? form.odemeDuzenle.tutar : form.kapat ? hesap.kalan : "", odemeTarihi: yerelTarihSaatDegeri(form.odemeDuzenle?.tarih || new Date()) });
     } else if (form.yeniEkstre) {
       const eski = form.veri || {};
       const sonDonem = [eski.ekstreAyi, ...(eski.ekstreGecmisi || []).map((e) => e.ekstreAyi)].filter(Boolean).sort().at(-1);
@@ -914,6 +918,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   };
   const alanlar = ekHesapOdemeModu ? [
     { k: "odemeTutari", e: "Ödeme tutarı (₺)", t: "number", z: true },
+    { k: "odemeTarihi", e: "Ödeme tarihi ve saati", t: "datetime-local", z: true },
   ] : ekstreFormu ? [
     { k: "ekstreAyi", e: "Ekstre dönemi", t: "month", z: true },
     { k: "yeniDonemEkstreBorcu", e: "Güncel dönem borcu (₺)", t: "number", z: true },
@@ -941,9 +946,16 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
     if (ekHesapOdemeModu) {
       const eski = form.veri; const hesap = ekHesapHesabi(eski);
-      const odeme = Math.min(Math.max(+f.odemeTutari || 0, 0), hesap.kalan);
+      const eskiGecmis = eski.odemeGecmisi || [];
+      const gecmisDisi = gecmisDisiEkHesapOdemesi(eski);
+      const digerGecmis = form.odemeDuzenle ? eskiGecmis.filter((o) => o.id !== form.odemeDuzenle.id) : eskiGecmis;
+      const azamiOdeme = Math.max(hesap.kullanilan - gecmisDisi - odemeGecmisiToplami(digerGecmis), 0);
+      const odeme = Math.min(Math.max(+f.odemeTutari || 0, 0), azamiOdeme);
       if (odeme <= 0) return;
-      ekleGuncelle("overdrafts", { ...eski, yapilanOdeme: hesap.odeme + odeme, odemeGecmisi: [...(eski.odemeGecmisi || []), { id: uid(), tutar: odeme, tarih: new Date().toISOString() }] });
+      const tarih = new Date(f.odemeTarihi); if (Number.isNaN(tarih.getTime())) return;
+      const kayit = { ...(form.odemeDuzenle || {}), id: form.odemeDuzenle?.id || uid(), tutar: odeme, tarih: tarih.toISOString(), duzenlenmeTarihi: form.odemeDuzenle ? new Date().toISOString() : undefined };
+      const odemeGecmisi = form.odemeDuzenle ? eskiGecmis.map((o) => o.id === kayit.id ? kayit : o) : [...eskiGecmis, kayit];
+      ekleGuncelle("overdrafts", { ...eski, yapilanOdeme: gecmisDisi + odemeGecmisiToplami(odemeGecmisi), odemeGecmisi });
       return;
     }
     const ekstreVerisi = ekstreFormu ? { ...f, toplamEkstreBorcu: (+f.yeniDonemEkstreBorcu || 0) + (+f.oncekiAydanKalan || 0) } : f;
@@ -976,6 +988,13 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     setBankaPenceresi(false);
   }
 
+  function ekHesapOdemesiSil(kart, odeme) {
+    if (!window.confirm(fmt(odeme.tutar) + " tutarındaki ödeme kaydı silinsin mi?")) return;
+    const odemeGecmisi = (kart.odemeGecmisi || []).filter((o) => odeme.id ? o.id !== odeme.id : o.tarih !== odeme.tarih);
+    const yapilanOdeme = gecmisDisiEkHesapOdemesi(kart) + odemeGecmisiToplami(odemeGecmisi);
+    ekleGuncelle("overdrafts", { ...kart, yapilanOdeme, odemeGecmisi });
+  }
+
   return (
     <div className="bt-stack">
       <div className="bt-nav" style={{ marginBottom: 0 }}>
@@ -1003,7 +1022,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           <div className="bt-form">
             {yeniEkstreModu && <div className="bt-ipucu" style={{ marginBottom: 14 }}><Lightbulb size={16}/><div><b>{form.veri.banka} · {form.veri.ad || "Kredi kartı"}</b> için yeni dönem ekstresi giriliyor. Mevcut ekstre geçmişe taşınacak; silinmeyecek.</div></div>}
             {ekstreDuzenleModu && <div className="bt-ipucu" style={{ marginBottom: 14 }}><Lightbulb size={16}/><div><b>{form.veri.banka} · {form.veri.ad || "Kredi kartı"}</b> güncel ekstresi düzenleniyor. Toplam ekstre ve yapılan ödemeyi girince kalan borç yeniden hesaplanır.</div></div>}
-            {ekHesapOdemeModu && (() => { const h = ekHesapHesabi(form.veri); return <div className="bt-ipucu" style={{ marginBottom: 14 }}><Lightbulb size={16}/><div><b>{form.veri.banka} · Ek hesap</b><br/>Kullanılan {fmt(h.kullanilan)} · daha önce ödenen {fmt(h.odeme)} · kalan <b>{fmt(h.kalan)}</b></div></div>; })()}
+            {ekHesapOdemeModu && (() => { const h = ekHesapHesabi(form.veri); return <div className="bt-ipucu" style={{ marginBottom: 14 }}><Lightbulb size={16}/><div><b>{form.veri.banka} · {form.odemeDuzenle ? "Ödeme kaydını düzenle" : "Ek hesap"}</b><br/>Kullanılan {fmt(h.kullanilan)} · toplam ödenen {fmt(h.odeme)} · kalan <b>{fmt(h.kalan)}</b></div></div>; })()}
             <div className="bt-alanlar">
               {alanlar.map((a) => (
                 <label key={a.k} className="bt-alan">
@@ -1036,7 +1055,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
               return <div className="bt-ipucu" style={{ marginTop: 14 }}><Lightbulb size={16}/><div><b>Ödeme sonrası:</b> Kalan borç <b>{fmt(kalan)}</b> · tahmini aylık faiz {fmt(kalan * h.oran / 100)} (%{h.oran.toFixed(2)}).</div></div>;
             })()}
             <div className="bt-form-butonlar">
-              <button className="bt-btn birincil" onClick={gonder}><Check size={14} /> {ekHesapOdemeModu ? (form.kapat ? "Borcu kapat" : "Ödemeyi kaydet") : yeniEkstreModu ? "Yeni ekstreyi kaydet" : ekstreDuzenleModu ? "Ekstreyi güncelle" : f.id ? "Güncelle" : "Kaydet"}</button>
+              <button className="bt-btn birincil" onClick={gonder}><Check size={14} /> {ekHesapOdemeModu ? (form.odemeDuzenle ? "Ödemeyi güncelle" : form.kapat ? "Borcu kapat" : "Ödemeyi kaydet") : yeniEkstreModu ? "Yeni ekstreyi kaydet" : ekstreDuzenleModu ? "Ekstreyi güncelle" : f.id ? "Güncelle" : "Kaydet"}</button>
               <button className="bt-btn ikincil" onClick={() => setForm(null)}>Vazgeç</button>
             </div>
           </div>
@@ -1053,7 +1072,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
         ) : (
           <div className="bt-stack" style={{ gap: 12 }}>
             {kayitlar.map((k, i) => (
-              <BorclarSatiri key={k.id} k={k} i={i} kategori={kategori} meta={meta} setForm={setForm} sil={sil} paid={veri.paid} arsiv={saltOkunurGorunum} />
+              <BorclarSatiri key={k.id} k={k} i={i} kategori={kategori} meta={meta} setForm={setForm} sil={sil} ekHesapOdemesiSil={ekHesapOdemesiSil} paid={veri.paid} arsiv={saltOkunurGorunum} />
             ))}
           </div>
         )}
@@ -1131,7 +1150,7 @@ function EkstreKontrol({ veri }) {
   </div>;
 }
 
-function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false }) {
+function BorclarSatiri({ k, i, kategori, meta, setForm, sil, ekHesapOdemesiSil, paid, arsiv = false }) {
   let baslik = k.banka, ekAd = k.ad, tutar, altMeta, barGoster = false, barOran = null, barRenk = LIME, altYazi = null, tutarEtiketi = null, kartDetay = null, ekHesapDetay = null, kod = bankaKodu(k.banka);
 
   if (kategori === "cards") {
@@ -1201,7 +1220,7 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
         <button className="bt-btn hayalet" onClick={() => setForm({ liste: meta.liste, veri: k })}><Pencil size={15} /></button>
         <button className="bt-btn hayalet tehlike" onClick={() => sil(meta.liste, k.id)}><Trash2 size={15} /></button>
       </div>}
-      {kategori === "od" && (k.odemeGecmisi || []).length > 0 && <details className="bt-odeme-gecmisi"><summary>Ödeme geçmişi · {k.odemeGecmisi.length} kayıt</summary><div className="bt-odeme-liste">{[...k.odemeGecmisi].reverse().map((o) => <div key={o.id || o.tarih} className="bt-odeme-kaydi"><div className="bt-odeme-tarih">{tarihSaatEtiketi(o.tarih)}</div><div className="bt-odeme-tutar">{fmt(o.tutar)}</div></div>)}</div></details>}
+      {kategori === "od" && (k.odemeGecmisi || []).length > 0 && <details className="bt-odeme-gecmisi"><summary>Ödeme geçmişi · {k.odemeGecmisi.length} kayıt</summary><div className="bt-odeme-liste">{[...k.odemeGecmisi].reverse().map((o) => <div key={o.id || o.tarih} className="bt-odeme-kaydi"><div className="bt-odeme-tarih">{tarihSaatEtiketi(o.tarih)}</div><div className="bt-odeme-tutar">{fmt(o.tutar)}</div><div className="bt-odeme-islemler"><button className="bt-btn hayalet" title="Ödemeyi düzenle" onClick={() => setForm({ liste: "overdrafts", veri: k, odemeDuzenle: o })}><Pencil size={13}/></button><button className="bt-btn hayalet tehlike" title="Ödemeyi sil" onClick={() => ekHesapOdemesiSil(k, o)}><Trash2 size={13}/></button></div></div>)}</div></details>}
     </div>
   );
 }
