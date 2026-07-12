@@ -4,6 +4,7 @@ import App from './App.jsx'
 import Landing from './Landing.jsx'
 import LandingAlt from './LandingAlt.jsx'
 import Backoffice from './Backoffice.jsx'
+import CeoDashboard from './CeoDashboard.jsx'
 import { useSession, GirisEkrani } from './Auth.jsx'
 import { demoModu, supabaseHazir } from './supabaseClient.js'
 import './storage.js'
@@ -13,6 +14,7 @@ function Kok() {
   if (yol === '/login') return supabaseHazir ? <GirisEkrani /> : demoModu ? <GirisEkrani /> : <YapilandirmaEksik />
   if (yol === '/classic') return <Landing />
   if (yol === '/backoffice') return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />
+  if (yol === '/ceo') return supabaseHazir ? <KimlikliYonetim tur="ceo" /> : <YapilandirmaEksik />
   const uygulamaYollari = ['/summary', '/debts', '/debt-plan', '/income', '/expenses']
   if (yol === '/') return supabaseHazir ? <AnaSayfa /> : <LandingAlt />
   if (!uygulamaYollari.includes(yol)) return <LandingAlt />
@@ -25,6 +27,13 @@ function KimlikliBackoffice() {
   if (session === undefined) return <Yukleniyor />
   if (!session) return <GirisEkrani redirectTo="/backoffice" />
   return <Backoffice />
+}
+
+function KimlikliYonetim({ tur }) {
+  const session = useSession()
+  if (session === undefined) return <Yukleniyor />
+  if (!session) return <GirisEkrani redirectTo={`/${tur}`} />
+  return tur === 'ceo' ? <CeoDashboard /> : <Backoffice />
 }
 
 function Yukleniyor() {

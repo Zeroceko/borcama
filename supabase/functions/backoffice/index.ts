@@ -72,7 +72,8 @@ Deno.serve(async (req) => {
   };
 
   const finansal = topluFinansalIstatistik(kayitlar || []);
-  return new Response(JSON.stringify({ summary: ozet, financial: finansal, users: satirlar }), { status: 200, headers });
+  const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
+  return new Response(JSON.stringify({ summary: ozet, financial: finansal, management: yonetim, users: satirlar }), { status: 200, headers });
 });
 
 const sayi = (deger: unknown) => {
@@ -114,5 +115,44 @@ function topluFinansalIstatistik(kayitlar: Array<{ user_id: string; value: strin
     total_debt: toplam.debt, monthly_income: toplam.income, monthly_expense: toplam.expense,
     debt_to_monthly_income: toplam.income > 0 ? toplam.debt / toplam.income : null,
     breakdown: { cards: toplam.cards, loans: toplam.loans, overdrafts: toplam.overdrafts, others: toplam.others },
+  };
+}
+
+function yonetimIstatistikleri(kullanicilar: Array<{ created_at: string; last_sign_in_at?: string | null }>, kayitlar: Array<{ value: string }>, finansalAcik: boolean) {
+  const gunler: Array<{ date: string; new_users: number; last_sign_ins: number; income: number; expense: number }> = [];
+  for (let i = 13; i >= 0; i -= 1) {
+    const d = new Date(); d.setUTCDate(d.getUTCDate() - i);
+    gunler.push({ date: d.toISOString().slice(0, 10), new_users: 0, last_sign_ins: 0, income: 0, expense: 0 });
+  }
+  const gunMap = new Map(gunler.map((x) => [x.date, x]));
+  for (const u of kullanicilar) {
+    const kayit = gunMap.get(String(u.created_at).slice(0, 10)); if (kayit) kayit.new_users += 1;
+    const giris = gunMap.get(String(u.last_sign_in_at || "").slice(0, 10)); if (giris) giris.last_sign_ins += 1;
+  }
+  const urunler = { cards: 0, loans: 0, overdrafts: 0, others: 0, incomes: 0, expenses: 0 };
+  const bankalar = new Map<string, number>();
+  for (const kayit of kayitlar) {
+    try {
+      const veri = JSON.parse(kayit.value);
+      for (const [alan, bankaVar] of [["cards", true], ["loans", true], ["overdrafts", true], ["others", true], ["incomes", false], ["expenses", false]] as const) {
+        const liste = Array.isArray(veri?.[alan]) ? veri[alan] : [];
+        urunler[alan] += liste.length;
+        if (bankaVar) for (const x of liste) {
+          const banka = String(x.banka || "").trim(); if (banka) bankalar.set(banka, (bankalar.get(banka) || 0) + 1);
+        }
+      }
+      for (const x of Array.isArray(veri?.expenses) ? veri.expenses : []) {
+        const g = gunMap.get(String(x.tarih || "").slice(0, 10)); if (g) g.expense += sayi(x.tutar);
+      }
+      for (const x of Array.isArray(veri?.incomes) ? veri.incomes : []) {
+        const g = gunMap.get(String(x.tarih || "").slice(0, 10)); if (g) g.income += sayi(x.tutar);
+      }
+    } catch { /* Geçersiz kayıt yönetim toplamına katılmaz. */ }
+  }
+  return {
+    days: gunler.map((x) => ({ ...x, income: finansalAcik ? x.income : null, expense: finansalAcik ? x.expense : null })),
+    data_adoption_rate: kullanicilar.length ? kayitlar.length / kullanicilar.length : 0,
+    products: finansalAcik ? urunler : null,
+    banks: finansalAcik ? [...bankalar.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, count]) => ({ name, count })) : null,
   };
 }

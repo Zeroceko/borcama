@@ -21,6 +21,7 @@
     { "source": "/debt-plan", "destination": "/index.html" },
     { "source": "/income", "destination": "/index.html" },
     { "source": "/expenses", "destination": "/index.html" },
-    { "source": "/backoffice", "destination": "/index.html" }
+    { "source": "/backoffice", "destination": "/index.html" },
+    { "source": "/ceo", "destination": "/index.html" }
   ]
 }
