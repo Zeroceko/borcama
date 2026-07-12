@@ -109,6 +109,15 @@ const CSS = `
 .bt-satir-alt{font-size:11.5px;color:${CORAL};font-weight:700;margin-top:3px}
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
+.bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
+.bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
+.bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
+.bt-odeme-gecmisi summary:before{content:'›';font-size:17px;line-height:1;transition:transform .15s}
+.bt-odeme-gecmisi[open] summary:before{transform:rotate(90deg)}
+.bt-odeme-liste{display:grid;gap:6px;margin-top:9px}
+.bt-odeme-kaydi{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:9px 12px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px}
+.bt-odeme-tarih{font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bt-odeme-tutar{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:800;color:var(--text);white-space:nowrap}
 
 .bt-strip{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:20px;border-bottom:2px solid var(--line);margin-bottom:22px}
 .bt-strip-count{font-size:13px;font-weight:600;color:var(--dim)}
@@ -1178,7 +1187,6 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
           <div className="bt-bar"><div style={{ width: Math.min(barOran * 100, 100) + "%", background: barRenk }} /></div>
         )}
         {kartDetay && <EkstreSatirDetayi detay={kartDetay} />}
-        {kategori === "od" && (k.odemeGecmisi || []).length > 0 && <details style={{ marginTop: 10 }}><summary style={{ cursor: "pointer", color: CORAL, fontSize: 11.5, fontWeight: 800 }}>{k.odemeGecmisi.length} ödeme kaydını görüntüle</summary><div className="bt-stack" style={{ gap: 7, marginTop: 9 }}>{[...k.odemeGecmisi].reverse().map((o) => <div key={o.id || o.tarih} className="bt-metric" style={{ padding: "9px 11px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14 }}><div><div className="bt-metric-lbl">Ödeme girişi</div><div style={{ fontSize: 11, color: "var(--dim)", marginTop: 2 }}>{tarihSaatEtiketi(o.tarih)}</div></div><div className="bt-mono" style={{ fontWeight: 800, whiteSpace: "nowrap" }}>{fmt(o.tutar)}</div></div>)}</div></details>}
       </div>
       <div style={{ textAlign: "right" }}>
         <div className="bt-satir-tutar">{fmt(tutar)}</div>
@@ -1193,6 +1201,7 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
         <button className="bt-btn hayalet" onClick={() => setForm({ liste: meta.liste, veri: k })}><Pencil size={15} /></button>
         <button className="bt-btn hayalet tehlike" onClick={() => sil(meta.liste, k.id)}><Trash2 size={15} /></button>
       </div>}
+      {kategori === "od" && (k.odemeGecmisi || []).length > 0 && <details className="bt-odeme-gecmisi"><summary>Ödeme geçmişi · {k.odemeGecmisi.length} kayıt</summary><div className="bt-odeme-liste">{[...k.odemeGecmisi].reverse().map((o) => <div key={o.id || o.tarih} className="bt-odeme-kaydi"><div className="bt-odeme-tarih">{tarihSaatEtiketi(o.tarih)}</div><div className="bt-odeme-tutar">{fmt(o.tutar)}</div></div>)}</div></details>}
     </div>
   );
 }
