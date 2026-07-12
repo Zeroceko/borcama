@@ -2,90 +2,52 @@
 
 **Borçlarını gör, ekstreni kontrol et, kapatma planını oluştur.**
 
-Borcama; farklı bankalardaki kredi kartı, kredi, ek hesap (KMH) ve diğer borçları tek ekranda takip etmeyi kolaylaştıran kişisel finans web uygulamasıdır.
+Borcama; farklı bankalardaki kredi kartı, kredi, ek hesap ve diğer borçlarını tek yerde takip etmene yardımcı olur.
 
-Kullanıcılar yaklaşan ödemelerini görebilir, banka ekstresiyle kendi harcama kayıtlarını karşılaştırabilir ve borçlarını çığ veya kartopu yöntemine göre sıralayabilir.
+## Borcama ile neler yapabilirsin?
 
-## Özellikler
+- Tüm bankalardaki toplam borcunu tek ekranda görebilirsin.
+- Kredi kartı, kredi ve ek hesap borçlarını ayrı ayrı takip edebilirsin.
+- Yaklaşan ve gecikmiş ödemelerini görebilirsin.
+- Kredi kartının yasal minimum ödeme tutarını otomatik hesaplayabilirsin.
+- Devreden kart borcuna işleyecek tahmini faizi görebilirsin.
+- Kendi harcama kayıtlarını bankadan gelen ekstreyle karşılaştırabilirsin.
+- Gelir ve harcamalarını takip edebilirsin.
+- Hangi bankadan ne kadar harcadığını görebilirsin.
+- Borçlarını çığ veya kartopu yöntemine göre kapatma sırasına koyabilirsin.
+- Ekstra bir ödeme yaptığında ne kadar faizden kurtulabileceğini hesaplayabilirsin.
 
-- Kredi kartı, kredi, ek hesap/KMH ve diğer borçları tek yerde takip etme
-- Banka bazında toplam borç dağılımı
-- Yaklaşan ve gecikmiş ödeme takvimi
-- Kart limitine göre otomatik yasal minimum ödeme hesabı
-- Devreden kredi kartı borcu için tahmini faiz hesabı
-- Manuel harcamaları banka ekstresiyle karşılaştıran ekstre kontrolü
-- Çığ ve kartopu borç kapatma stratejileri
-- Ekstra ödeme ve faiz tasarrufu simülasyonu
-- Aylık gelir, harcama ve net nakit akışı takibi
-- Kullanıcı tarafından yeni banka ekleme
-- Açık ve koyu tema
-- Mobil, tablet ve masaüstü uyumlu arayüz
-- E-posta Magic Link ile şifresiz giriş
+## Nasıl kullanılır?
 
-## Kullanım akışı
+### 1. Borçlarını ekle
 
-1. Kart, kredi ve diğer borçlarınızı ekleyin.
-2. Ekstre borcunuzu ve yaptığınız ödemeyi girin.
-3. Yaklaşan minimum ödemeleri ve tahmini faizi görün.
-4. Harcamalarınızı doğru kart veya banka hesabıyla kaydedin.
-5. Ekstre kontrolü ekranında banka verileriyle kendi kayıtlarınızı karşılaştırın.
-6. Borç planından kapatmak istediğiniz sırayı belirleyin.
+Banka, kart veya kredi bilgilerini gir. Borcama bütün borçlarını tek bir tabloda toplar.
 
-## Teknolojiler
+### 2. Ekstre bilgilerini gir
 
-- React 18
-- Vite 5
-- Supabase Authentication ve Database
-- Lucide React
-- Vercel uyumlu deployment
+Toplam ekstre borcunu, önceki aydan kalan tutarı ve yaptığın ödemeyi yaz. Kalan borç, tahmini faiz ve minimum ödeme otomatik hesaplansın.
 
-## Yerel geliştirme
+### 3. Harcamalarını kaydet
 
-Gereksinimler: Node.js 18 veya daha yeni bir sürüm.
+Harcamayı hangi karttan veya banka hesabından yaptığını seç. Ay sonunda kayıtlarını banka ekstrenle karşılaştır.
 
-```bash
-npm install
-npm run dev
-```
+### 4. Ödeme takvimini takip et
 
-Supabase ortam değişkenleri tanımlı değilse uygulama yerel demo modunda açılır. Demo verileri yalnızca tarayıcınızda saklanır.
+Hangi ödemeye kaç gün kaldığını gör. Ödediğin borçları işaretle.
 
-Production build oluşturmak için:
+### 5. Kapatma planını seç
 
-```bash
-npm run build
-```
+- **Çığ yöntemi:** En yüksek faizli borçtan başlar.
+- **Kartopu yöntemi:** En küçük borçtan başlar.
 
-## Supabase kurulumu
+Diğer borçların minimum ödemelerini aksatmadan, ekstra paranı sıradaki hedefe yönlendirebilirsin.
 
-1. [Supabase](https://supabase.com) üzerinde yeni bir proje oluşturun.
-2. SQL Editor ekranında [`supabase.sql`](./supabase.sql) dosyasını çalıştırın.
-3. Authentication bölümünden Email / Magic Link girişini etkinleştirin.
-4. `.env.example` dosyasını `.env.local` adıyla kopyalayın.
-5. Supabase proje bilgilerinizi ekleyin:
+## Verilerin sana ait
 
-```env
-VITE_SUPABASE_URL=https://xxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-Supabase Row Level Security (RLS) politikaları sayesinde her kullanıcı yalnızca kendi kayıtlarına erişir.
-
-## Vercel'e yayınlama
-
-1. GitHub deposunu Vercel'e bağlayın.
-2. `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY` değerlerini Vercel Environment Variables bölümüne ekleyin.
-3. Projeyi deploy edin.
-4. Vercel adresinizi Supabase **Authentication → URL Configuration** alanında Site URL ve Redirect URL olarak tanımlayın.
-
-## Veri modeli
-
-Uygulama verileri Supabase'teki `kv_store` tablosunda kullanıcı hesabına bağlı olarak saklanır. Oturum açan kullanıcı aynı verilere telefon, tablet veya bilgisayarından ulaşabilir.
+E-posta adresinle giriş yaptığında verilerine telefon, tablet veya bilgisayarından ulaşabilirsin. Her kullanıcı yalnızca kendi kayıtlarını görür.
 
 ## Sürümler
 
-Kararlı sürümler ve indirilebilir kaynak arşivleri için [Releases](https://github.com/Zeroceko/borcama/releases) sayfasını ziyaret edebilirsiniz.
+Önceki sürümleri indirmek için [Releases](https://github.com/Zeroceko/borcama/releases) sayfasını kullanabilirsin.
 
-## Not
-
-Borcama bir kişisel takip ve planlama aracıdır; finansal danışmanlık hizmeti sunmaz. Faiz hesapları yaklaşık sonuç verir ve banka ekstresinin yerine geçmez.
+> Borcama bir takip ve planlama aracıdır. Tahmini hesaplar banka ekstresinin yerine geçmez.
