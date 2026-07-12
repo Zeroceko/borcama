@@ -17,6 +17,16 @@ function cors(origin: string | null) {
   };
 }
 
+function epostaMaskele(eposta: string) {
+  const [kullanici = "", alan = ""] = eposta.split("@");
+  const alanParcalari = alan.split(".");
+  const alanAdi = alanParcalari.shift() || "";
+  const uzanti = alanParcalari.length ? `.${alanParcalari.join(".")}` : "";
+  const sol = kullanici.slice(0, 3);
+  const sag = alanAdi.slice(0, 2);
+  return `${sol}${kullanici.length > 3 ? "***" : ""}@${sag}${alanAdi.length > 2 ? "***" : ""}${uzanti}`;
+}
+
 Deno.serve(async (req) => {
   const headers = { ...cors(req.headers.get("origin")), "Content-Type": "application/json; charset=utf-8" };
   if (req.method === "OPTIONS") return new Response("ok", { headers });
@@ -54,7 +64,7 @@ Deno.serve(async (req) => {
     const sonGirisMs = sonGiris ? new Date(sonGiris).getTime() : 0;
     return {
       id: u.id,
-      email: u.email || "",
+      email: epostaMaskele(u.email || ""),
       created_at: u.created_at,
       last_sign_in_at: sonGiris,
       email_confirmed_at: u.email_confirmed_at || null,
