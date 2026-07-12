@@ -1050,6 +1050,19 @@ function ekstreDonemi(kart) {
   return { baslangic: iso(baslangic), bitis: iso(bitis) };
 }
 
+function aktifEkstreDonemi(kart) {
+  const gun = Math.min(Math.max(+kart.kesimGunu || 1, 1), 31);
+  const simdi = bugun();
+  const buAyKesim = new Date(simdi.getFullYear(), simdi.getMonth(), Math.min(gun, new Date(simdi.getFullYear(), simdi.getMonth() + 1, 0).getDate()));
+  const sonKesim = simdi >= buAyKesim
+    ? buAyKesim
+    : new Date(simdi.getFullYear(), simdi.getMonth() - 1, Math.min(gun, new Date(simdi.getFullYear(), simdi.getMonth(), 0).getDate()));
+  const sonrakiKesim = new Date(sonKesim.getFullYear(), sonKesim.getMonth() + 1, Math.min(gun, new Date(sonKesim.getFullYear(), sonKesim.getMonth() + 2, 0).getDate()));
+  const baslangic = new Date(sonKesim); baslangic.setDate(baslangic.getDate() + 1);
+  const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  return { baslangic: iso(baslangic), bitis: iso(sonrakiKesim) };
+}
+
 function EkstreKontrol({ veri }) {
   const kaynaklar = useMemo(() => {
     const m = {};
@@ -1062,15 +1075,15 @@ function EkstreKontrol({ veri }) {
   }, [veri.expenses]);
 
   return <div className="bt-stack">
-    <div className="bt-ipucu"><Lightbulb size={16} /><div><b>Ekstre kontrolü:</b> Dönem içinde bu karta yazdığınız harcamalar “Manuel kaydedilenler” kutusunda birikir. Bankadan gelen dönem borcu ile yan yana karşılaştırılır; devreden borç bu kontrole dahil edilmez.</div></div>
+    <div className="bt-ipucu"><Lightbulb size={16} /><div><b>Ekstre kontrolü:</b> Bankadan gelen son ekstre ile devam eden dönemde karta yazdığınız harcamalar yan yana görünür. Yeni harcama girdikçe “Manuel kaydedilenler” otomatik artar.</div></div>
     {veri.cards.length === 0 ? <div className="bt-card"><div className="bt-bos">Kontrol için önce bir kredi kartı ekleyin.</div></div> : veri.cards.map((k, i) => {
-      const donem = ekstreDonemi(k); const etiket = k.banka + " · " + (k.ad || "Kredi kartı");
+      const donem = aktifEkstreDonemi(k); const etiket = k.banka + " · " + (k.ad || "Kredi kartı");
       const manuelHarcamalar = veri.expenses.filter((h) => h.kaynak === etiket && h.tarih >= donem.baslangic && h.tarih <= donem.bitis);
       const manuel = manuelHarcamalar.reduce((t, h) => t + (+h.tutar || 0), 0);
-      const ekstreYeni = k.yeniDonemEkstreBorcu !== undefined ? (+k.yeniDonemEkstreBorcu || 0) : Math.max((+k.toplamEkstreBorcu || 0) - (+k.oncekiAydanKalan || 0), 0); const fark = ekstreYeni - manuel;
+      const ekstreYeni = k.yeniDonemEkstreBorcu !== undefined ? (+k.yeniDonemEkstreBorcu || 0) : Math.max((+k.toplamEkstreBorcu || 0) - (+k.oncekiAydanKalan || 0), 0);
       return <div className="bt-card" key={k.id}>
-        <div className="bt-cardhead"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={rozetStil(LIME, ROTASYONLAR[i % ROTASYONLAR.length], 36)}>{bankaKodu(k.banka)}</div><div><div className="bt-satir-ad">{etiket}</div><div className="bt-satir-meta">{donem.baslangic.split("-").reverse().join(".")} – {donem.bitis.split("-").reverse().join(".")}</div></div></div><div className="bt-mono" style={{ fontWeight: 700, color: Math.abs(fark) < 1 ? "#5D7A2E" : CORAL }}>{Math.abs(fark) < 1 ? "Eşleşiyor" : "Fark " + fmt(fark)}</div></div>
-        <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Gerçek ekstre</div><div className="bt-metric-amt">{fmt(ekstreYeni)}</div><div className="bt-metric-cap">Bankadan gelen güncel dönem borcu</div></div><div className="bt-metric"><div className="bt-metric-lbl">Manuel kaydedilenler</div><div className="bt-metric-amt">{fmt(manuel)}</div><div className="bt-metric-cap">Dönem içindeki {manuelHarcamalar.length} harcama</div></div></div>
+        <div className="bt-cardhead"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={rozetStil(LIME, ROTASYONLAR[i % ROTASYONLAR.length], 36)}>{bankaKodu(k.banka)}</div><div><div className="bt-satir-ad">{etiket}</div><div className="bt-satir-meta">Dönem içi: {donem.baslangic.split("-").reverse().join(".")} – {donem.bitis.split("-").reverse().join(".")}</div></div></div><div className="bt-mono" style={{ fontWeight: 700, color: "var(--dim)" }}>{ayEtiketi(k.ekstreAyi || ayAnahtari())}</div></div>
+        <div className="bt-grid" style={{ marginTop: 16 }}><div className="bt-metric"><div className="bt-metric-lbl">Gerçek ekstre</div><div className="bt-metric-amt">{fmt(ekstreYeni)}</div><div className="bt-metric-cap">Bankadan girilen son dönem borcu</div></div><div className="bt-metric"><div className="bt-metric-lbl">Manuel kaydedilenler</div><div className="bt-metric-amt">{fmt(manuel)}</div><div className="bt-metric-cap">Devam eden dönemdeki {manuelHarcamalar.length} harcama</div></div></div>
       </div>;
     })}
     {kaynaklar.length > 0 && <div className="bt-card"><div className="bt-h2"><Wallet size={16} /> Tüm harcamalar hangi kaynağa yazıldı?</div>{kaynaklar.map(([ad, x]) => <div className="bt-kat" key={ad}><div className="bt-kat-ad" style={{ width: 180 }}>{ad}</div><div className="bt-kat-bar"><div style={{ width: "100%", background: CORAL }} /></div><div className="bt-kat-tutar">{fmt(x.toplam)} <span style={{ color: "var(--faint)", fontSize: 10 }}>({x.adet})</span></div></div>)}</div>}
