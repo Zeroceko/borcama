@@ -240,6 +240,22 @@ function kartHesabi(k) {
   const asgariOran = (+k.limit || 0) <= 50000 ? 20 : 40;
   return { onceki, odeme, devreden, yeni, faiz, oran, toplam, asgari: (onceki * asgariOran) / 100 };
 }
+function gecmisEkstreKayitHatasiniDuzelt(veri) {
+  let degisti = false; const buAy = ayAnahtari();
+  const cards = (veri.cards || []).map((k) => {
+    if (!k.ekstreAyi || k.ekstreAyi >= buAy || k.toplamEkstreBorcu === undefined) return k;
+    const gecmis = [...(k.ekstreGecmisi || [])];
+    const dahaYeni = gecmis.filter((e) => e.ekstreAyi > k.ekstreAyi && e.toplamEkstreBorcu !== undefined).sort((a, b) => b.ekstreAyi.localeCompare(a.ekstreAyi))[0];
+    const bosAyniAy = gecmis.some((e) => e.ekstreAyi === k.ekstreAyi && e.toplamEkstreBorcu === undefined && e.oncekiDonemBorcu === undefined);
+    if (!dahaYeni && !(bosAyniAy && (+k.borc > 0 || +k.donemIciToplam > 0))) return k;
+    const yanlisGuncel = { ekstreAyi: k.ekstreAyi, toplamEkstreBorcu: k.toplamEkstreBorcu, oncekiAydanKalan: k.oncekiAydanKalan, yapilanOdeme: k.yapilanOdeme, kesimGunu: k.kesimGunu, sonOdemeGunu: k.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
+    const temizGecmis = gecmis.filter((e) => e !== dahaYeni && !(bosAyniAy && e.ekstreAyi === k.ekstreAyi && e.toplamEkstreBorcu === undefined));
+    const duzeltilmis = { ...k, ...(dahaYeni || {}), ekstreAyi: dahaYeni?.ekstreAyi || buAy, ekstreGecmisi: [...temizGecmis.filter((e) => e.ekstreAyi !== yanlisGuncel.ekstreAyi), yanlisGuncel] };
+    if (!dahaYeni) { delete duzeltilmis.toplamEkstreBorcu; delete duzeltilmis.oncekiDonemBorcu; delete duzeltilmis.oncekiAydanKalan; delete duzeltilmis.yapilanOdeme; }
+    degisti = true; return duzeltilmis;
+  });
+  return { veri: degisti ? { ...veri, cards } : veri, degisti };
+}
 const VARSAYILAN_FAIZ_EK_HESAP = 4.25;
 const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, loanPaymentHistory: {}, ayarlar: {}, snapshots: {} };
 
@@ -333,7 +349,11 @@ export default function BorcTakip() {
     (async () => {
       try {
         const s = await window.storage.get("borctakip:v1");
-        if (s && s.value) setVeri({ ...BOS_VERI, ...JSON.parse(s.value) });
+        if (s && s.value) {
+          const sonuc = gecmisEkstreKayitHatasiniDuzelt({ ...BOS_VERI, ...JSON.parse(s.value) });
+          setVeri(sonuc.veri);
+          if (sonuc.degisti) await window.storage.set("borctakip:v1", JSON.stringify(sonuc.veri));
+        }
       } catch (e) { setHata("Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin."); }
       finally { setYukleniyor(false); }
     })();
@@ -859,6 +879,12 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
     if (yeniEkstreModu) {
       const eski = form.veri;
+      const mevcutDonem = eski.ekstreAyi || ayAnahtari();
+      if (f.ekstreAyi < mevcutDonem) {
+        const arsiv = { ekstreAyi: f.ekstreAyi, toplamEkstreBorcu: f.toplamEkstreBorcu, oncekiAydanKalan: f.oncekiAydanKalan, yapilanOdeme: f.yapilanOdeme, kesimGunu: f.kesimGunu, sonOdemeGunu: f.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
+        ekleGuncelle("cards", { ...eski, ekstreGecmisi: [...(eski.ekstreGecmisi || []).filter((e) => e.ekstreAyi !== f.ekstreAyi), arsiv] });
+        return;
+      }
       const oncekiAy = new Date(); oncekiAy.setMonth(oncekiAy.getMonth() - 1);
       const arsiv = { ekstreAyi: eski.ekstreAyi || ayAnahtari(oncekiAy), toplamEkstreBorcu: eski.toplamEkstreBorcu, oncekiAydanKalan: eski.oncekiAydanKalan, yapilanOdeme: eski.yapilanOdeme, kesimGunu: eski.kesimGunu, sonOdemeGunu: eski.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
       ekleGuncelle("cards", { ...eski, ...f, ekstreGecmisi: [...(eski.ekstreGecmisi || []), arsiv] });
