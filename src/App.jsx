@@ -3281,6 +3281,16 @@ function Borclar({
 }
 
 function BorcOdemeGrafigi({ ozet }) {
+  const [acik, setAcik] = useState(
+    () => localStorage.getItem("borcama_odeme_grafigi_acik") !== "0",
+  );
+
+  function gorunumuDegistir() {
+    const yeni = !acik;
+    setAcik(yeni);
+    localStorage.setItem("borcama_odeme_grafigi_acik", yeni ? "1" : "0");
+  }
+
   return (
     <div className="bt-odeme-ozet">
       <div className="bt-odeme-ozet-ust">
@@ -3290,40 +3300,55 @@ function BorcOdemeGrafigi({ ozet }) {
             {ozet.baslik}
           </div>
         </div>
-        <div className="bt-odeme-ozet-yuzde">%{Math.round(ozet.oran)}</div>
-      </div>
-      <div
-        className="bt-odeme-ilerleme"
-        aria-label={"Ödeme ilerlemesi yüzde " + Math.round(ozet.oran)}
-      >
-        <div style={{ width: ozet.oran + "%" }} />
-      </div>
-      <div className="bt-odeme-ozet-rakamlar">
-        <div className="bt-odeme-ozet-rakam">
-          <div className="bt-metric-lbl">Toplam borç</div>
-          <div className="bt-mono" style={{ fontWeight: 800, marginTop: 4 }}>
-            {fmt(ozet.toplam)}
-          </div>
-        </div>
-        <div className="bt-odeme-ozet-rakam">
-          <div className="bt-metric-lbl">Toplam ödenen</div>
-          <div
-            className="bt-mono"
-            style={{ fontWeight: 800, marginTop: 4, color: "#5D7A2E" }}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="bt-odeme-ozet-yuzde">%{Math.round(ozet.oran)}</div>
+          <button
+            className="bt-btn kucuk ikincil"
+            type="button"
+            aria-expanded={acik}
+            onClick={gorunumuDegistir}
           >
-            {fmt(ozet.odenen)}
-          </div>
-        </div>
-        <div className="bt-odeme-ozet-rakam">
-          <div className="bt-metric-lbl">Kalan borç</div>
-          <div
-            className="bt-mono"
-            style={{ fontWeight: 800, marginTop: 4, color: CORAL }}
-          >
-            {fmt(ozet.kalan)}
-          </div>
+            {acik ? <Minus size={14} /> : <Plus size={14} />}
+            {acik ? "Kapat" : "Aç"}
+          </button>
         </div>
       </div>
+      {acik && (
+        <>
+          <div
+            className="bt-odeme-ilerleme"
+            aria-label={"Ödeme ilerlemesi yüzde " + Math.round(ozet.oran)}
+          >
+            <div style={{ width: ozet.oran + "%" }} />
+          </div>
+          <div className="bt-odeme-ozet-rakamlar">
+            <div className="bt-odeme-ozet-rakam">
+              <div className="bt-metric-lbl">Toplam borç</div>
+              <div className="bt-mono" style={{ fontWeight: 800, marginTop: 4 }}>
+                {fmt(ozet.toplam)}
+              </div>
+            </div>
+            <div className="bt-odeme-ozet-rakam">
+              <div className="bt-metric-lbl">Toplam ödenen</div>
+              <div
+                className="bt-mono"
+                style={{ fontWeight: 800, marginTop: 4, color: "#5D7A2E" }}
+              >
+                {fmt(ozet.odenen)}
+              </div>
+            </div>
+            <div className="bt-odeme-ozet-rakam">
+              <div className="bt-metric-lbl">Kalan borç</div>
+              <div
+                className="bt-mono"
+                style={{ fontWeight: 800, marginTop: 4, color: CORAL }}
+              >
+                {fmt(ozet.kalan)}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
