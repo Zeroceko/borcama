@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabaseClient.js";
-import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, RotateCcw, Target, Flame, Snowflake, PieChart, TrendingUp, Wallet, Lightbulb, CalendarCheck } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
