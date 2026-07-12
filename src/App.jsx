@@ -568,7 +568,7 @@ export default function BorcTakip() {
           <>
             {hata && <div className="bt-card" style={{ borderColor: CORAL, marginBottom: 16, fontSize: 13 }}>{hata}</div>}
             {sekme === "ozet" && <Ozet toplamlar={toplamlar} kalemler={kalemler} aylikFaiz={aylikFaiz} gecenAyDelta={gecenAyDelta} buAyOdenecek={buAyOdenecek} yaklasan={yaklasan} buAyHarcama={buAyHarcama} buAyGelir={buAyGelir} netNakit={netNakit} odendiIsaretle={odendiIsaretle} setSekme={setSekme} />}
-            {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} bankalar={bankalar} bankaEkle={bankaEkle} />}
+            {sekme === "borclar" && <Borclar veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} veriKaydet={kaydet} sil={sil} bankalar={bankalar} bankaEkle={bankaEkle} />}
             {sekme === "odemeler" && <Odemeler yaklasan={yaklasan} odendiIsaretle={odendiIsaretle} />}
             {sekme === "plan" && <Plan kalemler={kalemler} aylikFaiz={aylikFaiz} setSekme={setSekme} />}
             {sekme === "gelir" && <Gelirler veri={veri} form={form} setForm={setForm} ekleGuncelle={ekleGuncelle} sil={sil} buAyGelir={buAyGelir} />}
@@ -752,12 +752,14 @@ function Odemeler({ yaklasan, odendiIsaretle }) {
 }
 
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
-function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }) {
+function Borclar({ veri, form, setForm, ekleGuncelle, veriKaydet, sil, bankalar, bankaEkle }) {
   const [kategori, setKategori] = useState("cards");
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
   const [yeniBanka, setYeniBanka] = useState("");
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
+  const [ilkEkstrePenceresi, setIlkEkstrePenceresi] = useState(false);
+  const [ilkEkstreAyi, setIlkEkstreAyi] = useState(() => ayEkle(ayAnahtari(), -1));
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const ekstreAylar = useMemo(() => [...new Set(veri.cards.flatMap((k) => (k.ekstreGecmisi || []).map((e) => e.ekstreAyi)).filter(Boolean))].sort().reverse(), [veri.cards]);
   const gelecekKrediAylar = useMemo(() => Array.from({ length: 6 }, (_, i) => ayEkle(ayAnahtari(), i + 1)), []);
@@ -782,6 +784,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     })
     : (veri[meta.liste] || []);
   const saltOkunurGorunum = arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
+  const eskiFormatKartSayisi = veri.cards.filter((k) => +k.borc > 0 || +k.donemIciToplam > 0 || k.sonOdemeTarihi).length;
   const acik = form && form.liste === meta.liste;
   const yeniEkstreModu = kategori === "cards" && acik && form.yeniEkstre;
   const ekstreDuzenleModu = kategori === "cards" && acik && form.ekstreDuzenle;
@@ -907,6 +910,27 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     setBankaPenceresi(false);
   }
 
+  function ilkEkstreleriGecmiseTasi(e) {
+    e.preventDefault();
+    const cards = veri.cards.map((k) => {
+      const legacyVar = +k.borc > 0 || +k.donemIciToplam > 0 || k.sonOdemeTarihi;
+      if (!legacyVar) return k;
+      let gecmis = [...(k.ekstreGecmisi || [])].filter((x) => !(x.ekstreAyi === ilkEkstreAyi && x.toplamEkstreBorcu === undefined));
+      if (k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined) {
+        const guncelSnapshot = { ekstreAyi: k.ekstreAyi || ilkEkstreAyi, toplamEkstreBorcu: k.toplamEkstreBorcu ?? k.oncekiDonemBorcu, oncekiAydanKalan: k.oncekiAydanKalan, yapilanOdeme: k.yapilanOdeme, kesimGunu: k.kesimGunu, sonOdemeGunu: k.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
+        gecmis = [...gecmis.filter((x) => x.ekstreAyi !== guncelSnapshot.ekstreAyi), guncelSnapshot];
+      }
+      const legacySnapshot = { ekstreAyi: ilkEkstreAyi, borc: k.borc, donemIciToplam: k.donemIciToplam, donemIciEklenen: k.donemIciEklenen, asgari: k.asgari, sonOdemeTarihi: k.sonOdemeTarihi, kesimGunu: k.kesimGunu, sonOdemeGunu: k.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
+      gecmis = [...gecmis.filter((x) => x.ekstreAyi !== ilkEkstreAyi), legacySnapshot];
+      const temiz = { ...k, ekstreGecmisi: gecmis };
+      if (!temiz.sonOdemeGunu && temiz.sonOdemeTarihi) temiz.sonOdemeGunu = +temiz.sonOdemeTarihi.slice(-2);
+      delete temiz.toplamEkstreBorcu; delete temiz.oncekiDonemBorcu; delete temiz.oncekiAydanKalan; delete temiz.yapilanOdeme; delete temiz.ekstreAyi;
+      delete temiz.borc; delete temiz.donemIciToplam; delete temiz.donemIciEklenen; delete temiz.asgari; delete temiz.sonOdemeTarihi;
+      return temiz;
+    });
+    veriKaydet({ ...veri, cards }); setIlkEkstrePenceresi(false); setSeciliEkstreAyi(ilkEkstreAyi);
+  }
+
   return (
     <div className="bt-stack">
       <div className="bt-nav" style={{ marginBottom: 0 }}>
@@ -918,7 +942,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           onClick={() => { setKategori("kontrol"); setForm(null); }}>Ekstre kontrolü</button>
       </div>
 
-      {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{ekstreAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div>}
+      {kategori === "cards" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Ekstre dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel kartları veya arşivlenmiş geçmiş ekstreleri görüntüleyin.</div></div><div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>{eskiFormatKartSayisi > 0 && <button className="bt-btn kucuk ikincil" onClick={() => setIlkEkstrePenceresi(true)}>İlk ekstreleri geçmişe taşı</button>}<select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliEkstreAyi} onChange={(e) => { setSeciliEkstreAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{ekstreAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}</select></div></div></div>}
       {kategori === "loans" && <div className="bt-card" style={{ padding: 14 }}><div className="bt-cardhead" style={{ margin: 0 }}><div><div className="bt-h2" style={{ margin: 0 }}>Kredi ödeme dönemi</div><div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 4 }}>Güncel, gelecek 6 ay veya geçmişte ödenen taksitleri görüntüleyin.</div></div><select className="bt-input" style={{ width: "min(240px,100%)", margin: 0 }} value={seciliKrediAyi} onChange={(e) => { setSeciliKrediAyi(e.target.value); setForm(null); }}><option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>{gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Gelecek)</option>)}{krediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Geçmiş)</option>)}</select></div></div>}
 
       {kategori === "kontrol" ? <EkstreKontrol veri={veri} /> : <div className="bt-card">
@@ -998,6 +1022,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
           </form>
         </div>
       )}
+      {ilkEkstrePenceresi && <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setIlkEkstrePenceresi(false); }}><form className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-ilk-ekstre-baslik" onSubmit={ilkEkstreleriGecmiseTasi}><div id="bt-ilk-ekstre-baslik" className="bt-h2" style={{ marginBottom: 8 }}>İlk ekstrelerin dönemi</div><div style={{ fontSize: 12.5, color: "var(--dim)", marginBottom: 16 }}>Eski formatta girilmiş {eskiFormatKartSayisi} kart ekstresi seçtiğiniz aya taşınacak. Güncel ay ekstresiz kalacak; mevcut kart bilgileri korunacak.</div><label className="bt-alan">Ekstre dönemi<input className="bt-input" type="month" value={ilkEkstreAyi} onChange={(e) => setIlkEkstreAyi(e.target.value)} required /></label><div className="bt-form-butonlar"><button className="bt-btn birincil" type="submit"><Check size={14}/> Geçmişe taşı</button><button className="bt-btn ikincil" type="button" onClick={() => setIlkEkstrePenceresi(false)}>Vazgeç</button></div></form></div>}
     </div>
   );
 }
