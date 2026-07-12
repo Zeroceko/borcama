@@ -236,9 +236,9 @@ function kartHesabi(k) {
   const yeni = 0;
   const oran = tcmbKartAzamiFaizi(onceki);
   const faiz = (devreden * oran) / 100;
-  const toplam = devreden + faiz + yeni;
+  const toplam = devreden + yeni;
   const asgariOran = (+k.limit || 0) <= 50000 ? 20 : 40;
-  return { onceki, odeme, devreden, yeni, faiz, oran, toplam, asgari: (toplam * asgariOran) / 100 };
+  return { onceki, odeme, devreden, yeni, faiz, oran, toplam, asgari: (onceki * asgariOran) / 100 };
 }
 const VARSAYILAN_FAIZ_EK_HESAP = 4.25;
 const BOS_VERI = { cards: [], loans: [], overdrafts: [], others: [], expenses: [], incomes: [], paid: {}, loanPaymentHistory: {}, ayarlar: {}, snapshots: {} };
@@ -764,6 +764,8 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
   const saltOkunurGorunum = arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
   const acik = form && form.liste === meta.liste;
   const yeniEkstreModu = kategori === "cards" && acik && form.yeniEkstre;
+  const ekstreDuzenleModu = kategori === "cards" && acik && form.ekstreDuzenle;
+  const ekstreFormu = yeniEkstreModu || ekstreDuzenleModu;
   const [f, setF] = useState({});
   const otomatikGecikenler = useMemo(() => {
     const ay = ayAnahtari();
@@ -794,6 +796,9 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     if (form.yeniEkstre) {
       const eski = form.veri || {};
       setF({ ekstreAyi: ayAnahtari(), toplamEkstreBorcu: "", oncekiAydanKalan: kartHesabi(eski).toplam || "", yapilanOdeme: "0", limit: eski.limit || "", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || "" });
+    } else if (form.ekstreDuzenle) {
+      const eski = form.veri || {}; const yeniModel = eski.toplamEkstreBorcu !== undefined || eski.oncekiDonemBorcu !== undefined;
+      setF({ ekstreAyi: eski.ekstreAyi || ayAnahtari(), toplamEkstreBorcu: yeniModel ? (eski.toplamEkstreBorcu ?? eski.oncekiDonemBorcu ?? "") : "", oncekiAydanKalan: eski.oncekiAydanKalan || "", yapilanOdeme: yeniModel ? (eski.yapilanOdeme || "0") : "", limit: eski.limit || "", kesimGunu: eski.kesimGunu || "", sonOdemeGunu: eski.sonOdemeGunu || (eski.sonOdemeTarihi ? +eski.sonOdemeTarihi.slice(-2) : "") });
     } else setF(form.veri || {});
   }, [acik, form, kategori]);
 
@@ -827,7 +832,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       { k: "faiz", e: "Aylık faiz / gecikme oranı (%)", t: "number" },
     ],
   };
-  const alanlar = yeniEkstreModu ? [
+  const alanlar = ekstreFormu ? [
     { k: "ekstreAyi", e: "Ekstre dönemi", t: "month", z: true },
     { k: "toplamEkstreBorcu", e: "Yeni toplam ekstre borcu (₺)", t: "number", z: true },
     { k: "oncekiAydanKalan", e: "Önceki aydan devreden (₺)", t: "number" },
@@ -857,6 +862,10 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       const oncekiAy = new Date(); oncekiAy.setMonth(oncekiAy.getMonth() - 1);
       const arsiv = { ekstreAyi: eski.ekstreAyi || ayAnahtari(oncekiAy), toplamEkstreBorcu: eski.toplamEkstreBorcu, oncekiAydanKalan: eski.oncekiAydanKalan, yapilanOdeme: eski.yapilanOdeme, kesimGunu: eski.kesimGunu, sonOdemeGunu: eski.sonOdemeGunu, arsivlenmeTarihi: new Date().toISOString() };
       ekleGuncelle("cards", { ...eski, ...f, ekstreGecmisi: [...(eski.ekstreGecmisi || []), arsiv] });
+      return;
+    }
+    if (ekstreDuzenleModu) {
+      ekleGuncelle("cards", { ...form.veri, ...f });
       return;
     }
     ekleGuncelle(meta.liste, { id: f.id || uid(), ...f });
@@ -898,6 +907,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
         {acik && (
           <div className="bt-form">
             {yeniEkstreModu && <div className="bt-ipucu" style={{ marginBottom: 14 }}><Lightbulb size={16}/><div><b>{form.veri.banka} · {form.veri.ad || "Kredi kartı"}</b> için yeni dönem ekstresi giriliyor. Mevcut ekstre geçmişe taşınacak; silinmeyecek.</div></div>}
+            {ekstreDuzenleModu && <div className="bt-ipucu" style={{ marginBottom: 14 }}><Lightbulb size={16}/><div><b>{form.veri.banka} · {form.veri.ad || "Kredi kartı"}</b> güncel ekstresi düzenleniyor. Toplam ekstre ve yapılan ödemeyi girince kalan borç yeniden hesaplanır.</div></div>}
             <div className="bt-alanlar">
               {alanlar.map((a) => (
                 <label key={a.k} className="bt-alan">
@@ -922,11 +932,11 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
             {kategori === "cards" && f.toplamEkstreBorcu && (() => {
               const h = kartHesabi(f);
               return <div className="bt-ipucu" style={{ marginTop: 14 }}><Lightbulb size={16} /><div>
-                <b>Otomatik hesap:</b> Ekstre borcu {fmt(h.onceki)} − ödeme {fmt(h.odeme)} = {fmt(h.devreden)} kalan. Tahmini aylık faiz {fmt(h.faiz)} (%{h.oran.toFixed(2)}) ile güncel tahmini borç <b>{fmt(h.toplam)}</b>. Yasal minimum ödeme: <b>{fmt(h.asgari)}</b> ({(+f.limit || 0) <= 50000 ? "%20" : "%40"}, kart limitine göre).
+                <b>Otomatik hesap:</b> Ekstre borcu {fmt(h.onceki)} − ödeme {fmt(h.odeme)} = <b>{fmt(h.devreden)} kalan borç</b>. Bu bakiyenin ayrı tahmini aylık faizi {fmt(h.faiz)} (%{h.oran.toFixed(2)}). Yasal minimum ödeme: <b>{fmt(h.asgari)}</b> ({(+f.limit || 0) <= 50000 ? "%20" : "%40"}, kart limitine göre).
               </div></div>;
             })()}
             <div className="bt-form-butonlar">
-              <button className="bt-btn birincil" onClick={gonder}><Check size={14} /> {yeniEkstreModu ? "Yeni ekstreyi kaydet" : f.id ? "Güncelle" : "Kaydet"}</button>
+              <button className="bt-btn birincil" onClick={gonder}><Check size={14} /> {yeniEkstreModu ? "Yeni ekstreyi kaydet" : ekstreDuzenleModu ? "Ekstreyi güncelle" : f.id ? "Güncelle" : "Kaydet"}</button>
               <button className="bt-btn ikincil" onClick={() => setForm(null)}>Vazgeç</button>
             </div>
           </div>
@@ -1064,6 +1074,7 @@ function BorclarSatiri({ k, i, kategori, meta, setForm, sil, paid, arsiv = false
       </div>
       {!arsiv && <div style={{ display: "flex", gap: 2 }}>
         {kategori === "cards" && <button className="bt-btn kucuk ikincil" title="Yeni dönem ekstresi gir" onClick={() => setForm({ liste: "cards", veri: k, yeniEkstre: true })}><Plus size={13} /> Yeni ekstre</button>}
+        {kategori === "cards" && <button className="bt-btn kucuk ikincil" title="Güncel ekstreyi düzenle" onClick={() => setForm({ liste: "cards", veri: k, ekstreDuzenle: true })}><Pencil size={13} /> Ekstreyi düzenle</button>}
         <button className="bt-btn hayalet" onClick={() => setForm({ liste: meta.liste, veri: k })}><Pencil size={15} /></button>
         <button className="bt-btn hayalet tehlike" onClick={() => sil(meta.liste, k.id)}><Trash2 size={15} /></button>
       </div>}
