@@ -64,7 +64,7 @@ export function useSession() {
 }
 
 export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
-  const [yontem, setYontem] = useState(kayitModu ? "parola" : "link");
+  const [yontem, setYontem] = useState("parola");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
   const [parolaTekrar, setParolaTekrar] = useState("");
@@ -146,7 +146,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">{kayitModu ? "Ücretsiz hesabını oluştur" : "Hesabına giriş yap"}</div>
         <div className="auth-sub">{kayitModu ? "E-posta adresini ve parolanı belirle, borçlarını tek yerde takip etmeye başla." : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}</div>
-        {!kayitModu && <div className="auth-tabs"><button className={"auth-tab " + (yontem === "link" ? "active" : "")} onClick={() => yontemDegistir("link")} type="button">E-posta linki</button><button className={"auth-tab " + (yontem === "parola" ? "active" : "")} onClick={() => yontemDegistir("parola")} type="button">Parola</button></div>}
+        {!kayitModu && <div className="auth-tabs"><button className={"auth-tab " + (yontem === "parola" ? "active" : "")} onClick={() => yontemDegistir("parola")} type="button">Parola</button><button className={"auth-tab " + (yontem === "link" ? "active" : "")} onClick={() => yontemDegistir("link")} type="button">E-posta linki</button></div>}
 
         {hata && <div className="auth-error">{hata}</div>}
 
