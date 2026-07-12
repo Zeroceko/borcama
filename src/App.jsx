@@ -1051,7 +1051,7 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
               </div></div>;
             })()}
             {ekHesapOdemeModu && f.odemeTutari && (() => {
-              const h = ekHesapHesabi(form.veri); const odeme = Math.min(+f.odemeTutari || 0, h.kalan); const kalan = Math.max(h.kalan - odeme, 0);
+              const h = ekHesapHesabi(form.veri); const gecmisDisi = gecmisDisiEkHesapOdemesi(form.veri); const digerGecmis = form.odemeDuzenle ? (form.veri.odemeGecmisi || []).filter((o) => o.id !== form.odemeDuzenle.id) : (form.veri.odemeGecmisi || []); const azami = Math.max(h.kullanilan - gecmisDisi - odemeGecmisiToplami(digerGecmis), 0); const odeme = Math.min(+f.odemeTutari || 0, azami); const toplamOdeme = gecmisDisi + odemeGecmisiToplami(digerGecmis) + odeme; const kalan = Math.max(h.kullanilan - toplamOdeme, 0);
               return <div className="bt-ipucu" style={{ marginTop: 14 }}><Lightbulb size={16}/><div><b>Ödeme sonrası:</b> Kalan borç <b>{fmt(kalan)}</b> · tahmini aylık faiz {fmt(kalan * h.oran / 100)} (%{h.oran.toFixed(2)}).</div></div>;
             })()}
             <div className="bt-form-butonlar">
