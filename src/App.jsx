@@ -127,6 +127,14 @@ const CSS = `
 .bt-strip{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:20px;border-bottom:2px solid var(--line);margin-bottom:22px}
 .bt-strip-count{font-size:13px;font-weight:600;color:var(--dim)}
 .bt-strip-total{font-family:'Archivo Black',sans-serif;font-size:clamp(19px,4vw,24px);color:var(--text)}
+.bt-odeme-ozet{padding:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2);margin-bottom:20px}
+.bt-odeme-ozet-ust{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.bt-odeme-ozet-yuzde{font-family:'Archivo Black',sans-serif;font-size:28px;color:${LIME};text-shadow:2px 2px 0 ${INK}}
+.bt-odeme-ilerleme{height:14px;border-radius:999px;background:var(--panel);border:2px solid var(--line);overflow:hidden;margin:12px 0}
+.bt-odeme-ilerleme div{height:100%;background:linear-gradient(90deg,${CORAL},${LIME});transition:width .25s}
+.bt-odeme-ozet-rakamlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bt-odeme-ozet-rakam{padding:10px 12px;border-radius:10px;background:var(--panel);border:1.5px solid var(--line)}
+@media(max-width:600px){.bt-odeme-ozet-rakamlar{grid-template-columns:1fr}}
 
 .bt-btn{display:inline-flex;align-items:center;gap:6px;border-radius:999px;cursor:pointer;font-weight:700;font-family:'Space Grotesk',sans-serif;
   padding:10px 18px;font-size:13px;border:2px solid transparent;transition:filter .15s}
@@ -954,6 +962,28 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
     return n + " kayıt";
   }
 
+  const odemeOzeti = (() => {
+    let toplam = 0, odenen = 0, kalan = 0, baslik = "";
+    if (kategori === "cards" && !arsivGorunumu) {
+      baslik = "Kredi kartlarında ödeme ilerlemesi";
+      veri.cards.forEach((k) => { const h = kartHesabi(k); toplam += h.onceki; odenen += h.odeme; kalan += h.toplam; });
+    } else if (kategori === "od") {
+      baslik = "Ek hesap / KMH ödeme ilerlemesi";
+      veri.overdrafts.forEach((k) => { const h = ekHesapHesabi(k); toplam += h.kullanilan; odenen += h.odeme; kalan += h.kalan; });
+    } else if (kategori === "others") {
+      baslik = "Devreden ve gecikmiş borçlarda ödeme ilerlemesi";
+      otomatikGecikenler.forEach((g) => {
+        if (g.id.startsWith("kart-")) {
+          const kart = veri.cards.find((k) => "kart-" + k.id === g.id); const h = kart ? kartHesabi(kart) : null;
+          toplam += h?.onceki || g.bakiye; odenen += h?.odeme || 0; kalan += h?.toplam || g.bakiye;
+        } else { toplam += +g.bakiye || 0; kalan += +g.bakiye || 0; }
+      });
+      veri.others.forEach((k) => { toplam += +k.tutar || 0; kalan += +k.tutar || 0; });
+    }
+    if (!baslik || toplam <= 0) return null;
+    return { baslik, toplam, odenen: Math.min(odenen, toplam), kalan, oran: Math.min(Math.max((odenen / toplam) * 100, 0), 100) };
+  })();
+
   function gonder() {
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
     if (ekHesapOdemeModu) {
@@ -1035,6 +1065,8 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
             {!acik && !saltOkunurGorunum && kategori !== "others" && <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}><Plus size={14} /> {kategori === "cards" ? "Yeni kart ekle" : kategori === "loans" ? "Yeni kredi ekle" : "Yeni ek hesap ekle"}</button>}
           </div>
         </div>
+
+        {!acik && odemeOzeti && <BorcOdemeGrafigi ozet={odemeOzeti} />}
 
         {acik && (
           <div className="bt-form">
@@ -1126,6 +1158,18 @@ function Borclar({ veri, form, setForm, ekleGuncelle, sil, bankalar, bankaEkle }
       )}
     </div>
   );
+}
+
+function BorcOdemeGrafigi({ ozet }) {
+  return <div className="bt-odeme-ozet">
+    <div className="bt-odeme-ozet-ust"><div><div className="bt-metric-lbl">Toplam ödeme grafiği</div><div className="bt-h2" style={{ marginTop: 4 }}>{ozet.baslik}</div></div><div className="bt-odeme-ozet-yuzde">%{Math.round(ozet.oran)}</div></div>
+    <div className="bt-odeme-ilerleme" aria-label={"Ödeme ilerlemesi yüzde " + Math.round(ozet.oran)}><div style={{ width: ozet.oran + "%" }}/></div>
+    <div className="bt-odeme-ozet-rakamlar">
+      <div className="bt-odeme-ozet-rakam"><div className="bt-metric-lbl">Toplam borç</div><div className="bt-mono" style={{ fontWeight: 800, marginTop: 4 }}>{fmt(ozet.toplam)}</div></div>
+      <div className="bt-odeme-ozet-rakam"><div className="bt-metric-lbl">Toplam ödenen</div><div className="bt-mono" style={{ fontWeight: 800, marginTop: 4, color: "#5D7A2E" }}>{fmt(ozet.odenen)}</div></div>
+      <div className="bt-odeme-ozet-rakam"><div className="bt-metric-lbl">Kalan borç</div><div className="bt-mono" style={{ fontWeight: 800, marginTop: 4, color: CORAL }}>{fmt(ozet.kalan)}</div></div>
+    </div>
+  </div>;
 }
 
 function ekstreDonemi(kart) {
