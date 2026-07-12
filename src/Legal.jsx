@@ -75,7 +75,7 @@ export function KullaniciSozlesmesi() {
         Doğru bir e-posta adresi kullanmak, parolanızı ve giriş bağlantılarınızı
         korumak sizin sorumluluğunuzdadır. Hesabınızda yetkisiz bir işlem fark
         ederseniz gecikmeden{" "}
-        <a href="mailto:ozerocek@gmail.com">ozerocek@gmail.com</a> adresine
+        <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> adresine
         bildirmelisiniz.
       </p>
       <h2>3. Kullanıcı verileri ve doğruluk</h2>
@@ -120,7 +120,7 @@ export function KullaniciSozlesmesi() {
       <div className="legal-callout">
         <p>
           Sorularınız için:{" "}
-          <a href="mailto:ozerocek@gmail.com">ozerocek@gmail.com</a>
+          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
         </p>
       </div>
     </LegalLayout>
@@ -134,7 +134,7 @@ export function GizlilikMetni() {
         Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”)
         kapsamında Borcama kullanılırken kişisel verilerin nasıl işlendiğini
         açıklar. Veri sorumlusu Borcama hizmetidir; iletişim adresi{" "}
-        <a href="mailto:ozerocek@gmail.com">ozerocek@gmail.com</a> şeklindedir.
+        <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> şeklindedir.
       </p>
       <h2>1. İşlenen veri kategorileri</h2>
       <ul>
@@ -213,7 +213,7 @@ export function GizlilikMetni() {
       </p>
       <p>
         Taleplerinizi kimliğinizi doğrulamaya elverişli bilgilerle{" "}
-        <a href="mailto:ozerocek@gmail.com">ozerocek@gmail.com</a> adresine
+        <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> adresine
         iletebilirsiniz. Başvurular yasal süre içinde sonuçlandırılır.
       </p>
       <h2>7. Değişiklikler</h2>
