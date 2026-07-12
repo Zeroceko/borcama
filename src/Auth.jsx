@@ -649,7 +649,7 @@ export function ParolaYenileEkrani() {
     let hataMesaji = "";
     if (error?.code === "weak_password")
       hataMesaji =
-        "Bu parola yeterince güçlü değil. Daha uzun; harf, rakam ve sembol içeren bir parola seç.";
+        "Parola en az 8 karakter olmalı.";
     else if (
       [
         "reauthentication_needed",
@@ -718,7 +718,7 @@ export function ParolaYenileEkrani() {
           <>
             <div className="auth-welcome">Yeni parolanı belirle</div>
             <div className="auth-sub">
-              En az 8 karakterli ve kolay tahmin edilemeyecek bir parola seç.
+              En az 8 karakterli bir parola seç.
             </div>
             {durum.hata && <div className="auth-error">{durum.hata}</div>}
             <form onSubmit={parolayiKaydet}>
