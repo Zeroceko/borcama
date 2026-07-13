@@ -207,6 +207,7 @@ const CSS = `
 .bt-strip-count{font-size:13px;font-weight:600;color:var(--dim)}
 .bt-strip-total{font-family:'Archivo Black',sans-serif;font-size:clamp(19px,4vw,24px);color:var(--text)}
 .bt-odeme-ozet{padding:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2);margin-bottom:20px}
+.bt-odeme-ozet-kapali{display:flex;justify-content:flex-end;margin-bottom:20px}
 .bt-odeme-ozet-ust{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .bt-odeme-ozet-yuzde{font-family:'Archivo Black',sans-serif;font-size:28px;color:${LIME};text-shadow:2px 2px 0 ${INK}}
 .bt-odeme-ilerleme{height:14px;border-radius:999px;background:var(--panel);border:2px solid var(--line);overflow:hidden;margin:12px 0}
@@ -2641,6 +2642,25 @@ function Borclar({
         odenen += h.odeme;
         kalan += h.toplam;
       });
+    } else if (
+      kategori === "loans" &&
+      !krediArsivGorunumu &&
+      !krediGelecekGorunumu
+    ) {
+      baslik = "Kredilerde ödeme ilerlemesi";
+      veri.loans.forEach((k) => {
+        const krediOdemeleri = Object.values(veri.loanPaymentHistory || {})
+          .map((ay) => ay?.[k.id])
+          .filter(Boolean);
+        const kayitliOdeme = krediOdemeleri.reduce(
+          (t, odeme) => t + (+odeme.taksit || +k.taksit || 0),
+          0,
+        );
+        const kalanBorc = Math.max(+k.kalanBorc || 0, 0);
+        toplam += kalanBorc + kayitliOdeme;
+        odenen += kayitliOdeme;
+        kalan += kalanBorc;
+      });
     } else if (kategori === "od") {
       baslik = "Ek hesap / KMH ödeme ilerlemesi";
       veri.overdrafts.forEach((k) => {
@@ -2916,7 +2936,12 @@ function Borclar({
             </div>
           </div>
 
-          {!acik && odemeOzeti && <BorcOdemeGrafigi ozet={odemeOzeti} />}
+          {!acik && odemeOzeti && (
+            <BorcOdemeGrafigi
+              ozet={odemeOzeti}
+              depolamaAnahtari={kategori}
+            />
+          )}
 
           {acik && (
             <div className="bt-form">
@@ -3280,16 +3305,32 @@ function Borclar({
   );
 }
 
-function BorcOdemeGrafigi({ ozet }) {
+function BorcOdemeGrafigi({ ozet, depolamaAnahtari = "genel" }) {
+  const kayitAnahtari =
+    "borcama_odeme_grafigi_acik_" + depolamaAnahtari;
   const [acik, setAcik] = useState(
-    () => localStorage.getItem("borcama_odeme_grafigi_acik") !== "0",
+    () => localStorage.getItem(kayitAnahtari) !== "0",
   );
 
   function gorunumuDegistir() {
     const yeni = !acik;
     setAcik(yeni);
-    localStorage.setItem("borcama_odeme_grafigi_acik", yeni ? "1" : "0");
+    localStorage.setItem(kayitAnahtari, yeni ? "1" : "0");
   }
+
+  if (!acik)
+    return (
+      <div className="bt-odeme-ozet-kapali">
+        <button
+          className="bt-btn kucuk ikincil"
+          type="button"
+          aria-expanded="false"
+          onClick={gorunumuDegistir}
+        >
+          <Plus size={14} /> Ödeme grafiğini göster
+        </button>
+      </div>
+    );
 
   return (
     <div className="bt-odeme-ozet">
@@ -3313,8 +3354,7 @@ function BorcOdemeGrafigi({ ozet }) {
           </button>
         </div>
       </div>
-      {acik && (
-        <>
+      <>
           <div
             className="bt-odeme-ilerleme"
             aria-label={"Ödeme ilerlemesi yüzde " + Math.round(ozet.oran)}
@@ -3347,8 +3387,7 @@ function BorcOdemeGrafigi({ ozet }) {
               </div>
             </div>
           </div>
-        </>
-      )}
+      </>
     </div>
   );
 }
