@@ -2656,10 +2656,11 @@ function Borclar({
           (t, odeme) => t + (+odeme.taksit || +k.taksit || 0),
           0,
         );
-        const kalanBorc = Math.max(+k.kalanBorc || 0, 0);
-        toplam += kalanBorc + kayitliOdeme;
-        odenen += kayitliOdeme;
-        kalan += kalanBorc;
+        const krediToplami = Math.max(+k.kalanBorc || 0, 0);
+        const odenenTutar = Math.min(kayitliOdeme, krediToplami);
+        toplam += krediToplami;
+        odenen += odenenTutar;
+        kalan += Math.max(krediToplami - odenenTutar, 0);
       });
     } else if (kategori === "od") {
       baslik = "Ek hesap / KMH ödeme ilerlemesi";
