@@ -5,6 +5,7 @@ const izinliOriginler = new Set([
   "https://www.borcama.com",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
+  "http://127.0.0.1:5175",
   "http://localhost:5173",
   "http://localhost:5174",
 ]);
@@ -43,7 +44,7 @@ async function kullaniciBul(admin: ReturnType<typeof createClient>, email: strin
   return null;
 }
 
-async function hakTanimla(
+async function reklamsizHakTanimla(
   admin: ReturnType<typeof createClient>,
   userId: string,
   orderId: string,
@@ -56,6 +57,30 @@ async function hakTanimla(
       source: "shopier",
       purchase_id: orderId,
       granted_at: simdi,
+      updated_at: simdi,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw error;
+}
+
+async function proHakTanimla(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+  orderId: string,
+  purchasedAt: string,
+) {
+  const satinAlim = new Date(purchasedAt);
+  const baslangic = Number.isNaN(satinAlim.getTime()) ? new Date() : satinAlim;
+  const bitis = new Date(baslangic);
+  bitis.setMonth(bitis.getMonth() + 1);
+  const simdi = new Date().toISOString();
+  const { error } = await admin.from("user_entitlements").upsert(
+    {
+      user_id: userId,
+      pro_expires_at: bitis.toISOString(),
+      pro_purchase_id: orderId,
+      source: "shopier",
       updated_at: simdi,
     },
     { onConflict: "user_id" },
@@ -92,30 +117,49 @@ Deno.serve(async (req) => {
       });
 
     const email = normalEposta(user.email);
+    const reklamsizUrunId = String(Deno.env.get("SHOPIER_PRODUCT_ID") || "49351033");
+    const proUrunId = String(Deno.env.get("SHOPIER_PRO_PRODUCT_ID") || "");
     const { data: satinAlimlar } = await admin
       .from("shopier_purchases")
-      .select("order_id")
+      .select("order_id,product_id,purchased_at")
       .eq("buyer_email", email)
       .eq("status", "paid")
       .order("purchased_at", { ascending: false })
-      .limit(1);
-    const satinAlim = satinAlimlar?.[0];
-    if (satinAlim) {
+      .limit(20);
+    let sonProSiparisiIslendi = false;
+    for (const satinAlim of satinAlimlar || []) {
       await admin
         .from("shopier_purchases")
         .update({ user_id: user.id, updated_at: new Date().toISOString() })
         .eq("order_id", satinAlim.order_id);
-      await hakTanimla(admin, user.id, satinAlim.order_id);
+      if (String(satinAlim.product_id) === reklamsizUrunId)
+        await reklamsizHakTanimla(admin, user.id, satinAlim.order_id);
+      if (
+        !sonProSiparisiIslendi &&
+        proUrunId &&
+        String(satinAlim.product_id) === proUrunId
+      ) {
+        await proHakTanimla(
+          admin,
+          user.id,
+          satinAlim.order_id,
+          satinAlim.purchased_at,
+        );
+        sonProSiparisiIslendi = true;
+      }
     }
 
     const { data: hak } = await admin
       .from("user_entitlements")
-      .select("ad_free_lifetime,source,granted_at")
+      .select("ad_free_lifetime,pro_expires_at,source,granted_at")
       .eq("user_id", user.id)
       .maybeSingle();
+    const proExpiresAt = hak?.pro_expires_at || null;
     return new Response(
       JSON.stringify({
         adFreeLifetime: !!hak?.ad_free_lifetime,
+        proActive: !!proExpiresAt && new Date(proExpiresAt).getTime() > Date.now(),
+        proExpiresAt,
         source: hak?.source || null,
         grantedAt: hak?.granted_at || null,
       }),
@@ -140,11 +184,16 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => null);
   const event = String(body?.event || "");
   const order = body?.order || null;
-  const productId = String(Deno.env.get("SHOPIER_PRODUCT_ID") || "49351033");
-  const urunVar = Array.isArray(order?.lineItems)
-    ? order.lineItems.some((x: Record<string, unknown>) => String(x.productId) === productId)
-    : false;
-  if (!order?.id || order.paymentStatus !== "paid" || !urunVar)
+  const reklamsizUrunId = String(Deno.env.get("SHOPIER_PRODUCT_ID") || "49351033");
+  const proUrunId = String(Deno.env.get("SHOPIER_PRO_PRODUCT_ID") || "");
+  const urun = Array.isArray(order?.lineItems)
+    ? order.lineItems.find((x: Record<string, unknown>) => {
+        const id = String(x.productId);
+        return id === reklamsizUrunId || (!!proUrunId && id === proUrunId);
+      })
+    : null;
+  const productId = String(urun?.productId || "");
+  if (!order?.id || order.paymentStatus !== "paid" || !urun)
     return new Response(JSON.stringify({ ignored: true }), {
       status: 200,
       headers,
@@ -157,9 +206,7 @@ Deno.serve(async (req) => {
         status: 422,
         headers,
       });
-    const lineItem = order.lineItems.find(
-      (x: Record<string, unknown>) => String(x.productId) === productId,
-    );
+    const lineItem = urun;
     const simdi = new Date().toISOString();
     const user = await kullaniciBul(admin, email);
     const { error } = await admin.from("shopier_purchases").upsert(
@@ -177,7 +224,15 @@ Deno.serve(async (req) => {
       { onConflict: "order_id" },
     );
     if (error) throw error;
-    if (user) await hakTanimla(admin, user.id, String(order.id));
+    if (user && productId === reklamsizUrunId)
+      await reklamsizHakTanimla(admin, user.id, String(order.id));
+    if (user && proUrunId && productId === proUrunId)
+      await proHakTanimla(
+        admin,
+        user.id,
+        String(order.id),
+        order.dateCreated || simdi,
+      );
     return new Response(JSON.stringify({ ok: true, matched: !!user }), {
       status: 200,
       headers,
@@ -191,13 +246,14 @@ Deno.serve(async (req) => {
       .from("shopier_purchases")
       .update({ status: "refunded", updated_at: simdi })
       .eq("order_id", orderId)
-      .select("user_id")
+      .select("user_id,product_id")
       .maybeSingle();
-    if (satinAlim?.user_id) {
+    if (satinAlim?.user_id && String(satinAlim.product_id) === reklamsizUrunId) {
       const { count } = await admin
         .from("shopier_purchases")
         .select("order_id", { count: "exact", head: true })
         .eq("user_id", satinAlim.user_id)
+        .eq("product_id", reklamsizUrunId)
         .eq("status", "paid");
       if (!count)
         await admin
@@ -206,6 +262,20 @@ Deno.serve(async (req) => {
           .eq("user_id", satinAlim.user_id)
           .eq("purchase_id", orderId);
     }
+    if (
+      satinAlim?.user_id &&
+      proUrunId &&
+      String(satinAlim.product_id) === proUrunId
+    )
+      await admin
+        .from("user_entitlements")
+        .update({
+          pro_expires_at: null,
+          pro_purchase_id: null,
+          updated_at: simdi,
+        })
+        .eq("user_id", satinAlim.user_id)
+        .eq("pro_purchase_id", orderId);
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   }
 
@@ -214,4 +284,3 @@ Deno.serve(async (req) => {
     headers,
   });
 });
-

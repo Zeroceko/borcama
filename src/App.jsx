@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { supabase } from "./supabaseClient.js";
+import { demoModu, supabase } from "./supabaseClient.js";
 import {
   Plus,
   Pencil,
@@ -36,6 +36,7 @@ import {
   ChevronRight,
   X,
   Sparkles,
+  ArrowLeftRight,
 } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
@@ -44,6 +45,8 @@ const CREAM = "#f4efe0";
 const LIME = "#cdf564";
 const CORAL = "#ff6f59";
 const ROTASYONLAR = [-1.2, 1, -0.6, 1.4, -1];
+const SHOPIER_REKLAMSIZ_URL = "https://www.shopier.com/borcama/49351033";
+const SHOPIER_PRO_URL = import.meta.env.VITE_SHOPIER_PRO_URL || "";
 
 const ACIK_TEMA = {
   bg: CREAM,
@@ -134,6 +137,10 @@ const CSS = `
 .bt-eyebrow{display:inline-block;background:${LIME};border:2px solid ${INK};border-radius:6px;padding:4px 10px;font-family:'JetBrains Mono',monospace;
   font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${INK};margin-bottom:14px;transform:rotate(-1deg)}
 .bt-headright{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.bt-demo-plan{display:inline-flex;align-items:center;gap:4px;padding:4px;border:1.5px dashed var(--line);border-radius:999px;background:var(--panel2)}
+.bt-demo-plan>span{padding:0 6px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+.bt-demo-plan button{border:0;border-radius:999px;background:transparent;color:var(--dim);padding:5px 9px;font:700 10.5px 'Space Grotesk',sans-serif;cursor:pointer}
+.bt-demo-plan button.aktif{background:${LIME};color:${INK};box-shadow:inset 0 0 0 1.5px ${INK}}
 .bt-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim)}
 .bt-settings-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);padding:7px 11px;font:700 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-settings-link:hover,.bt-settings-link.aktif{background:${LIME};color:${INK};border-color:${INK}}
 .bt-themebtn{position:relative;width:54px;height:30px;border-radius:16px;border:2px solid var(--line);background:var(--panel);cursor:pointer;padding:0;flex:0 0 auto}
@@ -182,6 +189,70 @@ const CSS = `
 .bt-risk-pct{font-family:'Archivo Black',sans-serif;font-size:36px;color:${INK}}
 .bt-risk-txt{font-size:14px;color:${INK};font-weight:500;max-width:560px;line-height:1.5}
 .bt-risk-txt a{color:${INK}}
+
+.bt-oneriler{background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:26px;padding:clamp(20px,4vw,32px);box-shadow:8px 8px 0 ${LIME};margin:4px 8px 34px 0;overflow:hidden}
+.bt-oneriler-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:24px;flex-wrap:wrap}
+.bt-oneriler-kicker{display:flex;align-items:center;gap:7px;color:${LIME};font:700 10.5px 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+.bt-oneriler h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(25px,4vw,34px);color:${CREAM};line-height:1.05}
+.bt-oneriler-head p{margin:8px 0 0;color:#bfc1b4;font-size:12.5px;line-height:1.5;max-width:520px}
+.bt-oneri-mod{display:flex;gap:5px;padding:4px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}
+.bt-oneri-mod button{display:flex;align-items:center;gap:8px;border:0;border-radius:12px;background:transparent;color:#bfc1b4;padding:8px 11px;text-align:left;font:700 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-oneri-mod button svg{flex:0 0 auto}.bt-oneri-mod button span{display:grid;gap:1px}.bt-oneri-mod button b{font-size:10.5px}.bt-oneri-mod button small{font-size:8.5px;font-weight:500;opacity:.72}
+.bt-oneri-mod button.aktif{background:${LIME};color:${INK};box-shadow:2px 2px 0 ${CORAL}}
+.bt-oneri-sahne{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:24px;align-items:center;min-height:330px;padding:clamp(22px,5vw,40px);background:${CREAM};color:${INK};border:2px solid ${INK};border-radius:22px;box-shadow:7px 7px 0 ${CORAL};overflow:hidden}.bt-oneri-sahne.acil{background:${CORAL}}.bt-oneri-sahne.firsat{background:${LIME}}.bt-oneri-sahne.dikkat{background:#ffcf6e}
+.bt-oneri-deko{position:absolute;border:2px solid ${INK};pointer-events:none}.bt-oneri-deko.bir{width:95px;height:95px;border-radius:50%;background:${CORAL};right:135px;top:-46px}.bt-oneri-sahne.acil .bt-oneri-deko.bir{background:${LIME}}.bt-oneri-deko.iki{width:56px;height:56px;border-radius:14px;background:${LIME};left:-27px;bottom:28px;transform:rotate(22deg)}.bt-oneri-sahne.firsat .bt-oneri-deko.iki{background:${CORAL}}
+.bt-oneri-sahne-icerik{position:relative;z-index:1;min-width:0}.bt-oneri-sahne-ust{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:30px}.bt-oneri-canli{display:flex;align-items:center;gap:7px;font:800 9.5px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}.bt-oneri-canli i{width:8px;height:8px;border-radius:50%;background:${INK};box-shadow:0 0 0 5px #14160f18;animation:btNabiz 1.8s ease-in-out infinite}.bt-oneri-sayac{font:700 9px 'JetBrains Mono',monospace;border:1.5px solid ${INK};border-radius:999px;padding:5px 8px;background:#ffffff55}
+@keyframes btNabiz{50%{box-shadow:0 0 0 9px #14160f08}}
+.bt-oneri-etiket{font:800 10px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}
+.bt-oneri-sahne h3{margin:0;max-width:680px;font-family:'Archivo Black',sans-serif;font-size:clamp(25px,5vw,42px);line-height:1.04;letter-spacing:-.025em}.bt-oneri-sahne p{margin:15px 0 0;max-width:680px;font-size:13px;line-height:1.55;color:#484a40}
+.bt-oneri-etki{display:grid;gap:3px;margin-top:18px;padding:11px 13px;border:1.5px solid ${INK};border-radius:12px;background:#ffffff77;max-width:680px}.bt-oneri-etki span{font:800 8.5px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;opacity:.62}.bt-oneri-etki strong{font:700 11px 'JetBrains Mono',monospace;line-height:1.45}
+.bt-oneri-uyari{display:flex;align-items:flex-start;gap:7px;margin-top:12px;max-width:680px;color:#713529;font-size:10.5px;line-height:1.45}.bt-oneri-uyari svg{flex:0 0 auto;margin-top:1px}
+.bt-oneri-aksiyon{display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:20px;border:2px solid ${INK};border-radius:999px;background:${INK};color:${CREAM};padding:10px 15px;white-space:nowrap;font:800 11px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:3px 3px 0 ${CORAL}}.bt-oneri-sahne.acil .bt-oneri-aksiyon{box-shadow:3px 3px 0 ${LIME}}.bt-oneri-aksiyon:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 ${CORAL}}
+.bt-oneri-pusula{position:relative;z-index:1;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:50%;background:${INK};color:${CREAM};border:2px solid ${INK};box-shadow:0 0 0 10px #ffffff55,0 0 0 12px ${INK};transform:rotate(2deg)}.bt-oneri-pusula:before,.bt-oneri-pusula:after{content:'';position:absolute;background:${LIME};border:2px solid ${INK}}.bt-oneri-pusula:before{width:22px;height:22px;left:-5px;top:30px;border-radius:50%}.bt-oneri-pusula:after{width:16px;height:16px;right:7px;bottom:30px;transform:rotate(20deg)}.bt-oneri-yildiz{position:absolute;top:22px;color:${LIME};font-size:24px}.bt-oneri-pusula-ikon{height:30px;color:${CORAL};margin-bottom:5px}.bt-oneri-pusula-ikon svg{width:28px;height:28px}.bt-oneri-pusula small{font:700 8px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#aeb0a2}.bt-oneri-pusula strong{font-family:'Archivo Black',sans-serif;font-size:24px;color:${LIME};margin-top:2px}.bt-oneri-pusula span{max-width:120px;margin-top:8px;font-size:8.5px;line-height:1.3;color:#898c7d}
+.bt-oneri-diger{margin-top:28px}.bt-oneri-diger-baslik{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:11px}.bt-oneri-diger-baslik-ana{display:flex;align-items:center;gap:8px}.bt-oneri-diger-baslik-ikon{display:grid;place-items:center;width:29px;height:29px;border:1.5px solid ${INK};border-radius:9px;background:${LIME};color:${INK}}.bt-oneri-diger-baslik-baslik{font-family:'Archivo Black',sans-serif;font-size:14px}.bt-oneri-diger-sayac{display:grid;place-items:center;min-width:25px;height:25px;padding:0 6px;border:1px solid #5d6153;border-radius:999px;color:${LIME};font-size:10px;font-weight:800}.bt-oneri-diger-baslik small{color:#85887a;font-size:9.5px}
+.bt-oneri-kartlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.bt-oneri-kart{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-height:170px;padding:15px;text-align:left;background:${CREAM};color:${INK};border:2px solid ${INK};border-radius:16px;cursor:pointer;overflow:hidden;transition:transform .16s,box-shadow .16s}.bt-oneri-kart:nth-child(2){transform:rotate(.7deg)}.bt-oneri-kart:nth-child(3){transform:rotate(-.5deg)}.bt-oneri-kart:hover{transform:translateY(-3px);box-shadow:4px 4px 0 ${LIME}}.bt-oneri-kart.acil{box-shadow:inset 0 -6px 0 ${CORAL}}.bt-oneri-kart.firsat{box-shadow:inset 0 -6px 0 ${LIME}}.bt-oneri-kart.dikkat{box-shadow:inset 0 -6px 0 #ffcf6e}.bt-oneri-kart-no{position:absolute;right:10px;top:7px;font:800 24px 'JetBrains Mono',monospace;color:#14160f13}.bt-oneri-kart-ikon{display:grid;place-items:center;width:30px;height:30px;border:1.5px solid ${INK};border-radius:9px;background:${LIME};margin-bottom:14px}.bt-oneri-kart.acil .bt-oneri-kart-ikon,.bt-oneri-kart.dikkat .bt-oneri-kart-ikon{background:${CORAL}}.bt-oneri-kart-ikon svg{width:15px;height:15px}.bt-oneri-kart-etiket{font:800 8px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;opacity:.62;margin-bottom:5px}.bt-oneri-kart>strong{font-size:12px;line-height:1.3;padding-right:8px}.bt-oneri-kart-alt{display:flex;align-items:center;gap:2px;margin-top:auto;padding-top:14px;font-size:9.5px;font-weight:800;text-decoration:underline}
+.bt-oneri-kartlar:not(.tumu-acik) .bt-oneri-kart:nth-child(n+4){display:none}
+.bt-oneri-bos{display:flex;align-items:center;gap:9px;background:#20231a;border:1.5px solid #4c5042;border-radius:14px;padding:16px;color:#bfc1b4;font-size:12px}.bt-oneri-bos svg{color:${LIME}}
+.bt-oneriler-alt{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;color:#85887a;font-size:9.5px;line-height:1.4}.bt-oneriler-alt .bt-link{color:${LIME};white-space:nowrap}
+@media(max-width:760px){.bt-oneriler{margin-right:4px;padding:18px 13px;box-shadow:4px 4px 0 ${LIME};border-radius:19px}.bt-oneriler-head{align-items:stretch;gap:16px}.bt-oneri-mod{display:grid;grid-template-columns:1fr 1fr;width:100%;border-radius:14px}.bt-oneri-mod button{justify-content:center;padding:9px 7px}.bt-oneri-sahne{grid-template-columns:1fr;min-height:0;padding:22px 17px;gap:25px;box-shadow:4px 4px 0 ${CORAL};border-radius:18px}.bt-oneri-sahne-ust{margin-bottom:24px}.bt-oneri-sahne h3{font-size:clamp(25px,8vw,34px)}.bt-oneri-sahne p{font-size:12px}.bt-oneri-pusula{width:150px;justify-self:center}.bt-oneri-kartlar{display:flex;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}.bt-oneri-kart{flex:0 0 min(76vw,240px);scroll-snap-align:start}.bt-oneri-diger{margin-top:32px}.bt-oneri-diger-baslik{align-items:flex-start;flex-direction:column;gap:8px;margin-bottom:12px;padding:14px;background:#20231a;border:1.5px solid #4c5042;border-radius:14px}.bt-oneri-diger-baslik-ana{width:100%}.bt-oneri-diger-baslik-ikon{width:34px;height:34px}.bt-oneri-diger-baslik-baslik{font-size:17px!important;line-height:1.15}.bt-oneri-diger-sayac{margin-left:auto}.bt-oneri-diger-baslik small{padding-left:42px;color:#aeb0a2;font-size:11.5px!important;line-height:1.4}.bt-oneriler-alt{align-items:flex-start;flex-direction:column}.bt-oneriler-alt .bt-link{white-space:normal}}
+
+/* Öneri merkezi: tek tipografi, sabit sahne ve yer değiştirmeyen sinyal kartları */
+.bt-oneriler,.bt-oneriler button{font-family:'Space Grotesk',sans-serif}
+.bt-oneriler-kicker{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.04em}
+.bt-oneriler h2{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:800;line-height:1.1}
+.bt-oneriler-head p{font-size:13px}
+.bt-oneri-hedef{display:grid;gap:7px}.bt-oneri-hedef-label{padding-left:5px;color:#bfc1b4;font-size:11px;font-weight:700}
+.bt-oneri-mod button{padding:10px 13px;font-size:12px}.bt-oneri-mod button span{display:block}.bt-oneri-mod button b,.bt-oneri-mod button small{font:inherit}
+.bt-oneri-sahne{height:420px;min-height:420px}
+.bt-oneri-sahne-ust{margin-bottom:24px}
+.bt-oneri-canli,.bt-oneri-sayac,.bt-oneri-etiket{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.04em}
+.bt-oneri-sahne h3{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:800;line-height:1.08}
+.bt-oneri-sahne p{margin-top:12px;font-size:13px}
+.bt-oneri-etki{margin-top:14px;padding:10px 12px}.bt-oneri-etki span{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.03em}.bt-oneri-etki strong{font-family:'Space Grotesk',sans-serif;font-size:12px}
+.bt-oneri-uyari{margin-top:10px;font-size:12px;line-height:1.4}
+.bt-oneri-aksiyon{margin-top:16px;font-size:12px}
+.bt-oneri-pusula small{font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.03em}.bt-oneri-pusula strong{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:800}.bt-oneri-pusula span{font-size:10px}
+.bt-oneri-diger-baslik-baslik{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800}.bt-oneri-diger-baslik small{font-size:12px}
+.bt-oneri-kart{height:178px;min-height:178px;font-family:'Space Grotesk',sans-serif;transform:none!important;transition:background .16s,box-shadow .16s}.bt-oneri-kart:hover{transform:none;background:#fffaf0}.bt-oneri-kart.aktif{background:${LIME};box-shadow:inset 0 -6px 0 ${CORAL},0 0 0 2px ${LIME}}
+.bt-oneri-kart-no{top:11px;right:11px;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#14160f0d;font-family:'Space Grotesk',sans-serif;font-size:11px;color:${INK}}
+.bt-oneri-kart-etiket{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.03em}.bt-oneri-kart>strong{font-size:13px}.bt-oneri-kart-alt{font-size:11px}
+.bt-oneriler-alt{font-size:11px}
+@media(max-width:760px){
+  .bt-oneriler h2{font-size:27px}
+  .bt-oneri-hedef{width:100%}
+  .bt-oneri-mod button{padding:10px 7px;font-size:11px}
+  .bt-oneri-sahne{height:auto;min-height:590px}
+  .bt-oneri-sahne h3{font-size:27px}
+  .bt-oneri-kartlar{display:flex;grid-template-columns:none;gap:10px;overflow-x:auto;overflow-y:hidden;padding:1px 28px 9px 1px;scroll-snap-type:x mandatory;scroll-padding-left:1px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .bt-oneri-kartlar::-webkit-scrollbar{display:none}
+  .bt-oneri-kart{display:grid;grid-template-columns:38px minmax(0,1fr) auto;grid-template-areas:"icon label number" "icon title title" "icon action action";column-gap:11px;row-gap:3px;width:auto;height:110px;min-height:110px;flex:0 0 calc(100% - 30px);padding:12px 13px;align-items:start;scroll-snap-align:start;scroll-snap-stop:always;border-radius:14px}
+  .bt-oneri-kartlar:not(.tumu-acik) .bt-oneri-kart:nth-child(n+4){display:grid}
+  .bt-oneri-kart-no{position:static;grid-area:number;align-self:center;width:auto;min-width:27px;height:24px;padding:0 6px}
+  .bt-oneri-kart-ikon{grid-area:icon;width:38px;height:38px;margin:0;align-self:center}
+  .bt-oneri-kart-etiket{grid-area:label;align-self:center;margin:0;padding-top:2px}
+  .bt-oneri-kart>strong{grid-area:title;padding:0;font-size:13px;line-height:1.3}
+  .bt-oneri-kart-alt{grid-area:action;margin:0;padding-top:6px;font-size:10.5px}
+  .bt-oneriler-alt .bt-link{display:none}
+}
 
 .bt-banka-row+.bt-banka-row{margin-top:18px}
 .bt-banka-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:14px;font-weight:600;color:var(--text)}
@@ -285,21 +356,29 @@ const CSS = `
 @media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
 .bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:20px}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--line) 22%,transparent)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
 .bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:22px;box-shadow:6px 6px 0 ${CORAL}}.bt-premium-card h2{margin:3px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(20px,3vw,28px);color:${LIME};text-shadow:2px 2px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:12.5px;line-height:1.55;max-width:620px}.bt-premium-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:700px){.bt-premium-card{grid-column:auto;grid-template-columns:1fr}.bt-premium-actions{justify-content:stretch}.bt-premium-actions .bt-btn{width:100%}}
+.bt-pro-kilit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:26px;padding:16px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}.bt-pro-kilit-ikon{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid ${INK};border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-pro-kilit strong{display:block;color:${CREAM};font-size:14px}.bt-pro-kilit span{display:block;margin-top:3px;color:#9fa294;font-size:11.5px;line-height:1.45}.bt-pro-kilit .bt-btn{white-space:nowrap}
+.bt-adfree-card{background:var(--panel2)}.bt-adfree-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bt-adfree-actions a{text-decoration:none}
+@media(max-width:700px){.bt-pro-kilit{grid-template-columns:auto minmax(0,1fr)}.bt-pro-kilit .bt-btn{grid-column:1/-1;width:100%;justify-content:center}.bt-adfree-actions{width:100%}.bt-adfree-actions .bt-btn{flex:1;justify-content:center}}
 .bt-varlik-hero{background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:22px;padding:clamp(20px,4vw,32px);display:grid;grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(150px,.7fr));gap:18px;align-items:end}.bt-varlik-hero .bt-metric-lbl{color:#bfc1b4}.bt-varlik-toplam{font-family:'Archivo Black',sans-serif;font-size:clamp(30px,6vw,48px);color:${LIME};text-shadow:3px 3px 0 ${CORAL};overflow-wrap:anywhere}.bt-varlik-mini{border-left:1.5px solid #4a4d40;padding-left:18px}.bt-varlik-mini strong{display:block;font-family:'JetBrains Mono',monospace;font-size:18px;margin-top:5px}.bt-varlik-kaynak{display:flex;align-items:center;gap:7px;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-varlik-kaynak.hata{color:${CORAL}}.bt-varlik-dagilim{display:grid;gap:10px}.bt-varlik-dagilim-satir{display:grid;grid-template-columns:minmax(100px,1fr) minmax(100px,2fr) auto;gap:10px;align-items:center;font-size:12.5px}.bt-varlik-dagilim-bar{height:9px;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-varlik-dagilim-bar div{height:100%;background:linear-gradient(90deg,${LIME},${CORAL})}.bt-varlik-rozet{font-size:10px;font-weight:800;border:1.5px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}.bt-varlik-rozet.otomatik{background:${LIME};color:${INK};border-color:${INK}}.bt-varlik-degisim{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;margin-top:3px}.bt-varlik-degisim.arti{color:#5D7A2E}.bt-varlik-degisim.eksi{color:${CORAL}}
 @media(max-width:760px){.bt-varlik-hero{grid-template-columns:1fr}.bt-varlik-mini{border-left:0;border-top:1.5px solid #4a4d40;padding:14px 0 0}.bt-varlik-dagilim-satir{grid-template-columns:minmax(80px,1fr) minmax(70px,1.3fr) auto}}
 
 @media (max-width:600px){
   .bt-app{overflow-x:hidden}
-  .bt-wrap{padding:20px 12px 96px}
+  .bt-wrap{padding:20px 12px calc(112px + env(safe-area-inset-bottom))}
   .bt-header{display:block;margin-bottom:22px}
   .bt-headright{width:100%;gap:8px 10px;margin-top:18px}
+  .bt-demo-plan{order:-1;width:100%;justify-content:flex-start;border-radius:14px}
+  .bt-demo-plan>span{margin-right:auto}
   .bt-date{flex:1 0 100%}
   .bt-settings-link{padding:7px 9px}
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
-  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin:0;padding:7px 7px calc(7px + env(safe-area-inset-bottom));background:var(--panel);border-top:2px solid var(--line)}
-  .bt-nav-ana .bt-pill{border:0;border-radius:10px;padding:8px 2px;font-size:10.5px;background:transparent}.bt-nav-ana .bt-pill.aktif{background:${LIME};box-shadow:inset 0 0 0 1.5px ${INK}}
+  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:0;padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:2px solid var(--line);box-shadow:0 -8px 24px #00000012;backdrop-filter:blur(12px)}
+  .bt-nav-ana .bt-pill{display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:13px;padding:6px 2px;background:transparent;color:var(--dim);font-size:clamp(9px,2.7vw,10.5px);line-height:1.05;opacity:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  .bt-nav-ana .bt-pill svg{width:19px;height:19px;flex:0 0 auto;stroke-width:2.2}
+  .bt-nav-ana .bt-pill span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bt-nav-ana .bt-pill.aktif{background:${LIME};color:${INK};box-shadow:inset 0 0 0 1.5px ${INK},2px 2px 0 ${CORAL}}
   .bt-nav.bt-nav-alt{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 0 22px;padding:6px}.bt-nav-alt .bt-pill{width:auto;flex:0 0 auto;padding:7px 11px;font-size:11px}
   .bt-pill{width:100%;padding:9px 4px;font-size:11.5px;text-align:center}
   .bt-grid{grid-template-columns:1fr;gap:12px}
@@ -797,6 +876,135 @@ const BOS_VERI = {
   snapshots: {},
 };
 
+function demoVerisiOlustur() {
+  const buAy = ayAnahtari();
+  const oncekiAy = ayEkle(buAy, -1);
+  const tarih = (ay, gun) => ay + "-" + String(gun).padStart(2, "0");
+  return {
+    ...BOS_VERI,
+    cards: [
+      {
+        id: "demo-bonus",
+        banka: "Garanti BBVA",
+        ad: "Bonus",
+        limit: 120000,
+        kesimGunu: 10,
+        sonOdemeGunu: 20,
+        ekstreAyi: buAy,
+        yeniDonemEkstreBorcu: 31000,
+        oncekiAydanKalan: 11000,
+        toplamEkstreBorcu: 42000,
+        yapilanOdeme: 10000,
+        ekstreGecmisi: [
+          {
+            ekstreAyi: oncekiAy,
+            yeniDonemEkstreBorcu: 28500,
+            oncekiAydanKalan: 0,
+            toplamEkstreBorcu: 28500,
+            yapilanOdeme: 17500,
+            kesimGunu: 10,
+            sonOdemeGunu: 20,
+          },
+        ],
+      },
+      {
+        id: "demo-world",
+        banka: "Yapı Kredi",
+        ad: "World",
+        limit: 50000,
+        kesimGunu: 25,
+        sonOdemeGunu: 7,
+        ekstreAyi: buAy,
+        yeniDonemEkstreBorcu: 46000,
+        oncekiAydanKalan: 0,
+        toplamEkstreBorcu: 46000,
+        yapilanOdeme: 0,
+        ekstreGecmisi: [],
+      },
+      {
+        id: "demo-maximum",
+        banka: "İş Bankası",
+        ad: "Maximum",
+        limit: 95000,
+        kesimGunu: 22,
+        sonOdemeGunu: 5,
+        ekstreAyi: buAy,
+        yeniDonemEkstreBorcu: 18500,
+        oncekiAydanKalan: 0,
+        toplamEkstreBorcu: 18500,
+        yapilanOdeme: 3000,
+        ekstreGecmisi: [],
+      },
+    ],
+    loans: [
+      {
+        id: "demo-kredi",
+        banka: "QNB",
+        ad: "İhtiyaç kredisi",
+        kalanBorc: 168000,
+        taksit: 12400,
+        kalanTaksit: 15,
+        faiz: 3.49,
+        odemeGunu: 8,
+      },
+    ],
+    overdrafts: [
+      {
+        id: "demo-kmh",
+        banka: "Enpara",
+        limit: 50000,
+        kullanilan: 27000,
+        yapilanOdeme: 5000,
+        faiz: 4.25,
+        odemeGecmisi: [
+          {
+            id: "demo-kmh-odeme",
+            tutar: 5000,
+            tarih: new Date().toISOString(),
+          },
+        ],
+      },
+    ],
+    expenses: [
+      { id: "dh1", tarih: tarih(buAy, 3), kategori: "Market", tutar: 4200, kaynak: "Yapı Kredi · World" },
+      { id: "dh2", tarih: tarih(buAy, 7), kategori: "Yeme-İçme", tutar: 6800, kaynak: "Garanti BBVA · Bonus" },
+      { id: "dh3", tarih: tarih(buAy, 12), kategori: "Yeme-İçme", tutar: 5900, kaynak: "Garanti BBVA · Bonus" },
+      { id: "dh4", tarih: tarih(buAy, 17), kategori: "Yeme-İçme", tutar: 5300, kaynak: "İş Bankası · Maximum" },
+      { id: "dh5", tarih: tarih(buAy, 19), kategori: "Ulaşım", tutar: 3600, kaynak: "Yapı Kredi · World" },
+      { id: "dh6", tarih: tarih(buAy, 22), kategori: "Fatura", tutar: 4100, kaynak: "Banka hesabı" },
+      { id: "dh7", tarih: tarih(buAy, 25), kategori: "Market", tutar: 3900, kaynak: "Yapı Kredi · World" },
+      { id: "do1", tarih: tarih(oncekiAy, 4), kategori: "Market", tutar: 3600, kaynak: "Yapı Kredi · World" },
+      { id: "do2", tarih: tarih(oncekiAy, 11), kategori: "Yeme-İçme", tutar: 4500, kaynak: "Garanti BBVA · Bonus" },
+      { id: "do3", tarih: tarih(oncekiAy, 18), kategori: "Yeme-İçme", tutar: 3500, kaynak: "İş Bankası · Maximum" },
+      { id: "do4", tarih: tarih(oncekiAy, 24), kategori: "Market", tutar: 3400, kaynak: "Yapı Kredi · World" },
+      { id: "do5", tarih: tarih(oncekiAy, 26), kategori: "Ulaşım", tutar: 3100, kaynak: "Banka hesabı" },
+    ],
+    incomes: [
+      { id: "demo-maas", ad: "Maaş", tutar: 70000, tekrar: "Aylık", tarih: tarih(buAy, 1) },
+    ],
+    assets: [
+      {
+        id: "demo-mevduat",
+        kategori: "diger",
+        tur: "mevduat",
+        ad: "Acil durum birikimi",
+        kurum: "Banka hesabı",
+        paraBirimi: "TRY",
+        guncelDeger: 48000,
+        toplamMaliyet: 48000,
+      },
+    ],
+    paid: {},
+    loanPaymentHistory: {},
+    ayarlar: {
+      ekstreDonemleriV2: true,
+      ekstreBorcModeliV3: true,
+      ilkKullanimRehberiV1: true,
+    },
+    snapshots: { [oncekiAy]: 250000 },
+  };
+}
+
 const KATEGORI_META = {
   cards: { ad: "Kredi kartları", liste: "cards", rozetBg: LIME },
   loans: { ad: "Krediler", liste: "loans", rozetBg: "#c8c9be" },
@@ -917,6 +1125,207 @@ function borcKalemleri(veri) {
   return kalemler;
 }
 
+function borcamaOnerileriniHesapla({
+  veri,
+  kalemler,
+  yaklasan,
+  buAyHarcama,
+  netNakit,
+}) {
+  const oneriler = [];
+  const gecikmisler = yaklasan.filter(
+    (odeme) => kalanGun(odeme.tarih) < 0 && !odeme.odendi,
+  );
+
+  if (gecikmisler.length) {
+    const gecikmisToplam = gecikmisler.reduce(
+      (toplam, odeme) => toplam + Math.max(+odeme.tutar || 0, 0),
+      0,
+    );
+    oneriler.push({
+      id: "gecikmis-odemeler",
+      modlar: ["nakit", "faiz"],
+      oncelik: 100,
+      tur: "acil",
+      etiket: "Önce bunu çöz",
+      baslik: gecikmisler.length + " gecikmiş ödeme bekliyor",
+      aciklama:
+        "Yeni bir borca ekstra ödeme yapmadan önce gecikmiş kayıtları kontrol et. Gecikme maliyeti ve kredi geçmişi açısından ilk sırada bunlar olmalı.",
+      etki: "Bekleyen zorunlu tutar: " + fmt(gecikmisToplam),
+      hedef: "odemeler",
+      aksiyon: "Ödemeleri aç",
+    });
+  }
+
+  (veri.cards || []).forEach((kart) => {
+    const hesap = kartHesabi(kart);
+    const limit = Math.max(+kart.limit || 0, 0);
+    if (limit <= 50000 || hesap.onceki <= 0 || hesap.onceki > 50000) return;
+    const mevcutMinimum = hesap.onceki * 0.4;
+    const dusukLimitMinimumu = hesap.onceki * 0.2;
+    const fark = Math.max(mevcutMinimum - dusukLimitMinimumu, 0);
+    if (fark < 250) return;
+    oneriler.push({
+      id: "limit-" + kart.id,
+      modlar: ["nakit"],
+      oncelik: 86 + Math.min(fark / 10000, 5),
+      tur: "firsat",
+      etiket: "Aylık yük senaryosu",
+      baslik: (kart.banka || "Kart") + " limitini gözden geçir",
+      aciklama:
+        "Kart limitin 50.000 TL veya altına indirilebilirse yasal minimum oranı sonraki ekstrelerde yaklaşık %40'tan %20'ye düşebilir.",
+      etki:
+        "Tahmini minimum " +
+        fmt(mevcutMinimum) +
+        " yerine " +
+        fmt(dusukLimitMinimumu) +
+        " · aylık fark " +
+        fmt(fark),
+      uyari:
+        "Bu işlem borcu ya da faizi azaltmaz. Daha az ödeme yaparsan devreden borç ve sonraki ayın faizi artabilir; banka limit değişikliğini ayrıca değerlendirir.",
+      hedef: "borclar",
+      aksiyon: "Kartı incele",
+    });
+  });
+
+  const faizliBorclar = kalemler
+    .filter(
+      (kalem) =>
+        !kalem.sabitTaksit && kalem.bakiye > 0 && (+kalem.faiz || 0) > 0,
+    )
+    .sort((a, b) => b.faiz - a.faiz || b.faizTutari - a.faizTutari);
+  if (faizliBorclar.length) {
+    const hedef = faizliBorclar[0];
+    const binLiraEtki = (1000 * hedef.faiz) / 100;
+    oneriler.push({
+      id: "faiz-onceligi-" + hedef.id,
+      modlar: ["faiz"],
+      oncelik: 92,
+      tur: "firsat",
+      etiket: "Faiz önceliği",
+      baslik: "Ekstra ödemeyi önce " + hedef.ad + " borcuna yönlendir",
+      aciklama:
+        "Tüm zorunlu ödemeler ve gecikmiş kayıtlar tamamlandıktan sonra kalan bütçeyi, değişken faizli borçların içinde oranı en yüksek olana yönlendirmek toplam maliyeti daha hızlı düşürür.",
+      etki:
+        "Aylık yaklaşık %" +
+        hedef.faiz.toLocaleString("tr-TR", { maximumFractionDigits: 2 }) +
+        " · her 1.000 TL ek ödeme sonraki ay yaklaşık " +
+        fmt(binLiraEtki) +
+        " faiz oluşmasını önleyebilir",
+      hedef: "plan",
+      aksiyon: "Borç planını aç",
+    });
+  }
+
+  (veri.cards || []).forEach((kart) => {
+    const hesap = kartHesabi(kart);
+    const limit = Math.max(+kart.limit || 0, 0);
+    const kullanim = limit > 0 ? hesap.toplam / limit : 0;
+    if (kullanim < 0.8) return;
+    oneriler.push({
+      id: "limit-kullanim-" + kart.id,
+      modlar: ["nakit", "faiz"],
+      oncelik: 74 + Math.min(kullanim * 10, 10),
+      tur: kullanim >= 1 ? "acil" : "dikkat",
+      etiket: "Limit kullanımı",
+      baslik: (kart.banka || "Kart") + " limitinin %" + Math.round(kullanim * 100) + "'i dolu",
+      aciklama:
+        "Bu karttaki yeni harcamaları yavaşlatmak, minimum ödemenin ve devreden borcun büyümesini engellemeye yardımcı olur.",
+      etki: "Kalan borç " + fmt(hesap.toplam) + " · limit " + fmt(limit),
+      hedef: "borclar",
+      aksiyon: "Kartı incele",
+    });
+  });
+
+  if (netNakit !== null && netNakit < 0) {
+    oneriler.push({
+      id: "negatif-nakit",
+      modlar: ["nakit"],
+      oncelik: 90,
+      tur: "dikkat",
+      etiket: "Aylık denge",
+      baslik: "Bu ayın planında " + fmt(Math.abs(netNakit)) + " açık var",
+      aciklama:
+        "Kayıtlı gelir, harcama ve zorunlu borç ödemelerine göre ay sonu eksiye düşüyor. Önce esnek harcamalardan bu tutar kadar alan açmayı hedefle.",
+      etki: "Hedef: aylık nakit akışını en az ₺0 seviyesine getirmek",
+      hedef: "harcamalar",
+      aksiyon: "Harcamaları incele",
+    });
+  }
+
+  const oncekiAy = ayEkle(ayAnahtari(), -1);
+  const oncekiKategoriler = {};
+  (veri.expenses || [])
+    .filter((harcama) => (harcama.tarih || "").startsWith(oncekiAy))
+    .forEach((harcama) => {
+      const kategori = harcama.kategori || "Diğer";
+      oncekiKategoriler[kategori] =
+        (oncekiKategoriler[kategori] || 0) + (+harcama.tutar || 0);
+    });
+  const artislar = Object.entries(buAyHarcama.kategoriler || {})
+    .map(([kategori, tutar]) => {
+      const onceki = oncekiKategoriler[kategori] || 0;
+      return { kategori, tutar, onceki, fark: tutar - onceki };
+    })
+    .filter((x) => x.onceki >= 500 && x.fark >= 500 && x.tutar >= x.onceki * 1.25)
+    .sort((a, b) => b.fark - a.fark);
+  if (artislar.length) {
+    const artis = artislar[0];
+    const yuzde = Math.round((artis.fark / artis.onceki) * 100);
+    oneriler.push({
+      id: "kategori-artisi-" + artis.kategori,
+      modlar: ["nakit"],
+      oncelik: 78,
+      tur: "dikkat",
+      etiket: "Harcama sinyali",
+      baslik: artis.kategori + " harcamaları geçen aya göre %" + yuzde + " arttı",
+      aciklama:
+        "Bu kategoriyi geçen ayki seviyesine yaklaştırabilirsen borç ödemeleri için ek alan oluşturabilirsin.",
+      etki: "Olası aylık alan: " + fmt(artis.fark),
+      hedef: "harcamalar",
+      aksiyon: "Kayıtları gör",
+    });
+  } else if (buAyHarcama.toplam > 0) {
+    const [kategori, tutar] = Object.entries(buAyHarcama.kategoriler || {}).sort(
+      (a, b) => b[1] - a[1],
+    )[0] || ["", 0];
+    if (kategori && tutar >= 1000 && tutar / buAyHarcama.toplam >= 0.35) {
+      oneriler.push({
+        id: "yogun-kategori-" + kategori,
+        modlar: ["nakit"],
+        oncelik: 64,
+        tur: "bilgi",
+        etiket: "Harcama dağılımı",
+        baslik: "Bu ay en büyük harcama alanın: " + kategori,
+        aciklama:
+          "Toplam harcamanın %" +
+          Math.round((tutar / buAyHarcama.toplam) * 100) +
+          "'i bu kategoride. Küçük bir hedef bile ödeme bütçeni görünür biçimde artırabilir.",
+        etki: "Bu ay " + fmt(tutar),
+        hedef: "harcamalar",
+        aksiyon: "Harcamaları aç",
+      });
+    }
+  }
+
+  if (!kalemler.length && !buAyHarcama.adet) {
+    oneriler.push({
+      id: "veri-ekle",
+      modlar: ["nakit", "faiz"],
+      oncelik: 20,
+      tur: "bilgi",
+      etiket: "İlk önerini oluştur",
+      baslik: "Borç ve harcamalarını ekledikçe öneriler kişiselleşir",
+      aciklama:
+        "Borcama yalnızca kaydettiğin rakamlardan hareket eder. İlk kartını ve birkaç harcamanı eklediğinde önceliklerini hesaplamaya başlar.",
+      hedef: "borclar",
+      aksiyon: "Borç ekle",
+    });
+  }
+
+  return oneriler.sort((a, b) => b.oncelik - a.oncelik);
+}
+
 /* ---------------- Ana bileşen ---------------- */
 export default function BorcTakip() {
   // Bu satır web sürümünde (supabaseClient bağlı) gerçek çıkışla değiştirilir; artifact önizlemesinde zararsızdır.
@@ -953,8 +1362,22 @@ export default function BorcTakip() {
   const [reklamsiz, setReklamsiz] = useState({
     yukleniyor: true,
     aktif: false,
+    proAktif: demoModu,
+    proBitis: null,
     hata: "",
   });
+  const planOnizlemesiAktif = import.meta.env.DEV;
+  const [demoPlan, setDemoPlan] = useState(() => {
+    if (!import.meta.env.DEV) return "gercek";
+    return localStorage.getItem("borcama:demo-plan") === "free" ? "free" : "pro";
+  });
+  const etkinPro = planOnizlemesiAktif
+    ? demoPlan === "pro"
+    : reklamsiz.proAktif;
+  const demoPlaniDegistir = (plan) => {
+    setDemoPlan(plan);
+    localStorage.setItem("borcama:demo-plan", plan);
+  };
   const [borcKategori, setBorcKategori] = useState("cards");
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
@@ -1076,22 +1499,49 @@ export default function BorcTakip() {
       try {
         const s = await window.storage.get("borctakip:v1");
         if (s && s.value) {
-          const donemSonucu = ekstreDonemleriniDuzelt({
+          const kayitliVeri = {
             ...BOS_VERI,
             ...JSON.parse(s.value),
-          });
+          };
+          const demoKaydiBos =
+            demoModu &&
+            [
+              "cards",
+              "loans",
+              "overdrafts",
+              "others",
+              "expenses",
+              "incomes",
+              "assets",
+            ].every((alan) => !(kayitliVeri[alan] || []).length);
+          const kaynakVeri = demoKaydiBos
+            ? {
+                ...demoVerisiOlustur(),
+                ayarlar: {
+                  ...demoVerisiOlustur().ayarlar,
+                  ...(kayitliVeri.ayarlar || {}),
+                  ilkKullanimRehberiV1: true,
+                },
+              }
+            : kayitliVeri;
+          const donemSonucu = ekstreDonemleriniDuzelt(kaynakVeri);
           const borcSonucu = ekstreBorcModeliniDuzelt(donemSonucu.veri);
           setVeri(borcSonucu.veri);
-          if (donemSonucu.degisti || borcSonucu.degisti)
+          if (demoKaydiBos || donemSonucu.degisti || borcSonucu.degisti)
             await window.storage.set(
               "borctakip:v1",
               JSON.stringify(borcSonucu.veri),
             );
         } else {
-          setVeri({
-            ...BOS_VERI,
-            ayarlar: { ekstreDonemleriV2: true, ekstreBorcModeliV3: true },
-          });
+          const ilkVeri = demoModu
+            ? demoVerisiOlustur()
+            : {
+                ...BOS_VERI,
+                ayarlar: { ekstreDonemleriV2: true, ekstreBorcModeliV3: true },
+              };
+          setVeri(ilkVeri);
+          if (demoModu)
+            await window.storage.set("borctakip:v1", JSON.stringify(ilkVeri));
         }
       } catch (e) {
         setHata(
@@ -1152,12 +1602,16 @@ export default function BorcTakip() {
       setReklamsiz({
         yukleniyor: false,
         aktif: !!sonuc.adFreeLifetime,
+        proAktif: !!sonuc.proActive,
+        proBitis: sonuc.proExpiresAt || null,
         hata: "",
       });
     } catch {
       setReklamsiz({
         yukleniyor: false,
         aktif: false,
+        proAktif: demoModu,
+        proBitis: null,
         hata: "Satın alma durumu şu anda kontrol edilemedi.",
       });
     }
@@ -1434,6 +1888,18 @@ export default function BorcTakip() {
       ? buAyGelir.toplam - buAyOdenecek - buAyHarcama.toplam
       : null;
 
+  const borcamaOnerileri = useMemo(
+    () =>
+      borcamaOnerileriniHesapla({
+        veri,
+        kalemler,
+        yaklasan,
+        buAyHarcama,
+        netNakit,
+      }),
+    [veri, kalemler, yaklasan, buAyHarcama, netNakit],
+  );
+
   function ekleGuncelle(liste, kayit) {
     const dizi = veri[liste];
     const varMi = dizi.some((x) => x.id === kayit.id);
@@ -1611,6 +2077,27 @@ export default function BorcTakip() {
             />
           </div>
           <div className="bt-headright">
+            {planOnizlemesiAktif && (
+              <div className="bt-demo-plan" aria-label="Paket görünümü önizlemesi">
+                <span>Demo görünümü</span>
+                <button
+                  type="button"
+                  className={demoPlan === "free" ? "aktif" : ""}
+                  onClick={() => demoPlaniDegistir("free")}
+                  aria-pressed={demoPlan === "free"}
+                >
+                  Ücretsiz
+                </button>
+                <button
+                  type="button"
+                  className={demoPlan === "pro" ? "aktif" : ""}
+                  onClick={() => demoPlaniDegistir("pro")}
+                  aria-pressed={demoPlan === "pro"}
+                >
+                  Pro
+                </button>
+              </div>
+            )}
             <div className="bt-date">
               {s.getDate()} {AYLAR[s.getMonth()]} {s.getFullYear()}
               {kaydediliyor && (
@@ -1647,18 +2134,20 @@ export default function BorcTakip() {
 
         <nav className="bt-nav bt-nav-ana">
           {[
-            ["ozet", "Özet"],
-            ["borclar", "Borçlar"],
-            ["varliklar", "Varlıklar"],
-            ["hareketler", "Hareketler"],
-            ["odemeler", "Ödemeler"],
-          ].map(([k, ad]) => (
+            ["ozet", "Özet", BarChart3],
+            ["borclar", "Borçlar", Wallet],
+            ["varliklar", "Varlıklar", PiggyBank],
+            ["hareketler", "Hareketler", ArrowLeftRight],
+            ["odemeler", "Ödemeler", CalendarCheck],
+          ].map(([k, ad, Ikon]) => (
             <button
               key={k}
               className={"bt-pill " + (anaSekme === k ? "aktif" : "pasif")}
               onClick={() => anaSekmeyeGit(k)}
+              aria-label={ad}
             >
-              {ad}
+              <Ikon aria-hidden="true" />
+              <span>{ad}</span>
             </button>
           ))}
         </nav>
@@ -1767,6 +2256,8 @@ export default function BorcTakip() {
                   ayarKaydet({ ozetTutarlariGizli: gizli })
                 }
                 varlikOzeti={varlikOzeti}
+                oneriler={borcamaOnerileri}
+                proAktif={etkinPro}
               />
             )}
             {sekme === "borclar" && (
@@ -1835,7 +2326,7 @@ export default function BorcTakip() {
               <Ayarlar
                 eposta={kullaniciEposta}
                 isDark={isDark}
-                reklamsiz={reklamsiz}
+                reklamsiz={{ ...reklamsiz, proAktif: etkinPro }}
                 reklamsizKontrol={reklamsizKontrol}
                 temaDegistir={temaAnahtarlarSwitch}
                 parolaAc={() => setParolaPenceresi(true)}
@@ -2466,31 +2957,32 @@ function Ayarlar({
         <section className="bt-premium-card">
           <div>
             <span className="bt-premium-badge">
-              <EyeOff size={13} />
-              {reklamsiz.aktif ? "ÖMÜR BOYU AKTİF" : "TEK ÖDEME"}
+              <Sparkles size={13} />
+              {reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK PLAN"}
             </span>
             <h2>
-              {reklamsiz.aktif
-                ? "Borcama artık reklamsız."
-                : "Borcama'yı ömür boyu reklamsız kullan."}
+              {reklamsiz.proAktif
+                ? "Borcama Pro hesabında aktif."
+                : "Borcama Pro ile tüm planını aç."}
             </h2>
             <p>
-              {reklamsiz.aktif
-                ? "Bu hesabında reklam kodları yüklenmez. Hakkın tüm cihazlarında geçerlidir."
-                : `₺199 tek ödeme. Shopier'de Borcama hesabındaki e-posta adresini (${eposta || "hesap e-postan"}) kullan; ödeme doğrulanınca hakkın otomatik tanımlanır.`}
+              {reklamsiz.proAktif
+                ? `Tüm akıllı öneriler ve reklamsız kullanım açık${reklamsiz.proBitis ? `. Erişim tarihi: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR")}` : "."}`
+                : "Aylık ₺99. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
               {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
             </p>
           </div>
           <div className="bt-premium-actions">
-            {!reklamsiz.aktif && (
-              <a
-                className="bt-btn birincil"
-                href="https://www.shopier.com/borcama/49351033"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Ömür boyu reklamsız ol
-              </a>
+            {!reklamsiz.proAktif && (
+              SHOPIER_PRO_URL ? (
+                <a className="bt-btn birincil" href={SHOPIER_PRO_URL} target="_blank" rel="noopener noreferrer">
+                  Aylık Pro'ya geç
+                </a>
+              ) : (
+                <button className="bt-btn birincil" type="button" disabled>
+                  Pro ödeme bağlantısı hazırlanıyor
+                </button>
+              )
             )}
             <button
               className="bt-btn ikincil"
@@ -2501,10 +2993,39 @@ function Ayarlar({
               <RefreshCw size={14} />
               {reklamsiz.yukleniyor
                 ? "Kontrol ediliyor…"
-                : reklamsiz.aktif
+                : reklamsiz.proAktif
                   ? "Durumu yenile"
-                  : "Satın aldım, kontrol et"}
+                  : "Pro aldım, kontrol et"}
             </button>
+          </div>
+        </section>
+        <section className="bt-settings-card wide bt-adfree-card">
+          <div className="bt-settings-title">
+            <EyeOff size={18} /> Sadece reklamları kaldır
+          </div>
+          <div className="bt-setting-row">
+            <div>
+              <strong>
+                {reklamsiz.aktif
+                  ? "Ömür boyu reklamsız kullanım aktif"
+                  : "Borcama Reklamsız · ₺199 tek ödeme"}
+              </strong>
+              <small>
+                {reklamsiz.aktif
+                  ? "Bu hak Pro üyeliğinden bağımsız olarak hesabında kalır."
+                  : "Pro önerileri dahil değildir. Yalnızca reklamları ömür boyu kaldırır."}
+              </small>
+            </div>
+            <div className="bt-adfree-actions">
+              {!reklamsiz.aktif && (
+                <a className="bt-btn kucuk ikincil" href={SHOPIER_REKLAMSIZ_URL} target="_blank" rel="noopener noreferrer">
+                  Reklamsız satın al
+                </a>
+              )}
+              <button className="bt-btn kucuk hayalet" type="button" disabled={reklamsiz.yukleniyor} onClick={reklamsizKontrol}>
+                <RefreshCw size={13} /> {reklamsiz.aktif ? "Durumu yenile" : "Satın aldım"}
+              </button>
+            </div>
           </div>
         </section>
         <section className="bt-settings-card">
@@ -2654,6 +3175,8 @@ function Ozet({
   tutarlarGizli,
   tutarlariGizle,
   varlikOzeti,
+  oneriler,
+  proAktif,
 }) {
   const [tumBankalar, setTumBankalar] = useState(false);
   const [haricTurler, setHaricTurler] = useState([]);
@@ -2909,6 +3432,12 @@ function Ozet({
         </div>
       )}
 
+      <BorcamaOnerileri
+        oneriler={oneriler}
+        setSekme={setSekme}
+        proAktif={proAktif}
+      />
+
       {bankalar.length > 0 && (
         <div className="bt-card">
           <div className="bt-h2">Banka bazında yükünüz</div>
@@ -3002,6 +3531,186 @@ function Ozet({
         </div>
       )}
     </div>
+  );
+}
+
+function BorcamaOnerileri({ oneriler = [], setSekme, proAktif = false }) {
+  const [mod, setMod] = useState("nakit");
+  const [tumuAcik, setTumuAcik] = useState(false);
+  const [seciliId, setSeciliId] = useState("");
+  const filtreli = oneriler.filter((oneri) => oneri.modlar.includes(mod));
+  const secili = filtreli.find((oneri) => oneri.id === seciliId) || filtreli[0];
+  useEffect(() => {
+    if (!filtreli.some((oneri) => oneri.id === seciliId))
+      setSeciliId(filtreli[0]?.id || "");
+  }, [mod, oneriler, seciliId]);
+  const ikon = (tur) => {
+    if (tur === "acil") return <Flame />;
+    if (tur === "dikkat") return <AlertTriangle />;
+    if (tur === "firsat") return <Sparkles />;
+    return <Lightbulb />;
+  };
+  const zamanEtiketi = (oneri) =>
+    oneri?.oncelik >= 90 ? "Şimdi" : oneri?.oncelik >= 75 ? "Bu hafta" : "İncele";
+
+  return (
+    <section className="bt-oneriler" aria-labelledby="borcama-oneriler-baslik">
+      <div className="bt-oneriler-head">
+        <div>
+          <div className="bt-oneriler-kicker">
+            <Lightbulb size={15} />
+            {proAktif ? "Rakamlarından hesaplandı" : "Ücretsiz öneri önizlemesi"}
+          </div>
+          <h2 id="borcama-oneriler-baslik">Borcama'dan öneriler</h2>
+          <p>
+            Aylık ödeme baskısını mı, toplam faiz maliyetini mi azaltmak
+            istiyorsun? Önceliğini seç, önerileri ona göre sıralayalım.
+          </p>
+        </div>
+        <div className="bt-oneri-hedef">
+          <span className="bt-oneri-hedef-label">Önceliğin ne?</span>
+          <div className="bt-oneri-mod" aria-label="Öneri önceliği">
+            <button
+              className={mod === "nakit" ? "aktif" : ""}
+              onClick={() => {
+                setMod("nakit");
+                setTumuAcik(false);
+              }}
+            >
+              <Wallet size={17} />
+              <span>Aylık ödemeyi azalt</span>
+            </button>
+            <button
+              className={mod === "faiz" ? "aktif" : ""}
+              onClick={() => {
+                if (proAktif) {
+                  setMod("faiz");
+                  setTumuAcik(false);
+                } else setSekme("ayarlar");
+              }}
+            >
+              <TrendingUp size={17} />
+              <span>Toplam faizi azalt{proAktif ? "" : " · Pro"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {secili ? (
+        <>
+          <article className={"bt-oneri-sahne " + secili.tur}>
+            <span className="bt-oneri-deko bir" />
+            <span className="bt-oneri-deko iki" />
+            <div className="bt-oneri-sahne-icerik">
+              <div className="bt-oneri-sahne-ust">
+                <span className="bt-oneri-canli"><i /> Sıradaki en iyi hamle</span>
+                <span className="bt-oneri-sayac">
+                  {proAktif
+                    ? filtreli.findIndex((oneri) => oneri.id === secili.id) + 1 + "/" + filtreli.length + " sinyal"
+                    : "1 ücretsiz öneri"}
+                </span>
+              </div>
+              <div className="bt-oneri-etiket">{secili.etiket}</div>
+              <h3>{secili.baslik}</h3>
+              <p>{secili.aciklama}</p>
+              {secili.etki && (
+                <div className="bt-oneri-etki">
+                  <span>Tahmini etki</span>
+                  <strong>{secili.etki}</strong>
+                </div>
+              )}
+              {secili.uyari && (
+                <div className="bt-oneri-uyari">
+                  <AlertTriangle size={14} /> {secili.uyari}
+                </div>
+              )}
+              <button
+                className="bt-oneri-aksiyon"
+                onClick={() => setSekme(secili.hedef)}
+              >
+                {secili.aksiyon} <ChevronRight size={17} />
+              </button>
+            </div>
+            <div className="bt-oneri-pusula" aria-label={zamanEtiketi(secili) + " önceliği"}>
+              <div className="bt-oneri-yildiz">✦</div>
+              <div className="bt-oneri-pusula-ikon">{ikon(secili.tur)}</div>
+              <small>Önerilen zaman</small>
+              <strong>{zamanEtiketi(secili)}</strong>
+              <span>
+                {proAktif
+                  ? filtreli.length + " finansal sinyal tarandı"
+                  : "Tüm analizler Borcama Pro'da"}
+              </span>
+            </div>
+          </article>
+
+          {!proAktif && filtreli.length > 1 && (
+            <div className="bt-pro-kilit">
+              <div className="bt-pro-kilit-ikon"><Sparkles size={20} /></div>
+              <div>
+                <strong>{filtreli.length - 1} kişisel öneri daha hazır</strong>
+                <span>
+                  Tüm sinyalleri, faiz önceliğini ve aylık plan analizini Borcama
+                  Pro ile aç.
+                </span>
+              </div>
+              <button className="bt-btn birincil" onClick={() => setSekme("ayarlar")}>Pro'yu incele</button>
+            </div>
+          )}
+
+          {proAktif && filtreli.length > 1 && (
+            <div className="bt-oneri-diger">
+              <div className="bt-oneri-diger-baslik">
+                <div className="bt-oneri-diger-baslik-ana">
+                  <span className="bt-oneri-diger-baslik-ikon"><Sparkles size={16} /></span>
+                  <span className="bt-oneri-diger-baslik-baslik">Finansal sinyaller</span>
+                  <span className="bt-oneri-diger-sayac">{filtreli.length}</span>
+                </div>
+                <small>Karta dokun, ayrıntısı yukarıda açılsın.</small>
+              </div>
+              <div className={"bt-oneri-kartlar " + (tumuAcik ? "tumu-acik" : "")}>
+                {filtreli.map((oneri, index) => (
+                  <button
+                    key={oneri.id}
+                    className={
+                      "bt-oneri-kart " +
+                      oneri.tur +
+                      (oneri.id === secili.id ? " aktif" : "")
+                    }
+                    aria-pressed={oneri.id === secili.id}
+                    onClick={() => setSeciliId(oneri.id)}
+                  >
+                    <span className="bt-oneri-kart-no">0{index + 1}</span>
+                    <span className="bt-oneri-kart-ikon">{ikon(oneri.tur)}</span>
+                    <span className="bt-oneri-kart-etiket">{oneri.etiket}</span>
+                    <strong>{oneri.baslik}</strong>
+                    <span className="bt-oneri-kart-alt">
+                      {zamanEtiketi(oneri)} <ChevronRight size={15} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="bt-oneri-bos">
+          <Check size={18} /> Bu hedef için şu anda dikkat gerektiren bir sinyal
+          yok.
+        </div>
+      )}
+
+      <div className="bt-oneriler-alt">
+        <span>
+          Tahmini senaryodur; banka koşullarını ve güncel sözleşmeni kontrol et.
+        </span>
+        {proAktif && filtreli.length > 3 && (
+          <button className="bt-link" onClick={() => setTumuAcik(!tumuAcik)}>
+            {tumuAcik ? "Daha az göster" : "Tüm önerileri gör (" + filtreli.length + ")"}
+          </button>
+        )}
+      </div>
+    </section>
   );
 }
 
