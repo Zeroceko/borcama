@@ -27,6 +27,15 @@ import {
   Building2,
   Database,
   Settings,
+  PiggyBank,
+  RefreshCw,
+  BarChart3,
+  AlertTriangle,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Sparkles,
 } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
@@ -134,6 +143,7 @@ const CSS = `
 .bt-exit:hover{color:${CORAL}}
 
 .bt-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px}
+.bt-nav-ana{align-items:center}.bt-nav-alt{display:flex;gap:7px;flex-wrap:wrap;margin:-22px 0 28px;padding:7px;background:var(--panel2);border:1.5px solid var(--line);border-radius:16px}.bt-nav-alt .bt-pill{padding:7px 13px;font-size:12px;border-width:1.5px}
 .bt-pill{padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:'Space Grotesk',sans-serif;border:2px solid transparent;background:none}
 .bt-pill.aktif{background:${LIME};border-color:${INK};color:${INK}}
 .bt-pill.pasif{background:var(--panel);border-color:var(--line);color:var(--text);opacity:.65}
@@ -258,8 +268,25 @@ const CSS = `
 .bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
+.bt-quick-add{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(70px,8vw,86px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${CORAL};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${LIME};cursor:pointer}
+.bt-quick-add:hover{transform:translateY(-1px)}
 .bt-feedback-textarea{min-height:130px;resize:vertical;line-height:1.5;padding-top:12px}
+.bt-tour-arka{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:22px;background:#0f110ad9;backdrop-filter:blur(7px);overflow-y:auto}
+.bt-tour{position:relative;width:min(920px,100%);min-height:560px;display:grid;grid-template-columns:minmax(0,1.16fr) minmax(300px,.84fr);background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:26px;overflow:hidden;box-shadow:12px 12px 0 ${CORAL}}
+.bt-tour-main{display:flex;min-width:0;flex-direction:column;padding:clamp(26px,4vw,44px)}
+.bt-tour-kapat{position:absolute;z-index:2;top:16px;right:16px;width:38px;height:38px;display:grid;place-items:center;border:2px solid ${INK};border-radius:50%;background:${CREAM};color:${INK};cursor:pointer}
+.bt-tour-progress{display:flex;align-items:center;gap:7px;margin-bottom:34px;padding-right:38px}.bt-tour-progress span{height:7px;flex:1;border:1.5px solid ${INK};border-radius:999px;background:var(--panel2);overflow:hidden}.bt-tour-progress span::after{content:"";display:block;width:0;height:100%;background:${LIME};transition:width .2s ease}.bt-tour-progress span.tamam::after,.bt-tour-progress span.aktif::after{width:100%}.bt-tour-progress span.aktif{box-shadow:0 0 0 3px color-mix(in srgb,${LIME} 35%,transparent)}
+.bt-tour-sayac{display:inline-flex;align-items:center;gap:7px;width:max-content;margin-bottom:14px;border:1.5px solid var(--line);border-radius:999px;padding:6px 9px;color:var(--dim);font-size:11px;font-weight:800;letter-spacing:.02em}.bt-tour-sayac svg{color:${CORAL}}
+.bt-tour h2{max-width:560px;margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(29px,4.5vw,46px);line-height:1.02;letter-spacing:-.035em}.bt-tour-aciklama{max-width:600px;margin:17px 0 0;color:var(--dim);font-size:15px;line-height:1.62}.bt-tour-liste{display:grid;gap:9px;margin:22px 0 0;padding:0;list-style:none}.bt-tour-liste li{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.45}.bt-tour-liste li::before{content:"✓";flex:0 0 22px;height:22px;display:grid;place-items:center;border:1.5px solid ${INK};border-radius:50%;background:${LIME};color:${INK};font-size:11px;font-weight:900}
+.bt-tour-actions{display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:28px}.bt-tour-actions .bt-btn{justify-content:center}.bt-tour-atla{margin-right:auto;border:0;background:transparent;color:var(--dim);font:700 12px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.bt-tour-visual{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:54px 28px 30px;background:${INK};color:${CREAM};border-left:3px solid ${INK}}.bt-tour-visual::before,.bt-tour-visual::after{content:"";position:absolute;border-radius:50%}.bt-tour-visual::before{width:240px;height:240px;right:-80px;top:-70px;background:${CORAL}}.bt-tour-visual::after{width:190px;height:190px;left:-80px;bottom:-60px;background:${LIME}}.bt-tour-demo{position:relative;z-index:1;width:100%;max-width:330px;display:grid;gap:12px;transform:rotate(-1deg)}.bt-tour-demo-top{display:flex;align-items:center;justify-content:space-between;color:#bfc1b4;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.bt-tour-demo-mark{display:grid;place-items:center;width:48px;height:48px;border:2px solid ${INK};border-radius:13px;background:${LIME};color:${INK};font-family:'Archivo Black',sans-serif;font-size:22px;box-shadow:4px 4px 0 ${CORAL}}.bt-tour-demo-card{padding:18px;border:2px solid ${INK};border-radius:18px;background:${CREAM};color:${INK};box-shadow:6px 6px 0 ${CORAL}}.bt-tour-demo-card strong{display:block;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,30px);line-height:1.08}.bt-tour-demo-card small{display:block;margin-top:6px;color:#626456;font-size:11px;line-height:1.4}.bt-tour-demo-lines{display:grid;gap:8px;margin-top:16px}.bt-tour-demo-line{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #b9baaE;padding-top:8px;font-size:11px;font-weight:700}.bt-tour-demo-line b{font-family:'JetBrains Mono',monospace;color:#5d7a2e}.bt-tour-demo-card.vurgu{background:${LIME}}.bt-tour-demo-card.vurgu small{color:#3f4433}
+@media(max-width:760px){.bt-tour-arka{place-items:start center;padding:10px}.bt-tour{min-height:0;grid-template-columns:1fr;border-radius:20px;box-shadow:6px 6px 0 ${CORAL}}.bt-tour-main{padding:23px 18px 20px}.bt-tour-progress{margin-bottom:24px}.bt-tour h2{font-size:clamp(28px,9vw,38px)}.bt-tour-aciklama{font-size:14px}.bt-tour-visual{min-height:220px;padding:28px 22px;border-left:0;border-top:3px solid ${INK}}.bt-tour-demo{max-width:420px}.bt-tour-actions{flex-wrap:wrap}.bt-tour-atla{width:100%;order:3;margin:4px 0 0;text-align:center}.bt-tour-actions .bt-btn{flex:1}.bt-tour-kapat{top:12px;right:12px}}
+.bt-product-tour{position:fixed;inset:0;z-index:140;pointer-events:none}.bt-product-tour-golge{position:fixed;z-index:0;background:#0f110ab8;pointer-events:auto}.bt-product-tour-hedef{position:fixed;z-index:1;border:3px solid ${LIME};border-radius:22px;box-shadow:0 0 0 4px #14160f,0 0 0 9px #cdf56455;pointer-events:none;animation:bt-tour-nabiz 1.7s ease-in-out infinite}.bt-product-tour-panel{position:fixed;z-index:3;max-height:calc(100vh - 36px);overflow-y:auto;padding:23px;background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:20px;box-shadow:7px 7px 0 ${CORAL};pointer-events:auto}.bt-product-tour-kapat{position:absolute;top:13px;right:13px;width:34px;height:34px;display:grid;place-items:center;border:2px solid ${INK};border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-product-tour-progress{display:flex;gap:5px;margin:0 42px 18px 0}.bt-product-tour-progress span{height:6px;flex:1;border:1.5px solid ${INK};border-radius:999px;background:var(--panel2)}.bt-product-tour-progress span.aktif{background:${LIME}}.bt-product-tour-sayac{display:flex;align-items:center;gap:6px;margin-bottom:10px;color:var(--dim);font-size:10.5px;font-weight:800;letter-spacing:.02em}.bt-product-tour-sayac svg{color:${CORAL}}.bt-product-tour-panel h2{margin:0;padding-right:20px;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,29px);line-height:1.08;letter-spacing:-.025em}.bt-product-tour-panel>p{margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-product-tour-ipucu{display:flex;align-items:flex-start;gap:8px;margin-top:15px;padding:10px 11px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);font-size:11.5px;line-height:1.4;font-weight:700}.bt-product-tour-ipucu svg{flex:0 0 auto;margin-top:1px;color:#5d7a2e}.bt-product-tour-actions{display:flex;align-items:center;gap:7px;margin-top:18px}.bt-product-tour-actions .bt-btn{white-space:nowrap}.bt-product-tour-atla{margin-right:auto;border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}@keyframes bt-tour-nabiz{50%{box-shadow:0 0 0 4px #14160f,0 0 0 13px #cdf56422}}
+@media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
 .bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:20px}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--line) 22%,transparent)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
+.bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:22px;box-shadow:6px 6px 0 ${CORAL}}.bt-premium-card h2{margin:3px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(20px,3vw,28px);color:${LIME};text-shadow:2px 2px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:12.5px;line-height:1.55;max-width:620px}.bt-premium-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:700px){.bt-premium-card{grid-column:auto;grid-template-columns:1fr}.bt-premium-actions{justify-content:stretch}.bt-premium-actions .bt-btn{width:100%}}
+.bt-varlik-hero{background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:22px;padding:clamp(20px,4vw,32px);display:grid;grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(150px,.7fr));gap:18px;align-items:end}.bt-varlik-hero .bt-metric-lbl{color:#bfc1b4}.bt-varlik-toplam{font-family:'Archivo Black',sans-serif;font-size:clamp(30px,6vw,48px);color:${LIME};text-shadow:3px 3px 0 ${CORAL};overflow-wrap:anywhere}.bt-varlik-mini{border-left:1.5px solid #4a4d40;padding-left:18px}.bt-varlik-mini strong{display:block;font-family:'JetBrains Mono',monospace;font-size:18px;margin-top:5px}.bt-varlik-kaynak{display:flex;align-items:center;gap:7px;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-varlik-kaynak.hata{color:${CORAL}}.bt-varlik-dagilim{display:grid;gap:10px}.bt-varlik-dagilim-satir{display:grid;grid-template-columns:minmax(100px,1fr) minmax(100px,2fr) auto;gap:10px;align-items:center;font-size:12.5px}.bt-varlik-dagilim-bar{height:9px;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-varlik-dagilim-bar div{height:100%;background:linear-gradient(90deg,${LIME},${CORAL})}.bt-varlik-rozet{font-size:10px;font-weight:800;border:1.5px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}.bt-varlik-rozet.otomatik{background:${LIME};color:${INK};border-color:${INK}}.bt-varlik-degisim{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;margin-top:3px}.bt-varlik-degisim.arti{color:#5D7A2E}.bt-varlik-degisim.eksi{color:${CORAL}}
+@media(max-width:760px){.bt-varlik-hero{grid-template-columns:1fr}.bt-varlik-mini{border-left:0;border-top:1.5px solid #4a4d40;padding:14px 0 0}.bt-varlik-dagilim-satir{grid-template-columns:minmax(80px,1fr) minmax(70px,1.3fr) auto}}
 
 @media (max-width:600px){
   .bt-app{overflow-x:hidden}
@@ -271,6 +298,9 @@ const CSS = `
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
+  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin:0;padding:7px 7px calc(7px + env(safe-area-inset-bottom));background:var(--panel);border-top:2px solid var(--line)}
+  .bt-nav-ana .bt-pill{border:0;border-radius:10px;padding:8px 2px;font-size:10.5px;background:transparent}.bt-nav-ana .bt-pill.aktif{background:${LIME};box-shadow:inset 0 0 0 1.5px ${INK}}
+  .bt-nav.bt-nav-alt{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 0 22px;padding:6px}.bt-nav-alt .bt-pill{width:auto;flex:0 0 auto;padding:7px 11px;font-size:11px}
   .bt-pill{width:100%;padding:9px 4px;font-size:11.5px;text-align:center}
   .bt-grid{grid-template-columns:1fr;gap:12px}
   .bt-card{padding:16px;border-radius:16px}
@@ -290,7 +320,9 @@ const CSS = `
   .bt-kat-tutar{width:auto!important;font-size:11px;white-space:nowrap}
   .bt-modal-arka{padding:10px;align-items:flex-start;overflow-y:auto}
   .bt-modal{padding:18px 16px;margin:12px 0;box-shadow:5px 5px 0 ${CORAL}}
-  .bt-feedback-trigger{right:12px;bottom:12px;padding:10px 13px;font-size:11.5px}
+  .bt-feedback-trigger{right:12px;bottom:76px;padding:10px 13px;font-size:11.5px}
+  .bt-quick-add{right:12px;bottom:128px;width:46px;height:46px;padding:0;justify-content:center;border-radius:50%;box-shadow:3px 3px 0 ${LIME}}
+  .bt-quick-add span{display:none}
   .bt-setting-row{align-items:flex-start;flex-direction:column}
   .bt-setting-row .bt-btn{width:100%;justify-content:center}
   .bt-alanlar{grid-template-columns:1fr}
@@ -311,8 +343,147 @@ const TLk = new Intl.NumberFormat("tr-TR", {
   currency: "TRY",
   maximumFractionDigits: 2,
 });
+const TL_BIRIM = new Intl.NumberFormat("tr-TR", {
+  style: "currency",
+  currency: "TRY",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 8,
+});
 const fmt = (n) => TLk.format(Number(n) || 0);
 const fmt0 = (n) => TL.format(Number(n) || 0);
+const fmtBirim = (n) => TL_BIRIM.format(Number(n) || 0);
+const PARA_BIRIMLERI = [
+  { id: "TRY", ad: "Türk lirası (₺)", fiyat: null },
+  { id: "USD", ad: "ABD doları ($)", fiyat: "usdTry" },
+  { id: "EUR", ad: "Euro (€)", fiyat: "eurTry" },
+];
+const PARA_FORMATLARI = Object.fromEntries(
+  PARA_BIRIMLERI.map((birim) => [
+    birim.id,
+    new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: birim.id,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 8,
+    }),
+  ]),
+);
+const fmtPara = (n, id = "TRY") =>
+  (PARA_FORMATLARI[id] || PARA_FORMATLARI.TRY).format(Number(n) || 0);
+const paraBirimi = (id) =>
+  PARA_BIRIMLERI.find((birim) => birim.id === id) || PARA_BIRIMLERI[0];
+const paraBirimiKuru = (kayit, fiyatlar = {}) => {
+  if (varlikTuru(kayit.tur).fon) return 1;
+  return +fiyatlar[paraBirimi(kayit.paraBirimi).fiyat] ||
+    (paraBirimi(kayit.paraBirimi).id === "TRY" ? 1 : 0);
+};
+const KRIPTO_LISTESI = [
+  ["bitcoin", "Bitcoin", "BTC"], ["ethereum", "Ethereum", "ETH"], ["tether", "Tether", "USDT"],
+  ["binancecoin", "BNB", "BNB"], ["solana", "Solana", "SOL"], ["usd-coin", "USDC", "USDC"],
+  ["ripple", "XRP", "XRP"], ["staked-ether", "Lido Staked Ether", "STETH"], ["dogecoin", "Dogecoin", "DOGE"],
+  ["cardano", "Cardano", "ADA"], ["tron", "TRON", "TRX"], ["avalanche-2", "Avalanche", "AVAX"],
+  ["wrapped-bitcoin", "Wrapped Bitcoin", "WBTC"], ["sui", "Sui", "SUI"], ["chainlink", "Chainlink", "LINK"],
+  ["polkadot", "Polkadot", "DOT"], ["shiba-inu", "Shiba Inu", "SHIB"], ["leo-token", "UNUS SED LEO", "LEO"],
+  ["hyperliquid", "Hyperliquid", "HYPE"], ["bitcoin-cash", "Bitcoin Cash", "BCH"], ["near", "NEAR Protocol", "NEAR"],
+  ["wrapped-steth", "Wrapped stETH", "WSTETH"], ["litecoin", "Litecoin", "LTC"], ["aptos", "Aptos", "APT"],
+  ["internet-computer", "Internet Computer", "ICP"], ["dai", "Dai", "DAI"], ["uniswap", "Uniswap", "UNI"],
+  ["arbitrum", "Arbitrum", "ARB"], ["render-token", "Render", "RENDER"], ["kaspa", "Kaspa", "KAS"],
+  ["cosmos", "Cosmos", "ATOM"], ["ethena", "Ethena", "ENA"], ["filecoin", "Filecoin", "FIL"],
+  ["stellar", "Stellar", "XLM"], ["okb", "OKB", "OKB"], ["mantle", "Mantle", "MNT"],
+  ["monero", "Monero", "XMR"], ["crypto-com-chain", "Cronos", "CRO"], ["aave", "Aave", "AAVE"],
+  ["algorand", "Algorand", "ALGO"], ["vechain", "VeChain", "VET"], ["bittensor", "Bittensor", "TAO"],
+  ["theta-token", "Theta Network", "THETA"], ["immutable-x", "Immutable", "IMX"], ["optimism", "Optimism", "OP"],
+  ["maker", "Maker", "MKR"], ["bonk", "Bonk", "BONK"], ["jupiter-exchange-solana", "Jupiter", "JUP"],
+  ["the-graph", "The Graph", "GRT"], ["rocket-pool", "Rocket Pool", "RPL"],
+].sort((a, b) => a[1].localeCompare(b[1], "tr")).map(([coinId, ad, birim]) => ({ coinId, ad, birim }));
+const VARLIK_TURLERI = [
+  { id: "usd", kategori: "doviz", ad: "Dolar", birim: "USD", otomatik: true, fiyat: "usdTry" },
+  { id: "eur", kategori: "doviz", ad: "Euro", birim: "EUR", otomatik: true, fiyat: "eurTry" },
+  { id: "gbp", kategori: "doviz", ad: "Sterlin", birim: "GBP", otomatik: true, fiyat: "gbpTry" },
+  { id: "chf", kategori: "doviz", ad: "İsviçre frangı", birim: "CHF", otomatik: true, fiyat: "chfTry" },
+  { id: "gram_altin", kategori: "emtia", ad: "Gram altın (24 ayar)", birim: "gram", otomatik: true, fiyat: "goldGramTry", carpan: 1 },
+  { id: "gram_altin_22", kategori: "emtia", ad: "Gram altın (22 ayar)", birim: "gram", otomatik: true, fiyat: "goldGramTry", carpan: 0.9167, tahmini: true },
+  { id: "ceyrek_altin", kategori: "emtia", ad: "Çeyrek altın", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 1.6065, tahmini: true },
+  { id: "yarim_altin", kategori: "emtia", ad: "Yarım altın", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 3.213, tahmini: true },
+  { id: "tam_altin", kategori: "emtia", ad: "Tam altın", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 6.426, tahmini: true },
+  { id: "cumhuriyet_altini", kategori: "emtia", ad: "Cumhuriyet altını", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 6.614, tahmini: true },
+  { id: "gram_gumus", kategori: "emtia", ad: "Gram gümüş", birim: "gram", otomatik: true, fiyat: "silverGramTry" },
+  { id: "platin", kategori: "emtia", ad: "Platin (ons)", birim: "ons", otomatik: true, fiyat: "platinumOunceTry" },
+  { id: "petrol", kategori: "emtia", ad: "Petrol (WTI)", birim: "varil", otomatik: true, fiyat: "oilBarrelTry" },
+  { id: "bakir", kategori: "emtia", ad: "Bakır", birim: "libre", otomatik: true, fiyat: "copperPoundTry" },
+  ...KRIPTO_LISTESI.map((coin) => ({
+    id: coin.coinId === "bitcoin" ? "bitcoin" : "kripto_" + coin.coinId,
+    kategori: "kripto",
+    ad: coin.ad,
+    birim: coin.birim,
+    otomatik: true,
+    kripto: true,
+    coinId: coin.coinId,
+  })),
+  { id: "kripto_diger", kategori: "kripto", ad: "Diğer (ekleyin)", birim: "", otomatik: false, kripto: true },
+  { id: "bes", kategori: "bes", ad: "Bireysel emeklilik fonu", birim: "pay", otomatik: true, fon: true, kaynak: "BEFAS" },
+  { id: "fon", kategori: "fon", ad: "Yatırım fonu", birim: "pay", otomatik: true, fon: true, kaynak: "TEFAS" },
+  { id: "hisse", kategori: "hisse", ad: "Borsa İstanbul hissesi", birim: "adet", otomatik: true, hisse: true, piyasa: "BIST", kaynak: "Yahoo Finance" },
+  { id: "hisse_abd", kategori: "hisse", ad: "ABD borsası hissesi", birim: "adet", otomatik: true, hisse: true, piyasa: "US", kaynak: "Yahoo Finance" },
+  { id: "mevduat", kategori: "diger", ad: "Nakit / mevduat", birim: "", otomatik: false },
+  { id: "gayrimenkul", kategori: "diger", ad: "Gayrimenkul", birim: "", otomatik: false },
+  { id: "arac", kategori: "diger", ad: "Araç", birim: "", otomatik: false },
+  { id: "diger", kategori: "diger", ad: "Diğer (ekleyin)", birim: "", otomatik: false },
+];
+const VARLIK_KATEGORILERI = [
+  { id: "doviz", ad: "Döviz", turler: ["usd", "eur", "gbp", "chf"] },
+  { id: "emtia", ad: "Emtia", turler: ["gram_altin", "gram_altin_22", "ceyrek_altin", "yarim_altin", "tam_altin", "cumhuriyet_altini", "gram_gumus", "platin", "petrol", "bakir"] },
+  { id: "kripto", ad: "Kripto", turler: [...KRIPTO_LISTESI.map((coin) => coin.coinId === "bitcoin" ? "bitcoin" : "kripto_" + coin.coinId), "kripto_diger"] },
+  { id: "bes", ad: "Bireysel emeklilik", turler: ["bes"] },
+  { id: "fon", ad: "Fonlar", turler: ["fon"] },
+  { id: "hisse", ad: "Hisseler", turler: ["hisse", "hisse_abd"] },
+  { id: "diger", ad: "Diğer", turler: ["mevduat", "gayrimenkul", "arac", "diger"] },
+];
+const varlikTuru = (id) =>
+  VARLIK_TURLERI.find((tur) => tur.id === id) || VARLIK_TURLERI.at(-1);
+const varlikKategorisi = (id) =>
+  VARLIK_KATEGORILERI.find((kategori) => kategori.id === id) ||
+  VARLIK_KATEGORILERI.at(-1);
+function varlikBirimFiyati(kayit, fiyatlar = {}) {
+  const tur = varlikTuru(kayit.tur);
+  if (tur.fon) {
+    const kod = String(kayit.fonKodu || "").toUpperCase();
+    return +fiyatlar.funds?.[kod]?.price || +kayit.fonBirimFiyati || 0;
+  }
+  if (tur.hisse) {
+    const kod = String(kayit.hisseKodu || "").toUpperCase();
+    return +fiyatlar.stocks?.[kod]?.price || +kayit.hisseBirimFiyati || 0;
+  }
+  if (tur.kripto) {
+    const coinId = tur.coinId || "bitcoin";
+    return +fiyatlar.crypto?.[coinId] ||
+      (coinId === "bitcoin" ? +fiyatlar.bitcoinTry || 0 : 0) ||
+      +kayit.kriptoBirimFiyati || 0;
+  }
+  return (+fiyatlar[tur.fiyat] || 0) * (tur.carpan || 1);
+}
+function varlikDegeri(kayit, fiyatlar = {}) {
+  const tur = varlikTuru(kayit.tur);
+  const kur = paraBirimiKuru(kayit, fiyatlar);
+  if (!tur.otomatik)
+    return Math.max(+kayit.guncelDeger || 0, 0) * kur;
+  const otomatikDeger =
+    Math.max(+kayit.miktar || 0, 0) * varlikBirimFiyati(kayit, fiyatlar);
+  return otomatikDeger * (tur.hisse && tur.piyasa === "US" ? kur : 1);
+}
+function varlikOzetiHesapla(varliklar = [], fiyatlar = {}) {
+  const kalemler = varliklar.map((kayit) => ({
+    ...kayit,
+    hesaplananDeger: varlikDegeri(kayit, fiyatlar),
+  }));
+  const toplam = kalemler.reduce((t, k) => t + k.hesaplananDeger, 0);
+  const maliyet = kalemler.reduce(
+    (t, k) =>
+      t + Math.max(+k.toplamMaliyet || 0, 0) * paraBirimiKuru(k, fiyatlar),
+    0,
+  );
+  return { kalemler, toplam, maliyet, kazanc: toplam - maliyet };
+}
 const AYLAR = [
   "Ocak",
   "Şubat",
@@ -392,10 +563,30 @@ function buAyOdemeTarihi(gun) {
   return new Date(simdi.getFullYear(), simdi.getMonth(), g);
 }
 function kartGecikmeTarihi(k) {
+  if (k.ekstreAyi && k.sonOdemeGunu) {
+    const [yil, ay] = String(k.ekstreAyi).split("-").map(Number);
+    if (yil && ay) {
+      const kesimGunu = Math.min(Math.max(parseInt(k.kesimGunu) || 1, 1), 31);
+      const sonOdemeGunu = Math.min(
+        Math.max(parseInt(k.sonOdemeGunu) || 1, 1),
+        31,
+      );
+      const odemeAyFarki = sonOdemeGunu <= kesimGunu ? 1 : 0;
+      const odemeAyi = ay - 1 + odemeAyFarki;
+      const ayinSonGunu = new Date(yil, odemeAyi + 1, 0).getDate();
+      return new Date(yil, odemeAyi, Math.min(sonOdemeGunu, ayinSonGunu));
+    }
+  }
   return k.sonOdemeTarihi
     ? new Date(k.sonOdemeTarihi + "T00:00:00")
     : buAyOdemeTarihi(k.sonOdemeGunu);
 }
+
+const kartOdemeAnahtari = (kart) =>
+  "kart-" +
+  kart.id +
+  "-ekstre-" +
+  (kart.ekstreAyi || ayAnahtari());
 
 const KATEGORILER = [
   "Market",
@@ -598,6 +789,7 @@ const BOS_VERI = {
   others: [],
   expenses: [],
   incomes: [],
+  assets: [],
   feedbacks: [],
   paid: {},
   loanPaymentHistory: {},
@@ -622,6 +814,7 @@ const SEKME_YOLLARI = {
   plan: "/debt-plan",
   gelir: "/income",
   harcamalar: "/expenses",
+  varliklar: "/assets",
   ayarlar: "/settings",
 };
 const YOL_SEKMELERI = Object.fromEntries(
@@ -757,6 +950,126 @@ export default function BorcTakip() {
     tamam: false,
   });
   const [kullaniciEposta, setKullaniciEposta] = useState("");
+  const [reklamsiz, setReklamsiz] = useState({
+    yukleniyor: true,
+    aktif: false,
+    hata: "",
+  });
+  const [borcKategori, setBorcKategori] = useState("cards");
+  const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
+  const [rehber, setRehber] = useState({ acik: false, adim: 0 });
+  const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
+  const [piyasa, setPiyasa] = useState(() => {
+    try {
+      const kayit = JSON.parse(localStorage.getItem("borcama:piyasa:v1") || "null");
+      return kayit?.prices
+        ? { ...kayit, yukleniyor: false, hata: "" }
+        : { prices: {}, updatedAt: null, yukleniyor: true, hata: "" };
+    } catch {
+      return { prices: {}, updatedAt: null, yukleniyor: true, hata: "" };
+    }
+  });
+  const piyasaKodAnahtari = (veri.assets || [])
+    .filter(
+      (kayit) =>
+        (varlikTuru(kayit.tur).fon && kayit.fonKodu) ||
+        (varlikTuru(kayit.tur).hisse && kayit.hisseKodu),
+    )
+    .map((kayit) =>
+      varlikTuru(kayit.tur).fon
+        ? "F:" + String(kayit.fonKodu).trim().toUpperCase()
+        : "H:" + String(kayit.hisseKodu).trim().toUpperCase(),
+    )
+    .sort()
+    .join(",");
+
+  async function piyasaFiyatlariniYenile() {
+    setPiyasa((eski) => ({ ...eski, yukleniyor: true, hata: "" }));
+    try {
+      const fonKodlari = [
+        ...new Set(
+          (veri.assets || [])
+            .filter((kayit) => varlikTuru(kayit.tur).fon && kayit.fonKodu)
+            .map((kayit) => String(kayit.fonKodu).trim().toUpperCase()),
+        ),
+      ];
+      const hisseKodlari = [
+        ...new Set(
+          (veri.assets || [])
+            .filter((kayit) => varlikTuru(kayit.tur).hisse && varlikTuru(kayit.tur).piyasa !== "US" && kayit.hisseKodu)
+            .map((kayit) => String(kayit.hisseKodu).trim().toUpperCase()),
+        ),
+      ];
+      const hisseAbdKodlari = [
+        ...new Set(
+          (veri.assets || [])
+            .filter((kayit) => varlikTuru(kayit.tur).hisse && varlikTuru(kayit.tur).piyasa === "US" && kayit.hisseKodu)
+            .map((kayit) => String(kayit.hisseKodu).trim().toUpperCase()),
+        ),
+      ];
+      const [piyasaYanit, fonYanit, hisseYanit, hisseAbdYanit] = await Promise.all([
+        fetch("/api/market-prices", { headers: { Accept: "application/json" } }),
+        fonKodlari.length
+          ? fetch("/api/fund-prices?codes=" + encodeURIComponent(fonKodlari.join(",")), {
+              headers: { Accept: "application/json" },
+            })
+          : Promise.resolve(null),
+        hisseKodlari.length
+          ? fetch("/api/stock-prices?codes=" + encodeURIComponent(hisseKodlari.join(",")), {
+              headers: { Accept: "application/json" },
+            })
+          : Promise.resolve(null),
+        hisseAbdKodlari.length
+          ? fetch("/api/stock-prices?market=US&codes=" + encodeURIComponent(hisseAbdKodlari.join(",")), {
+              headers: { Accept: "application/json" },
+            })
+          : Promise.resolve(null),
+      ]);
+      if (!piyasaYanit.ok) throw new Error("Fiyat servisi yanıt vermedi");
+      const sonuc = await piyasaYanit.json();
+      const fonSonucu = fonYanit?.ok ? await fonYanit.json() : null;
+      const hisseSonucu = hisseYanit?.ok ? await hisseYanit.json() : null;
+      const hisseAbdSonucu = hisseAbdYanit?.ok ? await hisseAbdYanit.json() : null;
+      const hisseFiyatlari = { ...(hisseSonucu?.stocks || {}), ...(hisseAbdSonucu?.stocks || {}) };
+      if (!sonuc?.prices) throw new Error("Fiyat verisi alınamadı");
+      const yeni = {
+        prices: {
+          ...sonuc.prices,
+          funds: fonSonucu?.funds || piyasa.prices?.funds || {},
+          stocks: Object.keys(hisseFiyatlari).length ? hisseFiyatlari : piyasa.prices?.stocks || {},
+        },
+        updatedAt: sonuc.updatedAt || new Date().toISOString(),
+        sources: [
+          ...(sonuc.sources || []),
+          ...new Set(Object.values(fonSonucu?.funds || {}).map((fon) => fon.source)),
+          ...new Set(
+            Object.values(hisseFiyatlari).map((hisse) => hisse.source),
+          ),
+        ],
+        yukleniyor: false,
+        hata:
+          sonuc.partial ||
+          fonSonucu?.partial ||
+          hisseSonucu?.partial ||
+          hisseAbdSonucu?.partial ||
+          (fonKodlari.length && !fonYanit?.ok) ||
+          (hisseKodlari.length && !hisseYanit?.ok) ||
+          (hisseAbdKodlari.length && !hisseAbdYanit?.ok)
+            ? "Bazı otomatik fiyatlar şu anda alınamadı."
+            : "",
+      };
+      setPiyasa(yeni);
+      localStorage.setItem("borcama:piyasa:v1", JSON.stringify(yeni));
+    } catch {
+      setPiyasa((eski) => ({
+        ...eski,
+        yukleniyor: false,
+        hata: Object.keys(eski.prices || {}).length
+          ? "Canlı fiyatlar yenilenemedi; son alınan değerler gösteriliyor."
+          : "Canlı fiyatlar alınamadı. Varlıklardaki manuel değerler kullanılıyor.",
+      }));
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -798,16 +1111,101 @@ export default function BorcTakip() {
   }, []);
 
   useEffect(() => {
+    if (yukleniyor || rehberKontrolEdildi) return;
+    setRehberKontrolEdildi(true);
+    const zorla = new URLSearchParams(window.location.search).get("rehber") === "1";
+    const finansKaydiVar = [
+      "cards",
+      "loans",
+      "overdrafts",
+      "others",
+      "expenses",
+      "incomes",
+      "assets",
+    ].some((alan) => (veri[alan] || []).length > 0);
+    if (
+      zorla ||
+      (!finansKaydiVar && !veri.ayarlar?.ilkKullanimRehberiV1)
+    ) {
+      rehberAdiminaGit(0);
+    }
+  }, [yukleniyor, rehberKontrolEdildi, veri]);
+
+  useEffect(() => {
     supabase.auth
       .getUser()
       .then(({ data }) => setKullaniciEposta(data?.user?.email || ""));
   }, []);
+
+  async function reklamsizKontrol() {
+    setReklamsiz((eski) => ({ ...eski, yukleniyor: true, hata: "" }));
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("Oturum bulunamadı");
+      const cevap = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (!cevap.ok) throw new Error("Hak bilgisi alınamadı");
+      const sonuc = await cevap.json();
+      setReklamsiz({
+        yukleniyor: false,
+        aktif: !!sonuc.adFreeLifetime,
+        hata: "",
+      });
+    } catch {
+      setReklamsiz({
+        yukleniyor: false,
+        aktif: false,
+        hata: "Satın alma durumu şu anda kontrol edilemedi.",
+      });
+    }
+  }
+
+  useEffect(() => {
+    reklamsizKontrol();
+  }, []);
+
+  useEffect(() => {
+    if (!yukleniyor) piyasaFiyatlariniYenile();
+  }, [yukleniyor, piyasaKodAnahtari]);
 
   function setSekme(yeniSekme) {
     setSekmeState(yeniSekme);
     const yol = SEKME_YOLLARI[yeniSekme];
     if (yol && window.location.pathname !== yol)
       window.history.pushState({}, "", yol);
+  }
+
+  function rehberAdiminaGit(adim) {
+    const hedefler = ["ozet", "borclar", "odemeler", "harcamalar", "varliklar"];
+    const guvenliAdim = Math.max(0, Math.min(adim, hedefler.length - 1));
+    setRehber({ acik: true, adim: guvenliAdim });
+    setForm(null);
+    if (guvenliAdim === 1) setBorcKategori("cards");
+    setSekme(hedefler[guvenliAdim]);
+  }
+
+  function rehberiKapat() {
+    setRehber({ acik: false, adim: 0 });
+    ayarKaydet({ ilkKullanimRehberiV1: true });
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("rehber")) {
+      url.searchParams.delete("rehber");
+      window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+  }
+
+  function rehberiBitir(kartEkle = false) {
+    rehberiKapat();
+    if (kartEkle) {
+      setBorcKategori("cards");
+      setSekme("borclar");
+      setForm({ liste: "cards", veri: {} });
+    } else {
+      setSekme("ozet");
+    }
   }
 
   async function kaydet(yeni) {
@@ -870,6 +1268,11 @@ export default function BorcTakip() {
     return { kart, kredi, ek, diger, genel: kart + kredi + ek + diger };
   }, [kalemler]);
 
+  const varlikOzeti = useMemo(
+    () => varlikOzetiHesapla(veri.assets || [], piyasa.prices),
+    [veri.assets, piyasa.prices],
+  );
+
   const aylikFaiz = useMemo(
     () =>
       kalemler
@@ -921,7 +1324,8 @@ export default function BorcTakip() {
           : +k.asgari > 0
             ? +k.asgari
             : anaBorc * yasalOran;
-        const elleOdendi = !!veri.paid["kart-" + k.id + "-" + ay];
+        const odemeAnahtari = kartOdemeAnahtari(k);
+        const elleOdendi = !!veri.paid[odemeAnahtari];
         const odemeBilgisiYok = !yeniModel && !elleOdendi;
         const girilenOdeme = yeniModel ? h.odeme : 0;
         const yapilanOdeme = elleOdendi
@@ -931,9 +1335,12 @@ export default function BorcTakip() {
         const otomatikOdendi = !elleOdendi && hedefTutar > 0 && tutar <= 0;
         liste.push({
           id: "kart-" + k.id,
+          kartOdemesi: true,
           banka: k.banka,
           ad: k.banka + (k.ad ? " · " + k.ad : ""),
           tutar,
+          kalanToplam: anaBorc,
+          minimumOdeme: hedefTutar,
           hedefTutar,
           yapilanOdeme,
           odemeBilgisiYok,
@@ -941,7 +1348,7 @@ export default function BorcTakip() {
           tarih: kartGecikmeTarihi(k),
           odendi: elleOdendi || otomatikOdendi,
           otomatikOdendi,
-          anahtar: "kart-" + k.id + "-" + ay,
+          anahtar: odemeAnahtari,
         });
       }
     });
@@ -963,6 +1370,33 @@ export default function BorcTakip() {
       }
     });
     return liste.sort((a, b) => a.tarih - b.tarih);
+  }, [veri]);
+
+  const gelecekOdemeler = useMemo(() => {
+    const simdi = bugun();
+    const yil = simdi.getFullYear();
+    const ay = simdi.getMonth() + 1;
+    return veri.loans
+      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0)
+      .map((k) => {
+        const gun = Math.min(
+          Math.max(parseInt(k.odemeGunu) || 1, 1),
+          new Date(yil, ay + 1, 0).getDate(),
+        );
+        return {
+          id: "gelecek-kredi-" + k.id,
+          banka: k.banka,
+          ad: k.banka + (k.ad ? " · " + k.ad : ""),
+          tutar: +k.taksit || 0,
+          hedefTutar: +k.taksit || 0,
+          yapilanOdeme: 0,
+          not: "gelecek ay taksiti",
+          tarih: new Date(yil, ay, gun),
+          odendi: false,
+          anahtar: "kredi-" + k.id + "-" + ayAnahtari(new Date(yil, ay, 1)),
+        };
+      })
+      .sort((a, b) => a.tarih - b.tarih);
   }, [veri]);
 
   const buAyHarcama = useMemo(() => {
@@ -1138,6 +1572,22 @@ export default function BorcTakip() {
   }
 
   const s = bugun();
+  const anaSekme =
+    sekme === "plan"
+      ? "borclar"
+      : sekme === "gelir" || sekme === "harcamalar"
+        ? "hareketler"
+        : sekme;
+
+  function anaSekmeyeGit(hedef) {
+    if (hedef === "hareketler")
+      setSekme(
+        sekme === "gelir" || sekme === "harcamalar" ? sekme : "harcamalar",
+      );
+    else if (hedef === "borclar") setSekme("borclar");
+    else setSekme(hedef);
+    setForm(null);
+  }
 
   return (
     <div className="bt-app" style={rootStyle}>
@@ -1195,27 +1645,97 @@ export default function BorcTakip() {
           </div>
         </header>
 
-        <nav className="bt-nav">
+        <nav className="bt-nav bt-nav-ana">
           {[
             ["ozet", "Özet"],
             ["borclar", "Borçlar"],
+            ["varliklar", "Varlıklar"],
+            ["hareketler", "Hareketler"],
             ["odemeler", "Ödemeler"],
-            ["plan", "Borç Planı"],
-            ["gelir", "Gelir"],
-            ["harcamalar", "Harcamalar"],
           ].map(([k, ad]) => (
             <button
               key={k}
-              className={"bt-pill " + (sekme === k ? "aktif" : "pasif")}
-              onClick={() => {
-                setSekme(k);
-                setForm(null);
-              }}
+              className={"bt-pill " + (anaSekme === k ? "aktif" : "pasif")}
+              onClick={() => anaSekmeyeGit(k)}
             >
               {ad}
             </button>
           ))}
         </nav>
+
+        {anaSekme === "borclar" && (
+          <nav className="bt-nav bt-nav-alt" aria-label="Borç bölümleri">
+            {[
+              ["cards", "Kredi Kartları"],
+              ["loans", "Krediler"],
+              ["od", "Ek Hesap / KMH"],
+              ["others", "Devreden / Gecikmiş"],
+              ["plan", "Borç Planı"],
+            ].map(([k, ad]) => {
+              const aktif =
+                k === "plan"
+                  ? sekme === "plan"
+                  : sekme === "borclar" &&
+                    (borcKategori === k ||
+                      (k === "cards" && borcKategori === "kontrol"));
+              return (
+                <button
+                  key={k}
+                  className={"bt-pill " + (aktif ? "aktif" : "pasif")}
+                  onClick={() => {
+                    if (k === "plan") setSekme("plan");
+                    else {
+                      setBorcKategori(k);
+                      setSekme("borclar");
+                    }
+                    setForm(null);
+                  }}
+                >
+                  {ad}
+                </button>
+              );
+            })}
+          </nav>
+        )}
+
+        {anaSekme === "hareketler" && (
+          <nav className="bt-nav bt-nav-alt" aria-label="Para hareketleri">
+            {[
+              ["harcamalar", "Harcamalar"],
+              ["gelir", "Gelirler"],
+            ].map(([k, ad]) => (
+              <button
+                key={k}
+                className={"bt-pill " + (sekme === k ? "aktif" : "pasif")}
+                onClick={() => {
+                  setSekme(k);
+                  setForm(null);
+                }}
+              >
+                {ad}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {anaSekme === "odemeler" && (
+          <nav className="bt-nav bt-nav-alt" aria-label="Ödeme durumları">
+            {[
+              ["bekleyen", "Bekleyen"],
+              ["odenen", "Ödenen"],
+            ].map(([k, ad]) => (
+              <button
+                key={k}
+                className={
+                  "bt-pill " + (odemeFiltresi === k ? "aktif" : "pasif")
+                }
+                onClick={() => setOdemeFiltresi(k)}
+              >
+                {ad}
+              </button>
+            ))}
+          </nav>
+        )}
 
         {yukleniyor ? (
           <div className="bt-bos">Verileriniz yükleniyor…</div>
@@ -1246,6 +1766,7 @@ export default function BorcTakip() {
                 tutarlariGizle={(gizli) =>
                   ayarKaydet({ ozetTutarlariGizli: gizli })
                 }
+                varlikOzeti={varlikOzeti}
               />
             )}
             {sekme === "borclar" && (
@@ -1257,10 +1778,18 @@ export default function BorcTakip() {
                 sil={sil}
                 bankalar={bankalar}
                 bankaEkle={bankaEkle}
+                kategori={borcKategori}
+                setKategori={setBorcKategori}
               />
             )}
             {sekme === "odemeler" && (
-              <Odemeler yaklasan={yaklasan} odendiIsaretle={odendiIsaretle} />
+              <Odemeler
+                veri={veri}
+                yaklasan={yaklasan}
+                gelecekOdemeler={gelecekOdemeler}
+                odendiIsaretle={odendiIsaretle}
+                filtre={odemeFiltresi}
+              />
             )}
             {sekme === "plan" && (
               <Plan
@@ -1290,12 +1819,27 @@ export default function BorcTakip() {
                 bankalar={bankalar}
               />
             )}
+            {sekme === "varliklar" && (
+              <Varliklar
+                veri={veri}
+                form={form}
+                setForm={setForm}
+                ekleGuncelle={ekleGuncelle}
+                sil={sil}
+                piyasa={piyasa}
+                piyasaYenile={piyasaFiyatlariniYenile}
+                ozet={varlikOzeti}
+              />
+            )}
             {sekme === "ayarlar" && (
               <Ayarlar
                 eposta={kullaniciEposta}
                 isDark={isDark}
+                reklamsiz={reklamsiz}
+                reklamsizKontrol={reklamsizKontrol}
                 temaDegistir={temaAnahtarlarSwitch}
                 parolaAc={() => setParolaPenceresi(true)}
+                rehberAc={() => rehberAdiminaGit(0)}
                 cikisYap={cikisYap}
               />
             )}
@@ -1303,11 +1847,31 @@ export default function BorcTakip() {
         )}
       </div>
       <button
+        className="bt-quick-add"
+        type="button"
+        aria-label="Hızlı harcama ekle"
+        title="Hızlı harcama ekle"
+        onClick={() => {
+          setSekme("harcamalar");
+          setForm({ liste: "expenses", veri: {} });
+        }}
+      >
+        <Plus size={18} /> <span>Harcama ekle</span>
+      </button>
+      <button
         className="bt-feedback-trigger"
         onClick={() => setGeriBildirimPenceresi(true)}
       >
         <MessageCircle size={16} /> Görüş bildir
       </button>
+      <IlkKullanimRehberi
+        acik={rehber.acik}
+        adim={rehber.adim}
+        adimaGit={rehberAdiminaGit}
+        kapat={rehberiKapat}
+        bitir={rehberiBitir}
+        kartVar={(veri.cards || []).length > 0}
+      />
       {geriBildirimPenceresi && (
         <div
           className="bt-modal-arka"
@@ -1629,7 +2193,261 @@ export default function BorcTakip() {
   );
 }
 
-function Ayarlar({ eposta, isDark, temaDegistir, parolaAc, cikisYap }) {
+const REHBER_ADIMLARI = [
+  {
+    hedef: "ozet",
+    etiket: "Başlangıç",
+    baslik: "Finansal durumun tek bir yerde.",
+    aciklama:
+      "Borcama; borçlarını, ödeme takvimini, hareketlerini ve varlıklarını aynı görünümde toplar. Rehber boyunca gerçek ekranlar arasında ilerleyeceksin.",
+    maddeler: [
+      "Toplam borcunu ve bu ay ödenecekleri gör",
+      "Kalan borç ile varlıklarını birlikte takip et",
+    ],
+    kartBaslik: "Bugünkü görünüm",
+    kartDeger: "Tek net tablo",
+    kartAlt: "Borçlar · Ödemeler · Varlıklar",
+    satirlar: [
+      ["Yaklaşan ödemeler", "Takvimde"],
+      ["Finansal ilerleme", "Görünür"],
+    ],
+  },
+  {
+    hedef: "borclar",
+    etiket: "Borçlar",
+    baslik: "Önce borç kaynaklarını ekle.",
+    aciklama:
+      "Kredi kartı, kredi ve ek hesap bilgilerini bir kez tanımla. Sonraki aylarda yalnızca yeni ekstreyi ve yaptığın ödemeyi girmen yeterli.",
+    maddeler: [
+      "Kart limiti, kesim günü ve son ödeme gününü kaydet",
+      "Yeni ekstreleri dönem dönem ekle ve geçmişe dön",
+    ],
+    kartBaslik: "Kredi kartı",
+    kartDeger: "Yeni ekstre",
+    kartAlt: "Dönem ve kalan borç birlikte",
+    satirlar: [
+      ["Gerçek ekstre", "₺ 42.600"],
+      ["Kalan borç", "₺ 18.400"],
+    ],
+  },
+  {
+    hedef: "odemeler",
+    etiket: "Ödemeler",
+    baslik: "Bu ay ne ödeyeceğin belli olsun.",
+    aciklama:
+      "Bekleyen ödemeleri tek listede gör. Ödeme yaptığında işaretle; toplam, minimum ödeme ve kalan tutarlar kendiliğinden güncellensin.",
+    maddeler: [
+      "Toplam borç ile zorunlu minimumu ayrı gör",
+      "Ödenenleri geçmişte dönem bazında kontrol et",
+    ],
+    kartBaslik: "Aylık ödeme listesi",
+    kartDeger: "%50 tamamlandı",
+    kartAlt: "Yapılan ve kalan ödeme",
+    satirlar: [
+      ["Toplam minimum", "₺ 12.840"],
+      ["Kalan ödeme", "₺ 24.200"],
+    ],
+  },
+  {
+    hedef: "harcamalar",
+    etiket: "Hareketler",
+    baslik: "Harcamayı olduğunda kaydet.",
+    aciklama:
+      "Hızlı ekleme düğmesiyle harcamanı birkaç saniyede yaz. Hangi karttan yapıldığını seçtiğinde dönem sonunda banka ekstresiyle karşılaştırabilirsin.",
+    maddeler: [
+      "Harcamayı kart, hesap veya nakit kaynağına bağla",
+      "Gelir ve harcamaları aylık olarak takip et",
+    ],
+    kartBaslik: "Hızlı hareket",
+    kartDeger: "+ Harcama ekle",
+    kartAlt: "Tutar · kategori · ödeme kaynağı",
+    satirlar: [
+      ["Manuel kayıtlar", "Toplanıyor"],
+      ["Ekstre kontrolü", "Hazır"],
+    ],
+  },
+  {
+    hedef: "varliklar",
+    etiket: "Hazırsın",
+    baslik: "Şimdi kendi planını oluşturmaya başla.",
+    aciklama:
+      "İlk kartını veya borcunu eklediğinde özetin oluşmaya başlar. Varlıklarını da eklersen borçlarınla birlikte genel finansal durumunu görebilirsin.",
+    maddeler: [
+      "Döviz, emtia, fon, hisse, kripto ve BES takibi",
+      "Borç kapatma planı ve ödeme ilerlemesi",
+    ],
+    kartBaslik: "Borcama",
+    kartDeger: "Planın hazır",
+    kartAlt: "Her ay güncelle, ilerlemeni gör",
+    satirlar: [
+      ["İlk adım", "Bir borç ekle"],
+      ["Sonra", "Ödemeyi takip et"],
+    ],
+  },
+];
+
+function IlkKullanimRehberi({
+  acik,
+  adim,
+  adimaGit,
+  kapat,
+  bitir,
+  kartVar,
+}) {
+  const [hedefKutu, setHedefKutu] = useState(null);
+
+  useEffect(() => {
+    if (!acik) return;
+    let zamanlayici;
+    let kare;
+    const icerik = REHBER_ADIMLARI[adim];
+    const olc = () => {
+      const hedef = document.querySelector(`[data-tour="${icerik.hedef}"]`);
+      if (!hedef) return setHedefKutu(null);
+      const r = hedef.getBoundingClientRect();
+      const bosluk = window.innerWidth <= 700 ? 5 : 9;
+      setHedefKutu({
+        top: Math.max(r.top - bosluk, 6),
+        left: Math.max(r.left - bosluk, 6),
+        right: Math.min(r.right + bosluk, window.innerWidth - 6),
+        bottom: Math.min(r.bottom + bosluk, window.innerHeight - 6),
+      });
+    };
+    const hedefeGit = () => {
+      const hedef = document.querySelector(`[data-tour="${icerik.hedef}"]`);
+      if (!hedef) return olc();
+      const r = hedef.getBoundingClientRect();
+      if (r.top < 18 || r.bottom > window.innerHeight - 18)
+        hedef.scrollIntoView({ behavior: "smooth", block: "center" });
+      olc();
+      zamanlayici = window.setTimeout(olc, 360);
+    };
+    const klavye = (e) => {
+      if (e.key === "Escape") kapat();
+      if (e.key === "ArrowRight" && adim < REHBER_ADIMLARI.length - 1)
+        adimaGit(adim + 1);
+      if (e.key === "ArrowLeft" && adim > 0) adimaGit(adim - 1);
+    };
+    kare = window.requestAnimationFrame(() =>
+      window.requestAnimationFrame(hedefeGit),
+    );
+    window.addEventListener("keydown", klavye);
+    window.addEventListener("resize", olc);
+    window.addEventListener("scroll", olc, true);
+    return () => {
+      window.clearTimeout(zamanlayici);
+      window.cancelAnimationFrame(kare);
+      window.removeEventListener("keydown", klavye);
+      window.removeEventListener("resize", olc);
+      window.removeEventListener("scroll", olc, true);
+    };
+  }, [acik, adim, adimaGit, kapat]);
+
+  if (!acik) return null;
+  const icerik = REHBER_ADIMLARI[adim];
+  const sonAdim = adim === REHBER_ADIMLARI.length - 1;
+  const genislik = typeof window === "undefined" ? 1200 : window.innerWidth;
+  const yukseklik = typeof window === "undefined" ? 800 : window.innerHeight;
+  const mobil = genislik <= 700;
+  const panelGenisligi = Math.min(390, genislik - 28);
+  let panelStili = mobil
+    ? { left: 12, right: 12, bottom: 76 }
+    : { left: (genislik - panelGenisligi) / 2, bottom: 22 };
+  if (!mobil && hedefKutu) {
+    if (hedefKutu.right + panelGenisligi + 24 < genislik)
+      panelStili = {
+        left: hedefKutu.right + 18,
+        top: Math.max(18, Math.min(hedefKutu.top, yukseklik - 440)),
+      };
+    else if (hedefKutu.left - panelGenisligi - 24 > 0)
+      panelStili = {
+        left: hedefKutu.left - panelGenisligi - 18,
+        top: Math.max(18, Math.min(hedefKutu.top, yukseklik - 440)),
+      };
+  }
+
+  return (
+    <div className="bt-product-tour" role="presentation">
+      {hedefKutu ? (
+        <>
+          <div className="bt-product-tour-golge" style={{ inset: `0 0 auto 0`, height: hedefKutu.top }} />
+          <div className="bt-product-tour-golge" style={{ top: hedefKutu.bottom, right: 0, bottom: 0, left: 0 }} />
+          <div className="bt-product-tour-golge" style={{ top: hedefKutu.top, left: 0, width: hedefKutu.left, height: hedefKutu.bottom - hedefKutu.top }} />
+          <div className="bt-product-tour-golge" style={{ top: hedefKutu.top, right: 0, width: genislik - hedefKutu.right, height: hedefKutu.bottom - hedefKutu.top }} />
+          <div
+            className="bt-product-tour-hedef"
+            style={{
+              top: hedefKutu.top,
+              left: hedefKutu.left,
+              width: hedefKutu.right - hedefKutu.left,
+              height: hedefKutu.bottom - hedefKutu.top,
+            }}
+          />
+        </>
+      ) : (
+        <div className="bt-product-tour-golge" style={{ inset: 0 }} />
+      )}
+      <section
+        className="bt-product-tour-panel"
+        style={{ ...panelStili, width: panelGenisligi }}
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="bt-tour-baslik"
+      >
+        <button
+          className="bt-product-tour-kapat"
+          type="button"
+          aria-label="Kullanım rehberini kapat"
+          onClick={kapat}
+        >
+          <X size={19} />
+        </button>
+        <div className="bt-product-tour-progress" aria-label={`Adım ${adim + 1} / ${REHBER_ADIMLARI.length}`}>
+          {REHBER_ADIMLARI.map((_, i) => (
+            <span key={i} className={i <= adim ? "aktif" : ""} />
+          ))}
+        </div>
+        <div className="bt-product-tour-sayac">
+          <Sparkles size={13} /> {icerik.etiket} · {adim + 1}/{REHBER_ADIMLARI.length}
+        </div>
+        <h2 id="bt-tour-baslik">{icerik.baslik}</h2>
+        <p>{icerik.aciklama}</p>
+        <div className="bt-product-tour-ipucu">
+          <Check size={15} /> {icerik.maddeler[0]}
+        </div>
+        <div className="bt-product-tour-actions">
+          <button className="bt-product-tour-atla" type="button" onClick={kapat}>
+            Turu geç
+          </button>
+          {adim > 0 && (
+            <button className="bt-btn kucuk ikincil" type="button" onClick={() => adimaGit(adim - 1)}>
+              <ChevronLeft size={15} /> Geri
+            </button>
+          )}
+          <button
+            className="bt-btn kucuk birincil"
+            type="button"
+            onClick={() => (sonAdim ? bitir(!kartVar) : adimaGit(adim + 1))}
+          >
+            {sonAdim ? (kartVar ? "Başla" : "İlk kartımı ekle") : "Sonraki"}
+            {sonAdim ? <Check size={15} /> : <ChevronRight size={15} />}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Ayarlar({
+  eposta,
+  isDark,
+  reklamsiz,
+  reklamsizKontrol,
+  temaDegistir,
+  parolaAc,
+  rehberAc,
+  cikisYap,
+}) {
   return (
     <div className="bt-stack">
       <div>
@@ -1645,6 +2463,50 @@ function Ayarlar({ eposta, isDark, temaDegistir, parolaAc, cikisYap }) {
         </div>
       </div>
       <div className="bt-settings-grid">
+        <section className="bt-premium-card">
+          <div>
+            <span className="bt-premium-badge">
+              <EyeOff size={13} />
+              {reklamsiz.aktif ? "ÖMÜR BOYU AKTİF" : "TEK ÖDEME"}
+            </span>
+            <h2>
+              {reklamsiz.aktif
+                ? "Borcama artık reklamsız."
+                : "Borcama'yı ömür boyu reklamsız kullan."}
+            </h2>
+            <p>
+              {reklamsiz.aktif
+                ? "Bu hesabında reklam kodları yüklenmez. Hakkın tüm cihazlarında geçerlidir."
+                : `₺199 tek ödeme. Shopier'de Borcama hesabındaki e-posta adresini (${eposta || "hesap e-postan"}) kullan; ödeme doğrulanınca hakkın otomatik tanımlanır.`}
+              {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
+            </p>
+          </div>
+          <div className="bt-premium-actions">
+            {!reklamsiz.aktif && (
+              <a
+                className="bt-btn birincil"
+                href="https://www.shopier.com/borcama/49351033"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ömür boyu reklamsız ol
+              </a>
+            )}
+            <button
+              className="bt-btn ikincil"
+              type="button"
+              disabled={reklamsiz.yukleniyor}
+              onClick={reklamsizKontrol}
+            >
+              <RefreshCw size={14} />
+              {reklamsiz.yukleniyor
+                ? "Kontrol ediliyor…"
+                : reklamsiz.aktif
+                  ? "Durumu yenile"
+                  : "Satın aldım, kontrol et"}
+            </button>
+          </div>
+        </section>
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <AtSign size={18} /> Hesap
@@ -1712,6 +2574,15 @@ function Ayarlar({ eposta, isDark, temaDegistir, parolaAc, cikisYap }) {
             </div>
             <button className="bt-btn kucuk ikincil" onClick={temaDegistir}>
               {isDark ? "Açık temaya geç" : "Koyu temaya geç"}
+            </button>
+          </div>
+          <div className="bt-setting-row">
+            <div>
+              <strong>Kullanım rehberi</strong>
+              <small>Borcama'nın temel akışını adım adım yeniden gör.</small>
+            </div>
+            <button className="bt-btn kucuk ikincil" onClick={rehberAc}>
+              <BookOpen size={14} /> Rehberi aç
             </button>
           </div>
         </section>
@@ -1782,6 +2653,7 @@ function Ozet({
   setSekme,
   tutarlarGizli,
   tutarlariGizle,
+  varlikOzeti,
 }) {
   const [tumBankalar, setTumBankalar] = useState(false);
   const [haricTurler, setHaricTurler] = useState([]);
@@ -1845,6 +2717,20 @@ function Ozet({
       cap: buAyHarcama.adet + " kayıt",
     },
   ];
+  if (varlikOzeti.toplam > 0) {
+    metrikler.unshift({
+      lbl: "Toplam varlıklarınız",
+      amt: tutarGoster(varlikOzeti.toplam),
+      cap: varlikOzeti.kalemler.length + " varlık kaydı",
+    });
+    const netDeger = varlikOzeti.toplam - toplamlar.genel;
+    metrikler.push({
+      lbl: "Net finansal durum",
+      amt: tutarlarGizli ? "₺ ••••••" : fmt(netDeger),
+      cap: "Toplam varlıklar − toplam borçlar",
+      coral: netDeger < 0,
+    });
+  }
   if (netNakit !== null)
     metrikler.push({
       lbl: "Net nakit akışı",
@@ -1855,7 +2741,7 @@ function Ozet({
 
   return (
     <div className="bt-stack">
-      <div className="bt-hero">
+      <div className="bt-hero" data-tour="ozet">
         <span className="deko-daire" />
         <span className="deko-kare" />
         <div
@@ -2155,8 +3041,20 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle }) {
         </div>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div className="bt-satirD-tutar">{fmt(o.tutar)}</div>
-        <div className="bt-satirD-tur">{o.not}</div>
+        <div className="bt-satirD-tutar">
+          {fmt(o.kartOdemesi ? o.kalanToplam : o.tutar)}
+        </div>
+        <div className="bt-satirD-tur">
+          {o.kartOdemesi ? "Kalan toplam borç" : o.not}
+        </div>
+        {o.kartOdemesi && (
+          <div
+            className="bt-satirD-tur"
+            style={{ color: CORAL, fontWeight: 800, marginTop: 3 }}
+          >
+            Ödenmesi gereken minimum: {fmt(o.tutar)}
+          </div>
+        )}
         <div
           className="bt-satirD-tur"
           style={{
@@ -2192,34 +3090,144 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle }) {
   );
 }
 
-function Odemeler({ yaklasan, odendiIsaretle }) {
-  const sirali = [...yaklasan].sort((a, b) => a.tarih - b.tarih);
+function Odemeler({
+  veri,
+  yaklasan,
+  gelecekOdemeler = [],
+  odendiIsaretle,
+  filtre = "bekleyen",
+}) {
+  const donemler = useMemo(() => {
+    const aylar = new Set([ayAnahtari()]);
+    (veri.cards || []).forEach((kart) => {
+      if (kart.ekstreAyi) aylar.add(kart.ekstreAyi);
+      (kart.ekstreGecmisi || []).forEach((ekstre) => {
+        if (ekstre.ekstreAyi) aylar.add(ekstre.ekstreAyi);
+      });
+    });
+    Object.keys(veri.loanPaymentHistory || {}).forEach((ay) => aylar.add(ay));
+    return [...aylar].filter(Boolean).sort().reverse();
+  }, [veri.cards, veri.loanPaymentHistory]);
+  const [donem, setDonem] = useState(donemler[0] || ayAnahtari());
+  useEffect(() => {
+    if (!donemler.includes(donem)) setDonem(donemler[0] || ayAnahtari());
+  }, [donem, donemler]);
+
+  const donemOdemeleri = useMemo(() => {
+    const liste = [];
+    (veri.cards || []).forEach((kart) => {
+      const ekstre =
+        kart.ekstreAyi === donem
+          ? kart
+          : (kart.ekstreGecmisi || []).find((x) => x.ekstreAyi === donem);
+      if (!ekstre) return;
+      const kayit = { ...kart, ...ekstre, ekstreAyi: donem };
+      const h = kartHesabi(kayit);
+      if (h.onceki <= 0 && h.toplam <= 0) return;
+      const hedefTutar = h.asgari;
+      const odemeAnahtari = kartOdemeAnahtari(kayit);
+      const elleOdendi = !!veri.paid?.[odemeAnahtari];
+      const yapilanOdeme = elleOdendi
+        ? Math.max(h.odeme, hedefTutar)
+        : h.odeme;
+      const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
+      const otomatikOdendi =
+        !elleOdendi && hedefTutar > 0 && tutar <= 0;
+      liste.push({
+        id: "kart-" + kart.id + "-" + donem,
+        kartOdemesi: true,
+        banka: kart.banka,
+        ad: kart.banka + (kart.ad ? " · " + kart.ad : ""),
+        tutar,
+        kalanToplam: h.toplam,
+        minimumOdeme: hedefTutar,
+        hedefTutar,
+        yapilanOdeme,
+        not: "kalan minimum ödeme",
+        tarih: kartGecikmeTarihi(kayit),
+        odendi: elleOdendi || otomatikOdendi,
+        otomatikOdendi,
+        anahtar: odemeAnahtari,
+      });
+    });
+
+    if (donem === ayAnahtari()) {
+      liste.push(...yaklasan.filter((x) => !x.kartOdemesi));
+    } else {
+      Object.values(veri.loanPaymentHistory?.[donem] || {}).forEach((odeme) => {
+        const tarih = new Date(
+          +donem.slice(0, 4),
+          +donem.slice(5, 7) - 1,
+          Math.min(Math.max(+odeme.odemeGunu || 1, 1), 28),
+        );
+        liste.push({
+          id: "gecmis-kredi-" + odeme.krediId + "-" + donem,
+          banka: odeme.banka,
+          ad: odeme.banka + (odeme.ad ? " · " + odeme.ad : ""),
+          tutar: 0,
+          hedefTutar: +odeme.taksit || 0,
+          yapilanOdeme: +odeme.taksit || 0,
+          not: "ödenen taksit",
+          tarih,
+          odendi: true,
+          anahtar: "kredi-" + odeme.krediId + "-" + donem,
+        });
+      });
+    }
+    return liste.sort((a, b) => a.tarih - b.tarih);
+  }, [donem, veri.cards, veri.loanPaymentHistory, veri.paid, yaklasan]);
+
+  const sirali = donemOdemeleri;
   const odendi = sirali.filter((x) => x.odendi);
   const bekleyen = sirali.filter((x) => !x.odendi);
   const toplam = sirali.reduce((t, x) => t + (+x.hedefTutar || 0), 0);
   const kalan = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
   const odenen = sirali.reduce((t, x) => t + (+x.yapilanOdeme || 0), 0);
-  const simdi = bugun();
+  const kalanToplamOdeme = sirali.reduce(
+    (t, x) =>
+      t +
+      (x.kartOdemesi
+        ? +x.kalanToplam || 0
+        : x.odendi
+          ? 0
+          : +x.tutar || 0),
+    0,
+  );
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return (
     <div className="bt-stack">
-      <div className="bt-card">
+      <div className="bt-card" data-tour="odemeler">
         <div className="bt-cardhead">
           <div>
             <div className="bt-eyebrow">
-              {AYLAR[simdi.getMonth()]} {simdi.getFullYear()}
+              {ayEtiketi(donem)}
             </div>
             <div className="bt-h2" style={{ margin: "5px 0 0" }}>
               Aylık ödeme listesi
             </div>
           </div>
-          <div className="bt-mono" style={{ fontWeight: 800 }}>
-            {odendi.length}/{sirali.length} tamamlandı
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <select
+              className="bt-input"
+              aria-label="Ödeme dönemi"
+              value={donem}
+              onChange={(e) => setDonem(e.target.value)}
+              style={{ width: 170 }}
+            >
+              {donemler.map((ay) => (
+                <option key={ay} value={ay}>
+                  {ayEtiketi(ay)}
+                </option>
+              ))}
+            </select>
+            <div className="bt-mono" style={{ fontWeight: 800 }}>
+              {odendi.length}/{sirali.length} tamamlandı
+            </div>
           </div>
         </div>
         <div className="bt-grid" style={{ marginTop: 16 }}>
           <div className="bt-metric">
-            <div className="bt-metric-lbl">Bu ay ödeme hedefi</div>
+            <div className="bt-metric-lbl">Aktif ödeme hedefi</div>
             <div className="bt-metric-amt">{fmt(toplam)}</div>
             <div className="bt-metric-cap">
               Kart minimumları ve kredi taksitleri
@@ -2228,15 +3236,29 @@ function Odemeler({ yaklasan, odendiIsaretle }) {
           <div className="bt-metric">
             <div className="bt-metric-lbl">Yapılan ödemeler</div>
             <div className="bt-metric-amt">{fmt(odenen)}</div>
-            <div className="bt-metric-cap">Kalan {fmt(kalan)}</div>
+            <div className="bt-metric-cap">Bu listeye işlenen tutar</div>
+          </div>
+          <div className="bt-metric">
+            <div className="bt-metric-lbl">Kalan toplam ödeme</div>
+            <div className="bt-metric-amt">{fmt(kalanToplamOdeme)}</div>
+            <div className="bt-metric-cap">
+              Kartların kalan borcu ve bekleyen kredi taksitleri
+            </div>
+          </div>
+          <div className="bt-metric">
+            <div className="bt-metric-lbl">Kalan toplam minimum ödeme</div>
+            <div className="bt-metric-amt">{fmt(kalan)}</div>
+            <div className="bt-metric-cap">
+              Bu dönem zorunlu olarak ödenmesi gereken tutar
+            </div>
           </div>
         </div>
       </div>
       <div className="bt-ipucu">
         <CalendarCheck size={16} />
         <div>
-          Ödemeyi yaptığınızda işaretleyin. Kayıt yalnızca bu aya aittir; yeni
-          ay başladığında yeni ödeme listesi otomatik oluşur.
+          Yeni ekstre girildiğinde son ödeme tarihi sonraki ay olsa bile bu
+          listeye hemen gelir. Ödemeyi yaptığınızda işaretleyin.
         </div>
       </div>
       {eskiKayitSayisi > 0 && (
@@ -2250,38 +3272,67 @@ function Odemeler({ yaklasan, odendiIsaretle }) {
           </div>
         </div>
       )}
-      <div className="bt-card">
-        <div className="bt-h2">Bekleyen ödemeler</div>
-        {bekleyen.length === 0 ? (
-          <div className="bt-bos">Bu ay için bekleyen ödeme yok.</div>
-        ) : (
-          <div className="bt-stack" style={{ gap: 10 }}>
-            {bekleyen.map((o, i) => (
-              <OdemeSatiri
-                key={o.id}
-                o={o}
-                i={i}
-                gecikmis={kalanGun(o.tarih) < 0}
-                odendiIsaretle={odendiIsaretle}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      {odendi.length > 0 && (
+      {filtre === "bekleyen" && (
         <div className="bt-card">
-          <div className="bt-h2">Tamamlananlar</div>
-          <div className="bt-stack" style={{ gap: 10 }}>
-            {odendi.map((o, i) => (
-              <OdemeSatiri
-                key={o.id}
-                o={o}
-                i={i}
-                gecikmis={false}
-                odendiIsaretle={odendiIsaretle}
-              />
-            ))}
-          </div>
+          <div className="bt-h2">Bekleyen ödemeler</div>
+          {bekleyen.length === 0 ? (
+            <div className="bt-bos">Bekleyen ödeme yok.</div>
+          ) : (
+            <div className="bt-stack" style={{ gap: 10 }}>
+              {bekleyen.map((o, i) => (
+                <OdemeSatiri
+                  key={o.id}
+                  o={o}
+                  i={i}
+                  gecikmis={kalanGun(o.tarih) < 0}
+                  odendiIsaretle={odendiIsaretle}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {filtre === "odenen" && (
+        <div className="bt-card">
+          <div className="bt-h2">Tamamlanan ödemeler</div>
+          {odendi.length === 0 ? (
+            <div className="bt-bos">Bu ay henüz tamamlanan ödeme yok.</div>
+          ) : (
+            <div className="bt-stack" style={{ gap: 10 }}>
+              {odendi.map((o, i) => (
+                <OdemeSatiri
+                  key={o.id}
+                  o={o}
+                  i={i}
+                  gecikmis={false}
+                  odendiIsaretle={odendiIsaretle}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {filtre === "bekleyen" && donem === ayAnahtari() && (
+        <div className="bt-card">
+          <div className="bt-h2">Gelecek ayın bilinen ödemeleri</div>
+          {gelecekOdemeler.length === 0 ? (
+            <div className="bt-bos">
+              Gelecek ay için kayıtlı kredi taksiti yok. Kredi kartı ekstreleri,
+              yeni dönem girildiğinde burada görünecek.
+            </div>
+          ) : (
+            <div className="bt-stack" style={{ gap: 10 }}>
+              {gelecekOdemeler.map((o, i) => (
+                <OdemeSatiri
+                  key={o.id}
+                  o={o}
+                  i={i}
+                  gecikmis={false}
+                  odendiIsaretle={odendiIsaretle}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -2297,8 +3348,9 @@ function Borclar({
   sil,
   bankalar,
   bankaEkle,
+  kategori,
+  setKategori,
 }) {
-  const [kategori, setKategori] = useState("cards");
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
   const [yeniBanka, setYeniBanka] = useState("");
@@ -2425,7 +3477,7 @@ function Borclar({
       const gun = -kalanGun(tarih);
       const asgariOran = (+k.limit || 0) <= 50000 ? 0.2 : 0.4;
       const asgariTamam = h.odeme >= h.onceki * asgariOran;
-      const odendi = !!veri.paid?.["kart-" + k.id + "-" + ay];
+      const odendi = !!veri.paid?.[kartOdemeAnahtari(k)];
       if (gun > 0 && h.toplam > 0) {
         const minimumTamam = asgariTamam || odendi;
         const oran = minimumTamam
@@ -2810,31 +3862,21 @@ function Borclar({
 
   return (
     <div className="bt-stack">
-      <div className="bt-nav" style={{ marginBottom: 0 }}>
-        {Object.entries(KATEGORI_META).map(([key, m]) => (
+      {(kategori === "cards" || kategori === "kontrol") && (
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
-            key={key}
-            className={"bt-pill " + (kategori === key ? "aktif" : "pasif")}
-            style={{ fontSize: 13.5 }}
+            className="bt-btn kucuk ikincil"
             onClick={() => {
-              setKategori(key);
+              setKategori(kategori === "kontrol" ? "cards" : "kontrol");
               setForm(null);
             }}
           >
-            {m.ad}
+            {kategori === "kontrol"
+              ? "Kredi kartlarına dön"
+              : "Ekstre kontrolünü aç"}
           </button>
-        ))}
-        <button
-          className={"bt-pill " + (kategori === "kontrol" ? "aktif" : "pasif")}
-          style={{ fontSize: 13.5 }}
-          onClick={() => {
-            setKategori("kontrol");
-            setForm(null);
-          }}
-        >
-          Ekstre kontrolü
-        </button>
-      </div>
+        </div>
+      )}
 
       {kategori === "cards" && (
         <div className="bt-card" style={{ padding: 14 }}>
@@ -2914,7 +3956,7 @@ function Borclar({
       {kategori === "kontrol" ? (
         <EkstreKontrol veri={veri} />
       ) : (
-        <div className="bt-card">
+        <div className="bt-card" data-tour="borclar">
           <div className="bt-strip">
             <div className="bt-strip-count">{sayacHesapla()}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -3676,7 +4718,7 @@ function BorclarSatiri({
     const asgariTamam = hesap.odeme >= hesap.onceki * asgariOran;
     const donem = arsiv ? k.ekstreAyi : k.ekstreAyi || ayAnahtari();
     const odendi =
-      !!paid?.["kart-" + k.id + "-" + donem] ||
+      !!paid?.[kartOdemeAnahtari({ ...k, ekstreAyi: donem })] ||
       (ekstreVar && hesap.toplam <= 0);
     const borcKapandi = ekstreVar && hesap.toplam <= 0;
     const durum = borcKapandi
@@ -4308,6 +5350,944 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
   );
 }
 
+/* ---------------- Varlıklarım ---------------- */
+function Varliklar({
+  veri,
+  form,
+  setForm,
+  ekleGuncelle,
+  sil,
+  piyasa,
+  piyasaYenile,
+  ozet,
+}) {
+  const acik = form?.liste === "assets";
+  const f = acik ? form.veri || {} : {};
+  const seciliTur = varlikTuru(f.tur || "usd");
+  const formParaBirimi = seciliTur.fon ? "TRY" : paraBirimi(f.paraBirimi).id;
+  const seciliKategori = varlikKategorisi(
+    f.kategori || seciliTur.kategori || "doviz",
+  );
+  const kategoriTurleri = seciliKategori.turler.map(varlikTuru);
+  const seciliKriptoTryFiyati = seciliTur.kripto && seciliTur.coinId
+    ? +piyasa.prices?.crypto?.[seciliTur.coinId] || 0
+    : 0;
+  const seciliKriptoFiyati = seciliTur.kripto && seciliTur.coinId
+    ? formParaBirimi === "USD"
+      ? +piyasa.prices?.cryptoUsd?.[seciliTur.coinId] || 0
+      : formParaBirimi === "EUR"
+        ? seciliKriptoTryFiyati / (+piyasa.prices?.eurTry || 1)
+        : seciliKriptoTryFiyati
+    : 0;
+  const seciliOtomatikBirimFiyati = seciliTur.fon
+    ? +f.fonBirimFiyati || 0
+    : seciliTur.hisse
+      ? +f.hisseBirimFiyati || 0
+      : seciliKriptoTryFiyati;
+  const seciliGosterimBirimFiyati = seciliTur.kripto
+    ? seciliKriptoFiyati
+      : seciliOtomatikBirimFiyati / Math.max(paraBirimiKuru(f, piyasa.prices), 1);
+  const besPayAdedi = seciliTur.id === "bes" && +f.fonBirimFiyati > 0
+    ? (+f.besToplamTutar || 0) / +f.fonBirimFiyati
+    : 0;
+  const gosterimMiktari = seciliTur.id === "bes" ? besPayAdedi : (+f.miktar || 0);
+  const [silinecek, setSilinecek] = useState(null);
+  const [filtre, setFiltre] = useState("tumu");
+  const [fonAraniyor, setFonAraniyor] = useState(false);
+  const [fonHata, setFonHata] = useState("");
+  const [hisseAraniyor, setHisseAraniyor] = useState(false);
+  const [hisseHata, setHisseHata] = useState("");
+  const [digerPenceresi, setDigerPenceresi] = useState(false);
+  const [digerPopupTuru, setDigerPopupTuru] = useState("diger");
+  const [digerFormu, setDigerFormu] = useState({ ad: "", kurum: "", guncelDeger: "", paraBirimi: "TRY" });
+  const [digerHata, setDigerHata] = useState("");
+  const filtreler = [
+    ["tumu", "Tümü"],
+    ["doviz", "Döviz"],
+    ["emtia", "Emtia"],
+    ["kripto", "Kripto"],
+    ["bes", "BES"],
+    ["fon", "Fonlar"],
+    ["hisse", "Hisseler"],
+    ["diger", "Diğer"],
+  ];
+  const varlikGrubu = (tur) => varlikTuru(tur).kategori || "diger";
+  const gorunenKalemler = ozet.kalemler.filter(
+    (k) => filtre === "tumu" || varlikGrubu(k.tur) === filtre,
+  );
+  const otomatikKalemler = ozet.kalemler.filter(
+    (k) => varlikTuru(k.tur).otomatik,
+  );
+  const otomatikToplam = otomatikKalemler.reduce(
+    (t, k) => t + k.hesaplananDeger,
+    0,
+  );
+  const dagilim = useMemo(() => {
+    const gruplar = {};
+    ozet.kalemler.forEach((k) => {
+      const ad = varlikTuru(k.tur).ad;
+      gruplar[ad] = (gruplar[ad] || 0) + k.hesaplananDeger;
+    });
+    return Object.entries(gruplar).sort((a, b) => b[1] - a[1]);
+  }, [ozet.kalemler]);
+
+  const fSet = (parca) =>
+    setForm((eski) => ({
+      ...eski,
+      veri: { ...(eski?.veri || {}), ...parca },
+    }));
+
+  async function fonBilgisiniGetir(kod) {
+    const temizKod = String(kod || "").trim().toUpperCase();
+    if (!/^[A-Z0-9]{2,8}$/.test(temizKod))
+      throw new Error("Geçerli bir fon kodu girin.");
+    const onbellek = piyasa.prices?.funds?.[temizKod];
+    if (onbellek) return onbellek;
+    const yanit = await fetch(
+      "/api/fund-prices?codes=" + encodeURIComponent(temizKod),
+      { headers: { Accept: "application/json" } },
+    );
+    const sonuc = await yanit.json().catch(() => ({}));
+    const bilgi = sonuc?.funds?.[temizKod];
+    if (!yanit.ok || !bilgi)
+      throw new Error(sonuc?.errors?.[0]?.message || "Fon bulunamadı.");
+    return bilgi;
+  }
+
+  async function fonuBul() {
+    setFonAraniyor(true);
+    setFonHata("");
+    try {
+      const kod = String(f.fonKodu || "").trim().toUpperCase();
+      const bilgi = await fonBilgisiniGetir(kod);
+      fSet({
+        fonKodu: kod,
+        ad: bilgi.name,
+        fonBirimFiyati: bilgi.price,
+        fonKaynagi: bilgi.source,
+        fonKategori: bilgi.category,
+      });
+    } catch (hata) {
+      setFonHata(hata.message || "Fon fiyatı alınamadı.");
+    } finally {
+      setFonAraniyor(false);
+    }
+  }
+
+  async function hisseBilgisiniGetir(kod, piyasaTuru = "BIST") {
+    const temizKod = String(kod || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\.IS$/, "");
+    if (!/^[A-Z0-9]{2,10}$/.test(temizKod))
+      throw new Error(`Geçerli bir ${piyasaTuru === "US" ? "ABD" : "BIST"} hisse kodu girin.`);
+    const onbellek = piyasa.prices?.stocks?.[temizKod];
+    if (onbellek) return onbellek;
+    const yanit = await fetch(
+      "/api/stock-prices?market=" + encodeURIComponent(piyasaTuru) + "&codes=" + encodeURIComponent(temizKod),
+      { headers: { Accept: "application/json" } },
+    );
+    const sonuc = await yanit.json().catch(() => ({}));
+    const bilgi = sonuc?.stocks?.[temizKod];
+    if (!yanit.ok || !bilgi)
+      throw new Error(sonuc?.errors?.[0]?.message || "Hisse bulunamadı.");
+    return bilgi;
+  }
+
+  async function hisseyiBul() {
+    setHisseAraniyor(true);
+    setHisseHata("");
+    try {
+      const kod = String(f.hisseKodu || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\.IS$/, "");
+      const bilgi = await hisseBilgisiniGetir(kod, seciliTur.piyasa);
+      fSet({
+        hisseKodu: kod,
+        ad: bilgi.name,
+        hisseBirimFiyati: bilgi.price,
+        hisseParaBirimi: bilgi.currency,
+        hisseKaynagi: bilgi.source,
+        hisseFiyatTarihi: bilgi.priceAt,
+      });
+    } catch (hata) {
+      setHisseHata(hata.message || "Hisse fiyatı alınamadı.");
+    } finally {
+      setHisseAraniyor(false);
+    }
+  }
+
+  async function kaydet(e) {
+    e.preventDefault();
+    const tur = varlikTuru(f.tur || "usd");
+    if (tur.otomatik && (tur.id === "bes" ? !(+f.besToplamTutar > 0) : !(+f.miktar > 0))) return;
+    if (!tur.otomatik && !(+f.guncelDeger > 0)) return;
+    let fonBilgisi = null;
+    let hisseBilgisi = null;
+    if (tur.fon) {
+      setFonAraniyor(true);
+      setFonHata("");
+      try {
+        fonBilgisi = await fonBilgisiniGetir(f.fonKodu);
+      } catch (hata) {
+        setFonHata(hata.message || "Fon fiyatı alınamadı.");
+        setFonAraniyor(false);
+        return;
+      }
+      setFonAraniyor(false);
+    }
+    if (tur.hisse) {
+      setHisseAraniyor(true);
+      setHisseHata("");
+      try {
+        hisseBilgisi = await hisseBilgisiniGetir(f.hisseKodu, tur.piyasa);
+      } catch (hata) {
+        setHisseHata(hata.message || "Hisse fiyatı alınamadı.");
+        setHisseAraniyor(false);
+        return;
+      }
+      setHisseAraniyor(false);
+    }
+    ekleGuncelle("assets", {
+      ...f,
+      id: f.id || uid(),
+      kategori: tur.kategori,
+      tur: tur.id,
+      ad: (fonBilgisi?.name || hisseBilgisi?.name || f.ad || tur.ad).trim(),
+      fonKodu: tur.fon
+        ? String(f.fonKodu || "").trim().toUpperCase()
+        : undefined,
+      fonBirimFiyati: tur.fon
+        ? fonBilgisi?.price || +f.fonBirimFiyati || 0
+        : undefined,
+      fonKaynagi: tur.fon ? fonBilgisi?.source || tur.kaynak : undefined,
+      fonKategori: tur.fon ? fonBilgisi?.category || f.fonKategori : undefined,
+      hisseKodu: tur.hisse
+        ? String(f.hisseKodu || "")
+            .trim()
+            .toUpperCase()
+            .replace(/\.IS$/, "")
+        : undefined,
+      hisseBirimFiyati: tur.hisse
+        ? hisseBilgisi?.price || +f.hisseBirimFiyati || 0
+        : undefined,
+      hisseKaynagi: tur.hisse
+        ? hisseBilgisi?.source || tur.kaynak
+        : undefined,
+      hissePiyasa: tur.hisse ? tur.piyasa : undefined,
+      hisseParaBirimi: tur.hisse ? hisseBilgisi?.currency || f.hisseParaBirimi || "TRY" : undefined,
+      hisseFiyatTarihi: tur.hisse
+        ? hisseBilgisi?.priceAt || f.hisseFiyatTarihi
+        : undefined,
+      kriptoBirimFiyati: tur.kripto && tur.coinId
+        ? varlikBirimFiyati({ tur: tur.id }, piyasa.prices) || +f.kriptoBirimFiyati || 0
+        : undefined,
+      miktar: tur.otomatik
+        ? tur.id === "bes"
+          ? Math.max((+f.besToplamTutar || 0) / Math.max(+fonBilgisi?.price || +f.fonBirimFiyati || 0, 0.00000001), 0)
+          : Math.max(+f.miktar || 0, 0)
+        : undefined,
+      besToplamTutar: tur.id === "bes" ? Math.max(+f.besToplamTutar || 0, 0) : undefined,
+      guncelDeger: Math.max(+f.guncelDeger || 0, 0),
+      toplamMaliyet: Math.max(+f.toplamMaliyet || 0, 0),
+      paraBirimi: seciliTur.fon
+        ? "TRY"
+        : tur.hisse && tur.piyasa === "US"
+          ? (hisseBilgisi?.currency || f.hisseParaBirimi || "USD")
+          : paraBirimi(f.paraBirimi).id,
+      guncellenmeTarihi: new Date().toISOString(),
+    });
+  }
+
+  function digerEkleBaslat() {
+    setForm({ liste: "assets", veri: { kategori: "diger", tur: "diger" } });
+    setDigerFormu({ ad: "", kurum: "", guncelDeger: "", paraBirimi: "TRY" });
+    setDigerHata("");
+    setDigerPenceresi(true);
+  }
+
+  function bosKategoriEkle() {
+    const kategori = varlikKategorisi(filtre === "tumu" ? "doviz" : filtre);
+    const ilkTur = varlikTuru(kategori.turler[0]);
+    setForm({
+      liste: "assets",
+      veri: {
+        kategori: kategori.id,
+        tur: ilkTur.id,
+        paraBirimi: ilkTur.kripto && ilkTur.coinId ? "USD" : "TRY",
+      },
+    });
+  }
+
+  const fiyatTarihi = piyasa.updatedAt
+    ? new Date(piyasa.updatedAt).toLocaleString("tr-TR", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
+
+  return (
+    <div className="bt-stack">
+      <div className="bt-varlik-hero" data-tour="varliklar">
+        <div>
+          <div className="bt-metric-lbl">Toplam varlıklarınız</div>
+          <div className="bt-varlik-toplam">{fmt(ozet.toplam)}</div>
+          <div style={{ color: "#bfc1b4", fontSize: 12, marginTop: 8 }}>
+            {ozet.kalemler.length} kayıt · Borçlardan bağımsız varlık toplamı
+          </div>
+        </div>
+        <div className="bt-varlik-mini">
+          <div className="bt-metric-lbl">Otomatik değerlenen</div>
+          <strong>{fmt(otomatikToplam)}</strong>
+        </div>
+        <div className="bt-varlik-mini">
+          <div className="bt-metric-lbl">Toplam kazanç / kayıp</div>
+          <strong style={{ color: ozet.kazanc < 0 ? CORAL : LIME }}>
+            {ozet.maliyet > 0
+              ? (ozet.kazanc >= 0 ? "+" : "") + fmt(ozet.kazanc)
+              : "—"}
+          </strong>
+        </div>
+      </div>
+
+      <div className="bt-card">
+        <div className="bt-cardhead" style={{ marginBottom: 0 }}>
+          <div>
+            <div className="bt-h2" style={{ marginBottom: 5 }}>
+              <PiggyBank size={20} /> Varlıklarım
+            </div>
+            <div className={"bt-varlik-kaynak " + (piyasa.hata ? "hata" : "")}>
+              <RefreshCw size={13} />
+              {piyasa.yukleniyor
+                ? "Piyasa fiyatları güncelleniyor…"
+                : piyasa.hata ||
+                  (fiyatTarihi
+                    ? "Son fiyat güncellemesi: " + fiyatTarihi
+                    : "Otomatik fiyatlar henüz alınmadı")}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              className="bt-btn kucuk ikincil"
+              onClick={piyasaYenile}
+              disabled={piyasa.yukleniyor}
+            >
+              <RefreshCw size={14} /> Fiyatları yenile
+            </button>
+            {!acik && (
+              <button
+                className="bt-btn birincil"
+                onClick={() =>
+                  setForm({
+                    liste: "assets",
+                    veri: { kategori: "doviz", tur: "usd" },
+                  })
+                }
+              >
+                <Plus size={16} /> Varlık ekle
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <nav
+        className="bt-nav bt-nav-alt"
+        style={{ margin: 0 }}
+        aria-label="Varlık türleri"
+      >
+        {filtreler.map(([k, ad]) => (
+          <button
+            key={k}
+            className={"bt-pill " + (filtre === k ? "aktif" : "pasif")}
+            onClick={() => setFiltre(k)}
+          >
+            {ad}
+          </button>
+        ))}
+      </nav>
+
+      {acik && (
+        <form className="bt-form" onSubmit={kaydet}>
+          <div className="bt-h2" style={{ marginBottom: 16 }}>
+            {f.id ? "Varlığı düzenle" : "Yeni varlık ekle"}
+          </div>
+          <div className="bt-alanlar">
+            <label className="bt-alan">
+              <span>Varlık kategorisi *</span>
+              <select
+                className="bt-input"
+                value={seciliKategori.id}
+                onChange={(e) => {
+                  const kategori = varlikKategorisi(e.target.value);
+                  fSet({
+                    kategori: kategori.id,
+                    tur: kategori.turler[0],
+                    ad: "",
+                    miktar: "",
+                    guncelDeger: "",
+                    fonKodu: "",
+                    fonBirimFiyati: "",
+                    besToplamTutar: "",
+                    hisseKodu: "",
+                    hisseBirimFiyati: "",
+                    hisseParaBirimi: "",
+                    paraBirimi: varlikTuru(kategori.turler[0]).kripto && varlikTuru(kategori.turler[0]).coinId ? "USD" : f.paraBirimi || "TRY",
+                  });
+                  setFonHata("");
+                  setHisseHata("");
+                }}
+              >
+                {VARLIK_KATEGORILERI.map((kategori) => (
+                  <option key={kategori.id} value={kategori.id}>
+                    {kategori.ad}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="bt-alan">
+              <span>{seciliKategori.ad} türü *</span>
+              <select
+                className="bt-input"
+                value={seciliTur.id}
+                onChange={(e) => {
+                  const tur = e.target.value;
+                  fSet({
+                    tur,
+                    ad: "",
+                    miktar: "",
+                    guncelDeger: "",
+                    fonKodu: "",
+                    fonBirimFiyati: "",
+                    besToplamTutar: "",
+                    hisseKodu: "",
+                    hisseBirimFiyati: "",
+                    hisseParaBirimi: "",
+                    paraBirimi: varlikTuru(tur).kripto && varlikTuru(tur).coinId ? "USD" : f.paraBirimi || "TRY",
+                  });
+                  if (tur === "diger" || tur === "kripto_diger") {
+                    setDigerPopupTuru(tur);
+                    setDigerFormu({
+                      ad: f.ad || "",
+                      kurum: f.kurum || "",
+                      guncelDeger: f.guncelDeger || "",
+                      paraBirimi: f.paraBirimi || "TRY",
+                    });
+                    setDigerHata("");
+                    setDigerPenceresi(true);
+                  }
+                }}
+              >
+                {kategoriTurleri.map((tur) => (
+                  <option key={tur.id} value={tur.id}>
+                    {tur.ad}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {seciliTur.fon && (
+              <label className="bt-alan">
+                <span>{seciliTur.kaynak} fon kodu *</span>
+                <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
+                  <input
+                    className="bt-input"
+                    style={{ minWidth: 0, flex: 1, textTransform: "uppercase" }}
+                    required
+                    maxLength={8}
+                    value={f.fonKodu || ""}
+                    placeholder={seciliTur.id === "bes" ? "Örn. AEA" : "Örn. TI2"}
+                    onChange={(e) => {
+                      fSet({
+                        fonKodu: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+                        fonBirimFiyati: "",
+                      });
+                      setFonHata("");
+                    }}
+                  />
+                  <button
+                    className="bt-btn ikincil kucuk"
+                    type="button"
+                    onClick={fonuBul}
+                    disabled={fonAraniyor || !f.fonKodu}
+                  >
+                    <RefreshCw size={14} /> {fonAraniyor ? "Aranıyor" : "Fiyatı bul"}
+                  </button>
+                </div>
+              </label>
+            )}
+            {seciliTur.hisse && (
+              <label className="bt-alan">
+                <span>{seciliTur.piyasa === "US" ? "ABD borsası hisse kodu *" : "Borsa İstanbul hisse kodu *"}</span>
+                <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
+                  <input
+                    className="bt-input"
+                    style={{ minWidth: 0, flex: 1, textTransform: "uppercase" }}
+                    required
+                    maxLength={10}
+                    value={f.hisseKodu || ""}
+                    placeholder={seciliTur.piyasa === "US" ? "Örn. AAPL" : "Örn. THYAO"}
+                    onChange={(e) => {
+                      fSet({
+                        hisseKodu: e.target.value
+                          .toUpperCase()
+                          .replace(/[^A-Z0-9]/g, ""),
+                        hisseBirimFiyati: "",
+                        hisseParaBirimi: "",
+                      });
+                      setHisseHata("");
+                    }}
+                  />
+                  <button
+                    className="bt-btn ikincil kucuk"
+                    type="button"
+                    onClick={hisseyiBul}
+                    disabled={hisseAraniyor || !f.hisseKodu}
+                  >
+                    <RefreshCw size={14} /> {hisseAraniyor ? "Aranıyor" : "Fiyatı bul"}
+                  </button>
+                </div>
+              </label>
+            )}
+            {seciliTur.kripto && seciliTur.coinId && (
+              <label className="bt-alan">
+                <span>Güncel {seciliTur.birim} fiyatı ({formParaBirimi})</span>
+                <input
+                  className="bt-input"
+                  readOnly
+                  value={seciliKriptoFiyati > 0 ? fmtPara(seciliKriptoFiyati, formParaBirimi) : "Fiyat yükleniyor…"}
+                />
+              </label>
+            )}
+            {(seciliTur.id === "diger" || seciliTur.id === "kripto_diger") && <label className="bt-alan">
+              <span>Varlık adı</span>
+              <input
+                className="bt-input"
+                value={f.ad || ""}
+                placeholder={seciliTur.ad}
+                onChange={(e) => fSet({ ad: e.target.value })}
+              />
+            </label>}
+            {seciliTur.fon ? (
+              <label className="bt-alan">
+                <span>Fonun tam adı</span>
+                <input
+                  className="bt-input"
+                  readOnly
+                  value={f.ad || ""}
+                  placeholder="Fon kodunu girip fiyatı bul'a basın"
+                />
+              </label>
+            ) : (
+              <label className="bt-alan">
+                <span>Banka / kurum</span>
+                <input
+                  className="bt-input"
+                  value={f.kurum || ""}
+                  placeholder="Örn. İş Bankası"
+                  onChange={(e) => fSet({ kurum: e.target.value })}
+                />
+              </label>
+            )}
+            {!seciliTur.fon && <label className="bt-alan">
+              <span>Para birimi *</span>
+              <select className="bt-input" value={formParaBirimi} onChange={(e) => fSet({ paraBirimi: e.target.value })}>
+                {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{birim.ad}</option>)}
+              </select>
+            </label>}
+            {seciliTur.fon && (
+              <label className="bt-alan">
+                <span>Son pay fiyatı (₺)</span>
+                <input
+                  className="bt-input"
+                  readOnly
+                  value={f.fonBirimFiyati ? fmtBirim(f.fonBirimFiyati) : "Fiyatı bul'a basın"}
+                />
+              </label>
+            )}
+            {seciliTur.hisse && (
+              <label className="bt-alan">
+                <span>Son hisse fiyatı ({f.hisseParaBirimi || (seciliTur.piyasa === "US" ? "USD" : "₺")})</span>
+                <input
+                  className="bt-input"
+                  readOnly
+                  value={f.hisseBirimFiyati
+                    ? (f.hisseParaBirimi && f.hisseParaBirimi !== "TRY" ? fmtPara(f.hisseBirimFiyati, f.hisseParaBirimi) : fmtBirim(f.hisseBirimFiyati))
+                    : "Fiyatı bul'a basın"}
+                />
+              </label>
+            )}
+            {seciliTur.id === "bes" ? (
+              <>
+                <label className="bt-alan">
+                  <span>Toplam BES tutarı (₺) *</span>
+                  <input
+                    className="bt-input"
+                    type="number"
+                    min="0"
+                    step="any"
+                    required
+                    value={f.besToplamTutar ?? (f.miktar && f.fonBirimFiyati ? +f.miktar * +f.fonBirimFiyati : "")}
+                    onChange={(e) => fSet({ besToplamTutar: e.target.value })}
+                  />
+                </label>
+                <label className="bt-alan">
+                  <span>Tahmini pay adedi</span>
+                  <input
+                    className="bt-input"
+                    readOnly
+                    value={besPayAdedi > 0 ? besPayAdedi.toLocaleString("tr-TR", { maximumFractionDigits: 6 }) + " pay" : "Fon fiyatı bulunduktan sonra hesaplanır"}
+                  />
+                </label>
+              </>
+            ) : seciliTur.otomatik ? (
+              <label className="bt-alan">
+                <span>{seciliTur.fon ? "Pay adedi" : seciliTur.hisse ? "Hisse adedi" : `Miktar (${seciliTur.birim})`} *</span>
+                <input
+                  className="bt-input"
+                  type="number"
+                  min="0"
+                  step="any"
+                  required
+                  value={f.miktar ?? ""}
+                  onChange={(e) => fSet({ miktar: e.target.value })}
+                />
+              </label>
+            ) : (
+              <label className="bt-alan">
+                <span>Güncel toplam değer ({formParaBirimi}) *</span>
+                <input
+                  className="bt-input"
+                  type="number"
+                  min="0"
+                  step="any"
+                  required
+                  value={f.guncelDeger ?? ""}
+                  onChange={(e) => fSet({ guncelDeger: e.target.value })}
+                />
+              </label>
+            )}
+            <label className="bt-alan">
+              <span>Toplam alış maliyeti ({formParaBirimi})</span>
+              <input
+                className="bt-input"
+                type="number"
+                min="0"
+                step="any"
+                value={f.toplamMaliyet ?? ""}
+                onChange={(e) => fSet({ toplamMaliyet: e.target.value })}
+              />
+            </label>
+          </div>
+          {seciliTur.fon && (f.fonBirimFiyati > 0 || fonHata) && (
+            <div
+              className="bt-ipucu"
+              style={{ marginTop: 14, borderColor: fonHata ? CORAL : undefined }}
+            >
+              {fonHata ? <AlertTriangle size={16} /> : <Check size={16} />}
+              <div>
+                {fonHata ? (
+                  fonHata
+                ) : (
+                  <>
+                    <b>{f.ad || f.fonKodu}</b> · Son pay fiyatı {fmtBirim(f.fonBirimFiyati)} · {f.fonKaynagi || seciliTur.kaynak}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          {seciliTur.hisse && (f.hisseBirimFiyati > 0 || hisseHata) && (
+            <div
+              className="bt-ipucu"
+              style={{ marginTop: 14, borderColor: hisseHata ? CORAL : undefined }}
+            >
+              {hisseHata ? <AlertTriangle size={16} /> : <Check size={16} />}
+              <div>
+                {hisseHata ? (
+                  hisseHata
+                ) : (
+                  <>
+                    <b>{f.ad || f.hisseKodu}</b> · Son fiyat {fmtBirim(f.hisseBirimFiyati)} · Borsa İstanbul
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          {seciliTur.otomatik && (
+            <div className="bt-ipucu" style={{ marginTop: 14 }}>
+              <Lightbulb size={16} />
+              <div>
+                {seciliTur.fon
+                  ? `${seciliTur.kaynak} tarafından açıklanan son pay fiyatı kullanılır. Fon fiyatları çoğunlukla iş günü sonunda güncellenir.`
+                  : seciliTur.hisse
+                    ? "Borsa İstanbul fiyatı otomatik güncellenir. Gösterilen fiyat gecikmeli olabilir; alım-satım kararı için aracı kurum ekranınızı kullanın."
+                  : seciliTur.tahmini
+                  ? `${seciliTur.ad} değeri gram altının içerdiği saf altın miktarı üzerinden yaklaşık hesaplanır. Kuyumcu alış/satış farkı dahil değildir.`
+                  : `${seciliTur.ad} fiyatı otomatik güncellenir. Siz yalnızca sahip olduğunuz miktarı değiştirirsiniz.`}
+              </div>
+            </div>
+          )}
+          {(seciliTur.fon || seciliTur.hisse || (seciliTur.kripto && seciliTur.coinId)) && gosterimMiktari > 0 &&
+            seciliOtomatikBirimFiyati > 0 && (
+              <div className="bt-card" style={{ marginTop: 14, padding: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 13 }}>
+                  <span>Güncel yaklaşık değer</span>
+                  <strong>{fmtPara(gosterimMiktari * seciliGosterimBirimFiyati, formParaBirimi)}</strong>
+                </div>
+                {+f.toplamMaliyet > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 13, marginTop: 7, color: (+f.miktar || 0) * seciliGosterimBirimFiyati - (+f.toplamMaliyet || 0) >= 0 ? "#5D7A2E" : CORAL }}>
+                    <span>Tahmini kâr / zarar</span>
+                    <strong>{fmtPara(gosterimMiktari * seciliGosterimBirimFiyati - (+f.toplamMaliyet || 0), formParaBirimi)}</strong>
+                  </div>
+                )}
+              </div>
+            )}
+          <div className="bt-form-butonlar">
+            <button className="bt-btn birincil" type="submit">
+              <Check size={15} /> Kaydet
+            </button>
+            <button
+              className="bt-btn ikincil"
+              type="button"
+              onClick={() => setForm(null)}
+            >
+              Vazgeç
+            </button>
+          </div>
+        </form>
+      )}
+
+      {ozet.kalemler.length === 0 && !acik ? (
+        <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
+          Henüz varlık eklemediniz. Dolar, altın, Bitcoin veya BES kaydınızı
+          ekleyerek başlayın.
+          <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}><Plus size={15} /> Varlık ekle</button>
+        </div>
+      ) : gorunenKalemler.length === 0 && !acik ? (
+        <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
+          Bu kategoride henüz varlık kaydı yok.
+          <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}>
+            <Plus size={15} /> {filtre === "hisse" ? "Hisse ekle" : filtre === "fon" ? "Fon ekle" : filtre === "kripto" ? "Kripto ekle" : "Varlık ekle"}
+          </button>
+        </div>
+      ) : (
+        <div className="bt-stack">
+          {[...gorunenKalemler]
+            .sort((a, b) => b.hesaplananDeger - a.hesaplananDeger)
+            .map((k, i) => {
+              const tur = varlikTuru(k.tur);
+              const birimFiyat = varlikBirimFiyati(k, piyasa.prices);
+              const fark =
+                +k.toplamMaliyet > 0
+                  ? k.hesaplananDeger -
+                    +k.toplamMaliyet * paraBirimiKuru(k, piyasa.prices)
+                  : null;
+              return (
+                <div className="bt-satir" key={k.id}>
+                  <div
+                    style={rozetStil(
+                      tur.otomatik ? LIME : i % 2 ? CORAL : "#d8c9a0",
+                      ROTASYONLAR[i % ROTASYONLAR.length],
+                    )}
+                  >
+                    {tur.hisse && k.hisseKodu
+                      ? k.hisseKodu.slice(0, 3)
+                      : tur.fon && k.fonKodu
+                      ? k.fonKodu.slice(0, 3)
+                      : k.tur === "bitcoin"
+                      ? "₿"
+                        : tur.kategori === "emtia"
+                        ? "Au"
+                        : tur.birim || tur.ad.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 170 }}>
+                    <div className="bt-satir-ad">{k.ad || tur.ad}</div>
+                    <div className="bt-satir-meta">
+                      {k.kurum ? k.kurum + " · " : ""}
+                      {tur.fon && k.fonKodu ? k.fonKodu + " · " : ""}
+                      {tur.hisse && k.hisseKodu ? k.hisseKodu + " · " : ""}
+                      {tur.otomatik
+                        ? (+k.miktar || 0).toLocaleString("tr-TR", {
+                            maximumFractionDigits: 8,
+                          }) +
+                          " " +
+                          tur.birim
+                        : tur.ad}
+                    </div>
+                    {tur.otomatik && (
+                      <div className="bt-satir-meta">
+                        {birimFiyat > 0
+                          ? "Birim fiyat " +
+                            (tur.fon || tur.hisse
+                              ? (tur.hisse && k.hisseParaBirimi && k.hisseParaBirimi !== "TRY"
+                                ? fmtPara(birimFiyat, k.hisseParaBirimi)
+                                : fmtBirim(birimFiyat))
+                              : fmt(birimFiyat)) +
+                            (tur.hisse
+                              ? " · gecikmeli"
+                              : tur.fon
+                              ? " · " +
+                                (piyasa.prices?.funds?.[k.fonKodu]?.source ||
+                                  k.fonKaynagi ||
+                                  tur.kaynak)
+                              : tur.tahmini
+                                ? " · yaklaşık"
+                                : " · otomatik")
+                          : "Manuel yedek değer kullanılıyor"}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div className="bt-satir-tutar">
+                      {fmt(k.hesaplananDeger)}
+                    </div>
+                    {fark !== null && (
+                      <div
+                        className={
+                          "bt-varlik-degisim " + (fark >= 0 ? "arti" : "eksi")
+                        }
+                      >
+                        {fark >= 0 ? "+" : ""}
+                        {fmt(fark)}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className={
+                      "bt-varlik-rozet " + (tur.otomatik ? "otomatik" : "")
+                    }
+                  >
+                    {tur.otomatik ? "Otomatik" : "Manuel"}
+                  </span>
+                  <div style={{ display: "flex", gap: 2 }}>
+                    <button
+                      className="bt-btn hayalet"
+                      title="Düzenle"
+                      onClick={() => setForm({ liste: "assets", veri: k })}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      className="bt-btn hayalet tehlike"
+                      title="Sil"
+                      onClick={() => setSilinecek(k)}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      )}
+
+      {dagilim.length > 1 && (
+        <div className="bt-card">
+          <div className="bt-h2">
+            <BarChart3 size={19} /> Varlık dağılımı
+          </div>
+          <div className="bt-varlik-dagilim">
+            {dagilim.map(([ad, tutar]) => (
+              <div className="bt-varlik-dagilim-satir" key={ad}>
+                <span>{ad}</span>
+                <div className="bt-varlik-dagilim-bar">
+                  <div
+                    style={{
+                      width:
+                        Math.max(2, (tutar / Math.max(ozet.toplam, 1)) * 100) +
+                        "%",
+                    }}
+                  />
+                </div>
+                <strong className="bt-mono">%{Math.round((tutar / ozet.toplam) * 100)}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {silinecek && (
+        <div className="bt-modal-arka" role="presentation">
+          <div className="bt-modal" role="dialog" aria-modal="true">
+            <div className="bt-h2">Varlık silinsin mi?</div>
+            <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.6 }}>
+              <b style={{ color: "var(--text)" }}>{silinecek.ad}</b> kaydı
+              silinecek. Bu işlem toplam varlık değerinizi de günceller.
+            </p>
+            <div className="bt-form-butonlar">
+              <button
+                className="bt-btn birincil"
+                style={{ background: CORAL }}
+                onClick={() => {
+                  sil("assets", silinecek.id);
+                  setSilinecek(null);
+                }}
+              >
+                <Trash2 size={14} /> Evet, sil
+              </button>
+              <button
+                className="bt-btn ikincil"
+                onClick={() => setSilinecek(null)}
+              >
+                Vazgeç
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {digerPenceresi && (
+        <div className="bt-modal-arka" role="presentation">
+          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="diger-varlik-baslik">
+            <div className="bt-h2" id="diger-varlik-baslik">
+              {digerPopupTuru === "kripto_diger" ? "Diğer kripto ekle" : "Diğer varlık ekle"}
+            </div>
+            <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.6 }}>
+              {digerPopupTuru === "kripto_diger"
+                ? "Listede olmayan kripto varlığın adını ve bugünkü yaklaşık değerini gir."
+                : "Listede olmayan varlığın adını ve bugünkü yaklaşık değerini gir."}
+            </p>
+            <div className="bt-alanlar" style={{ marginTop: 14 }}>
+              <label className="bt-alan">
+                <span>Varlık adı *</span>
+                <input className="bt-input" autoFocus value={digerFormu.ad} placeholder="Örn. Koleksiyon" onChange={(e) => setDigerFormu((eski) => ({ ...eski, ad: e.target.value }))} />
+              </label>
+              <label className="bt-alan">
+                <span>Kurum / not</span>
+                <input className="bt-input" value={digerFormu.kurum} placeholder="Örn. Evde" onChange={(e) => setDigerFormu((eski) => ({ ...eski, kurum: e.target.value }))} />
+              </label>
+              <label className="bt-alan">
+                <span>Güncel değer ({paraBirimi(digerFormu.paraBirimi).id}) *</span>
+                <input className="bt-input" type="number" min="0" step="any" value={digerFormu.guncelDeger} onChange={(e) => setDigerFormu((eski) => ({ ...eski, guncelDeger: e.target.value }))} />
+              </label>
+              <label className="bt-alan">
+                <span>Para birimi *</span>
+                <select className="bt-input" value={paraBirimi(digerFormu.paraBirimi).id} onChange={(e) => setDigerFormu((eski) => ({ ...eski, paraBirimi: e.target.value }))}>
+                  {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{birim.ad}</option>)}
+                </select>
+              </label>
+            </div>
+            {digerHata && <div className="bt-ipucu" style={{ marginTop: 14, borderColor: CORAL }}><AlertTriangle size={16} />{digerHata}</div>}
+            <div className="bt-form-butonlar">
+              <button className="bt-btn birincil" type="button" onClick={() => {
+                if (!digerFormu.ad.trim() || !(+digerFormu.guncelDeger > 0)) {
+                  setDigerHata("Varlık adı ve güncel değer gerekli.");
+                  return;
+                }
+                fSet({ tur: digerPopupTuru, ad: digerFormu.ad.trim(), kurum: digerFormu.kurum.trim(), guncelDeger: digerFormu.guncelDeger, paraBirimi: digerFormu.paraBirimi });
+                setDigerPenceresi(false);
+              }}><Check size={15} /> Ekle</button>
+              <button className="bt-btn ikincil" type="button" onClick={() => { fSet({ tur: digerPopupTuru === "kripto_diger" ? "bitcoin" : "mevduat" }); setDigerPenceresi(false); }}>Vazgeç</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------------- Gelirler ---------------- */
 function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir }) {
   const acik = form && form.liste === "incomes";
@@ -4510,7 +6490,7 @@ function Harcamalar({
 
   return (
     <div className="bt-stack">
-      <div className="bt-card">
+      <div className="bt-card" data-tour="harcamalar">
         <div className="bt-cardhead">
           <div className="bt-h2" style={{ margin: 0 }}>
             <Wallet size={16} /> Harcamalar

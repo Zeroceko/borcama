@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import Landing from "./Landing.jsx";
 import LandingAlt from "./LandingAlt.jsx";
+import LandingStory from "./LandingStory.jsx";
 import Backoffice from "./Backoffice.jsx";
 import CeoDashboard from "./CeoDashboard.jsx";
 import { KullaniciSozlesmesi, GizlilikMetni } from "./Legal.jsx";
@@ -12,6 +13,10 @@ import "./storage.js";
 
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (demoModu && ["/login", "/register"].includes(yol)) {
+    window.history.replaceState({}, "", "/assets");
+    return <App />;
+  }
   if (yol === "/login")
     return supabaseHazir ? (
       <GirisEkrani />
@@ -33,6 +38,7 @@ function Kok() {
   if (yol === "/terms") return <KullaniciSozlesmesi />;
   if (yol === "/privacy") return <GizlilikMetni />;
   if (yol === "/classic") return <Landing />;
+  if (yol === "/landing-v2") return <LandingStory />;
   if (yol === "/backoffice")
     return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />;
   if (yol === "/ceo")
@@ -48,6 +54,7 @@ function Kok() {
     "/debt-plan",
     "/income",
     "/expenses",
+    "/assets",
     "/settings",
   ];
   if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingAlt />;
@@ -134,7 +141,7 @@ function AnaSayfa() {
     return <Yukleniyor />;
   }
 
-  return session ? <App /> : <LandingAlt />;
+  return session ? <App /> : <LandingStory />;
 }
 
 function KimlikliKok() {

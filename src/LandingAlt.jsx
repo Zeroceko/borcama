@@ -1,13 +1,18 @@
 import React from "react";
 import {
   ArrowRight,
+  BarChart3,
   CalendarCheck,
   Check,
+  Coins,
   CreditCard,
+  Landmark,
+  PiggyBank,
   ReceiptText,
   ShieldCheck,
   Sparkles,
   Target,
+  TrendingUp,
   WalletCards,
 } from "lucide-react";
 
@@ -24,12 +29,15 @@ const CSS = `
 .la-command{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative}.la-command:before{content:'';position:absolute;left:7%;right:7%;top:39px;height:2px;background:#49665b}.la-command-card{position:relative;background:#123c2e;border:1px solid #49665b;border-radius:18px;padding:22px;min-height:210px;z-index:1}.la-command-no{width:36px;height:36px;display:grid;place-items:center;background:var(--lime);color:var(--ink);border:2px solid var(--ink);border-radius:50%;font-family:'Archivo Black';font-size:13px;margin-bottom:28px}.la-command-card h3{margin:0 0 9px;font-size:16px}.la-command-card p{margin:0;color:#aebdb5;font-size:12px;line-height:1.5}.la-command-card b{display:block;color:var(--lime);font-family:'Archivo Black';font-size:20px;margin-top:18px}.la-progress{margin-top:18px;background:#06261c;border:1px solid #49665b;border-radius:16px;padding:20px;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center}.la-progress span{font-size:11px;color:#aebdb5}.la-progress-track{height:12px;border:2px solid #749084;border-radius:999px;overflow:hidden}.la-progress-track i{display:block;width:38%;height:100%;background:linear-gradient(90deg,var(--coral),var(--lime))}.la-progress strong{color:var(--lime);font-family:'Archivo Black'}
 .la-chip{border:1px solid #b8cbb6}.la-chip:nth-child(2),.la-chip:nth-child(4){background:#ffe1d9;border-color:#f6a08f}.la-tool:nth-child(2){box-shadow:6px 6px 0 var(--coral)}.la-tool:nth-child(3){box-shadow:6px 6px 0 var(--lime)}.la-tool:nth-child(2) .la-shot{background:#fff1ec}.la-tool:nth-child(3) .la-shot{background:#f4ffdc}.la-command-card:nth-child(2) .la-command-no,.la-command-card:nth-child(4) .la-command-no{background:var(--coral)}.la-command-card:nth-child(3){border-color:#94bb78}.la-story{position:relative;overflow:hidden;background:radial-gradient(circle at 5% 16%,#ff6f5955 0 10%,transparent 10.3%),radial-gradient(circle at 95% 88%,#cdf56477 0 13%,transparent 13.3%),linear-gradient(135deg,#edf5e7 0 60%,#f4efe0 60%)}.la-flow-card:nth-child(even) .la-icon{box-shadow:6px 6px 0 var(--coral)}.la-flow-card:nth-child(3) .la-icon{background:#f4ffdc}.la-phone{box-shadow:14px 14px 0 var(--coral)}.la-row:nth-child(3){border-left:5px solid var(--lime)}.la-row:nth-child(4){border-left:5px solid var(--coral)}.la-cta-box{background:radial-gradient(circle at 90% 10%,#cdf564 0 13%,transparent 13.4%),linear-gradient(125deg,#ff8c78,#ff6f59 55%,#f4efe0 55%);border:2px solid var(--ink);box-shadow:9px 9px 0 var(--green)}.la-footer{background:linear-gradient(135deg,#9bdcda 0 72%,#ff8c78 72%);border-top:2px solid var(--ink)}.la-footer-logo{text-shadow:6px 8px 0 var(--green),10px 12px 0 var(--coral)}
 .la-trust{padding:52px 0 24px;font-size:15px;line-height:1.3;font-weight:800}.la-trust-row{gap:12px;margin-top:22px}.la-chip{padding:13px 20px;border-width:2px;border-radius:10px;font-size:13px;box-shadow:2px 2px 0 #c6d3c3}.la-section#araclar{padding-top:70px}.la-dark{border-radius:0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.la-assets{display:grid;grid-template-columns:minmax(0,.9fr) minmax(420px,1.1fr);gap:70px;align-items:center;padding-top:70px}.la-assets-copy .la-head{margin-bottom:25px}.la-assets-kicker{display:inline-flex;align-items:center;gap:7px;background:var(--coral);border:2px solid var(--ink);border-radius:999px;padding:7px 11px;font-size:11px;font-weight:800;margin-bottom:20px;box-shadow:3px 3px 0 var(--lime)}.la-assets-tags{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0 28px}.la-assets-tags span{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ink);border-radius:999px;background:#fff;padding:8px 11px;font-size:11px;font-weight:800}.la-assets-panel{background:var(--green);color:#fff;border:3px solid var(--ink);border-radius:25px;padding:25px;box-shadow:13px 13px 0 var(--lime);transform:rotate(-.7deg)}.la-assets-top{display:flex;align-items:center;justify-content:space-between;gap:15px;color:#afbeb7;font-size:10px;letter-spacing:.08em}.la-assets-live{display:inline-flex;align-items:center;gap:6px;color:var(--lime);letter-spacing:0}.la-assets-live i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px #cdf56422}.la-assets-total-label{font-size:10px;color:#afbeb7;margin-top:23px}.la-assets-total{font-family:'Archivo Black';font-size:clamp(40px,5vw,58px);color:var(--lime);text-shadow:3px 3px 0 var(--coral);margin:7px 0 17px}.la-assets-mini{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:19px}.la-assets-mini div{background:#153d30;border:1px solid #385b50;border-radius:12px;padding:12px}.la-assets-mini small{display:block;color:#9fafaa;font-size:9px;margin-bottom:6px}.la-assets-mini b{font-size:13px}.la-assets-mini .gain b{color:var(--lime)}.la-assets-list{display:grid;gap:9px}.la-asset-row{background:#fff;color:var(--ink);border-radius:12px;padding:12px 13px}.la-asset-line{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;font-weight:800}.la-asset-line span{display:flex;align-items:center;gap:7px}.la-asset-track{height:7px;border-radius:999px;background:#dfe9dc;margin-top:9px;overflow:hidden}.la-asset-track i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--lime));border-radius:inherit}.la-assets-note{color:#9fafaa;font-size:9px;line-height:1.5;margin-top:13px}
 @media(max-width:850px){.la-hero-in{grid-template-columns:1fr;padding:65px 0}.la-demo{max-width:620px}.la-copy{width:auto}}
 @media(max-width:850px){.la-command{grid-template-columns:repeat(2,1fr)}.la-command:before{display:none}}
+@media(max-width:850px){.la-assets{grid-template-columns:1fr;gap:38px}.la-assets-panel{max-width:680px;width:calc(100% - 13px)}}
 @media(max-width:600px){.la-hero{background:linear-gradient(145deg,#f4efe0 0 70%,#d8e6df 70%)}.la-demo-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.la-command{grid-template-columns:1fr}.la-progress{grid-template-columns:1fr}}
 @media(max-width:850px){.la-links>.la-login{display:inline-flex!important}.la-nav-anchor{display:none!important}.la-links{gap:12px}}
 @media(max-width:600px){.la-shell{width:min(100% - 24px,1160px)}.la-nav{height:64px}.la-logo{width:118px}.la-links{gap:8px}.la-login{font-size:11px;white-space:nowrap}.la-nav .la-btn{padding:9px 11px;font-size:11px;box-shadow:2px 2px 0 var(--green)}.la-nav .la-btn svg{display:none}.la-hero-in{padding:48px 0 58px;gap:42px}.la-h1{font-size:clamp(42px,13vw,52px);overflow-wrap:anywhere}.la-h2{font-size:clamp(36px,11vw,48px);overflow-wrap:anywhere}.la-lead{font-size:15px}.la-demo{width:calc(100% - 7px);padding:17px;border-radius:20px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-demo-total{font-size:38px}.la-demo-pay{align-items:flex-start}.la-demo-pay>strong{font-size:11px}.la-trust{padding:38px 0 18px}.la-chip{padding:10px 12px;font-size:11px}.la-dark,.la-story{padding:64px 0}.la-command-card{min-height:0}.la-phone{padding:19px;border-radius:22px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-debt{font-size:38px}.la-cta{padding:62px 0}.la-cta-box{box-shadow:6px 6px 0 var(--green)}.la-footer{padding-top:48px}.la-footer-logo img{width:100%!important}.la-footline{margin-top:28px}}
+@media(max-width:600px){.la-assets{padding-top:48px}.la-assets-panel{padding:17px;border-radius:20px;box-shadow:7px 7px 0 var(--lime);transform:none}.la-assets-mini{grid-template-columns:1fr}.la-assets-total{font-size:38px}.la-assets-tags span{font-size:10px;padding:7px 9px}}
 `;
 export default function LandingAlt() {
   return (
@@ -42,6 +50,9 @@ export default function LandingAlt() {
         <nav className="la-links">
           <a className="la-nav-anchor" href="#araclar">
             Özellikler
+          </a>
+          <a className="la-nav-anchor" href="#varliklar">
+            Varlıklar
           </a>
           <a className="la-nav-anchor" href="#kontrol">
             Nasıl çalışır?
@@ -150,6 +161,61 @@ export default function LandingAlt() {
               title="Kapatma planı"
               text="Çığ veya kartopu yöntemiyle hangi borçtan başlayacağını seç."
             />
+          </div>
+        </section>
+        <section id="varliklar" className="la-shell la-section la-assets">
+          <div className="la-assets-copy">
+            <div className="la-assets-kicker">
+              <PiggyBank size={15} /> Borçtan fazlası
+            </div>
+            <div className="la-head">
+              <h2 className="la-h2">
+                Varlığını gör.
+                <br />
+                <span className="la-mark">Net durumunu bil.</span>
+              </h2>
+              <p>
+                Dövizden altına, kriptodan BES ve fonlara kadar birikimlerini
+                borçlarınla aynı yerde takip et. Güncel yaklaşık değerini,
+                maliyetini ve tahmini kârını tek bakışta gör.
+              </p>
+            </div>
+            <div className="la-assets-tags">
+              <span><Coins size={14} /> Döviz & emtia</span>
+              <span><TrendingUp size={14} /> Hisseler & fonlar</span>
+              <span><PiggyBank size={14} /> BES</span>
+              <span><Landmark size={14} /> Kripto</span>
+            </div>
+            <a className="la-btn" href="/register">
+              Varlıklarımı takip et <ArrowRight size={14} />
+            </a>
+          </div>
+          <div className="la-assets-panel" aria-label="Varlık portföyü önizlemesi">
+            <div className="la-assets-top">
+              <span>VARLIK PORTFÖYÜ</span>
+              <span className="la-assets-live"><i /> Güncel fiyatlarla</span>
+            </div>
+            <div className="la-assets-total-label">TOPLAM YAKLAŞIK DEĞER</div>
+            <div className="la-assets-total">₺486.420</div>
+            <div className="la-assets-mini">
+              <div>
+                <small>TOPLAM MALİYET</small>
+                <b>₺412.000</b>
+              </div>
+              <div className="gain">
+                <small>TAHMİNİ KÂR</small>
+                <b>+₺74.420</b>
+              </div>
+            </div>
+            <div className="la-assets-list">
+              <AssetRow icon={<Coins />} name="Döviz & emtia" value="₺184.750" width="38%" />
+              <AssetRow icon={<PiggyBank />} name="Bireysel emeklilik" value="₺131.400" width="27%" />
+              <AssetRow icon={<TrendingUp />} name="Fonlar & hisseler" value="₺111.870" width="23%" />
+              <AssetRow icon={<BarChart3 />} name="Kripto varlıklar" value="₺58.400" width="12%" />
+            </div>
+            <div className="la-assets-note">
+              Piyasa verileri bilgilendirme amaçlı yaklaşık değerlerdir.
+            </div>
           </div>
         </section>
         <section className="la-dark">
@@ -296,7 +362,7 @@ export default function LandingAlt() {
             />
           </div>
           <div className="la-footline">
-            <span>Kişisel borç ve harcama takip aracı.</span>
+            <span>Kişisel borç, harcama ve varlık takip aracı.</span>
             <span>
               <a href="/terms">Kullanıcı Sözleşmesi</a> ·{" "}
               <a href="/privacy">Gizlilik ve KVKK</a>
@@ -334,6 +400,19 @@ function Flow({ icon, title, text }) {
       <div className="la-icon">{React.cloneElement(icon, { size: 30 })}</div>
       <h3>{title}</h3>
       <p>{text}</p>
+    </div>
+  );
+}
+function AssetRow({ icon, name, value, width }) {
+  return (
+    <div className="la-asset-row">
+      <div className="la-asset-line">
+        <span>{React.cloneElement(icon, { size: 14 })}{name}</span>
+        <b>{value}</b>
+      </div>
+      <div className="la-asset-track">
+        <i style={{ width }} />
+      </div>
     </div>
   );
 }
