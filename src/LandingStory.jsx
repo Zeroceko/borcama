@@ -318,7 +318,8 @@ export default function LandingStory() {
                 description="Tüm kişiselleştirilmiş analizler ve reklamsız kullanım."
                 items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Reklamsız kullanım"]}
                 action="Pro ile başla"
-                href="/register?plan=pro"
+                href="https://www.shopier.com/borcama/49524249"
+                external
               />
               <PriceCard
                 badge="TEK ÖDEME"

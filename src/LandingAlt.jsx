@@ -379,7 +379,7 @@ export default function LandingAlt() {
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
                   <li><Check size={15} /> Reklamsız kullanım</li>
                 </ul>
-                <a className="la-btn" href="/register?plan=pro">Pro ile başla</a>
+                <a className="la-btn" href="https://www.shopier.com/borcama/49524249" target="_blank" rel="noopener noreferrer">Pro ile başla</a>
               </article>
             </div>
             <div className="la-adfree-link">

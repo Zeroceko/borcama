@@ -46,7 +46,9 @@ const LIME = "#cdf564";
 const CORAL = "#ff6f59";
 const ROTASYONLAR = [-1.2, 1, -0.6, 1.4, -1];
 const SHOPIER_REKLAMSIZ_URL = "https://www.shopier.com/borcama/49351033";
-const SHOPIER_PRO_URL = import.meta.env.VITE_SHOPIER_PRO_URL || "";
+const SHOPIER_PRO_URL =
+  import.meta.env.VITE_SHOPIER_PRO_URL ||
+  "https://www.shopier.com/borcama/49524249";
 
 const ACIK_TEMA = {
   bg: CREAM,
@@ -3826,11 +3828,13 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle, kartOdemesiAc }) {
           }}
         >
           {o.kartOdemesi
-            ? gecikmis
-              ? -gun + " gün gecikti"
-              : gun === 0
-                ? "bugün son gün"
-                : gun + " gün kaldı"
+            ? o.minimumTamam && !o.tamamiOdendi
+              ? "minimum ödendi · kalan borç devam ediyor"
+              : gecikmis
+                ? -gun + " gün gecikti"
+                : gun === 0
+                  ? "bugün son gün"
+                  : gun + " gün kaldı"
             : o.odendi
             ? "ödendi"
             : gecikmis
@@ -4012,7 +4016,11 @@ function Odemeler({
   const sirali = donemOdemeleri;
   const hedefiTamamlanan = sirali.filter((x) => x.odendi);
   const odemeYapilan = sirali.filter((x) => (+x.yapilanOdeme || 0) > 0);
-  const bekleyen = sirali.filter((x) => !x.odendi);
+  // Kartta minimumun tamamlanması ödeme hedefini kapatır; borcu kapatmaz.
+  // Kalan toplam sıfırlanana kadar kart "Bekleyen ödemeler" içinde kalır.
+  const bekleyen = sirali.filter((x) =>
+    x.kartOdemesi ? !x.tamamiOdendi : !x.odendi,
+  );
   const toplam = sirali.reduce((t, x) => t + (+x.hedefTutar || 0), 0);
   const kalan = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
   const odenen = sirali.reduce((t, x) => t + (+x.yapilanOdeme || 0), 0);
@@ -4118,7 +4126,10 @@ function Odemeler({
                   key={o.id}
                   o={o}
                   i={i}
-                  gecikmis={kalanGun(o.tarih) < 0}
+                  gecikmis={
+                    kalanGun(o.tarih) < 0 &&
+                    !(o.kartOdemesi && o.minimumTamam)
+                  }
                   odendiIsaretle={odendiIsaretle}
                   kartOdemesiAc={(odeme) => {
                     setKismiOdemeTutari("");

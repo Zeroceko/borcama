@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
 
     const email = normalEposta(user.email);
     const reklamsizUrunId = String(Deno.env.get("SHOPIER_PRODUCT_ID") || "49351033");
-    const proUrunId = String(Deno.env.get("SHOPIER_PRO_PRODUCT_ID") || "");
+    const proUrunId = String(Deno.env.get("SHOPIER_PRO_PRODUCT_ID") || "49524249");
     const { data: satinAlimlar } = await admin
       .from("shopier_purchases")
       .select("order_id,product_id,purchased_at")
@@ -194,7 +194,7 @@ Deno.serve(async (req) => {
   const event = String(body?.event || "");
   const order = body?.order || null;
   const reklamsizUrunId = String(Deno.env.get("SHOPIER_PRODUCT_ID") || "49351033");
-  const proUrunId = String(Deno.env.get("SHOPIER_PRO_PRODUCT_ID") || "");
+  const proUrunId = String(Deno.env.get("SHOPIER_PRO_PRODUCT_ID") || "49524249");
   const urun = Array.isArray(order?.lineItems)
     ? order.lineItems.find((x: Record<string, unknown>) => {
         const id = String(x.productId);
