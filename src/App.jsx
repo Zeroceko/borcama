@@ -5475,6 +5475,30 @@ function ayaGoreEkstreDonemi(kart, ay) {
   return { baslangic: iso(baslangic), bitis: iso(bitis) };
 }
 
+function harcamaEkstrePayi(harcama, kart, ekstreAyi) {
+  if (!harcama?.tarih || !ekstreAyi) return 0;
+  const taksitSayisi = Math.min(
+    Math.max(parseInt(harcama.taksitSayisi) || 1, 1),
+    60,
+  );
+  const [yil, ay, gun] = harcama.tarih.split("-").map(Number);
+  if (!yil || !ay || !gun) return 0;
+  const kesimGunu = Math.min(Math.max(parseInt(kart.kesimGunu) || 1, 1), 31);
+  const ilkEkstreAyi = ayAnahtari(
+    new Date(yil, ay - 1 + (gun > kesimGunu ? 1 : 0), 1),
+  );
+  const taksitSirasi = ayFarki(ilkEkstreAyi, ekstreAyi);
+  if (taksitSirasi < 0 || taksitSirasi >= taksitSayisi) return 0;
+
+  const toplamKurus = Math.round((+harcama.tutar || 0) * 100);
+  const normalTaksitKurus = Math.floor(toplamKurus / taksitSayisi);
+  return (
+    (taksitSirasi === taksitSayisi - 1
+      ? toplamKurus - normalTaksitKurus * (taksitSayisi - 1)
+      : normalTaksitKurus) / 100
+  );
+}
+
 function EkstreKontrol({ veri }) {
   const [seciliAy, setSeciliAy] = useState(() => ayAnahtari());
   const kontrolAylar = useMemo(
@@ -5551,14 +5575,15 @@ function EkstreKontrol({ veri }) {
         veri.cards.map((k, i) => {
           const donem = ayaGoreEkstreDonemi(k, seciliAy);
           const etiket = k.banka + " · " + (k.ad || "Kredi kartı");
-          const manuelHarcamalar = veri.expenses.filter(
-            (h) =>
-              h.kaynak === etiket &&
-              h.tarih >= donem.baslangic &&
-              h.tarih <= donem.bitis,
-          );
+          const manuelHarcamalar = veri.expenses
+            .filter((h) => h.kaynak === etiket)
+            .map((h) => ({
+              ...h,
+              donemTutari: harcamaEkstrePayi(h, k, seciliAy),
+            }))
+            .filter((h) => h.donemTutari > 0);
           const manuel = manuelHarcamalar.reduce(
-            (t, h) => t + (+h.tutar || 0),
+            (t, h) => t + h.donemTutari,
             0,
           );
           const ekstreKaydi =
@@ -7462,10 +7487,19 @@ function Harcamalar({
     [veri.expenses],
   );
   const enBuyuk = Math.max(...Object.values(buAyHarcama.kategoriler), 1);
+  const seciliKart = veri.cards.find(
+    (k) => k.banka + " · " + (k.ad || "Kredi kartı") === f.kaynak,
+  );
 
   function gonder() {
     if (!f.tutar || !f.tarih) return;
-    harcamaKaydet({ id: f.id || uid(), ...f, tutar: +f.tutar }, false);
+    const taksitSayisi = seciliKart
+      ? Math.min(Math.max(parseInt(f.taksitSayisi) || 1, 1), 60)
+      : 1;
+    harcamaKaydet(
+      { id: f.id || uid(), ...f, tutar: +f.tutar, taksitSayisi },
+      false,
+    );
   }
 
   return (
@@ -7550,6 +7584,32 @@ function Harcamalar({
                   ))}
                 </select>
               </label>
+              {seciliKart && (
+                <label className="bt-alan">
+                  Taksit sayısı
+                  <input
+                    className="bt-input"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={60}
+                    step={1}
+                    value={f.taksitSayisi ?? 1}
+                    onChange={(e) =>
+                      setF({ ...f, taksitSayisi: e.target.value })
+                    }
+                  />
+                  <small style={{ color: "var(--dim)" }}>
+                    {Math.max(parseInt(f.taksitSayisi) || 1, 1) === 1
+                      ? "Tek çekim"
+                      : "Aylık yaklaşık " +
+                        fmt(
+                          (+f.tutar || 0) /
+                            Math.max(parseInt(f.taksitSayisi) || 1, 1),
+                        )}
+                  </small>
+                </label>
+              )}
               <label className="bt-alan">
                 Açıklama
                 <input
@@ -7653,6 +7713,12 @@ function Harcamalar({
                   <div className="bt-satir-meta">
                     {h.tarih && h.tarih.split("-").reverse().join(".")}
                     {h.kaynak && <> · {h.kaynak}</>}
+                    {(+h.taksitSayisi || 1) > 1 && (
+                      <>
+                        {" "}· {h.taksitSayisi} taksit · aylık{" "}
+                        {fmt((+h.tutar || 0) / +h.taksitSayisi)}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="bt-satir-tutar">{fmt(h.tutar)}</div>
