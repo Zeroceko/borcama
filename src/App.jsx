@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { demoModu, supabase } from "./supabaseClient.js";
 import {
   Plus,
@@ -3930,10 +3930,41 @@ function Odemeler({
     Object.keys(veri.loanPaymentHistory || {}).forEach((ay) => aylar.add(ay));
     return [...aylar].filter(Boolean).sort().reverse();
   }, [veri.cards, veri.loanPaymentHistory]);
-  const [donem, setDonem] = useState(donemler[0] || ayAnahtari());
+  const varsayilanDonem = useMemo(() => {
+    const bekleyenEkstreDonemleri = new Set();
+    (veri.cards || []).forEach((kart) => {
+      const ekstreler = [
+        kart.ekstreAyi ? { ...kart, ekstreAyi: kart.ekstreAyi } : null,
+        ...(kart.ekstreGecmisi || []).map((ekstre) => ({
+          ...kart,
+          ...ekstre,
+          ekstreAyi: ekstre.ekstreAyi,
+        })),
+      ].filter(Boolean);
+      ekstreler.forEach((ekstre) => {
+        if (ekstre.ekstreAyi && kartHesabi(ekstre).toplam > 0) {
+          bekleyenEkstreDonemleri.add(ekstre.ekstreAyi);
+        }
+      });
+    });
+    return (
+      [...bekleyenEkstreDonemleri].sort().reverse()[0] ||
+      donemler[0] ||
+      ayAnahtari()
+    );
+  }, [donemler, veri.cards]);
+  const [donem, setDonem] = useState(varsayilanDonem);
+  const donemElleSecildi = useRef(false);
   useEffect(() => {
-    if (!donemler.includes(donem)) setDonem(donemler[0] || ayAnahtari());
-  }, [donem, donemler]);
+    if (!donemElleSecildi.current && donem !== varsayilanDonem) {
+      setDonem(varsayilanDonem);
+      return;
+    }
+    if (!donemler.includes(donem)) {
+      donemElleSecildi.current = false;
+      setDonem(varsayilanDonem);
+    }
+  }, [donem, donemler, varsayilanDonem]);
 
   const donemOdemeleri = useMemo(() => {
     const liste = [];
@@ -4052,7 +4083,10 @@ function Odemeler({
               className="bt-input"
               aria-label="Ödeme dönemi"
               value={donem}
-              onChange={(e) => setDonem(e.target.value)}
+              onChange={(e) => {
+                donemElleSecildi.current = true;
+                setDonem(e.target.value);
+              }}
               style={{ width: 170 }}
             >
               {donemler.map((ay) => (
