@@ -4,7 +4,11 @@ const izinliOriginler = new Set([
   "https://borcama.com",
   "https://www.borcama.com",
   "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
+  "http://127.0.0.1:5175",
   "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
 ]);
 
 function cors(origin: string | null) {
@@ -12,7 +16,7 @@ function cors(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": izinli,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin",
   };
 }
@@ -30,7 +34,7 @@ function epostaMaskele(eposta: string) {
 Deno.serve(async (req) => {
   const headers = { ...cors(req.headers.get("origin")), "Content-Type": "application/json; charset=utf-8" };
   if (req.method === "OPTIONS") return new Response("ok", { headers });
-  if (req.method !== "GET") return new Response(JSON.stringify({ error: "METHOD_NOT_ALLOWED" }), { status: 405, headers });
+  if (req.method !== "GET" && req.method !== "POST") return new Response(JSON.stringify({ error: "METHOD_NOT_ALLOWED" }), { status: 405, headers });
 
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), { status: 401, headers });
@@ -46,6 +50,54 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers });
   }
 
+  if (req.method === "POST") {
+    const body = await req.json().catch(() => null);
+    const userId = String(body?.userId || "");
+    const action = String(body?.action || "");
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId) || !["grant_pro", "revoke_pro"].includes(action)) {
+      return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
+    }
+
+    const { data: hedef, error: hedefHatasi } = await admin.auth.admin.getUserById(userId);
+    if (hedefHatasi || !hedef.user) {
+      return new Response(JSON.stringify({ error: "USER_NOT_FOUND" }), { status: 404, headers });
+    }
+
+    const simdi = new Date();
+    let proExpiresAt: string | null = null;
+    if (action === "grant_pro") {
+      const { data: mevcut } = await admin
+        .from("user_entitlements")
+        .select("pro_expires_at")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const mevcutBitis = mevcut?.pro_expires_at ? new Date(mevcut.pro_expires_at) : null;
+      const baslangic = mevcutBitis && mevcutBitis.getTime() > simdi.getTime() ? mevcutBitis : simdi;
+      const bitis = new Date(baslangic);
+      bitis.setDate(bitis.getDate() + 30);
+      proExpiresAt = bitis.toISOString();
+      const { error } = await admin.from("user_entitlements").upsert(
+        {
+          user_id: userId,
+          pro_expires_at: proExpiresAt,
+          pro_purchase_id: null,
+          source: "admin_manual",
+          updated_at: simdi.toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+      if (error) return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), { status: 500, headers });
+    } else {
+      const { error } = await admin
+        .from("user_entitlements")
+        .update({ pro_expires_at: null, pro_purchase_id: null, updated_at: simdi.toISOString() })
+        .eq("user_id", userId);
+      if (error) return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), { status: 500, headers });
+    }
+
+    return new Response(JSON.stringify({ ok: true, userId, proExpiresAt }), { status: 200, headers });
+  }
+
   const kullanicilar = [];
   for (let page = 1; page <= 20; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
@@ -56,12 +108,19 @@ Deno.serve(async (req) => {
 
   const { data: kayitlar, error: kayitHatasi } = await admin.from("kv_store").select("user_id,updated_at,value");
   if (kayitHatasi) return new Response(JSON.stringify({ error: "DATA_UNAVAILABLE" }), { status: 500, headers });
+  const { data: haklar, error: hakHatasi } = await admin
+    .from("user_entitlements")
+    .select("user_id,pro_expires_at,source");
+  if (hakHatasi) return new Response(JSON.stringify({ error: "ENTITLEMENTS_UNAVAILABLE" }), { status: 500, headers });
   const veriDurumu = new Map((kayitlar || []).map((x) => [x.user_id, x.updated_at]));
+  const hakDurumu = new Map((haklar || []).map((x) => [x.user_id, x]));
   const simdi = Date.now();
   const gun = 86400000;
   const satirlar = kullanicilar.map((u) => {
     const sonGiris = u.last_sign_in_at || null;
     const sonGirisMs = sonGiris ? new Date(sonGiris).getTime() : 0;
+    const hak = hakDurumu.get(u.id);
+    const proBitis = hak?.pro_expires_at || null;
     return {
       id: u.id,
       email: epostaMaskele(u.email || ""),
@@ -71,6 +130,9 @@ Deno.serve(async (req) => {
       has_data: veriDurumu.has(u.id),
       data_updated_at: veriDurumu.get(u.id) || null,
       status: sonGirisMs && simdi - sonGirisMs <= 30 * gun ? "active" : "inactive",
+      pro_active: !!proBitis && new Date(proBitis).getTime() > simdi,
+      pro_expires_at: proBitis,
+      pro_source: hak?.source || null,
     };
   }).sort((a, b) => (b.last_sign_in_at || b.created_at).localeCompare(a.last_sign_in_at || a.created_at));
 

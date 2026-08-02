@@ -74,11 +74,20 @@ async function proHakTanimla(
   const baslangic = Number.isNaN(satinAlim.getTime()) ? new Date() : satinAlim;
   const bitis = new Date(baslangic);
   bitis.setMonth(bitis.getMonth() + 1);
+  const { data: mevcut } = await admin
+    .from("user_entitlements")
+    .select("pro_expires_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const mevcutBitis = mevcut?.pro_expires_at ? new Date(mevcut.pro_expires_at) : null;
+  const korunacakBitis = mevcutBitis && mevcutBitis.getTime() > bitis.getTime()
+    ? mevcutBitis
+    : bitis;
   const simdi = new Date().toISOString();
   const { error } = await admin.from("user_entitlements").upsert(
     {
       user_id: userId,
-      pro_expires_at: bitis.toISOString(),
+      pro_expires_at: korunacakBitis.toISOString(),
       pro_purchase_id: orderId,
       source: "shopier",
       updated_at: simdi,
