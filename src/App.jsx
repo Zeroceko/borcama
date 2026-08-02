@@ -7584,32 +7584,33 @@ function Harcamalar({
                   ))}
                 </select>
               </label>
-              {seciliKart && (
-                <label className="bt-alan">
-                  Taksit sayısı
-                  <input
-                    className="bt-input"
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={60}
-                    step={1}
-                    value={f.taksitSayisi ?? 1}
-                    onChange={(e) =>
-                      setF({ ...f, taksitSayisi: e.target.value })
-                    }
-                  />
-                  <small style={{ color: "var(--dim)" }}>
-                    {Math.max(parseInt(f.taksitSayisi) || 1, 1) === 1
+              <label className="bt-alan">
+                Taksit sayısı
+                <input
+                  className="bt-input"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={60}
+                  step={1}
+                  disabled={!seciliKart}
+                  value={seciliKart ? (f.taksitSayisi ?? 1) : 1}
+                  onChange={(e) =>
+                    setF({ ...f, taksitSayisi: e.target.value })
+                  }
+                />
+                <small style={{ color: "var(--dim)" }}>
+                  {!seciliKart
+                    ? "Taksit için önce kredi kartı seçin"
+                    : Math.max(parseInt(f.taksitSayisi) || 1, 1) === 1
                       ? "Tek çekim"
                       : "Aylık yaklaşık " +
                         fmt(
                           (+f.tutar || 0) /
                             Math.max(parseInt(f.taksitSayisi) || 1, 1),
                         )}
-                  </small>
-                </label>
-              )}
+                </small>
+              </label>
               <label className="bt-alan">
                 Açıklama
                 <input
