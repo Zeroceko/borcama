@@ -3298,12 +3298,12 @@ function Ozet({
   const metrikler = [
     {
       lbl: "Bu ay ödenmesi gereken",
-      amt: fmt(buAyOdenecek),
+      amt: fmt0(buAyOdenecek),
       cap: "Kredi taksitleri + kart asgarileri",
     },
     {
       lbl: "Bu ay geliriniz",
-      amt: fmt(gelir),
+      amt: fmt0(gelir),
       cap:
         gelir > 0
           ? Object.keys(buAyGelir.kaynaklar).length + " kaynak"
@@ -3311,20 +3311,20 @@ function Ozet({
     },
     {
       lbl: "Bu ay harcamanız",
-      amt: fmt(buAyHarcama.toplam),
+      amt: fmt0(buAyHarcama.toplam),
       cap: buAyHarcama.adet + " kayıt",
     },
   ];
   if (varlikOzeti.toplam > 0) {
     metrikler.unshift({
       lbl: "Toplam varlıklarınız",
-      amt: tutarGoster(varlikOzeti.toplam),
+      amt: tutarlarGizli ? "₺ ••••••" : fmt0(varlikOzeti.toplam),
       cap: varlikOzeti.kalemler.length + " varlık kaydı",
     });
     const netDeger = varlikOzeti.toplam - toplamlar.genel;
     metrikler.push({
       lbl: "Net finansal durum",
-      amt: tutarlarGizli ? "₺ ••••••" : fmt(netDeger),
+      amt: tutarlarGizli ? "₺ ••••••" : fmt0(netDeger),
       cap: "Toplam varlıklar − toplam borçlar",
       coral: netDeger < 0,
     });
@@ -3332,7 +3332,7 @@ function Ozet({
   if (netNakit !== null)
     metrikler.push({
       lbl: "Net nakit akışı",
-      amt: (netNakit >= 0 ? "+" : "") + fmt(netNakit),
+      amt: (netNakit >= 0 ? "+" : "") + fmt0(netNakit),
       cap: "Gelir − ödemeler − harcamalar",
       coral: netNakit < 0,
     });
