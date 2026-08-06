@@ -50,11 +50,6 @@ const CREAM = "#f4efe0";
 const LIME = "#cdf564";
 const CORAL = "#ff6f59";
 const ROTASYONLAR = [-1.2, 1, -0.6, 1.4, -1];
-const SHOPIER_REKLAMSIZ_URL = "https://www.shopier.com/borcama/49351033";
-const SHOPIER_PRO_URL =
-  import.meta.env.VITE_SHOPIER_PRO_URL ||
-  "https://www.shopier.com/borcama/49524249";
-
 const ACIK_TEMA = {
   bg: CREAM,
   panel: "#ffffff",
@@ -1658,7 +1653,10 @@ export default function BorcTakip() {
 
   async function proSatinAl() {
     if (!revenueCatHazir) {
-      window.open(SHOPIER_PRO_URL, "_blank", "noopener,noreferrer");
+      setProSatinAlma({
+        yukleniyor: false,
+        hata: "Ödeme sistemi şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+      });
       return;
     }
     setProSatinAlma({ yukleniyor: true, hata: "" });
@@ -3129,35 +3127,6 @@ function Ayarlar({
                   ? "Durumu yenile"
                   : "Pro aldım, kontrol et"}
             </button>
-          </div>
-        </section>
-        <section className="bt-settings-card wide bt-adfree-card">
-          <div className="bt-settings-title">
-            <EyeOff size={18} /> Sadece reklamları kaldır
-          </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>
-                {reklamsiz.aktif
-                  ? "Ömür boyu reklamsız kullanım aktif"
-                  : "Borcama Reklamsız · ₺199 tek ödeme"}
-              </strong>
-              <small>
-                {reklamsiz.aktif
-                  ? "Bu hak Pro üyeliğinden bağımsız olarak hesabında kalır."
-                  : "Pro önerileri dahil değildir. Yalnızca reklamları ömür boyu kaldırır."}
-              </small>
-            </div>
-            <div className="bt-adfree-actions">
-              {!reklamsiz.aktif && (
-                <a className="bt-btn kucuk ikincil" href={SHOPIER_REKLAMSIZ_URL} target="_blank" rel="noopener noreferrer">
-                  Reklamsız satın al
-                </a>
-              )}
-              <button className="bt-btn kucuk hayalet" type="button" disabled={reklamsiz.yukleniyor} onClick={reklamsizKontrol}>
-                <RefreshCw size={13} /> {reklamsiz.aktif ? "Durumu yenile" : "Satın aldım"}
-              </button>
-            </div>
           </div>
         </section>
         <section className="bt-settings-card">

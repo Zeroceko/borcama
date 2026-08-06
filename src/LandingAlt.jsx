@@ -379,14 +379,8 @@ export default function LandingAlt() {
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
                   <li><Check size={15} /> Reklamsız kullanım</li>
                 </ul>
-                <a className="la-btn" href="https://www.shopier.com/borcama/49524249" target="_blank" rel="noopener noreferrer">Pro ile başla</a>
+                <a className="la-btn" href="/register">Pro ile başla</a>
               </article>
-            </div>
-            <div className="la-adfree-link">
-              Yalnızca reklamları kaldırmak mı istiyorsun?{" "}
-              <a href="https://www.shopier.com/borcama/49351033" target="_blank" rel="noopener noreferrer">
-                ₺199 tek ödemeyle ömür boyu reklamsız kullan.
-              </a>
             </div>
           </div>
         </section>
