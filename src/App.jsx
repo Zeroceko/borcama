@@ -1053,22 +1053,20 @@ function borcKalemleri(veri) {
   const kalemler = [];
   veri.cards.forEach((k) => {
     const hesap = kartHesabi(k);
-    const anaBakiye = hesap.devreden;
-    const yeniHarcama = hesap.yeni;
     const guncelBorc = hesap.toplam;
     if (guncelBorc > 0) {
-      const gecikmis = kalanGun(kartSonOdemeTarihi(k)) < 0;
+      const gecikmis = kalanGun(kartGecikmeTarihi(k)) < 0;
       const akdiOran = tcmbKartAzamiFaizi(guncelBorc);
       const gecikmeOran = tcmbKartAzamiGecikmeFaizi(guncelBorc);
       const ozelFaizVar = +k.faiz > 0;
-      const faizTutari =
-        k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
-          ? hesap.faiz
-          : ozelFaizVar
-            ? (guncelBorc * +k.faiz) / 100
-            : gecikmis
-              ? (anaBakiye * gecikmeOran) / 100 + (yeniHarcama * akdiOran) / 100
-              : (guncelBorc * akdiOran) / 100;
+      const asgariEksigi = gecikmis
+        ? Math.min(Math.max(hesap.asgari - hesap.odeme, 0), guncelBorc)
+        : 0;
+      const akdiFaizBakiyesi = Math.max(guncelBorc - asgariEksigi, 0);
+      const faizTutari = ozelFaizVar
+        ? (guncelBorc * +k.faiz) / 100
+        : (asgariEksigi * gecikmeOran) / 100 +
+          (akdiFaizBakiyesi * akdiOran) / 100;
       kalemler.push({
         id: "kart-" + k.id,
         tur: "kart",
@@ -1086,7 +1084,9 @@ function borcKalemleri(veri) {
         faizTutari,
         faizTahmini: !ozelFaizVar,
         gecikmis,
-        yeniHarcama,
+        yapilanOdeme: hesap.odeme,
+        asgari: hesap.asgari,
+        asgariEksigi,
       });
     }
   });
@@ -6200,7 +6200,7 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
       <div className="bt-hero">
         <span className="deko-daire" />
         <span className="deko-kare" />
-        <div className="bt-hero-label">Bu ay işleyen tahmini toplam faiz</div>
+        <div className="bt-hero-label">Bu ay için tahmini toplam faiz</div>
         <div className="bt-hero-tutar">{fmt0(aylikFaiz)}</div>
         <div
           className="bt-hero-delta"
@@ -6291,8 +6291,28 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
         ) : (
           <div className="bt-stack" style={{ gap: 12, marginTop: 22 }}>
             {sirali.map((k, i) => {
-              const karisikFaiz =
-                k.gecikmis && k.yeniHarcama > 0 && k.faizTahmini;
+              const kartFaizAciklamasi =
+                k.tur === "kart" && k.faizTahmini
+                  ? k.gecikmis
+                    ? k.asgariEksigi > 0
+                      ? (k.yapilanOdeme > 0
+                          ? fmt0(k.yapilanOdeme) + " ödeme işlendi. "
+                          : "Henüz ödeme işlenmedi. ") +
+                        "Asgarinin eksik " +
+                        fmt0(k.asgariEksigi) +
+                        " kısmına gecikme, kalan bakiyeye akdi faiz tahmin ediliyor"
+                      : (k.yapilanOdeme > 0
+                          ? fmt0(k.yapilanOdeme) + " ödeme işlendi. "
+                          : "Asgari ödeme karşılandı. ") +
+                        "Kalan " +
+                        fmt0(k.bakiye) +
+                        " için akdi faiz tahmin ediliyor"
+                    : (k.yapilanOdeme > 0
+                        ? fmt0(k.yapilanOdeme) + " ödeme işlendi. "
+                        : "Henüz ödeme işlenmedi. ") +
+                      "Kalan borç için aylık tahmini faiz " +
+                      fmt0(k.faizTutari)
+                  : null;
               return (
                 <div
                   key={k.id}
@@ -6344,10 +6364,8 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
                       )}
                     </div>
                     <div className="bt-satir-meta">
-                      {karisikFaiz
-                        ? "Eski bakiyeye gecikme faizi, eklediğiniz " +
-                          fmt0(k.yeniHarcama) +
-                          " yeni harcamaya akdi faiz uygulanıyor"
+                      {kartFaizAciklamasi
+                        ? kartFaizAciklamasi
                         : "Aylık %" +
                           k.faiz.toFixed(2) +
                           (k.faizTahmini
