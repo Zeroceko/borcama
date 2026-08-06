@@ -6296,22 +6296,21 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
                   ? k.gecikmis
                     ? k.asgariEksigi > 0
                       ? (k.yapilanOdeme > 0
-                          ? fmt0(k.yapilanOdeme) + " ödeme işlendi. "
-                          : "Henüz ödeme işlenmedi. ") +
-                        "Asgarinin eksik " +
+                          ? fmt0(k.yapilanOdeme) + " ödeme kaydedildi. "
+                          : "Ödeme kaydı yok. ") +
+                        "Asgari ödeme " +
                         fmt0(k.asgariEksigi) +
-                        " kısmına gecikme, kalan bakiyeye akdi faiz tahmin ediliyor"
+                        " eksik görünüyor. Bankanız bu kısma gecikme faizi, kalan borca normal kart faizi uygulayabilir"
                       : (k.yapilanOdeme > 0
-                          ? fmt0(k.yapilanOdeme) + " ödeme işlendi. "
+                          ? fmt0(k.yapilanOdeme) + " ödeme kaydedildi. "
                           : "Asgari ödeme karşılandı. ") +
-                        "Kalan " +
+                        "Kalan borç " +
                         fmt0(k.bakiye) +
-                        " için akdi faiz tahmin ediliyor"
+                        ". Bankanız bu tutara normal kart faizi uygulayabilir"
                     : (k.yapilanOdeme > 0
-                        ? fmt0(k.yapilanOdeme) + " ödeme işlendi. "
-                        : "Henüz ödeme işlenmedi. ") +
-                      "Kalan borç için aylık tahmini faiz " +
-                      fmt0(k.faizTutari)
+                        ? fmt0(k.yapilanOdeme) + " ödeme kaydedildi. "
+                        : "Ödeme kaydı yok. ") +
+                      "Kalan borcun tamamı son ödeme tarihine kadar kapanmazsa faiz oluşabilir"
                   : null;
               return (
                 <div
