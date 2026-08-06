@@ -2279,9 +2279,9 @@ export default function BorcTakip() {
           {[
             ["ozet", "Özet", BarChart3],
             ["borclar", "Borçlar", Wallet],
-            ["varliklar", "Varlıklar", PiggyBank],
-            ["hareketler", "Hareketler", ArrowLeftRight],
             ["odemeler", "Ödemeler", CalendarCheck],
+            ["hareketler", "Gelir/Gider", ArrowLeftRight],
+            ["varliklar", "Varlıklar", PiggyBank],
           ].map(([k, ad, Ikon]) => (
             <button
               key={k}
@@ -2298,10 +2298,10 @@ export default function BorcTakip() {
         {anaSekme === "borclar" && (
           <nav className="bt-nav bt-nav-alt" aria-label="Borç bölümleri">
             {[
-              ["cards", "Kredi Kartları"],
+              ["cards", "Kartlar"],
               ["loans", "Krediler"],
-              ["od", "Ek Hesap / KMH"],
-              ["others", "Devreden / Gecikmiş"],
+              ["od", "Ek Hesap"],
+              ["others", "Gecikenler"],
               ["plan", "Borç Planı"],
             ].map(([k, ad]) => {
               const aktif =
@@ -2354,7 +2354,7 @@ export default function BorcTakip() {
           <nav className="bt-nav bt-nav-alt" aria-label="Ödeme durumları">
             {[
               ["bekleyen", "Bekleyen"],
-              ["odenen", "Ödeme yapılan"],
+              ["odenen", "Ödenenler"],
             ].map(([k, ad]) => (
               <button
                 key={k}
@@ -2888,7 +2888,7 @@ const REHBER_ADIMLARI = [
   },
   {
     hedef: "harcamalar",
-    etiket: "Hareketler",
+    etiket: "Gelir/Gider",
     baslik: "Harcamayı olduğunda kaydet.",
     aciklama:
       "Hızlı ekleme düğmesiyle harcamanı birkaç saniyede yaz. Hangi karttan yapıldığını seçtiğinde dönem sonunda banka ekstresiyle karşılaştırabilirsin.",
