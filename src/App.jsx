@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { demoModu, supabase } from "./supabaseClient.js";
 import {
+  revenueCatHazir,
+  revenueCatProKontrol,
+  revenueCatProSatinAl,
+} from "./revenuecat.js";
+import {
   Plus,
   Pencil,
   Trash2,
@@ -1385,6 +1390,10 @@ export default function BorcTakip() {
     proBitis: null,
     hata: "",
   });
+  const [proSatinAlma, setProSatinAlma] = useState({
+    yukleniyor: false,
+    hata: "",
+  });
   const planOnizlemesiAktif = import.meta.env.DEV;
   const [demoPlan, setDemoPlan] = useState(() => {
     if (!import.meta.env.DEV) return "gercek";
@@ -1612,17 +1621,28 @@ export default function BorcTakip() {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
       if (!token) throw new Error("Oturum bulunamadı");
-      const cevap = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      if (!cevap.ok) throw new Error("Hak bilgisi alınamadı");
-      const sonuc = await cevap.json();
+      const kullanici = data.session?.user;
+      const [shopierSonucu, revenueCatSonucu] = await Promise.allSettled([
+        fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        ).then(async (cevap) => {
+          if (!cevap.ok) throw new Error("Hak bilgisi alınamadı");
+          return cevap.json();
+        }),
+        revenueCatHazir && kullanici?.id
+          ? revenueCatProKontrol(kullanici.id)
+          : Promise.resolve({ active: false, unavailable: true }),
+      ]);
+      const sonuc = shopierSonucu.status === "fulfilled" ? shopierSonucu.value : {};
+      const rc = revenueCatSonucu.status === "fulfilled" ? revenueCatSonucu.value : {};
+      if (shopierSonucu.status === "rejected" && revenueCatSonucu.status === "rejected")
+        throw new Error("Hak bilgisi alınamadı");
       setReklamsiz({
         yukleniyor: false,
         aktif: !!sonuc.adFreeLifetime,
-        proAktif: !!sonuc.proActive,
-        proBitis: sonuc.proExpiresAt || null,
+        proAktif: !!sonuc.proActive || !!rc.active,
+        proBitis: rc.active ? rc.expiresAt : sonuc.proExpiresAt || null,
         hata: "",
       });
     } catch {
@@ -1633,6 +1653,39 @@ export default function BorcTakip() {
         proBitis: null,
         hata: "Satın alma durumu şu anda kontrol edilemedi.",
       });
+    }
+  }
+
+  async function proSatinAl() {
+    if (!revenueCatHazir) {
+      window.open(SHOPIER_PRO_URL, "_blank", "noopener,noreferrer");
+      return;
+    }
+    setProSatinAlma({ yukleniyor: true, hata: "" });
+    try {
+      const { data } = await supabase.auth.getSession();
+      const kullanici = data.session?.user;
+      if (!kullanici?.id) throw new Error("Oturum bulunamadı.");
+      const sonuc = await revenueCatProSatinAl({
+        userId: kullanici.id,
+        email: kullanici.email,
+      });
+      if (sonuc.cancelled) return;
+      if (!sonuc.active) throw new Error("Satın alma tamamlanamadı.");
+      setReklamsiz((eski) => ({
+        ...eski,
+        yukleniyor: false,
+        proAktif: true,
+        proBitis: sonuc.expiresAt || null,
+        hata: "",
+      }));
+    } catch (error) {
+      setProSatinAlma({
+        yukleniyor: false,
+        hata: "Ödeme ekranı açılamadı. Lütfen tekrar deneyin.",
+      });
+    } finally {
+      setProSatinAlma((eski) => ({ ...eski, yukleniyor: false }));
     }
   }
 
@@ -2403,6 +2456,8 @@ export default function BorcTakip() {
                 isDark={isDark}
                 reklamsiz={{ ...reklamsiz, proAktif: etkinPro }}
                 reklamsizKontrol={reklamsizKontrol}
+                proSatinAl={proSatinAl}
+                proSatinAlma={proSatinAlma}
                 temaDegistir={temaAnahtarlarSwitch}
                 parolaAc={() => setParolaPenceresi(true)}
                 rehberAc={() => rehberAdiminaGit(0)}
@@ -3009,6 +3064,8 @@ function Ayarlar({
   isDark,
   reklamsiz,
   reklamsizKontrol,
+  proSatinAl,
+  proSatinAlma,
   temaDegistir,
   parolaAc,
   rehberAc,
@@ -3045,19 +3102,19 @@ function Ayarlar({
                 ? `Tüm akıllı öneriler ve reklamsız kullanım açık${reklamsiz.proBitis ? `. Erişim tarihi: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR")}` : "."}`
                 : "Aylık ₺99. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
               {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
+              {proSatinAlma.hata ? ` ${proSatinAlma.hata}` : ""}
             </p>
           </div>
           <div className="bt-premium-actions">
             {!reklamsiz.proAktif && (
-              SHOPIER_PRO_URL ? (
-                <a className="bt-btn birincil" href={SHOPIER_PRO_URL} target="_blank" rel="noopener noreferrer">
-                  Aylık Pro'ya geç
-                </a>
-              ) : (
-                <button className="bt-btn birincil" type="button" disabled>
-                  Pro ödeme bağlantısı hazırlanıyor
-                </button>
-              )
+              <button
+                className="bt-btn birincil"
+                type="button"
+                disabled={proSatinAlma.yukleniyor}
+                onClick={proSatinAl}
+              >
+                {proSatinAlma.yukleniyor ? "Ödeme açılıyor…" : "Aylık Pro'ya geç"}
+              </button>
             )}
             <button
               className="bt-btn ikincil"
