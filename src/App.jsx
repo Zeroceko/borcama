@@ -679,6 +679,8 @@ function kartGecikmeTarihi(k) {
     : buAyOdemeTarihi(k.sonOdemeGunu);
 }
 
+const kartOdemeAyi = (kart) => ayAnahtari(kartGecikmeTarihi(kart));
+
 const kartOdemeAnahtari = (kart) =>
   "kart-" +
   kart.id +
@@ -1153,7 +1155,10 @@ function borcamaOnerileriniHesapla({
 }) {
   const oneriler = [];
   const gecikmisler = yaklasan.filter(
-    (odeme) => kalanGun(odeme.tarih) < 0 && !odeme.odendi,
+    (odeme) =>
+      kalanGun(odeme.tarih) < 0 &&
+      !odeme.odendi &&
+      Math.max(+odeme.tutar || 0, 0) > 0.01,
   );
 
   if (gecikmisler.length) {
@@ -1811,19 +1816,28 @@ export default function BorcTakip() {
 
   const buAyOdenecek = useMemo(() => {
     const kartOdeme = veri.cards.reduce((t, k) => {
+      if (kartOdemeAyi(k) !== ayAnahtari()) return t;
       const h = kartHesabi(k);
-      return (
-        t +
-        (k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
+      const hedef =
+        k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
           ? h.asgari
           : +k.asgari > 0
             ? +k.asgari
             : +k.borc > 0
               ? +k.borc
-              : h.onceki)
-      );
+              : h.onceki;
+      return t + Math.max(hedef - h.odeme, 0);
     }, 0);
-    const taksit = veri.loans.reduce((t, k) => t + (+k.taksit || 0), 0);
+    const ay = ayAnahtari();
+    const taksit = veri.loans.reduce(
+      (t, k) =>
+        t +
+        ((+k.kalanBorc || 0) <= 0 ||
+        veri.paid?.["kredi-" + k.id + "-" + ay]
+          ? 0
+          : +k.taksit || 0),
+      0,
+    );
     return kartOdeme + taksit;
   }, [veri]);
 
@@ -3334,10 +3348,10 @@ function Ozet({
   const gorunenBankalar = tumBankalar ? bankalar : bankalar.slice(0, 3);
 
   const gecikmisler = yaklasan.filter(
-    (o) => kalanGun(o.tarih) < 0 && !o.odendi,
+    (o) => kalanGun(o.tarih) < 0 && !o.odendi && (+o.tutar || 0) > 0.01,
   );
   const yaklasanlar = yaklasan.filter(
-    (o) => !(kalanGun(o.tarih) < 0) || o.odendi,
+    (o) => kalanGun(o.tarih) >= 0 && !o.odendi && (+o.tutar || 0) > 0.01,
   );
 
   const metrikler = [
@@ -3841,7 +3855,7 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle, kartOdemesiAc }) {
   const kartDurumu = o.tamamiOdendi
     ? { sinif: "tamami", metin: "Tamamı ödendi" }
     : o.minimumTamam
-      ? { sinif: "minimum", metin: "Minimum ödendi · kalan borç var" }
+      ? { sinif: "minimum", metin: "Asgari ödeme tamamlandı · kalan borç var" }
       : o.yapilanOdeme > 0
         ? { sinif: "kismi", metin: "Kısmi ödeme yapıldı" }
         : { sinif: "", metin: "Henüz ödeme yapılmadı" };
@@ -3873,13 +3887,14 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle, kartOdemesiAc }) {
           }}
         >
           {o.kartOdemesi
-            ? o.minimumTamam && !o.tamamiOdendi
-              ? "minimum ödendi · kalan borç devam ediyor"
+            ? (o.not ? o.not + " · " : "") +
+              (o.minimumTamam && !o.tamamiOdendi
+              ? "asgari ödeme tamamlandı · kalan borç devam ediyor"
               : gecikmis
                 ? -gun + " gün gecikti"
                 : gun === 0
                   ? "bugün son gün"
-                  : gun + " gün kaldı"
+                  : gun + " gün kaldı")
             : o.odendi
             ? "ödendi"
             : gecikmis
@@ -3899,9 +3914,15 @@ function OdemeSatiri({ o, i, gecikmis, odendiIsaretle, kartOdemesiAc }) {
         {o.kartOdemesi && (
           <div
             className="bt-satirD-tur"
-            style={{ color: CORAL, fontWeight: 800, marginTop: 3 }}
+            style={{
+              color: o.tutar > 0.01 ? CORAL : "#5D7A2E",
+              fontWeight: 800,
+              marginTop: 3,
+            }}
           >
-            Ödenmesi gereken minimum: {fmt(o.tutar)}
+            {o.tutar > 0.01
+              ? "Kalan asgari ödeme: " + fmt(o.tutar)
+              : "Asgari ödeme tamamlandı"}
           </div>
         )}
         <div
@@ -3967,37 +3988,18 @@ function Odemeler({
   const donemler = useMemo(() => {
     const aylar = new Set([ayAnahtari()]);
     (veri.cards || []).forEach((kart) => {
-      if (kart.ekstreAyi) aylar.add(kart.ekstreAyi);
+      if (kart.ekstreAyi) aylar.add(kartOdemeAyi(kart));
       (kart.ekstreGecmisi || []).forEach((ekstre) => {
-        if (ekstre.ekstreAyi) aylar.add(ekstre.ekstreAyi);
+        if (ekstre.ekstreAyi)
+          aylar.add(kartOdemeAyi({ ...kart, ...ekstre }));
       });
     });
     Object.keys(veri.loanPaymentHistory || {}).forEach((ay) => aylar.add(ay));
     return [...aylar].filter(Boolean).sort().reverse();
   }, [veri.cards, veri.loanPaymentHistory]);
-  const varsayilanDonem = useMemo(() => {
-    const bekleyenEkstreDonemleri = new Set();
-    (veri.cards || []).forEach((kart) => {
-      const ekstreler = [
-        kart.ekstreAyi ? { ...kart, ekstreAyi: kart.ekstreAyi } : null,
-        ...(kart.ekstreGecmisi || []).map((ekstre) => ({
-          ...kart,
-          ...ekstre,
-          ekstreAyi: ekstre.ekstreAyi,
-        })),
-      ].filter(Boolean);
-      ekstreler.forEach((ekstre) => {
-        if (ekstre.ekstreAyi && kartHesabi(ekstre).toplam > 0) {
-          bekleyenEkstreDonemleri.add(ekstre.ekstreAyi);
-        }
-      });
-    });
-    return (
-      [...bekleyenEkstreDonemleri].sort().reverse()[0] ||
-      donemler[0] ||
-      ayAnahtari()
-    );
-  }, [donemler, veri.cards]);
+  // Ödeme ekranı ekstre ayına değil, borcun gerçekten ödeneceği aya açılır.
+  // Örn. Temmuz ekstresi Ağustos'ta ödenecekse Ağustos ödeme dönemindedir.
+  const varsayilanDonem = ayAnahtari();
   const [donem, setDonem] = useState(varsayilanDonem);
   const donemElleSecildi = useRef(false);
   useEffect(() => {
@@ -4014,46 +4016,51 @@ function Odemeler({
   const donemOdemeleri = useMemo(() => {
     const liste = [];
     (veri.cards || []).forEach((kart) => {
-      const ekstre =
-        kart.ekstreAyi === donem
-          ? kart
-          : (kart.ekstreGecmisi || []).find((x) => x.ekstreAyi === donem);
-      if (!ekstre) return;
-      const kayit = { ...kart, ...ekstre, ekstreAyi: donem };
-      const h = kartHesabi(kayit);
-      if (h.onceki <= 0 && h.toplam <= 0) return;
-      const hedefTutar = h.asgari;
-      const odemeAnahtari = kartOdemeAnahtari(kayit);
-      const elleOdendi = !!veri.paid?.[odemeAnahtari];
-      const odemeKayitlari = veri.cardPaymentHistory?.[odemeAnahtari] || [];
-      const yapilanOdeme = Math.min(
-        elleOdendi
-          ? Math.max(h.odeme, hedefTutar)
-          : h.odeme,
-        h.onceki,
-      );
-      const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
-      const kalanToplam = h.toplam;
-      const minimumTamam = hedefTutar > 0 && tutar <= 0;
-      const tamamiOdendi = kalanToplam <= 0;
-      liste.push({
-        id: "kart-" + kart.id + "-" + donem,
-        kartOdemesi: true,
-        banka: kart.banka,
-        ad: kart.banka + (kart.ad ? " · " + kart.ad : ""),
-        tutar,
-        kalanToplam,
-        minimumOdeme: hedefTutar,
-        hedefTutar,
-        yapilanOdeme,
-        odemeKayitSayisi: odemeKayitlari.length,
-        not: "kalan minimum ödeme",
-        tarih: kartGecikmeTarihi(kayit),
-        odendi: minimumTamam,
-        minimumTamam,
-        tamamiOdendi,
-        anahtar: odemeAnahtari,
-      });
+      const ekstreler = [
+        kart.ekstreAyi ? kart : null,
+        ...(kart.ekstreGecmisi || []).map((ekstre) => ({
+          ...kart,
+          ...ekstre,
+        })),
+      ].filter(Boolean);
+      ekstreler
+        .filter((kayit) => kartOdemeAyi(kayit) === donem)
+        .forEach((kayit) => {
+          const h = kartHesabi(kayit);
+          if (h.onceki <= 0 && h.toplam <= 0) return;
+          const hedefTutar = h.asgari;
+          const odemeAnahtari = kartOdemeAnahtari(kayit);
+          const elleOdendi = !!veri.paid?.[odemeAnahtari];
+          const odemeKayitlari =
+            veri.cardPaymentHistory?.[odemeAnahtari] || [];
+          const yapilanOdeme = Math.min(
+            elleOdendi ? Math.max(h.odeme, hedefTutar) : h.odeme,
+            h.onceki,
+          );
+          const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
+          const kalanToplam = h.toplam;
+          const minimumTamam = hedefTutar > 0 && tutar <= 0.01;
+          const tamamiOdendi = kalanToplam <= 0.01;
+          liste.push({
+            id: "kart-" + kart.id + "-" + kayit.ekstreAyi,
+            kartOdemesi: true,
+            banka: kart.banka,
+            ad: kart.banka + (kart.ad ? " · " + kart.ad : ""),
+            ekstreAyi: kayit.ekstreAyi,
+            tutar,
+            kalanToplam,
+            minimumOdeme: hedefTutar,
+            hedefTutar,
+            yapilanOdeme,
+            odemeKayitSayisi: odemeKayitlari.length,
+            not: ayEtiketi(kayit.ekstreAyi) + " ekstresi",
+            tarih: kartGecikmeTarihi(kayit),
+            odendi: minimumTamam,
+            minimumTamam,
+            tamamiOdendi,
+            anahtar: odemeAnahtari,
+          });
+        });
     });
 
     if (donem === ayAnahtari()) {
@@ -4117,10 +4124,10 @@ function Odemeler({
         <div className="bt-cardhead">
           <div>
             <div className="bt-eyebrow">
-              {ayEtiketi(donem)}
+              ÖDEME TAKVİMİ
             </div>
             <div className="bt-h2" style={{ margin: "5px 0 0" }}>
-              Aylık ödeme listesi
+              {ayEtiketi(donem)} ödeme dönemi
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -4141,7 +4148,8 @@ function Odemeler({
               ))}
             </select>
             <div className="bt-mono" style={{ fontWeight: 800 }}>
-              {hedefiTamamlanan.length}/{sirali.length} ödeme hedefi tamamlandı
+              {hedefiTamamlanan.length}/{sirali.length} asgari/taksit hedefi
+              tamamlandı
             </div>
           </div>
         </div>
@@ -4166,7 +4174,7 @@ function Odemeler({
             </div>
           </div>
           <div className="bt-metric">
-            <div className="bt-metric-lbl">Kalan toplam minimum ödeme</div>
+            <div className="bt-metric-lbl">Kalan zorunlu ödeme</div>
             <div className="bt-metric-amt">{fmt(kalan)}</div>
             <div className="bt-metric-cap">
               Bu dönem zorunlu olarak ödenmesi gereken tutar
@@ -4177,9 +4185,9 @@ function Odemeler({
       <div className="bt-ipucu">
         <CalendarCheck size={16} />
         <div>
-          Yeni ekstre girildiğinde son ödeme tarihi sonraki ay olsa bile bu
-          listeye hemen gelir. Ödediğiniz tutarı minimum, kısmi veya tamamı
-          olarak kaydedin.
+          Ekstreler, harcamanın yapıldığı ayda değil son ödeme tarihinin olduğu
+          ödeme döneminde gösterilir. Ödediğiniz tutarı asgari, kısmi veya
+          tamamı olarak kaydedin.
         </div>
       </div>
       {eskiKayitSayisi > 0 && (
@@ -5772,7 +5780,8 @@ function BorclarSatiri({
     const gecikmeTarihi = kartGecikmeTarihi(k);
     const gecikenGun = arsiv ? 0 : Math.max(-kalanGun(gecikmeTarihi), 0);
     const asgariOran = (+k.limit || 0) <= 50000 ? 0.2 : 0.4;
-    const asgariTamam = hesap.odeme >= hesap.onceki * asgariOran;
+    const asgariTutar = hesap.onceki * asgariOran;
+    const asgariTamam = hesap.odeme + 0.01 >= asgariTutar;
     const donem = arsiv ? k.ekstreAyi : k.ekstreAyi || ayAnahtari();
     const odendi =
       !!paid?.[kartOdemeAnahtari({ ...k, ekstreAyi: donem })] ||
@@ -5780,8 +5789,10 @@ function BorclarSatiri({
     const borcKapandi = ekstreVar && hesap.toplam <= 0;
     const durum = borcKapandi
       ? "Ödendi"
-      : hesap.odeme > 0 || odendi
-        ? "Kısmi ödendi · kalan borç var"
+      : asgariTamam || odendi
+        ? "Asgari ödendi · kalan borç var"
+        : hesap.odeme > 0
+          ? "Kısmi ödendi · asgari eksik"
         : "Ödenmemiş";
     const gecikmis = ekstreVar && gecikenGun > 0 && !asgariTamam && !odendi;
     barRenk = gecikmis ? CORAL : LIME;
@@ -7216,7 +7227,12 @@ function Varliklar({
                       {tur.hisse && k.hisseKodu ? k.hisseKodu + " · " : ""}
                       {tur.otomatik
                         ? (+k.miktar || 0).toLocaleString("tr-TR", {
-                            maximumFractionDigits: 8,
+                            maximumFractionDigits:
+                              tur.kategori === "kripto"
+                                ? 8
+                                : tur.fon || k.tur === "bes"
+                                  ? 2
+                                  : 4,
                           }) +
                           " " +
                           tur.birim
@@ -7565,6 +7581,7 @@ function Harcamalar({
 }) {
   const acik = form && form.liste === "expenses";
   const [f, setF] = useState({});
+  const [gorunenAy, setGorunenAy] = useState(ayAnahtari());
   useEffect(() => {
     if (acik) {
       setF(
@@ -7585,6 +7602,23 @@ function Harcamalar({
         (b.tarih || "").localeCompare(a.tarih || ""),
       ),
     [veri.expenses],
+  );
+  const harcamaAylar = useMemo(
+    () =>
+      [
+        ...new Set([
+          ayAnahtari(),
+          ...veri.expenses.map((h) => (h.tarih || "").slice(0, 7)),
+        ]),
+      ]
+        .filter(Boolean)
+        .sort()
+        .reverse(),
+    [veri.expenses],
+  );
+  const gorunenHarcamalar = useMemo(
+    () => sirali.filter((h) => (h.tarih || "").slice(0, 7) === gorunenAy),
+    [sirali, gorunenAy],
   );
   const enBuyuk = Math.max(...Object.values(buAyHarcama.kategoriler), 1);
   const seciliKart = veri.cards.find(
@@ -7797,9 +7831,29 @@ function Harcamalar({
 
       {sirali.length > 0 && (
         <div className="bt-card">
-          <div className="bt-h2">Son harcamalar</div>
+          <div className="bt-cardhead">
+            <div className="bt-h2" style={{ margin: 0 }}>
+              {ayEtiketi(gorunenAy)} harcamaları
+            </div>
+            <select
+              className="bt-input"
+              aria-label="Harcama dönemi"
+              value={gorunenAy}
+              onChange={(e) => setGorunenAy(e.target.value)}
+              style={{ width: 170 }}
+            >
+              {harcamaAylar.map((ay) => (
+                <option key={ay} value={ay}>
+                  {ayEtiketi(ay)}
+                </option>
+              ))}
+            </select>
+          </div>
+          {gorunenHarcamalar.length === 0 ? (
+            <div className="bt-bos">Bu ay için harcama kaydı yok.</div>
+          ) : (
           <div className="bt-stack" style={{ gap: 10 }}>
-            {sirali.slice(0, 50).map((h) => (
+            {gorunenHarcamalar.map((h) => (
               <div key={h.id} className="bt-satir">
                 <div style={{ flex: 1, minWidth: 150 }}>
                   <div className="bt-satir-ad">
@@ -7840,6 +7894,7 @@ function Harcamalar({
               </div>
             ))}
           </div>
+          )}
         </div>
       )}
     </div>
