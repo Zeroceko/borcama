@@ -38,7 +38,7 @@ const CSS = `
 @media(max-width:850px){.la-links>.la-login{display:inline-flex!important}.la-nav-anchor{display:none!important}.la-links{gap:12px}}
 @media(max-width:600px){.la-shell{width:min(100% - 24px,1160px)}.la-nav{height:64px}.la-logo{width:118px}.la-links{gap:8px}.la-login{font-size:11px;white-space:nowrap}.la-nav .la-btn{padding:9px 11px;font-size:11px;box-shadow:2px 2px 0 var(--green)}.la-nav .la-btn svg{display:none}.la-hero-in{padding:48px 0 58px;gap:42px}.la-h1{font-size:clamp(42px,13vw,52px);overflow-wrap:anywhere}.la-h2{font-size:clamp(36px,11vw,48px);overflow-wrap:anywhere}.la-lead{font-size:15px}.la-demo{width:calc(100% - 7px);padding:17px;border-radius:20px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-demo-total{font-size:38px}.la-demo-pay{align-items:flex-start}.la-demo-pay>strong{font-size:11px}.la-trust{padding:38px 0 18px}.la-chip{padding:10px 12px;font-size:11px}.la-dark,.la-story{padding:64px 0}.la-command-card{min-height:0}.la-phone{padding:19px;border-radius:22px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-debt{font-size:38px}.la-cta{padding:62px 0}.la-cta-box{box-shadow:6px 6px 0 var(--green)}.la-footer{padding-top:48px}.la-footer-logo img{width:100%!important}.la-footline{margin-top:28px}}
 @media(max-width:600px){.la-assets{padding-top:48px}.la-assets-panel{padding:17px;border-radius:20px;box-shadow:7px 7px 0 var(--lime);transform:none}.la-assets-mini{grid-template-columns:1fr}.la-assets-total{font-size:38px}.la-assets-tags span{font-size:10px;padding:7px 9px}}
-.la-pricing{padding:90px 0}.la-pricing-head{text-align:center;max-width:680px;margin:0 auto 38px}.la-pricing-head p{color:#617269;line-height:1.55}.la-pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:900px;margin:auto}.la-price-card{display:flex;flex-direction:column;padding:28px;background:#fff;border:2px solid var(--ink);border-radius:20px}.la-price-card.pro{background:var(--green);color:#fff;box-shadow:9px 9px 0 var(--coral)}.la-price-badge{align-self:flex-start;border:1.5px solid currentColor;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800}.la-price-card h3{font-size:24px;margin:18px 0 5px}.la-price{font-family:'Archivo Black';font-size:38px;line-height:1.1;margin:10px 0}.la-price small{font:600 11px 'Space Grotesk';opacity:.7}.la-price-card>p{min-height:42px;color:#617269;font-size:13px;line-height:1.5}.la-price-card.pro>p{color:#b9c8c0}.la-price-list{display:grid;gap:10px;margin:20px 0 26px;padding:0;list-style:none}.la-price-list li{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4}.la-price-list svg{flex:0 0 auto;color:#5d7a2e}.la-price-card.pro .la-price-list svg{color:var(--lime)}.la-price-card .la-btn{margin-top:auto;align-self:stretch}.la-price-card.pro .la-btn{box-shadow:3px 3px 0 var(--coral)}.la-adfree-link{text-align:center;margin-top:25px;font-size:12px;color:#617269}.la-adfree-link a{font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.la-pricing{padding:90px 0}.la-pricing-head{text-align:center;max-width:680px;margin:0 auto 38px}.la-pricing-head p{color:#617269;line-height:1.55}.la-pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;max-width:1160px;margin:auto}.la-price-card{display:flex;flex-direction:column;padding:28px;background:#fff;border:2px solid var(--ink);border-radius:20px}.la-price-card.pro{background:var(--green);color:#fff;box-shadow:9px 9px 0 var(--coral)}.la-price-badge{align-self:flex-start;border:1.5px solid currentColor;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800}.la-price-card h3{font-size:24px;margin:18px 0 5px}.la-price{font-family:'Archivo Black';font-size:38px;line-height:1.1;margin:10px 0}.la-price small{font:600 11px 'Space Grotesk';opacity:.7}.la-price-card>p{min-height:42px;color:#617269;font-size:13px;line-height:1.5}.la-price-card.pro>p{color:#b9c8c0}.la-price-list{display:grid;gap:10px;margin:20px 0 26px;padding:0;list-style:none}.la-price-list li{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4}.la-price-list svg{flex:0 0 auto;color:#5d7a2e}.la-price-card.pro .la-price-list svg{color:var(--lime)}.la-price-card .la-btn{margin-top:auto;align-self:stretch}.la-price-card.pro .la-btn{box-shadow:3px 3px 0 var(--coral)}
 @media(max-width:700px){.la-pricing{padding:64px 0}.la-pricing-grid{grid-template-columns:1fr}.la-price-card{padding:22px}.la-price-card>p{min-height:0}}
 `;
 export default function LandingAlt() {
@@ -368,9 +368,9 @@ export default function LandingAlt() {
                 </ul>
                 <a className="la-btn" href="/register">Ücretsiz başla</a>
               </article>
-              <article className="la-price-card pro">
-                <span className="la-price-badge">EN İYİ PLAN</span>
-                <h3>Borcama Pro</h3>
+              <article className="la-price-card">
+                <span className="la-price-badge">AYLIK</span>
+                <h3>Borcama Pro Aylık</h3>
                 <div className="la-price">₺99 <small>/ ay</small></div>
                 <p>Her ay yenilenir. Tüm analizler ve reklamsız deneyim.</p>
                 <ul className="la-price-list">
@@ -379,7 +379,20 @@ export default function LandingAlt() {
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
                   <li><Check size={15} /> Reklamsız kullanım</li>
                 </ul>
-                <a className="la-btn" href="/register">Pro ile başla</a>
+                <a className="la-btn" href="/register">Aylık Pro ile başla</a>
+              </article>
+              <article className="la-price-card pro">
+                <span className="la-price-badge">EN AVANTAJLI</span>
+                <h3>Borcama Pro Yıllık</h3>
+                <div className="la-price">₺999 <small>/ yıl</small></div>
+                <p>Yıllık öde, aynı Pro deneyiminde ₺189 avantaj sağla.</p>
+                <ul className="la-price-list">
+                  <li><Check size={15} /> Ücretsiz paketteki her şey</li>
+                  <li><Check size={15} /> Tüm kişiselleştirilmiş öneriler</li>
+                  <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
+                  <li><Check size={15} /> Reklamsız kullanım</li>
+                </ul>
+                <a className="la-btn" href="/register">Yıllık Pro ile başla</a>
               </article>
             </div>
           </div>

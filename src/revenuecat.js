@@ -50,27 +50,27 @@ export async function revenueCatProKontrol(userId) {
   return proBilgisi(customerInfo);
 }
 
-export async function revenueCatProSatinAl({ userId, email }) {
+export async function revenueCatProSatinAl({ userId, email, plan = "monthly" }) {
   const purchases = await purchasesForUser(userId);
   if (!purchases) return { unavailable: true };
 
   try {
     const offerings = await purchases.getOfferings({ currency: "TRY" });
     const offering = offerings.all?.[PRO_OFFERING] || offerings.current;
-    const monthly =
-      offering?.packagesById?.["$rc_monthly"] ||
-      offering?.monthly ||
-      offering?.availablePackages?.[0];
+    const packageId = plan === "annual" ? "$rc_annual" : "$rc_monthly";
+    const selectedPackage =
+      offering?.packagesById?.[packageId] ||
+      (plan === "annual" ? offering?.annual : offering?.monthly);
 
-    if (!monthly) throw new Error("Borcama Pro paketi bulunamadı.");
+    if (!selectedPackage) throw new Error("Borcama Pro paketi bulunamadı.");
 
     const result = await purchases.purchase({
-      rcPackage: monthly,
+      rcPackage: selectedPackage,
       customerEmail: email || undefined,
       selectedLocale: "tr",
       defaultLocale: "tr",
       termsAndConditionsUrl: `${window.location.origin}/terms`,
-      metadata: { plan: "borcama_pro_monthly" },
+      metadata: { plan: `borcama_pro_${plan}` },
     });
     return { ...proBilgisi(result.customerInfo), purchased: true };
   } catch (error) {

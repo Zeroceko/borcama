@@ -1388,6 +1388,7 @@ export default function BorcTakip() {
   const [proSatinAlma, setProSatinAlma] = useState({
     yukleniyor: false,
     hata: "",
+    plan: null,
   });
   const planOnizlemesiAktif = import.meta.env.DEV;
   const [demoPlan, setDemoPlan] = useState(() => {
@@ -1651,15 +1652,16 @@ export default function BorcTakip() {
     }
   }
 
-  async function proSatinAl() {
+  async function proSatinAl(plan = "monthly") {
     if (!revenueCatHazir) {
       setProSatinAlma({
         yukleniyor: false,
         hata: "Ödeme sistemi şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+        plan: null,
       });
       return;
     }
-    setProSatinAlma({ yukleniyor: true, hata: "" });
+    setProSatinAlma({ yukleniyor: true, hata: "", plan });
     try {
       const { data } = await supabase.auth.getSession();
       const kullanici = data.session?.user;
@@ -1667,6 +1669,7 @@ export default function BorcTakip() {
       const sonuc = await revenueCatProSatinAl({
         userId: kullanici.id,
         email: kullanici.email,
+        plan,
       });
       if (sonuc.cancelled) return;
       if (!sonuc.active) throw new Error("Satın alma tamamlanamadı.");
@@ -1681,9 +1684,10 @@ export default function BorcTakip() {
       setProSatinAlma({
         yukleniyor: false,
         hata: "Ödeme ekranı açılamadı. Lütfen tekrar deneyin.",
+        plan: null,
       });
     } finally {
-      setProSatinAlma((eski) => ({ ...eski, yukleniyor: false }));
+      setProSatinAlma((eski) => ({ ...eski, yukleniyor: false, plan: null }));
     }
   }
 
@@ -3088,7 +3092,7 @@ function Ayarlar({
           <div>
             <span className="bt-premium-badge">
               <Sparkles size={13} />
-              {reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK PLAN"}
+              {reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK VE YILLIK PLAN"}
             </span>
             <h2>
               {reklamsiz.proAktif
@@ -3098,21 +3102,35 @@ function Ayarlar({
             <p>
               {reklamsiz.proAktif
                 ? `Tüm akıllı öneriler ve reklamsız kullanım açık${reklamsiz.proBitis ? `. Erişim tarihi: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR")}` : "."}`
-                : "Aylık ₺99. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
+                : "Aylık ₺99 veya yıllık ₺999. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
               {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
               {proSatinAlma.hata ? ` ${proSatinAlma.hata}` : ""}
             </p>
           </div>
           <div className="bt-premium-actions">
             {!reklamsiz.proAktif && (
-              <button
-                className="bt-btn birincil"
-                type="button"
-                disabled={proSatinAlma.yukleniyor}
-                onClick={proSatinAl}
-              >
-                {proSatinAlma.yukleniyor ? "Ödeme açılıyor…" : "Aylık Pro'ya geç"}
-              </button>
+              <>
+                <button
+                  className="bt-btn birincil"
+                  type="button"
+                  disabled={proSatinAlma.yukleniyor}
+                  onClick={() => proSatinAl("monthly")}
+                >
+                  {proSatinAlma.yukleniyor && proSatinAlma.plan === "monthly"
+                    ? "Ödeme açılıyor…"
+                    : "Aylık Pro · ₺99"}
+                </button>
+                <button
+                  className="bt-btn birincil"
+                  type="button"
+                  disabled={proSatinAlma.yukleniyor}
+                  onClick={() => proSatinAl("annual")}
+                >
+                  {proSatinAlma.yukleniyor && proSatinAlma.plan === "annual"
+                    ? "Ödeme açılıyor…"
+                    : "Yıllık Pro · ₺999"}
+                </button>
+              </>
             )}
             <button
               className="bt-btn ikincil"
