@@ -2396,6 +2396,7 @@ export default function BorcTakip() {
                 setForm={setForm}
                 ekleGuncelle={ekleGuncelle}
                 sil={sil}
+                odendiIsaretle={odendiIsaretle}
                 bankalar={bankalar}
                 bankaEkle={bankaEkle}
                 kategori={borcKategori}
@@ -4370,6 +4371,7 @@ function Borclar({
   setForm,
   ekleGuncelle,
   sil,
+  odendiIsaretle,
   bankalar,
   bankaEkle,
   kategori,
@@ -5232,6 +5234,7 @@ function Borclar({
                   sil={sil}
                   ekHesapOdemesiSil={ekHesapOdemesiSil}
                   paid={veri.paid}
+                  odendiIsaretle={odendiIsaretle}
                   arsiv={saltOkunurGorunum}
                 />
               ))}
@@ -5732,6 +5735,7 @@ function BorclarSatiri({
   sil,
   ekHesapOdemesiSil,
   paid,
+  odendiIsaretle,
   arsiv = false,
 }) {
   let baslik = k.banka,
@@ -5746,6 +5750,10 @@ function BorclarSatiri({
     kartDetay = null,
     ekHesapDetay = null,
     kod = bankaKodu(k.banka);
+  const krediOdemeAnahtari =
+    kategori === "loans" ? "kredi-" + k.id + "-" + ayAnahtari() : null;
+  const buAyKrediOdendi =
+    krediOdemeAnahtari !== null && !!paid?.[krediOdemeAnahtari];
 
   if (kategori === "cards") {
     const hesap = kartHesabi(k);
@@ -5844,7 +5852,8 @@ function BorclarSatiri({
           " · her ayın " +
           k.odemeGunu +
           ". günü" +
-          (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "");
+          (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "") +
+          (buAyKrediOdendi ? " · bu ayki taksit ödendi" : "");
   } else if (kategori === "od") {
     const hesap = ekHesapHesabi(k);
     ekHesapDetay = hesap;
@@ -5916,7 +5925,14 @@ function BorclarSatiri({
         {altYazi && <div className="bt-satir-alt">{altYazi}</div>}
       </div>
       {!arsiv && (
-        <div style={{ display: "flex", gap: 2 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 4,
+            flexWrap: "wrap",
+            justifyContent: "flex-end",
+          }}
+        >
           {kategori === "cards" && (
             <button
               className="bt-btn kucuk ikincil"
@@ -5964,6 +5980,29 @@ function BorclarSatiri({
               }
             >
               <Check size={13} /> Borcu kapat
+            </button>
+          )}
+          {kategori === "loans" && (+k.kalanBorc || 0) > 0 && (
+            <button
+              className="bt-btn kucuk ikincil"
+              title={
+                buAyKrediOdendi
+                  ? "Bu ayki taksit ödeme kaydını geri al"
+                  : "Bu ayki kredi taksitini ödendi olarak işaretle"
+              }
+              onClick={() =>
+                odendiIsaretle?.(krediOdemeAnahtari, !buAyKrediOdendi)
+              }
+            >
+              {buAyKrediOdendi ? (
+                <>
+                  <RotateCcw size={13} /> Ödemeyi geri al
+                </>
+              ) : (
+                <>
+                  <Check size={13} /> Bu ayki taksiti ödedim
+                </>
+              )}
             </button>
           )}
           <button
