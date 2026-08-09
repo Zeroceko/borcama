@@ -47,6 +47,8 @@ function Kok() {
     ) : (
       <YapilandirmaEksik />
     );
+  if (yol === "/welcome")
+    return supabaseHazir ? <KimlikliWelcome /> : <YapilandirmaEksik />;
   const uygulamaYollari = [
     "/summary",
     "/debts",
@@ -75,6 +77,64 @@ function KimlikliYonetim({ tur }) {
   if (session === undefined) return <Yukleniyor />;
   if (!session) return <GirisEkrani redirectTo={`/${tur}`} />;
   return tur === "ceo" ? <CeoDashboard /> : <Backoffice />;
+}
+
+function KimlikliWelcome() {
+  const session = useSession();
+  if (session === undefined) return <Yukleniyor />;
+  if (!session) return <GirisEkrani redirectTo="/welcome" />;
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: 24,
+        background: "#f4efe0",
+        color: "#14160f",
+        fontFamily: "Space Grotesk, system-ui, sans-serif",
+      }}
+    >
+      <section
+        style={{
+          width: "min(100%, 560px)",
+          padding: "clamp(26px, 6vw, 46px)",
+          border: "3px solid #14160f",
+          borderRadius: 28,
+          background: "#fff",
+          boxShadow: "10px 10px 0 #ff6b5b",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ fontSize: 46, marginBottom: 12 }}>✦</div>
+        <h1 style={{ margin: "0 0 12px", fontSize: "clamp(30px, 7vw, 48px)" }}>
+          Borcama Pro hazır.
+        </h1>
+        <p style={{ margin: "0 auto 24px", maxWidth: 430, color: "#5d6054", lineHeight: 1.65 }}>
+          Satın alma tamamlandı. Kişisel finansal sinyaller ve reklamsız deneyim hesabında aktif.
+        </p>
+        <a
+          href="/summary"
+          style={{
+            display: "inline-flex",
+            minHeight: 48,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 24px",
+            border: "2px solid #14160f",
+            borderRadius: 999,
+            background: "#c6fa53",
+            color: "#14160f",
+            fontWeight: 800,
+            textDecoration: "none",
+          }}
+        >
+          Özetime git →
+        </a>
+      </section>
+    </main>
+  );
 }
 
 function Yukleniyor() {

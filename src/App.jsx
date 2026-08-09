@@ -3,6 +3,7 @@ import { demoModu, supabase } from "./supabaseClient.js";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
+  revenueCatProPaketleri,
   revenueCatProSatinAl,
 } from "./revenuecat.js";
 import {
@@ -361,7 +362,7 @@ const CSS = `
 .bt-product-tour{position:fixed;inset:0;z-index:140;pointer-events:none}.bt-product-tour-golge{position:fixed;z-index:0;background:#0f110ab8;pointer-events:auto}.bt-product-tour-hedef{position:fixed;z-index:1;border:3px solid ${LIME};border-radius:22px;box-shadow:0 0 0 4px #14160f,0 0 0 9px #cdf56455;pointer-events:none;animation:bt-tour-nabiz 1.7s ease-in-out infinite}.bt-product-tour-panel{position:fixed;z-index:3;max-height:calc(100vh - 36px);overflow-y:auto;padding:23px;background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:20px;box-shadow:7px 7px 0 ${CORAL};pointer-events:auto}.bt-product-tour-kapat{position:absolute;top:13px;right:13px;width:34px;height:34px;display:grid;place-items:center;border:2px solid ${INK};border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-product-tour-progress{display:flex;gap:5px;margin:0 42px 18px 0}.bt-product-tour-progress span{height:6px;flex:1;border:1.5px solid ${INK};border-radius:999px;background:var(--panel2)}.bt-product-tour-progress span.aktif{background:${LIME}}.bt-product-tour-sayac{display:flex;align-items:center;gap:6px;margin-bottom:10px;color:var(--dim);font-size:10.5px;font-weight:800;letter-spacing:.02em}.bt-product-tour-sayac svg{color:${CORAL}}.bt-product-tour-panel h2{margin:0;padding-right:20px;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,29px);line-height:1.08;letter-spacing:-.025em}.bt-product-tour-panel>p{margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-product-tour-ipucu{display:flex;align-items:flex-start;gap:8px;margin-top:15px;padding:10px 11px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);font-size:11.5px;line-height:1.4;font-weight:700}.bt-product-tour-ipucu svg{flex:0 0 auto;margin-top:1px;color:#5d7a2e}.bt-product-tour-actions{display:flex;align-items:center;gap:7px;margin-top:18px}.bt-product-tour-actions .bt-btn{white-space:nowrap}.bt-product-tour-atla{margin-right:auto;border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}@keyframes bt-tour-nabiz{50%{box-shadow:0 0 0 4px #14160f,0 0 0 13px #cdf56422}}
 @media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
 .bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:20px}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--line) 22%,transparent)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
-.bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:22px;box-shadow:6px 6px 0 ${CORAL}}.bt-premium-card h2{margin:3px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(20px,3vw,28px);color:${LIME};text-shadow:2px 2px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:12.5px;line-height:1.55;max-width:620px}.bt-premium-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:700px){.bt-premium-card{grid-column:auto;grid-template-columns:1fr}.bt-premium-actions{justify-content:stretch}.bt-premium-actions .bt-btn{width:100%}}
+.bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:22px;box-shadow:6px 6px 0 ${CORAL}}.bt-premium-card h2{margin:3px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(20px,3vw,28px);color:${LIME};text-shadow:2px 2px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:12.5px;line-height:1.55;max-width:620px}.bt-premium-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center}.bt-pro-choice{display:grid;gap:8px;min-width:245px}.bt-pro-toggle{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1.5px solid #77796d;border-radius:999px;background:#292c20}.bt-pro-toggle button{min-height:36px;border:0;border-radius:999px;background:transparent;color:#c8c7bb;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.bt-pro-toggle button.aktif{background:${CREAM};color:${INK}}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:700px){.bt-premium-card{grid-column:auto;grid-template-columns:1fr}.bt-premium-actions{justify-content:stretch}.bt-premium-actions .bt-btn,.bt-pro-choice{width:100%}}
 .bt-pro-kilit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:26px;padding:16px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}.bt-pro-kilit-ikon{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid ${INK};border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-pro-kilit strong{display:block;color:${CREAM};font-size:14px}.bt-pro-kilit span{display:block;margin-top:3px;color:#9fa294;font-size:11.5px;line-height:1.45}.bt-pro-kilit .bt-btn{white-space:nowrap}
 .bt-adfree-card{background:var(--panel2)}.bt-adfree-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bt-adfree-actions a{text-decoration:none}
 @media(max-width:700px){.bt-pro-kilit{grid-template-columns:auto minmax(0,1fr)}.bt-pro-kilit .bt-btn{grid-column:1/-1;width:100%;justify-content:center}.bt-adfree-actions{width:100%}.bt-adfree-actions .bt-btn{flex:1;justify-content:center}}
@@ -1388,6 +1389,13 @@ export default function BorcTakip() {
     aktif: false,
     proAktif: demoModu,
     proBitis: null,
+    proYonetimUrl: null,
+    hata: "",
+  });
+  const [proPaketler, setProPaketler] = useState({
+    yukleniyor: true,
+    monthly: null,
+    annual: null,
     hata: "",
   });
   const [proSatinAlma, setProSatinAlma] = useState({
@@ -1613,7 +1621,35 @@ export default function BorcTakip() {
   useEffect(() => {
     supabase.auth
       .getUser()
-      .then(({ data }) => setKullaniciEposta(data?.user?.email || ""));
+      .then(async ({ data }) => {
+        const kullanici = data?.user;
+        setKullaniciEposta(kullanici?.email || "");
+        if (!revenueCatHazir || !kullanici?.id) {
+          setProPaketler({
+            yukleniyor: false,
+            monthly: null,
+            annual: null,
+            hata: "Pro fiyatları şu anda alınamıyor.",
+          });
+          return;
+        }
+        try {
+          const paketler = await revenueCatProPaketleri(kullanici.id);
+          setProPaketler({
+            yukleniyor: false,
+            monthly: paketler.monthly || null,
+            annual: paketler.annual || null,
+            hata: "",
+          });
+        } catch {
+          setProPaketler({
+            yukleniyor: false,
+            monthly: null,
+            annual: null,
+            hata: "Pro fiyatları şu anda alınamıyor.",
+          });
+        }
+      });
   }, []);
 
   async function reklamsizKontrol() {
@@ -1644,6 +1680,7 @@ export default function BorcTakip() {
         aktif: !!sonuc.adFreeLifetime,
         proAktif: !!sonuc.proActive || !!rc.active,
         proBitis: rc.active ? rc.expiresAt : sonuc.proExpiresAt || null,
+        proYonetimUrl: rc.managementURL || null,
         hata: "",
       });
     } catch {
@@ -1652,6 +1689,7 @@ export default function BorcTakip() {
         aktif: false,
         proAktif: demoModu,
         proBitis: null,
+        proYonetimUrl: null,
         hata: "Satın alma durumu şu anda kontrol edilemedi.",
       });
     }
@@ -1683,8 +1721,10 @@ export default function BorcTakip() {
         yukleniyor: false,
         proAktif: true,
         proBitis: sonuc.expiresAt || null,
+        proYonetimUrl: sonuc.managementURL || null,
         hata: "",
       }));
+      window.location.assign("/welcome");
     } catch (error) {
       setProSatinAlma({
         yukleniyor: false,
@@ -2475,6 +2515,7 @@ export default function BorcTakip() {
                 reklamsizKontrol={reklamsizKontrol}
                 proSatinAl={proSatinAl}
                 proSatinAlma={proSatinAlma}
+                proPaketler={proPaketler}
                 temaDegistir={temaAnahtarlarSwitch}
                 parolaAc={() => setParolaPenceresi(true)}
                 rehberAc={() => rehberAdiminaGit(0)}
@@ -3083,11 +3124,15 @@ function Ayarlar({
   reklamsizKontrol,
   proSatinAl,
   proSatinAlma,
+  proPaketler,
   temaDegistir,
   parolaAc,
   rehberAc,
   cikisYap,
 }) {
+  const [proPlan, setProPlan] = useState("monthly");
+  const seciliPaket = proPaketler?.[proPlan];
+  const seciliFiyat = seciliPaket?.formattedPrice;
   return (
     <div className="bt-stack">
       <div>
@@ -3117,35 +3162,49 @@ function Ayarlar({
             <p>
               {reklamsiz.proAktif
                 ? `Tüm akıllı öneriler ve reklamsız kullanım açık${reklamsiz.proBitis ? `. Erişim tarihi: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR")}` : "."}`
-                : "Aylık ₺99 veya yıllık ₺999. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
+                : "Aylık veya yıllık planı seç. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
+              {!reklamsiz.proAktif && proPaketler?.hata ? ` ${proPaketler.hata}` : ""}
               {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
               {proSatinAlma.hata ? ` ${proSatinAlma.hata}` : ""}
             </p>
           </div>
           <div className="bt-premium-actions">
             {!reklamsiz.proAktif && (
-              <>
+              <div className="bt-pro-choice">
+                <div className="bt-pro-toggle" role="group" aria-label="Pro faturalama dönemi">
+                  <button
+                    type="button"
+                    className={proPlan === "monthly" ? "aktif" : ""}
+                    onClick={() => setProPlan("monthly")}
+                  >
+                    Aylık
+                  </button>
+                  <button
+                    type="button"
+                    className={proPlan === "annual" ? "aktif" : ""}
+                    onClick={() => setProPlan("annual")}
+                  >
+                    Yıllık
+                  </button>
+                </div>
                 <button
                   className="bt-btn birincil"
                   type="button"
-                  disabled={proSatinAlma.yukleniyor}
-                  onClick={() => proSatinAl("monthly")}
+                  disabled={proSatinAlma.yukleniyor || proPaketler?.yukleniyor || !seciliFiyat}
+                  onClick={() => proSatinAl(proPlan)}
                 >
-                  {proSatinAlma.yukleniyor && proSatinAlma.plan === "monthly"
+                  {proSatinAlma.yukleniyor
                     ? "Ödeme açılıyor…"
-                    : "Aylık Pro · ₺99"}
+                    : proPaketler?.yukleniyor
+                      ? "Fiyat yükleniyor…"
+                      : `Pro'ya geç · ${seciliFiyat || "Fiyat alınamadı"}`}
                 </button>
-                <button
-                  className="bt-btn birincil"
-                  type="button"
-                  disabled={proSatinAlma.yukleniyor}
-                  onClick={() => proSatinAl("annual")}
-                >
-                  {proSatinAlma.yukleniyor && proSatinAlma.plan === "annual"
-                    ? "Ödeme açılıyor…"
-                    : "Yıllık Pro · ₺999"}
-                </button>
-              </>
+              </div>
+            )}
+            {reklamsiz.proAktif && reklamsiz.proYonetimUrl && (
+              <a className="bt-btn birincil" href={reklamsiz.proYonetimUrl}>
+                Aboneliği yönet
+              </a>
             )}
             <button
               className="bt-btn ikincil"
