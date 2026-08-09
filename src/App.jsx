@@ -20,6 +20,7 @@ import {
   Wallet,
   Lightbulb,
   CalendarCheck,
+  ReceiptText,
   Eye,
   EyeOff,
   Minus,
@@ -349,6 +350,10 @@ const CSS = `
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
 .bt-quick-add{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(70px,8vw,86px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${CORAL};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${LIME};cursor:pointer}
 .bt-quick-add:hover{transform:translateY(-1px)}
+.bt-quick-menu{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(120px,13vw,142px);z-index:41;width:min(310px,calc(100vw - 28px));display:grid;gap:7px;padding:10px;background:var(--panel);border:2px solid var(--line);border-radius:18px;box-shadow:7px 7px 0 ${LIME}}
+.bt-quick-menu button{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;width:100%;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.bt-quick-menu button:hover{background:color-mix(in srgb,${LIME} 24%,var(--panel2))}.bt-quick-menu svg{grid-row:1/3;width:34px;height:34px;padding:7px;border:1.5px solid var(--line);border-radius:10px;background:${LIME};color:${INK}}.bt-quick-menu strong{font-size:12.5px}.bt-quick-menu small{display:block;margin-top:2px;color:var(--dim);font-size:10.5px;line-height:1.35}
+.bt-status-filter{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:2px solid ${CORAL};border-radius:999px;background:color-mix(in srgb,${CORAL} 12%,var(--panel));color:${CORAL};font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-status-filter.aktif{background:${CORAL};color:${INK};border-color:${INK}}
 .bt-feedback-textarea{min-height:130px;resize:vertical;line-height:1.5;padding-top:12px}
 .bt-tour-arka{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:22px;background:#0f110ad9;backdrop-filter:blur(7px);overflow-y:auto}
 .bt-tour{position:relative;width:min(920px,100%);min-height:560px;display:grid;grid-template-columns:minmax(0,1.16fr) minmax(300px,.84fr);background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:26px;overflow:hidden;box-shadow:12px 12px 0 ${CORAL}}
@@ -383,7 +388,7 @@ const CSS = `
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
-  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:0;padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:2px solid var(--line);box-shadow:0 -8px 24px #00000012;backdrop-filter:blur(12px)}
+  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0;padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:2px solid var(--line);box-shadow:0 -8px 24px #00000012;backdrop-filter:blur(12px)}
   .bt-nav-ana .bt-pill{display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:13px;padding:6px 2px;background:transparent;color:var(--dim);font-size:clamp(9px,2.7vw,10.5px);line-height:1.05;opacity:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .bt-nav-ana .bt-pill svg{width:19px;height:19px;flex:0 0 auto;stroke-width:2.2}
   .bt-nav-ana .bt-pill span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -411,6 +416,7 @@ const CSS = `
   .bt-feedback-trigger{right:12px;bottom:76px;padding:10px 13px;font-size:11.5px}
   .bt-quick-add{right:12px;bottom:128px;width:46px;height:46px;padding:0;justify-content:center;border-radius:50%;box-shadow:3px 3px 0 ${LIME}}
   .bt-quick-add span{display:none}
+  .bt-quick-menu{right:12px;bottom:184px;width:min(300px,calc(100vw - 24px));box-shadow:5px 5px 0 ${LIME}}
   .bt-setting-row{align-items:flex-start;flex-direction:column}
   .bt-setting-row .bt-btn{width:100%;justify-content:center}
   .bt-alanlar{grid-template-columns:1fr}
@@ -1419,6 +1425,7 @@ export default function BorcTakip() {
   };
   const [borcKategori, setBorcKategori] = useState("cards");
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
+  const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
   const [piyasa, setPiyasa] = useState(() => {
@@ -2225,19 +2232,22 @@ export default function BorcTakip() {
   const s = bugun();
   const anaSekme =
     sekme === "plan"
-      ? "borclar"
-      : sekme === "gelir" || sekme === "harcamalar"
+      ? "ozet"
+      : sekme === "gelir" || sekme === "harcamalar" || sekme === "odemeler"
         ? "hareketler"
         : sekme;
 
   function anaSekmeyeGit(hedef) {
     if (hedef === "hareketler")
       setSekme(
-        sekme === "gelir" || sekme === "harcamalar" ? sekme : "harcamalar",
+        sekme === "gelir" || sekme === "harcamalar" || sekme === "odemeler"
+          ? sekme
+          : "harcamalar",
       );
     else if (hedef === "borclar") setSekme("borclar");
     else setSekme(hedef);
     setForm(null);
+    setHizliMenuAcik(false);
   }
 
   return (
@@ -2328,10 +2338,9 @@ export default function BorcTakip() {
 
         <nav className="bt-nav bt-nav-ana">
           {[
-            ["ozet", "Özet", BarChart3],
+            ["ozet", "Bugün", BarChart3],
             ["borclar", "Borçlar", Wallet],
-            ["odemeler", "Ödemeler", CalendarCheck],
-            ["hareketler", "Gelir/Gider", ArrowLeftRight],
+            ["hareketler", "Hareketler", ArrowLeftRight],
             ["varliklar", "Varlıklar", PiggyBank],
           ].map(([k, ad, Ikon]) => (
             <button
@@ -2352,25 +2361,18 @@ export default function BorcTakip() {
               ["cards", "Kartlar"],
               ["loans", "Krediler"],
               ["od", "Ek Hesap"],
-              ["others", "Gecikenler"],
-              ["plan", "Borç Planı"],
             ].map(([k, ad]) => {
               const aktif =
-                k === "plan"
-                  ? sekme === "plan"
-                  : sekme === "borclar" &&
-                    (borcKategori === k ||
-                      (k === "cards" && borcKategori === "kontrol"));
+                sekme === "borclar" &&
+                (borcKategori === k ||
+                  (k === "cards" && borcKategori === "kontrol"));
               return (
                 <button
                   key={k}
                   className={"bt-pill " + (aktif ? "aktif" : "pasif")}
                   onClick={() => {
-                    if (k === "plan") setSekme("plan");
-                    else {
-                      setBorcKategori(k);
-                      setSekme("borclar");
-                    }
+                    setBorcKategori(k);
+                    setSekme("borclar");
                     setForm(null);
                   }}
                 >
@@ -2386,6 +2388,7 @@ export default function BorcTakip() {
             {[
               ["harcamalar", "Harcamalar"],
               ["gelir", "Gelirler"],
+              ["odemeler", "Ödemeler"],
             ].map(([k, ad]) => (
               <button
                 key={k}
@@ -2394,25 +2397,6 @@ export default function BorcTakip() {
                   setSekme(k);
                   setForm(null);
                 }}
-              >
-                {ad}
-              </button>
-            ))}
-          </nav>
-        )}
-
-        {anaSekme === "odemeler" && (
-          <nav className="bt-nav bt-nav-alt" aria-label="Ödeme durumları">
-            {[
-              ["bekleyen", "Bekleyen"],
-              ["odenen", "Ödenenler"],
-            ].map(([k, ad]) => (
-              <button
-                key={k}
-                className={
-                  "bt-pill " + (odemeFiltresi === k ? "aktif" : "pasif")
-                }
-                onClick={() => setOdemeFiltresi(k)}
               >
                 {ad}
               </button>
@@ -2476,6 +2460,7 @@ export default function BorcTakip() {
                 odendiIsaretle={odendiIsaretle}
                 kartOdemesiKaydet={kartOdemesiKaydet}
                 filtre={odemeFiltresi}
+                filtreDegistir={setOdemeFiltresi}
               />
             )}
             {sekme === "plan" && (
@@ -2536,17 +2521,51 @@ export default function BorcTakip() {
           </>
         )}
       </div>
+      {hizliMenuAcik && (
+        <div className="bt-quick-menu" id="bt-hizli-islemler" role="menu">
+          <button type="button" role="menuitem" onClick={() => {
+            setSekme("harcamalar");
+            setForm({ liste: "expenses", veri: {} });
+            setHizliMenuAcik(false);
+          }}>
+            <Plus /><span><strong>Harcama ekle</strong><small>Tutarı ve ödeme kaynağını kaydet.</small></span>
+          </button>
+          <button type="button" role="menuitem" onClick={() => {
+            setOdemeFiltresi("bekleyen");
+            setSekme("odemeler");
+            setForm(null);
+            setHizliMenuAcik(false);
+          }}>
+            <CalendarCheck /><span><strong>Ödeme gir</strong><small>Bekleyen kart veya kredi ödemesini seç.</small></span>
+          </button>
+          <button type="button" role="menuitem" onClick={() => {
+            setBorcKategori("cards");
+            setSekme("borclar");
+            setForm(null);
+            setHizliMenuAcik(false);
+          }}>
+            <ReceiptText /><span><strong>Ekstre ekle</strong><small>Kartını seçip yeni dönem ekstresini gir.</small></span>
+          </button>
+          <button type="button" role="menuitem" onClick={() => {
+            setBorcKategori("cards");
+            setSekme("borclar");
+            setForm(null);
+            setHizliMenuAcik(false);
+          }}>
+            <Wallet /><span><strong>Yeni borç ekle</strong><small>Kart, kredi veya ek hesap türünü seç.</small></span>
+          </button>
+        </div>
+      )}
       <button
         className="bt-quick-add"
         type="button"
-        aria-label="Hızlı harcama ekle"
-        title="Hızlı harcama ekle"
-        onClick={() => {
-          setSekme("harcamalar");
-          setForm({ liste: "expenses", veri: {} });
-        }}
+        aria-label={hizliMenuAcik ? "Hızlı işlemleri kapat" : "Hızlı işlem ekle"}
+        aria-expanded={hizliMenuAcik}
+        aria-controls="bt-hizli-islemler"
+        title="Hızlı işlem ekle"
+        onClick={() => setHizliMenuAcik((acik) => !acik)}
       >
-        <Plus size={18} /> <span>Harcama ekle</span>
+        {hizliMenuAcik ? <X size={18} /> : <Plus size={18} />} <span>Hızlı işlem</span>
       </button>
       <button
         className="bt-feedback-trigger"
@@ -3434,6 +3453,14 @@ function Ozet({
   const yaklasanlar = yaklasan.filter(
     (o) => kalanGun(o.tarih) >= 0 && !o.odendi && (+o.tutar || 0) > 0.01,
   );
+  const gorunenGecikmisler = gecikmisler.slice(0, 3);
+  const gorunenYaklasanlar = yaklasanlar.slice(
+    0,
+    Math.max(3 - gorunenGecikmisler.length, 0),
+  );
+  const gizliOdemeSayisi =
+    gecikmisler.length + yaklasanlar.length -
+    gorunenGecikmisler.length - gorunenYaklasanlar.length;
 
   const metrikler = [
     {
@@ -3696,7 +3723,7 @@ function Ozet({
               Gecikmiş ödemeler
             </div>
             <div className="bt-stack" style={{ gap: 10, marginBottom: 24 }}>
-              {gecikmisler.map((o, i) => (
+              {gorunenGecikmisler.map((o, i) => (
                 <OdemeSatiri
                   key={o.id}
                   o={o}
@@ -3725,7 +3752,7 @@ function Ozet({
           </div>
         ) : (
           <div className="bt-stack" style={{ gap: 10 }}>
-            {yaklasanlar.map((o, i) => (
+            {gorunenYaklasanlar.map((o, i) => (
               <OdemeSatiri
                 key={o.id}
                 o={o}
@@ -3737,14 +3764,25 @@ function Ozet({
             ))}
           </div>
         )}
+        {(gizliOdemeSayisi > 0 || gecikmisler.length + yaklasanlar.length > 0) && (
+          <button
+            className="bt-btn ikincil"
+            type="button"
+            onClick={() => setSekme("odemeler")}
+            style={{ marginTop: 16 }}
+          >
+            <CalendarCheck size={15} /> Tüm ödeme planını gör
+            {gizliOdemeSayisi > 0 ? ` (+${gizliOdemeSayisi})` : ""}
+          </button>
+        )}
       </div>
 
       {aylikFaiz > 0 && (
         <div
           style={{ textAlign: "center", fontSize: 12, color: "var(--faint)" }}
         >
-          Bu ay tahmini {fmt0(aylikFaiz)} faiz işleyecek — detayları Borç Planı
-          sekmesinde görün.
+          Bu ay tahmini {fmt0(aylikFaiz)} faiz işleyecek — ayrıntıları borç
+          planında görün.
         </div>
       )}
     </div>
@@ -4063,6 +4101,7 @@ function Odemeler({
   odendiIsaretle,
   kartOdemesiKaydet,
   filtre = "bekleyen",
+  filtreDegistir,
 }) {
   const [kartOdemePenceresi, setKartOdemePenceresi] = useState(null);
   const [kismiOdemeTutari, setKismiOdemeTutari] = useState("");
@@ -4201,6 +4240,22 @@ function Odemeler({
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return (
     <div className="bt-stack">
+      <div className="bt-secici" aria-label="Ödeme kayıtları" style={{ width: "max-content" }}>
+        <button
+          type="button"
+          className={filtre === "bekleyen" ? "aktif" : ""}
+          onClick={() => filtreDegistir?.("bekleyen")}
+        >
+          Bekleyen
+        </button>
+        <button
+          type="button"
+          className={filtre === "odenen" ? "aktif" : ""}
+          onClick={() => filtreDegistir?.("odenen")}
+        >
+          Ödeme yapılanlar
+        </button>
+      </div>
       <div className="bt-card" data-tour="odemeler">
         <div className="bt-cardhead">
           <div>
@@ -4977,6 +5032,21 @@ function Borclar({
 
   return (
     <div className="bt-stack">
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button
+          type="button"
+          className={"bt-status-filter " + (kategori === "others" ? "aktif" : "")}
+          onClick={() => {
+            setKategori(kategori === "others" ? "cards" : "others");
+            setForm(null);
+          }}
+        >
+          <AlertTriangle size={14} />
+          {otomatikGecikenler.length > 0
+            ? `${otomatikGecikenler.length} devreden / gecikmiş`
+            : "Devreden / gecikmiş"}
+        </button>
+      </div>
       {(kategori === "cards" || kategori === "kontrol") && (
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button

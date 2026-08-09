@@ -347,7 +347,7 @@ export default function LandingStory() {
             />
             <div className="ls-faq-grid">
               <FaqItem title="Borcama ne yapar?">
-                Borçlarını, ödemelerini, gelir-harcamalarını ve varlıklarını tek yerde takip etmene yardımcı olur. Banka veya yatırım tavsiyesi vermez; girdiğin bilgileri anlaşılır bir finans görünümüne dönüştürür.
+                Borçlarını, ödemelerini, gelir-harcamalarını ve varlıklarını tek yerde takip etmene yardımcı olur. Pro, girdiğin bilgilere göre borç ödeme önceliği, faiz yükü ve harcama eğilimleri hakkında kişiselleştirilmiş öneriler sunar. Belirli bir banka ürünü, kredi veya yatırım aracı tavsiye etmez.
               </FaqItem>
               <FaqItem title="Banka hesaplarım otomatik olarak bağlanıyor mu?">
                 Hayır. Şimdilik bilgileri sen girersin; Borcama internet bankacılığı parolanı istemez. Yeni ekstreleri ve yaptığın ödemeleri aylık olarak güncellersin.
