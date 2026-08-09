@@ -113,7 +113,7 @@ export default function LandingStory() {
           <a className="ls-nav-link" href="#nasil">Nasıl kullanılır?</a>
           <a className="ls-nav-link" href="#paketler">Paketler</a>
           <a className="ls-login" href="/login">Giriş yap</a>
-          <a className="ls-btn" href="/register">
+          <a className="ls-btn" href="/register?plan=free">
             Hemen Başla! <ArrowRight size={15} />
           </a>
         </nav>
@@ -134,7 +134,7 @@ export default function LandingStory() {
                 anlaşılır tek bir finans fotoğrafında birleştirir.
               </p>
               <div className="ls-hero-actions">
-                <a className="ls-btn" href="/register">
+                <a className="ls-btn" href="/register?plan=free">
                   Finans fotoğrafımı çıkar <ArrowRight size={16} />
                 </a>
                 <span className="ls-hero-note">
@@ -307,7 +307,7 @@ export default function LandingStory() {
                 description="Borçlarını, ödemelerini ve varlıklarını tek yerde takip et."
                 items={["Borç, ödeme ve harcama takibi", "Varlık ve net durum görünümü", "Bir kişisel öneri önizlemesi", "Reklamlı kullanım"]}
                 action="Ücretsiz başla"
-                href="/register"
+                href="/register?plan=free"
               />
               <PriceCard
                 pro
@@ -318,7 +318,7 @@ export default function LandingStory() {
                 description="Tüm kişiselleştirilmiş analizler ve reklamsız kullanım."
                 items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Reklamsız kullanım"]}
                 action="Aylık Pro ile başla"
-                href="/register"
+                href="/register?plan=monthly"
               />
               <PriceCard
                 pro
@@ -329,7 +329,7 @@ export default function LandingStory() {
                 description="Yıllık öde, aynı Pro deneyiminde ₺189 avantaj sağla."
                 items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Reklamsız kullanım"]}
                 action="Yıllık Pro ile başla"
-                href="/register"
+                href="/register?plan=annual"
               />
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function LandingStory() {
               Belirsizliği azalt, ilerlemeyi görünür hale getir.
             </p>
             <div className="ls-final-actions">
-              <a className="ls-btn ls-btn-dark" href="/register">
+              <a className="ls-btn ls-btn-dark" href="/register?plan=free">
                 Ücretsiz hesabımı aç <ArrowRight size={16} />
               </a>
               <a className="ls-login" href="/login">Zaten hesabım var</a>
@@ -366,6 +366,7 @@ export default function LandingStory() {
             <span>
               <a href="/terms">Kullanıcı Sözleşmesi</a> ·{" "}
               <a href="/privacy">Gizlilik ve KVKK</a>
+              {" · "}<a href="/refund-policy">İade Politikası</a>
             </span>
             <span>Finansal tavsiye değildir.</span>
           </div>

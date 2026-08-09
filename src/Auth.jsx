@@ -11,6 +11,7 @@ import {
   EyeOff,
   X,
 } from "lucide-react";
+import { proNiyetiniOku, proNiyetiniKaydet } from "./proIntent.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -33,6 +34,7 @@ const CSS = `
   border-radius:26px; padding:40px 36px;box-shadow:12px 12px 0 #ff6f59;
 }
 .auth-title{display:block;width:190px;height:auto;margin:0 0 18px}
+.auth-plan{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 17px;padding:9px 11px;border:2px solid #14160f;border-radius:12px;background:#efffd1;color:#14160f;font:700 10.5px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.03em}.auth-plan strong{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0}
 .auth-welcome{font-size:17px;font-weight:800;margin-bottom:7px}
 .auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 24px}
 .auth-input{
@@ -97,6 +99,15 @@ export function useSession() {
 }
 
 export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
+  const sorgu = new URLSearchParams(window.location.search);
+  const hamYonlendirme = sorgu.get("redirect");
+  const sorguYonlendirmesi = hamYonlendirme?.startsWith("/") &&
+    !hamYonlendirme.startsWith("//")
+    ? hamYonlendirme
+    : null;
+  const ilkProPlani = proNiyetiniOku();
+  const sonrakiSayfa = sorguYonlendirmesi ||
+    (ilkProPlani ? `/upgrade?plan=${ilkProPlani}` : redirectTo);
   const [yontem, setYontem] = useState("parola");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
@@ -112,6 +123,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+
+  useEffect(() => {
+    if (ilkProPlani) proNiyetiniKaydet(ilkProPlani);
+  }, [ilkProPlani]);
 
   useEffect(() => {
     if (!turnstileSiteKey) return;
@@ -135,7 +150,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
-        emailRedirectTo: window.location.origin + redirectTo,
+        emailRedirectTo: window.location.origin + sonrakiSayfa,
         captchaToken: captchaToken || undefined,
         shouldCreateUser: kayitModu,
       },
@@ -193,7 +208,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
         localStorage.setItem("borcama_session_only", "1");
         sessionStorage.setItem("borcama_session_active", "1");
       }
-      window.location.href = redirectTo;
+      window.location.href = sonrakiSayfa;
     }
   }
 
@@ -238,7 +253,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       email: eposta.trim(),
       password: parola,
       options: {
-        emailRedirectTo: window.location.origin + redirectTo,
+        emailRedirectTo: window.location.origin + sonrakiSayfa,
         captchaToken: captchaToken || undefined,
         data: {
           terms_version: "1.0",
@@ -255,7 +270,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
           : "Hesap oluşturulamadı. E-posta adresini ve parolanı kontrol edip tekrar dene.",
       );
-    else if (data?.session) window.location.href = redirectTo;
+    else if (data?.session) window.location.href = sonrakiSayfa;
     else setGonderildi(true);
   }
 
@@ -273,12 +288,25 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       </a>
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
+        {ilkProPlani && (
+          <div className="auth-plan">
+            <span>1 · Hesap</span>
+            <strong>{ilkProPlani === "annual" ? "Yıllık Pro" : "Aylık Pro"}</strong>
+            <span>2 · Ödeme</span>
+          </div>
+        )}
         <div className="auth-welcome">
-          {kayitModu ? "Ücretsiz hesabını oluştur" : "Hesabına giriş yap"}
+          {kayitModu
+            ? ilkProPlani
+              ? "Önce hesabını oluştur"
+              : "Ücretsiz hesabını oluştur"
+            : "Hesabına giriş yap"}
         </div>
         <div className="auth-sub">
           {kayitModu
-            ? "E-posta adresini ve parolanı belirle, borçlarını tek yerde takip etmeye başla."
+            ? ilkProPlani
+              ? "E-posta ve parolanı belirle. Sonraki adımda Pro planını gözden geçirip güvenli ödemeyi tamamlayacaksın."
+              : "E-posta adresini ve parolanı belirle, borçlarını tek yerde takip etmeye başla."
             : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
         </div>
         {!kayitModu && (
@@ -536,7 +564,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                   ? "Hesap oluşturuluyor…"
                   : "Giriş yapılıyor…"
                 : kayitModu
-                  ? "Hesap oluştur"
+                  ? ilkProPlani
+                    ? "Hesap oluştur ve devam et"
+                    : "Hesap oluştur"
                   : "Parolayla giriş yap"}
             </button>
           </form>
@@ -545,11 +575,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
         <div className="auth-switch">
           {kayitModu ? (
             <>
-              Zaten hesabın var mı? <a href="/login">Giriş yap</a>
+              Zaten hesabın var mı? <a href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>Giriş yap</a>
             </>
           ) : (
             <>
-              Henüz hesabın yok mu? <a href="/register">Kayıt ol</a>
+              Henüz hesabın yok mu? <a href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>Kayıt ol</a>
             </>
           )}
         </div>

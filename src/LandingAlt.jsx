@@ -65,7 +65,7 @@ export default function LandingAlt() {
           <a className="la-login" href="/login">
             Giriş yap
           </a>
-          <a className="la-btn" href="/register">
+          <a className="la-btn" href="/register?plan=free">
             Hemen Başla! <ArrowRight size={14} />
           </a>
         </nav>
@@ -85,7 +85,7 @@ export default function LandingAlt() {
                 dönüştürür. Ne ödeyeceğini, ne kadar faiz işlediğini ve sırada
                 hangi borcun olduğunu bil.
               </p>
-              <a className="la-btn" href="/register">
+              <a className="la-btn" href="/register?plan=free">
                 Planımı oluştur <ArrowRight size={14} />
               </a>
             </div>
@@ -191,7 +191,7 @@ export default function LandingAlt() {
               <span><PiggyBank size={14} /> BES</span>
               <span><Landmark size={14} /> Kripto</span>
             </div>
-            <a className="la-btn" href="/register">
+            <a className="la-btn" href="/register?plan=free">
               Varlıklarımı takip et <ArrowRight size={14} />
             </a>
           </div>
@@ -321,7 +321,7 @@ export default function LandingAlt() {
                 Fazladan paranın nereye gitmesi gerektiği de.
               </p>
             </div>
-            <a className="la-btn" href="/register">
+            <a className="la-btn" href="/register?plan=free">
               Borcama'yı dene
             </a>
           </div>
@@ -366,7 +366,7 @@ export default function LandingAlt() {
                   <li><Check size={15} /> Bir kişisel öneri önizlemesi</li>
                   <li><Check size={15} /> Reklamlı kullanım</li>
                 </ul>
-                <a className="la-btn" href="/register">Ücretsiz başla</a>
+                <a className="la-btn" href="/register?plan=free">Ücretsiz başla</a>
               </article>
               <article className="la-price-card">
                 <span className="la-price-badge">AYLIK</span>
@@ -379,7 +379,7 @@ export default function LandingAlt() {
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
                   <li><Check size={15} /> Reklamsız kullanım</li>
                 </ul>
-                <a className="la-btn" href="/register">Aylık Pro ile başla</a>
+                <a className="la-btn" href="/register?plan=monthly">Aylık Pro ile başla</a>
               </article>
               <article className="la-price-card pro">
                 <span className="la-price-badge">EN AVANTAJLI</span>
@@ -392,7 +392,7 @@ export default function LandingAlt() {
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
                   <li><Check size={15} /> Reklamsız kullanım</li>
                 </ul>
-                <a className="la-btn" href="/register">Yıllık Pro ile başla</a>
+                <a className="la-btn" href="/register?plan=annual">Yıllık Pro ile başla</a>
               </article>
             </div>
           </div>
@@ -403,7 +403,7 @@ export default function LandingAlt() {
               Borçlarını toparlamak için doğru zaman: şimdi.
             </h2>
             <p>Bugün net tabloyu çıkar. Yarın hangi adımı atacağını bil.</p>
-            <a className="la-btn" href="/register">
+            <a className="la-btn" href="/register?plan=free">
               Hemen Başla! <ArrowRight size={14} />
             </a>
           </div>
@@ -423,6 +423,7 @@ export default function LandingAlt() {
             <span>
               <a href="/terms">Kullanıcı Sözleşmesi</a> ·{" "}
               <a href="/privacy">Gizlilik ve KVKK</a>
+              {" · "}<a href="/refund-policy">İade Politikası</a>
             </span>
             <span>Finansal tavsiye değildir.</span>
           </div>
@@ -445,7 +446,7 @@ function Tool({ icon, title, text }) {
       </div>
       <h3>{title}</h3>
       <p>{text}</p>
-      <a href="/register" className="la-btn">
+      <a href="/register?plan=free" className="la-btn">
         Keşfet
       </a>
     </article>

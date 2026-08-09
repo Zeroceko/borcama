@@ -7,7 +7,7 @@ const CSS = `
 .legal-embed{padding:0;background:#f4efe0}.legal-embed .legal-shell{width:100%}.legal-embed .legal-card{border:0;border-radius:0;box-shadow:none;padding:28px}.legal-embed .legal-links{display:none}@media(max-width:560px){.legal{padding:16px 10px 42px}.legal-nav{margin-bottom:22px}.legal-card{padding:22px 18px;border-radius:18px;box-shadow:5px 5px 0 #cdf564}.legal h1{font-size:34px}.legal h2{font-size:18px;margin-top:26px}.legal p,.legal li{font-size:13px;line-height:1.65}.legal-embed{padding:0}.legal-embed .legal-card{padding:20px 17px}.legal-embed h1{font-size:30px}.legal-links a{width:100%;text-align:center}}
 `;
 
-function LegalLayout({ tur, title, children }) {
+function LegalLayout({ tur, title, children, tarih = "13 Temmuz 2026", surum = "1.0" }) {
   const embedded =
     new URLSearchParams(window.location.search).get("embed") === "1";
   return (
@@ -30,7 +30,7 @@ function LegalLayout({ tur, title, children }) {
           </div>
           <h1>{title}</h1>
           <div className="legal-date">
-            Yürürlük tarihi: 13 Temmuz 2026 · Sürüm 1.0
+            Yürürlük tarihi: {tarih} · Sürüm {surum}
           </div>
           {children}
           {!embedded && (
@@ -40,6 +40,9 @@ function LegalLayout({ tur, title, children }) {
               </a>
               <a className={tur === "privacy" ? "active" : ""} href="/privacy">
                 Gizlilik ve KVKK
+              </a>
+              <a className={tur === "refund" ? "active" : ""} href="/refund-policy">
+                İade Politikası
               </a>
             </div>
           )}
@@ -51,7 +54,12 @@ function LegalLayout({ tur, title, children }) {
 
 export function KullaniciSozlesmesi() {
   return (
-    <LegalLayout tur="terms" title="Kullanıcı Sözleşmesi">
+    <LegalLayout
+      tur="terms"
+      title="Kullanıcı Sözleşmesi"
+      tarih="9 Ağustos 2026"
+      surum="1.1"
+    >
       <p>
         Bu sözleşme, Borcama internet uygulamasını kullanan kişi ile Borcama
         hizmeti arasındaki kullanım koşullarını düzenler. Hesap oluşturarak bu
@@ -111,14 +119,29 @@ export function KullaniciSozlesmesi() {
         dayanılarak verilen finansal kararlardan doğan kayıplardan sorumlu
         tutulamaz.
       </p>
-      <h2>7. Hesabın kapatılması</h2>
+      <h2>7. Borcama Pro, yenileme ve iptal</h2>
+      <p>
+        Borcama Pro aylık veya yıllık yenilenen bir dijital aboneliktir. Satın
+        alma ekranında gösterilen tutar ve dönem üzerinden otomatik olarak
+        yenilenir. Yenileme tarihinden önce aboneliğinizi iptal ederek sonraki
+        dönem ücretinin alınmasını durdurabilirsiniz. İptal, kural olarak
+        mevcut ücretli dönemin sonunda geçerli olur ve tek başına geçmiş bir
+        ödemenin iade edildiği anlamına gelmez.
+      </p>
+      <p>
+        Ödeme, faturalandırma ve abonelik yönetimi yetkili satıcı ve ödeme
+        sağlayıcısı Paddle üzerinden yürütülür. Ayrıntılı cayma, iptal ve iade
+        koşulları için <a href="/refund-policy">Borcama İade Politikası</a>
+        geçerlidir; tüketicilerin emredici mevzuattan doğan hakları saklıdır.
+      </p>
+      <h2>8. Hesabın kapatılması</h2>
       <p>
         Hesabınızın ve ilişkili verilerinizin silinmesini destek kanalı
         üzerinden talep edebilirsiniz. Hukuka aykırı kullanım veya güvenlik
         riski halinde erişim geçici olarak durdurulabilir ya da hesap
         kapatılabilir.
       </p>
-      <h2>8. Değişiklikler ve uyuşmazlıklar</h2>
+      <h2>9. Değişiklikler ve uyuşmazlıklar</h2>
       <p>
         Önemli değişiklikler yürürlüğe girmeden önce uygulama içinde veya
         e-posta yoluyla bildirilir. Türkiye Cumhuriyeti hukuku uygulanır;
@@ -127,6 +150,124 @@ export function KullaniciSozlesmesi() {
       <div className="legal-callout">
         <p>
           Sorularınız için:{" "}
+          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
+        </p>
+      </div>
+    </LegalLayout>
+  );
+}
+
+export function IadePolitikasi() {
+  return (
+    <LegalLayout
+      tur="refund"
+      title="İptal ve İade Politikası"
+      tarih="9 Ağustos 2026"
+      surum="1.0"
+    >
+      <p>
+        Bu politika, Borcama Pro aylık ve yıllık aboneliklerinin iptal, cayma
+        ve iade koşullarını açıklar. Borcama Pro dijital bir abonelik
+        hizmetidir. Ödemelerde yetkili satıcı ve ödeme sağlayıcısı Paddle'dır.
+      </p>
+
+      <h2>1. Aboneliğin yenilenmesi</h2>
+      <p>
+        Borcama Pro, satın alma sırasında seçtiğiniz aylık veya yıllık dönem
+        sonunda otomatik olarak yenilenir. Yenileme tutarı ve sıklığı ödeme
+        ekranında gösterilir. Aboneliğinizi iptal etmediğiniz sürece kayıtlı
+        ödeme yönteminizden yenileme ücreti alınabilir.
+      </p>
+
+      <h2>2. Aboneliğin iptali</h2>
+      <p>
+        Aboneliğinizi istediğiniz zaman Paddle tarafından gönderilen satın alma
+        makbuzundaki “Manage subscription / Aboneliği yönet” bağlantısından
+        veya Borcama Ayarlar ekranındaki “Aboneliği yönet” seçeneğinden iptal
+        edebilirsiniz. İptal, normal şartlarda mevcut faturalandırma döneminin
+        sonunda geçerli olur; sonraki yenileme ücreti alınmaz ve o tarihe kadar
+        Pro özelliklerini kullanmaya devam edebilirsiniz.
+      </p>
+      <p>
+        Aboneliği iptal etmek, daha önce alınmış bir ücret için otomatik olarak
+        iade oluşturmaz. İade talebi ayrıca aşağıdaki yöntemlerden biriyle
+        iletilmelidir.
+      </p>
+
+      <h2>3. Türkiye'deki tüketiciler için cayma ve iade</h2>
+      <p>
+        Paddle'ın yürürlükteki alıcı iade politikasına göre Türkiye'deki
+        tüketiciler, kapsamına giren dijital içerik ve hizmet işlemlerinde işlem
+        tarihinden itibaren 14 gün içinde cayma ve tam iade talebinde
+        bulunabilir. Uygulanabilir emredici tüketici mevzuatının sağladığı daha
+        geniş haklar varsa bu haklar önceliklidir.
+      </p>
+      <p>
+        Türkiye dışındaki işlemlerde, alıcının bulunduğu ülkedeki zorunlu
+        tüketici hakları ve Paddle'ın o işlem tarihinde geçerli iade politikası
+        uygulanır.
+      </p>
+
+      <h2>4. İade talebi nasıl yapılır?</h2>
+      <ul>
+        <li>
+          Paddle satın alma onay e-postasındaki “View receipt / Makbuzu
+          görüntüle” veya “Manage subscription / Aboneliği yönet” bağlantısını
+          kullanabilirsiniz.
+        </li>
+        <li>
+          <a href="https://paddle.net" target="_blank" rel="noreferrer">
+            Paddle alıcı destek merkezi
+          </a>{" "}
+          üzerinden “Request refund / İade talep et” seçeneğini
+          kullanabilirsiniz.
+        </li>
+        <li>
+          İşlem e-postanız ve mümkünse makbuz numaranızla{" "}
+          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> adresinden
+          Borcama'ya ulaşabilirsiniz. Talebin ödeme sağlayıcısına iletilmesine
+          yardımcı oluruz.
+        </li>
+      </ul>
+
+      <h2>5. İadenin sonuçlandırılması</h2>
+      <p>
+        Uygun bulunan iadeler, mümkün olduğunda ödemenin yapıldığı yönteme
+        gönderilir. Paddle politikasına göre onaylanan iade 14 gün içinde
+        işleme alınır; tutarın hesabınıza yansıma süresi bankanıza veya kart
+        kuruluşunuza göre değişebilir. İade tamamlandığında ilgili Borcama Pro
+        erişimi sona erebilir.
+      </p>
+
+      <h2>6. Teknik sorunlar ve kötüye kullanım</h2>
+      <p>
+        Satın alınan Pro özelliklerine erişimi engelleyen kalıcı bir teknik
+        sorun yaşarsanız önce Borcama desteğine bildirin. Sorun giderilemezse
+        iade talebiniz uygulanabilir tüketici mevzuatı ve Paddle politikası
+        kapsamında değerlendirilir. Dolandırıcılık, iade hakkının kötüye
+        kullanılması veya manipülatif işlem şüphesi bulunan talepler
+        reddedilebilir ya da incelemeye alınabilir.
+      </p>
+
+      <h2>7. Politika ve zorunlu haklar</h2>
+      <p>
+        Bu metin tüketicilerin kanundan doğan vazgeçilemez haklarını sınırlamaz.
+        Paddle'ın işlem tarihinde yürürlükte olan alıcı koşulları veya zorunlu
+        mevzuat daha yüksek koruma sağlıyorsa daha yüksek koruma uygulanır.
+        Paddle'ın güncel resmî politikasına{" "}
+        <a
+          href="https://www.paddle.com/legal/refund-policy"
+          target="_blank"
+          rel="noreferrer"
+        >
+          buradan
+        </a>{" "}
+        ulaşabilirsiniz.
+      </p>
+
+      <div className="legal-callout">
+        <p>
+          İptal veya iade konusunda destek:{" "}
           <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
         </p>
       </div>

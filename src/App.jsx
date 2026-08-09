@@ -146,6 +146,7 @@ const CSS = `
 .bt-demo-plan button.aktif{background:${LIME};color:${INK};box-shadow:inset 0 0 0 1.5px ${INK}}
 .bt-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim)}
 .bt-settings-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);padding:7px 11px;font:700 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-settings-link:hover,.bt-settings-link.aktif{background:${LIME};color:${INK};border-color:${INK}}
+.bt-upgrade-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${INK};border-radius:999px;background:${LIME};color:${INK};padding:7px 11px;font:800 11.5px 'Space Grotesk',sans-serif;box-shadow:3px 3px 0 ${CORAL};cursor:pointer}.bt-upgrade-link:hover{transform:translateY(-1px)}
 .bt-themebtn{position:relative;width:54px;height:30px;border-radius:16px;border:2px solid var(--line);background:var(--panel);cursor:pointer;padding:0;flex:0 0 auto}
 .bt-themeknob{position:absolute;top:2px;width:22px;height:22px;border-radius:50%;background:${LIME};border:2px solid ${INK};transition:left .18s ease}
 .bt-themelabel{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);width:34px}
@@ -378,6 +379,7 @@ const CSS = `
   .bt-demo-plan>span{margin-right:auto}
   .bt-date{flex:1 0 100%}
   .bt-settings-link{padding:7px 9px}
+  .bt-upgrade-link{padding:7px 9px}
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
@@ -2287,6 +2289,15 @@ export default function BorcTakip() {
                 <span style={{ marginLeft: 8 }}>● kaydediliyor</span>
               )}
             </div>
+            {!reklamsiz.yukleniyor && !etkinPro && (
+              <button
+                className="bt-upgrade-link"
+                type="button"
+                onClick={() => window.location.assign("/upgrade?plan=monthly")}
+              >
+                <Sparkles size={14} /> Pro'ya Geç
+              </button>
+            )}
             <button
               className={
                 "bt-settings-link " + (sekme === "ayarlar" ? "aktif" : "")

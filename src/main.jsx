@@ -6,9 +6,15 @@ import LandingAlt from "./LandingAlt.jsx";
 import LandingStory from "./LandingStory.jsx";
 import Backoffice from "./Backoffice.jsx";
 import CeoDashboard from "./CeoDashboard.jsx";
-import { KullaniciSozlesmesi, GizlilikMetni } from "./Legal.jsx";
+import {
+  KullaniciSozlesmesi,
+  GizlilikMetni,
+  IadePolitikasi,
+} from "./Legal.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
+import ProCheckout from "./ProCheckout.jsx";
+import { proNiyetiniOku } from "./proIntent.js";
 import "./storage.js";
 
 function Kok() {
@@ -37,6 +43,7 @@ function Kok() {
     return supabaseHazir || demoModu ? <ParolaYenileEkrani /> : <YapilandirmaEksik />;
   if (yol === "/terms") return <KullaniciSozlesmesi />;
   if (yol === "/privacy") return <GizlilikMetni />;
+  if (yol === "/refund-policy") return <IadePolitikasi />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
   if (yol === "/backoffice")
@@ -49,6 +56,8 @@ function Kok() {
     );
   if (yol === "/welcome")
     return supabaseHazir ? <KimlikliWelcome /> : <YapilandirmaEksik />;
+  if (yol === "/upgrade")
+    return supabaseHazir ? <ProCheckout /> : <YapilandirmaEksik />;
   const uygulamaYollari = [
     "/summary",
     "/debts",
@@ -194,7 +203,11 @@ function AnaSayfa() {
   const session = useSession();
 
   useEffect(() => {
-    if (session) window.history.replaceState({}, "", "/summary");
+    if (session) {
+      const plan = proNiyetiniOku();
+      if (plan) window.location.replace(`/upgrade?plan=${plan}`);
+      else window.history.replaceState({}, "", "/summary");
+    }
   }, [session]);
 
   if (session === undefined) {
@@ -212,6 +225,12 @@ function KimlikliKok() {
   }
 
   if (!session) return <GirisEkrani />;
+
+  const bekleyenPlan = proNiyetiniOku();
+  if (bekleyenPlan) {
+    window.location.replace(`/upgrade?plan=${bekleyenPlan}`);
+    return <Yukleniyor />;
+  }
 
   return <App />;
 }
