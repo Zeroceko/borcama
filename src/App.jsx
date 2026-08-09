@@ -44,6 +44,7 @@ import {
   X,
   Sparkles,
   ArrowLeftRight,
+  SlidersHorizontal,
 } from "lucide-react";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
@@ -353,7 +354,7 @@ const CSS = `
 .bt-quick-menu{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(120px,13vw,142px);z-index:41;width:min(310px,calc(100vw - 28px));display:grid;gap:7px;padding:10px;background:var(--panel);border:2px solid var(--line);border-radius:18px;box-shadow:7px 7px 0 ${LIME}}
 .bt-quick-menu button{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;width:100%;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:inherit;text-align:left;cursor:pointer}
 .bt-quick-menu button:hover{background:color-mix(in srgb,${LIME} 24%,var(--panel2))}.bt-quick-menu svg{grid-row:1/3;width:34px;height:34px;padding:7px;border:1.5px solid var(--line);border-radius:10px;background:${LIME};color:${INK}}.bt-quick-menu strong{font-size:12.5px}.bt-quick-menu small{display:block;margin-top:2px;color:var(--dim);font-size:10.5px;line-height:1.35}
-.bt-status-filter{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:2px solid ${CORAL};border-radius:999px;background:color-mix(in srgb,${CORAL} 12%,var(--panel));color:${CORAL};font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-status-filter.aktif{background:${CORAL};color:${INK};border-color:${INK}}
+.bt-borc-araclari{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;background:var(--panel);border:2px solid var(--line);border-radius:16px}.bt-borc-araclari.filtre-aktif{align-items:flex-start;background:color-mix(in srgb,${CORAL} 10%,var(--panel));border-color:${CORAL};box-shadow:4px 4px 0 color-mix(in srgb,${CORAL} 35%,transparent)}.bt-borc-araclari-baslik{display:flex;align-items:center;gap:10px;min-width:0}.bt-borc-araclari-ikon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1.5px solid var(--line);border-radius:10px;background:${LIME};color:${INK}}.bt-borc-araclari.filtre-aktif .bt-borc-araclari-ikon{background:${CORAL}}.bt-borc-araclari-baslik span{display:block;color:var(--dim);font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.bt-borc-araclari-baslik strong{display:block;margin-top:2px;font-size:13px;line-height:1.25}.bt-borc-araclari-aciklama{margin-top:5px;color:var(--dim);font-size:11px;line-height:1.4}.bt-borc-araclari-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.bt-status-filter{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:2px solid ${CORAL};border-radius:999px;background:color-mix(in srgb,${CORAL} 12%,var(--panel));color:${CORAL};font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-status-filter:hover{background:color-mix(in srgb,${CORAL} 20%,var(--panel))}
 .bt-feedback-textarea{min-height:130px;resize:vertical;line-height:1.5;padding-top:12px}
 .bt-tour-arka{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:22px;background:#0f110ad9;backdrop-filter:blur(7px);overflow-y:auto}
 .bt-tour{position:relative;width:min(920px,100%);min-height:560px;display:grid;grid-template-columns:minmax(0,1.16fr) minmax(300px,.84fr);background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:26px;overflow:hidden;box-shadow:12px 12px 0 ${CORAL}}
@@ -369,6 +370,7 @@ const CSS = `
 @media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
 .bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:20px}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--line) 22%,transparent)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
 .bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:22px;box-shadow:6px 6px 0 ${CORAL}}.bt-premium-card h2{margin:3px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(20px,3vw,28px);color:${LIME};text-shadow:2px 2px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:12.5px;line-height:1.55;max-width:620px}.bt-premium-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center}.bt-premium-help{flex-basis:100%;margin-top:2px!important;text-align:right;font-size:10.5px!important;color:#aaa99e!important}.bt-premium-help a{color:${LIME};font-weight:800}.bt-pro-choice{display:grid;gap:8px;min-width:245px}.bt-pro-toggle{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1.5px solid #77796d;border-radius:999px;background:#292c20}.bt-pro-toggle button{min-height:36px;border:0;border-radius:999px;background:transparent;color:#c8c7bb;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.bt-pro-toggle button.aktif{background:${CREAM};color:${INK}}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:700px){.bt-premium-card{grid-column:auto;grid-template-columns:1fr}.bt-premium-actions{justify-content:stretch}.bt-premium-actions .bt-btn,.bt-pro-choice{width:100%}.bt-premium-help{text-align:left}}
+.bt-pro-modal-arka{overscroll-behavior:contain}.bt-pro-modal{width:min(760px,100%);max-width:none;padding:0;overflow:hidden;background:${INK};color:${CREAM};box-shadow:10px 10px 0 ${CORAL}}.bt-pro-modal-head{position:relative;padding:28px 30px 24px;border-bottom:1.5px solid #45483d;background:radial-gradient(circle at 88% 0%,#cdf56430 0 18%,transparent 19%),${INK}}.bt-pro-modal-head .bt-premium-badge{margin-bottom:13px}.bt-pro-modal-head h2{max-width:560px;margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(26px,5vw,40px);line-height:1.04;color:${CREAM}}.bt-pro-modal-head h2 span{color:${LIME};text-shadow:3px 3px 0 ${CORAL}}.bt-pro-modal-head p{max-width:590px;margin:12px 0 0;color:#bfc1b4;font-size:13px;line-height:1.55}.bt-pro-modal-kapat{position:absolute;right:20px;top:20px;width:38px;height:38px;display:grid;place-items:center;border:1.5px solid #77796d;border-radius:50%;background:#292c20;color:${CREAM};cursor:pointer}.bt-pro-modal-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:24px;padding:26px 30px 30px}.bt-pro-faydalar{display:grid;gap:10px}.bt-pro-fayda{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start;padding:11px;border:1px solid #45483d;border-radius:13px;background:#1d2017}.bt-pro-fayda svg{width:32px;height:32px;padding:7px;border:1.5px solid ${INK};border-radius:9px;background:${LIME};color:${INK}}.bt-pro-fayda strong{display:block;font-size:12.5px}.bt-pro-fayda small{display:block;margin-top:3px;color:#a9ab9e;font-size:10.5px;line-height:1.4}.bt-pro-satin-al{align-self:start;display:grid;gap:10px;padding:14px;border:1.5px solid #5b5e51;border-radius:16px;background:#24271e}.bt-pro-planlar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bt-pro-plan{padding:11px 9px;border:1.5px solid #5b5e51;border-radius:12px;background:transparent;color:${CREAM};font:inherit;text-align:left;cursor:pointer}.bt-pro-plan.aktif{border-color:${LIME};background:#cdf56418;box-shadow:inset 0 0 0 1px ${LIME}}.bt-pro-plan span{display:block;color:#a9ab9e;font-size:10px;font-weight:700}.bt-pro-plan strong{display:block;margin-top:4px;color:${CREAM};font-size:13px}.bt-pro-satin-al .bt-btn{width:100%;justify-content:center;min-height:44px}.bt-pro-guvence{display:flex;align-items:flex-start;gap:7px;color:#9fa294;font-size:9.5px;line-height:1.4}.bt-pro-guvence svg{flex:0 0 auto;margin-top:1px;color:${LIME}}.bt-pro-hata{padding:9px;border:1px solid ${CORAL};border-radius:10px;color:#ffc0b7;font-size:10px;line-height:1.4}@media(max-width:700px){.bt-pro-modal-arka{padding:8px}.bt-pro-modal{margin:8px 0;box-shadow:5px 5px 0 ${CORAL}}.bt-pro-modal-head{padding:23px 18px 19px}.bt-pro-modal-head h2{padding-right:38px;font-size:28px}.bt-pro-modal-head p{font-size:12px}.bt-pro-modal-kapat{right:14px;top:14px}.bt-pro-modal-body{grid-template-columns:1fr;gap:17px;padding:18px}.bt-pro-faydalar{gap:7px}.bt-pro-fayda{padding:9px}.bt-pro-satin-al{position:sticky;bottom:0}}
 .bt-pro-kilit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:26px;padding:16px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}.bt-pro-kilit-ikon{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid ${INK};border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-pro-kilit strong{display:block;color:${CREAM};font-size:14px}.bt-pro-kilit span{display:block;margin-top:3px;color:#9fa294;font-size:11.5px;line-height:1.45}.bt-pro-kilit .bt-btn{white-space:nowrap}
 .bt-adfree-card{background:var(--panel2)}.bt-adfree-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bt-adfree-actions a{text-decoration:none}
 @media(max-width:700px){.bt-pro-kilit{grid-template-columns:auto minmax(0,1fr)}.bt-pro-kilit .bt-btn{grid-column:1/-1;width:100%;justify-content:center}.bt-adfree-actions{width:100%}.bt-adfree-actions .bt-btn{flex:1;justify-content:center}}
@@ -417,6 +419,7 @@ const CSS = `
   .bt-quick-add{right:12px;bottom:128px;width:46px;height:46px;padding:0;justify-content:center;border-radius:50%;box-shadow:3px 3px 0 ${LIME}}
   .bt-quick-add span{display:none}
   .bt-quick-menu{right:12px;bottom:184px;width:min(300px,calc(100vw - 24px));box-shadow:5px 5px 0 ${LIME}}
+  .bt-borc-araclari,.bt-borc-araclari.filtre-aktif{align-items:stretch;flex-direction:column}.bt-borc-araclari-actions{display:grid;grid-template-columns:1fr;width:100%}.bt-borc-araclari-actions .bt-btn,.bt-borc-araclari-actions .bt-status-filter{width:100%;justify-content:center;min-height:42px}
   .bt-setting-row{align-items:flex-start;flex-direction:column}
   .bt-setting-row .bt-btn{width:100%;justify-content:center}
   .bt-alanlar{grid-template-columns:1fr}
@@ -1426,6 +1429,7 @@ export default function BorcTakip() {
   const [borcKategori, setBorcKategori] = useState("cards");
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
   const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
+  const [proPenceresiAcik, setProPenceresiAcik] = useState(false);
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
   const [piyasa, setPiyasa] = useState(() => {
@@ -2436,6 +2440,7 @@ export default function BorcTakip() {
                 varlikOzeti={varlikOzeti}
                 oneriler={borcamaOnerileri}
                 proAktif={etkinPro}
+                proAc={() => setProPenceresiAcik(true)}
               />
             )}
             {sekme === "borclar" && (
@@ -2573,6 +2578,13 @@ export default function BorcTakip() {
       >
         <MessageCircle size={16} /> Görüş bildir
       </button>
+      <ProTanitimPenceresi
+        acik={proPenceresiAcik}
+        kapat={() => setProPenceresiAcik(false)}
+        proSatinAl={proSatinAl}
+        proSatinAlma={proSatinAlma}
+        proPaketler={proPaketler}
+      />
       <IlkKullanimRehberi
         acik={rehber.acik}
         adim={rehber.adim}
@@ -3147,6 +3159,160 @@ function IlkKullanimRehberi({
   );
 }
 
+function ProTanitimPenceresi({
+  acik,
+  kapat,
+  proSatinAl,
+  proSatinAlma,
+  proPaketler,
+}) {
+  const [plan, setPlan] = useState("monthly");
+  useEffect(() => {
+    if (!acik) return;
+    const oncekiBodyOverflow = document.body.style.overflow;
+    const oncekiBodyPaddingRight = document.body.style.paddingRight;
+    const oncekiHtmlOverflow = document.documentElement.style.overflow;
+    const scrollbarGenisligi =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    if (scrollbarGenisligi > 0) {
+      document.body.style.paddingRight = `${scrollbarGenisligi}px`;
+    }
+
+    const klavye = (e) => {
+      if (e.key === "Escape") kapat();
+    };
+    window.addEventListener("keydown", klavye);
+    return () => {
+      window.removeEventListener("keydown", klavye);
+      document.body.style.overflow = oncekiBodyOverflow;
+      document.body.style.paddingRight = oncekiBodyPaddingRight;
+      document.documentElement.style.overflow = oncekiHtmlOverflow;
+    };
+  }, [acik, kapat]);
+  if (!acik) return null;
+  const demoOnizleme =
+    demoModu &&
+    !proPaketler?.monthly?.formattedPrice &&
+    !proPaketler?.annual?.formattedPrice;
+  const aylikFiyat =
+    proPaketler?.monthly?.formattedPrice || (demoOnizleme ? "₺99 / ay" : null);
+  const yillikFiyat =
+    proPaketler?.annual?.formattedPrice || (demoOnizleme ? "₺999 / yıl" : null);
+  const seciliFiyat = plan === "annual" ? yillikFiyat : aylikFiyat;
+  const hata = demoOnizleme
+    ? "Demo önizlemesi · Canlı hesapta güncel yerel fiyat gösterilir."
+    : proPaketler?.hata || proSatinAlma?.hata;
+  return (
+    <div
+      className="bt-modal-arka bt-pro-modal-arka"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) kapat();
+      }}
+    >
+      <section
+        className="bt-modal bt-pro-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bt-pro-tanitim-baslik"
+      >
+        <div className="bt-pro-modal-head">
+          <button
+            type="button"
+            className="bt-pro-modal-kapat"
+            aria-label="Pro penceresini kapat"
+            onClick={kapat}
+          >
+            <X size={18} />
+          </button>
+          <span className="bt-premium-badge">
+            <Sparkles size={13} /> BORCAMA PRO
+          </span>
+          <h2 id="bt-pro-tanitim-baslik">
+            Rakamlarını yalnızca görme. <span>Ne yapacağını da bil.</span>
+          </h2>
+          <p>
+            Borcama Pro; kendi kayıtlarından ödeme önceliğini, faiz yükünü ve
+            aylık baskıyı hesaplayarak en anlamlı finansal sinyalleri öne çıkarır.
+          </p>
+        </div>
+        <div className="bt-pro-modal-body">
+          <div className="bt-pro-faydalar">
+            <div className="bt-pro-fayda">
+              <TrendingUp />
+              <div>
+                <strong>Tüm kişisel önerileri aç</strong>
+                <small>Faiz ve aylık ödeme hedeflerine göre hazırlanmış tüm sinyalleri gör.</small>
+              </div>
+            </div>
+            <div className="bt-pro-fayda">
+              <Target />
+              <div>
+                <strong>Ödeme önceliğini netleştir</strong>
+                <small>Hangi borca önce odaklanmanın daha anlamlı olduğunu karşılaştır.</small>
+              </div>
+            </div>
+            <div className="bt-pro-fayda">
+              <EyeOff />
+              <div>
+                <strong>Reklamsız kullan</strong>
+                <small>Finans ekranlarını dikkat dağıtan reklamlar olmadan takip et.</small>
+              </div>
+            </div>
+          </div>
+          <div className="bt-pro-satin-al">
+            <div className="bt-pro-planlar" role="group" aria-label="Pro planı">
+              <button
+                type="button"
+                className={"bt-pro-plan " + (plan === "monthly" ? "aktif" : "")}
+                onClick={() => setPlan("monthly")}
+              >
+                <span>AYLIK</span>
+                <strong>{aylikFiyat || "Yükleniyor…"}</strong>
+              </button>
+              <button
+                type="button"
+                className={"bt-pro-plan " + (plan === "annual" ? "aktif" : "")}
+                onClick={() => setPlan("annual")}
+              >
+                <span>YILLIK</span>
+                <strong>{yillikFiyat || "Yükleniyor…"}</strong>
+              </button>
+            </div>
+            {hata && <div className="bt-pro-hata">{hata}</div>}
+            <button
+              type="button"
+              className="bt-btn birincil"
+              disabled={
+                demoOnizleme ||
+                proSatinAlma?.yukleniyor ||
+                proPaketler?.yukleniyor ||
+                !seciliFiyat
+              }
+              onClick={() => proSatinAl(plan)}
+            >
+              {demoOnizleme
+                ? "Canlı hesapta ödeme adımı açılır"
+                : proSatinAlma?.yukleniyor
+                ? "Ödeme açılıyor…"
+                : proPaketler?.yukleniyor
+                  ? "Fiyat yükleniyor…"
+                  : `Pro'ya geç · ${seciliFiyat || "Fiyat alınamadı"}`}
+            </button>
+            <div className="bt-pro-guvence">
+              <KeyRound size={13} />
+              <span>Güvenli ödeme ekranı açılır. Aboneliğini daha sonra Ayarlar’dan yönetebilir veya iptal edebilirsin.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function Ayarlar({
   eposta,
   isDark,
@@ -3411,6 +3577,7 @@ function Ozet({
   varlikOzeti,
   oneriler,
   proAktif,
+  proAc,
 }) {
   const [tumBankalar, setTumBankalar] = useState(false);
   const [haricTurler, setHaricTurler] = useState([]);
@@ -3678,6 +3845,7 @@ function Ozet({
         oneriler={oneriler}
         setSekme={setSekme}
         proAktif={proAktif}
+        proAc={proAc}
       />
 
       {bankalar.length > 0 && (
@@ -3789,7 +3957,12 @@ function Ozet({
   );
 }
 
-function BorcamaOnerileri({ oneriler = [], setSekme, proAktif = false }) {
+function BorcamaOnerileri({
+  oneriler = [],
+  setSekme,
+  proAktif = false,
+  proAc,
+}) {
   const [mod, setMod] = useState("nakit");
   const [tumuAcik, setTumuAcik] = useState(false);
   const [seciliId, setSeciliId] = useState("");
@@ -3841,7 +4014,7 @@ function BorcamaOnerileri({ oneriler = [], setSekme, proAktif = false }) {
                 if (proAktif) {
                   setMod("faiz");
                   setTumuAcik(false);
-                } else setSekme("ayarlar");
+                } else proAc?.();
               }}
             >
               <TrendingUp size={17} />
@@ -3909,7 +4082,7 @@ function BorcamaOnerileri({ oneriler = [], setSekme, proAktif = false }) {
                   Pro ile aç.
                 </span>
               </div>
-              <button className="bt-btn birincil" onClick={() => setSekme("ayarlar")}>Pro'yu incele</button>
+              <button className="bt-btn birincil" onClick={proAc}>Pro'yu incele</button>
             </div>
           )}
 
@@ -4526,6 +4699,7 @@ function Borclar({
   const [yeniBanka, setYeniBanka] = useState("");
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
   const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
+  const oncekiKategori = useRef("cards");
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const guncelEkstreAyi = useMemo(() => {
     const aylar = veri.cards
@@ -4691,6 +4865,10 @@ function Borclar({
     });
     return liste.sort((a, b) => b.gun - a.gun);
   }, [veri]);
+  const devredenSayisi = otomatikGecikenler.filter(
+    (kayit) => kayit.durum === "devreden",
+  ).length;
+  const gecikmisSayisi = otomatikGecikenler.length - devredenSayisi;
   useEffect(() => {
     if (!acik) return;
     if (form.odemeGir || form.odemeDuzenle) {
@@ -5032,36 +5210,88 @@ function Borclar({
 
   return (
     <div className="bt-stack">
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button
-          type="button"
-          className={"bt-status-filter " + (kategori === "others" ? "aktif" : "")}
-          onClick={() => {
-            setKategori(kategori === "others" ? "cards" : "others");
-            setForm(null);
-          }}
-        >
-          <AlertTriangle size={14} />
-          {otomatikGecikenler.length > 0
-            ? `${otomatikGecikenler.length} devreden / gecikmiş`
-            : "Devreden / gecikmiş"}
-        </button>
-      </div>
-      {(kategori === "cards" || kategori === "kontrol") && (
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-            className="bt-btn kucuk ikincil"
-            onClick={() => {
-              setKategori(kategori === "kontrol" ? "cards" : "kontrol");
-              setForm(null);
-            }}
-          >
-            {kategori === "kontrol"
-              ? "Kredi kartlarına dön"
-              : "Ekstre kontrolünü aç"}
-          </button>
+      <div
+        className={
+          "bt-borc-araclari " +
+          (kategori === "others" ? "filtre-aktif" : "")
+        }
+      >
+        <div>
+          <div className="bt-borc-araclari-baslik">
+            <div className="bt-borc-araclari-ikon">
+              {kategori === "others" ? (
+                <AlertTriangle size={17} />
+              ) : (
+                <SlidersHorizontal size={17} />
+              )}
+            </div>
+            <div>
+              <span>
+                {kategori === "others"
+                  ? "Filtrelenmiş görünüm"
+                  : "Borç görünümü"}
+              </span>
+              <strong>
+                {kategori === "others"
+                  ? "Devreden ve gecikmiş borçlar"
+                  : "Ekstre kontrolü ve riskli borçlar"}
+              </strong>
+            </div>
+          </div>
+          <div className="bt-borc-araclari-aciklama">
+            {kategori === "others"
+              ? `${devredenSayisi} devreden · ${gecikmisSayisi} gecikmiş kayıt gösteriliyor. Bu kayıtlar kart ve kredilerinden otomatik oluşur.`
+              : "Ana borç listenden ayrılmadan ekstrelerini karşılaştır veya yalnızca devreden ve gecikmiş kayıtları gör."}
+          </div>
         </div>
-      )}
+        <div className="bt-borc-araclari-actions">
+          {kategori === "others" ? (
+            <button
+              type="button"
+              className="bt-btn kucuk ikincil"
+              onClick={() => {
+                setKategori(oncekiKategori.current || "cards");
+                setForm(null);
+              }}
+            >
+              <ChevronLeft size={14} /> Önceki borç listesine dön
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="bt-status-filter"
+                onClick={() => {
+                  oncekiKategori.current =
+                    kategori === "kontrol" ? "cards" : kategori;
+                  setKategori("others");
+                  setForm(null);
+                }}
+              >
+                <AlertTriangle size={14} />
+                {otomatikGecikenler.length > 0
+                  ? `${otomatikGecikenler.length} riskli kayıt`
+                  : "Devreden / gecikmiş"}
+              </button>
+              {(kategori === "cards" || kategori === "kontrol") && (
+                <button
+                  className="bt-btn kucuk ikincil"
+                  onClick={() => {
+                    setKategori(
+                      kategori === "kontrol" ? "cards" : "kontrol",
+                    );
+                    setForm(null);
+                  }}
+                >
+                  {kategori === "kontrol"
+                    ? "Kredi kartlarına dön"
+                    : "Ekstre kontrolünü aç"}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       {kategori === "cards" && (
         <div className="bt-card" style={{ padding: 14 }}>
@@ -5334,9 +5564,6 @@ function Borclar({
 
           {kategori === "others" && otomatikGecikenler.length > 0 && (
             <div style={{ marginBottom: 20 }}>
-              <div className="bt-h2" style={{ marginBottom: 6 }}>
-                Devreden ve geciken borçlar
-              </div>
               <div
                 style={{
                   fontSize: 11.5,
