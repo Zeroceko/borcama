@@ -14,6 +14,7 @@ import {
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import ProCheckout from "./ProCheckout.jsx";
+import Faq from "./Faq.jsx";
 import { proNiyetiniOku } from "./proIntent.js";
 import "./storage.js";
 
@@ -44,6 +45,7 @@ function Kok() {
   if (yol === "/terms") return <KullaniciSozlesmesi />;
   if (yol === "/privacy") return <GizlilikMetni />;
   if (yol === "/refund-policy") return <IadePolitikasi />;
+  if (yol === "/faq") return <Faq />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
   if (yol === "/backoffice")
@@ -214,7 +216,7 @@ function AnaSayfa() {
     return <Yukleniyor />;
   }
 
-  return session ? <App /> : <LandingStory />;
+  return session ? <App /> : <LandingAlt />;
 }
 
 function KimlikliKok() {

@@ -6,9 +6,13 @@ const izinliOriginler = new Set([
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
   "http://127.0.0.1:5175",
+  "http://127.0.0.1:5176",
+  "http://127.0.0.1:5177",
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
+  "http://localhost:5176",
+  "http://localhost:5177",
 ]);
 
 function cors(origin: string | null) {
@@ -29,6 +33,18 @@ function epostaMaskele(eposta: string) {
   const sol = kullanici.slice(0, 3);
   const sag = alanAdi.slice(0, 2);
   return `${sol}${kullanici.length > 3 ? "***" : ""}@${sag}${alanAdi.length > 2 ? "***" : ""}${uzanti}`;
+}
+
+async function revenueCatYonetimUrl(userId: string) {
+  const secretKey = String(Deno.env.get("REVENUECAT_SECRET_API_KEY") || "").trim();
+  if (!secretKey) throw new Error("REVENUECAT_SECRET_NOT_CONFIGURED");
+  const cevap = await fetch(
+    `https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`,
+    { headers: { Authorization: `Bearer ${secretKey}`, Accept: "application/json" } },
+  );
+  if (!cevap.ok) throw new Error("REVENUECAT_CUSTOMER_UNAVAILABLE");
+  const json = await cevap.json();
+  return String(json?.subscriber?.management_url || "").trim() || null;
 }
 
 Deno.serve(async (req) => {
@@ -54,13 +70,25 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null);
     const userId = String(body?.userId || "");
     const action = String(body?.action || "");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId) || !["grant_pro", "revoke_pro"].includes(action)) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId) || !["grant_pro", "revoke_pro", "manage_pro"].includes(action)) {
       return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
     }
 
     const { data: hedef, error: hedefHatasi } = await admin.auth.admin.getUserById(userId);
     if (hedefHatasi || !hedef.user) {
       return new Response(JSON.stringify({ error: "USER_NOT_FOUND" }), { status: 404, headers });
+    }
+
+    if (action === "manage_pro") {
+      try {
+        const managementURL = await revenueCatYonetimUrl(userId);
+        if (!managementURL)
+          return new Response(JSON.stringify({ error: "PAID_SUBSCRIPTION_NOT_FOUND" }), { status: 404, headers });
+        return new Response(JSON.stringify({ ok: true, userId, managementURL }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "SUBSCRIPTION_MANAGEMENT_FAILED";
+        return new Response(JSON.stringify({ error: kod }), { status: kod === "REVENUECAT_SECRET_NOT_CONFIGURED" ? 503 : 502, headers });
+      }
     }
 
     const simdi = new Date();
@@ -88,10 +116,16 @@ Deno.serve(async (req) => {
       );
       if (error) return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), { status: 500, headers });
     } else {
-      const { error } = await admin
-        .from("user_entitlements")
-        .update({ pro_expires_at: null, pro_purchase_id: null, updated_at: simdi.toISOString() })
-        .eq("user_id", userId);
+      const { error } = await admin.from("user_entitlements").upsert(
+        {
+          user_id: userId,
+          pro_expires_at: null,
+          pro_purchase_id: null,
+          source: "admin_revoked",
+          updated_at: simdi.toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
       if (error) return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), { status: 500, headers });
     }
 

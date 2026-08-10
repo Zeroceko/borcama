@@ -1,16 +1,11 @@
 import React from "react";
 import {
   ArrowRight,
-  BarChart3,
-  CalendarCheck,
   Check,
   Coins,
-  CreditCard,
   Landmark,
   PiggyBank,
   ReceiptText,
-  ShieldCheck,
-  Sparkles,
   Target,
   TrendingUp,
   WalletCards,
@@ -40,6 +35,11 @@ const CSS = `
 @media(max-width:600px){.la-assets{padding-top:48px}.la-assets-panel{padding:17px;border-radius:20px;box-shadow:7px 7px 0 var(--lime);transform:none}.la-assets-mini{grid-template-columns:1fr}.la-assets-total{font-size:38px}.la-assets-tags span{font-size:10px;padding:7px 9px}}
 .la-pricing{padding:90px 0}.la-pricing-head{text-align:center;max-width:680px;margin:0 auto 38px}.la-pricing-head p{color:#617269;line-height:1.55}.la-pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;max-width:1160px;margin:auto}.la-price-card{display:flex;flex-direction:column;padding:28px;background:#fff;border:2px solid var(--ink);border-radius:20px}.la-price-card.pro{background:var(--green);color:#fff;box-shadow:9px 9px 0 var(--coral)}.la-price-badge{align-self:flex-start;border:1.5px solid currentColor;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800}.la-price-card h3{font-size:24px;margin:18px 0 5px}.la-price{font-family:'Archivo Black';font-size:38px;line-height:1.1;margin:10px 0}.la-price small{font:600 11px 'Space Grotesk';opacity:.7}.la-price-card>p{min-height:42px;color:#617269;font-size:13px;line-height:1.5}.la-price-card.pro>p{color:#b9c8c0}.la-price-list{display:grid;gap:10px;margin:20px 0 26px;padding:0;list-style:none}.la-price-list li{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4}.la-price-list svg{flex:0 0 auto;color:#5d7a2e}.la-price-card.pro .la-price-list svg{color:var(--lime)}.la-price-card .la-btn{margin-top:auto;align-self:stretch}.la-price-card.pro .la-btn{box-shadow:3px 3px 0 var(--coral)}
 @media(max-width:700px){.la-pricing{padding:64px 0}.la-pricing-grid{grid-template-columns:1fr}.la-price-card{padding:22px}.la-price-card>p{min-height:0}}
+.la-section{padding:72px 0}.la-section#araclar{padding-top:58px}.la-tool{min-height:230px;padding:24px}.la-tool-icon{width:50px;height:50px;display:grid;place-items:center;border:2px solid var(--ink);border-radius:14px;background:var(--lime);box-shadow:4px 4px 0 var(--coral)}.la-tool h3{margin:24px 0 8px}.la-tool p{margin:0;line-height:1.55}.la-pricing{padding:76px 0}.la-pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:820px}.la-pro-prices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.la-pro-price{padding:11px;border:1.5px solid #5b6e64;border-radius:12px;background:#123c2e}.la-pro-price span{display:block;color:#b9c8c0;font-size:10px;font-weight:800}.la-pro-price strong{display:block;margin-top:4px;font-family:'Archivo Black';font-size:22px;color:#fff}.la-pro-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}.la-pro-actions .la-btn{padding-inline:10px}.la-price-card.pro .la-btn{color:var(--green)}.la-footer{padding-top:58px}
+.la-debt-workflow{padding:76px 0;background:var(--green);color:#fff;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}.la-debt-workflow-in{display:grid;grid-template-columns:minmax(0,.82fr) minmax(470px,1.18fr);gap:64px;align-items:center}.la-debt-workflow .la-head{margin-bottom:26px}.la-debt-workflow .la-head p{color:#b9c8c0}.la-debt-workflow .la-mark{text-shadow:3px 4px 0 #000}.la-debt-steps{display:grid;gap:10px}.la-debt-step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid #49665b;border-radius:13px;background:#123c2e}.la-debt-step svg{width:30px;height:30px;padding:7px;border:1.5px solid var(--ink);border-radius:9px;background:var(--lime);color:var(--ink)}.la-debt-step strong{display:block;font-size:13px}.la-debt-step small{display:block;margin-top:3px;color:#aebdb5;font-size:11px;line-height:1.4}.la-statement{padding:24px;border:3px solid var(--ink);border-radius:24px;background:var(--cream);color:var(--ink);box-shadow:12px 12px 0 var(--coral);transform:rotate(.5deg)}.la-statement-top{display:flex;justify-content:space-between;gap:12px;color:#667068;font-size:10px;font-weight:800;letter-spacing:.05em}.la-statement h3{margin:17px 0 15px;font-size:22px}.la-statement-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.la-statement-cell{padding:11px;border:1.5px solid var(--ink);border-radius:11px;background:#fff}.la-statement-cell small{display:block;color:#6b726b;font-size:9px;margin-bottom:5px}.la-statement-cell strong{font-family:'Archivo Black';font-size:16px}.la-statement-remaining{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-top:13px;padding:14px;border-radius:12px;background:var(--ink);color:#fff}.la-statement-remaining small{display:block;color:#afb6ad;font-size:9px}.la-statement-remaining strong{font-family:'Archivo Black';font-size:25px;color:var(--lime)}.la-payment-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.la-payment-actions span{padding:6px 8px;border:1px solid #687068;border-radius:999px;font-size:9px;font-weight:800}.la-assets-secondary{padding-top:58px;padding-bottom:58px;grid-template-columns:minmax(0,1fr) minmax(360px,.82fr);gap:52px}.la-assets-secondary .la-h2{font-size:clamp(34px,4.5vw,52px)}.la-assets-secondary .la-assets-tags{margin-bottom:0}.la-assets-panel-compact{padding:22px}.la-assets-panel-compact .la-assets-total{margin-bottom:16px}.la-assets-compact-row{display:flex;gap:7px;flex-wrap:wrap}.la-assets-compact-row span{padding:7px 9px;border:1px solid #49665b;border-radius:999px;background:#153d30;color:#d5dfda;font-size:9px;font-weight:800}
+@media(max-width:600px){.la-section{padding:54px 0}.la-section#araclar{padding-top:44px}.la-tool{min-height:0;padding:20px}.la-tool h3{margin-top:20px}.la-pricing{padding:56px 0}.la-pricing-grid{grid-template-columns:1fr}.la-pro-actions{grid-template-columns:1fr}.la-footer{padding-top:44px}}
+@media(max-width:850px){.la-debt-workflow-in{grid-template-columns:1fr;gap:34px}.la-assets-secondary{grid-template-columns:1fr;gap:30px}}
+@media(max-width:600px){.la-debt-workflow{padding:56px 0}.la-statement{padding:17px;border-radius:19px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-statement-grid{grid-template-columns:1fr 1fr}.la-statement-cell strong{font-size:14px}.la-statement-remaining{display:grid}.la-payment-actions{justify-content:flex-start}.la-assets-secondary{padding-top:44px;padding-bottom:44px}.la-assets-panel-compact{padding:17px}}
 `;
 export default function LandingAlt() {
   return (
@@ -50,18 +50,6 @@ export default function LandingAlt() {
           <img src="/borcama-logo.png" alt="Borcama" />
         </a>
         <nav className="la-links">
-          <a className="la-nav-anchor" href="#araclar">
-            Özellikler
-          </a>
-          <a className="la-nav-anchor" href="#varliklar">
-            Varlıklar
-          </a>
-          <a className="la-nav-anchor" href="#kontrol">
-            Nasıl çalışır?
-          </a>
-          <a className="la-nav-anchor" href="#fiyatlar">
-            Fiyatlar
-          </a>
           <a className="la-login" href="/login">
             Giriş yap
           </a>
@@ -145,9 +133,9 @@ export default function LandingAlt() {
         <section id="araclar" className="la-shell la-section">
           <div className="la-head">
             <h2 className="la-h2">
-              Toparlanmak için
+              Gerçekten kullanacağın
               <br />
-              <span className="la-mark">ihtiyacın olan araçlar.</span>
+              <span className="la-mark">üç temel ekran.</span>
             </h2>
           </div>
           <div className="la-tools">
@@ -168,10 +156,65 @@ export default function LandingAlt() {
             />
           </div>
         </section>
-        <section id="varliklar" className="la-shell la-section la-assets">
+        <section className="la-debt-workflow">
+          <div className="la-shell la-debt-workflow-in">
+            <div>
+              <div className="la-head">
+                <h2 className="la-h2">
+                  Borcunu ekle.
+                  <br />
+                  <span className="la-mark">Her ay güncelle.</span>
+                </h2>
+                <p>
+                  İlk kurulumdan sonra yalnızca yeni ekstreyi ve yaptığın
+                  ödemeyi gir. Kalan borcun otomatik olarak güncellensin.
+                </p>
+              </div>
+              <div className="la-debt-steps">
+                <DebtStep
+                  title="Kart, kredi veya ek hesabını ekle"
+                  text="Banka, limit, ödeme günü ve temel borç bilgilerini bir kez gir."
+                />
+                <DebtStep
+                  title="Yeni ekstreyi dönemine kaydet"
+                  text="Güncel dönem borcu ile önceki aydan devredeni ayrı gör."
+                />
+                <DebtStep
+                  title="Ödemeni işaretle"
+                  text="Minimum, kısmi veya tam ödeme gir; kalan tutarı kaybetme."
+                />
+              </div>
+            </div>
+            <div className="la-statement" aria-label="Kredi kartı borç görünümü önizlemesi">
+              <div className="la-statement-top">
+                <span>TEMMUZ 2026 EKSTRESİ</span>
+                <span>KREDİ KARTI</span>
+              </div>
+              <h3>Halkbank · Paraf</h3>
+              <div className="la-statement-grid">
+                <StatementCell label="GÜNCEL DÖNEM BORCU" value="₺34.927" />
+                <StatementCell label="GEÇEN AYDAN DEVREDEN" value="₺75.193" />
+                <StatementCell label="TOPLAM BORÇ" value="₺110.120" />
+                <StatementCell label="TOPLAM ÖDENEN" value="₺44.045" />
+              </div>
+              <div className="la-statement-remaining">
+                <div>
+                  <small>KALAN BORÇ</small>
+                  <strong>₺66.075</strong>
+                </div>
+                <div className="la-payment-actions">
+                  <span>Minimum ödedim</span>
+                  <span>Kısmi ödeme</span>
+                  <span>Tamamını ödedim</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="varliklar" className="la-shell la-section la-assets la-assets-secondary">
           <div className="la-assets-copy">
             <div className="la-assets-kicker">
-              <PiggyBank size={15} /> Borçtan fazlası
+              <PiggyBank size={15} /> İstersen varlıklarını da ekle
             </div>
             <div className="la-head">
               <h2 className="la-h2">
@@ -191,157 +234,21 @@ export default function LandingAlt() {
               <span><PiggyBank size={14} /> BES</span>
               <span><Landmark size={14} /> Kripto</span>
             </div>
-            <a className="la-btn" href="/register?plan=free">
-              Varlıklarımı takip et <ArrowRight size={14} />
-            </a>
           </div>
-          <div className="la-assets-panel" aria-label="Varlık portföyü önizlemesi">
+          <div className="la-assets-panel la-assets-panel-compact" aria-label="Varlık portföyü önizlemesi">
             <div className="la-assets-top">
               <span>VARLIK PORTFÖYÜ</span>
               <span className="la-assets-live"><i /> Güncel fiyatlarla</span>
             </div>
             <div className="la-assets-total-label">TOPLAM YAKLAŞIK DEĞER</div>
             <div className="la-assets-total">₺486.420</div>
-            <div className="la-assets-mini">
-              <div>
-                <small>TOPLAM MALİYET</small>
-                <b>₺412.000</b>
-              </div>
-              <div className="gain">
-                <small>TAHMİNİ KÂR</small>
-                <b>+₺74.420</b>
-              </div>
-            </div>
-            <div className="la-assets-list">
-              <AssetRow icon={<Coins />} name="Döviz & emtia" value="₺184.750" width="38%" />
-              <AssetRow icon={<PiggyBank />} name="Bireysel emeklilik" value="₺131.400" width="27%" />
-              <AssetRow icon={<TrendingUp />} name="Fonlar & hisseler" value="₺111.870" width="23%" />
-              <AssetRow icon={<BarChart3 />} name="Kripto varlıklar" value="₺58.400" width="12%" />
+            <div className="la-assets-compact-row">
+              <span>Döviz · emtia</span>
+              <span>Fon · hisse</span>
+              <span>BES · kripto</span>
             </div>
             <div className="la-assets-note">
               Piyasa verileri bilgilendirme amaçlı yaklaşık değerlerdir.
-            </div>
-          </div>
-        </section>
-        <section className="la-dark">
-          <div className="la-shell">
-            <div className="la-head">
-              <h2 className="la-h2">
-                Borcu azaltan şey,
-                <br />
-                <span>net bir sıra.</span>
-              </h2>
-              <p>
-                Borcama her ay dört soruyu cevaplar: Ne yaklaşıyor, rakamlar
-                tutuyor mu, ne kadar faiz işliyor ve önce hangisi kapanmalı?
-              </p>
-            </div>
-            <div className="la-command">
-              <Command
-                n="01"
-                title="Takvimi kontrol et"
-                text="Yaklaşan ve gecikmiş ödemeleri tek listede gör."
-                value="4 gün"
-              />
-              <Command
-                n="02"
-                title="Ekstreyi sağla"
-                text="Manuel harcamalarınla banka ekstresini karşılaştır."
-                value="Eşleşiyor"
-              />
-              <Command
-                n="03"
-                title="Faizi gör"
-                text="Devreden borcun aylık tahmini maliyetini bil."
-                value="₺7.840"
-              />
-              <Command
-                n="04"
-                title="Hedefi seç"
-                text="Çığ veya kartopu planında ilk borcunu belirle."
-                value="World kart"
-              />
-            </div>
-            <div className="la-progress">
-              <span>TOPLAM BORÇTA İLERLEME</span>
-              <div className="la-progress-track">
-                <i />
-              </div>
-              <strong>%38</strong>
-            </div>
-          </div>
-        </section>
-        <section id="kontrol" className="la-story">
-          <div className="la-shell">
-            <div className="la-head">
-              <h2 className="la-h2">
-                Ekstre geldiğinde
-                <br />
-                <span className="la-mark">sürpriz olmasın.</span>
-              </h2>
-              <p>
-                Harcamanı kaydet, hangi kart veya hesaba yazıldığını gör ve
-                banka ekstresiyle sağlamasını yap.
-              </p>
-            </div>
-            <div className="la-flow">
-              <Flow
-                icon={<CreditCard />}
-                title="Kartı seç"
-                text="Harcamayı doğru kaynağa yaz."
-              />
-              <Flow
-                icon={<ReceiptText />}
-                title="Ekstreyi gir"
-                text="Toplam borcu kolayca ekle."
-              />
-              <Flow
-                icon={<Sparkles />}
-                title="Farkı gör"
-                text="Eksik kayıt ve ücretleri yakala."
-              />
-              <Flow
-                icon={<Check />}
-                title="Sağlamayı bitir"
-                text="Rakamların eşleştiğinden emin ol."
-              />
-            </div>
-          </div>
-        </section>
-        <section className="la-shell la-section la-split">
-          <div>
-            <div className="la-head">
-              <h2 className="la-h2">
-                Tek platform.
-                <br />
-                <span className="la-mark">Tek net tablo.</span>
-              </h2>
-              <p>
-                Aylık zorunlu ödemelerin, gelirlerin ve harcamaların aynı yerde.
-                Fazladan paranın nereye gitmesi gerektiği de.
-              </p>
-            </div>
-            <a className="la-btn" href="/register?plan=free">
-              Borcama'yı dene
-            </a>
-          </div>
-          <div className="la-phone">
-            <div className="la-phone-top">
-              <span>TOPLAM BORCUN</span>
-              <ShieldCheck size={15} />
-            </div>
-            <div className="la-debt">₺284.750</div>
-            <div className="la-row">
-              <span>Bu ay ödenecek</span>
-              <b>₺42.600</b>
-            </div>
-            <div className="la-row">
-              <span>Tahmini faiz</span>
-              <b>₺7.840</b>
-            </div>
-            <div className="la-row">
-              <span>Sonraki ödeme</span>
-              <b>4 gün</b>
             </div>
           </div>
         </section>
@@ -368,44 +275,32 @@ export default function LandingAlt() {
                 </ul>
                 <a className="la-btn" href="/register?plan=free">Ücretsiz başla</a>
               </article>
-              <article className="la-price-card">
-                <span className="la-price-badge">AYLIK</span>
-                <h3>Borcama Pro Aylık</h3>
-                <div className="la-price">₺99 <small>/ ay</small></div>
-                <p>Her ay yenilenir. Tüm analizler ve reklamsız deneyim.</p>
-                <ul className="la-price-list">
-                  <li><Check size={15} /> Ücretsiz paketteki her şey</li>
-                  <li><Check size={15} /> Tüm kişiselleştirilmiş öneriler</li>
-                  <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
-                  <li><Check size={15} /> Reklamsız kullanım</li>
-                </ul>
-                <a className="la-btn" href="/register?plan=monthly">Aylık Pro ile başla</a>
-              </article>
               <article className="la-price-card pro">
-                <span className="la-price-badge">EN AVANTAJLI</span>
-                <h3>Borcama Pro Yıllık</h3>
-                <div className="la-price">₺999 <small>/ yıl</small></div>
-                <p>Yıllık öde, aynı Pro deneyiminde ₺189 avantaj sağla.</p>
+                <span className="la-price-badge">PRO</span>
+                <h3>Borcama Pro</h3>
+                <div className="la-pro-prices">
+                  <div className="la-pro-price">
+                    <span>AYLIK</span>
+                    <strong>₺99</strong>
+                  </div>
+                  <div className="la-pro-price">
+                    <span>YILLIK</span>
+                    <strong>₺999</strong>
+                  </div>
+                </div>
+                <p>Aylık veya yıllık planla tüm analizleri ve reklamsız deneyimi aç.</p>
                 <ul className="la-price-list">
                   <li><Check size={15} /> Ücretsiz paketteki her şey</li>
                   <li><Check size={15} /> Tüm kişiselleştirilmiş öneriler</li>
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
                   <li><Check size={15} /> Reklamsız kullanım</li>
                 </ul>
-                <a className="la-btn" href="/register?plan=annual">Yıllık Pro ile başla</a>
+                <div className="la-pro-actions">
+                  <a className="la-btn" href="/register?plan=monthly">Aylık başla</a>
+                  <a className="la-btn" href="/register?plan=annual">Yıllık başla</a>
+                </div>
               </article>
             </div>
-          </div>
-        </section>
-        <section className="la-shell la-cta">
-          <div className="la-cta-box">
-            <h2 className="la-h2">
-              Borçlarını toparlamak için doğru zaman: şimdi.
-            </h2>
-            <p>Bugün net tabloyu çıkar. Yarın hangi adımı atacağını bil.</p>
-            <a className="la-btn" href="/register?plan=free">
-              Hemen Başla! <ArrowRight size={14} />
-            </a>
           </div>
         </section>
       </main>
@@ -424,6 +319,7 @@ export default function LandingAlt() {
               <a href="/terms">Kullanıcı Sözleşmesi</a> ·{" "}
               <a href="/privacy">Gizlilik ve KVKK</a>
               {" · "}<a href="/refund-policy">İade Politikası</a>
+              {" · "}<a href="/faq">SSS</a>
             </span>
             <span>Finansal tavsiye değildir.</span>
           </div>
@@ -435,52 +331,28 @@ export default function LandingAlt() {
 function Tool({ icon, title, text }) {
   return (
     <article className="la-tool">
-      <div className="la-shot">
-        <div className="la-tag">BORCAMA</div>
-        <div className="la-shot-total">₺284.750</div>
-        <div className="la-bars">
-          <i />
-          <i />
-          <i />
-        </div>
-      </div>
+      <div className="la-tool-icon">{React.cloneElement(icon, { size: 25 })}</div>
       <h3>{title}</h3>
       <p>{text}</p>
-      <a href="/register?plan=free" className="la-btn">
-        Keşfet
-      </a>
     </article>
   );
 }
-function Flow({ icon, title, text }) {
+function DebtStep({ title, text }) {
   return (
-    <div className="la-flow-card">
-      <div className="la-icon">{React.cloneElement(icon, { size: 30 })}</div>
-      <h3>{title}</h3>
-      <p>{text}</p>
-    </div>
-  );
-}
-function AssetRow({ icon, name, value, width }) {
-  return (
-    <div className="la-asset-row">
-      <div className="la-asset-line">
-        <span>{React.cloneElement(icon, { size: 14 })}{name}</span>
-        <b>{value}</b>
-      </div>
-      <div className="la-asset-track">
-        <i style={{ width }} />
+    <div className="la-debt-step">
+      <Check />
+      <div>
+        <strong>{title}</strong>
+        <small>{text}</small>
       </div>
     </div>
   );
 }
-function Command({ n, title, text, value }) {
+function StatementCell({ label, value }) {
   return (
-    <article className="la-command-card">
-      <div className="la-command-no">{n}</div>
-      <h3>{title}</h3>
-      <p>{text}</p>
-      <b>{value}</b>
-    </article>
+    <div className="la-statement-cell">
+      <small>{label}</small>
+      <strong>{value}</strong>
+    </div>
   );
 }

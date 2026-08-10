@@ -369,7 +369,7 @@ const CSS = `
 .bt-product-tour{position:fixed;inset:0;z-index:140;pointer-events:none}.bt-product-tour-golge{position:fixed;z-index:0;background:#0f110ab8;pointer-events:auto}.bt-product-tour-hedef{position:fixed;z-index:1;border:3px solid ${LIME};border-radius:22px;box-shadow:0 0 0 4px #14160f,0 0 0 9px #cdf56455;pointer-events:none;animation:bt-tour-nabiz 1.7s ease-in-out infinite}.bt-product-tour-panel{position:fixed;z-index:3;max-height:calc(100vh - 36px);overflow-y:auto;padding:23px;background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:20px;box-shadow:7px 7px 0 ${CORAL};pointer-events:auto}.bt-product-tour-kapat{position:absolute;top:13px;right:13px;width:34px;height:34px;display:grid;place-items:center;border:2px solid ${INK};border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-product-tour-progress{display:flex;gap:5px;margin:0 42px 18px 0}.bt-product-tour-progress span{height:6px;flex:1;border:1.5px solid ${INK};border-radius:999px;background:var(--panel2)}.bt-product-tour-progress span.aktif{background:${LIME}}.bt-product-tour-sayac{display:flex;align-items:center;gap:6px;margin-bottom:10px;color:var(--dim);font-size:10.5px;font-weight:800;letter-spacing:.02em}.bt-product-tour-sayac svg{color:${CORAL}}.bt-product-tour-panel h2{margin:0;padding-right:20px;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,29px);line-height:1.08;letter-spacing:-.025em}.bt-product-tour-panel>p{margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-product-tour-ipucu{display:flex;align-items:flex-start;gap:8px;margin-top:15px;padding:10px 11px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);font-size:11.5px;line-height:1.4;font-weight:700}.bt-product-tour-ipucu svg{flex:0 0 auto;margin-top:1px;color:#5d7a2e}.bt-product-tour-actions{display:flex;align-items:center;gap:7px;margin-top:18px}.bt-product-tour-actions .bt-btn{white-space:nowrap}.bt-product-tour-atla{margin-right:auto;border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}@keyframes bt-tour-nabiz{50%{box-shadow:0 0 0 4px #14160f,0 0 0 13px #cdf56422}}
 @media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
 .bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:20px}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--line) 22%,transparent)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
-.bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:22px;box-shadow:6px 6px 0 ${CORAL}}.bt-premium-card h2{margin:3px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(20px,3vw,28px);color:${LIME};text-shadow:2px 2px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:12.5px;line-height:1.55;max-width:620px}.bt-premium-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center}.bt-premium-help{flex-basis:100%;margin-top:2px!important;text-align:right;font-size:10.5px!important;color:#aaa99e!important}.bt-premium-help a{color:${LIME};font-weight:800}.bt-pro-choice{display:grid;gap:8px;min-width:245px}.bt-pro-toggle{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1.5px solid #77796d;border-radius:999px;background:#292c20}.bt-pro-toggle button{min-height:36px;border:0;border-radius:999px;background:transparent;color:#c8c7bb;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.bt-pro-toggle button.aktif{background:${CREAM};color:${INK}}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:700px){.bt-premium-card{grid-column:auto;grid-template-columns:1fr}.bt-premium-actions{justify-content:stretch}.bt-premium-actions .bt-btn,.bt-pro-choice{width:100%}.bt-premium-help{text-align:left}}
+.bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(330px,.88fr);gap:clamp(24px,4vw,58px);align-items:stretch;background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:20px;padding:clamp(24px,4vw,38px);box-shadow:6px 6px 0 ${CORAL};overflow:hidden}.bt-premium-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;align-items:flex-start}.bt-premium-card h2{max-width:680px;margin:14px 0 10px;font-family:'Archivo Black',sans-serif;font-size:clamp(28px,3.4vw,46px);line-height:1.02;letter-spacing:-.035em;color:${LIME};text-shadow:3px 3px 0 ${CORAL}}.bt-premium-card p{margin:0;color:#c8c7bb;font-size:13px;line-height:1.55;max-width:620px}.bt-premium-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:20px}.bt-premium-meta span{display:inline-flex;align-items:center;min-height:32px;padding:6px 10px;border:1px solid #4f5246;border-radius:999px;background:#202319;color:#d6d7cc;font-size:11px;font-weight:800}.bt-premium-meta span.vurgu{border-color:${LIME};color:${LIME}}.bt-premium-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:9px;padding:16px;border:1px solid #44473c;border-radius:17px;background:#1d2017}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center;white-space:nowrap}.bt-premium-actions>a.bt-btn,.bt-premium-actions>.bt-btn:first-of-type{min-height:46px}.bt-premium-help{grid-column:1/-1;margin:3px 2px 0!important;text-align:left;font-size:10.5px!important;color:#aaa99e!important}.bt-premium-help a{color:${LIME};font-weight:800}.bt-pro-choice{grid-column:1/-1;display:grid;gap:8px;min-width:245px}.bt-pro-toggle{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1.5px solid #77796d;border-radius:999px;background:#292c20}.bt-pro-toggle button{min-height:36px;border:0;border-radius:999px;background:transparent;color:#c8c7bb;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.bt-pro-toggle button.aktif{background:${CREAM};color:${INK}}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${LIME};border-radius:999px;padding:5px 9px;color:${LIME};font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:${CREAM};border-color:#77796d}.bt-premium-card .bt-btn.ikincil:hover{background:#292c20}@media(max-width:900px){.bt-premium-card{grid-template-columns:1fr;gap:22px}.bt-premium-card h2{max-width:620px}.bt-premium-actions{grid-template-columns:1fr 1fr}}@media(max-width:600px){.bt-premium-card{grid-column:auto;padding:21px 18px}.bt-premium-card h2{margin-top:12px;font-size:30px}.bt-premium-actions{grid-template-columns:1fr;padding:12px}.bt-premium-actions .bt-btn,.bt-pro-choice{width:100%}.bt-premium-help{grid-column:auto}.bt-premium-meta{margin-top:16px}}
 .bt-pro-modal-arka{overscroll-behavior:contain}.bt-pro-modal{width:min(760px,100%);max-width:none;padding:0;overflow:hidden;background:${INK};color:${CREAM};box-shadow:10px 10px 0 ${CORAL}}.bt-pro-modal-head{position:relative;padding:28px 30px 24px;border-bottom:1.5px solid #45483d;background:radial-gradient(circle at 88% 0%,#cdf56430 0 18%,transparent 19%),${INK}}.bt-pro-modal-head .bt-premium-badge{margin-bottom:13px}.bt-pro-modal-head h2{max-width:560px;margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(26px,5vw,40px);line-height:1.04;color:${CREAM}}.bt-pro-modal-head h2 span{color:${LIME};text-shadow:3px 3px 0 ${CORAL}}.bt-pro-modal-head p{max-width:590px;margin:12px 0 0;color:#bfc1b4;font-size:13px;line-height:1.55}.bt-pro-modal-kapat{position:absolute;right:20px;top:20px;width:38px;height:38px;display:grid;place-items:center;border:1.5px solid #77796d;border-radius:50%;background:#292c20;color:${CREAM};cursor:pointer}.bt-pro-modal-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:24px;padding:26px 30px 30px}.bt-pro-faydalar{display:grid;gap:10px}.bt-pro-fayda{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start;padding:11px;border:1px solid #45483d;border-radius:13px;background:#1d2017}.bt-pro-fayda svg{width:32px;height:32px;padding:7px;border:1.5px solid ${INK};border-radius:9px;background:${LIME};color:${INK}}.bt-pro-fayda strong{display:block;font-size:12.5px}.bt-pro-fayda small{display:block;margin-top:3px;color:#a9ab9e;font-size:10.5px;line-height:1.4}.bt-pro-satin-al{align-self:start;display:grid;gap:10px;padding:14px;border:1.5px solid #5b5e51;border-radius:16px;background:#24271e}.bt-pro-planlar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bt-pro-plan{padding:11px 9px;border:1.5px solid #5b5e51;border-radius:12px;background:transparent;color:${CREAM};font:inherit;text-align:left;cursor:pointer}.bt-pro-plan.aktif{border-color:${LIME};background:#cdf56418;box-shadow:inset 0 0 0 1px ${LIME}}.bt-pro-plan span{display:block;color:#a9ab9e;font-size:10px;font-weight:700}.bt-pro-plan strong{display:block;margin-top:4px;color:${CREAM};font-size:13px}.bt-pro-satin-al .bt-btn{width:100%;justify-content:center;min-height:44px}.bt-pro-guvence{display:flex;align-items:flex-start;gap:7px;color:#9fa294;font-size:9.5px;line-height:1.4}.bt-pro-guvence svg{flex:0 0 auto;margin-top:1px;color:${LIME}}.bt-pro-hata{padding:9px;border:1px solid ${CORAL};border-radius:10px;color:#ffc0b7;font-size:10px;line-height:1.4}@media(max-width:700px){.bt-pro-modal-arka{padding:8px}.bt-pro-modal{margin:8px 0;box-shadow:5px 5px 0 ${CORAL}}.bt-pro-modal-head{padding:23px 18px 19px}.bt-pro-modal-head h2{padding-right:38px;font-size:28px}.bt-pro-modal-head p{font-size:12px}.bt-pro-modal-kapat{right:14px;top:14px}.bt-pro-modal-body{grid-template-columns:1fr;gap:17px;padding:18px}.bt-pro-faydalar{gap:7px}.bt-pro-fayda{padding:9px}.bt-pro-satin-al{position:sticky;bottom:0}}
 .bt-pro-kilit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:26px;padding:16px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}.bt-pro-kilit-ikon{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid ${INK};border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-pro-kilit strong{display:block;color:${CREAM};font-size:14px}.bt-pro-kilit span{display:block;margin-top:3px;color:#9fa294;font-size:11.5px;line-height:1.45}.bt-pro-kilit .bt-btn{white-space:nowrap}
 .bt-adfree-card{background:var(--panel2)}.bt-adfree-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bt-adfree-actions a{text-decoration:none}
@@ -1401,6 +1401,8 @@ export default function BorcTakip() {
     proAktif: demoModu,
     proBitis: null,
     proYonetimUrl: null,
+    proKaynak: null,
+    proYenilenecek: false,
     hata: "",
   });
   const [proPaketler, setProPaketler] = useState({
@@ -1688,12 +1690,19 @@ export default function BorcTakip() {
       const rc = revenueCatSonucu.status === "fulfilled" ? revenueCatSonucu.value : {};
       if (shopierSonucu.status === "rejected" && revenueCatSonucu.status === "rejected")
         throw new Error("Hak bilgisi alınamadı");
+      const proEngelli = ["admin_revoked", "self_revoked"].includes(sonuc.source);
       setReklamsiz({
         yukleniyor: false,
         aktif: !!sonuc.adFreeLifetime,
-        proAktif: !!sonuc.proActive || !!rc.active,
-        proBitis: rc.active ? rc.expiresAt : sonuc.proExpiresAt || null,
+        proAktif: !proEngelli && (!!sonuc.proActive || !!rc.active),
+        proBitis: !proEngelli
+          ? rc.active
+            ? rc.expiresAt
+            : sonuc.proExpiresAt || null
+          : null,
         proYonetimUrl: rc.managementURL || null,
+        proKaynak: rc.active ? "revenuecat" : sonuc.source || null,
+        proYenilenecek: !!rc.willRenew,
         hata: "",
       });
     } catch {
@@ -1703,8 +1712,48 @@ export default function BorcTakip() {
         proAktif: demoModu,
         proBitis: null,
         proYonetimUrl: null,
+        proKaynak: null,
+        proYenilenecek: false,
         hata: "Satın alma durumu şu anda kontrol edilemedi.",
       });
+    }
+  }
+
+  async function manuelProIptal() {
+    setReklamsiz((eski) => ({ ...eski, yukleniyor: true, hata: "" }));
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("Oturum bulunamadı");
+      const cevap = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ action: "revoke_self_manual_pro" }),
+        },
+      );
+      const sonuc = await cevap.json();
+      if (!cevap.ok) throw new Error(sonuc.error || "Paket güncellenemedi");
+      setReklamsiz((eski) => ({
+        ...eski,
+        yukleniyor: false,
+        proAktif: false,
+        proBitis: null,
+        proYonetimUrl: null,
+        proKaynak: "self_revoked",
+        proYenilenecek: false,
+        hata: "",
+      }));
+    } catch {
+      setReklamsiz((eski) => ({
+        ...eski,
+        yukleniyor: false,
+        hata: "Ücretsiz pakete geçiş tamamlanamadı. Lütfen tekrar deneyin.",
+      }));
     }
   }
 
@@ -1735,8 +1784,27 @@ export default function BorcTakip() {
         proAktif: true,
         proBitis: sonuc.expiresAt || null,
         proYonetimUrl: sonuc.managementURL || null,
+        proKaynak: "revenuecat",
+        proYenilenecek: !!sonuc.willRenew,
         hata: "",
       }));
+      const { data: oturum } = await supabase.auth.getSession();
+      if (oturum.session?.access_token) {
+        fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${oturum.session.access_token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "activate_revenuecat_pro",
+              expiresAt: sonuc.expiresAt || null,
+            }),
+          },
+        ).catch(() => {});
+      }
       window.location.assign("/welcome");
     } catch (error) {
       setProSatinAlma({
@@ -2514,6 +2582,7 @@ export default function BorcTakip() {
                 isDark={isDark}
                 reklamsiz={{ ...reklamsiz, proAktif: etkinPro }}
                 reklamsizKontrol={reklamsizKontrol}
+                manuelProIptal={manuelProIptal}
                 proSatinAl={proSatinAl}
                 proSatinAlma={proSatinAlma}
                 proPaketler={proPaketler}
@@ -3318,6 +3387,7 @@ function Ayarlar({
   isDark,
   reklamsiz,
   reklamsizKontrol,
+  manuelProIptal,
   proSatinAl,
   proSatinAlma,
   proPaketler,
@@ -3327,6 +3397,7 @@ function Ayarlar({
   cikisYap,
 }) {
   const [proPlan, setProPlan] = useState("monthly");
+  const [ucretsizOnayi, setUcretsizOnayi] = useState(false);
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
   return (
@@ -3345,7 +3416,7 @@ function Ayarlar({
       </div>
       <div className="bt-settings-grid">
         <section className="bt-premium-card">
-          <div>
+          <div className="bt-premium-copy">
             <span className="bt-premium-badge">
               <Sparkles size={13} />
               {reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK VE YILLIK PLAN"}
@@ -3357,12 +3428,31 @@ function Ayarlar({
             </h2>
             <p>
               {reklamsiz.proAktif
-                ? `Tüm akıllı öneriler ve reklamsız kullanım açık${reklamsiz.proBitis ? `. Erişim tarihi: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR")}` : "."}`
+                ? "Tüm akıllı öneriler ve reklamsız kullanım hesabında açık."
                 : "Aylık veya yıllık planı seç. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
+              {reklamsiz.proAktif &&
+              reklamsiz.proYonetimUrl &&
+              !reklamsiz.proYenilenecek
+                ? " Yenileme kapalı; mevcut dönem bitince hesabın otomatik olarak Ücretsiz pakete geçecek."
+                : ""}
               {!reklamsiz.proAktif && proPaketler?.hata ? ` ${proPaketler.hata}` : ""}
               {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
               {proSatinAlma.hata ? ` ${proSatinAlma.hata}` : ""}
             </p>
+            {reklamsiz.proAktif && (
+              <div className="bt-premium-meta" aria-label="Abonelik durumu">
+                <span className="vurgu">Pro erişimi açık</span>
+                {reklamsiz.proBitis && (
+                  <span>
+                    {reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: {new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <div className="bt-premium-actions">
             {!reklamsiz.proAktif && (
@@ -3404,9 +3494,30 @@ function Ayarlar({
                 target="_blank"
                 rel="noreferrer"
               >
-                Aboneliği yönet / iptal et
+                Paketimi yönet / iptal et
               </a>
             )}
+            {reklamsiz.proAktif &&
+              !reklamsiz.proYonetimUrl &&
+              ["admin_manual", "shopier"].includes(reklamsiz.proKaynak) && (
+                <button
+                  className="bt-btn ikincil"
+                  type="button"
+                  disabled={reklamsiz.yukleniyor}
+                  onClick={() => {
+                    if (!ucretsizOnayi) {
+                      setUcretsizOnayi(true);
+                      return;
+                    }
+                    manuelProIptal();
+                    setUcretsizOnayi(false);
+                  }}
+                >
+                  {ucretsizOnayi
+                    ? "Ücretsiz pakete geçişi onayla"
+                    : "Ücretsiz pakete geç"}
+                </button>
+              )}
             <button
               className="bt-btn ikincil"
               type="button"
@@ -3422,8 +3533,10 @@ function Ayarlar({
             </button>
             {reklamsiz.proAktif && (
               <p className="bt-premium-help">
-                İptal edersen sonraki yenileme durur; Pro erişimin mevcut döneminin sonuna kadar sürer. {" "}
-                <a href="/landing-v2#sss" target="_blank" rel="noreferrer">Yardım</a>
+                {reklamsiz.proYonetimUrl
+                  ? "İptal edersen sonraki yenileme durur; Pro erişimin mevcut döneminin sonuna kadar sürer. "
+                  : "Bu paket ödeme sistemi dışında tanımlandı; Ücretsiz pakete geçtiğinde Pro erişimi hemen kapanır. "}
+                <a href="/faq" target="_blank" rel="noreferrer">Yardım</a>
               </p>
             )}
           </div>

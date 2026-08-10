@@ -109,6 +109,9 @@ Deno.serve(async (req) => {
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const postBody = req.method === "POST"
+    ? await req.clone().json().catch(() => null)
+    : null;
 
   if (req.method === "GET") {
     const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
@@ -182,6 +185,77 @@ Deno.serve(async (req) => {
       headers,
     });
 
+  const kullaniciAksiyonu = String(postBody?.action || "");
+  if (["revoke_self_manual_pro", "activate_revenuecat_pro"].includes(kullaniciAksiyonu)) {
+    const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+    if (!token)
+      return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
+        status: 401,
+        headers,
+      });
+    const { data, error } = await admin.auth.getUser(token);
+    const user = data.user;
+    if (error || !user?.id)
+      return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
+        status: 401,
+        headers,
+      });
+
+    const simdi = new Date().toISOString();
+    if (kullaniciAksiyonu === "revoke_self_manual_pro") {
+      const { data: mevcut } = await admin
+        .from("user_entitlements")
+        .select("source")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!["admin_manual", "shopier"].includes(String(mevcut?.source || "")))
+        return new Response(JSON.stringify({ error: "PAID_SUBSCRIPTION_REQUIRES_PORTAL" }), {
+          status: 409,
+          headers,
+        });
+      const { error: guncellemeHatasi } = await admin
+        .from("user_entitlements")
+        .update({
+          pro_expires_at: null,
+          pro_purchase_id: null,
+          source: "self_revoked",
+          updated_at: simdi,
+        })
+        .eq("user_id", user.id);
+      if (guncellemeHatasi)
+        return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), {
+          status: 500,
+          headers,
+        });
+    } else {
+      const bitisTarihi = postBody?.expiresAt
+        ? new Date(String(postBody.expiresAt))
+        : null;
+      if (bitisTarihi && !Number.isFinite(bitisTarihi.getTime()))
+        return new Response(JSON.stringify({ error: "INVALID_EXPIRATION" }), {
+          status: 422,
+          headers,
+        });
+      const expiresAt = bitisTarihi?.toISOString() || null;
+      const { error: guncellemeHatasi } = await admin.from("user_entitlements").upsert(
+        {
+          user_id: user.id,
+          pro_expires_at: expiresAt,
+          pro_purchase_id: null,
+          source: "revenuecat",
+          updated_at: simdi,
+        },
+        { onConflict: "user_id" },
+      );
+      if (guncellemeHatasi)
+        return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), {
+          status: 500,
+          headers,
+        });
+    }
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  }
+
   const gelenGizli = req.headers.get("x-borcama-shopier-secret") || "";
   const beklenenGizli = Deno.env.get("SHOPIER_BRIDGE_SECRET") || "";
   if (!sabitSureliEsit(gelenGizli, beklenenGizli))
@@ -190,7 +264,7 @@ Deno.serve(async (req) => {
       headers,
     });
 
-  const body = await req.json().catch(() => null);
+  const body = postBody;
   const event = String(body?.event || "");
   const order = body?.order || null;
   const reklamsizUrunId = String(Deno.env.get("SHOPIER_PRODUCT_ID") || "49351033");
