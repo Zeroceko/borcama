@@ -313,7 +313,7 @@ const CSS = `
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
-.bt-ekstre-yukle{width:min(760px,100%)}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}.bt-confidence{flex:0 0 auto;padding:6px 9px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.bt-extract-grid label{display:grid;gap:6px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis{grid-column:span 2}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}
+.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
 .bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
@@ -379,6 +379,7 @@ const CSS = `
 .bt-link{border:none;background:none;color:${CORAL};font-weight:700;cursor:pointer;font-size:inherit;padding:0;font-family:inherit}
 .bt-modal-arka{position:fixed;inset:0;z-index:50;background:#0f110acc;display:flex;align-items:center;justify-content:center;padding:20px}
 .bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
+.bt-modal.bt-ekstre-yukle{width:min(980px,calc(100vw - 48px));max-width:none;max-height:calc(100dvh - 48px);padding:clamp(22px,3vw,32px);overflow-y:auto;overscroll-behavior:contain}
 .bt-modalbaslik{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.bt-modalbaslik .bt-eyebrow{margin-bottom:9px}.bt-modalbaslik .bt-h2{margin:0}
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
@@ -410,6 +411,7 @@ const CSS = `
 .bt-varlik-hero{background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:22px;padding:clamp(20px,4vw,32px);display:grid;grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(150px,.7fr));gap:18px;align-items:end}.bt-varlik-hero .bt-metric-lbl{color:#bfc1b4}.bt-varlik-toplam{font-family:'Archivo Black',sans-serif;font-size:clamp(30px,6vw,48px);color:${LIME};text-shadow:3px 3px 0 ${CORAL};overflow-wrap:anywhere}.bt-varlik-mini{border-left:1.5px solid #4a4d40;padding-left:18px}.bt-varlik-mini strong{display:block;font-family:'JetBrains Mono',monospace;font-size:18px;margin-top:5px}.bt-varlik-kaynak{display:flex;align-items:center;gap:7px;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-varlik-kaynak.hata{color:${CORAL}}.bt-varlik-dagilim{display:grid;gap:10px}.bt-varlik-dagilim-satir{display:grid;grid-template-columns:minmax(100px,1fr) minmax(100px,2fr) auto;gap:10px;align-items:center;font-size:12.5px}.bt-varlik-dagilim-bar{height:9px;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-varlik-dagilim-bar div{height:100%;background:linear-gradient(90deg,${LIME},${CORAL})}.bt-varlik-rozet{font-size:10px;font-weight:800;border:1.5px solid var(--line);border-radius:999px;padding:4px 7px;white-space:nowrap}.bt-varlik-rozet.otomatik{background:${LIME};color:${INK};border-color:${INK}}.bt-varlik-degisim{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;margin-top:3px}.bt-varlik-degisim.arti{color:#5D7A2E}.bt-varlik-degisim.eksi{color:${CORAL}}
 @media(max-width:760px){.bt-varlik-hero{grid-template-columns:1fr}.bt-varlik-mini{border-left:0;border-top:1.5px solid #4a4d40;padding:14px 0 0}.bt-varlik-dagilim-satir{grid-template-columns:minmax(80px,1fr) minmax(70px,1.3fr) auto}}
 
+@media (min-width:601px) and (max-width:900px){.bt-modal.bt-ekstre-yukle{width:min(760px,calc(100vw - 28px))}.bt-extract-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-extract-grid .genis{grid-column:1/-1}}
 @media (max-width:600px){
   .bt-app{overflow-x:hidden}
   .bt-wrap{padding:20px 12px calc(112px + env(safe-area-inset-bottom))}
@@ -461,7 +463,7 @@ const CSS = `
   .bt-alan{grid-template-rows:auto 44px}
   .bt-islem-satiri{align-items:flex-start;flex-direction:column}
   .bt-islem-satiri .bt-btn{width:100%;justify-content:center}
-  .bt-extract-grid{grid-template-columns:1fr 1fr}.bt-extract-grid .genis{grid-column:1/-1}.bt-extract-head{flex-direction:column}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}
+  .bt-modal.bt-ekstre-yukle{width:100%;max-height:none;padding:18px 16px}.bt-extract-grid{grid-template-columns:1fr}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:auto}.bt-extract-head{flex-direction:column}.bt-extract-details .bt-extract-grid{padding:0 12px 12px}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:0}
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
@@ -5407,51 +5409,55 @@ function StatementImportModal({ cards, onClose, onUse }) {
                 Kart limiti (₺)
                 <input className="bt-input" type="number" step="0.01" value={result.creditLimit ?? ""} onChange={(e) => update("creditLimit", e.target.value)} />
               </label>
-              <label>
+              <label className="yarim">
                 Toplam ekstre borcu (₺)
                 <input className="bt-input" type="number" step="0.01" value={result.statementTotal ?? ""} onChange={(e) => update("statementTotal", e.target.value)} />
               </label>
-              <label>
+              <label className="yarim">
                 Asgari ödeme (₺)
                 <input className="bt-input" type="number" step="0.01" value={result.minimumPayment ?? ""} onChange={(e) => update("minimumPayment", e.target.value)} />
               </label>
-              <label>
-                Önceki ekstre bakiyesi (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.previousBalance ?? ""} onChange={(e) => update("previousBalance", e.target.value)} />
-              </label>
-              <label>
-                Dönem içi ödemeler / iadeler (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.periodPayments ?? ""} onChange={(e) => update("periodPayments", e.target.value)} />
-              </label>
-              <label>
-                Yeni harcama ve taksitler (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.currentPurchases ?? ""} onChange={(e) => update("currentPurchases", e.target.value)} />
-              </label>
-              <label>
-                Faiz, vergi ve ücretler (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.fees ?? ""} onChange={(e) => update("fees", e.target.value)} />
-              </label>
-              <label>
-                Borcama'da devreden gösterilecek (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.carriedBalance ?? ""} onChange={(e) => update("carriedBalance", e.target.value)} />
-              </label>
-              <label>
-                Borcama'da yeni dönem gösterilecek (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.currentPeriodDebt ?? ""} onChange={(e) => update("currentPeriodDebt", e.target.value)} />
-              </label>
             </div>
 
-            {result.warnings?.map((warning) => (
-              <div className="bt-extract-warning" key={warning}>
-                <AlertTriangle size={15} /> <span>{warning}</span>
+            <details className="bt-extract-details">
+              <summary>Geçmişten devreden ve bu ekstreye ait borcu kontrol et</summary>
+              <div className="bt-extract-grid">
+                <label>
+                  Önceki ekstre bakiyesi (₺)
+                  <input className="bt-input" type="number" step="0.01" value={result.previousBalance ?? ""} onChange={(e) => update("previousBalance", e.target.value)} />
+                </label>
+                <label>
+                  Dönem içi ödemeler / iadeler (₺)
+                  <input className="bt-input" type="number" step="0.01" value={result.periodPayments ?? ""} onChange={(e) => update("periodPayments", e.target.value)} />
+                </label>
+                <label>
+                  Yeni harcama ve taksitler (₺)
+                  <input className="bt-input" type="number" step="0.01" value={result.currentPurchases ?? ""} onChange={(e) => update("currentPurchases", e.target.value)} />
+                </label>
+                <label>
+                  Faiz, vergi ve ücretler (₺)
+                  <input className="bt-input" type="number" step="0.01" value={result.fees ?? ""} onChange={(e) => update("fees", e.target.value)} />
+                </label>
+                <label>
+                  Borcama'da devreden gösterilecek (₺)
+                  <input className="bt-input" type="number" step="0.01" value={result.carriedBalance ?? ""} onChange={(e) => update("carriedBalance", e.target.value)} />
+                </label>
+                <label>
+                  Bu ekstre döneminde oluşan borç (₺)
+                  <input className="bt-input" type="number" step="0.01" value={result.currentPeriodDebt ?? ""} onChange={(e) => update("currentPeriodDebt", e.target.value)} />
+                </label>
               </div>
-            ))}
+            </details>
 
-            {result.blockingErrors?.map((warning) => (
-              <div className="bt-extract-warning" key={warning} role="alert">
-                <AlertTriangle size={15} /> <strong>{warning}</strong>
+            {!!(result.warnings?.length || result.blockingErrors?.length) && (
+              <div className="bt-extract-warnings" role={result.blockingErrors?.length ? "alert" : undefined}>
+                <AlertTriangle size={16} />
+                <div>
+                  {result.warnings?.map((warning) => <p key={warning}>{warning}</p>)}
+                  {result.blockingErrors?.map((warning) => <p key={warning}><strong>{warning}</strong></p>)}
+                </div>
               </div>
-            ))}
+            )}
 
             <div className="bt-privacy-note">
               <ShieldCheck size={15} />
@@ -5478,11 +5484,14 @@ function StatementImportModal({ cards, onClose, onUse }) {
               >
                 Başka dosya seç
               </button>
+              <button className="bt-btn hayalet" type="button" onClick={onClose}>
+                <X size={14} /> Vazgeç
+              </button>
             </div>
           </>
         )}
 
-        {!busy && (
+        {!busy && !result && (
           <button className="bt-btn hayalet" type="button" onClick={onClose} style={{ marginTop: 10 }}>
             <X size={14} /> Vazgeç
           </button>
@@ -5840,7 +5849,7 @@ function Borclar({
             : []),
           {
             k: "yeniDonemEkstreBorcu",
-            e: "Güncel dönem borcu (₺)",
+            e: "Bu ekstre döneminde oluşan borç (₺)",
             t: "number",
             z: true,
           },
@@ -7385,7 +7394,7 @@ function EkstreSatirDetayi({ detay, arsivSayisi = 0 }) {
       </summary>
       <div className="bt-grid" style={{ marginTop: 10, gap: 8 }}>
         <div className="bt-metric" style={{ padding: 11 }}>
-          <div className="bt-metric-lbl">Güncel dönem borcu</div>
+          <div className="bt-metric-lbl">Bu ekstre döneminde oluşan</div>
           <div className="bt-mono" style={{ fontWeight: 800 }}>
             {fmt(detay.guncel)}
           </div>

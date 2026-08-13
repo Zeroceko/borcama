@@ -17,14 +17,15 @@ const FIELD_ALIASES = {
     "hesap bakiyesi",
   ],
   minimumPayment: [
+    "min. odeme tutari",
     "asgari odeme tutari",
     "minimum odeme tutari",
     "min odeme tutari",
     "en az odeme tutari",
-    "min. odeme tutari",
   ],
   creditLimit: ["toplam kredi limiti", "kart limiti", "musteri limiti", "limiti"],
   previousBalance: [
+    "onceki donemden devir edilen tutar",
     "bir onceki donem ekstre borcu",
     "bir onceki ekstre borcu",
     "onceki hesap bakiyesi",
@@ -259,11 +260,117 @@ function amountsAfterLine(text, label, maxLines = 8) {
 function parseHalkbankSummary(text) {
   const balances = amountsAfterLine(text, "hesap bakiyesi", 7);
   const limits = amountsAfterLine(text, "toplam kredi limiti", 11);
+  const statement = amountsAfterLine(text, "bir onceki donem", 28);
   return {
     statementTotal: balances[0] ?? null,
     minimumPayment: balances[1] ?? null,
     creditLimit: limits[0] ?? null,
+    previousBalance: statement[0] ?? null,
+    currentPurchases: statement[1] ?? null,
+    fees: statement[2] ?? null,
+    periodPayments: statement[3] ?? null,
   };
+}
+
+function parseTebCurrencyLine(line) {
+  const normalized = normalizeStatementText(line);
+  const wholeMatch = normalized.match(/tl\s*([a-z0-9.]+),-/i);
+  if (wholeMatch) {
+    let token = wholeMatch[1];
+    // OCR, "TL4.706,-" yazimini siklikla "TLA.706,-" okuyor.
+    token = token.replace(/^a(?=[.,])/, "4");
+    const whole = Number(token.replace(/\D/g, ""));
+    return Number.isFinite(whole) ? whole : null;
+  }
+  const decimalMatch = normalized.match(/tl\s*([0-9.]+,[0-9]{2})/i);
+  if (!decimalMatch) return null;
+  let token = decimalMatch[1];
+  // OCR, "TL4.706,-" yazimini siklikla "TLA.706,-" okuyor.
+  token = token.replace(/^a(?=[.,])/, "4");
+  return parseMoney(token, { statementField: true });
+}
+
+function parseTebSummary(text) {
+  const lines = String(text).split(/\n/);
+  const normalized = lines.map(normalizeStatementText);
+  const valueAt = (predicate) => {
+    const index = normalized.findIndex(predicate);
+    return index < 0 ? null : parseTebCurrencyLine(lines[index]);
+  };
+  const payments = lines
+    .filter((line, index) =>
+      normalized[index].includes("odeme") &&
+      normalized[index].includes("tesekkur"),
+    )
+    .map(parseTebCurrencyLine)
+    .filter((value) => value !== null)
+    .reduce((sum, value) => sum + Math.abs(value), 0);
+  return {
+    statementTotal: valueAt((line) => line.includes("genel toplam")),
+    minimumPayment: valueAt((line) => line.includes("minimum odeme tutari")),
+    creditLimit: valueAt((line) => line.includes("kart limiti")),
+    previousBalance: valueAt((line) =>
+      line.includes("onceki donemden devir edilen tutar"),
+    ),
+    periodPayments: payments || null,
+  };
+}
+
+function choosePaymentTotal(paymentLines, previousBalance) {
+  if (!paymentLines.length) return null;
+  const candidates = paymentLines.map((line) => {
+    const raw = line.match(/([0-9][0-9.,]*[0-9])[^0-9]*$/)?.[1];
+    if (!raw) return [];
+    const values = [parseMoney(raw, { statementField: true })];
+    // Negatif isaret OCR tarafindan bazen tutarin sonuna 4 olarak yapisir.
+    if (raw.endsWith("4"))
+      values.push(parseMoney(raw.slice(0, -1), { statementField: true }));
+    return [...new Set(values.filter((value) => value !== null))];
+  });
+  if (candidates.some((values) => !values.length)) return null;
+
+  let totals = [0];
+  for (const values of candidates)
+    totals = totals.flatMap((total) => values.map((value) => total + value));
+  const target = Number(previousBalance);
+  const selected = Number.isFinite(target)
+    ? totals.reduce((best, value) =>
+        Math.abs(value - target) < Math.abs(best - target) ? value : best,
+      )
+    : totals[0];
+  return Math.round(selected * 100) / 100;
+}
+
+function parseGarantiSummary(text, previousBalance) {
+  const normalized = normalizeStatementText(text);
+  const paymentLines = normalized
+    .split(/\n/)
+    .filter((line) =>
+      line.includes("odemeniz icin tesekkur ederiz"),
+    );
+  return {
+    previousBalance: amountNearAlias(
+      text,
+      ["onceki donemden devir edilen tutar", "onceki bakiye"],
+    ),
+    periodPayments: choosePaymentTotal(paymentLines, previousBalance),
+  };
+}
+
+function parseAkbankPayments(text, previousBalance) {
+  const paymentLines = normalizeStatementText(text)
+    .split(/\n/)
+    .filter((line) => {
+      // Akbank'in odeme satirlarinda OCR, "Odemeniz" kelimesinin ilk
+      // harfini zaman zaman G olarak okuyabiliyor. Islem tarihi, kanal ve
+      // tesekkur ifadesi birlikte daha guvenilir bir imza olusturuyor.
+      return (
+        /\b\d{1,2}[./]\d{1,2}[./]\d{4}\b/.test(line) &&
+        line.includes("internet") &&
+        line.includes("tesekkurler")
+      );
+    });
+  return choosePaymentTotal(paymentLines, previousBalance);
 }
 
 export function parseStatementText(text, options = {}) {
@@ -302,9 +409,46 @@ export function parseStatementText(text, options = {}) {
   }
   if (profile.bank === "Halkbank") {
     const table = parseHalkbankSummary(text);
-    statementTotal ??= table.statementTotal;
-    minimumPayment ??= table.minimumPayment;
-    creditLimit ??= table.creditLimit;
+    statementTotal = table.statementTotal ?? statementTotal;
+    minimumPayment = table.minimumPayment ?? minimumPayment;
+    creditLimit = table.creditLimit ?? creditLimit;
+    previousBalance = table.previousBalance ?? previousBalance;
+    periodPayments = table.periodPayments ?? periodPayments;
+    currentPurchases = table.currentPurchases ?? currentPurchases;
+    fees = table.fees ?? fees;
+    [
+      "statementTotal",
+      "minimumPayment",
+      "creditLimit",
+      "previousBalance",
+      "periodPayments",
+      "currentPurchases",
+      "fees",
+    ].forEach((field) => recoveredFields.delete(field));
+  }
+  if (profile.bank === "TEB") {
+    const table = parseTebSummary(text);
+    statementTotal = table.statementTotal ?? statementTotal;
+    minimumPayment = table.minimumPayment ?? minimumPayment;
+    creditLimit = table.creditLimit ?? creditLimit;
+    previousBalance = table.previousBalance ?? previousBalance;
+    periodPayments = table.periodPayments ?? periodPayments;
+    [
+      "statementTotal",
+      "minimumPayment",
+      "creditLimit",
+      "previousBalance",
+      "periodPayments",
+    ].forEach((field) => recoveredFields.delete(field));
+  }
+  if (profile.bank === "Garanti BBVA") {
+    const table = parseGarantiSummary(text, previousBalance);
+    previousBalance = table.previousBalance ?? previousBalance;
+    periodPayments = table.periodPayments ?? periodPayments;
+  }
+  if (profile.bank === "Akbank") {
+    const akbankPayments = parseAkbankPayments(text, previousBalance);
+    if (akbankPayments !== null) periodPayments = akbankPayments;
   }
   if (
     statementTotal !== null &&
