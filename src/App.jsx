@@ -5471,7 +5471,7 @@ function StatementImportModal({ cards, onClose, onUse }) {
                 disabled={!canUse}
                 onClick={() => onUse(derive(result), selectedCard)}
               >
-                <Check size={14} /> Kontrol formuna aktar
+                <Check size={14} /> Ekstreyi kaydet
               </button>
               <button
                 className="bt-btn ikincil"
@@ -6089,6 +6089,88 @@ function Borclar({
     setSilinecekEkHesapOdemesi(null);
   }
 
+  function belgedenEkstreVerisi(imported, eski = {}) {
+    const yeni = imported.currentPeriodDebt ?? imported.statementTotal ?? "";
+    const devreden = imported.carriedBalance ?? 0;
+    return {
+      ekstreAyi: imported.statementPeriod || guncelEkstreAyi,
+      yeniDonemEkstreBorcu: yeni,
+      oncekiAydanKalan: devreden,
+      yapilanOdeme: "0",
+      asgari: imported.minimumPayment ?? "",
+      belgedenToplamEkstreBorcu: imported.statementTotal ?? "",
+      toplamEkstreBorcu:
+        imported.statementTotal ?? (+yeni || 0) + (+devreden || 0),
+      limit: imported.creditLimit || eski.limit || "",
+      kesimGunu: imported.statementDate
+        ? Number(imported.statementDate.slice(-2))
+        : eski.kesimGunu || "",
+      sonOdemeGunu: imported.dueDate
+        ? Number(imported.dueDate.slice(-2))
+        : eski.sonOdemeGunu || "",
+      hesapKesimTarihi: imported.statementDate || undefined,
+      sonOdemeTarihi: imported.dueDate || undefined,
+      ekstreBelgeOzeti: {
+        banka: imported.bank,
+        kart: imported.cardBrand,
+        ekstreTarihi: imported.statementDate,
+        sonOdemeTarihi: imported.dueDate,
+        oncekiBakiye: imported.previousBalance,
+        donemIciOdemeler: imported.periodPayments,
+        harcamalar: imported.currentPurchases,
+        faizVeUcretler: imported.fees,
+        guven: imported.confidence,
+        kaynak: imported.sourceType,
+      },
+    };
+  }
+
+  function belgedenEkstreKaydet(imported, cardId) {
+    const mevcut = veri.cards.find((kart) => kart.id === cardId);
+    if (!mevcut) {
+      const kart = {
+        id: uid(),
+        banka: imported.bank || "Diğer",
+        ad: imported.cardBrand || "Kredi kartı",
+        ekstreGecmisi: [],
+      };
+      ekleGuncelle("cards", {
+        ...kart,
+        ...belgedenEkstreVerisi(imported, kart),
+      });
+      setEkstreYuklemePenceresi(false);
+      return;
+    }
+
+    const ekstreVerisi = belgedenEkstreVerisi(imported, mevcut);
+    const mevcutDonem = mevcut.ekstreAyi || guncelEkstreAyi;
+    if (ekstreVerisi.ekstreAyi < mevcutDonem) {
+      ekleGuncelle("cards", {
+        ...mevcut,
+        ekstreGecmisi: [
+          ...(mevcut.ekstreGecmisi || []).filter(
+            (ekstre) => ekstre.ekstreAyi !== ekstreVerisi.ekstreAyi,
+          ),
+          { ...ekstreVerisi, arsivlenmeTarihi: new Date().toISOString() },
+        ],
+      });
+      setEkstreYuklemePenceresi(false);
+      return;
+    }
+
+    ekleGuncelle("cards", {
+      ...mevcut,
+      ...ekstreVerisi,
+      ekstreGecmisi: [
+        ...(mevcut.ekstreGecmisi || []).filter(
+          (ekstre) => ekstre.ekstreAyi !== mevcutDonem,
+        ),
+        ekstreSnapshot(mevcut, mevcutDonem),
+      ],
+    });
+    setEkstreYuklemePenceresi(false);
+  }
+
   return (
     <div className="bt-stack">
       {(kategori === "cards" || kategori === "kontrol") && (
@@ -6495,31 +6577,7 @@ function Borclar({
         <StatementImportModal
           cards={veri.cards}
           onClose={() => setEkstreYuklemePenceresi(false)}
-          onUse={(imported, cardId) => {
-            const yeniKart = cardId === "__new__";
-            const mevcut = veri.cards.find((kart) => kart.id === cardId);
-            const kart = mevcut || {
-              id: uid(),
-              banka: imported.bank || "Diğer",
-              ad: imported.cardBrand || "Kredi kartı",
-              limit: imported.creditLimit || "",
-              kesimGunu: imported.statementDate
-                ? Number(imported.statementDate.slice(-2))
-                : "",
-              sonOdemeGunu: imported.dueDate
-                ? Number(imported.dueDate.slice(-2))
-                : "",
-              ekstreGecmisi: [],
-            };
-            setEkstreYuklemePenceresi(false);
-            setForm({
-              liste: "cards",
-              veri: kart,
-              yeniEkstre: true,
-              yeniKartBelgeden: yeniKart,
-              imported,
-            });
-          }}
+          onUse={belgedenEkstreKaydet}
         />
       )}
 
