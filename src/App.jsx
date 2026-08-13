@@ -46,7 +46,10 @@ import {
   ArrowLeftRight,
   SlidersHorizontal,
   MoreHorizontal,
+  Upload,
+  ShieldCheck,
 } from "lucide-react";
+import { readStatementFile } from "./statementImport.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -300,6 +303,7 @@ const CSS = `
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
+.bt-ekstre-yukle{width:min(760px,100%)}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}.bt-confidence{flex:0 0 auto;padding:6px 9px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-extract-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.bt-extract-grid label{display:grid;gap:6px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis{grid-column:span 2}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
 .bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
@@ -447,6 +451,7 @@ const CSS = `
   .bt-alan{grid-template-rows:auto 44px}
   .bt-islem-satiri{align-items:flex-start;flex-direction:column}
   .bt-islem-satiri .bt-btn{width:100%;justify-content:center}
+  .bt-extract-grid{grid-template-columns:1fr 1fr}.bt-extract-grid .genis{grid-column:1/-1}.bt-extract-head{flex-direction:column}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
@@ -695,6 +700,8 @@ function buAyOdemeTarihi(gun) {
   return new Date(simdi.getFullYear(), simdi.getMonth(), g);
 }
 function kartGecikmeTarihi(k) {
+  if (k.sonOdemeTarihi)
+    return new Date(k.sonOdemeTarihi + "T00:00:00");
   if (k.ekstreAyi && k.sonOdemeGunu) {
     const [yil, ay] = String(k.ekstreAyi).split("-").map(Number);
     if (yil && ay) {
@@ -709,9 +716,7 @@ function kartGecikmeTarihi(k) {
       return new Date(yil, odemeAyi, Math.min(sonOdemeGunu, ayinSonGunu));
     }
   }
-  return k.sonOdemeTarihi
-    ? new Date(k.sonOdemeTarihi + "T00:00:00")
-    : buAyOdemeTarihi(k.sonOdemeGunu);
+  return buAyOdemeTarihi(k.sonOdemeGunu);
 }
 
 const kartOdemeAyi = (kart) => ayAnahtari(kartGecikmeTarihi(kart));
@@ -790,8 +795,10 @@ function kartHesabi(k) {
           (+k.toplamEkstreBorcu || +k.oncekiDonemBorcu || 0) - oncekiDevreden,
           0,
         );
-  const onceki =
-    k.yeniDonemEkstreBorcu !== undefined
+  const belgeToplami = +k.belgedenToplamEkstreBorcu || 0;
+  const onceki = belgeToplami
+    ? belgeToplami
+    : k.yeniDonemEkstreBorcu !== undefined
       ? yeni + oncekiDevreden
       : +k.toplamEkstreBorcu || +k.oncekiDonemBorcu || 0;
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), onceki);
@@ -809,7 +816,7 @@ function kartHesabi(k) {
     faiz,
     oran,
     toplam,
-    asgari: (onceki * asgariOran) / 100,
+    asgari: +k.asgari > 0 ? +k.asgari : (onceki * asgariOran) / 100,
   };
 }
 function ekstreSnapshot(k, ekstreAyi = k.ekstreAyi) {
@@ -819,6 +826,11 @@ function ekstreSnapshot(k, ekstreAyi = k.ekstreAyi) {
     toplamEkstreBorcu: k.toplamEkstreBorcu ?? k.oncekiDonemBorcu,
     oncekiAydanKalan: k.oncekiAydanKalan,
     yapilanOdeme: k.yapilanOdeme,
+    asgari: k.asgari,
+    belgedenToplamEkstreBorcu: k.belgedenToplamEkstreBorcu,
+    ekstreBelgeOzeti: k.ekstreBelgeOzeti,
+    hesapKesimTarihi: k.hesapKesimTarihi,
+    sonOdemeTarihi: k.sonOdemeTarihi,
     kesimGunu: k.kesimGunu,
     sonOdemeGunu: k.sonOdemeGunu,
     arsivlenmeTarihi: new Date().toISOString(),
@@ -5151,6 +5163,306 @@ function BorcUzerindenOdemeModal({
   );
 }
 
+function StatementImportModal({ cards, onClose, onUse }) {
+  const [result, setResult] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [selectedCard, setSelectedCard] = useState("");
+
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  function numberOrNull(value) {
+    if (value === "" || value === null || value === undefined) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function derive(next) {
+    const statementTotal = numberOrNull(next.statementTotal);
+    const currentPurchases = numberOrNull(next.currentPurchases);
+    const fees = numberOrNull(next.fees);
+    const previousBalance = numberOrNull(next.previousBalance);
+    const periodPayments = numberOrNull(next.periodPayments);
+    if (statementTotal === null) return next;
+    const knownNew =
+      (currentPurchases !== null ? Math.max(currentPurchases, 0) : 0) +
+      (fees !== null ? Math.max(fees, 0) : 0);
+    if (knownNew > 0 && statementTotal + 0.01 >= knownNew) {
+      return {
+        ...next,
+        currentPeriodDebt: Math.round(knownNew * 100) / 100,
+        carriedBalance:
+          Math.round(Math.max(statementTotal - knownNew, 0) * 100) / 100,
+      };
+    }
+    if (previousBalance !== null) {
+      const carriedBalance = Math.max(
+        previousBalance - Math.max(periodPayments || 0, 0),
+        0,
+      );
+      return {
+        ...next,
+        carriedBalance: Math.round(carriedBalance * 100) / 100,
+        currentPeriodDebt:
+          Math.round(Math.max(statementTotal - carriedBalance, 0) * 100) / 100,
+      };
+    }
+    return { ...next, carriedBalance: 0, currentPeriodDebt: statementTotal };
+  }
+
+  function update(key, value) {
+    setResult((current) => {
+      const next = { ...current, [key]: value };
+      return [
+        "statementTotal",
+        "currentPurchases",
+        "fees",
+        "previousBalance",
+        "periodPayments",
+      ].includes(key)
+        ? derive(next)
+        : next;
+    });
+  }
+
+  async function handleFile(file) {
+    setError("");
+    setResult(null);
+    setBusy(true);
+    setProgress({ stage: "prepare", progress: 0, page: 1, pages: 1 });
+    try {
+      const parsed = await readStatementFile(file, setProgress);
+      setResult(parsed);
+      const normalize = (value) =>
+        String(value || "")
+          .toLocaleLowerCase("tr-TR")
+          .replace(/[^a-zçğıöşü0-9]/g, "");
+      const matches = cards.filter(
+        (card) => normalize(card.banka) === normalize(parsed.bank),
+      );
+      setSelectedCard(matches.length === 1 ? matches[0].id : "__new__");
+      setProgress({ stage: "done", progress: 1, page: parsed.pagesRead, pages: parsed.pagesRead });
+    } catch (caught) {
+      setError(caught?.message || "Ekstre okunamadı. Lütfen başka bir dosya deneyin.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const totalProgress = progress
+    ? Math.min(
+        100,
+        Math.round(
+          (((progress.page || 1) - 1 + (progress.progress || 0)) /
+            Math.max(progress.pages || 1, 1)) *
+            100,
+        ),
+      )
+    : 0;
+  const stageLabel =
+    progress?.stage === "render"
+      ? `PDF sayfası hazırlanıyor (${progress.page}/${progress.pages})`
+      : progress?.stage === "done"
+        ? "Ekstre okundu"
+        : progress?.stage === "prepare"
+          ? "Dosya hazırlanıyor"
+          : `Ekstre okunuyor (${progress?.page || 1}/${progress?.pages || 1})`;
+
+  const canUse =
+    result &&
+    selectedCard &&
+    result.statementTotal !== null &&
+    result.statementTotal !== "" &&
+    result.statementPeriod &&
+    result.dueDate;
+
+  return (
+    <div
+      className="bt-modal-arka"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (!busy && event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="bt-modal bt-ekstre-yukle"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ekstre-yukle-baslik"
+      >
+        <div className="bt-extract-head">
+          <div>
+            <div className="bt-eyebrow">PDF veya ekran görüntüsü</div>
+            <div id="ekstre-yukle-baslik" className="bt-h2" style={{ margin: "4px 0 6px" }}>
+              Ekstreyi Borcama'ya aktar
+            </div>
+            <div style={{ color: "var(--dim)", fontSize: 12, lineHeight: 1.5 }}>
+              Bankayı ve ekstre özetini okur; kaydetmeden önce sana doğrulatır.
+            </div>
+          </div>
+          {result && <div className="bt-confidence">%{result.confidence} okuma güveni</div>}
+        </div>
+
+        {!result && (
+          <label className="bt-upload-zone">
+            <input
+              type="file"
+              accept="application/pdf,image/png,image/jpeg"
+              disabled={busy}
+              onChange={(event) => handleFile(event.target.files?.[0])}
+            />
+            <span className="bt-upload-icon"><Upload size={24} /></span>
+            <strong>{busy ? stageLabel : "PDF, JPG veya PNG seç"}</strong>
+            <span style={{ marginTop: 6, color: "var(--dim)", fontSize: 11.5 }}>
+              En fazla 12 MB. PDF'lerde özet için ilk iki sayfa okunur.
+            </span>
+          </label>
+        )}
+
+        {(busy || progress) && !result && (
+          <div>
+            <div className="bt-upload-progress" aria-label={`Yüzde ${totalProgress}`}>
+              <div style={{ width: `${Math.max(totalProgress, busy ? 4 : 0)}%` }} />
+            </div>
+            <div style={{ color: "var(--dim)", fontSize: 10.5 }}>{stageLabel}</div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bt-extract-warning">
+            <AlertTriangle size={16} /> <span>{error}</span>
+          </div>
+        )}
+
+        {result && (
+          <>
+            <div className="bt-extract-grid">
+              <label className="genis">
+                Hangi karta kaydedilecek?
+                <select
+                  className="bt-input"
+                  value={selectedCard}
+                  onChange={(event) => setSelectedCard(event.target.value)}
+                >
+                  <option value="">Kart seçin…</option>
+                  {cards.map((card) => (
+                    <option key={card.id} value={card.id}>
+                      {card.banka} · {card.ad || "Kredi kartı"}
+                    </option>
+                  ))}
+                  <option value="__new__">Yeni kart oluştur</option>
+                </select>
+              </label>
+              <label>
+                Banka
+                <input className="bt-input" value={result.bank || ""} onChange={(e) => update("bank", e.target.value)} />
+              </label>
+              <label>
+                Kart
+                <input className="bt-input" value={result.cardBrand || ""} onChange={(e) => update("cardBrand", e.target.value)} />
+              </label>
+              <label>
+                Ekstre dönemi
+                <input className="bt-input" type="month" value={result.statementPeriod || ""} onChange={(e) => update("statementPeriod", e.target.value)} />
+              </label>
+              <label>
+                Ekstre kesim tarihi
+                <input className="bt-input" type="date" value={result.statementDate || ""} onChange={(e) => update("statementDate", e.target.value)} />
+              </label>
+              <label>
+                Son ödeme tarihi
+                <input className="bt-input" type="date" value={result.dueDate || ""} onChange={(e) => update("dueDate", e.target.value)} />
+              </label>
+              <label>
+                Kart limiti (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.creditLimit ?? ""} onChange={(e) => update("creditLimit", e.target.value)} />
+              </label>
+              <label>
+                Toplam ekstre borcu (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.statementTotal ?? ""} onChange={(e) => update("statementTotal", e.target.value)} />
+              </label>
+              <label>
+                Asgari ödeme (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.minimumPayment ?? ""} onChange={(e) => update("minimumPayment", e.target.value)} />
+              </label>
+              <label>
+                Önceki ekstre bakiyesi (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.previousBalance ?? ""} onChange={(e) => update("previousBalance", e.target.value)} />
+              </label>
+              <label>
+                Dönem içi ödemeler / iadeler (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.periodPayments ?? ""} onChange={(e) => update("periodPayments", e.target.value)} />
+              </label>
+              <label>
+                Yeni harcama ve taksitler (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.currentPurchases ?? ""} onChange={(e) => update("currentPurchases", e.target.value)} />
+              </label>
+              <label>
+                Faiz, vergi ve ücretler (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.fees ?? ""} onChange={(e) => update("fees", e.target.value)} />
+              </label>
+              <label>
+                Borcama'da devreden gösterilecek (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.carriedBalance ?? ""} onChange={(e) => update("carriedBalance", e.target.value)} />
+              </label>
+              <label>
+                Borcama'da yeni dönem gösterilecek (₺)
+                <input className="bt-input" type="number" step="0.01" value={result.currentPeriodDebt ?? ""} onChange={(e) => update("currentPeriodDebt", e.target.value)} />
+              </label>
+            </div>
+
+            {result.warnings?.map((warning) => (
+              <div className="bt-extract-warning" key={warning}>
+                <AlertTriangle size={15} /> <span>{warning}</span>
+              </div>
+            ))}
+
+            <div className="bt-privacy-note">
+              <ShieldCheck size={15} />
+              <span>Belge bu cihazda okunur ve Borcama sunucusuna yüklenmez. Yalnızca onayladığın rakamlar kaydedilir.</span>
+            </div>
+
+            <div className="bt-form-butonlar">
+              <button
+                className="bt-btn birincil"
+                type="button"
+                disabled={!canUse}
+                onClick={() => onUse(derive(result), selectedCard)}
+              >
+                <Check size={14} /> Kontrol formuna aktar
+              </button>
+              <button
+                className="bt-btn ikincil"
+                type="button"
+                onClick={() => {
+                  setResult(null);
+                  setProgress(null);
+                  setError("");
+                }}
+              >
+                Başka dosya seç
+              </button>
+            </div>
+          </>
+        )}
+
+        {!busy && (
+          <button className="bt-btn hayalet" type="button" onClick={onClose} style={{ marginTop: 10 }}>
+            <X size={14} /> Vazgeç
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
 function Borclar({
   veri,
@@ -5173,6 +5485,7 @@ function Borclar({
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
   const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
   const [odemePenceresi, setOdemePenceresi] = useState(null);
+  const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const guncelEkstreAyi = useMemo(() => {
     const aylar = veri.cards
@@ -5292,8 +5605,7 @@ function Borclar({
       const h = kartHesabi(k);
       const tarih = kartGecikmeTarihi(k);
       const gun = -kalanGun(tarih);
-      const asgariOran = (+k.limit || 0) <= 50000 ? 0.2 : 0.4;
-      const asgariTamam = h.odeme >= h.onceki * asgariOran;
+      const asgariTamam = h.odeme + 0.01 >= h.asgari;
       const odendi = !!veri.paid?.[kartOdemeAnahtari(k)];
       if (gun > 0 && h.toplam > 0) {
         const minimumTamam = asgariTamam || odendi;
@@ -5358,6 +5670,39 @@ function Borclar({
       });
     } else if (form.yeniEkstre) {
       const eski = form.veri || {};
+      if (form.imported) {
+        const imported = form.imported;
+        setF({
+          ekstreAyi: imported.statementPeriod || guncelEkstreAyi,
+          yeniDonemEkstreBorcu: imported.currentPeriodDebt ?? imported.statementTotal ?? "",
+          oncekiAydanKalan: imported.carriedBalance ?? 0,
+          yapilanOdeme: "0",
+          asgari: imported.minimumPayment ?? "",
+          belgedenToplamEkstreBorcu: imported.statementTotal ?? "",
+          limit: imported.creditLimit || eski.limit || "",
+          kesimGunu: imported.statementDate
+            ? Number(imported.statementDate.slice(-2))
+            : eski.kesimGunu || "",
+          sonOdemeGunu: imported.dueDate
+            ? Number(imported.dueDate.slice(-2))
+            : eski.sonOdemeGunu || "",
+          hesapKesimTarihi: imported.statementDate || undefined,
+          sonOdemeTarihi: imported.dueDate || undefined,
+          ekstreBelgeOzeti: {
+            banka: imported.bank,
+            kart: imported.cardBrand,
+            ekstreTarihi: imported.statementDate,
+            sonOdemeTarihi: imported.dueDate,
+            oncekiBakiye: imported.previousBalance,
+            donemIciOdemeler: imported.periodPayments,
+            harcamalar: imported.currentPurchases,
+            faizVeUcretler: imported.fees,
+            guven: imported.confidence,
+            kaynak: imported.sourceType,
+          },
+        });
+        return;
+      }
       const sonDonem = [
         eski.ekstreAyi,
         ...(eski.ekstreGecmisi || []).map((e) => e.ekstreAyi),
@@ -5449,6 +5794,21 @@ function Borclar({
     : ekstreFormu
       ? [
           { k: "ekstreAyi", e: "Ekstre dönemi", t: "month", z: true },
+          ...(form.imported
+            ? [
+                {
+                  k: "belgedenToplamEkstreBorcu",
+                  e: "Bankanın bildirdiği toplam ekstre borcu (₺)",
+                  t: "number",
+                  z: true,
+                },
+                {
+                  k: "asgari",
+                  e: "Bankanın bildirdiği asgari ödeme (₺)",
+                  t: "number",
+                },
+              ]
+            : []),
           {
             k: "yeniDonemEkstreBorcu",
             e: "Güncel dönem borcu (₺)",
@@ -5611,12 +5971,23 @@ function Borclar({
     const ekstreVerisi = ekstreFormu
       ? {
           ...f,
+          hesapKesimTarihi: f.hesapKesimTarihi || undefined,
+          sonOdemeTarihi: f.sonOdemeTarihi || undefined,
           toplamEkstreBorcu:
+            +f.belgedenToplamEkstreBorcu ||
             (+f.yeniDonemEkstreBorcu || 0) + (+f.oncekiAydanKalan || 0),
         }
       : f;
     if (yeniEkstreModu) {
       const eski = form.veri;
+      if (form.yeniKartBelgeden) {
+        ekleGuncelle("cards", {
+          ...eski,
+          ...ekstreVerisi,
+          id: eski.id || uid(),
+        });
+        return;
+      }
       const mevcutDonem = eski.ekstreAyi || guncelEkstreAyi;
       if (ekstreVerisi.ekstreAyi < mevcutDonem) {
         const arsiv = {
@@ -5810,6 +6181,14 @@ function Borclar({
               <div className="bt-strip-total bt-mono">
                 {fmt(toplamHesapla())}
               </div>
+              {!acik && !saltOkunurGorunum && kategori === "cards" && (
+                <button
+                  className="bt-btn kucuk birincil"
+                  onClick={() => setEkstreYuklemePenceresi(true)}
+                >
+                  <Upload size={14} /> Ekstre yükle
+                </button>
+              )}
               {!acik && !saltOkunurGorunum && kategori !== "others" && (
                 <button
                   className="bt-btn kucuk ikincil"
@@ -6071,6 +6450,38 @@ function Borclar({
           onClose={() => setOdemePenceresi(null)}
           kartOdemesiKaydet={kartOdemesiKaydet}
           krediOdemesiKaydet={krediOdemesiKaydet}
+        />
+      )}
+
+      {ekstreYuklemePenceresi && (
+        <StatementImportModal
+          cards={veri.cards}
+          onClose={() => setEkstreYuklemePenceresi(false)}
+          onUse={(imported, cardId) => {
+            const yeniKart = cardId === "__new__";
+            const mevcut = veri.cards.find((kart) => kart.id === cardId);
+            const kart = mevcut || {
+              id: uid(),
+              banka: imported.bank || "Diğer",
+              ad: imported.cardBrand || "Kredi kartı",
+              limit: imported.creditLimit || "",
+              kesimGunu: imported.statementDate
+                ? Number(imported.statementDate.slice(-2))
+                : "",
+              sonOdemeGunu: imported.dueDate
+                ? Number(imported.dueDate.slice(-2))
+                : "",
+              ekstreGecmisi: [],
+            };
+            setEkstreYuklemePenceresi(false);
+            setForm({
+              liste: "cards",
+              veri: kart,
+              yeniEkstre: true,
+              yeniKartBelgeden: yeniKart,
+              imported,
+            });
+          }}
         />
       )}
 
@@ -6607,8 +7018,7 @@ function BorclarSatiri({
     barOran = +k.limit > 0 ? kullanilan / +k.limit : null;
     const gecikmeTarihi = kartGecikmeTarihi(k);
     const gecikenGun = arsiv ? 0 : Math.max(-kalanGun(gecikmeTarihi), 0);
-    const asgariOran = (+k.limit || 0) <= 50000 ? 0.2 : 0.4;
-    const asgariTutar = hesap.onceki * asgariOran;
+    const asgariTutar = hesap.asgari;
     const asgariTamam = hesap.odeme + 0.01 >= asgariTutar;
     const donem = arsiv ? k.ekstreAyi : k.ekstreAyi || ayAnahtari();
     const odendi =
@@ -6656,6 +7066,8 @@ function BorclarSatiri({
             k.toplamEkstreBorcu === undefined &&
             k.oncekiDonemBorcu === undefined,
           durum,
+          asgari: hesap.asgari,
+          belgeOzeti: k.ekstreBelgeOzeti || null,
         }
       : null;
     if (ekstreVar && hesap.toplam > 0) {
@@ -6973,6 +7385,35 @@ function EkstreSatirDetayi({ detay, arsivSayisi = 0 }) {
             {fmt(detay.kalan)}
           </div>
         </div>
+        <div className="bt-metric" style={{ padding: 11 }}>
+          <div className="bt-metric-lbl">Asgari ödeme</div>
+          <div className="bt-mono" style={{ fontWeight: 800 }}>
+            {fmt(detay.asgari)}
+          </div>
+        </div>
+        {detay.belgeOzeti && (
+          <div
+            style={{
+              gridColumn: "1/-1",
+              borderTop: "1.5px solid var(--line)",
+              paddingTop: 10,
+              display: "grid",
+              gap: 5,
+              color: "var(--dim)",
+              fontSize: 11,
+            }}
+          >
+            <strong style={{ color: "var(--ink)" }}>Bankadan okunan ekstre özeti</strong>
+            <span>
+              Önceki bakiye {fmt(detay.belgeOzeti.oncekiBakiye || 0)} · dönem içi
+              ödeme/iadeler {fmt(detay.belgeOzeti.donemIciOdemeler || 0)}
+            </span>
+            <span>
+              Yeni harcama ve taksitler {fmt(detay.belgeOzeti.harcamalar || 0)} · faiz,
+              vergi ve ücretler {fmt(detay.belgeOzeti.faizVeUcretler || 0)}
+            </span>
+          </div>
+        )}
         <div
           style={{
             gridColumn: "1/-1",
