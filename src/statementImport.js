@@ -3,14 +3,14 @@ import { parseStatementText } from "./statementParser.js";
 const MAX_FILE_SIZE = 12 * 1024 * 1024;
 const OCR_WORKER = "https://cdn.jsdelivr.net/npm/tesseract.js@v7.0.0/dist/worker.min.js";
 const OCR_CORE = "https://cdn.jsdelivr.net/npm/tesseract.js-core@v7.0.0";
-const OCR_LANG = "https://tessdata.projectnaptha.com/4.0.0_best";
 const PDF_ASSET_ROOT = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108";
 
 function assertFile(file) {
   if (!file) throw new Error("Bir ekstre dosyası seçin.");
   if (file.size > MAX_FILE_SIZE) throw new Error("Dosya en fazla 12 MB olabilir.");
-  const accepted = ["application/pdf", "image/png", "image/jpeg"];
-  if (!accepted.includes(file.type))
+  const acceptedTypes = ["application/pdf", "image/png", "image/jpeg"];
+  const acceptedExtension = /\.(pdf|png|jpe?g)$/i.test(file.name || "");
+  if (!acceptedTypes.includes(file.type) && !acceptedExtension)
     throw new Error("PDF, PNG veya JPG formatında bir dosya seçin.");
 }
 
@@ -69,7 +69,7 @@ export async function readStatementFile(file, progress) {
   const worker = await createWorker(["tur", "eng"], 1, {
     workerPath: OCR_WORKER,
     corePath: OCR_CORE,
-    langPath: OCR_LANG,
+    cachePath: "borcama-ocr-v2",
     workerBlobURL: true,
     logger(message) {
       progress?.({
