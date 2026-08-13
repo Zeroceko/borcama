@@ -83,7 +83,7 @@ function labelRegex(value) {
     .join("[\\s,.:;/()_-]+");
 }
 
-export function parseMoney(raw) {
+function parseMoneyResult(raw, { statementField = false } = {}) {
   if (raw === null || raw === undefined) return null;
   const source = String(raw);
   const negative = /\(-?\)|-\s*$|^\s*-/.test(source);
@@ -98,18 +98,35 @@ export function parseMoney(raw) {
   if (dot >= 0 && comma >= 0) decimal = dot > comma ? "." : ",";
   else if (dot >= 0 && value.length - dot - 1 === 2) decimal = ".";
   else if (comma >= 0 && value.length - comma - 1 === 2) decimal = ",";
+  let recoveredCents = false;
   if (decimal) {
     const index = value.lastIndexOf(decimal);
     value =
       value.slice(0, index).replace(/[.,]/g, "") +
       "." +
       value.slice(index + 1).replace(/[.,]/g, "");
-  } else value = value.replace(/[.,]/g, "");
+  } else {
+    const digits = value.replace(/[.,]/g, "");
+    // Banka ekstrelerindeki ozet tutarlar daima kurus hanesiyle basilir.
+    // OCR bazen 89.692,57 degerini 8969257 veya 89.69257 olarak okur.
+    // Alan etiketiyle bulunan bu degerlerde son iki haneyi kurus olarak geri
+    // kazanmak, butun tutarin 100 kat buyuk kaydedilmesini engeller.
+    if (statementField && digits.length >= 3) {
+      value = `${digits.slice(0, -2) || "0"}.${digits.slice(-2)}`;
+      recoveredCents = true;
+    } else value = digits;
+  }
   const number = Number(value);
-  return Number.isFinite(number) ? (negative ? -number : number) : null;
+  return Number.isFinite(number)
+    ? { value: negative ? -number : number, recoveredCents }
+    : null;
 }
 
-function amountNearAlias(text, aliases) {
+export function parseMoney(raw, options) {
+  return parseMoneyResult(raw, options)?.value ?? null;
+}
+
+function amountNearAlias(text, aliases, recoveredFields, fieldName) {
   const normalized = normalizeStatementText(text);
   for (const alias of aliases) {
     const label = labelRegex(alias);
@@ -121,8 +138,11 @@ function amountNearAlias(text, aliases) {
     for (const pattern of patterns) {
       const match = normalized.match(pattern);
       if (!match) continue;
-      const amount = parseMoney(match[1]);
-      if (amount !== null) return amount;
+      const amount = parseMoneyResult(match[1], { statementField: true });
+      if (amount !== null) {
+        if (amount.recoveredCents && fieldName) recoveredFields?.add(fieldName);
+        return amount.value;
+      }
     }
   }
   return null;
@@ -247,6 +267,7 @@ function parseHalkbankSummary(text) {
 }
 
 export function parseStatementText(text, options = {}) {
+  const recoveredFields = new Set();
   const profile = detectBank(text);
   const statementDate =
     dateNearAlias(text, ["hesap kesim tarihi", "ekstre tarihi", "ekstre tari"]) ||
@@ -259,15 +280,15 @@ export function parseStatementText(text, options = {}) {
       : profile.bank === "Enpara"
         ? ["ekstre borcu", "donem borcu", "hesap bakiyesi"]
         : FIELD_ALIASES.statementTotal;
-  let statementTotal = amountNearAlias(text, totalAliases);
-  let minimumPayment = amountNearAlias(text, FIELD_ALIASES.minimumPayment);
-  let creditLimit = amountNearAlias(text, FIELD_ALIASES.creditLimit);
-  let previousBalance = amountNearAlias(text, FIELD_ALIASES.previousBalance);
-  const periodPaymentsRaw = amountNearAlias(text, FIELD_ALIASES.periodPayments);
+  let statementTotal = amountNearAlias(text, totalAliases, recoveredFields, "statementTotal");
+  let minimumPayment = amountNearAlias(text, FIELD_ALIASES.minimumPayment, recoveredFields, "minimumPayment");
+  let creditLimit = amountNearAlias(text, FIELD_ALIASES.creditLimit, recoveredFields, "creditLimit");
+  let previousBalance = amountNearAlias(text, FIELD_ALIASES.previousBalance, recoveredFields, "previousBalance");
+  const periodPaymentsRaw = amountNearAlias(text, FIELD_ALIASES.periodPayments, recoveredFields, "periodPayments");
   let periodPayments =
     periodPaymentsRaw === null ? null : Math.abs(periodPaymentsRaw);
-  let currentPurchases = amountNearAlias(text, FIELD_ALIASES.currentPurchases);
-  let fees = amountNearAlias(text, FIELD_ALIASES.fees);
+  let currentPurchases = amountNearAlias(text, FIELD_ALIASES.currentPurchases, recoveredFields, "currentPurchases");
+  let fees = amountNearAlias(text, FIELD_ALIASES.fees, recoveredFields, "fees");
 
   if (profile.bank === "Enpara") {
     const table = parseEnparaSummaryTable(text);
@@ -339,6 +360,22 @@ export function parseStatementText(text, options = {}) {
   if (minimumPayment === null) warnings.push("Asgari ödeme tutarı bulunamadı.");
   if (previousBalance === null || periodPayments === null)
     warnings.push("Devreden bakiye kırılımını kaydetmeden önce kontrol edin.");
+  if (recoveredFields.size)
+    warnings.push(
+      "OCR bazı tutarlardaki kuruş ayıracını kaybetti; son iki hane kuruş kabul edilerek düzeltildi. Kaydetmeden önce rakamları kontrol edin.",
+    );
+
+  const blockingErrors = validateStatementResult({
+    statementDate: isoDate(statementDate),
+    dueDate: isoDate(dueDate),
+    statementTotal,
+    minimumPayment,
+    creditLimit,
+    previousBalance,
+    periodPayments,
+    currentPurchases,
+    fees,
+  });
 
   const confidenceParts = [
     profile.bank ? 20 : 0,
@@ -368,11 +405,53 @@ export function parseStatementText(text, options = {}) {
     fees,
     carriedBalance,
     currentPeriodDebt,
-    confidence: confidenceParts.reduce((sum, value) => sum + value, 0),
+    confidence: Math.max(
+      0,
+      confidenceParts.reduce((sum, value) => sum + value, 0) -
+        (recoveredFields.size ? 15 : 0) -
+        blockingErrors.length * 25,
+    ),
     warnings,
+    blockingErrors,
+    recoveredFields: [...recoveredFields],
     pagesRead: options.pagesRead || 1,
     sourceType: options.sourceType || "image",
   };
+}
+
+export function validateStatementResult(result = {}) {
+  const errors = [];
+  const number = (value) => {
+    if (value === "" || value === null || value === undefined) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+  const total = number(result.statementTotal);
+  const minimum = number(result.minimumPayment);
+  const limit = number(result.creditLimit);
+  const amounts = [
+    ["Toplam ekstre borcu", total],
+    ["Asgari ödeme", minimum],
+    ["Kart limiti", limit],
+    ["Önceki ekstre bakiyesi", number(result.previousBalance)],
+    ["Dönem içi ödemeler", number(result.periodPayments)],
+    ["Yeni harcama ve taksitler", number(result.currentPurchases)],
+    ["Faiz, vergi ve ücretler", number(result.fees)],
+  ];
+  amounts.forEach(([label, value]) => {
+    if (value !== null && value < 0) errors.push(`${label} negatif olamaz.`);
+  });
+  if (total !== null && minimum !== null && minimum > total)
+    errors.push("Asgari ödeme toplam ekstre borcundan büyük olamaz.");
+  if (total !== null && limit !== null && limit > 0 && total > limit * 1.5)
+    errors.push("Toplam ekstre borcu kart limitine göre olağan dışı görünüyor.");
+  if (
+    result.statementDate &&
+    result.dueDate &&
+    new Date(result.dueDate).getTime() < new Date(result.statementDate).getTime()
+  )
+    errors.push("Son ödeme tarihi ekstre kesim tarihinden önce olamaz.");
+  return [...new Set(errors)];
 }
 
 export { FIELD_ALIASES };

@@ -50,6 +50,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
+import { validateStatementResult } from "./statementParser.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -68,9 +69,13 @@ const ACIK_TEMA = {
   summaryBg: "#d9e7e1",
   summarySoft: "#eef2e5",
   summaryText: INK,
-  summaryMuted: "#626456",
+  summaryMuted: "#484c41",
   summaryAmount: INK,
   summaryShadow: `3px 3px 0 ${LIME}, 5px 5px 0 ${CORAL}`,
+  debtCard: "#82a92e",
+  debtLoan: "#e65340",
+  debtAccount: "#899285",
+  debtOther: "#454a40",
 };
 const KOYU_TEMA = {
   bg: "#0f110a",
@@ -83,9 +88,13 @@ const KOYU_TEMA = {
   summaryBg: INK,
   summarySoft: "#191c12",
   summaryText: CREAM,
-  summaryMuted: "#bfc1b4",
+  summaryMuted: "#cdd0c1",
   summaryAmount: LIME,
   summaryShadow: `3px 3px 0 ${CORAL}`,
+  debtCard: LIME,
+  debtLoan: CORAL,
+  debtAccount: "#c8c9be",
+  debtOther: "#8f9386",
 };
 
 const BANKA_KOD = {
@@ -190,14 +199,15 @@ const CSS = `
 .bt-hero .deko-kare{position:absolute;bottom:20px;right:-18px;width:44px;height:44px;background:${LIME};border:2px solid ${INK};border-radius:10px;transform:rotate(20deg)}
 .bt-hero-label{font-size:13px;font-weight:600;letter-spacing:.08em;color:var(--summary-muted);text-transform:uppercase;margin-bottom:16px}
 .bt-hero-tutar{font-family:'Archivo Black',sans-serif;font-size:clamp(30px,7.5vw,58px);line-height:1;color:var(--summary-amount);text-shadow:var(--summary-shadow);margin-bottom:16px;overflow-wrap:anywhere}
-.bt-hero-delta{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;margin-bottom:16px;font-family:'JetBrains Mono',monospace}
+.bt-hero-delta{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;padding:6px 11px;border:1.5px solid currentColor;border-radius:999px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;box-shadow:2px 2px 0 color-mix(in srgb,currentColor 22%,transparent)}
+.bt-hero-delta.azaldi{background:#f0ffd2;color:#466611}.bt-hero-delta.artti{background:#ffe4de;color:#9a3023}
 .bt-ozet-kisa{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:6px 0 14px;border-top:1px solid color-mix(in srgb,var(--line) 28%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 28%,transparent)}
 .bt-ozet-kisa>div{min-width:0;padding:14px 16px}.bt-ozet-kisa>div:first-child{padding-left:0}.bt-ozet-kisa>div+div{border-left:1px solid color-mix(in srgb,var(--line) 28%,transparent)}.bt-ozet-kisa span{display:block;margin-bottom:5px;color:var(--summary-muted);font-size:10.5px;font-weight:700}.bt-ozet-kisa strong{display:block;color:var(--summary-text);font:700 clamp(14px,2.3vw,20px) 'JetBrains Mono',monospace;line-height:1.15;overflow-wrap:anywhere}
 .bt-ozet-durum{position:relative;z-index:1;display:flex;align-items:center;gap:9px 18px;flex-wrap:wrap;margin:0 0 17px;color:var(--summary-muted);font-size:11px;line-height:1.45}.bt-ozet-durum b{color:var(--summary-text);font-family:'JetBrains Mono',monospace}
-.bt-serit{display:flex;height:10px;border-radius:6px;overflow:hidden;border:2px solid var(--line);margin-bottom:20px;background:var(--panel2)}
-.bt-serit div{min-width:3px}
-.bt-chip{display:flex;align-items:center;gap:6px;font-size:13px;padding:7px 14px;border-radius:20px;background:color-mix(in srgb,var(--panel) 78%,transparent);border:1.5px solid var(--line)}
-.bt-chip .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.bt-serit{display:flex;height:12px;border-radius:999px;overflow:hidden;border:2px solid var(--line);margin-bottom:20px;background:color-mix(in srgb,var(--summary-bg) 45%,var(--panel))}
+.bt-serit div{min-width:4px}.bt-serit div+div{border-left:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
+.bt-chip{display:flex;align-items:center;gap:7px;font-size:13px;padding:8px 14px;border-radius:20px;background:color-mix(in srgb,var(--panel) 88%,var(--summary-bg));border:1.5px solid var(--line)}
+.bt-chip .dot{width:10px;height:10px;border:1px solid color-mix(in srgb,var(--line) 45%,transparent);border-radius:50%;flex:0 0 auto}
 .bt-chip .lbl{color:var(--summary-muted)}
 .bt-chip .amt{font-family:'JetBrains Mono',monospace;color:var(--summary-text);font-weight:700}
 .bt-chip.secilebilir{font-family:'Space Grotesk',sans-serif;cursor:pointer;color:inherit;transition:opacity .15s,transform .15s}
@@ -303,7 +313,7 @@ const CSS = `
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
-.bt-ekstre-yukle{width:min(760px,100%)}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}.bt-confidence{flex:0 0 auto;padding:6px 9px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-extract-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.bt-extract-grid label{display:grid;gap:6px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis{grid-column:span 2}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}
+.bt-ekstre-yukle{width:min(760px,100%)}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px}.bt-confidence{flex:0 0 auto;padding:6px 9px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.bt-extract-grid label{display:grid;gap:6px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis{grid-column:span 2}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
 .bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
@@ -1944,6 +1954,10 @@ export default function BorcTakip() {
     "--summary-muted": t.summaryMuted,
     "--summary-amount": t.summaryAmount,
     "--summary-shadow": t.summaryShadow,
+    "--debt-card": t.debtCard,
+    "--debt-loan": t.debtLoan,
+    "--debt-account": t.debtAccount,
+    "--debt-other": t.debtOther,
   };
 
   const kalemler = useMemo(() => borcKalemleri(veri), [veri]);
@@ -3900,14 +3914,14 @@ function Ozet({
   const oran = gelir > 0 ? (buAyOdenecek / gelir) * 100 : null;
 
   const parcalar = [
-    { tur: "kart", ad: "Kredi kartları", tutar: toplamlar.kart, renk: LIME },
-    { tur: "kredi", ad: "Krediler", tutar: toplamlar.kredi, renk: CORAL },
-    { tur: "ek", ad: "Ek hesap / KMH", tutar: toplamlar.ek, renk: "#c8c9be" },
+    { tur: "kart", ad: "Kredi kartları", tutar: toplamlar.kart, renk: "var(--debt-card)" },
+    { tur: "kredi", ad: "Krediler", tutar: toplamlar.kredi, renk: "var(--debt-loan)" },
+    { tur: "ek", ad: "Ek hesap / KMH", tutar: toplamlar.ek, renk: "var(--debt-account)" },
     {
       tur: "diger",
       ad: "Gecikmiş / diğer",
       tutar: toplamlar.diger,
-      renk: "#55584c",
+      renk: "var(--debt-other)",
     },
   ];
   const gosterilenToplam = parcalar
@@ -3989,11 +4003,9 @@ function Ozet({
         )}
         {gecenAyDelta && (
           <div
-            className="bt-hero-delta"
-            style={{
-              background: gecenAyDelta.fark <= 0 ? "#cdf56428" : "#ff6f5928",
-              color: gecenAyDelta.fark <= 0 ? LIME : CORAL,
-            }}
+            className={
+              "bt-hero-delta " + (gecenAyDelta.fark <= 0 ? "azaldi" : "artti")
+            }
           >
             {tutarlarGizli
               ? "Geçen aya göre değişim gizli"
@@ -5190,31 +5202,35 @@ function StatementImportModal({ cards, onClose, onUse }) {
     const fees = numberOrNull(next.fees);
     const previousBalance = numberOrNull(next.previousBalance);
     const periodPayments = numberOrNull(next.periodPayments);
-    if (statementTotal === null) return next;
+    if (statementTotal === null)
+      return { ...next, blockingErrors: validateStatementResult(next) };
     const knownNew =
       (currentPurchases !== null ? Math.max(currentPurchases, 0) : 0) +
       (fees !== null ? Math.max(fees, 0) : 0);
     if (knownNew > 0 && statementTotal + 0.01 >= knownNew) {
-      return {
+      const derived = {
         ...next,
         currentPeriodDebt: Math.round(knownNew * 100) / 100,
         carriedBalance:
           Math.round(Math.max(statementTotal - knownNew, 0) * 100) / 100,
       };
+      return { ...derived, blockingErrors: validateStatementResult(derived) };
     }
     if (previousBalance !== null) {
       const carriedBalance = Math.max(
         previousBalance - Math.max(periodPayments || 0, 0),
         0,
       );
-      return {
+      const derived = {
         ...next,
         carriedBalance: Math.round(carriedBalance * 100) / 100,
         currentPeriodDebt:
           Math.round(Math.max(statementTotal - carriedBalance, 0) * 100) / 100,
       };
+      return { ...derived, blockingErrors: validateStatementResult(derived) };
     }
-    return { ...next, carriedBalance: 0, currentPeriodDebt: statementTotal };
+    const derived = { ...next, carriedBalance: 0, currentPeriodDebt: statementTotal };
+    return { ...derived, blockingErrors: validateStatementResult(derived) };
   }
 
   function update(key, value) {
@@ -5281,7 +5297,8 @@ function StatementImportModal({ cards, onClose, onUse }) {
     result.statementTotal !== null &&
     result.statementTotal !== "" &&
     result.statementPeriod &&
-    result.dueDate;
+    result.dueDate &&
+    !result.blockingErrors?.length;
 
   return (
     <div
@@ -5307,7 +5324,13 @@ function StatementImportModal({ cards, onClose, onUse }) {
               Bankayı ve ekstre özetini okur; kaydetmeden önce sana doğrulatır.
             </div>
           </div>
-          {result && <div className="bt-confidence">%{result.confidence} okuma güveni</div>}
+          {result && (
+            <div className={`bt-confidence${result.blockingErrors?.length ? " hata" : ""}`}>
+              {result.blockingErrors?.length
+                ? "Kontrol gerekli"
+                : `Alan eşleşmesi %${result.confidence}`}
+            </div>
+          )}
         </div>
 
         {!result && (
@@ -5421,6 +5444,12 @@ function StatementImportModal({ cards, onClose, onUse }) {
             {result.warnings?.map((warning) => (
               <div className="bt-extract-warning" key={warning}>
                 <AlertTriangle size={15} /> <span>{warning}</span>
+              </div>
+            ))}
+
+            {result.blockingErrors?.map((warning) => (
+              <div className="bt-extract-warning" key={warning} role="alert">
+                <AlertTriangle size={15} /> <strong>{warning}</strong>
               </div>
             ))}
 
