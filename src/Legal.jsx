@@ -90,7 +90,7 @@ export function KullaniciSozlesmesi() {
         Doğru bir e-posta adresi kullanmak, parolanızı ve giriş bağlantılarınızı
         korumak sizin sorumluluğunuzdadır. Hesabınızda yetkisiz bir işlem fark
         ederseniz gecikmeden{" "}
-        <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> adresine
+        <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresine
         bildirmelisiniz.
       </p>
       <h2>3. Kullanıcı verileri ve doğruluk</h2>
@@ -150,7 +150,7 @@ export function KullaniciSozlesmesi() {
       <div className="legal-callout">
         <p>
           Sorularınız için:{" "}
-          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
+          <a href="mailto:zero@borcama.com">zero@borcama.com</a>
         </p>
       </div>
     </LegalLayout>
@@ -224,7 +224,7 @@ export function IadePolitikasi() {
         </li>
         <li>
           İşlem e-postanız ve mümkünse makbuz numaranızla{" "}
-          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> adresinden
+          <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresinden
           Borcama'ya ulaşabilirsiniz. Talebin ödeme sağlayıcısına iletilmesine
           yardımcı oluruz.
         </li>
@@ -268,7 +268,7 @@ export function IadePolitikasi() {
       <div className="legal-callout">
         <p>
           İptal veya iade konusunda destek:{" "}
-          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
+          <a href="mailto:zero@borcama.com">zero@borcama.com</a>
         </p>
       </div>
     </LegalLayout>
@@ -282,7 +282,7 @@ export function GizlilikMetni() {
         Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”)
         kapsamında Borcama kullanılırken kişisel verilerin nasıl işlendiğini
         açıklar. Veri sorumlusu Borcama hizmetidir; iletişim adresi{" "}
-        <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> şeklindedir.
+        <a href="mailto:zero@borcama.com">zero@borcama.com</a> şeklindedir.
       </p>
       <h2>1. İşlenen veri kategorileri</h2>
       <ul>
@@ -361,7 +361,7 @@ export function GizlilikMetni() {
       </p>
       <p>
         Taleplerinizi kimliğinizi doğrulamaya elverişli bilgilerle{" "}
-        <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a> adresine
+        <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresine
         iletebilirsiniz. Başvurular yasal süre içinde sonuçlandırılır.
       </p>
       <h2>7. Değişiklikler</h2>

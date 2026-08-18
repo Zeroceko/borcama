@@ -66,7 +66,7 @@ export default function Faq() {
         </div>
         <div className="faq-contact">
           <p>Aradığın cevabı bulamadın mı?</p>
-          <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
+          <a href="mailto:zero@borcama.com">zero@borcama.com</a>
         </div>
       </main>
       <footer className="faq-footer">

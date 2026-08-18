@@ -372,7 +372,7 @@ export default function LandingStory() {
               </FaqItem>
             </div>
             <p className="ls-faq-note">
-              Başka bir sorun mu var? <a href="mailto:chef@tiramisup.app">chef@tiramisup.app</a>
+              Başka bir sorun mu var? <a href="mailto:zero@borcama.com">zero@borcama.com</a>
             </p>
           </div>
         </section>
