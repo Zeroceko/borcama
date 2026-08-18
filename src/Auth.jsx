@@ -69,6 +69,7 @@ const CSS = `
 .auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
 .auth-foot svg{flex:0 0 auto;margin-top:2px}
 @media(max-width:520px){.auth-wrap{align-items:flex-start;min-height:100dvh;padding:78px 12px 32px;overflow-x:hidden;overflow-y:auto}.auth-card{padding:28px 20px;box-shadow:6px 6px 0 #ff6f59;border-radius:20px}.auth-back{top:15px;left:12px}.auth-title{width:155px}.auth-tabs{margin-bottom:15px}.auth-legal-modal{padding:7px}.auth-legal-dialog{height:96dvh;border-radius:16px;box-shadow:4px 4px 0 #cdf564}.auth-legal-head{padding:10px 12px}.auth-consents{padding:11px}.auth-btn{min-height:46px}}
+.auth-back,.auth-card,.auth-plan,.auth-input,.auth-tabs,.auth-remember input,.auth-legal-dialog,.auth-legal-close,.auth-btn{border-width:1px;border-color:#14160f24}.auth-card,.auth-legal-dialog{box-shadow:0 18px 46px #14160f18}.auth-legal-head{border-bottom-width:1px;border-bottom-color:#14160f1f}.auth-error{border-width:1px}
 `;
 
 export function useSession() {

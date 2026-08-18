@@ -40,6 +40,16 @@ const CSS = `
 @media(max-width:600px){.la-section{padding:54px 0}.la-section#araclar{padding-top:44px}.la-tool{min-height:0;padding:20px}.la-tool h3{margin-top:20px}.la-pricing{padding:56px 0}.la-pricing-grid{grid-template-columns:1fr}.la-pro-actions{grid-template-columns:1fr}.la-footer{padding-top:44px}}
 @media(max-width:850px){.la-debt-workflow-in{grid-template-columns:1fr;gap:34px}.la-assets-secondary{grid-template-columns:1fr;gap:30px}}
 @media(max-width:600px){.la-debt-workflow{padding:56px 0}.la-statement{padding:17px;border-radius:19px;box-shadow:7px 7px 0 var(--coral);transform:none}.la-statement-grid{grid-template-columns:1fr 1fr}.la-statement-cell strong{font-size:14px}.la-statement-remaining{display:grid}.la-payment-actions{justify-content:flex-start}.la-assets-secondary{padding-top:44px;padding-bottom:44px}.la-assets-panel-compact{padding:17px}}
+/* Uygulamayla ortak sakin yüzey dili. Güçlü kontur yalnızca marka illüstrasyonlarında kalır. */
+.la{--surface-line:#09291f22}
+.la-btn{border:1px solid var(--surface-line);box-shadow:0 7px 18px #09291f12}
+.la-hero,.la-story,.la-dark,.la-debt-workflow,.la-footer{border-width:0}
+.la-tool,.la-price-card,.la-statement,.la-demo,.la-assets-panel,.la-cta-box{border:1px solid var(--surface-line);box-shadow:0 16px 38px #09291f12;transform:none}
+.la-demo,.la-assets-panel,.la-price-card.pro{border-color:#ffffff24;box-shadow:0 16px 38px #09291f24}
+.la-tool-icon,.la-icon,.la-assets-kicker,.la-assets-tags span,.la-statement-cell,.la-debt-step svg,.la-command-no,.la-pro-price{border-width:1px;box-shadow:none}
+.la-chip,.la-price-badge,.la-progress-track{border-width:1px;box-shadow:none}
+.la-phone{box-shadow:0 18px 42px #09291f24;transform:none}
+.la-tool:nth-child(2),.la-tool:nth-child(3),.la-flow-card:nth-child(even) .la-icon,.la-flow-card:nth-child(3) .la-icon{box-shadow:none}
 `;
 export default function LandingAlt() {
   return (
