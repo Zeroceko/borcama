@@ -36,6 +36,98 @@ function normalEposta(value: unknown) {
   return String(value || "").trim().toLocaleLowerCase("en-US");
 }
 
+function paddleYapilandirmasi() {
+  const apiKey = String(Deno.env.get("PADDLE_API_KEY") || "").trim();
+  const environment = String(Deno.env.get("PADDLE_ENVIRONMENT") || "").trim();
+  if (!apiKey) throw new Error("PADDLE_API_KEY_NOT_CONFIGURED");
+  if (!new Set(["production", "sandbox"]).has(environment))
+    throw new Error("PADDLE_ENVIRONMENT_NOT_CONFIGURED");
+  return {
+    apiKey,
+    baseUrl: environment === "sandbox"
+      ? "https://sandbox-api.paddle.com"
+      : "https://api.paddle.com",
+  };
+}
+
+async function paddleIstegi(path: string, init: RequestInit = {}) {
+  const { apiKey, baseUrl } = paddleYapilandirmasi();
+  const cevap = await fetch(`${baseUrl}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(init.headers || {}),
+    },
+  });
+  const json = await cevap.json().catch(() => null);
+  if (!cevap.ok) {
+    const kod = String(json?.error?.code || json?.error?.type || "PADDLE_REQUEST_FAILED");
+    throw new Error(kod);
+  }
+  return json;
+}
+
+async function paddleAboneligiBul(email: string, userId: string) {
+  const musteriCevabi = await paddleIstegi(
+    `/customers?email=${encodeURIComponent(email)}&per_page=30`,
+  );
+  const musteriler = (Array.isArray(musteriCevabi?.data) ? musteriCevabi.data : [])
+    .filter((x: Record<string, unknown>) => normalEposta(x.email) === email);
+  if (!musteriler.length) throw new Error("PADDLE_CUSTOMER_NOT_FOUND");
+
+  const abonelikler: Array<Record<string, unknown>> = [];
+  for (const musteri of musteriler) {
+    const customerId = String(musteri?.id || "");
+    if (!/^ctm_[a-z\d]{26}$/.test(customerId)) continue;
+    const abonelikCevabi = await paddleIstegi(
+      `/subscriptions?customer_id=${encodeURIComponent(customerId)}&per_page=30`,
+    );
+    abonelikler.push(
+      ...(Array.isArray(abonelikCevabi?.data) ? abonelikCevabi.data : []),
+    );
+  }
+
+  const etkin = abonelikler.filter((x) =>
+    ["active", "trialing"].includes(String(x?.status || ""))
+  );
+  if (!etkin.length) throw new Error("PADDLE_ACTIVE_SUBSCRIPTION_NOT_FOUND");
+
+  const kullaniciyaAit = etkin.filter((x) => {
+    const customData = x?.custom_data as Record<string, unknown> | null;
+    return [customData?.app_user_id, customData?.appUserId, customData?.user_id]
+      .some((deger) => String(deger || "") === userId);
+  });
+  const adaylar = kullaniciyaAit.length ? kullaniciyaAit : etkin;
+  if (adaylar.length !== 1) throw new Error("PADDLE_SUBSCRIPTION_AMBIGUOUS");
+  return adaylar[0];
+}
+
+async function paddleAboneliginiDonemSonundaIptalEt(email: string, userId: string) {
+  const abonelik = await paddleAboneligiBul(email, userId);
+  const subscriptionId = String(abonelik?.id || "");
+  if (!/^sub_[a-z\d]{26}$/.test(subscriptionId))
+    throw new Error("PADDLE_SUBSCRIPTION_INVALID");
+  const scheduledChange = abonelik?.scheduled_change as Record<string, unknown> | null;
+  if (String(scheduledChange?.action || "") === "cancel") {
+    return {
+      subscriptionId,
+      effectiveAt: String(scheduledChange?.effective_at || "") || null,
+      alreadyScheduled: true,
+    };
+  }
+  const sonuc = await paddleIstegi(`/subscriptions/${subscriptionId}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ effective_from: "next_billing_period" }),
+  });
+  return {
+    subscriptionId,
+    effectiveAt: String(sonuc?.data?.scheduled_change?.effective_at || "") || null,
+    alreadyScheduled: false,
+  };
+}
+
 async function kullaniciBul(admin: ReturnType<typeof createClient>, email: string) {
   for (let page = 1; page <= 20; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
@@ -220,7 +312,7 @@ Deno.serve(async (req) => {
     });
 
   const kullaniciAksiyonu = String(postBody?.action || "");
-  if (["revoke_self_manual_pro", "activate_revenuecat_pro"].includes(kullaniciAksiyonu)) {
+  if (["revoke_self_manual_pro", "activate_revenuecat_pro", "cancel_paddle_subscription"].includes(kullaniciAksiyonu)) {
     const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     if (!token)
       return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
@@ -229,11 +321,42 @@ Deno.serve(async (req) => {
       });
     const { data, error } = await admin.auth.getUser(token);
     const user = data.user;
-    if (error || !user?.id)
+    if (error || !user?.id || !user.email)
       return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
         status: 401,
         headers,
       });
+
+    if (kullaniciAksiyonu === "cancel_paddle_subscription") {
+      try {
+        const sonuc = await paddleAboneliginiDonemSonundaIptalEt(
+          normalEposta(user.email),
+          user.id,
+        );
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            willRenew: false,
+            effectiveAt: sonuc.effectiveAt,
+            alreadyScheduled: sonuc.alreadyScheduled,
+          }),
+          { status: 200, headers },
+        );
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "PADDLE_CANCELLATION_FAILED";
+        const durum = kod.includes("NOT_CONFIGURED")
+          ? 503
+          : kod.includes("NOT_FOUND")
+            ? 404
+            : kod.includes("AMBIGUOUS")
+              ? 409
+              : 502;
+        return new Response(JSON.stringify({ error: kod }), {
+          status: durum,
+          headers,
+        });
+      }
+    }
 
     const simdi = new Date().toISOString();
     if (kullaniciAksiyonu === "revoke_self_manual_pro") {

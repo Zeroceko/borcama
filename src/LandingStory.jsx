@@ -362,7 +362,7 @@ export default function LandingStory() {
                 Evet. Aylık veya yıllık seçtiğin dönem sonunda aboneliğin otomatik yenilenir. Yenilemeyi durdurmak için bir sonraki faturalandırma tarihinden önce aboneliğini iptal edebilirsin.
               </FaqItem>
               <FaqItem title="Pro paketimi nasıl iptal ederim?">
-                Borcama'da <strong>Ayarlar → Aboneliği yönet / iptal et</strong> yolunu kullan. Açılan güvenli müşteri portalından iptali onaylayabilirsin. Aynı bağlantıya Paddle'ın satın alma e-postasından da ulaşabilirsin.
+                Borcama'da <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolunu kullan. Otomatik yenilemeyi Borcama içinden durdurabilirsin; kart ve fatura işlemleri Paddle'ın güvenli müşteri portalında yönetilir.
               </FaqItem>
               <FaqItem title="İptal edince Pro hemen kapanır mı?">
                 Hayır. İptal sonraki yenilemeyi durdurur; Pro özelliklerini ödediğin mevcut faturalandırma döneminin sonuna kadar kullanmaya devam edersin.

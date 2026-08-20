@@ -49,6 +49,7 @@ import {
   MoreHorizontal,
   Upload,
   ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
@@ -1907,6 +1908,32 @@ export default function BorcTakip() {
     }
   }
 
+  async function paddleProIptal() {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("UNAUTHORIZED");
+    const cevap = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "cancel_paddle_subscription" }),
+      },
+    );
+    const sonuc = await cevap.json().catch(() => ({}));
+    if (!cevap.ok) throw new Error(sonuc.error || "PADDLE_CANCELLATION_FAILED");
+    setReklamsiz((eski) => ({
+      ...eski,
+      proYenilenecek: false,
+      proBitis: sonuc.effectiveAt || eski.proBitis,
+      hata: "",
+    }));
+    return sonuc;
+  }
+
   async function proSatinAl(plan = "monthly") {
     if (!revenueCatHazir) {
       setProSatinAlma({
@@ -2914,6 +2941,7 @@ export default function BorcTakip() {
                 reklamsiz={{ ...reklamsiz, proAktif: etkinPro }}
                 reklamsizKontrol={reklamsizKontrol}
                 manuelProIptal={manuelProIptal}
+                paddleProIptal={paddleProIptal}
                 proSatinAl={proSatinAl}
                 proSatinAlma={proSatinAlma}
                 proPaketler={proPaketler}
@@ -3719,6 +3747,7 @@ function Ayarlar({
   reklamsiz,
   reklamsizKontrol,
   manuelProIptal,
+  paddleProIptal,
   proSatinAl,
   proSatinAlma,
   proPaketler,
@@ -3729,9 +3758,44 @@ function Ayarlar({
 }) {
   const [proPlan, setProPlan] = useState("monthly");
   const [ucretsizOnayi, setUcretsizOnayi] = useState(false);
+  const [paketYonetimiAcik, setPaketYonetimiAcik] = useState(false);
+  const [iptalOnayi, setIptalOnayi] = useState(false);
+  const [iptalDurumu, setIptalDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
+  useEffect(() => {
+    if (!paketYonetimiAcik) return undefined;
+    const onceki = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = onceki;
+    };
+  }, [paketYonetimiAcik]);
+  const paketPenceresiniKapat = () => {
+    if (iptalDurumu.yukleniyor) return;
+    setPaketYonetimiAcik(false);
+    setIptalOnayi(false);
+    setIptalDurumu({ yukleniyor: false, hata: "", tamam: false });
+  };
+  const paddleYenilemeyiIptalEt = async () => {
+    setIptalDurumu({ yukleniyor: true, hata: "", tamam: false });
+    try {
+      await paddleProIptal();
+      setIptalDurumu({ yukleniyor: false, hata: "", tamam: true });
+      setIptalOnayi(false);
+    } catch (error) {
+      const kod = String(error?.message || "");
+      const metin = kod.includes("NOT_CONFIGURED")
+        ? "Abonelik iptali henüz sunucuya bağlanmamış."
+        : kod.includes("NOT_FOUND")
+          ? "Hesabına ait etkin Paddle aboneliği bulunamadı."
+          : kod.includes("AMBIGUOUS")
+            ? "Birden fazla etkin abonelik bulundu. Güvenli işlem için destek gerekiyor."
+            : "İptal işlemi tamamlanamadı. Lütfen tekrar dene.";
+      setIptalDurumu({ yukleniyor: false, hata: metin, tamam: false });
+    }
+  };
   return (
     <div className="bt-stack">
       <div>
@@ -3826,14 +3890,13 @@ function Ayarlar({
               </div>
             )}
             {reklamsiz.proAktif && !denemeAktif && reklamsiz.proYonetimUrl && (
-              <a
+              <button
                 className="bt-btn birincil"
-                href={reklamsiz.proYonetimUrl}
-                target="_blank"
-                rel="noreferrer"
+                type="button"
+                onClick={() => setPaketYonetimiAcik(true)}
               >
                 Paketimi yönet / iptal et
-              </a>
+              </button>
             )}
             {reklamsiz.proAktif && !denemeAktif &&
               !reklamsiz.proYonetimUrl &&
@@ -4006,6 +4069,143 @@ function Ayarlar({
           </div>
         </section>
       </div>
+      {paketYonetimiAcik && reklamsiz.proYonetimUrl && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) paketPenceresiniKapat();
+          }}
+        >
+          <div
+            className="bt-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="paket-yonetimi-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div className="bt-eyebrow">Borcama Pro</div>
+                <div id="paket-yonetimi-baslik" className="bt-h2">
+                  Paketini yönet
+                </div>
+              </div>
+              <button
+                className="bt-btn ikon hayalet"
+                type="button"
+                aria-label="Pencereyi kapat"
+                onClick={paketPenceresiniKapat}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.55 }}>
+              Yenilemeyi buradan durdurabilirsin. Pro erişimin ödediğin dönemin
+              sonuna kadar açık kalır. Kart ve fatura işlemleri güvenli Paddle
+              portalında yönetilir; Borcama kart bilgilerini görmez veya saklamaz.
+            </p>
+            <div
+              style={{
+                margin: "18px 0",
+                padding: 14,
+                borderRadius: 14,
+                background: "var(--panel-2)",
+                border: "1px solid var(--line-soft)",
+              }}
+            >
+              <strong style={{ display: "block", fontSize: 13 }}>
+                Borcama Pro · aktif
+              </strong>
+              <span style={{ display: "block", marginTop: 5, color: "var(--dim)", fontSize: 11 }}>
+                {reklamsiz.proBitis
+                  ? `${reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}`
+                  : "Paket bilgilerin güvenli ödeme portalında görüntülenir."}
+              </span>
+            </div>
+            {iptalOnayi && !iptalDurumu.tamam && (
+              <div
+                style={{
+                  margin: "0 0 16px",
+                  padding: 14,
+                  borderRadius: 14,
+                  background: "rgba(255,107,87,.10)",
+                  border: "1px solid rgba(255,107,87,.38)",
+                }}
+              >
+                <strong style={{ display: "block", fontSize: 13 }}>
+                  Otomatik yenilemeyi durdurmak istiyor musun?
+                </strong>
+                <span style={{ display: "block", marginTop: 5, color: "var(--dim)", fontSize: 11, lineHeight: 1.5 }}>
+                  Bir sonraki dönemde ücret alınmaz. Mevcut Pro erişimin dönem
+                  sonuna kadar devam eder.
+                </span>
+              </div>
+            )}
+            {iptalDurumu.tamam && (
+              <div className="bt-bildirim basarili" style={{ marginBottom: 16 }}>
+                Otomatik yenileme durduruldu. Pro erişimin mevcut döneminin sonuna
+                kadar devam edecek.
+              </div>
+            )}
+            {iptalDurumu.hata && (
+              <div className="bt-bildirim hata" style={{ marginBottom: 16 }}>
+                {iptalDurumu.hata}
+              </div>
+            )}
+            <div className="bt-form-butonlar">
+              {iptalDurumu.tamam ? (
+                <button className="bt-btn birincil" type="button" onClick={paketPenceresiniKapat}>
+                  Tamam
+                </button>
+              ) : iptalOnayi ? (
+                <>
+                  <button
+                    className="bt-btn birincil"
+                    type="button"
+                    disabled={iptalDurumu.yukleniyor}
+                    onClick={paddleYenilemeyiIptalEt}
+                    style={{ background: "var(--coral)" }}
+                  >
+                    {iptalDurumu.yukleniyor ? "İptal ediliyor…" : "Evet, yenilemeyi durdur"}
+                  </button>
+                  <button
+                    className="bt-btn ikincil"
+                    type="button"
+                    disabled={iptalDurumu.yukleniyor}
+                    onClick={() => setIptalOnayi(false)}
+                  >
+                    Vazgeç
+                  </button>
+                </>
+              ) : (
+                <>
+                  {reklamsiz.proYenilenecek && (
+                    <button
+                      className="bt-btn birincil"
+                      type="button"
+                      onClick={() => setIptalOnayi(true)}
+                      style={{ background: "var(--coral)" }}
+                    >
+                      Yenilemeyi iptal et
+                    </button>
+                  )}
+                  <a
+                    className="bt-btn ikincil"
+                    href={reklamsiz.proYonetimUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Kart ve faturaları yönet <ArrowRight size={15} />
+                  </a>
+                  <button className="bt-btn hayalet" type="button" onClick={paketPenceresiniKapat}>
+                    Kapat
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
