@@ -128,6 +128,22 @@ async function paddleAboneliginiDonemSonundaIptalEt(email: string, userId: strin
   };
 }
 
+async function paddleOdemeYontemiGuncellemeIslemi(email: string, userId: string) {
+  const abonelik = await paddleAboneligiBul(email, userId);
+  const subscriptionId = String(abonelik?.id || "");
+  if (!/^sub_[a-z\d]{26}$/.test(subscriptionId))
+    throw new Error("PADDLE_SUBSCRIPTION_INVALID");
+
+  const sonuc = await paddleIstegi(
+    `/subscriptions/${subscriptionId}/update-payment-method-transaction`,
+  );
+  const transactionId = String(sonuc?.data?.id || "");
+  if (!/^txn_[a-z\d]{26}$/.test(transactionId))
+    throw new Error("PADDLE_PAYMENT_UPDATE_TRANSACTION_INVALID");
+
+  return { subscriptionId, transactionId };
+}
+
 async function kullaniciBul(admin: ReturnType<typeof createClient>, email: string) {
   for (let page = 1; page <= 20; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
@@ -312,7 +328,7 @@ Deno.serve(async (req) => {
     });
 
   const kullaniciAksiyonu = String(postBody?.action || "");
-  if (["revoke_self_manual_pro", "activate_revenuecat_pro", "cancel_paddle_subscription"].includes(kullaniciAksiyonu)) {
+  if (["revoke_self_manual_pro", "activate_revenuecat_pro", "cancel_paddle_subscription", "create_paddle_payment_update"].includes(kullaniciAksiyonu)) {
     const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     if (!token)
       return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
@@ -344,6 +360,32 @@ Deno.serve(async (req) => {
         );
       } catch (error) {
         const kod = error instanceof Error ? error.message : "PADDLE_CANCELLATION_FAILED";
+        const durum = kod.includes("NOT_CONFIGURED")
+          ? 503
+          : kod.includes("NOT_FOUND")
+            ? 404
+            : kod.includes("AMBIGUOUS")
+              ? 409
+              : 502;
+        return new Response(JSON.stringify({ error: kod }), {
+          status: durum,
+          headers,
+        });
+      }
+    }
+
+    if (kullaniciAksiyonu === "create_paddle_payment_update") {
+      try {
+        const sonuc = await paddleOdemeYontemiGuncellemeIslemi(
+          normalEposta(user.email),
+          user.id,
+        );
+        return new Response(
+          JSON.stringify({ ok: true, transactionId: sonuc.transactionId }),
+          { status: 200, headers },
+        );
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "PADDLE_PAYMENT_UPDATE_FAILED";
         const durum = kod.includes("NOT_CONFIGURED")
           ? 503
           : kod.includes("NOT_FOUND")

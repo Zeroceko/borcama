@@ -8,6 +8,10 @@ import {
   revenueCatProSatinAl,
 } from "./revenuecat.js";
 import {
+  paddleKartGuncellemeEkraniAc,
+  paddleKartYonetimiHazir,
+} from "./paddle.js";
+import {
   Plus,
   Pencil,
   Trash2,
@@ -1934,6 +1938,27 @@ export default function BorcTakip() {
     return sonuc;
   }
 
+  async function paddleOdemeKartiGuncelle(onCompleted) {
+    if (!paddleKartYonetimiHazir) throw new Error("PADDLE_CLIENT_NOT_CONFIGURED");
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("UNAUTHORIZED");
+    const cevap = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "create_paddle_payment_update" }),
+      },
+    );
+    const sonuc = await cevap.json().catch(() => ({}));
+    if (!cevap.ok) throw new Error(sonuc.error || "PADDLE_PAYMENT_UPDATE_FAILED");
+    await paddleKartGuncellemeEkraniAc(sonuc.transactionId, onCompleted);
+  }
+
   async function proSatinAl(plan = "monthly") {
     if (!revenueCatHazir) {
       setProSatinAlma({
@@ -2942,6 +2967,7 @@ export default function BorcTakip() {
                 reklamsizKontrol={reklamsizKontrol}
                 manuelProIptal={manuelProIptal}
                 paddleProIptal={paddleProIptal}
+                paddleOdemeKartiGuncelle={paddleOdemeKartiGuncelle}
                 proSatinAl={proSatinAl}
                 proSatinAlma={proSatinAlma}
                 proPaketler={proPaketler}
@@ -3748,6 +3774,7 @@ function Ayarlar({
   reklamsizKontrol,
   manuelProIptal,
   paddleProIptal,
+  paddleOdemeKartiGuncelle,
   proSatinAl,
   proSatinAlma,
   proPaketler,
@@ -3761,6 +3788,7 @@ function Ayarlar({
   const [paketYonetimiAcik, setPaketYonetimiAcik] = useState(false);
   const [iptalOnayi, setIptalOnayi] = useState(false);
   const [iptalDurumu, setIptalDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
+  const [kartDurumu, setKartDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
@@ -3777,6 +3805,7 @@ function Ayarlar({
     setPaketYonetimiAcik(false);
     setIptalOnayi(false);
     setIptalDurumu({ yukleniyor: false, hata: "", tamam: false });
+    setKartDurumu({ yukleniyor: false, hata: "", tamam: false });
   };
   const paddleYenilemeyiIptalEt = async () => {
     setIptalDurumu({ yukleniyor: true, hata: "", tamam: false });
@@ -3794,6 +3823,26 @@ function Ayarlar({
             ? "Birden fazla etkin abonelik bulundu. Güvenli işlem için destek gerekiyor."
             : "İptal işlemi tamamlanamadı. Lütfen tekrar dene.";
       setIptalDurumu({ yukleniyor: false, hata: metin, tamam: false });
+    }
+  };
+  const paddleKartiniGuncelle = async () => {
+    setKartDurumu({ yukleniyor: true, hata: "", tamam: false });
+    try {
+      await paddleOdemeKartiGuncelle(() => {
+        setKartDurumu({ yukleniyor: false, hata: "", tamam: true });
+        reklamsizKontrol();
+      });
+      setKartDurumu((eski) => ({ ...eski, yukleniyor: false }));
+    } catch (error) {
+      const kod = String(error?.message || "");
+      const metin = kod.includes("CLIENT_NOT_CONFIGURED")
+        ? "Kart yönetimi henüz canlı ortama bağlanmamış."
+        : kod.includes("permission") || kod.includes("forbidden")
+          ? "Paddle kart güncelleme izni eksik."
+          : kod.includes("NOT_FOUND")
+            ? "Hesabına ait etkin abonelik bulunamadı."
+            : "Kart güncelleme ekranı açılamadı. Lütfen tekrar dene.";
+      setKartDurumu({ yukleniyor: false, hata: metin, tamam: false });
     }
   };
   return (
@@ -4100,9 +4149,9 @@ function Ayarlar({
               </button>
             </div>
             <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.55 }}>
-              Yenilemeyi buradan durdurabilirsin. Pro erişimin ödediğin dönemin
-              sonuna kadar açık kalır. Kart ve fatura işlemleri güvenli Paddle
-              portalında yönetilir; Borcama kart bilgilerini görmez veya saklamaz.
+              Yenilemeyi durdurabilir veya ödeme kartını Borcama'dan ayrılmadan
+              güncelleyebilirsin. Kart ekranı Paddle tarafından güvenli biçimde
+              açılır; Borcama kart bilgilerini görmez veya saklamaz.
             </p>
             <div
               style={{
@@ -4152,6 +4201,16 @@ function Ayarlar({
                 {iptalDurumu.hata}
               </div>
             )}
+            {kartDurumu.tamam && (
+              <div className="bt-bildirim basarili" style={{ marginBottom: 16 }}>
+                Ödeme kartın güncellendi.
+              </div>
+            )}
+            {kartDurumu.hata && (
+              <div className="bt-bildirim hata" style={{ marginBottom: 16 }}>
+                {kartDurumu.hata}
+              </div>
+            )}
             <div className="bt-form-butonlar">
               {iptalDurumu.tamam ? (
                 <button className="bt-btn birincil" type="button" onClick={paketPenceresiniKapat}>
@@ -4189,14 +4248,15 @@ function Ayarlar({
                       Yenilemeyi iptal et
                     </button>
                   )}
-                  <a
+                  <button
                     className="bt-btn ikincil"
-                    href={reklamsiz.proYonetimUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                    type="button"
+                    disabled={kartDurumu.yukleniyor}
+                    onClick={paddleKartiniGuncelle}
                   >
-                    Kart ve faturaları yönet <ArrowRight size={15} />
-                  </a>
+                    {kartDurumu.yukleniyor ? "Kart ekranı açılıyor…" : "Ödeme kartını güncelle"}
+                    <ArrowRight size={15} />
+                  </button>
                   <button className="bt-btn hayalet" type="button" onClick={paketPenceresiniKapat}>
                     Kapat
                   </button>
