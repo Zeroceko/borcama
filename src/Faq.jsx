@@ -19,7 +19,11 @@ const questions = [
   ],
   [
     "Ücretsiz paket ile Pro arasındaki fark nedir?",
-    <>Ücretsiz paket temel borç, ödeme, harcama ve varlık takibini içerir. Pro; tüm kişisel finansal sinyalleri, faiz ve ödeme önceliği analizlerini ve reklamsız kullanımı açar.</>,
+    <>Ücretsiz paket temel borç, ödeme, harcama ve varlık takibiyle her ay bir kişisel öneri içerir. Pro; tüm kişisel finansal sinyalleri, faiz ve ödeme önceliği analizlerini ve gelişmiş senaryoları açar.</>,
+  ],
+  [
+    "30 günlük Pro denemesi nasıl çalışır?",
+    <>Yeni hesabında Pro özellikleri 30 gün boyunca kart bilgisi istemeden açılır. Süre sonunda ödeme alınmaz; hesabın ve verilerin korunarak otomatik olarak Ücretsiz plana döner.</>,
   ],
   [
     "Pro aboneliği otomatik yenilenir mi?",

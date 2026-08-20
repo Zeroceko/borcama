@@ -123,7 +123,7 @@ function KimlikliWelcome() {
           Borcama Pro hazır.
         </h1>
         <p style={{ margin: "0 auto 24px", maxWidth: 430, color: "#5d6054", lineHeight: 1.65 }}>
-          Satın alma tamamlandı. Kişisel finansal sinyaller ve reklamsız deneyim hesabında aktif.
+          Satın alma tamamlandı. Tüm kişisel finansal sinyaller ve gelişmiş analizler hesabında aktif.
         </p>
         <a
           href="/summary"

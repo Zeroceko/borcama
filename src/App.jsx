@@ -1535,6 +1535,10 @@ export default function BorcTakip() {
     proYonetimUrl: null,
     proKaynak: null,
     proYenilenecek: false,
+    trialAktif: false,
+    trialBaslangic: null,
+    trialBitis: null,
+    trialKalanGun: 0,
     hata: "",
   });
   const [proPaketler, setProPaketler] = useState({
@@ -1823,18 +1827,24 @@ export default function BorcTakip() {
       if (shopierSonucu.status === "rejected" && revenueCatSonucu.status === "rejected")
         throw new Error("Hak bilgisi alınamadı");
       const proEngelli = ["admin_revoked", "self_revoked"].includes(sonuc.source);
+      const ucretliProAktif = !proEngelli && (!!sonuc.proActive || !!rc.active);
+      const trialAktif = !ucretliProAktif && !proEngelli && !!sonuc.trialActive;
       setReklamsiz({
         yukleniyor: false,
         aktif: !!sonuc.adFreeLifetime,
-        proAktif: !proEngelli && (!!sonuc.proActive || !!rc.active),
+        proAktif: ucretliProAktif || trialAktif,
         proBitis: !proEngelli
           ? rc.active
             ? rc.expiresAt
-            : sonuc.proExpiresAt || null
+            : sonuc.proExpiresAt || (trialAktif ? sonuc.trialEndsAt : null)
           : null,
         proYonetimUrl: rc.managementURL || null,
-        proKaynak: rc.active ? "revenuecat" : sonuc.source || null,
+        proKaynak: rc.active ? "revenuecat" : ucretliProAktif ? sonuc.source || null : trialAktif ? "trial" : sonuc.source || null,
         proYenilenecek: !!rc.willRenew,
+        trialAktif,
+        trialBaslangic: sonuc.trialStartedAt || null,
+        trialBitis: sonuc.trialEndsAt || null,
+        trialKalanGun: trialAktif ? Math.max(1, +sonuc.trialDaysRemaining || 1) : 0,
         hata: "",
       });
     } catch {
@@ -1846,6 +1856,10 @@ export default function BorcTakip() {
         proYonetimUrl: null,
         proKaynak: null,
         proYenilenecek: false,
+        trialAktif: false,
+        trialBaslangic: null,
+        trialBitis: null,
+        trialKalanGun: 0,
         hata: "Satın alma durumu şu anda kontrol edilemedi.",
       });
     }
@@ -1878,6 +1892,10 @@ export default function BorcTakip() {
         proYonetimUrl: null,
         proKaynak: "self_revoked",
         proYenilenecek: false,
+        trialAktif: false,
+        trialBaslangic: null,
+        trialBitis: null,
+        trialKalanGun: 0,
         hata: "",
       }));
     } catch {
@@ -1918,6 +1936,7 @@ export default function BorcTakip() {
         proYonetimUrl: sonuc.managementURL || null,
         proKaynak: "revenuecat",
         proYenilenecek: !!sonuc.willRenew,
+        trialAktif: false,
         hata: "",
       }));
       const { data: oturum } = await supabase.auth.getSession();
@@ -2809,6 +2828,7 @@ export default function BorcTakip() {
                 varlikOzeti={varlikOzeti}
                 oneriler={borcamaOnerileri}
                 proAktif={etkinPro}
+                trialKalanGun={reklamsiz.trialAktif ? reklamsiz.trialKalanGun : 0}
                 proAc={() => setProPenceresiAcik(true)}
               />
             )}
@@ -3636,10 +3656,10 @@ function ProTanitimPenceresi({
               </div>
             </div>
             <div className="bt-pro-fayda">
-              <EyeOff />
+              <TrendingUp />
               <div>
-                <strong>Reklamsız kullan</strong>
-                <small>Finans ekranlarını dikkat dağıtan reklamlar olmadan takip et.</small>
+                <strong>Senaryoları karşılaştır</strong>
+                <small>Aylık yükünü ve toplam faiz maliyetini azaltmaya yönelik seçenekleri birlikte değerlendir.</small>
               </div>
             </div>
           </div>
@@ -3709,6 +3729,7 @@ function Ayarlar({
 }) {
   const [proPlan, setProPlan] = useState("monthly");
   const [ucretsizOnayi, setUcretsizOnayi] = useState(false);
+  const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
   return (
@@ -3730,17 +3751,21 @@ function Ayarlar({
           <div className="bt-premium-copy">
             <span className="bt-premium-badge">
               <Sparkles size={13} />
-              {reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK VE YILLIK PLAN"}
+              {denemeAktif ? "PRO DENEMESİ" : reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK VE YILLIK PLAN"}
             </span>
             <h2>
-              {reklamsiz.proAktif
+              {denemeAktif
+                ? `Pro denemende ${reklamsiz.trialKalanGun} gün kaldı`
+                : reklamsiz.proAktif
                 ? "Borcama Pro aktif"
                 : "Borcama Pro ile tüm planını aç."}
             </h2>
             <p>
-              {reklamsiz.proAktif
-                ? "Tüm akıllı öneriler ve reklamsız kullanım hesabında açık."
-                : "Aylık veya yıllık planı seç. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile reklamsız kullanım dahil."}
+              {denemeAktif
+                ? "Tüm kişisel öneriler ve gelişmiş analizler açık. Kart bilgisi istemedik; deneme bitince hesabın ve verilerin korunarak otomatik olarak Ücretsiz plana döner."
+                : reklamsiz.proAktif
+                ? "Tüm kişisel öneriler ve gelişmiş finansal analizler hesabında açık."
+                : "Aylık veya yıllık planı seç. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile gelişmiş senaryolar dahil."}
               {reklamsiz.proAktif &&
               reklamsiz.proYonetimUrl &&
               !reklamsiz.proYenilenecek
@@ -3752,10 +3777,10 @@ function Ayarlar({
             </p>
             {reklamsiz.proAktif && (
               <div className="bt-premium-meta" aria-label="Abonelik durumu">
-                <span className="vurgu">Pro erişimi açık</span>
+                <span className="vurgu">{denemeAktif ? "Kart gerektirmeyen deneme" : "Pro erişimi açık"}</span>
                 {reklamsiz.proBitis && (
                   <span>
-                    {reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: {new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR", {
+                    {denemeAktif ? "Deneme bitişi" : reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: {new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
@@ -3766,7 +3791,7 @@ function Ayarlar({
             )}
           </div>
           <div className="bt-premium-actions">
-            {!reklamsiz.proAktif && (
+            {(!reklamsiz.proAktif || denemeAktif) && (
               <div className="bt-pro-choice">
                 <div className="bt-pro-toggle" role="group" aria-label="Pro faturalama dönemi">
                   <button
@@ -3794,11 +3819,13 @@ function Ayarlar({
                     ? "Ödeme açılıyor…"
                     : proPaketler?.yukleniyor
                       ? "Fiyat yükleniyor…"
-                      : `Pro'ya geç · ${seciliFiyat || "Fiyat alınamadı"}`}
+                      : denemeAktif
+                        ? `Deneme sonrası Pro'yu sürdür · ${seciliFiyat || "Fiyat alınamadı"}`
+                        : `Pro'ya geç · ${seciliFiyat || "Fiyat alınamadı"}`}
                 </button>
               </div>
             )}
-            {reklamsiz.proAktif && reklamsiz.proYonetimUrl && (
+            {reklamsiz.proAktif && !denemeAktif && reklamsiz.proYonetimUrl && (
               <a
                 className="bt-btn birincil"
                 href={reklamsiz.proYonetimUrl}
@@ -3808,7 +3835,7 @@ function Ayarlar({
                 Paketimi yönet / iptal et
               </a>
             )}
-            {reklamsiz.proAktif &&
+            {reklamsiz.proAktif && !denemeAktif &&
               !reklamsiz.proYonetimUrl &&
               ["admin_manual", "shopier"].includes(reklamsiz.proKaynak) && (
                 <button
@@ -3842,7 +3869,7 @@ function Ayarlar({
                   ? "Durumu yenile"
                   : "Pro aldım, kontrol et"}
             </button>
-            {reklamsiz.proAktif && (
+            {reklamsiz.proAktif && !denemeAktif && (
               <p className="bt-premium-help">
                 {reklamsiz.proYonetimUrl
                   ? "İptal edersen sonraki yenileme durur; Pro erişimin mevcut döneminin sonuna kadar sürer. "
@@ -4000,6 +4027,7 @@ function Ozet({
   varlikOzeti,
   oneriler,
   proAktif,
+  trialKalanGun = 0,
   proAc,
 }) {
   const [haricTurler, setHaricTurler] = useState([]);
@@ -4276,6 +4304,7 @@ function Ozet({
         oneriler={oneriler}
         setSekme={setSekme}
         proAktif={proAktif}
+        trialKalanGun={trialKalanGun}
         proAc={proAc}
       />
     </div>
@@ -4286,6 +4315,7 @@ function BorcamaOnerileri({
   oneriler = [],
   setSekme,
   proAktif = false,
+  trialKalanGun = 0,
   proAc,
 }) {
   const [mod, setMod] = useState("nakit");
@@ -4312,7 +4342,11 @@ function BorcamaOnerileri({
         <div>
           <div className="bt-oneriler-kicker">
             <Lightbulb size={15} />
-            {proAktif ? "Finansal öneriler" : "Ücretsiz öneri önizlemesi"}
+            {trialKalanGun > 0
+              ? `Pro denemesi · ${trialKalanGun} gün kaldı`
+              : proAktif
+                ? "Finansal öneriler"
+                : "Bu ayın ücretsiz önerisi"}
           </div>
           <h2 id="borcama-oneriler-baslik">Borçlarını azaltmak için öneriler</h2>
           <p>

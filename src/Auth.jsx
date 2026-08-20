@@ -11,7 +11,7 @@ import {
   EyeOff,
   X,
 } from "lucide-react";
-import { proNiyetiniOku, proNiyetiniKaydet } from "./proIntent.js";
+import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -107,8 +107,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     ? hamYonlendirme
     : null;
   const ilkProPlani = proNiyetiniOku();
-  const sonrakiSayfa = sorguYonlendirmesi ||
-    (ilkProPlani ? `/upgrade?plan=${ilkProPlani}` : redirectTo);
+  const sonrakiSayfa = kayitModu
+    ? "/summary"
+    : sorguYonlendirmesi || (ilkProPlani ? `/upgrade?plan=${ilkProPlani}` : redirectTo);
   const [yontem, setYontem] = useState("parola");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
@@ -271,8 +272,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
           : "Hesap oluşturulamadı. E-posta adresini ve parolanı kontrol edip tekrar dene.",
       );
-    else if (data?.session) window.location.href = sonrakiSayfa;
-    else setGonderildi(true);
+    else {
+      proNiyetiniTemizle();
+      if (data?.session) {
+        window.location.href = sonrakiSayfa;
+      } else setGonderildi(true);
+    }
   }
 
   function yontemDegistir(yeni) {
@@ -289,25 +294,21 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       </a>
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
-        {ilkProPlani && (
+        {kayitModu && (
           <div className="auth-plan">
-            <span>1 · Hesap</span>
-            <strong>{ilkProPlani === "annual" ? "Yıllık Pro" : "Aylık Pro"}</strong>
-            <span>2 · Ödeme</span>
+            <span>Yeni hesap avantajı</span>
+            <strong>30 gün Pro denemesi</strong>
+            <span>Kart gerekmez</span>
           </div>
         )}
         <div className="auth-welcome">
           {kayitModu
-            ? ilkProPlani
-              ? "Önce hesabını oluştur"
-              : "Ücretsiz hesabını oluştur"
+            ? "Ücretsiz hesabını oluştur"
             : "Hesabına giriş yap"}
         </div>
         <div className="auth-sub">
           {kayitModu
-            ? ilkProPlani
-              ? "E-posta ve parolanı belirle. Sonraki adımda Pro planını gözden geçirip güvenli ödemeyi tamamlayacaksın."
-              : "E-posta adresini ve parolanı belirle, borçlarını tek yerde takip etmeye başla."
+            ? "E-posta ve parolanı belirle. Pro özellikleri 30 gün boyunca ücretsiz açılır; kart bilgisi istemeyiz ve süre sonunda hesabın otomatik olarak Ücretsiz plana döner."
             : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
         </div>
         {!kayitModu && (

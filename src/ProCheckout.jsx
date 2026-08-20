@@ -108,15 +108,15 @@ export default function ProCheckout() {
         <section className="pc-card">
           <div className="pc-copy">
             <span className="pc-badge"><Sparkles size={14} /> BORCAMA PRO</span>
-            <h1>Planını seç, kontrolü büyüt.</h1>
+            <h1>Pro'yu sürdürmek istediğinde.</h1>
             <p>
-              Kaydın tamamlandı. Pro ile tüm kişisel finansal sinyalleri açabilir
-              veya ücretsiz sürümle hemen devam edebilirsin.
+              Yeni hesaplarda Pro özellikleri ilk 30 gün kart bilgisi istemeden
+              açıktır. Sonrasında istersen aylık veya yıllık planla devam edebilirsin.
             </p>
             <ul className="pc-list">
               <li><Check size={18} /> Tüm kişiselleştirilmiş öneri ve sinyaller</li>
               <li><Check size={18} /> Faiz ve ödeme önceliği analizleri</li>
-              <li><Check size={18} /> Reklamsız Borcama deneyimi</li>
+              <li><Check size={18} /> Aylık yük ve faiz senaryolarını karşılaştırma</li>
               <li><Check size={18} /> İstediğin zaman aboneliği yönetme özgürlüğü</li>
             </ul>
           </div>
@@ -136,7 +136,7 @@ export default function ProCheckout() {
             <button className="pc-primary" type="button" disabled={!revenueCatHazir || paketler.yukleniyor || !fiyat || durum.yukleniyor} onClick={satinAl}>
               {durum.yukleniyor ? "Ödeme açılıyor…" : "Güvenli ödemeye geç →"}
             </button>
-            <button className="pc-secondary" type="button" onClick={ucretsizDevam}>Şimdilik ücretsiz devam et</button>
+            <button className="pc-secondary" type="button" onClick={ucretsizDevam}>Uygulamaya dön</button>
             <p className="pc-note"><ShieldCheck size={15} /> Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır.</p>
             <div
               style={{

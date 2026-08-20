@@ -267,8 +267,8 @@ export default function LandingAlt() {
             <div className="la-pricing-head">
               <h2 className="la-h2">Sana uygun olanla başla.</h2>
               <p>
-                Borç ve varlık takibi ücretsiz. Daha derin kişisel analizler
-                istediğinde Pro'ya geç.
+                Ücretsiz hesapla temel takibe başla. İlk 30 gün tüm Pro
+                özelliklerini kart bilgisi vermeden dene.
               </p>
             </div>
             <div className="la-pricing-grid">
@@ -280,13 +280,13 @@ export default function LandingAlt() {
                 <ul className="la-price-list">
                   <li><Check size={15} /> Borç, ödeme ve harcama takibi</li>
                   <li><Check size={15} /> Varlık ve net durum takibi</li>
-                  <li><Check size={15} /> Bir kişisel öneri önizlemesi</li>
-                  <li><Check size={15} /> Reklamlı kullanım</li>
+                  <li><Check size={15} /> Her ay bir kişisel öneri</li>
+                  <li><Check size={15} /> Temel finans özeti</li>
                 </ul>
-                <a className="la-btn" href="/register?plan=free">Ücretsiz başla</a>
+                <a className="la-btn" href="/register">Ücretsiz başla</a>
               </article>
               <article className="la-price-card pro">
-                <span className="la-price-badge">PRO</span>
+                <span className="la-price-badge">30 GÜN ÜCRETSİZ DENE</span>
                 <h3>Borcama Pro</h3>
                 <div className="la-pro-prices">
                   <div className="la-pro-price">
@@ -298,16 +298,15 @@ export default function LandingAlt() {
                     <strong>₺999</strong>
                   </div>
                 </div>
-                <p>Aylık veya yıllık planla tüm analizleri ve reklamsız deneyimi aç.</p>
+                <p>Kart bilgisi gerekmez. Deneme biterse hesabın otomatik olarak Ücretsiz plana döner.</p>
                 <ul className="la-price-list">
                   <li><Check size={15} /> Ücretsiz paketteki her şey</li>
                   <li><Check size={15} /> Tüm kişiselleştirilmiş öneriler</li>
                   <li><Check size={15} /> Aylık yük ve faiz önceliği analizleri</li>
-                  <li><Check size={15} /> Reklamsız kullanım</li>
+                  <li><Check size={15} /> Aylık yük ve faiz senaryoları</li>
                 </ul>
                 <div className="la-pro-actions">
-                  <a className="la-btn" href="/register?plan=monthly">Aylık başla</a>
-                  <a className="la-btn" href="/register?plan=annual">Yıllık başla</a>
+                  <a className="la-btn" href="/register">30 gün ücretsiz dene</a>
                 </div>
               </article>
             </div>

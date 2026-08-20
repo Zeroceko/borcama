@@ -11,7 +11,10 @@ const izinliOriginler = new Set([
 ]);
 
 function cors(origin: string | null) {
-  const izinli = origin && izinliOriginler.has(origin) ? origin : "https://borcama.com";
+  const yerelOnizleme = !!origin && /^http:\/\/(127\.0\.0\.1|localhost):51\d{2}$/.test(origin);
+  const izinli = origin && (izinliOriginler.has(origin) || yerelOnizleme)
+    ? origin
+    : "https://borcama.com";
   return {
     "Access-Control-Allow-Origin": izinli,
     "Access-Control-Allow-Headers":
@@ -161,17 +164,48 @@ Deno.serve(async (req) => {
       }
     }
 
-    const { data: hak } = await admin
+    let { data: hak } = await admin
       .from("user_entitlements")
-      .select("ad_free_lifetime,pro_expires_at,source,granted_at")
+      .select("ad_free_lifetime,pro_expires_at,source,granted_at,trial_started_at,trial_ends_at")
       .eq("user_id", user.id)
       .maybeSingle();
+    const hesapYasi = Date.now() - new Date(user.created_at).getTime();
+    const yeniHesap = hesapYasi >= 0 && hesapYasi <= 7 * 24 * 60 * 60 * 1000;
+    const denemeEngelli = ["admin_revoked", "self_revoked"].includes(String(hak?.source || ""));
+    if (!hak?.trial_started_at && yeniHesap && !denemeEngelli) {
+      const baslangic = new Date();
+      const bitis = new Date(baslangic.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const { error: denemeHatasi } = await admin.from("user_entitlements").upsert(
+        {
+          user_id: user.id,
+          trial_started_at: baslangic.toISOString(),
+          trial_ends_at: bitis.toISOString(),
+          updated_at: baslangic.toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+      if (!denemeHatasi) {
+        hak = {
+          ...(hak || {}),
+          trial_started_at: baslangic.toISOString(),
+          trial_ends_at: bitis.toISOString(),
+        };
+      }
+    }
     const proExpiresAt = hak?.pro_expires_at || null;
+    const trialEndsAt = hak?.trial_ends_at || null;
+    const trialActive = !!trialEndsAt && new Date(trialEndsAt).getTime() > Date.now();
     return new Response(
       JSON.stringify({
         adFreeLifetime: !!hak?.ad_free_lifetime,
         proActive: !!proExpiresAt && new Date(proExpiresAt).getTime() > Date.now(),
         proExpiresAt,
+        trialActive,
+        trialStartedAt: hak?.trial_started_at || null,
+        trialEndsAt,
+        trialDaysRemaining: trialActive
+          ? Math.max(1, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
+          : 0,
         source: hak?.source || null,
         grantedAt: hak?.granted_at || null,
       }),

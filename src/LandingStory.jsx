@@ -301,7 +301,7 @@ export default function LandingStory() {
           <div className="ls-shell">
             <SectionHead
               title={<>İhtiyacın kadar kullan. <span className="ls-mark">Kontrol hep sende.</span></>}
-              text="Takibe ücretsiz başla. Tüm kişisel analizleri ve reklamsız deneyimi açmak istediğinde Pro’ya geç."
+              text="Ücretsiz hesapla başla. İlk 30 gün Pro'yu kart bilgisi vermeden dene; süre sonunda istersen Ücretsiz planla devam et."
             />
             <div className="ls-pricing-grid">
               <PriceCard
@@ -309,20 +309,20 @@ export default function LandingStory() {
                 title="Borcama Ücretsiz"
                 price="₺0"
                 description="Borçlarını, ödemelerini ve varlıklarını tek yerde takip et."
-                items={["Borç, ödeme ve harcama takibi", "Varlık ve net durum görünümü", "Bir kişisel öneri önizlemesi", "Reklamlı kullanım"]}
+                items={["Borç, ödeme ve harcama takibi", "Varlık ve net durum görünümü", "Her ay bir kişisel öneri", "Temel finans özeti"]}
                 action="Ücretsiz başla"
-                href="/register?plan=free"
+                href="/register"
               />
               <PriceCard
                 pro
-                badge="AYLIK"
+                badge="30 GÜN ÜCRETSİZ"
                 title="Borcama Pro Aylık"
                 price="₺99"
                 suffix="/ ay"
-                description="Tüm kişiselleştirilmiş analizler ve reklamsız kullanım."
-                items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Reklamsız kullanım"]}
-                action="Aylık Pro ile başla"
-                href="/register?plan=monthly"
+                description="Tüm kişiselleştirilmiş analizler ve gelişmiş finansal senaryolar."
+                items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Aylık yük ve faiz senaryoları"]}
+                action="Ücretsiz dene"
+                href="/register"
               />
               <PriceCard
                 pro
@@ -331,9 +331,9 @@ export default function LandingStory() {
                 price="₺999"
                 suffix="/ yıl"
                 description="Yıllık öde, aynı Pro deneyiminde ₺189 avantaj sağla."
-                items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Reklamsız kullanım"]}
-                action="Yıllık Pro ile başla"
-                href="/register?plan=annual"
+                items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Aylık yük ve faiz senaryoları"]}
+                action="Ücretsiz dene"
+                href="/register"
               />
             </div>
           </div>
@@ -353,7 +353,10 @@ export default function LandingStory() {
                 Hayır. Şimdilik bilgileri sen girersin; Borcama internet bankacılığı parolanı istemez. Yeni ekstreleri ve yaptığın ödemeleri aylık olarak güncellersin.
               </FaqItem>
               <FaqItem title="Ücretsiz paket ile Pro arasındaki fark nedir?">
-                Ücretsiz paket temel borç, ödeme, harcama ve varlık takibini içerir. Pro; tüm kişisel finansal sinyalleri, faiz ve ödeme önceliği analizlerini ve reklamsız kullanımı açar.
+                Ücretsiz paket temel borç, ödeme, harcama ve varlık takibiyle her ay bir kişisel öneri içerir. Pro; tüm kişisel finansal sinyalleri, faiz ve ödeme önceliği analizlerini ve gelişmiş senaryoları açar.
+              </FaqItem>
+              <FaqItem title="30 günlük Pro denemesi nasıl çalışır?">
+                Yeni hesabında Pro özellikleri 30 gün boyunca kart bilgisi istemeden açılır. Süre sonunda ödeme alınmaz; hesabın ve verilerin korunarak otomatik olarak Ücretsiz plana döner.
               </FaqItem>
               <FaqItem title="Pro aboneliği otomatik yenilenir mi?">
                 Evet. Aylık veya yıllık seçtiğin dönem sonunda aboneliğin otomatik yenilenir. Yenilemeyi durdurmak için bir sonraki faturalandırma tarihinden önce aboneliğini iptal edebilirsin.
