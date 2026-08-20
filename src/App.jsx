@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import {
   revenueCatHazir,
@@ -58,6 +59,14 @@ const CREAM = "#f4efe0";
 const LIME = "#cdf564";
 const CORAL = "#ff6f59";
 const ROTASYONLAR = [-1.2, 1, -0.6, 1.4, -1];
+
+function YerindeForm({ hedef, children }) {
+  if (!hedef) return children;
+  if (typeof document === "undefined") return null;
+  const dugum = document.getElementById(hedef);
+  return dugum ? createPortal(children, dugum) : null;
+}
+
 const ACIK_TEMA = {
   bg: CREAM,
   panel: "#ffffff",
@@ -320,7 +329,7 @@ const CSS = `
 .bt-kart-odeme-secenekler{display:grid;gap:9px;margin:18px 0}.bt-kart-odeme-secimi{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);color:var(--text);text-align:left;box-shadow:0 4px 14px #14160f08;cursor:pointer;font-family:inherit}.bt-kart-odeme-secimi:hover{background:${LIME};color:${INK}}.bt-kart-odeme-secimi:disabled{cursor:not-allowed;opacity:.45}.bt-kart-odeme-secimi strong{display:block;font-size:13px}.bt-kart-odeme-secimi small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-kart-odeme-secimi b{font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}.bt-kart-odeme-ozet{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.bt-kart-odeme-ozet>div{padding:11px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel2)}.bt-kart-odeme-ozet span{display:block;color:var(--dim);font-size:10px}.bt-kart-odeme-ozet strong{display:block;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:13px}
 
 .bt-satir{display:flex;align-items:center;gap:16px;row-gap:8px;flex-wrap:wrap;padding:16px;border-radius:14px;background:var(--panel2);border:1px solid var(--line-soft)}
-.bt-satir.bt-kredi-karti{display:grid;grid-template-columns:auto minmax(260px,1fr) auto;grid-template-areas:"rozet bilgi tutar" "islemler islemler islemler";align-items:center;column-gap:16px;row-gap:12px}.bt-kredi-karti>.bt-kart-rozet{grid-area:rozet}.bt-kredi-karti>.bt-kart-bilgi{grid-area:bilgi}.bt-kredi-karti>.bt-kart-tutar{grid-area:tutar;min-width:150px}.bt-kredi-karti>.bt-kart-islemler{grid-area:islemler;justify-content:flex-start!important}
+.bt-satir.bt-kredi-karti{display:grid;grid-template-columns:auto minmax(260px,1fr) auto;grid-template-areas:"rozet bilgi tutar" "islemler islemler islemler" "editor editor editor";align-items:center;column-gap:16px;row-gap:12px}.bt-kredi-karti>.bt-kart-rozet{grid-area:rozet}.bt-kredi-karti>.bt-kart-bilgi{grid-area:bilgi}.bt-kredi-karti>.bt-kart-tutar{grid-area:tutar;min-width:150px}.bt-kredi-karti>.bt-kart-islemler{grid-area:islemler;justify-content:flex-start!important}.bt-inline-ekstre-hedef{grid-area:editor;width:100%;scroll-margin-top:24px}.bt-inline-ekstre-hedef:empty{display:none}.bt-inline-ekstre-hedef>.bt-form{margin:2px 0 0;background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;box-shadow:0 12px 30px #14160f0d}
 .bt-satir-ad{font-size:14.5px;color:var(--text);font-weight:600}
 .bt-satir-meta{font-size:12.5px;margin-top:3px;color:var(--dim)}
 .bt-satir-tutar{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--text);font-weight:700}
@@ -5732,6 +5741,21 @@ function Borclar({
   const ekHesapOdemeModu =
     kategori === "od" && acik && (form.odemeGir || form.odemeDuzenle);
   const [f, setF] = useState({});
+  const ekstreDuzenlemeHedefi = ekstreDuzenleModu
+    ? `ekstre-duzenle-${form.veri?.id}`
+    : null;
+
+  useEffect(() => {
+    if (!ekstreDuzenlemeHedefi) return;
+    const kare = requestAnimationFrame(() => {
+      document.getElementById(ekstreDuzenlemeHedefi)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+    return () => cancelAnimationFrame(kare);
+  }, [ekstreDuzenlemeHedefi]);
+
   const otomatikGecikenler = useMemo(() => {
     const ay = ayAnahtari();
     const liste = [];
@@ -6429,7 +6453,8 @@ function Borclar({
           )}
 
           {acik && (
-            <div className="bt-form">
+            <YerindeForm hedef={ekstreDuzenlemeHedefi}>
+              <div className="bt-form">
               {yeniEkstreModu && (
                 <div className="bt-ipucu" style={{ marginBottom: 14 }}>
                   <Lightbulb size={16} />
@@ -6586,7 +6611,8 @@ function Borclar({
                   Vazgeç
                 </button>
               </div>
-            </div>
+              </div>
+            </YerindeForm>
           )}
 
           {kategori === "others" && otomatikGecikenler.length > 0 && (
@@ -7420,9 +7446,10 @@ function BorclarSatiri({
               <div className="bt-satir-menu-panel">
                 <button
                   className="bt-btn kucuk hayalet"
-                  onClick={() =>
-                    setForm({ liste: "cards", veri: k, ekstreDuzenle: true })
-                  }
+                  onClick={(e) => {
+                    e.currentTarget.closest("details")?.removeAttribute("open");
+                    setForm({ liste: "cards", veri: k, ekstreDuzenle: true });
+                  }}
                 >
                   <Pencil size={13} /> Ekstreyi düzenle
                 </button>
@@ -7494,6 +7521,12 @@ function BorclarSatiri({
             </button>
           )}
         </div>
+      )}
+      {kategori === "cards" && !arsiv && (
+        <div
+          id={`ekstre-duzenle-${k.id}`}
+          className="bt-inline-ekstre-hedef"
+        />
       )}
       {kategori === "od" && (k.odemeGecmisi || []).length > 0 && (
         <details className="bt-odeme-gecmisi">
