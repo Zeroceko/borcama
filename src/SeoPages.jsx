@@ -4,11 +4,9 @@ import {
   BookOpen,
   CalendarDays,
   Calculator,
-  CheckCircle2,
   CircleDollarSign,
   ListChecks,
   Plus,
-  ShieldCheck,
   Trash2,
   WalletCards,
 } from "lucide-react";
@@ -160,14 +158,14 @@ function Layout({ children }) {
   return <div className="seo"><header className="seo-nav seo-shell"><a className="seo-logo" href="/" aria-label="Borcama ana sayfa"><img src="/borcama-logo.png" alt="Borcama" /></a><nav><a href="/araclar">Hesaplama Araçları</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="seo-btn small" href="/register?plan=free">Ücretsiz Başla <ArrowRight size={14}/></a></nav></header>{children}<footer className="seo-footer"><div className="seo-shell"><div><a className="seo-footer-logo" href="/"><img src="/borcama-logo.png" alt="Borcama"/></a><p>Kişisel borç, ödeme ve varlık takip aracı.</p></div><div className="seo-footer-links"><a href="/araclar">Ücretsiz Araçlar</a><a href="/rehber">Rehber</a><a href="/privacy">Gizlilik ve KVKK</a><a href="/faq">SSS</a></div></div></footer></div>;
 }
 
-function Hero({ kicker, title, lead, children }) {
-  return <section className="seo-hero"><div className="seo-shell seo-hero-inner"><div><span className="seo-kicker">{kicker}</span><h1>{title}</h1><p>{lead}</p></div>{children}</div></section>;
+function Hero({ title, lead }) {
+  return <section className="seo-hero"><div className="seo-shell seo-hero-inner"><div><h1>{title}</h1><p>{lead}</p></div></div></section>;
 }
 
 function AraclarAna() {
   const schema = useMemo(() => ({ "@context": "https://schema.org", "@type": "CollectionPage", name: "Borcama Finans Hesaplama Araçları", url: `${SITE}/araclar`, description: "Borç, kredi kartı, mevduat faizi, kredi ödeme planı ve aylık takvim araçları." }), []);
   useSeo({ title: "Finans ve Ödeme Hesaplama Araçları", description: "Borç kapatma, kredi kartı asgari ödeme, mevduat faizi, kredi taksit planı ve aylık ödeme takvimini hesaplayın.", path: "/araclar", schema });
-  return <Layout><main><Hero kicker="ÜCRETSİZ ARAÇLAR" title="Rakamları tek tek değil, birlikte gör." lead="Bilgiler yalnızca tarayıcında hesaplanır; Borcama'ya veya başka bir sunucuya gönderilmez."><div className="seo-hero-badge"><ShieldCheck/><b>Üyelik gerekmez</b><span>Hemen hesapla</span></div></Hero><section className="seo-section seo-shell"><div className="seo-card-grid">{ARACLAR.map((arac) => <AracCard key={arac.slug} {...arac}/>)}</div><Cta /></section></main></Layout>;
+  return <Layout><main><Hero title="Rakamları tek tek değil, birlikte gör." lead="Borçlarını, ödemelerini, kredilerini ve birikimini kolayca hesapla."/><section className="seo-section seo-shell"><div className="seo-card-grid">{ARACLAR.map((arac) => <AracCard key={arac.slug} {...arac}/>)}</div><Cta /></section></main></Layout>;
 }
 
 function AracCard({ slug, icon: Icon, title, text }) {
@@ -176,7 +174,7 @@ function AracCard({ slug, icon: Icon, title, text }) {
 
 function ToolLayout({ title, lead, path, schema, children, faq = [], showSources = true }) {
   useSeo({ title, description: lead, path, schema });
-  return <Layout><main><Hero kicker="BORCAMA HESAPLAYICI" title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{children}</div>{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
+  return <Layout><main><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{children}</div>{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
@@ -244,7 +242,7 @@ function OdemeTakvimi() {
   const sirali = odemeler.filter((item) => item.ad || item.gun || item.tutar).sort((a, b) => Number(a.gun) - Number(b.gun));
   const guncelle = (id, alan, deger) => setOdemeler((liste) => liste.map((item) => item.id === id ? { ...item, [alan]: deger } : item));
   const schema = useMemo(() => toolSchema("Aylık Ödeme Takvimi", "/araclar/aylik-odeme-takvimi"), []);
-  return <ToolLayout title="Aylık ödeme takvimi" lead="Bu ay ödeyeceğin kart, kredi ve diğer borçları günlerine göre sırala; toplam aylık yükünü gör." path="/araclar/aylik-odeme-takvimi" schema={schema} faq={[["Bilgilerim kaydediliyor mu?","Hayır. Bu sayfadaki tutarlar yalnızca açık tarayıcı sekmesinde tutulur."],["Kalıcı takip nasıl yapılır?","Ücretsiz Borcama hesabında dönemleri ve gerçekleşen ödemeleri kaydedebilirsin."]]}><div className="seo-panel seo-wide-form"><h2>Bu ayın ödemeleri</h2><p className="seo-form-help">Her satıra ödemenin adını, ayın kaçıncı günü ödeneceğini ve bu ay ödeyeceğin tutarı yaz.</p><div className="seo-debt-head"><span>Ödeme adı</span><span>Son ödeme günü</span><span>Bu ay ödenecek tutar</span><span/></div><div className="seo-debts calendar">{odemeler.map((item) => <div className="seo-debt-row" key={item.id}><label className="seo-calendar-field"><span>Ödeme adı</span><input aria-label="Ödeme adı" value={item.ad} onChange={(event) => guncelle(item.id,"ad",event.target.value)} placeholder="Örn. Kredi kartı"/></label><label className="seo-calendar-field"><span>Son ödeme günü</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} son ödeme günü`} type="number" min="1" max="31" value={item.gun} onChange={(event) => guncelle(item.id,"gun",event.target.value)} placeholder="Örn. 10"/><b>Gün</b></div></label><label className="seo-calendar-field"><span>Bu ay ödenecek tutar</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} bu ay ödenecek tutarı`} type="number" min="0" value={item.tutar} onChange={(event) => guncelle(item.id,"tutar",event.target.value)} placeholder="Örn. 7.500"/><b>TL</b></div></label><button aria-label={`${item.ad || "Ödeme"} satırını sil`} title="Ödemeyi sil" onClick={() => setOdemeler((liste) => liste.filter((odeme) => odeme.id !== item.id))}><Trash2 size={16}/></button></div>)}</div><button className="seo-add" onClick={() => setOdemeler((liste) => [...liste,{id:crypto.randomUUID(),ad:"",gun:"",tutar:""}])}><Plus size={16}/> Yeni ödeme ekle</button></div><div className="seo-result"><span className="seo-result-kicker">AYLIK TOPLAM</span><div className="seo-big-money"><Money value={toplam}/></div>{sirali.length ? <div className="seo-calendar-list">{sirali.map((item) => <div key={item.id}><b>{item.gun || "—"}</b><span>{item.ad || "Adsız ödeme"}</span><strong><Money value={item.tutar}/></strong></div>)}</div> : <p className="seo-calendar-empty">Bir ödeme eklediğinde takvimin burada oluşacak.</p>}<Disclaimer text="Bu geçici plan yalnızca tarayıcında görünür. Ödeme talimatı oluşturmaz ve bankana veri göndermez."/></div></ToolLayout>;
+  return <ToolLayout title="Aylık ödeme takvimi" lead="Bu ay ödeyeceğin kart, kredi ve diğer borçları günlerine göre sırala; toplam aylık yükünü gör." path="/araclar/aylik-odeme-takvimi" schema={schema} faq={[["Bilgilerim kaydediliyor mu?","Hayır. Yazdığın bilgiler yalnızca bu hesaplama sırasında kullanılır."],["Kalıcı takip nasıl yapılır?","Ücretsiz Borcama hesabında dönemleri ve gerçekleşen ödemeleri kaydedebilirsin."]]}><div className="seo-panel seo-wide-form"><h2>Bu ayın ödemeleri</h2><p className="seo-form-help">Her satıra ödemenin adını, ayın kaçıncı günü ödeneceğini ve bu ay ödeyeceğin tutarı yaz.</p><div className="seo-debt-head"><span>Ödeme adı</span><span>Son ödeme günü</span><span>Bu ay ödenecek tutar</span><span/></div><div className="seo-debts calendar">{odemeler.map((item) => <div className="seo-debt-row" key={item.id}><label className="seo-calendar-field"><span>Ödeme adı</span><input aria-label="Ödeme adı" value={item.ad} onChange={(event) => guncelle(item.id,"ad",event.target.value)} placeholder="Örn. Kredi kartı"/></label><label className="seo-calendar-field"><span>Son ödeme günü</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} son ödeme günü`} type="number" min="1" max="31" value={item.gun} onChange={(event) => guncelle(item.id,"gun",event.target.value)} placeholder="Örn. 10"/><b>Gün</b></div></label><label className="seo-calendar-field"><span>Bu ay ödenecek tutar</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} bu ay ödenecek tutarı`} type="number" min="0" value={item.tutar} onChange={(event) => guncelle(item.id,"tutar",event.target.value)} placeholder="Örn. 7.500"/><b>TL</b></div></label><button aria-label={`${item.ad || "Ödeme"} satırını sil`} title="Ödemeyi sil" onClick={() => setOdemeler((liste) => liste.filter((odeme) => odeme.id !== item.id))}><Trash2 size={16}/></button></div>)}</div><button className="seo-add" onClick={() => setOdemeler((liste) => [...liste,{id:crypto.randomUUID(),ad:"",gun:"",tutar:""}])}><Plus size={16}/> Yeni ödeme ekle</button></div><div className="seo-result"><span className="seo-result-kicker">AYLIK TOPLAM</span><div className="seo-big-money"><Money value={toplam}/></div>{sirali.length ? <div className="seo-calendar-list">{sirali.map((item) => <div key={item.id}><b>{item.gun || "—"}</b><span>{item.ad || "Adsız ödeme"}</span><strong><Money value={item.tutar}/></strong></div>)}</div> : <p className="seo-calendar-empty">Bir ödeme eklediğinde takvimin burada oluşacak.</p>}<Disclaimer text="Bu geçici plan kaydedilmez ve ödeme talimatı oluşturmaz."/></div></ToolLayout>;
 }
 
 function Schedule({ rows }) {
@@ -263,7 +261,7 @@ function Warning({ reason, required }) {
 }
 
 function Disclaimer({ text = "Sonuçlar yaklaşık planlama içindir; finansal tavsiye değildir. Bankanın uyguladığı oran, vergi, masraf ve yeni işlemler sonucu değiştirebilir." }) {
-  return <p className="seo-disclaimer"><ShieldCheck size={16}/>{text}</p>;
+  return <p className="seo-disclaimer">{text}</p>;
 }
 
 function SourceNote() {
@@ -271,23 +269,23 @@ function SourceNote() {
 }
 
 function Faq({ items }) {
-  return <section className="seo-faq"><span className="seo-kicker">SIK SORULANLAR</span><h2>Hesaplama hakkında</h2>{items.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</section>;
+  return <section className="seo-faq"><h2>Hesaplama hakkında</h2>{items.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</section>;
 }
 
 function RehberAna() {
   const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"CollectionPage", name:"Borcama Rehber", url:`${SITE}/rehber` }), []);
   useSeo({ title:"Borç ve Kredi Kartı Takip Rehberi", description:"Borç düzenleme, kredi kartı takibi, asgari ödeme ve borç kapatma planı hakkında sade ve uygulanabilir içerikler.", path:"/rehber", schema });
-  return <Layout><main><Hero kicker="BORCAMA REHBER" title="Borçlarını anlamak için sade anlatımlar." lead="Karmaşık terimler yerine aylık düzen kurmana yardımcı olacak kısa ve uygulanabilir rehberler."/><section className="seo-section seo-shell"><div className="seo-article-grid">{REHBERLER.map((rehber) => <a key={rehber.slug} href={`/rehber/${rehber.slug}`}><BookOpen/><div><h2>{rehber.title}</h2><p>{rehber.description}</p><span>Rehberi oku <ArrowRight size={14}/></span></div></a>)}</div><Cta/></section></main></Layout>;
+  return <Layout><main><Hero title="Borçlarını anlamak için sade anlatımlar." lead="Karmaşık terimler yerine aylık düzen kurmana yardımcı olacak kısa ve uygulanabilir rehberler."/><section className="seo-section seo-shell"><div className="seo-article-grid">{REHBERLER.map((rehber) => <a key={rehber.slug} href={`/rehber/${rehber.slug}`}><BookOpen/><div><h2>{rehber.title}</h2><p>{rehber.description}</p><span>Rehberi oku <ArrowRight size={14}/></span></div></a>)}</div><Cta/></section></main></Layout>;
 }
 
 function RehberDetay({ rehber }) {
   const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:"2026-08-22", dateModified:"2026-08-22" }), [rehber]);
   useSeo({ title:rehber.title, description:rehber.description, path:`/rehber/${rehber.slug}`, schema });
-  return <Layout><main><article className="seo-article seo-shell"><a className="seo-back" href="/rehber">← Tüm rehberler</a><span className="seo-kicker">BORCAMA REHBER</span><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><SourceNote/><p className="seo-editorial">Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.</p></article></main></Layout>;
+  return <Layout><main><article className="seo-article seo-shell"><a className="seo-back" href="/rehber">← Tüm rehberler</a><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><SourceNote/><p className="seo-editorial">Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.</p></article></main></Layout>;
 }
 
 function Cta() {
-  return <section className="seo-cta"><div><CheckCircle2/><span>Hesaplamak başlangıçtır.</span><h2>Planını her ay Borcama’da takip et.</h2><p>Kartlarını, kredilerini, ekstrelerini ve yaptığın ödemeleri tek yerde gör.</p></div><a className="seo-btn dark" href="/register?plan=free">Ücretsiz hesabını aç <ArrowRight size={15}/></a></section>;
+  return <section className="seo-cta"><div><h2>Planını her ay Borcama’da takip et.</h2><p>Kartlarını, kredilerini, ekstrelerini ve yaptığın ödemeleri tek yerde gör.</p></div><a className="seo-btn dark" href="/register?plan=free">Ücretsiz hesabını aç <ArrowRight size={15}/></a></section>;
 }
 
 function toolSchema(name, path) {
