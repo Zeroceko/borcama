@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
+import { googleAdsKayitDonusumu } from "./googleAds.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -289,6 +290,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       );
     else {
       proNiyetiniTemizle();
+      await googleAdsKayitDonusumu();
       if (data?.session) {
         window.location.href = sonrakiSayfa;
       } else setGonderildi(true);

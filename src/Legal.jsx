@@ -314,6 +314,11 @@ export function GizlilikMetni({ embedded = false }) {
           kullanımın önlenmesi için gerekli sınırlı log bilgileri.
         </li>
         <li>
+          <b>İsteğe bağlı reklam ölçüm verileri:</b> yalnızca kullanıcının izin
+          vermesi halinde reklam tıklaması ile başarılı hesap kaydını
+          ilişkilendirmek için kullanılan sınırlı teknik tanımlayıcılar.
+        </li>
+        <li>
           <b>İletişim kayıtları:</b> geri bildirimler ve destek talepleri.
         </li>
       </ul>
@@ -340,6 +345,10 @@ export function GizlilikMetni({ embedded = false }) {
           Destek taleplerinin cevaplanması ve yasal yükümlülüklerin yerine
           getirilmesi.
         </li>
+        <li>
+          Kullanıcının isteğe bağlı izniyle reklamların hesap kaydı sağlayıp
+          sağlamadığının toplu olarak ölçülmesi.
+        </li>
       </ul>
       <h2>3. Hukuki sebepler</h2>
       <p>
@@ -353,10 +362,13 @@ export function GizlilikMetni({ embedded = false }) {
       <p>
         Veriler satılmaz. Hizmetin çalışması için gerekli olduğu ölçüde kimlik
         doğrulama ve veritabanı altyapısı (Supabase), barındırma (Vercel),
-        güvenlik doğrulaması (Cloudflare) ve yetkili kamu kurumlarıyla paylaşım
-        yapılabilir. Bu sağlayıcıların yurt dışındaki altyapılarının
-        kullanılması halinde aktarım, KVKK’daki yurt dışı aktarım hükümlerine ve
-        uygun güvencelere tabi olarak gerçekleştirilir.
+        güvenlik doğrulaması (Cloudflare), kullanıcının isteğe bağlı izin
+        vermesi halinde reklam dönüşüm ölçümü (Google Ads) ve yetkili kamu
+        kurumlarıyla paylaşım yapılabilir. Google Ads ölçümüne e-posta adresi
+        veya Borcama'ya girilen finansal kayıtlar eklenmez. Bu sağlayıcıların
+        yurt dışındaki altyapılarının kullanılması halinde aktarım, KVKK’daki
+        yurt dışı aktarım hükümlerine ve uygun güvencelere tabi olarak
+        gerçekleştirilir.
       </p>
       <h2>5. Saklama süresi ve güvenlik</h2>
       <p>

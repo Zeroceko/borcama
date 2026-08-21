@@ -16,7 +16,11 @@ import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import ProCheckout from "./ProCheckout.jsx";
 import Faq from "./Faq.jsx";
 import { proNiyetiniOku } from "./proIntent.js";
+import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
+import { googleAdsBaslat } from "./googleAds.js";
 import "./storage.js";
+
+googleAdsBaslat();
 
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -239,6 +243,9 @@ function KimlikliKok() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Kok />
+    <>
+      <Kok />
+      <GoogleAdsConsent />
+    </>
   </React.StrictMode>,
 );
