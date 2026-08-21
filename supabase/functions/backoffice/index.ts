@@ -51,7 +51,14 @@ async function tumKullanicilariGetir(admin: ReturnType<typeof createClient>) {
 }
 
 function denemeDuyuruHtml(kalanGun: number) {
-  return `<!doctype html><html lang="tr"><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;margin:auto;background:#fff;border-radius:22px;overflow:hidden"><tr><td style="padding:34px"><div style="font-size:28px;font-weight:900;margin-bottom:24px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#cdf564;font-size:12px;font-weight:800">PRO DENEMESİ AÇIK</div><h1 style="font-size:30px;line-height:1.1;margin:18px 0 12px">Borcama Pro'yu ücretsiz deneyebilirsin.</h1><p style="color:#55584c;font-size:16px;line-height:1.6">Hesabında yaklaşık ${kalanGun} gün kalan, kart bilgisi gerektirmeyen Pro denemesi açık. Kişisel borç önerileri ve gelişmiş finansal analizleri kullanabilirsin.</p><p style="color:#55584c;font-size:14px;line-height:1.6">Deneme bittiğinde ücret alınmaz; hesabın ve verilerin korunarak Ücretsiz plana dönersin.</p><a href="https://borcama.com/summary" style="display:inline-block;margin-top:12px;padding:14px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-decoration:none;font-weight:800">Borcama'yı aç</a><p style="margin-top:28px;color:#898b80;font-size:12px">Soruların için zero@borcama.com</p></td></tr></table></td></tr></table></body></html>`;
+  const ozellikler = [
+    "Borçların için kişisel ödeme önceliklerini gör",
+    "Devreden bakiyelerin tahmini faiz yükünü takip et",
+    "Aylık ödeme baskısını azaltan senaryoları incele",
+    "Toplam faiz maliyetini azaltmaya yönelik önerileri karşılaştır",
+  ];
+  const liste = ozellikler.map((ozellik) => `<tr><td width="34" valign="top" style="padding:0 0 12px"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:8px;background:#cdf564;color:#14160f;font-weight:900">✓</span></td><td valign="top" style="padding:2px 0 12px;color:#24261e;font-size:15px;line-height:1.45">${ozellik}</td></tr>`).join("");
+  return `<!doctype html><html lang="tr"><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#ffffff;border-radius:24px;overflow:hidden"><tr><td style="height:9px;background:#cdf564"></td></tr><tr><td style="padding:38px 36px 34px"><div style="font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:26px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#eef8d0;color:#315c43;font-size:12px;font-weight:800">1 AY ÜCRETSİZ PRO</div><h1 style="font-size:32px;line-height:1.12;letter-spacing:-.7px;margin:18px 0 12px">Borcama Pro denemen hazır.</h1><p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 22px">Hesabında yaklaşık <strong style="color:#14160f">${kalanGun} gün</strong> kalan, kart bilgisi gerektirmeyen Pro denemesi açık.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 12px">${liste}</table><a href="https://borcama.com/summary" style="display:block;margin-top:18px;padding:15px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">Ücretsiz denemeye başla →</a><div style="margin-top:24px;padding:16px 18px;border-radius:14px;background:#f7f4ea;color:#686a60;font-size:13px;line-height:1.55"><strong style="color:#14160f">Kart bilgisi gerekmez.</strong> Deneme bittiğinde ücret alınmaz; hesabın ve kayıtların korunarak Ücretsiz plana dönersin.</div><p style="margin:26px 0 0;color:#898b80;font-size:12px;line-height:1.5">Soruların için <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a></p></td></tr></table></td></tr></table></body></html>`;
 }
 
 async function denemeDuyurusuGonder(
@@ -83,7 +90,7 @@ async function denemeDuyurusuGonder(
       from: "Borcama <zero@borcama.com>",
       to: [epostaHaritasi.get(hak.user_id)],
       reply_to: "zero@borcama.com",
-      subject: "Borcama Pro denemen hesabında açık",
+      subject: "Borcama Pro'yu 1 Ay Ücretsiz Denemeye Başla",
       html: denemeDuyuruHtml(
         Math.max(1, Math.ceil((new Date(hak.trial_ends_at).getTime() - simdi.getTime()) / 86400000)),
       ),
