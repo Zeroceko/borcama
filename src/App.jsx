@@ -191,6 +191,7 @@ const CSS = `
 .bt-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim)}
 .bt-settings-link{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--text);padding:7px 11px;font:700 11.5px 'Space Grotesk',sans-serif;box-shadow:0 3px 10px #14160f08;cursor:pointer}.bt-settings-link:hover,.bt-settings-link.aktif{background:${LIME};color:${INK};border-color:color-mix(in srgb,${INK} 55%,transparent)}
 .bt-upgrade-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${INK};border-radius:999px;background:${LIME};color:${INK};padding:7px 11px;font:800 11.5px 'Space Grotesk',sans-serif;box-shadow:3px 3px 0 ${CORAL};cursor:pointer}.bt-upgrade-link:hover{transform:translateY(-1px)}
+.bt-trial-son{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;margin:-14px 0 24px;padding:14px 16px;border:1px solid color-mix(in srgb,${CORAL} 62%,var(--line-soft));border-radius:17px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));box-shadow:0 8px 22px #14160f0a}.bt-trial-son-ikon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:${CORAL};color:${INK}}.bt-trial-son strong{display:block;font-size:13.5px}.bt-trial-son p{margin:3px 0 0;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-trial-son-actions{display:flex;align-items:center;gap:7px}.bt-trial-son-kapat{border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-trial-son .bt-btn{white-space:nowrap}
 .bt-themebtn{position:relative;width:54px;height:30px;border-radius:16px;border:1px solid var(--line-soft);background:var(--panel);box-shadow:0 3px 10px #14160f08;cursor:pointer;padding:0;flex:0 0 auto}
 .bt-themeknob{position:absolute;top:2px;width:22px;height:22px;border-radius:50%;background:${LIME};border:2px solid ${INK};transition:left .18s ease}
 .bt-themelabel{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);width:34px}
@@ -461,6 +462,7 @@ const CSS = `
   .bt-date{flex:1 0 100%}
   .bt-settings-link{padding:7px 9px}
   .bt-upgrade-link{padding:7px 9px}
+  .bt-trial-son{grid-template-columns:auto minmax(0,1fr);margin:-8px 0 20px;padding:13px}.bt-trial-son-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;width:100%}.bt-trial-son .bt-btn{justify-content:center;min-height:42px}
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
@@ -1582,6 +1584,7 @@ export default function BorcTakip() {
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
   const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
   const [proPenceresiAcik, setProPenceresiAcik] = useState(false);
+  const [trialHatirlaticiAcik, setTrialHatirlaticiAcik] = useState(false);
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
   const [piyasa, setPiyasa] = useState(() => {
@@ -2032,6 +2035,33 @@ export default function BorcTakip() {
   useEffect(() => {
     reklamsizKontrol();
   }, []);
+
+  useEffect(() => {
+    if (reklamsiz.yukleniyor || !reklamsiz.trialAktif) {
+      setTrialHatirlaticiAcik(false);
+      return;
+    }
+    if (reklamsiz.trialKalanGun < 1 || reklamsiz.trialKalanGun > 5) {
+      setTrialHatirlaticiAcik(false);
+      return;
+    }
+    const bugun = new Date().toISOString().slice(0, 10);
+    const denemeAnahtari = reklamsiz.trialBitis || "aktif-deneme";
+    const kapatmaAnahtari = `borcama:trial-hatirlatici:${denemeAnahtari}`;
+    setTrialHatirlaticiAcik(localStorage.getItem(kapatmaAnahtari) !== bugun);
+  }, [
+    reklamsiz.yukleniyor,
+    reklamsiz.trialAktif,
+    reklamsiz.trialKalanGun,
+    reklamsiz.trialBitis,
+  ]);
+
+  function trialHatirlaticiyiKapat() {
+    const bugun = new Date().toISOString().slice(0, 10);
+    const denemeAnahtari = reklamsiz.trialBitis || "aktif-deneme";
+    localStorage.setItem(`borcama:trial-hatirlatici:${denemeAnahtari}`, bugun);
+    setTrialHatirlaticiAcik(false);
+  }
 
   useEffect(() => {
     if (!yukleniyor) piyasaFiyatlariniYenile();
@@ -2856,6 +2886,39 @@ export default function BorcTakip() {
               </button>
             ))}
           </nav>
+        )}
+
+        {trialHatirlaticiAcik && (
+          <section className="bt-trial-son" aria-label="Pro denemesi bitiş hatırlatması">
+            <div className="bt-trial-son-ikon">
+              <Sparkles size={19} aria-hidden="true" />
+            </div>
+            <div>
+              <strong>
+                Pro denemenin bitmesine {reklamsiz.trialKalanGun} gün kaldı
+              </strong>
+              <p>
+                Kişisel önerileri ve gelişmiş analizleri kullanmaya devam etmek
+                istersen planını şimdi seçebilirsin.
+              </p>
+            </div>
+            <div className="bt-trial-son-actions">
+              <button
+                className="bt-btn kucuk birincil"
+                type="button"
+                onClick={() => setProPenceresiAcik(true)}
+              >
+                Pro ile devam et
+              </button>
+              <button
+                className="bt-trial-son-kapat"
+                type="button"
+                onClick={trialHatirlaticiyiKapat}
+              >
+                Şimdilik değil
+              </button>
+            </div>
+          </section>
         )}
 
         {yukleniyor ? (
