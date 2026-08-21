@@ -54,6 +54,7 @@ import {
   Upload,
   ShieldCheck,
   ArrowRight,
+  Info,
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
@@ -330,7 +331,7 @@ const CSS = `
 .bt-satirD-alt{font-size:12.5px;margin-top:2px}
 .bt-satirD-tutar{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text);font-weight:600}
 .bt-satirD-tur{font-size:11.5px;color:#8a8c7e;margin-top:2px}
-.bt-kart-odeme-durum{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 7px;border:1px solid #55584c;border-radius:999px;color:#bfc1b4;font-size:10px;font-weight:800}.bt-kart-odeme-durum.minimum{color:${LIME};border-color:${LIME}}.bt-kart-odeme-durum.kismi{color:#ffcf6e;border-color:#ffcf6e}.bt-kart-odeme-durum.tamami{color:${LIME};border-color:${LIME}}
+.bt-kart-odeme-durum{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--dim);font-size:10px;font-weight:800}.bt-kart-odeme-durum.minimum{color:#4c6818;border-color:#86ad30;background:#f2f9df}.bt-kart-odeme-durum.kismi{color:#8a5700;border-color:#e2a83e;background:#fff5dc}.bt-kart-odeme-durum.tamami{color:#315c47;border-color:#6b9a7f;background:#e9f5ed}
 .bt-kart-odeme-secenekler{display:grid;gap:9px;margin:18px 0}.bt-kart-odeme-secimi{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);color:var(--text);text-align:left;box-shadow:0 4px 14px #14160f08;cursor:pointer;font-family:inherit}.bt-kart-odeme-secimi:hover{background:${LIME};color:${INK}}.bt-kart-odeme-secimi:disabled{cursor:not-allowed;opacity:.45}.bt-kart-odeme-secimi strong{display:block;font-size:13px}.bt-kart-odeme-secimi small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-kart-odeme-secimi b{font-family:'JetBrains Mono',monospace;font-size:13px;white-space:nowrap}.bt-kart-odeme-ozet{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.bt-kart-odeme-ozet>div{padding:11px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel2)}.bt-kart-odeme-ozet span{display:block;color:var(--dim);font-size:10px}.bt-kart-odeme-ozet strong{display:block;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:13px}
 
 .bt-satir{display:flex;align-items:center;gap:16px;row-gap:8px;flex-wrap:wrap;padding:16px;border-radius:14px;background:var(--panel2);border:1px solid var(--line-soft)}
@@ -422,6 +423,7 @@ const CSS = `
 .bt-quick-menu button{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;width:100%;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:inherit;text-align:left;cursor:pointer}
 .bt-quick-menu button:hover{background:color-mix(in srgb,${LIME} 24%,var(--panel2))}.bt-quick-menu svg{grid-row:1/3;width:34px;height:34px;padding:7px;border:1.5px solid var(--line);border-radius:10px;background:${LIME};color:${INK}}.bt-quick-menu strong{font-size:12.5px}.bt-quick-menu small{display:block;margin-top:2px;color:var(--dim);font-size:10.5px;line-height:1.35}
 .bt-borc-araclari{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;background:color-mix(in srgb,var(--panel) 96%,var(--bg));border:1px solid var(--line-soft);border-radius:16px;box-shadow:0 7px 20px #14160f0a}.bt-borc-araclari.filtre-aktif{align-items:flex-start;background:color-mix(in srgb,${CORAL} 10%,var(--panel));border-color:color-mix(in srgb,${CORAL} 58%,transparent);box-shadow:inset 4px 0 0 ${CORAL}}.bt-borc-araclari-baslik{display:flex;align-items:center;gap:10px;min-width:0}.bt-borc-araclari-ikon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid var(--line-soft);border-radius:10px;background:${LIME};color:${INK}}.bt-borc-araclari.filtre-aktif .bt-borc-araclari-ikon{background:${CORAL}}.bt-borc-araclari-baslik span{display:block;color:var(--dim);font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.bt-borc-araclari-baslik strong{display:block;margin-top:2px;font-size:13px;line-height:1.25}.bt-borc-araclari-aciklama{margin-top:5px;color:var(--dim);font-size:11px;line-height:1.4}.bt-borc-araclari-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.bt-status-filter{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid color-mix(in srgb,${CORAL} 68%,transparent);border-radius:999px;background:color-mix(in srgb,${CORAL} 12%,var(--panel));color:${CORAL};font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-status-filter:hover{background:color-mix(in srgb,${CORAL} 20%,var(--panel))}
+.bt-ekstre-bilgi{position:relative}.bt-ekstre-bilgi>summary{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel);color:var(--dim);cursor:pointer;list-style:none;transition:.18s ease}.bt-ekstre-bilgi>summary::-webkit-details-marker{display:none}.bt-ekstre-bilgi>summary:hover,.bt-ekstre-bilgi>summary:focus-visible,.bt-ekstre-bilgi[open]>summary{border-color:color-mix(in srgb,${LIME} 70%,var(--line-soft));background:color-mix(in srgb,${LIME} 20%,var(--panel));color:var(--text);outline:none}.bt-ekstre-bilgi-kutu{position:absolute;z-index:30;right:0;top:calc(100% + 9px);width:min(310px,calc(100vw - 32px));padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel);box-shadow:0 14px 32px #14160f1f;color:var(--dim);font-size:12px;line-height:1.5;text-align:left}.bt-ekstre-bilgi-kutu strong{display:block;margin-bottom:3px;color:var(--text);font-size:12.5px}
 .bt-feedback-modal{max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
 .bt-feedback-field{grid-template-rows:auto auto!important;min-height:0}
 .bt-feedback-textarea{display:block;width:100%;min-height:150px;max-height:280px;resize:vertical;line-height:1.5;padding-top:12px;overflow-y:auto}
@@ -494,7 +496,7 @@ const CSS = `
   .bt-quick-add{right:12px;bottom:128px;width:46px;height:46px;padding:0;justify-content:center;border-radius:50%;box-shadow:3px 3px 0 ${LIME}}
   .bt-quick-add span{display:none}
   .bt-quick-menu{right:12px;bottom:184px;width:min(300px,calc(100vw - 24px));box-shadow:5px 5px 0 ${LIME}}
-  .bt-borc-araclari,.bt-borc-araclari.filtre-aktif{align-items:stretch;flex-direction:column}.bt-borc-araclari-actions{display:grid;grid-template-columns:1fr;width:100%}.bt-borc-araclari-actions .bt-btn,.bt-borc-araclari-actions .bt-status-filter{width:100%;justify-content:center;min-height:42px}
+  .bt-borc-araclari,.bt-borc-araclari.filtre-aktif{align-items:stretch;flex-direction:column}.bt-borc-araclari-actions{display:grid;grid-template-columns:1fr auto;width:100%}.bt-borc-araclari-actions .bt-btn,.bt-borc-araclari-actions .bt-status-filter{width:100%;justify-content:center;min-height:42px}.bt-ekstre-bilgi>summary{width:42px;height:42px}.bt-ekstre-bilgi-kutu{position:fixed;left:16px;right:16px;top:auto;bottom:20px;width:auto;font-size:13px}
   .bt-setting-row{align-items:flex-start;flex-direction:column}
   .bt-setting-row .bt-btn{width:100%;justify-content:center}
   .bt-alanlar{grid-template-columns:1fr}
@@ -6648,6 +6650,17 @@ function Borclar({
             >
               {kategori === "kontrol" ? "Kartlara dön" : "Ekstre kontrolü"}
             </button>
+            <details className="bt-ekstre-bilgi">
+              <summary aria-label="Ekstre kontrolü hakkında bilgi">
+                <Info size={17} aria-hidden="true" />
+              </summary>
+              <div className="bt-ekstre-bilgi-kutu" role="note">
+                <strong>Ekstre kontrolü nasıl çalışır?</strong>
+                Yalnızca Harcamalar bölümünde kredi kartına manuel kaydettiğin
+                işlemlerle banka ekstresini karşılaştırabilir. Harcama hareketi
+                girmediysen manuel toplam 0 TL görünür.
+              </div>
+            </details>
           </div>
         </div>
       )}
