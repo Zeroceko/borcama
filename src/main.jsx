@@ -19,6 +19,7 @@ import Faq from "./Faq.jsx";
 import { proNiyetiniOku } from "./proIntent.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
+import SeoSayfasi, { seoYoluMu } from "./SeoPages.jsx";
 import "./storage.js";
 
 googleAdsBaslat();
@@ -69,6 +70,7 @@ function Kok() {
   if (yol === "/privacy") return <GizlilikMetni />;
   if (yol === "/refund-policy") return <IadePolitikasi />;
   if (yol === "/faq") return <Faq />;
+  if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
   if (yol === "/backoffice")

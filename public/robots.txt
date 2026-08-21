@@ -3,3 +3,4 @@ Disallow: /backoffice
 Disallow: /ceo
 Disallow: /marketing
 
+Sitemap: https://borcama.com/sitemap.xml
