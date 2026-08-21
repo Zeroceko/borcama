@@ -16,6 +16,8 @@ import {
   borcKapatmaHesapla,
   borcPlaniHesapla,
   krediKartiAsgariOdemeHesapla,
+  krediOdemePlaniHesapla,
+  mevduatFaiziHesapla,
 } from "./seoTools.js";
 import "./SeoPages.css";
 
@@ -28,6 +30,8 @@ const ARACLAR = [
   { slug: "kredi-karti-asgari-odeme-hesaplayici", icon: WalletCards, title: "Kredi kartı asgari ödeme hesaplayıcı", text: "Kart limiti ve dönem borcuna göre yasal oranla tahmini asgari tutarı hesapla." },
   { slug: "borc-odeme-plani", icon: ListChecks, title: "Borç ödeme planı oluşturucu", text: "Birden fazla borcu faiz veya kartopu stratejisiyle tek planda sırala." },
   { slug: "aylik-odeme-takvimi", icon: CalendarDays, title: "Aylık ödeme takvimi", text: "Son ödeme günlerini ve bu ayın toplam yükünü tek listede topla." },
+  { slug: "mevduat-faizi-hesaplama", icon: CircleDollarSign, title: "Mevduat faizi hesaplama", text: "Ana para, yıllık faiz, vade ve stopajla tahmini net getiriyi gör." },
+  { slug: "kredi-odeme-plani-hesaplama", icon: Calculator, title: "Kredi ödeme planı hesaplama", text: "Kredi tutarı, aylık faiz ve vadeye göre taksit planını oluştur." },
 ];
 
 const REHBERLER = [
@@ -108,6 +112,8 @@ export default function SeoSayfasi({ yol }) {
   if (yol === "/araclar/kredi-karti-asgari-odeme-hesaplayici") return <AsgariOdeme />;
   if (yol === "/araclar/borc-odeme-plani") return <BorcPlani />;
   if (yol === "/araclar/aylik-odeme-takvimi") return <OdemeTakvimi />;
+  if (yol === "/araclar/mevduat-faizi-hesaplama") return <MevduatFaizi />;
+  if (yol === "/araclar/kredi-odeme-plani-hesaplama") return <KrediOdemePlani />;
   if (yol === "/rehber") return <RehberAna />;
   const slug = yol.replace("/rehber/", "");
   const rehber = REHBERLER.find((item) => item.slug === slug);
@@ -159,8 +165,8 @@ function Hero({ kicker, title, lead, children }) {
 }
 
 function AraclarAna() {
-  const schema = useMemo(() => ({ "@context": "https://schema.org", "@type": "CollectionPage", name: "Borcama Ücretsiz Finans Araçları", url: `${SITE}/araclar`, description: "Borç kapatma, asgari ödeme, ödeme planı ve aylık takvim araçları." }), []);
-  useSeo({ title: "Ücretsiz Borç ve Ödeme Hesaplama Araçları", description: "Borç kapatma süresi, kredi kartı asgari ödeme, borç ödeme planı ve aylık ödeme takvimini ücretsiz hesaplayın.", path: "/araclar", schema });
+  const schema = useMemo(() => ({ "@context": "https://schema.org", "@type": "CollectionPage", name: "Borcama Finans Hesaplama Araçları", url: `${SITE}/araclar`, description: "Borç, kredi kartı, mevduat faizi, kredi ödeme planı ve aylık takvim araçları." }), []);
+  useSeo({ title: "Finans ve Ödeme Hesaplama Araçları", description: "Borç kapatma, kredi kartı asgari ödeme, mevduat faizi, kredi taksit planı ve aylık ödeme takvimini hesaplayın.", path: "/araclar", schema });
   return <Layout><main><Hero kicker="ÜCRETSİZ ARAÇLAR" title="Rakamları tek tek değil, birlikte gör." lead="Bilgiler yalnızca tarayıcında hesaplanır; Borcama'ya veya başka bir sunucuya gönderilmez."><div className="seo-hero-badge"><ShieldCheck/><b>Üyelik gerekmez</b><span>Hemen hesapla</span></div></Hero><section className="seo-section seo-shell"><div className="seo-card-grid">{ARACLAR.map((arac) => <AracCard key={arac.slug} {...arac}/>)}</div><Cta /></section></main></Layout>;
 }
 
@@ -168,9 +174,9 @@ function AracCard({ slug, icon: Icon, title, text }) {
   return <a className="seo-tool-card" href={`/araclar/${slug}`}><span className="seo-icon"><Icon/></span><h2>{title}</h2><p>{text}</p><span className="seo-card-link">Aracı aç <ArrowRight size={15}/></span></a>;
 }
 
-function ToolLayout({ title, lead, path, schema, children, faq = [] }) {
+function ToolLayout({ title, lead, path, schema, children, faq = [], showSources = true }) {
   useSeo({ title, description: lead, path, schema });
-  return <Layout><main><Hero kicker="BORCAMA HESAPLAYICI" title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{children}</div>{faq.length > 0 && <Faq items={faq}/>}<SourceNote/><Cta/></section></main></Layout>;
+  return <Layout><main><Hero kicker="BORCAMA HESAPLAYICI" title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{children}</div>{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
@@ -202,6 +208,25 @@ function AsgariOdeme() {
   return <ToolLayout title="Kredi kartı asgari ödeme hesaplayıcı" lead="Kart limitin ve dönem borcuna göre güncel BDDK oranıyla tahmini asgari ödeme tutarını gör." path="/araclar/kredi-karti-asgari-odeme-hesaplayici" schema={schema} faq={[["Hangi oran kullanılıyor?","Kart limiti 50 bin TL ve altındaysa yüzde 20, üzerindeyse yüzde 40."],["Ekstredeki tutar farklıysa ne yapmalıyım?","Her zaman bankanın güncel ekstrende bildirdiği asgari tutarı esas al."]]}><div className="seo-panel"><h2>Kart bilgilerini gir</h2><NumberField label="Kart limiti" value={limit} onChange={setLimit}/><NumberField label="Dönem borcu" value={borc} onChange={setBorc}/><p className="seo-inline-note">26 Eylül 2024 tarihli BDDK kararındaki kart limiti eşiği kullanılır.</p></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ ASGARİ</span><div className="seo-big-money"><Money value={sonuc.tahminiAsgari}/></div><Summary items={[["Uygulanan oran", `%${Math.round(sonuc.oran * 100)}`],["Ödeme sonrası kalan", <Money value={sonuc.odemeSonrasiKalan}/>]]}/><Disclaimer text="Bu araç yasal orana göre tahmin üretir. Kesin tutar için bankanın ekstrende bildirdiği asgari ödemeyi esas al."/></div></ToolLayout>;
 }
 
+function MevduatFaizi() {
+  const [anaPara, setAnaPara] = useState("100000");
+  const [yillikFaiz, setYillikFaiz] = useState("45");
+  const [vadeGunu, setVadeGunu] = useState("32");
+  const [stopaj, setStopaj] = useState("15");
+  const sonuc = useMemo(() => mevduatFaiziHesapla({ anaPara, yillikFaiz, vadeGunu, stopaj }), [anaPara, yillikFaiz, vadeGunu, stopaj]);
+  const schema = useMemo(() => toolSchema("Mevduat Faizi Hesaplama", "/araclar/mevduat-faizi-hesaplama"), []);
+  return <ToolLayout title="Mevduat faizi hesaplama" lead="Ana para, bankanın sunduğu yıllık brüt faiz, vade günü ve stopaj oranıyla tahmini net mevduat kazancını hesapla." path="/araclar/mevduat-faizi-hesaplama" schema={schema} showSources={false} faq={[["Hangi faiz oranını girmeliyim?","Bankanın mevduat teklifi veya sözleşmesinde yazan yıllık brüt faiz oranını gir."],["Stopaj oranını nereden bulurum?","Oran vade ve mevduat türüne göre değişebileceği için bankanın ürün detayında bildirilen güncel oranı kullan."]]}><div className="seo-panel"><h2>Mevduat bilgilerini gir</h2><NumberField label="Yatıracağın ana para" value={anaPara} onChange={setAnaPara}/><NumberField label="Yıllık brüt faiz oranı" value={yillikFaiz} onChange={setYillikFaiz} suffix="%" step="0.01" hint="Bankanın sana sunduğu yıllık oranı gir."/><NumberField label="Vade süresi" value={vadeGunu} onChange={setVadeGunu} suffix="Gün" step="1"/><NumberField label="Stopaj oranı" value={stopaj} onChange={setStopaj} suffix="%" step="0.01" hint="Bankanın bu mevduat için bildirdiği güncel oranı gir."/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ NET GETİRİ</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.netFaiz}/></div><Summary items={[["Brüt faiz", <Money value={sonuc.brutFaiz}/>],["Stopaj", <Money value={sonuc.stopajTutari}/>],["Vade sonu toplam", <Money value={sonuc.vadeSonuTutar}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Hesaplama 365 gün üzerinden yaklaşık sonuç üretir. Kesin getiri ve stopaj için bankanın teklifini esas al."/></div></ToolLayout>;
+}
+
+function KrediOdemePlani() {
+  const [krediTutari, setKrediTutari] = useState("250000");
+  const [aylikFaiz, setAylikFaiz] = useState("3.49");
+  const [vadeAy, setVadeAy] = useState("12");
+  const sonuc = useMemo(() => krediOdemePlaniHesapla({ krediTutari, aylikFaiz, vadeAy }), [krediTutari, aylikFaiz, vadeAy]);
+  const schema = useMemo(() => toolSchema("Kredi Ödeme Planı Hesaplama", "/araclar/kredi-odeme-plani-hesaplama"), []);
+  return <ToolLayout title="Kredi ödeme planı hesaplama" lead="Kredi tutarı, bankanın aylık faiz oranı ve vadeye göre tahmini taksiti, toplam faizi ve aylık ödeme planını gör." path="/araclar/kredi-odeme-plani-hesaplama" schema={schema} showSources={false} faq={[["Aylık mı yıllık mı faiz girmeliyim?","Bankanın kredi teklifinde yazan aylık faiz oranını gir."],["Masraflar dahil mi?","Hayır. Tahsis ücreti, sigorta, vergi ve bankaya özgü diğer masraflar bu temel hesaplamaya dahil değildir."]]}><div className="seo-panel"><h2>Kredi bilgilerini gir</h2><NumberField label="Kullanacağın kredi tutarı" value={krediTutari} onChange={setKrediTutari}/><NumberField label="Aylık faiz oranı" value={aylikFaiz} onChange={setAylikFaiz} suffix="%" step="0.01" hint="Bankanın teklifinde yazan aylık oranı gir."/><NumberField label="Vade süresi" value={vadeAy} onChange={setVadeAy} suffix="Ay" step="1"/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ KREDİ PLANI</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.aylikTaksit}/></div><Summary items={[["Aylık taksit", <Money value={sonuc.aylikTaksit}/>],["Toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Toplam ödeme", <Money value={sonuc.toplamOdeme}/>]]}/><KrediSchedule rows={sonuc.takvim}/></> : <Warning reason="eksik"/>}<Disclaimer text="Bu sonuç yaklaşık planlama içindir. Vergi, tahsis ücreti, sigorta ve bankanın diğer masrafları dahil değildir."/></div></ToolLayout>;
+}
+
 function BorcPlani() {
   const [butce, setButce] = useState("18000");
   const [strateji, setStrateji] = useState("faiz");
@@ -225,6 +250,11 @@ function OdemeTakvimi() {
 function Schedule({ rows }) {
   const shown = rows.slice(0, 12);
   return <div className="seo-schedule"><div className="seo-table-head"><span>Ay</span><span>Faiz</span><span>Kalan</span></div>{shown.map((row) => <div key={row.ay}><span>{row.ay}</span><span><Money value={row.faiz}/></span><strong><Money value={row.kalan}/></strong></div>)}{rows.length > 12 && <small>İlk 12 ay gösteriliyor.</small>}</div>;
+}
+
+function KrediSchedule({ rows }) {
+  const shown = rows.slice(0, 12);
+  return <div className="seo-schedule seo-loan-schedule"><div className="seo-table-head"><span>Ay</span><span>Taksit</span><span>Faiz</span><span>Kalan</span></div>{shown.map((row) => <div key={row.ay}><span>{row.ay}</span><span><Money value={row.odeme}/></span><span><Money value={row.faiz}/></span><strong><Money value={row.kalan}/></strong></div>)}{rows.length > 12 && <small>İlk 12 ay gösteriliyor; toplam hesap vadeye göre yapılır.</small>}</div>;
 }
 
 function Warning({ reason, required }) {

@@ -104,3 +104,43 @@ export function borcPlaniHesapla({ borclar, aylikButce, strateji = "faiz" }) {
   }
   return { tamamlandi: false, neden: "cok-uzun", ay: 600, toplamFaiz, takvim, gerekliAsgari };
 }
+
+export function mevduatFaiziHesapla({ anaPara, yillikFaiz, vadeGunu, stopaj = 0 }) {
+  const tutar = pozitifSayi(anaPara);
+  const oran = pozitifSayi(yillikFaiz) / 100;
+  const gun = Math.min(Math.floor(pozitifSayi(vadeGunu)), 3_650);
+  const stopajOrani = Math.min(pozitifSayi(stopaj), 100) / 100;
+  if (!tutar || !oran || !gun) {
+    return { hesaplandi: false, brutFaiz: 0, stopajTutari: 0, netFaiz: 0, vadeSonuTutar: tutar };
+  }
+  const brutFaiz = tutar * oran * gun / 365;
+  const stopajTutari = brutFaiz * stopajOrani;
+  const netFaiz = brutFaiz - stopajTutari;
+  return { hesaplandi: true, brutFaiz, stopajTutari, netFaiz, vadeSonuTutar: tutar + netFaiz };
+}
+
+export function krediOdemePlaniHesapla({ krediTutari, aylikFaiz, vadeAy }) {
+  const anaPara = pozitifSayi(krediTutari);
+  const oran = pozitifSayi(aylikFaiz) / 100;
+  const vade = Math.min(Math.floor(pozitifSayi(vadeAy)), 600);
+  if (!anaPara || !vade) {
+    return { hesaplandi: false, aylikTaksit: 0, toplamFaiz: 0, toplamOdeme: 0, takvim: [] };
+  }
+  const aylikTaksit = oran === 0
+    ? anaPara / vade
+    : anaPara * oran * ((1 + oran) ** vade) / (((1 + oran) ** vade) - 1);
+  let kalan = anaPara;
+  let toplamFaiz = 0;
+  let toplamOdeme = 0;
+  const takvim = [];
+  for (let ay = 1; ay <= vade; ay += 1) {
+    const faiz = kalan * oran;
+    const odeme = ay === vade ? kalan + faiz : Math.min(kalan + faiz, aylikTaksit);
+    const anaParaOdemesi = Math.max(0, odeme - faiz);
+    kalan = Math.max(0, kalan - anaParaOdemesi);
+    toplamFaiz += faiz;
+    toplamOdeme += odeme;
+    takvim.push({ ay, odeme, faiz, anaPara: anaParaOdemesi, kalan });
+  }
+  return { hesaplandi: true, aylikTaksit, toplamFaiz, toplamOdeme, takvim };
+}

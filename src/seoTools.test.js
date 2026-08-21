@@ -5,6 +5,8 @@ import {
   borcPlaniHesapla,
   krediKartiAsgariOdemeHesapla,
   krediKartiAsgariOrani,
+  krediOdemePlaniHesapla,
+  mevduatFaiziHesapla,
 } from "./seoTools.js";
 
 test("50 bin TL ve altı kart limitinde asgari oran yüzde 20'dir", () => {
@@ -43,4 +45,22 @@ test("borç planı aylık bütçeyle birden fazla borcu kapatır", () => {
   assert.equal(sonuc.tamamlandi, true);
   assert.ok(sonuc.ay > 0 && sonuc.ay < 12);
   assert.ok(sonuc.toplamFaiz > 0);
+});
+
+test("mevduat hesabı brüt faizden stopajı düşerek net getiriyi bulur", () => {
+  const sonuc = mevduatFaiziHesapla({ anaPara: 100_000, yillikFaiz: 40, vadeGunu: 365, stopaj: 15 });
+  assert.equal(sonuc.hesaplandi, true);
+  assert.equal(sonuc.brutFaiz, 40_000);
+  assert.equal(sonuc.stopajTutari, 6_000);
+  assert.equal(sonuc.netFaiz, 34_000);
+  assert.equal(sonuc.vadeSonuTutar, 134_000);
+});
+
+test("kredi ödeme planı eşit taksitleri ve son kalan bakiyeyi hesaplar", () => {
+  const sonuc = krediOdemePlaniHesapla({ krediTutari: 120_000, aylikFaiz: 3, vadeAy: 12 });
+  assert.equal(sonuc.hesaplandi, true);
+  assert.equal(sonuc.takvim.length, 12);
+  assert.ok(sonuc.aylikTaksit > 12_000);
+  assert.ok(sonuc.toplamFaiz > 0);
+  assert.ok(sonuc.takvim.at(-1).kalan < 0.01);
 });
