@@ -3,10 +3,13 @@ import assert from "node:assert/strict";
 import {
   borcKapatmaHesapla,
   borcPlaniHesapla,
+  bruttenNeteMaas2026,
+  kidemTazminatiHesapla2026,
   krediKartiAsgariOdemeHesapla,
   krediKartiAsgariOrani,
   krediOdemePlaniHesapla,
   mevduatFaiziHesapla,
+  nettenBruteMaas2026,
 } from "./seoTools.js";
 
 test("50 bin TL ve altı kart limitinde asgari oran yüzde 20'dir", () => {
@@ -63,4 +66,25 @@ test("kredi ödeme planı eşit taksitleri ve son kalan bakiyeyi hesaplar", () =
   assert.ok(sonuc.aylikTaksit > 12_000);
   assert.ok(sonuc.toplamFaiz > 0);
   assert.ok(sonuc.takvim.at(-1).kalan < 0.01);
+});
+
+test("2026 asgari ücretinde gelir ve damga vergisi kesilmez", () => {
+  const sonuc = bruttenNeteMaas2026({ brutMaas: 33_030, ay: 1 });
+  assert.equal(sonuc.net, 28_075.5);
+  assert.equal(sonuc.gelirVergisi, 0);
+  assert.equal(sonuc.damgaVergisi, 0);
+});
+
+test("netten brüte dönüşüm hedef net maaşı geri üretir", () => {
+  const hedef = 60_000;
+  const sonuc = nettenBruteMaas2026({ netMaas: hedef, ay: 8 });
+  assert.ok(Math.abs(sonuc.net - hedef) < 0.01);
+  assert.ok(sonuc.brut > hedef);
+});
+
+test("kıdem tazminatı güncel tavanı ve damga vergisini uygular", () => {
+  const sonuc = kidemTazminatiHesapla2026({ brutMaas: 100_000, aylikEkOdemeler: 5_000, yil: 2 });
+  assert.equal(sonuc.hesaplamayaEsasAylik, 73_729.87);
+  assert.ok(sonuc.netTazminat < sonuc.brutTazminat);
+  assert.ok(sonuc.netTazminat > 145_000);
 });

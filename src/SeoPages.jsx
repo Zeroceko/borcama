@@ -6,6 +6,7 @@ import {
   Calculator,
   CircleDollarSign,
   ListChecks,
+  Megaphone,
   Plus,
   Trash2,
   WalletCards,
@@ -13,15 +14,22 @@ import {
 import {
   borcKapatmaHesapla,
   borcPlaniHesapla,
+  bruttenNeteMaas2026,
+  kidemTazminatiHesapla2026,
   krediKartiAsgariOdemeHesapla,
   krediOdemePlaniHesapla,
   mevduatFaiziHesapla,
+  nettenBruteMaas2026,
 } from "./seoTools.js";
 import "./SeoPages.css";
 
 const SITE = "https://borcama.com";
 const BDDK_KAYNAK = "https://www.bddk.org.tr/Duyuru/EkGetir/2074?ekId=862";
 const TCMB_KAYNAK = "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Bankacilik%2BVerileri/Kredi_Karti_Islemlerinde_Uygulanacak_Azami_Faiz_Oranlari";
+const GIB_VERGI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2Fgelir-vergisi-tarifeleri%2Fgelir-vergisi-tarifesi-2026.pdf";
+const GIB_ASGARI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2FAsgariUcrettenYapilanKesintiler.pdf";
+const SGK_2026 = "https://www.sgk.gov.tr/Content/Post/2e0c9e1a-2cfe-4456-af10-49d3de0c58ba/Prime-Esas-Kazanc-Miktarlari-2026-01-14-10-35-39";
+const KIDEM_2026 = "https://www.csgb.gov.tr/tr/istatistikler/calisma-hayati-istatistikleri/kidem-tazminati-tavan-miktari/";
 
 const ARACLAR = [
   { slug: "borc-kapatma-hesaplayici", icon: CircleDollarSign, title: "Borç kapatma hesaplayıcı", text: "Aylık ödeme ve faiz oranına göre tahmini kapanış süresini gör." },
@@ -30,6 +38,8 @@ const ARACLAR = [
   { slug: "aylik-odeme-takvimi", icon: CalendarDays, title: "Aylık ödeme takvimi", text: "Son ödeme günlerini ve bu ayın toplam yükünü tek listede topla." },
   { slug: "mevduat-faizi-hesaplama", icon: CircleDollarSign, title: "Mevduat faizi hesaplama", text: "Ana para, yıllık faiz, vade ve stopajla tahmini net getiriyi gör." },
   { slug: "kredi-odeme-plani-hesaplama", icon: Calculator, title: "Kredi ödeme planı hesaplama", text: "Kredi tutarı, aylık faiz ve vadeye göre taksit planını oluştur." },
+  { slug: "brut-net-maas-hesaplama", icon: CircleDollarSign, title: "Brütten nete, netten brüte maaş hesaplama", text: "2026 kesintilerine göre brüt ve net maaş arasında hesaplama yap." },
+  { slug: "kidem-tazminati-hesaplama", icon: Calculator, title: "Kıdem tazminatı hesaplama", text: "Maaşın ve çalışma sürene göre tahmini kıdem tazminatını gör." },
 ];
 
 const REHBERLER = [
@@ -112,6 +122,8 @@ export default function SeoSayfasi({ yol }) {
   if (yol === "/araclar/aylik-odeme-takvimi") return <OdemeTakvimi />;
   if (yol === "/araclar/mevduat-faizi-hesaplama") return <MevduatFaizi />;
   if (yol === "/araclar/kredi-odeme-plani-hesaplama") return <KrediOdemePlani />;
+  if (yol === "/araclar/brut-net-maas-hesaplama") return <MaasHesaplama />;
+  if (yol === "/araclar/kidem-tazminati-hesaplama") return <KidemTazminati />;
   if (yol === "/rehber") return <RehberAna />;
   const slug = yol.replace("/rehber/", "");
   const rehber = REHBERLER.find((item) => item.slug === slug);
@@ -174,7 +186,8 @@ function AracCard({ slug, icon: Icon, title, text }) {
 
 function ToolLayout({ title, lead, path, schema, children, faq = [], showSources = true }) {
   useSeo({ title, description: lead, path, schema });
-  return <Layout><main><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{children}</div>{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
+  const bolumler = React.Children.toArray(children);
+  return <Layout><main><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}<AdSlot/></div></div>{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
@@ -225,6 +238,28 @@ function KrediOdemePlani() {
   return <ToolLayout title="Kredi ödeme planı hesaplama" lead="Kredi tutarı, bankanın aylık faiz oranı ve vadeye göre tahmini taksiti, toplam faizi ve aylık ödeme planını gör." path="/araclar/kredi-odeme-plani-hesaplama" schema={schema} showSources={false} faq={[["Aylık mı yıllık mı faiz girmeliyim?","Bankanın kredi teklifinde yazan aylık faiz oranını gir."],["Masraflar dahil mi?","Hayır. Tahsis ücreti, sigorta, vergi ve bankaya özgü diğer masraflar bu temel hesaplamaya dahil değildir."]]}><div className="seo-panel"><h2>Kredi bilgilerini gir</h2><NumberField label="Kullanacağın kredi tutarı" value={krediTutari} onChange={setKrediTutari}/><NumberField label="Aylık faiz oranı" value={aylikFaiz} onChange={setAylikFaiz} suffix="%" step="0.01" hint="Bankanın teklifinde yazan aylık oranı gir."/><NumberField label="Vade süresi" value={vadeAy} onChange={setVadeAy} suffix="Ay" step="1"/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ KREDİ PLANI</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.aylikTaksit}/></div><Summary items={[["Aylık taksit", <Money value={sonuc.aylikTaksit}/>],["Toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Toplam ödeme", <Money value={sonuc.toplamOdeme}/>]]}/><KrediSchedule rows={sonuc.takvim}/></> : <Warning reason="eksik"/>}<Disclaimer text="Bu sonuç yaklaşık planlama içindir. Vergi, tahsis ücreti, sigorta ve bankanın diğer masrafları dahil değildir."/></div></ToolLayout>;
 }
 
+function MaasHesaplama() {
+  const [yon, setYon] = useState("brut-net");
+  const [tutar, setTutar] = useState("75000");
+  const [ay, setAy] = useState("8");
+  const sonuc = useMemo(() => yon === "brut-net" ? bruttenNeteMaas2026({ brutMaas: tutar, ay }) : nettenBruteMaas2026({ netMaas: tutar, ay }), [yon, tutar, ay]);
+  const schema = useMemo(() => toolSchema("Brütten Nete ve Netten Brüte Maaş Hesaplama 2026", "/araclar/brut-net-maas-hesaplama"), []);
+  const sonucBasligi = yon === "brut-net" ? "Tahmini net maaş" : "Tahmini brüt maaş";
+  const sonucTutari = yon === "brut-net" ? sonuc.net : sonuc.brut;
+  return <ToolLayout title="Brütten nete, netten brüte maaş hesaplama" lead="2026 yılı çalışan kesintilerine göre brüt maaştan net maaşı veya net maaştan tahmini brüt maaşı hesapla." path="/araclar/brut-net-maas-hesaplama" schema={schema} showSources={false} faq={[["Ay seçimi neden gerekli?","Maaştan yapılan vergi kesintisi yıl içinde değişebildiği için hesaplamak istediğin ayı seçmelisin."],["Hesap kesin bordro tutarı mıdır?","Hayır. Ek ödeme, özel indirim, eksik gün ve işyerine göre değişen uygulamalar sonucu etkileyebilir."]]}><div className="seo-panel"><h2>Maaş bilgilerini gir</h2><span className="seo-strategy-label">Hesaplama yönü</span><div className="seo-toggle"><button className={yon === "brut-net" ? "active" : ""} onClick={() => setYon("brut-net")}>Brütten nete</button><button className={yon === "net-brut" ? "active" : ""} onClick={() => setYon("net-brut")}>Netten brüte</button></div><NumberField label={yon === "brut-net" ? "Aylık brüt maaş" : "Hedef aylık net maaş"} value={tutar} onChange={setTutar}/><NumberField label="Hesaplamak istediğin ay" value={ay} onChange={setAy} suffix="Ay" step="1" min="1" hint="Ocak için 1, Aralık için 12 yaz."/><p className="seo-inline-note">2026 yılı için, aynı maaşı yılbaşından beri aldığın varsayılır.</p></div><div className="seo-result"><span className="seo-result-kicker">{sonucBasligi}</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonucTutari}/></div><Summary items={[["Brüt maaş", <Money value={sonuc.brut}/>],["SGK ve işsizlik", <Money value={sonuc.sgk + sonuc.issizlik}/>],["Vergiler", <Money value={sonuc.gelirVergisi + sonuc.damgaVergisi}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Bu sonuç tahminidir. Kesin tutar için işvereninin hazırladığı maaş belgesini esas al."/></div><OfficialSources><a href={GIB_VERGI_2026} target="_blank" rel="noreferrer">2026 vergi dilimleri</a><a href={GIB_ASGARI_2026} target="_blank" rel="noreferrer">2026 asgari ücret hesabı</a><a href={SGK_2026} target="_blank" rel="noreferrer">2026 SGK sınırları</a></OfficialSources></ToolLayout>;
+}
+
+function KidemTazminati() {
+  const [brutMaas, setBrutMaas] = useState("60000");
+  const [ekOdemeler, setEkOdemeler] = useState("0");
+  const [yil, setYil] = useState("5");
+  const [ay, setAy] = useState("0");
+  const [gun, setGun] = useState("0");
+  const sonuc = useMemo(() => kidemTazminatiHesapla2026({ brutMaas, aylikEkOdemeler: ekOdemeler, yil, ay, gun }), [brutMaas, ekOdemeler, yil, ay, gun]);
+  const schema = useMemo(() => toolSchema("Kıdem Tazminatı Hesaplama 2026", "/araclar/kidem-tazminati-hesaplama"), []);
+  return <ToolLayout title="Kıdem tazminatı hesaplama" lead="Aylık brüt maaşın, düzenli ek ödemelerin ve çalışma sürene göre 2026 yılı için tahmini kıdem tazminatını hesapla." path="/araclar/kidem-tazminati-hesaplama" schema={schema} showSources={false} faq={[["Düzenli ek ödemelere ne yazmalıyım?","Her ay düzenli aldığın yemek, yol veya benzeri para ödemelerinin aylık toplamını yaz."],["Kıdem tazminatı tavanı nedir?","Hesaplamada her çalışma yılı için kullanılabilecek aylık tutarın üst sınırıdır. 1 Temmuz–31 Aralık 2026 için 73.729,87 TL kullanılır."],["Kimler kıdem tazminatı alabilir?","Hak kazanma durumu işten ayrılma nedenine ve çalışma koşullarına göre değişir; bu araç yalnızca tutar tahmini yapar."]]}><div className="seo-panel"><h2>Çalışma bilgilerini gir</h2><NumberField label="Aylık brüt maaş" value={brutMaas} onChange={setBrutMaas}/><NumberField label="Düzenli aylık ek ödemeler" value={ekOdemeler} onChange={setEkOdemeler} hint="Her ay düzenli aldığın yemek, yol veya benzeri para ödemeleri."/><div className="seo-duration-fields"><NumberField label="Tam yıl" value={yil} onChange={setYil} suffix="Yıl" step="1"/><NumberField label="Ek ay" value={ay} onChange={setAy} suffix="Ay" step="1"/><NumberField label="Ek gün" value={gun} onChange={setGun} suffix="Gün" step="1"/></div><p className="seo-inline-note">1 Temmuz–31 Aralık 2026 için geçerli 73.729,87 TL yıllık tavan kullanılır.</p></div><div className="seo-result"><span className="seo-result-kicker">Tahmini net kıdem tazminatı</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.netTazminat}/></div><Summary items={[["Hesaba alınan aylık", <Money value={sonuc.hesaplamayaEsasAylik}/>],["Brüt tazminat", <Money value={sonuc.brutTazminat}/>],["Damga vergisi", <Money value={sonuc.damgaVergisi}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Bu araç hak kazanıp kazanmadığını belirlemez; yalnızca verdiğin bilgilere göre tahmini tutarı gösterir."/></div><OfficialSources><a href={KIDEM_2026} target="_blank" rel="noreferrer">Çalışma Bakanlığı kıdem tazminatı tavanı</a></OfficialSources></ToolLayout>;
+}
+
 function BorcPlani() {
   const [butce, setButce] = useState("18000");
   const [strateji, setStrateji] = useState("faiz");
@@ -266,6 +301,14 @@ function Disclaimer({ text = "Sonuçlar yaklaşık planlama içindir; finansal t
 
 function SourceNote() {
   return <aside className="seo-sources"><b>Güncel kaynak notu</b><p>Asgari ödeme kuralı için <a href={BDDK_KAYNAK} target="_blank" rel="noreferrer">BDDK kararını</a>; kredi kartı azami faizleri için her ay güncellenen <a href={TCMB_KAYNAK} target="_blank" rel="noreferrer">TCMB tablosunu</a> esas alıyoruz. Son kontrol: 22 Ağustos 2026.</p></aside>;
+}
+
+function OfficialSources({ children }) {
+  return <aside className="seo-official-sources"><b>Resmî bilgiler</b><div>{children}</div></aside>;
+}
+
+function AdSlot() {
+  return <aside className="seo-ad-slot"><span className="seo-ad-icon"><Megaphone size={27}/></span><div><h2>Markanızı burada tanıtın.</h2><p>Borcama ziyaretçilerine ulaşmak için bu alanda reklam verebilirsiniz.</p></div><a href="mailto:zero@borcama.com?subject=Borcama%20reklam%20alan%C4%B1">zero@borcama.com</a></aside>;
 }
 
 function Faq({ items }) {

@@ -1,4 +1,12 @@
 const SAYI_UST_SINIR = 1_000_000_000;
+export const MAAS_2026 = {
+  asgariBrut: 33_030,
+  sgkTavan: 297_270,
+  sgkOrani: 0.14,
+  issizlikOrani: 0.01,
+  damgaVergisiOrani: 0.00759,
+};
+export const KIDEM_TAVANI_2026_2 = 73_729.87;
 
 function pozitifSayi(deger, varsayilan = 0) {
   const sayi = Number(deger);
@@ -143,4 +151,79 @@ export function krediOdemePlaniHesapla({ krediTutari, aylikFaiz, vadeAy }) {
     takvim.push({ ay, odeme, faiz, anaPara: anaParaOdemesi, kalan });
   }
   return { hesaplandi: true, aylikTaksit, toplamFaiz, toplamOdeme, takvim };
+}
+
+function ucretGelirVergisi2026(matrah) {
+  const tutar = pozitifSayi(matrah);
+  const dilimler = [
+    [190_000, 0.15],
+    [400_000, 0.20],
+    [1_500_000, 0.27],
+    [5_300_000, 0.35],
+    [Infinity, 0.40],
+  ];
+  let oncekiSinir = 0;
+  let vergi = 0;
+  for (const [sinir, oran] of dilimler) {
+    const dilimdekiTutar = Math.max(0, Math.min(tutar, sinir) - oncekiSinir);
+    vergi += dilimdekiTutar * oran;
+    if (tutar <= sinir) break;
+    oncekiSinir = sinir;
+  }
+  return vergi;
+}
+
+export function bruttenNeteMaas2026({ brutMaas, ay = 1 }) {
+  const brut = pozitifSayi(brutMaas);
+  const ayNo = Math.min(Math.max(Math.floor(pozitifSayi(ay, 1)), 1), 12);
+  if (!brut) return { hesaplandi: false, brut: 0, net: 0, sgk: 0, issizlik: 0, gelirVergisi: 0, damgaVergisi: 0, ay: ayNo };
+  const primeEsas = Math.min(brut, MAAS_2026.sgkTavan);
+  const sgk = primeEsas * MAAS_2026.sgkOrani;
+  const issizlik = primeEsas * MAAS_2026.issizlikOrani;
+  const aylikMatrah = Math.max(0, brut - sgk - issizlik);
+  const oncekiVergi = ucretGelirVergisi2026(aylikMatrah * (ayNo - 1));
+  const buAyDahilVergi = ucretGelirVergisi2026(aylikMatrah * ayNo);
+  const hesaplananGelirVergisi = buAyDahilVergi - oncekiVergi;
+  const asgariMatrah = MAAS_2026.asgariBrut * (1 - MAAS_2026.sgkOrani - MAAS_2026.issizlikOrani);
+  const oncekiAsgariVergi = ucretGelirVergisi2026(asgariMatrah * (ayNo - 1));
+  const buAyAsgariVergi = ucretGelirVergisi2026(asgariMatrah * ayNo);
+  const gelirVergisiIstisnasi = buAyAsgariVergi - oncekiAsgariVergi;
+  const gelirVergisi = Math.max(0, hesaplananGelirVergisi - gelirVergisiIstisnasi);
+  const damgaVergisi = Math.max(0, (brut - MAAS_2026.asgariBrut) * MAAS_2026.damgaVergisiOrani);
+  const net = Math.max(0, brut - sgk - issizlik - gelirVergisi - damgaVergisi);
+  return { hesaplandi: true, brut, net, sgk, issizlik, gelirVergisi, damgaVergisi, ay: ayNo };
+}
+
+export function nettenBruteMaas2026({ netMaas, ay = 1 }) {
+  const hedefNet = pozitifSayi(netMaas);
+  if (!hedefNet) return { hesaplandi: false, brut: 0, net: 0, sgk: 0, issizlik: 0, gelirVergisi: 0, damgaVergisi: 0, ay };
+  let alt = hedefNet;
+  let ust = Math.max(MAAS_2026.asgariBrut, hedefNet * 3);
+  while (bruttenNeteMaas2026({ brutMaas: ust, ay }).net < hedefNet && ust < SAYI_UST_SINIR) ust *= 2;
+  for (let i = 0; i < 80; i += 1) {
+    const orta = (alt + ust) / 2;
+    if (bruttenNeteMaas2026({ brutMaas: orta, ay }).net < hedefNet) alt = orta;
+    else ust = orta;
+  }
+  return bruttenNeteMaas2026({ brutMaas: ust, ay });
+}
+
+export function kidemTazminatiHesapla2026({ brutMaas, aylikEkOdemeler = 0, yil = 0, ay = 0, gun = 0 }) {
+  const aylikKazanc = pozitifSayi(brutMaas) + pozitifSayi(aylikEkOdemeler);
+  const calismaYili = pozitifSayi(yil) + pozitifSayi(ay) / 12 + pozitifSayi(gun) / 365;
+  if (!aylikKazanc || !calismaYili) {
+    return { hesaplandi: false, aylikKazanc, calismaYili, hesaplamayaEsasAylik: 0, brutTazminat: 0, damgaVergisi: 0, netTazminat: 0 };
+  }
+  const hesaplamayaEsasAylik = Math.min(aylikKazanc, KIDEM_TAVANI_2026_2);
+  const brutTazminat = hesaplamayaEsasAylik * calismaYili;
+  const damgaVergisi = brutTazminat * MAAS_2026.damgaVergisiOrani;
+  return {
+    hesaplandi: true,
+    aylikKazanc,
+    calismaYili,
+    hesaplamayaEsasAylik,
+    brutTazminat,
+    damgaVergisi,
+    netTazminat: brutTazminat - damgaVergisi,
+  };
 }
