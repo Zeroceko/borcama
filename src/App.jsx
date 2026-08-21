@@ -422,7 +422,11 @@ const CSS = `
 .bt-quick-menu button{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;width:100%;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:inherit;text-align:left;cursor:pointer}
 .bt-quick-menu button:hover{background:color-mix(in srgb,${LIME} 24%,var(--panel2))}.bt-quick-menu svg{grid-row:1/3;width:34px;height:34px;padding:7px;border:1.5px solid var(--line);border-radius:10px;background:${LIME};color:${INK}}.bt-quick-menu strong{font-size:12.5px}.bt-quick-menu small{display:block;margin-top:2px;color:var(--dim);font-size:10.5px;line-height:1.35}
 .bt-borc-araclari{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;background:color-mix(in srgb,var(--panel) 96%,var(--bg));border:1px solid var(--line-soft);border-radius:16px;box-shadow:0 7px 20px #14160f0a}.bt-borc-araclari.filtre-aktif{align-items:flex-start;background:color-mix(in srgb,${CORAL} 10%,var(--panel));border-color:color-mix(in srgb,${CORAL} 58%,transparent);box-shadow:inset 4px 0 0 ${CORAL}}.bt-borc-araclari-baslik{display:flex;align-items:center;gap:10px;min-width:0}.bt-borc-araclari-ikon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid var(--line-soft);border-radius:10px;background:${LIME};color:${INK}}.bt-borc-araclari.filtre-aktif .bt-borc-araclari-ikon{background:${CORAL}}.bt-borc-araclari-baslik span{display:block;color:var(--dim);font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.bt-borc-araclari-baslik strong{display:block;margin-top:2px;font-size:13px;line-height:1.25}.bt-borc-araclari-aciklama{margin-top:5px;color:var(--dim);font-size:11px;line-height:1.4}.bt-borc-araclari-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.bt-status-filter{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid color-mix(in srgb,${CORAL} 68%,transparent);border-radius:999px;background:color-mix(in srgb,${CORAL} 12%,var(--panel));color:${CORAL};font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-status-filter:hover{background:color-mix(in srgb,${CORAL} 20%,var(--panel))}
-.bt-feedback-textarea{min-height:130px;resize:vertical;line-height:1.5;padding-top:12px}
+.bt-feedback-modal{max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.bt-feedback-field{grid-template-rows:auto auto!important;min-height:0}
+.bt-feedback-textarea{display:block;width:100%;min-height:150px;max-height:280px;resize:vertical;line-height:1.5;padding-top:12px;overflow-y:auto}
+.bt-feedback-count{margin-top:6px;color:var(--faint);font-size:10.5px;text-align:right;line-height:1}
+.bt-feedback-footer{position:relative;display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft);background:var(--panel)}
 .bt-tour-arka{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:22px;background:#0f110ad9;backdrop-filter:blur(7px);overflow-y:auto}
 .bt-tour{position:relative;width:min(920px,100%);min-height:560px;display:grid;grid-template-columns:minmax(0,1.16fr) minmax(300px,.84fr);background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:26px;overflow:hidden;box-shadow:12px 12px 0 ${CORAL}}
 .bt-tour-main{display:flex;min-width:0;flex-direction:column;padding:clamp(26px,4vw,44px)}
@@ -3059,7 +3063,7 @@ export default function BorcTakip() {
           }}
         >
           <form
-            className="bt-modal"
+            className="bt-modal bt-feedback-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="bt-feedback-baslik"
@@ -3146,7 +3150,7 @@ export default function BorcTakip() {
                   </select>
                 </label>
                 <label
-                  className="bt-alan"
+                  className="bt-alan bt-feedback-field"
                   style={{ display: "grid", marginTop: 12 }}
                 >
                   Mesaj
@@ -3164,16 +3168,11 @@ export default function BorcTakip() {
                   />
                 </label>
                 <div
-                  style={{
-                    fontSize: 10.5,
-                    color: "var(--faint)",
-                    textAlign: "right",
-                    marginTop: 5,
-                  }}
+                  className="bt-feedback-count"
                 >
                   {geriBildirimFormu.mesaj.length}/1000
                 </div>
-                <div className="bt-form-butonlar">
+                <div className="bt-feedback-footer">
                   <button
                     className="bt-btn birincil"
                     type="submit"
@@ -5047,7 +5046,50 @@ function Odemeler({
 
   const sirali = donemOdemeleri;
   const hedefiTamamlanan = sirali.filter((x) => x.odendi);
-  const odemeYapilan = sirali.filter((x) => (+x.yapilanOdeme || 0) > 0);
+  // "Ödenenler" bir takvim filtresi değil, ödeme geçmişidir. Kullanıcı başka
+  // ödeme ayına ait bir kartın asgarisini ödediğinde kayıt seçili ay yüzünden
+  // kaybolmamalı; tüm ekstre dönemlerindeki kart ödemelerini burada toplarız.
+  const tumKartOdemeleri = (veri.cards || []).flatMap((kart) => {
+    const ekstreler = [
+      kart.ekstreAyi ? kart : null,
+      ...(kart.ekstreGecmisi || []).map((ekstre) => ({ ...kart, ...ekstre })),
+    ].filter(Boolean);
+    return ekstreler.map((kayit) => {
+      const h = kartHesabi(kayit);
+      const odemeAnahtari = kartOdemeAnahtari(kayit);
+      const elleOdendi = !!veri.paid?.[odemeAnahtari];
+      const hedefTutar = h.asgari;
+      const yapilanOdeme = Math.min(
+        elleOdendi ? Math.max(h.odeme, hedefTutar) : h.odeme,
+        h.onceki || h.toplam,
+      );
+      const kalanToplam = h.toplam;
+      return {
+        id: "kart-" + kart.id + "-" + kayit.ekstreAyi,
+        kartOdemesi: true,
+        banka: kart.banka,
+        ad: kart.banka + (kart.ad ? " · " + kart.ad : ""),
+        ekstreAyi: kayit.ekstreAyi,
+        tutar: Math.max(hedefTutar - yapilanOdeme, 0),
+        kalanToplam,
+        minimumOdeme: hedefTutar,
+        hedefTutar,
+        yapilanOdeme,
+        odemeKayitSayisi: (veri.cardPaymentHistory?.[odemeAnahtari] || []).length,
+        not: ayEtiketi(kayit.ekstreAyi) + " ekstresi · " + ayEtiketi(kartOdemeAyi(kayit)) + " ödeme ayı",
+        tarih: kartGecikmeTarihi(kayit),
+        odendi: hedefTutar > 0 && hedefTutar - yapilanOdeme <= 0.01,
+        minimumTamam: hedefTutar > 0 && hedefTutar - yapilanOdeme <= 0.01,
+        tamamiOdendi: kalanToplam <= 0.01,
+        anahtar: odemeAnahtari,
+      };
+    });
+  });
+  const odemeYapilan = [...new Map(
+    [...sirali, ...tumKartOdemeleri]
+      .filter((x) => (+x.yapilanOdeme || 0) > 0)
+      .map((x) => [x.id, x]),
+  ).values()].sort((a, b) => b.tarih - a.tarih);
   // Kartta minimumun tamamlanması ödeme hedefini kapatır; borcu kapatmaz.
   // Kalan toplam sıfırlanana kadar kart "Bekleyen ödemeler" içinde kalır.
   const bekleyen = sirali.filter((x) =>
