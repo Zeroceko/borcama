@@ -61,6 +61,72 @@ function denemeDuyuruHtml(kalanGun: number) {
   return `<!doctype html><html lang="tr"><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#ffffff;border-radius:24px;overflow:hidden"><tr><td style="height:9px;background:#cdf564"></td></tr><tr><td style="padding:38px 36px 34px"><div style="font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:26px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#eef8d0;color:#315c43;font-size:12px;font-weight:800">1 AY ÜCRETSİZ PRO</div><h1 style="font-size:32px;line-height:1.12;letter-spacing:-.7px;margin:18px 0 12px">Borcama Pro denemen hazır.</h1><p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 22px">Hesabında yaklaşık <strong style="color:#14160f">${kalanGun} gün</strong> kalan, kart bilgisi gerektirmeyen Pro denemesi açık.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 12px">${liste}</table><a href="https://borcama.com/summary" style="display:block;margin-top:18px;padding:15px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">Ücretsiz denemeye başla →</a><div style="margin-top:24px;padding:16px 18px;border-radius:14px;background:#f7f4ea;color:#686a60;font-size:13px;line-height:1.55"><strong style="color:#14160f">Kart bilgisi gerekmez.</strong> Deneme bittiğinde ücret alınmaz; hesabın ve kayıtların korunarak Ücretsiz plana dönersin.</div><p style="margin:26px 0 0;color:#898b80;font-size:12px;line-height:1.5">Soruların için <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a></p></td></tr></table></td></tr></table></body></html>`;
 }
 
+function yeniOzelliklerHtml() {
+  const ozellikler = [
+    {
+      no: "01",
+      baslik: "Ekstreni yükle, rakamları tek tek yazma",
+      metin: "Kredi kartı ekstreni PDF veya ekran görüntüsü olarak yükle. Borcama özet alanlarını çıkarır; sen kontrol edip kaydedersin.",
+    },
+    {
+      no: "02",
+      baslik: "Ödemeni borcun yanında kaydet",
+      metin: "Asgari, kısmi veya tam ödeme yaptığında tutarı doğrudan ilgili kartın yanında kaydet; kalan borcunu güncel gör.",
+    },
+    {
+      no: "03",
+      baslik: "Geçmiş ekstrelerini dönem dönem gör",
+      metin: "Kartının eski ekstrelerini kaybetmeden sakla; hangi dönemde ne kadar borç kaldığını daha kolay karşılaştır.",
+    },
+  ];
+  const kartlar = ozellikler.map((ozellik) => `<tr><td style="padding:0 0 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f4ea;border-radius:16px"><tr><td width="54" valign="top" style="padding:18px 0 18px 18px"><span style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:11px;background:#cdf564;color:#14160f;font-size:12px;font-weight:900">${ozellik.no}</span></td><td valign="top" style="padding:18px"><div style="color:#14160f;font-size:17px;line-height:1.3;font-weight:900;margin-bottom:5px">${ozellik.baslik}</div><div style="color:#5d6055;font-size:14px;line-height:1.55">${ozellik.metin}</div></td></tr></table></td></tr>`).join("");
+  return `<!doctype html><html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:auto;background:#ffffff;border-radius:24px;overflow:hidden"><tr><td style="height:9px;background:#cdf564"></td></tr><tr><td style="padding:38px 36px 34px"><div style="font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:26px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#fff0ec;color:#a63f31;font-size:12px;font-weight:800">SİZ İSTEDİNİZ, BİZ YAPTIK</div><h1 style="font-size:32px;line-height:1.12;letter-spacing:-.7px;margin:18px 0 12px">Ekstre girmek artık daha kısa.</h1><p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">Borcama'ya borçlarını daha az uğraşla takip etmeni sağlayan yeni özellikler ekledik.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${kartlar}</table><a href="https://borcama.com/debts" style="display:block;margin-top:18px;padding:15px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">Yeni özellikleri dene →</a><div style="margin-top:24px;padding:17px 18px;border-radius:14px;background:#edf4ef;color:#52584f;font-size:13px;line-height:1.55"><strong style="color:#14160f">Dosyanın kontrolü sende.</strong> Ekstre cihazında okunur; kaydetmeden önce bulunan alanları sen doğrularsın.</div><div style="margin-top:14px;padding:17px 18px;border-radius:14px;background:#fff0ec;color:#6f4a43;font-size:13px;line-height:1.55"><strong style="color:#14160f">Sırada ne var?</strong> Kredi ödeme planını PDF'den aktarabilme özelliği üzerinde çalışıyoruz.</div><p style="margin:26px 0 0;color:#898b80;font-size:12px;line-height:1.5">Bir önerin mi var? Yanıtlayabilir veya <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a> adresine yazabilirsin.</p></td></tr></table></td></tr></table></body></html>`;
+}
+
+async function yeniOzelliklerDuyurusuGonder(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: Array<{ id: string; email?: string; email_confirmed_at?: string | null }>,
+) {
+  const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
+  if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
+  const { data: haklar, error } = await admin
+    .from("user_entitlements")
+    .select("user_id,features_announcement_sent_at");
+  if (error) throw new Error("ENTITLEMENTS_UNAVAILABLE");
+  const dahaOnceGonderilen = new Set(
+    (haklar || []).filter((hak) => hak.features_announcement_sent_at).map((hak) => hak.user_id),
+  );
+  const hedefler = kullanicilar
+    .filter((u) => u.email && u.email_confirmed_at && !dahaOnceGonderilen.has(u.id))
+    .map((u) => ({ user_id: u.id, email: String(u.email).trim().toLowerCase() }));
+  const simdi = new Date().toISOString();
+  let gonderilen = 0;
+  for (let i = 0; i < hedefler.length; i += 100) {
+    const grup = hedefler.slice(i, i + 100);
+    const cevap = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(grup.map((hak) => ({
+        from: "Borcama <zero@borcama.com>",
+        to: [hak.email],
+        reply_to: "zero@borcama.com",
+        subject: "Siz istediniz, biz yaptık: Borcama'da yenilikler",
+        html: yeniOzelliklerHtml(),
+      }))),
+    });
+    if (!cevap.ok) throw new Error("EMAIL_SEND_FAILED");
+    const { error: guncellemeHatasi } = await admin
+      .from("user_entitlements")
+      .upsert(
+        grup.map((hak) => ({ user_id: hak.user_id, features_announcement_sent_at: simdi, updated_at: simdi })),
+        { onConflict: "user_id" },
+      );
+    if (guncellemeHatasi) throw new Error("EMAIL_STATUS_UPDATE_FAILED");
+    gonderilen += grup.length;
+  }
+  return gonderilen;
+}
+
 async function denemeDuyurusuGonder(
   admin: ReturnType<typeof createClient>,
   kullanicilar: Array<{ id: string; email?: string }>,
@@ -157,6 +223,16 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
       }
     }
+    if (action === "send_features_announcement") {
+      try {
+        const kullanicilar = await tumKullanicilariGetir(admin);
+        const sent = await yeniOzelliklerDuyurusuGonder(admin, kullanicilar);
+        return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
+        return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
+      }
+    }
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId) || !["grant_pro", "revoke_pro", "manage_pro"].includes(action)) {
       return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
     }
@@ -230,7 +306,7 @@ Deno.serve(async (req) => {
   if (kayitHatasi) return new Response(JSON.stringify({ error: "DATA_UNAVAILABLE" }), { status: 500, headers });
   const { data: haklar, error: hakHatasi } = await admin
     .from("user_entitlements")
-    .select("user_id,pro_expires_at,source,trial_started_at,trial_ends_at,trial_announcement_sent_at");
+    .select("user_id,pro_expires_at,source,trial_started_at,trial_ends_at,trial_announcement_sent_at,features_announcement_sent_at");
   if (hakHatasi) return new Response(JSON.stringify({ error: "ENTITLEMENTS_UNAVAILABLE" }), { status: 500, headers });
   const veriDurumu = new Map((kayitlar || []).map((x) => [x.user_id, x.updated_at]));
   const hakDurumu = new Map((haklar || []).map((x) => [x.user_id, x]));
@@ -261,6 +337,7 @@ Deno.serve(async (req) => {
       trial_ends_at: trialBitis,
       trial_days_remaining: trialAktif ? Math.max(1, Math.ceil((new Date(trialBitis).getTime() - simdi) / gun)) : 0,
       trial_announcement_sent_at: hak?.trial_announcement_sent_at || null,
+      features_announcement_sent_at: hak?.features_announcement_sent_at || null,
     };
   }).sort((a, b) => (b.last_sign_in_at || b.created_at).localeCompare(a.last_sign_in_at || a.created_at));
 
@@ -271,6 +348,7 @@ Deno.serve(async (req) => {
     new_7d: satirlar.filter((x) => simdi - new Date(x.created_at).getTime() <= 7 * gun).length,
     trial_active: satirlar.filter((x) => x.trial_active).length,
     trial_unannounced: satirlar.filter((x) => x.trial_active && !x.trial_announcement_sent_at).length,
+    features_unannounced: satirlar.filter((x) => !x.features_announcement_sent_at && x.email_confirmed_at).length,
   };
 
   const finansal = topluFinansalIstatistik(kayitlar || []);

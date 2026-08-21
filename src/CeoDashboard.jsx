@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BarChart3, CreditCard, Crown, MessageSquare, RefreshCw, Search, ShieldCheck, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, CreditCard, Crown, Mail, MessageSquare, RefreshCw, Search, ShieldCheck, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
 import { supabase } from "./supabaseClient.js";
 
 const CSS = `
@@ -25,7 +25,7 @@ export default function CeoDashboard() {
   }
   if(hata)return <div className="ceo"><style>{CSS}</style><div className="ceo-error">{hata}</div></div>;
   const f=veri?.financial,m=veri?.management,geriBildirimler=veri?.feedback||[];
-  return <div className="ceo"><style>{CSS}</style><main className="ceo-wrap"><div className="ceo-top"><a className="ceo-back" href="/summary"><ArrowLeft size={14}/> Uygulamaya dön</a><div className="ceo-actions"><a className="ceo-btn" href="/backoffice"><Users size={14}/> Backoffice</a><button className="ceo-btn primary" onClick={yukle} disabled={yukleniyor}><RefreshCw size={14}/> Yenile</button></div></div>
+  return <div className="ceo"><style>{CSS}</style><main className="ceo-wrap"><div className="ceo-top"><a className="ceo-back" href="/summary"><ArrowLeft size={14}/> Uygulamaya dön</a><div className="ceo-actions"><a className="ceo-btn" href="/backoffice"><Users size={14}/> Backoffice</a><a className="ceo-btn" href="/marketing"><Mail size={14}/> Marketing</a><button className="ceo-btn primary" onClick={yukle} disabled={yukleniyor}><RefreshCw size={14}/> Yenile</button></div></div>
   <header className="ceo-hero"><div><div className="ceo-kicker">Borcama yönetim merkezi</div><h1>CEO <span>görünümü.</span></h1></div><div className="ceo-date">Son güncelleme · {tarih(new Date())}</div></header>
   <section className="ceo-grid"><Kpi icon={<Users/>} ad="Toplam kullanıcı" deger={veri?.summary.total}/><Kpi icon={<UserPlus/>} ad="Son 7 gün yeni" deger={veri?.summary.new_7d}/><Kpi icon={<TrendingUp/>} ad="30 gün aktif" deger={veri?.summary.active_30d}/><Kpi icon={<BarChart3/>} ad="Veri oluşturan" deger={m?`%${Math.round(m.data_adoption_rate*100)}`:"—"}/>
   <div className="ceo-card ceo-chart"><Baslik ad="14 günlük büyüme" not="Yeni kullanıcı / son giriş"/><GunlukGrafik gunler={m?.days||[]} alan1="new_users" alan2="last_sign_ins" etiket1="Yeni kullanıcı" etiket2="Son giriş"/></div>

@@ -6,6 +6,7 @@ import LandingAlt from "./LandingAlt.jsx";
 import LandingStory from "./LandingStory.jsx";
 import Backoffice from "./Backoffice.jsx";
 import CeoDashboard from "./CeoDashboard.jsx";
+import Marketing from "./Marketing.jsx";
 import {
   KullaniciSozlesmesi,
   GizlilikMetni,
@@ -22,8 +23,26 @@ import "./storage.js";
 
 googleAdsBaslat();
 
+const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
+
+function yonetimYetkisiVar(session) {
+  return YONETIM_EPOSTALARI.has(
+    String(session?.user?.email || "").trim().toLowerCase(),
+  );
+}
+
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, "") || "/";
+  useEffect(() => {
+    const yonetimSayfasi = ["/ceo", "/backoffice", "/marketing"].includes(yol);
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "robots");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", yonetimSayfasi ? "noindex,nofollow,noarchive" : "index,follow");
+  }, [yol]);
   if (demoModu && ["/login", "/register"].includes(yol)) {
     window.history.replaceState({}, "", "/assets");
     return <App />;
@@ -60,6 +79,12 @@ function Kok() {
     ) : (
       <YapilandirmaEksik />
     );
+  if (yol === "/marketing")
+    return supabaseHazir ? (
+      <KimlikliYonetim tur="marketing" />
+    ) : (
+      <YapilandirmaEksik />
+    );
   if (yol === "/welcome")
     return supabaseHazir ? <KimlikliWelcome /> : <YapilandirmaEksik />;
   if (yol === "/upgrade")
@@ -84,6 +109,7 @@ function KimlikliBackoffice() {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
   if (!session) return <GirisEkrani redirectTo="/backoffice" />;
+  if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
   return <Backoffice />;
 }
 
@@ -91,7 +117,58 @@ function KimlikliYonetim({ tur }) {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
   if (!session) return <GirisEkrani redirectTo={`/${tur}`} />;
-  return tur === "ceo" ? <CeoDashboard /> : <Backoffice />;
+  if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
+  if (tur === "ceo") return <CeoDashboard />;
+  if (tur === "marketing") return <Marketing />;
+  return <Backoffice />;
+}
+
+function YonetimYetkisiz() {
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: 24,
+        background: "#f4efe0",
+        color: "#14160f",
+        fontFamily: "Space Grotesk, system-ui, sans-serif",
+      }}
+    >
+      <section
+        style={{
+          width: "min(100%, 520px)",
+          padding: 32,
+          border: "1px solid #d8d4c8",
+          borderRadius: 24,
+          background: "#fff",
+          boxShadow: "0 18px 44px rgba(28,30,21,.08)",
+        }}
+      >
+        <h1 style={{ margin: "0 0 10px", fontSize: 28 }}>Yönetim erişimi yok</h1>
+        <p style={{ margin: "0 0 22px", color: "#626458", lineHeight: 1.6 }}>
+          Bu sayfa yalnızca yetkilendirilmiş Borcama yöneticilerine açıktır.
+        </p>
+        <a
+          href="/summary"
+          style={{
+            display: "inline-flex",
+            minHeight: 44,
+            alignItems: "center",
+            padding: "0 18px",
+            borderRadius: 999,
+            background: "#cdf564",
+            color: "#14160f",
+            fontWeight: 800,
+            textDecoration: "none",
+          }}
+        >
+          Borcama'ya dön
+        </a>
+      </section>
+    </main>
+  );
 }
 
 function KimlikliWelcome() {
