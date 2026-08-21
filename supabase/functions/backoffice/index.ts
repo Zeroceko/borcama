@@ -8,11 +8,15 @@ const izinliOriginler = new Set([
   "http://127.0.0.1:5175",
   "http://127.0.0.1:5176",
   "http://127.0.0.1:5177",
+  "http://127.0.0.1:5180",
+  "http://127.0.0.1:5181",
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
   "http://localhost:5176",
   "http://localhost:5177",
+  "http://localhost:5180",
+  "http://localhost:5181",
 ]);
 
 function cors(origin: string | null) {
@@ -33,6 +37,72 @@ function epostaMaskele(eposta: string) {
   const sol = kullanici.slice(0, 3);
   const sag = alanAdi.slice(0, 2);
   return `${sol}${kullanici.length > 3 ? "***" : ""}@${sag}${alanAdi.length > 2 ? "***" : ""}${uzanti}`;
+}
+
+async function tumKullanicilariGetir(admin: ReturnType<typeof createClient>) {
+  const kullanicilar = [];
+  for (let page = 1; page <= 20; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw new Error("USERS_UNAVAILABLE");
+    kullanicilar.push(...data.users);
+    if (data.users.length < 1000) break;
+  }
+  return kullanicilar;
+}
+
+function denemeDuyuruHtml(kalanGun: number) {
+  return `<!doctype html><html lang="tr"><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;margin:auto;background:#fff;border-radius:22px;overflow:hidden"><tr><td style="padding:34px"><div style="font-size:28px;font-weight:900;margin-bottom:24px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#cdf564;font-size:12px;font-weight:800">PRO DENEMESİ AÇIK</div><h1 style="font-size:30px;line-height:1.1;margin:18px 0 12px">Borcama Pro'yu ücretsiz deneyebilirsin.</h1><p style="color:#55584c;font-size:16px;line-height:1.6">Hesabında yaklaşık ${kalanGun} gün kalan, kart bilgisi gerektirmeyen Pro denemesi açık. Kişisel borç önerileri ve gelişmiş finansal analizleri kullanabilirsin.</p><p style="color:#55584c;font-size:14px;line-height:1.6">Deneme bittiğinde ücret alınmaz; hesabın ve verilerin korunarak Ücretsiz plana dönersin.</p><a href="https://borcama.com/summary" style="display:inline-block;margin-top:12px;padding:14px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-decoration:none;font-weight:800">Borcama'yı aç</a><p style="margin-top:28px;color:#898b80;font-size:12px">Soruların için zero@borcama.com</p></td></tr></table></td></tr></table></body></html>`;
+}
+
+async function denemeDuyurusuGonder(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: Array<{ id: string; email?: string }>,
+) {
+  const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
+  if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
+  const simdi = new Date();
+  const { data: haklar, error } = await admin
+    .from("user_entitlements")
+    .select("user_id,trial_ends_at,pro_expires_at,trial_announcement_sent_at")
+    .gt("trial_ends_at", simdi.toISOString())
+    .is("trial_announcement_sent_at", null);
+  if (error) throw new Error("ENTITLEMENTS_UNAVAILABLE");
+  const epostaHaritasi = new Map(
+    kullanicilar
+      .filter((u) => u.email)
+      .map((u) => [u.id, String(u.email).trim().toLowerCase()]),
+  );
+  const hedefler = (haklar || []).filter((hak) => {
+    const proAktif = hak.pro_expires_at && new Date(hak.pro_expires_at).getTime() > simdi.getTime();
+    return !proAktif && epostaHaritasi.has(hak.user_id);
+  });
+  let gonderilen = 0;
+  for (let i = 0; i < hedefler.length; i += 100) {
+    const grup = hedefler.slice(i, i + 100);
+    const mesajlar = grup.map((hak) => ({
+      from: "Borcama <zero@borcama.com>",
+      to: [epostaHaritasi.get(hak.user_id)],
+      reply_to: "zero@borcama.com",
+      subject: "Borcama Pro denemen hesabında açık",
+      html: denemeDuyuruHtml(
+        Math.max(1, Math.ceil((new Date(hak.trial_ends_at).getTime() - simdi.getTime()) / 86400000)),
+      ),
+    }));
+    const cevap = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(mesajlar),
+    });
+    if (!cevap.ok) throw new Error("EMAIL_SEND_FAILED");
+    const ids = grup.map((hak) => hak.user_id);
+    const { error: guncellemeHatasi } = await admin
+      .from("user_entitlements")
+      .update({ trial_announcement_sent_at: simdi.toISOString(), updated_at: simdi.toISOString() })
+      .in("user_id", ids);
+    if (guncellemeHatasi) throw new Error("EMAIL_STATUS_UPDATE_FAILED");
+    gonderilen += grup.length;
+  }
+  return gonderilen;
 }
 
 async function revenueCatYonetimUrl(userId: string) {
@@ -70,6 +140,16 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null);
     const userId = String(body?.userId || "");
     const action = String(body?.action || "");
+    if (action === "send_trial_announcement") {
+      try {
+        const kullanicilar = await tumKullanicilariGetir(admin);
+        const sent = await denemeDuyurusuGonder(admin, kullanicilar);
+        return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
+        return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
+      }
+    }
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId) || !["grant_pro", "revoke_pro", "manage_pro"].includes(action)) {
       return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
     }
@@ -132,19 +212,18 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true, userId, proExpiresAt }), { status: 200, headers });
   }
 
-  const kullanicilar = [];
-  for (let page = 1; page <= 20; page += 1) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) return new Response(JSON.stringify({ error: "USERS_UNAVAILABLE" }), { status: 500, headers });
-    kullanicilar.push(...data.users);
-    if (data.users.length < 1000) break;
+  let kullanicilar;
+  try {
+    kullanicilar = await tumKullanicilariGetir(admin);
+  } catch {
+    return new Response(JSON.stringify({ error: "USERS_UNAVAILABLE" }), { status: 500, headers });
   }
 
   const { data: kayitlar, error: kayitHatasi } = await admin.from("kv_store").select("user_id,updated_at,value");
   if (kayitHatasi) return new Response(JSON.stringify({ error: "DATA_UNAVAILABLE" }), { status: 500, headers });
   const { data: haklar, error: hakHatasi } = await admin
     .from("user_entitlements")
-    .select("user_id,pro_expires_at,source");
+    .select("user_id,pro_expires_at,source,trial_started_at,trial_ends_at,trial_announcement_sent_at");
   if (hakHatasi) return new Response(JSON.stringify({ error: "ENTITLEMENTS_UNAVAILABLE" }), { status: 500, headers });
   const veriDurumu = new Map((kayitlar || []).map((x) => [x.user_id, x.updated_at]));
   const hakDurumu = new Map((haklar || []).map((x) => [x.user_id, x]));
@@ -155,6 +234,9 @@ Deno.serve(async (req) => {
     const sonGirisMs = sonGiris ? new Date(sonGiris).getTime() : 0;
     const hak = hakDurumu.get(u.id);
     const proBitis = hak?.pro_expires_at || null;
+    const trialBitis = hak?.trial_ends_at || null;
+    const proAktif = !!proBitis && new Date(proBitis).getTime() > simdi;
+    const trialAktif = !proAktif && !!trialBitis && new Date(trialBitis).getTime() > simdi;
     return {
       id: u.id,
       email: epostaMaskele(u.email || ""),
@@ -164,9 +246,14 @@ Deno.serve(async (req) => {
       has_data: veriDurumu.has(u.id),
       data_updated_at: veriDurumu.get(u.id) || null,
       status: sonGirisMs && simdi - sonGirisMs <= 30 * gun ? "active" : "inactive",
-      pro_active: !!proBitis && new Date(proBitis).getTime() > simdi,
+      pro_active: proAktif,
       pro_expires_at: proBitis,
       pro_source: hak?.source || null,
+      trial_active: trialAktif,
+      trial_started_at: hak?.trial_started_at || null,
+      trial_ends_at: trialBitis,
+      trial_days_remaining: trialAktif ? Math.max(1, Math.ceil((new Date(trialBitis).getTime() - simdi) / gun)) : 0,
+      trial_announcement_sent_at: hak?.trial_announcement_sent_at || null,
     };
   }).sort((a, b) => (b.last_sign_in_at || b.created_at).localeCompare(a.last_sign_in_at || a.created_at));
 
@@ -175,6 +262,8 @@ Deno.serve(async (req) => {
     active_30d: satirlar.filter((x) => x.status === "active").length,
     signed_in_7d: satirlar.filter((x) => x.last_sign_in_at && simdi - new Date(x.last_sign_in_at).getTime() <= 7 * gun).length,
     new_7d: satirlar.filter((x) => simdi - new Date(x.created_at).getTime() <= 7 * gun).length,
+    trial_active: satirlar.filter((x) => x.trial_active).length,
+    trial_unannounced: satirlar.filter((x) => x.trial_active && !x.trial_announcement_sent_at).length,
   };
 
   const finansal = topluFinansalIstatistik(kayitlar || []);

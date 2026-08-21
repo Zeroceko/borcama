@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
+import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -56,7 +57,7 @@ const CSS = `
 .auth-switch{margin-top:17px;padding-top:16px;border-top:1px solid #dedbce;text-align:center;font-size:12.5px;color:#66695d}
 .auth-switch a{color:#14160f;font-weight:800;text-decoration:underline;text-underline-offset:3px}
 .auth-legal{text-align:center;margin-top:11px;font-size:10.5px;color:#8a8c7e}.auth-legal span{margin:0 5px}
-.auth-legal button,.auth-consents button{padding:0;border:0;background:none;color:#315c47;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.auth-legal-modal{position:fixed;z-index:20;inset:0;background:#09291fcc;display:grid;place-items:center;padding:18px}.auth-legal-dialog{width:min(860px,100%);height:min(760px,92vh);background:#f4efe0;border:3px solid #14160f;border-radius:24px;box-shadow:10px 10px 0 #cdf564;display:flex;flex-direction:column;overflow:hidden}.auth-legal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:#fff;border-bottom:2px solid #14160f;font-size:14px;font-weight:800}.auth-legal-close{width:36px;height:36px;border:2px solid #14160f;border-radius:50%;background:#cdf564;display:grid;place-items:center;cursor:pointer}.auth-legal-frame{width:100%;flex:1;border:0;background:#f4efe0}
+.auth-legal button,.auth-consents button{padding:0;border:0;background:none;color:#315c47;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.auth-legal-modal{position:fixed;z-index:1000;inset:0;background:#09291fcc;display:grid;place-items:center;padding:18px}.auth-legal-dialog{width:min(860px,100%);height:min(760px,92vh);background:#f4efe0;border:3px solid #14160f;border-radius:24px;box-shadow:10px 10px 0 #cdf564;display:flex;flex-direction:column;overflow:hidden}.auth-legal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:#fff;border-bottom:2px solid #14160f;font-size:14px;font-weight:800}.auth-legal-close{width:36px;height:36px;flex:0 0 auto;border:2px solid #14160f;border-radius:50%;background:#cdf564;display:grid;place-items:center;cursor:pointer}.auth-legal-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;background:#f4efe0}.auth-legal-content .legal{min-height:auto}
 .auth-btn{
   width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
   font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
@@ -129,6 +130,20 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   useEffect(() => {
     if (ilkProPlani) proNiyetiniKaydet(ilkProPlani);
   }, [ilkProPlani]);
+
+  useEffect(() => {
+    if (!yasalMetin) return undefined;
+    const oncekiTasima = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const escIleKapat = (event) => {
+      if (event.key === "Escape") setYasalMetin(null);
+    };
+    window.addEventListener("keydown", escIleKapat);
+    return () => {
+      document.body.style.overflow = oncekiTasima;
+      window.removeEventListener("keydown", escIleKapat);
+    };
+  }, [yasalMetin]);
 
   useEffect(() => {
     if (!turnstileSiteKey) return;
@@ -631,15 +646,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                 <X size={18} />
               </button>
             </div>
-            <iframe
-              className="auth-legal-frame"
-              title={
-                yasalMetin === "terms"
-                  ? "Kullanıcı Sözleşmesi"
-                  : "Gizlilik ve KVKK Aydınlatma Metni"
-              }
-              src={`/${yasalMetin}?embed=1`}
-            />
+            <div className="auth-legal-content" tabIndex={0}>
+              {yasalMetin === "terms" ? (
+                <KullaniciSozlesmesi embedded />
+              ) : (
+                <GizlilikMetni embedded />
+              )}
+            </div>
           </div>
         </div>
       )}

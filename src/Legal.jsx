@@ -8,8 +8,16 @@ const CSS = `
 .legal-back,.legal-card,.legal-kicker,.legal-callout,.legal-links a{border-width:1px;border-color:#14160f24}.legal-back,.legal-card{box-shadow:0 12px 32px #14160f0d}
 `;
 
-function LegalLayout({ tur, title, children, tarih = "13 Temmuz 2026", surum = "1.0" }) {
+function LegalLayout({
+  tur,
+  title,
+  children,
+  tarih = "13 Temmuz 2026",
+  surum = "1.0",
+  embedded: embeddedProp = false,
+}) {
   const embedded =
+    embeddedProp ||
     new URLSearchParams(window.location.search).get("embed") === "1";
   return (
     <div className={`legal ${embedded ? "legal-embed" : ""}`}>
@@ -53,13 +61,14 @@ function LegalLayout({ tur, title, children, tarih = "13 Temmuz 2026", surum = "
   );
 }
 
-export function KullaniciSozlesmesi() {
+export function KullaniciSozlesmesi({ embedded = false }) {
   return (
     <LegalLayout
       tur="terms"
       title="Kullanıcı Sözleşmesi"
       tarih="9 Ağustos 2026"
       surum="1.1"
+      embedded={embedded}
     >
       <p>
         Bu sözleşme, Borcama internet uygulamasını kullanan kişi ile Borcama
@@ -158,13 +167,14 @@ export function KullaniciSozlesmesi() {
   );
 }
 
-export function IadePolitikasi() {
+export function IadePolitikasi({ embedded = false }) {
   return (
     <LegalLayout
       tur="refund"
       title="İptal ve İade Politikası"
       tarih="9 Ağustos 2026"
       surum="1.0"
+      embedded={embedded}
     >
       <p>
         Bu politika, Borcama Pro aylık ve yıllık aboneliklerinin iptal, cayma
@@ -276,9 +286,13 @@ export function IadePolitikasi() {
   );
 }
 
-export function GizlilikMetni() {
+export function GizlilikMetni({ embedded = false }) {
   return (
-    <LegalLayout tur="privacy" title="Gizlilik ve KVKK Aydınlatma Metni">
+    <LegalLayout
+      tur="privacy"
+      title="Gizlilik ve KVKK Aydınlatma Metni"
+      embedded={embedded}
+    >
       <p>
         Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”)
         kapsamında Borcama kullanılırken kişisel verilerin nasıl işlendiğini

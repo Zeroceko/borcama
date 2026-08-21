@@ -406,6 +406,9 @@ const CSS = `
 .bt-secici button.aktif{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 2px var(--line)}
 
 .bt-bos{text-align:center;padding:48px 0;color:var(--faint);font-size:14px}
+.bt-baslangic-plani{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.72fr);gap:26px;align-items:center;padding:26px;border:1px solid var(--line-soft);border-radius:20px;background:var(--panel2);text-align:left;color:var(--text)}
+.bt-baslangic-plani h3{margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,30px);line-height:1.08}.bt-baslangic-plani>div>p{max-width:600px;margin:9px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-baslangic-adimlar{display:grid;gap:8px;margin-top:20px}.bt-baslangic-adim{display:grid;grid-template-columns:27px minmax(0,1fr);gap:9px;align-items:center;font-size:12.5px;font-weight:700}.bt-baslangic-adim b{display:grid;place-items:center;width:27px;height:27px;border-radius:9px;background:var(--panel);border:1px solid var(--line-soft);font:800 10px 'JetBrains Mono',monospace}.bt-baslangic-aksiyonlar{display:grid;gap:9px;padding:16px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel)}.bt-baslangic-aksiyonlar .bt-btn{width:100%;justify-content:center}.bt-baslangic-not{color:var(--faint);font-size:10.5px;line-height:1.45;text-align:center}
+@media(max-width:720px){.bt-baslangic-plani{grid-template-columns:1fr;padding:20px 16px;gap:20px}}
 .bt-link{border:none;background:none;color:${CORAL};font-weight:700;cursor:pointer;font-size:inherit;padding:0;font-family:inherit}
 .bt-modal-arka{position:fixed;inset:0;z-index:50;background:#0f110acc;display:flex;align-items:center;justify-content:center;padding:20px}
 .bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
@@ -1180,7 +1183,7 @@ const KATEGORI_META = {
   loans: { ad: "Krediler", liste: "loans", rozetBg: "#c8c9be" },
   od: { ad: "Ek hesap / KMH", liste: "overdrafts", rozetBg: CORAL },
   others: {
-    ad: "Devreden / gecikmiş / diğer",
+    ad: "Gecikenler",
     liste: "others",
     rozetBg: "#d8c9a0",
   },
@@ -2805,7 +2808,7 @@ export default function BorcTakip() {
               ["cards", "Kartlar"],
               ["loans", "Krediler"],
               ["od", "Ek Hesap"],
-              ["others", "Riskli borçlar"],
+              ["others", "Gecikenler"],
             ].map(([k, ad]) => {
               const aktif =
                 sekme === "borclar" &&
@@ -4554,14 +4557,18 @@ function Ozet({
             }}
             style={{ marginTop: 16 }}
           >
-            <CalendarCheck size={15} /> Tüm ödeme planını gör
+            <CalendarCheck size={15} /> Tüm ödemeleri gör
             {gizliOdemeSayisi > 0 ? ` (+${gizliOdemeSayisi})` : ""}
           </button>
         )}
       </div>
 
       <BorcamaOnerileri
-        oneriler={oneriler}
+        oneriler={
+          gecikmisler.length
+            ? oneriler.filter((oneri) => oneri.id !== "gecikmis-odemeler")
+            : oneriler
+        }
         setSekme={setSekme}
         proAktif={proAktif}
         trialKalanGun={trialKalanGun}
@@ -4771,6 +4778,9 @@ function OdemeSatiri({
   saltOkunur = false,
 }) {
   const gun = kalanGun(o.tarih);
+  const gercektenGecikmis =
+    gun < 0 &&
+    !(o.kartOdemesi ? o.minimumTamam || o.tamamiOdendi : o.odendi);
   const kartDurumu = o.tamamiOdendi
     ? { sinif: "tamami", metin: "Tamamı ödendi" }
     : o.minimumTamam
@@ -4782,7 +4792,7 @@ function OdemeSatiri({
     <div className="bt-satirD">
       <div
         style={rozetStil(
-          gecikmis ? CORAL : LIME,
+          gercektenGecikmis ? CORAL : LIME,
           ROTASYONLAR[i % ROTASYONLAR.length],
         )}
       >
@@ -4801,22 +4811,22 @@ function OdemeSatiri({
         <div
           className="bt-satirD-alt"
           style={{
-            color: gecikmis ? CORAL : "#8a8c7e",
-            fontWeight: gecikmis ? 600 : 400,
+            color: gercektenGecikmis ? CORAL : "#8a8c7e",
+            fontWeight: gercektenGecikmis ? 600 : 400,
           }}
         >
           {o.kartOdemesi
             ? (o.not ? o.not + " · " : "") +
               (o.minimumTamam && !o.tamamiOdendi
               ? "asgari ödeme tamamlandı · kalan borç devam ediyor"
-              : gecikmis
+              : gercektenGecikmis
                 ? -gun + " gün gecikti"
                 : gun === 0
                   ? "bugün son gün"
                   : gun + " gün kaldı")
             : o.odendi
             ? "ödendi"
-            : gecikmis
+            : gercektenGecikmis
               ? -gun + " gün gecikti"
               : gun === 0
                 ? "bugün son gün"
@@ -4988,7 +4998,7 @@ function Odemeler({
               ayEtiketi(kayit.ekstreAyi) +
               " ekstresi · " +
               ayEtiketi(donem) +
-              " ödeme planı",
+              " ödeme ayı",
             tarih: kartGecikmeTarihi(kayit),
             odendi: minimumTamam,
             minimumTamam,
@@ -5046,16 +5056,6 @@ function Odemeler({
   const toplam = sirali.reduce((t, x) => t + (+x.hedefTutar || 0), 0);
   const kalan = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
   const odenen = sirali.reduce((t, x) => t + (+x.yapilanOdeme || 0), 0);
-  const kalanToplamOdeme = sirali.reduce(
-    (t, x) =>
-      t +
-      (x.kartOdemesi
-        ? +x.kalanToplam || 0
-        : x.odendi
-          ? 0
-          : +x.tutar || 0),
-    0,
-  );
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return (
     <div className="bt-stack">
@@ -5072,19 +5072,19 @@ function Odemeler({
           className={filtre === "odenen" ? "aktif" : ""}
           onClick={() => filtreDegistir?.("odenen")}
         >
-          Ödeme yapılanlar
+          Kısmen veya tamamen ödenenler
         </button>
         <button
           type="button"
           className={filtre === "gecmis" ? "aktif" : ""}
           onClick={() => filtreDegistir?.("gecmis")}
         >
-          Son işlemler
+          İşlem geçmişi
         </button>
       </div>
       {(filtre === "bekleyen" || filtre === "odenen") && (() => {
         const aktifKayitlar = filtre === "bekleyen" ? bekleyen : odemeYapilan;
-        const aktifBaslik = filtre === "bekleyen" ? "Bekleyen ödemeler" : "Ödeme yapılanlar";
+        const aktifBaslik = filtre === "bekleyen" ? "Bekleyen ödemeler" : "Kısmen veya tamamen ödenenler";
         const bosMetin = filtre === "bekleyen"
           ? "Bekleyen ödeme yok."
           : "Bu ay henüz ödeme kaydı yok.";
@@ -5133,7 +5133,7 @@ function Odemeler({
               ÖDEME TAKVİMİ
             </div>
             <div className="bt-h2" style={{ margin: "5px 0 0" }}>
-              {ayEtiketi(donem)} ödeme planı
+              Ödeme ayı: {ayEtiketi(donem)}
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -5161,23 +5161,16 @@ function Odemeler({
         </div>
         <div className="bt-grid" style={{ marginTop: 16 }}>
           <div className="bt-metric">
-            <div className="bt-metric-lbl">Aktif ödeme hedefi</div>
+            <div className="bt-metric-lbl">Bu ay zorunlu ödeme</div>
             <div className="bt-metric-amt">{fmt(toplam)}</div>
             <div className="bt-metric-cap">
               Kart minimumları ve kredi taksitleri
             </div>
           </div>
           <div className="bt-metric">
-            <div className="bt-metric-lbl">Yapılan ödemeler</div>
+            <div className="bt-metric-lbl">Şimdiye kadar ödenen</div>
             <div className="bt-metric-amt">{fmt(odenen)}</div>
             <div className="bt-metric-cap">Bu listeye işlenen tutar</div>
-          </div>
-          <div className="bt-metric">
-            <div className="bt-metric-lbl">Kalan toplam ödeme</div>
-            <div className="bt-metric-amt">{fmt(kalanToplamOdeme)}</div>
-            <div className="bt-metric-cap">
-              Kartların kalan borcu ve bekleyen kredi taksitleri
-            </div>
           </div>
           <div className="bt-metric">
             <div className="bt-metric-lbl">Kalan zorunlu ödeme</div>
@@ -5211,7 +5204,7 @@ function Odemeler({
       )}
       {filtre === "gecmis" && (
         <div className="bt-card">
-          <div className="bt-h2">Son işlemler</div>
+          <div className="bt-h2">İşlem geçmişi</div>
           <div className="bt-islem-aciklama">
             Son 30 borç ve ödeme değişikliği. Yanlış bir işlemi buradan geri alabilirsin.
           </div>
@@ -6035,8 +6028,8 @@ function Borclar({
   const ekHesapOdemeModu =
     kategori === "od" && acik && (form.odemeGir || form.odemeDuzenle);
   const [f, setF] = useState({});
-  const ekstreDuzenlemeHedefi = ekstreDuzenleModu
-    ? `ekstre-duzenle-${form.veri?.id}`
+  const ekstreDuzenlemeHedefi = ekstreFormu && form.veri?.id
+    ? `ekstre-form-${form.veri.id}`
     : null;
 
   useEffect(() => {
@@ -6621,7 +6614,7 @@ function Borclar({
           <div>
             <div className="bt-borc-araclari-baslik">
               <div className="bt-borc-araclari-ikon"><AlertTriangle size={17} /></div>
-              <div><span>Otomatik görünüm</span><strong>Riskli borçlar</strong></div>
+              <div><span>Otomatik görünüm</span><strong>Gecikenler</strong></div>
             </div>
             <div className="bt-borc-araclari-aciklama">
               {devredenSayisi} devreden · {gecikmisSayisi} gecikmiş kayıt. Bu liste kart ve kredilerinden otomatik oluşur.
@@ -6933,7 +6926,7 @@ function Borclar({
           {kayitlar.length === 0 &&
           !acik &&
           !(kategori === "others" && otomatikGecikenler.length > 0) ? (
-            <div className="bt-bos">
+            <div className={kategori === "cards" && !arsivGorunumu ? "bt-baslangic-plani" : "bt-bos"}>
               {arsivGorunumu
                 ? ayEtiketi(seciliEkstreAyi) + " için arşivlenmiş ekstre yok."
                 : krediArsivGorunumu
@@ -6942,7 +6935,35 @@ function Borclar({
                   : krediGelecekGorunumu
                     ? ayEtiketi(seciliKrediAyi) +
                       " döneminde planlanan kredi taksiti yok."
-                    : "Henüz kayıt yok."}
+                    : kategori === "loans"
+                      ? "Henüz kredi kaydı yok. İlk kredini ekleyerek aylık taksitlerini takip edebilirsin."
+                      : kategori === "od"
+                        ? "Henüz ek hesap / KMH kaydı yok."
+                        : kategori === "others"
+                          ? "Geciken kayıt yok. Kart ve kredi ödeme tarihleri geçtiğinde burada otomatik görünür."
+                          : (
+                      <>
+                        <div>
+                          <h3>Finansal tablonu oluşturmaya başla</h3>
+                          <p>İlk adımda yalnızca borçlarını eklemen yeterli. Gelir, harcama ve varlık bilgilerini daha sonra istersen ekleyebilirsin.</p>
+                          <div className="bt-baslangic-adimlar">
+                            <div className="bt-baslangic-adim"><b>1</b><span>İlk kartını veya kredini ekle</span></div>
+                            <div className="bt-baslangic-adim"><b>2</b><span>Ekstreyi PDF'den yükle veya manuel gir</span></div>
+                            <div className="bt-baslangic-adim"><b>3</b><span>Yaptığın ödemeleri kaydet</span></div>
+                            <div className="bt-baslangic-adim"><b>4</b><span>Bugün ekranında net planını gör</span></div>
+                          </div>
+                        </div>
+                        <div className="bt-baslangic-aksiyonlar">
+                          <button className="bt-btn birincil" type="button" onClick={() => setEkstreYuklemePenceresi(true)}>
+                            <Upload size={15} /> Ekstre yükle
+                          </button>
+                          <button className="bt-btn ikincil" type="button" onClick={() => setForm({ liste: meta.liste, veri: {} })}>
+                            <Plus size={15} /> Manuel kart ekle
+                          </button>
+                          <div className="bt-baslangic-not">Borcama banka hesabına bağlanmaz; yalnızca onayladığın bilgileri kaydeder.</div>
+                        </div>
+                      </>
+                    )}
             </div>
           ) : (
             <div className="bt-stack" style={{ gap: 12 }}>
@@ -7818,7 +7839,7 @@ function BorclarSatiri({
       )}
       {kategori === "cards" && !arsiv && (
         <div
-          id={`ekstre-duzenle-${k.id}`}
+          id={`ekstre-form-${k.id}`}
           className="bt-inline-ekstre-hedef"
         />
       )}
