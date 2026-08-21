@@ -1,4 +1,7 @@
 {
+  "crons": [
+    { "path": "/api/lifecycle-emails", "schedule": "15 7 * * *" }
+  ],
   "headers": [
     {
       "source": "/borcama-logo.png",

@@ -152,7 +152,6 @@ export default function LandingStory() {
                 <b>4 gün</b>
               </div>
               <div className="ls-question">
-                <small>BUGÜN CEVABINI ARADIĞIN SORU</small>
                 <strong>Gerçekte ne kadar borcum var?</strong>
                 <div className="ls-question-total">₺284.750</div>
                 <p>4 banka · 7 ödeme · 3 varlık türü</p>
@@ -198,8 +197,7 @@ export default function LandingStory() {
                 <Problem icon={<LineChart />} title="Birikim var ama net durum yok" text="Varlıklarınla borçların birbirinden kopuk kalır; gerçek finansal tablo oluşmaz." />
               </div>
               <div className="ls-problem-answer">
-                <small>BORCAMA’NIN VERDİĞİ CEVAP</small>
-                <h3>“Bugün neyim var, neyim eksik ve <span>önce ne yapmalıyım?</span>”</h3>
+                <h3 style={{ marginTop: 0 }}>“Bugün neyim var, neyim eksik ve <span>önce ne yapmalıyım?</span>”</h3>
                 <div className="ls-answer-row"><span>Toplam borcun</span><strong>Tek rakamda</strong></div>
                 <div className="ls-answer-row"><span>Yaklaşan zorunlu ödemeler</span><strong>Tek listede</strong></div>
                 <div className="ls-answer-row"><span>Borç + varlık dengesi</span><strong>Tek tabloda</strong></div>
@@ -216,10 +214,10 @@ export default function LandingStory() {
               text="Borcama senin yerine karar vermez veya kendiliğinden işlem yapmaz. Girdiğin bilgileri düzenleyerek ödeme, ekstre, faiz ve varlık durumunu daha kolay değerlendirmeni sağlar."
             />
             <div className="ls-moments">
-              <Moment icon={<BellRing />} label="Ödeme planlarken" title="Ne kadar gerekiyor?" text="Toplam ve minimum ödeme tutarlarını birlikte gör." />
-              <Moment icon={<ReceiptText />} label="Ekstreyi kaydederken" title="Rakamlar tutuyor mu?" text="Gerçek ekstreyi manuel harcamalarınla karşılaştır." />
-              <Moment icon={<LineChart />} label="Devreden borcu incelerken" title="Maliyeti ne olacak?" text="Kalan borcun tahmini faiz etkisini takip et." />
-              <Moment icon={<PiggyBank />} label="Birikimlerini güncellerken" title="Net durumum ne?" text="Varlıklarınla borçlarını aynı finans fotoğrafında gör." />
+              <Moment icon={<BellRing />} title="Ne kadar gerekiyor?" text="Toplam ve minimum ödeme tutarlarını birlikte gör." />
+              <Moment icon={<ReceiptText />} title="Rakamlar tutuyor mu?" text="Gerçek ekstreyi manuel harcamalarınla karşılaştır." />
+              <Moment icon={<LineChart />} title="Maliyeti ne olacak?" text="Kalan borcun tahmini faiz etkisini takip et." />
+              <Moment icon={<PiggyBank />} title="Net durumum ne?" text="Varlıklarınla borçlarını aynı finans fotoğrafında gör." />
             </div>
             <div className="ls-benefits">
               <Benefit icon={<Eye />} title="Görünürlük" text="Farklı banka ve borç türlerini tek yerde topla." value="Ne olduğunu bil." />
@@ -273,8 +271,7 @@ export default function LandingStory() {
             />
             <div className="ls-feeling-stage">
               <div className="ls-before">
-                <span className="ls-feeling-label">ÖNCE · DAĞINIKLIK</span>
-                <h3>“Bir şeyi unutuyor muyum?”</h3>
+                <h3 style={{ marginTop: 0 }}>“Bir şeyi unutuyor muyum?”</h3>
                 <div className="ls-thoughts">
                   <div className="ls-thought"><BellRing size={18} /> Son ödeme hangi gündü?</div>
                   <div className="ls-thought"><CreditCard size={18} /> Hangi kartta ne kadar kaldı?</div>
@@ -282,8 +279,7 @@ export default function LandingStory() {
                 </div>
               </div>
               <div className="ls-after">
-                <span className="ls-feeling-label">SONRA · KONTROL</span>
-                <h3>“Ne yapacağımı biliyorum.”</h3>
+                <h3 style={{ marginTop: 0 }}>“Ne yapacağımı biliyorum.”</h3>
                 <div className="ls-thoughts">
                   <div className="ls-thought"><Check size={18} /> Bu ayın zorunlu tutarı önümde.</div>
                   <div className="ls-thought"><Check size={18} /> Sonraki ödeme sıram belli.</div>
@@ -451,15 +447,14 @@ function Problem({ icon, title, text }) {
   );
 }
 
-function Moment({ icon, label, title, text }) {
+function Moment({ icon, title, text }) {
   return (
     <article className="ls-moment">
       <div className="ls-moment-top">
         {React.cloneElement(icon, { size: 22 })}
         <ArrowRight size={17} />
       </div>
-      <span>{label}</span>
-      <h3>{title}</h3>
+      <h3 style={{ marginTop: 0 }}>{title}</h3>
       <p>{text}</p>
     </article>
   );

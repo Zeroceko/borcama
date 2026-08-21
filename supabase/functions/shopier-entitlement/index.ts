@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { denemeBasladiHtml } from "../_shared/borcama-email.ts";
 
 const izinliOriginler = new Set([
   "https://borcama.com",
@@ -34,6 +35,87 @@ function sabitSureliEsit(a: string, b: string) {
 
 function normalEposta(value: unknown) {
   return String(value || "").trim().toLocaleLowerCase("en-US");
+}
+
+async function denemeBaslangicMailiGonder(
+  admin: ReturnType<typeof createClient>,
+  user: { id: string; email?: string | null; email_confirmed_at?: string | null },
+  trialEndsAt: string,
+) {
+  if (!user.email || !user.email_confirmed_at) return false;
+  const { data: campaign, error: campaignError } = await admin
+    .from("marketing_campaigns")
+    .select("id,slug,subject")
+    .eq("slug", "trial-started")
+    .eq("status", "active")
+    .single();
+  if (campaignError || !campaign) return false;
+
+  const { data: existing } = await admin
+    .from("marketing_deliveries")
+    .select("id,status")
+    .eq("campaign_id", campaign.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (existing && existing.status !== "failed") return true;
+
+  let deliveryId = existing?.id;
+  if (!deliveryId) {
+    const { data, error } = await admin.from("marketing_deliveries").insert({
+      campaign_id: campaign.id,
+      user_id: user.id,
+      recipient_email: normalEposta(user.email),
+      status: "queued",
+    }).select("id").single();
+    if (error || !data) return false;
+    deliveryId = data.id;
+  }
+
+  const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
+  const supabaseUrl = String(Deno.env.get("SUPABASE_URL") || "").replace(/\/$/, "");
+  if (!apiKey || !supabaseUrl) return false;
+  const destination = "/summary?source=trial-started-email";
+  const trackingUrl = `${supabaseUrl}/functions/v1/email-redirect?id=${encodeURIComponent(deliveryId)}&to=${encodeURIComponent(destination)}`;
+  const days = Math.max(
+    1,
+    Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000),
+  );
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "Borcama <zero@borcama.com>",
+      to: [normalEposta(user.email)],
+      reply_to: "zero@borcama.com",
+      subject: campaign.subject,
+      html: denemeBasladiHtml(days, trackingUrl),
+      tags: [
+        { name: "campaign", value: campaign.slug },
+        { name: "delivery", value: deliveryId },
+      ],
+    }),
+  });
+  const result = await response.json().catch(() => ({}));
+  const now = new Date().toISOString();
+  if (!response.ok || !result?.id) {
+    await admin.from("marketing_deliveries").update({
+      status: "failed",
+      error_code: `resend_${response.status}`,
+      updated_at: now,
+    }).eq("id", deliveryId);
+    return false;
+  }
+  await admin.from("marketing_deliveries").update({
+    resend_email_id: result.id,
+    status: "sent",
+    sent_at: now,
+    last_event_at: now,
+    updated_at: now,
+  }).eq("id", deliveryId);
+  return true;
 }
 
 function paddleYapilandirmasi() {
@@ -274,7 +356,7 @@ Deno.serve(async (req) => {
 
     let { data: hak } = await admin
       .from("user_entitlements")
-      .select("ad_free_lifetime,pro_expires_at,source,granted_at,trial_started_at,trial_ends_at")
+      .select("ad_free_lifetime,pro_expires_at,source,granted_at,trial_started_at,trial_ends_at,trial_started_email_sent_at")
       .eq("user_id", user.id)
       .maybeSingle();
     const hesapYasi = Date.now() - new Date(user.created_at).getTime();
@@ -298,6 +380,21 @@ Deno.serve(async (req) => {
           trial_started_at: baslangic.toISOString(),
           trial_ends_at: bitis.toISOString(),
         };
+      }
+    }
+    if (hak?.trial_ends_at && !hak?.trial_started_email_sent_at && user.email_confirmed_at) {
+      const gonderildi = await denemeBaslangicMailiGonder(
+        admin,
+        user,
+        hak.trial_ends_at,
+      );
+      if (gonderildi) {
+        const simdi = new Date().toISOString();
+        await admin.from("user_entitlements").update({
+          trial_started_email_sent_at: simdi,
+          updated_at: simdi,
+        }).eq("user_id", user.id);
+        hak = { ...hak, trial_started_email_sent_at: simdi };
       }
     }
     const proExpiresAt = hak?.pro_expires_at || null;

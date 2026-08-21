@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { denemeDavetHtml, konuGuvenli, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
 
 const izinliOriginler = new Set([
   "https://borcama.com",
@@ -50,45 +51,81 @@ async function tumKullanicilariGetir(admin: ReturnType<typeof createClient>) {
   return kullanicilar;
 }
 
-function denemeDuyuruHtml(kalanGun: number) {
-  const ozellikler = [
-    "Borçların için kişisel ödeme önceliklerini gör",
-    "Devreden bakiyelerin tahmini faiz yükünü takip et",
-    "Aylık ödeme baskısını azaltan senaryoları incele",
-    "Toplam faiz maliyetini azaltmaya yönelik önerileri karşılaştır",
-  ];
-  const liste = ozellikler.map((ozellik) => `<tr><td width="34" valign="top" style="padding:0 0 12px"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:8px;background:#cdf564;color:#14160f;font-weight:900">✓</span></td><td valign="top" style="padding:2px 0 12px;color:#24261e;font-size:15px;line-height:1.45">${ozellik}</td></tr>`).join("");
-  return `<!doctype html><html lang="tr"><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:auto;background:#ffffff;border-radius:24px;overflow:hidden"><tr><td style="height:9px;background:#cdf564"></td></tr><tr><td style="padding:38px 36px 34px"><div style="font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:26px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#eef8d0;color:#315c43;font-size:12px;font-weight:800">1 AY ÜCRETSİZ PRO</div><h1 style="font-size:32px;line-height:1.12;letter-spacing:-.7px;margin:18px 0 12px">Borcama Pro denemen hazır.</h1><p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 22px">Hesabında yaklaşık <strong style="color:#14160f">${kalanGun} gün</strong> kalan, kart bilgisi gerektirmeyen Pro denemesi açık.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 12px">${liste}</table><a href="https://borcama.com/summary" style="display:block;margin-top:18px;padding:15px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">Ücretsiz denemeye başla →</a><div style="margin-top:24px;padding:16px 18px;border-radius:14px;background:#f7f4ea;color:#686a60;font-size:13px;line-height:1.55"><strong style="color:#14160f">Kart bilgisi gerekmez.</strong> Deneme bittiğinde ücret alınmaz; hesabın ve kayıtların korunarak Ücretsiz plana dönersin.</div><p style="margin:26px 0 0;color:#898b80;font-size:12px;line-height:1.5">Soruların için <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a></p></td></tr></table></td></tr></table></body></html>`;
+async function kampanyaGetir(admin: ReturnType<typeof createClient>, slug: string) {
+  const { data, error } = await admin.from("marketing_campaigns")
+    .select("id,slug,name,subject,description,template_key,audience_type,kind,status")
+    .eq("slug", slug).single();
+  if (error || !data) throw new Error("CAMPAIGN_UNAVAILABLE");
+  return data;
 }
 
-function yeniOzelliklerHtml() {
-  const ozellikler = [
-    {
-      no: "01",
-      baslik: "Ekstreni yükle, rakamları tek tek yazma",
-      metin: "Kredi kartı ekstreni PDF veya ekran görüntüsü olarak yükle. Borcama özet alanlarını çıkarır; sen kontrol edip kaydedersin.",
-    },
-    {
-      no: "02",
-      baslik: "Ödemeni borcun yanında kaydet",
-      metin: "Asgari, kısmi veya tam ödeme yaptığında tutarı doğrudan ilgili kartın yanında kaydet; kalan borcunu güncel gör.",
-    },
-    {
-      no: "03",
-      baslik: "Geçmiş ekstrelerini dönem dönem gör",
-      metin: "Kartının eski ekstrelerini kaybetmeden sakla; hangi dönemde ne kadar borç kaldığını daha kolay karşılaştır.",
-    },
-  ];
-  const kartlar = ozellikler.map((ozellik) => `<tr><td style="padding:0 0 12px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f4ea;border-radius:16px"><tr><td width="54" valign="top" style="padding:18px 0 18px 18px"><span style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:11px;background:#cdf564;color:#14160f;font-size:12px;font-weight:900">${ozellik.no}</span></td><td valign="top" style="padding:18px"><div style="color:#14160f;font-size:17px;line-height:1.3;font-weight:900;margin-bottom:5px">${ozellik.baslik}</div><div style="color:#5d6055;font-size:14px;line-height:1.55">${ozellik.metin}</div></td></tr></table></td></tr>`).join("");
-  return `<!doctype html><html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:32px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:auto;background:#ffffff;border-radius:24px;overflow:hidden"><tr><td style="height:9px;background:#cdf564"></td></tr><tr><td style="padding:38px 36px 34px"><div style="font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:26px">Borcama</div><div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#fff0ec;color:#a63f31;font-size:12px;font-weight:800">SİZ İSTEDİNİZ, BİZ YAPTIK</div><h1 style="font-size:32px;line-height:1.12;letter-spacing:-.7px;margin:18px 0 12px">Ekstre girmek artık daha kısa.</h1><p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">Borcama'ya borçlarını daha az uğraşla takip etmeni sağlayan yeni özellikler ekledik.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${kartlar}</table><a href="https://borcama.com/debts" style="display:block;margin-top:18px;padding:15px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">Yeni özellikleri dene →</a><div style="margin-top:24px;padding:17px 18px;border-radius:14px;background:#edf4ef;color:#52584f;font-size:13px;line-height:1.55"><strong style="color:#14160f">Dosyanın kontrolü sende.</strong> Ekstre cihazında okunur; kaydetmeden önce bulunan alanları sen doğrularsın.</div><div style="margin-top:14px;padding:17px 18px;border-radius:14px;background:#fff0ec;color:#6f4a43;font-size:13px;line-height:1.55"><strong style="color:#14160f">Sırada ne var?</strong> Kredi ödeme planını PDF'den aktarabilme özelliği üzerinde çalışıyoruz.</div><p style="margin:26px 0 0;color:#898b80;font-size:12px;line-height:1.5">Bir önerin mi var? Yanıtlayabilir veya <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a> adresine yazabilirsin.</p></td></tr></table></td></tr></table></body></html>`;
+async function takipliKampanyaGonder(
+  admin: ReturnType<typeof createClient>,
+  campaign: { id: string; slug: string; subject: string },
+  target: { user_id: string; email: string },
+  html: (url: string) => string,
+  destination: string,
+) {
+  const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
+  if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
+  const { data: existing } = await admin.from("marketing_deliveries")
+    .select("id,status").eq("campaign_id", campaign.id).eq("user_id", target.user_id).maybeSingle();
+  if (existing && existing.status !== "failed") return false;
+  let deliveryId = existing?.id;
+  if (!deliveryId) {
+    const { data, error } = await admin.from("marketing_deliveries").insert({
+      campaign_id: campaign.id, user_id: target.user_id, recipient_email: target.email, status: "queued",
+    }).select("id").single();
+    if (error || !data) throw new Error("DELIVERY_CREATE_FAILED");
+    deliveryId = data.id;
+  }
+  const track = `${String(Deno.env.get("SUPABASE_URL"))}/functions/v1/email-redirect?id=${encodeURIComponent(deliveryId)}&to=${encodeURIComponent(destination)}`;
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: "Borcama <zero@borcama.com>", to: [target.email], reply_to: "zero@borcama.com",
+      subject: campaign.subject, html: html(track),
+      tags: [{ name: "campaign", value: campaign.slug }, { name: "delivery", value: deliveryId }],
+    }),
+  });
+  const result = await response.json().catch(() => ({}));
+  const now = new Date().toISOString();
+  if (!response.ok || !result?.id) {
+    await admin.from("marketing_deliveries").update({ status: "failed", error_code: `resend_${response.status}`, updated_at: now }).eq("id", deliveryId);
+    throw new Error("EMAIL_SEND_FAILED");
+  }
+  await admin.from("marketing_deliveries").update({ resend_email_id: result.id, status: "sent", sent_at: now, last_event_at: now, updated_at: now }).eq("id", deliveryId);
+  return true;
+}
+
+async function kampanyaListesi(admin: ReturnType<typeof createClient>) {
+  const { data: campaigns, error } = await admin.from("marketing_campaigns")
+    .select("id,slug,name,subject,description,template_key,audience_type,kind,status,updated_at")
+    .order("created_at");
+  if (error) throw new Error("CAMPAIGNS_UNAVAILABLE");
+  const { data: deliveries } = await admin.from("marketing_deliveries")
+    .select("campaign_id,status,delivered_at,opened_at,clicked_at,visited_at");
+  return (campaigns || []).map((campaign) => {
+    const rows = (deliveries || []).filter((row) => row.campaign_id === campaign.id);
+    return {
+      ...campaign,
+      metrics: {
+        sent: rows.filter((x) => !["queued", "failed"].includes(x.status)).length,
+        delivered: rows.filter((x) => x.delivered_at).length,
+        opened: rows.filter((x) => x.opened_at).length,
+        clicked: rows.filter((x) => x.clicked_at).length,
+        visited: rows.filter((x) => x.visited_at).length,
+      },
+    };
+  });
 }
 
 async function yeniOzelliklerDuyurusuGonder(
   admin: ReturnType<typeof createClient>,
   kullanicilar: Array<{ id: string; email?: string; email_confirmed_at?: string | null }>,
 ) {
-  const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
-  if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
+  const campaign = await kampanyaGetir(admin, "features-2026-08");
   const { data: haklar, error } = await admin
     .from("user_entitlements")
     .select("user_id,features_announcement_sent_at");
@@ -101,28 +138,13 @@ async function yeniOzelliklerDuyurusuGonder(
     .map((u) => ({ user_id: u.id, email: String(u.email).trim().toLowerCase() }));
   const simdi = new Date().toISOString();
   let gonderilen = 0;
-  for (let i = 0; i < hedefler.length; i += 100) {
-    const grup = hedefler.slice(i, i + 100);
-    const cevap = await fetch("https://api.resend.com/emails/batch", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(grup.map((hak) => ({
-        from: "Borcama <zero@borcama.com>",
-        to: [hak.email],
-        reply_to: "zero@borcama.com",
-        subject: "Siz istediniz, biz yaptık: Borcama'da yenilikler",
-        html: yeniOzelliklerHtml(),
-      }))),
-    });
-    if (!cevap.ok) throw new Error("EMAIL_SEND_FAILED");
-    const { error: guncellemeHatasi } = await admin
-      .from("user_entitlements")
-      .upsert(
-        grup.map((hak) => ({ user_id: hak.user_id, features_announcement_sent_at: simdi, updated_at: simdi })),
-        { onConflict: "user_id" },
-      );
+  for (const hedef of hedefler) {
+    const sent = await takipliKampanyaGonder(admin, campaign, hedef, (url) => yeniOzelliklerSablonu(url), "/debts?source=features-email");
+    const { error: guncellemeHatasi } = await admin.from("user_entitlements").upsert(
+      { user_id: hedef.user_id, features_announcement_sent_at: simdi, updated_at: simdi }, { onConflict: "user_id" },
+    );
     if (guncellemeHatasi) throw new Error("EMAIL_STATUS_UPDATE_FAILED");
-    gonderilen += grup.length;
+    if (sent) gonderilen += 1;
   }
   return gonderilen;
 }
@@ -131,8 +153,7 @@ async function denemeDuyurusuGonder(
   admin: ReturnType<typeof createClient>,
   kullanicilar: Array<{ id: string; email?: string }>,
 ) {
-  const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
-  if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
+  const campaign = await kampanyaGetir(admin, "trial-invite-2026-08");
   const simdi = new Date();
   const { data: haklar, error } = await admin
     .from("user_entitlements")
@@ -150,30 +171,14 @@ async function denemeDuyurusuGonder(
     return !proAktif && epostaHaritasi.has(hak.user_id);
   });
   let gonderilen = 0;
-  for (let i = 0; i < hedefler.length; i += 100) {
-    const grup = hedefler.slice(i, i + 100);
-    const mesajlar = grup.map((hak) => ({
-      from: "Borcama <zero@borcama.com>",
-      to: [epostaHaritasi.get(hak.user_id)],
-      reply_to: "zero@borcama.com",
-      subject: "Borcama Pro'yu 1 Ay Ücretsiz Denemeye Başla",
-      html: denemeDuyuruHtml(
-        Math.max(1, Math.ceil((new Date(hak.trial_ends_at).getTime() - simdi.getTime()) / 86400000)),
-      ),
-    }));
-    const cevap = await fetch("https://api.resend.com/emails/batch", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(mesajlar),
-    });
-    if (!cevap.ok) throw new Error("EMAIL_SEND_FAILED");
-    const ids = grup.map((hak) => hak.user_id);
-    const { error: guncellemeHatasi } = await admin
-      .from("user_entitlements")
-      .update({ trial_announcement_sent_at: simdi.toISOString(), updated_at: simdi.toISOString() })
-      .in("user_id", ids);
+  for (const hak of hedefler) {
+    const target = { user_id: hak.user_id, email: String(epostaHaritasi.get(hak.user_id)) };
+    const days = Math.max(1, Math.ceil((new Date(hak.trial_ends_at).getTime() - simdi.getTime()) / 86400000));
+    const sent = await takipliKampanyaGonder(admin, campaign, target, (url) => denemeDavetHtml(days, url), "/summary?source=trial-email");
+    const { error: guncellemeHatasi } = await admin.from("user_entitlements")
+      .update({ trial_announcement_sent_at: simdi.toISOString(), updated_at: simdi.toISOString() }).eq("user_id", hak.user_id);
     if (guncellemeHatasi) throw new Error("EMAIL_STATUS_UPDATE_FAILED");
-    gonderilen += grup.length;
+    if (sent) gonderilen += 1;
   }
   return gonderilen;
 }
@@ -213,6 +218,19 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null);
     const userId = String(body?.userId || "");
     const action = String(body?.action || "");
+    if (action === "update_campaign_subject") {
+      try {
+        const slug = String(body?.slug || "").trim();
+        if (!/^[a-z0-9-]{3,80}$/.test(slug)) throw new Error("INVALID_CAMPAIGN");
+        const subject = konuGuvenli(body?.subject);
+        const { error } = await admin.from("marketing_campaigns")
+          .update({ subject, updated_at: new Date().toISOString() }).eq("slug", slug);
+        if (error) throw new Error("CAMPAIGN_UPDATE_FAILED");
+        return new Response(JSON.stringify({ ok: true, slug, subject }), { status: 200, headers });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "CAMPAIGN_UPDATE_FAILED" }), { status: 422, headers });
+      }
+    }
     if (action === "send_trial_announcement") {
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
@@ -351,10 +369,12 @@ Deno.serve(async (req) => {
     features_unannounced: satirlar.filter((x) => !x.features_announcement_sent_at && x.email_confirmed_at).length,
   };
 
+  let campaigns = [];
+  try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
   const finansal = topluFinansalIstatistik(kayitlar || []);
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
-  return new Response(JSON.stringify({ summary: ozet, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
+  return new Response(JSON.stringify({ summary: ozet, campaigns, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
 });
 
 const sayi = (deger: unknown) => {

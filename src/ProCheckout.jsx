@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Check, ChevronLeft, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, ChevronLeft, ShieldCheck } from "lucide-react";
 import { useSession } from "./Auth.jsx";
 import {
   revenueCatHazir,
@@ -107,8 +107,7 @@ export default function ProCheckout() {
         </header>
         <section className="pc-card">
           <div className="pc-copy">
-            <span className="pc-badge"><Sparkles size={14} /> BORCAMA PRO</span>
-            <h1>Pro'yu sürdürmek istediğinde.</h1>
+            <h1 style={{ marginTop: 0 }}>Pro'yu sürdürmek istediğinde.</h1>
             <p>
               Yeni hesaplarda Pro özellikleri ilk 30 gün kart bilgisi istemeden
               açıktır. Sonrasında istersen aylık veya yıllık planla devam edebilirsin.

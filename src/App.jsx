@@ -181,8 +181,6 @@ const CSS = `
 .bt-mono{font-family:'JetBrains Mono',monospace}
 
 .bt-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;row-gap:24px;flex-wrap:wrap;margin-bottom:32px}
-.bt-eyebrow{display:inline-block;background:${LIME};border:2px solid ${INK};border-radius:6px;padding:4px 10px;font-family:'JetBrains Mono',monospace;
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${INK};margin-bottom:14px;transform:rotate(-1deg)}
 .bt-headright{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .bt-demo-plan{display:inline-flex;align-items:center;gap:4px;padding:4px;border:1px dashed var(--line-soft);border-radius:999px;background:var(--panel2)}
 .bt-demo-plan>span{padding:0 6px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
@@ -250,7 +248,6 @@ const CSS = `
 
 .bt-oneriler{background:${INK};color:${CREAM};border:2px solid var(--line);border-radius:26px;padding:clamp(20px,4vw,32px);box-shadow:8px 8px 0 ${LIME};margin:4px 8px 34px 0;overflow:hidden}
 .bt-oneriler-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:24px;flex-wrap:wrap}
-.bt-oneriler-kicker{display:flex;align-items:center;gap:7px;color:${LIME};font:700 10.5px 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
 .bt-oneriler h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(25px,4vw,34px);color:${CREAM};line-height:1.05}
 .bt-oneriler-head p{margin:8px 0 0;color:#bfc1b4;font-size:12.5px;line-height:1.5;max-width:520px}
 .bt-oneri-mod{display:flex;gap:5px;padding:4px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}
@@ -275,7 +272,6 @@ const CSS = `
 
 /* Öneri merkezi: tek tipografi, sabit sahne ve yer değiştirmeyen sinyal kartları */
 .bt-oneriler,.bt-oneriler button{font-family:'Space Grotesk',sans-serif}
-.bt-oneriler-kicker{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.04em}
 .bt-oneriler h2{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:800;line-height:1.1}
 .bt-oneriler-head p{font-size:13px}
 .bt-oneri-hedef{display:grid;gap:7px}.bt-oneri-hedef-label{padding-left:5px;color:#bfc1b4;font-size:11px;font-weight:700}
@@ -314,7 +310,7 @@ const CSS = `
 
 /* Öneriler, uygulamanın açık yüzey hiyerarşisine bağlı kalır. */
 .bt-oneriler{background:var(--panel);color:var(--text);border:1px solid var(--line-soft);border-left:6px solid ${LIME};border-radius:22px;padding:clamp(20px,4vw,30px);box-shadow:0 12px 30px #14160f0a;margin:4px 0 30px;overflow:hidden}
-.bt-oneriler-head{align-items:center;margin-bottom:20px}.bt-oneriler-kicker{color:#5d7a2e;margin-bottom:7px;text-transform:none;letter-spacing:0;font-size:12px}.bt-oneriler h2{color:var(--text);font-size:clamp(24px,3.2vw,31px)}.bt-oneriler-head p{color:var(--dim);max-width:580px;font-size:12.5px}
+.bt-oneriler-head{align-items:center;margin-bottom:20px}.bt-oneriler h2{color:var(--text);font-size:clamp(24px,3.2vw,31px)}.bt-oneriler-head p{color:var(--dim);max-width:580px;font-size:12.5px}
 .bt-oneri-hedef-label{color:var(--dim)}.bt-oneri-mod{background:var(--panel2);border:1px solid var(--line-soft);border-radius:14px}.bt-oneri-mod button{color:var(--dim)}.bt-oneri-mod button.aktif{background:${LIME};color:${INK};box-shadow:none}
 .bt-oneri-sahne{height:auto;min-height:270px;grid-template-columns:minmax(0,1fr) 150px;gap:24px;padding:clamp(22px,4vw,32px);background:var(--panel2)!important;color:var(--text);border:1px solid var(--line-soft);border-left:6px solid #ffcf6e;border-radius:18px;box-shadow:none}.bt-oneri-sahne.acil{border-left-color:${CORAL}}.bt-oneri-sahne.firsat{border-left-color:${LIME}}.bt-oneri-deko{display:none}.bt-oneri-sahne-ust{margin-bottom:18px}.bt-oneri-canli i{background:${CORAL};box-shadow:none;animation:none}.bt-oneri-sayac{border:1px solid var(--line-soft);background:var(--panel);color:var(--dim)}.bt-oneri-sahne h3{color:var(--text);font-size:clamp(24px,3.5vw,31px)}.bt-oneri-sahne p{color:var(--dim)}.bt-oneri-etki{border:1px solid var(--line-soft);background:var(--panel)}.bt-oneri-aksiyon{background:${LIME};color:${INK};border:1.5px solid ${INK};box-shadow:none}.bt-oneri-sahne.acil .bt-oneri-aksiyon{box-shadow:none}
 .bt-oneri-pusula{aspect-ratio:auto;min-height:150px;border-radius:18px;background:var(--panel);color:var(--text);border:1px solid var(--line-soft);box-shadow:none;transform:none}.bt-oneri-pusula:before,.bt-oneri-pusula:after,.bt-oneri-yildiz{display:none}.bt-oneri-pusula-ikon{color:${CORAL}}.bt-oneri-pusula small{color:var(--dim)}.bt-oneri-pusula strong{color:var(--text)}.bt-oneri-pusula span{color:var(--faint)}
@@ -415,7 +411,7 @@ const CSS = `
 .bt-modal-arka{position:fixed;inset:0;z-index:50;background:#0f110acc;display:flex;align-items:center;justify-content:center;padding:20px}
 .bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
 .bt-modal.bt-ekstre-yukle{width:min(980px,calc(100vw - 48px));max-width:none;max-height:calc(100dvh - 48px);padding:clamp(22px,3vw,32px);overflow-y:auto;overscroll-behavior:contain}
-.bt-modalbaslik{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.bt-modalbaslik .bt-eyebrow{margin-bottom:9px}.bt-modalbaslik .bt-h2{margin:0}
+.bt-modalbaslik{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.bt-modalbaslik .bt-h2{margin:0}
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
 .bt-quick-add{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(70px,8vw,86px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${CORAL};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${LIME};cursor:pointer}
@@ -509,7 +505,7 @@ const CSS = `
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Sakin yüzey sistemi: normal yüzeylerde çizgi değil boşluk ve ton hiyerarşi kurar. */
-.bt-eyebrow,.bt-themeknob,.bt-hero .deko-daire,.bt-hero .deko-kare{border-width:1px}
+.bt-themeknob,.bt-hero .deko-daire,.bt-hero .deko-kare{border-width:1px}
 .bt-risk{border:1px solid color-mix(in srgb,${CORAL} 52%,transparent);transform:none}
 .bt-satir-menu-panel,.bt-modal,.bt-quick-menu,.bt-borc-araclari,.bt-varlik-hero{border:1px solid var(--line-soft);box-shadow:0 14px 36px #14160f12}
 .bt-borc-araclari{background:color-mix(in srgb,var(--panel) 96%,var(--bg));box-shadow:0 7px 20px #14160f0a}
@@ -3915,7 +3911,6 @@ function Ayarlar({
   return (
     <div className="bt-stack">
       <div>
-        <div className="bt-eyebrow">Hesabın</div>
         <div
           className="bt-display"
           style={{ fontSize: "clamp(28px,5vw,42px)" }}
@@ -4201,7 +4196,6 @@ function Ayarlar({
           >
             <div className="bt-modalbaslik">
               <div>
-                <div className="bt-eyebrow">Borcama Pro</div>
                 <div id="paket-yonetimi-baslik" className="bt-h2">
                   Paketini yönet
                 </div>
@@ -4671,14 +4665,6 @@ function BorcamaOnerileri({
     <section className="bt-oneriler" aria-labelledby="borcama-oneriler-baslik">
       <div className="bt-oneriler-head">
         <div>
-          <div className="bt-oneriler-kicker">
-            <Lightbulb size={15} />
-            {trialKalanGun > 0
-              ? `Pro denemesi · ${trialKalanGun} gün kaldı`
-              : proAktif
-                ? "Finansal öneriler"
-                : "Bu ayın ücretsiz önerisi"}
-          </div>
           <h2 id="borcama-oneriler-baslik">Borçlarını azaltmak için öneriler</h2>
           <p>
             Aylık ödeme baskısını mı, toplam faiz maliyetini mi azaltmak
@@ -4721,19 +4707,16 @@ function BorcamaOnerileri({
             <span className="bt-oneri-deko iki" />
             <div className="bt-oneri-sahne-icerik">
               <div className="bt-oneri-sahne-ust">
-                <span className="bt-oneri-canli"><i /> Sıradaki en iyi hamle</span>
                 <span className="bt-oneri-sayac">
                   {proAktif
                     ? filtreli.findIndex((oneri) => oneri.id === secili.id) + 1 + "/" + filtreli.length + " sinyal"
                     : "1 ücretsiz öneri"}
                 </span>
               </div>
-              <div className="bt-oneri-etiket">{secili.etiket}</div>
               <h3>{secili.baslik}</h3>
               <p>{secili.aciklama}</p>
               {secili.etki && (
                 <div className="bt-oneri-etki">
-                  <span>Tahmini etki</span>
                   <strong>{secili.etki}</strong>
                 </div>
               )}
@@ -4752,7 +4735,6 @@ function BorcamaOnerileri({
             <div className="bt-oneri-pusula" aria-label={zamanEtiketi(secili) + " önceliği"}>
               <div className="bt-oneri-yildiz">✦</div>
               <div className="bt-oneri-pusula-ikon">{ikon(secili.tur)}</div>
-              <small>Önerilen zaman</small>
               <strong>{zamanEtiketi(secili)}</strong>
               <span>
                 {proAktif
@@ -4800,7 +4782,6 @@ function BorcamaOnerileri({
                   >
                     <span className="bt-oneri-kart-no">0{index + 1}</span>
                     <span className="bt-oneri-kart-ikon">{ikon(oneri.tur)}</span>
-                    <span className="bt-oneri-kart-etiket">{oneri.etiket}</span>
                     <strong>{oneri.baslik}</strong>
                     <span className="bt-oneri-kart-alt">
                       {zamanEtiketi(oneri)} <ChevronRight size={15} />
@@ -5236,10 +5217,7 @@ function Odemeler({
       <div className="bt-card" data-tour="odemeler">
         <div className="bt-cardhead">
           <div>
-            <div className="bt-eyebrow">
-              ÖDEME TAKVİMİ
-            </div>
-            <div className="bt-h2" style={{ margin: "5px 0 0" }}>
+            <div className="bt-h2" style={{ margin: 0 }}>
               Ödeme ayı: {ayEtiketi(donem)}
             </div>
           </div>
@@ -5380,7 +5358,6 @@ function Odemeler({
           <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kart-odeme-baslik">
             <div className="bt-modalbaslik">
               <div>
-                <div className="bt-eyebrow">Kredi kartı ödemesi</div>
                 <div id="kart-odeme-baslik" className="bt-h2">
                   {kartOdemePenceresi.ad}
                 </div>
@@ -5473,7 +5450,6 @@ function Odemeler({
           <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kredi-odeme-baslik">
             <div className="bt-modalbaslik">
               <div>
-                <div className="bt-eyebrow">Kredi ödemesi</div>
                 <div id="kredi-odeme-baslik" className="bt-h2">
                   {krediOdemePenceresi.ad}
                 </div>
@@ -5602,9 +5578,6 @@ function BorcUzerindenOdemeModal({
       >
         <div className="bt-modalbaslik">
           <div>
-            <div className="bt-eyebrow">
-              {kartMi ? "Kredi kartı ödemesi" : "Kredi ödemesi"}
-            </div>
             <div id="borc-odeme-baslik" className="bt-h2">{odeme.ad}</div>
           </div>
           <button className="bt-btn hayalet" onClick={onClose} aria-label="Kapat">
@@ -5817,7 +5790,6 @@ function StatementImportModal({ cards, onClose, onUse }) {
       >
         <div className="bt-extract-head">
           <div>
-            <div className="bt-eyebrow">PDF veya ekran görüntüsü</div>
             <div id="ekstre-yukle-baslik" className="bt-h2" style={{ margin: "4px 0 6px" }}>
               Ekstreyi Borcama'ya aktar
             </div>
@@ -6693,7 +6665,6 @@ function Borclar({
             <div className="bt-borc-araclari-baslik">
               <div className="bt-borc-araclari-ikon"><ReceiptText size={17} /></div>
               <div>
-                <span>Kart ekstresi</span>
                 <strong>{kategori === "kontrol" ? "Ekstre kontrolü" : "Kredi kartları"}</strong>
               </div>
             </div>
@@ -6732,7 +6703,7 @@ function Borclar({
           <div>
             <div className="bt-borc-araclari-baslik">
               <div className="bt-borc-araclari-ikon"><AlertTriangle size={17} /></div>
-              <div><span>Otomatik görünüm</span><strong>Gecikenler</strong></div>
+              <div><strong>Gecikenler</strong></div>
             </div>
             <div className="bt-borc-araclari-aciklama">
               {devredenSayisi} devreden · {gecikmisSayisi} gecikmiş kayıt. Bu liste kart ve kredilerinden otomatik oluşur.
