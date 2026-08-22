@@ -2,5 +2,6 @@ User-agent: *
 Disallow: /backoffice
 Disallow: /ceo
 Disallow: /marketing
+Disallow: /analytics
 
 Sitemap: https://borcama.com/sitemap.xml

@@ -33,6 +33,10 @@
     {
       "source": "/marketing",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
+    },
+    {
+      "source": "/analytics",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     }
   ],
   "rewrites": [
@@ -62,5 +66,6 @@
     { "source": "/backoffice", "destination": "/index.html" },
     { "source": "/ceo", "destination": "/index.html" }
     ,{ "source": "/marketing", "destination": "/index.html" }
+    ,{ "source": "/analytics", "destination": "/index.html" }
   ]
 }

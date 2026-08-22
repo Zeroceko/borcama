@@ -20,6 +20,9 @@ secrets = "env(SEND_EMAIL_HOOK_SECRET)"
 [functions.auth-email]
 verify_jwt = false
 
+[functions.analytics-event]
+verify_jwt = false
+
 [functions.email-redirect]
 verify_jwt = false
 

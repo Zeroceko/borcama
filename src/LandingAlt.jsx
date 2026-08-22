@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrowRight, Check, Coins, FileUp, ReceiptText, ShieldCheck, Target, WalletCards } from "lucide-react";
+import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -10,6 +11,7 @@ const CSS = `
 `;
 
 export default function LandingAlt() {
+  useEffect(() => { funnelEtkinligiKaydet("landing_visit"); }, []);
   return <div className="la"><style>{CSS}</style>
     <header className="la-shell la-nav"><a className="la-logo" href="/" aria-label="Borcama ana sayfa"><img src="/borcama-logo.png" alt="Borcama" /></a><nav className="la-links"><a href="/araclar">Hesaplama Araçları</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="la-btn" href="/register?plan=free">Hemen Başla! <ArrowRight size={14}/></a></nav></header>
     <main>

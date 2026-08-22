@@ -121,6 +121,16 @@ async function kampanyaListesi(admin: ReturnType<typeof createClient>) {
   });
 }
 
+async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
+  const since = new Date(Date.now() - 90 * 86400000).toISOString();
+  const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }] = await Promise.all([
+    admin.rpc("admin_funnel_daily", { p_since: since }),
+    admin.rpc("admin_funnel_sources", { p_since: since }),
+  ]);
+  if (dailyError || sourceError) return { available: false, daily: [], sources: [] };
+  return { available: true, daily: daily || [], sources: sources || [] };
+}
+
 async function yeniOzelliklerDuyurusuGonder(
   admin: ReturnType<typeof createClient>,
   kullanicilar: Array<{ id: string; email?: string; email_confirmed_at?: string | null }>,
@@ -371,10 +381,11 @@ Deno.serve(async (req) => {
 
   let campaigns = [];
   try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
+  const analytics = await funnelIstatistikleri(admin);
   const finansal = topluFinansalIstatistik(kayitlar || []);
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
-  return new Response(JSON.stringify({ summary: ozet, campaigns, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
+  return new Response(JSON.stringify({ summary: ozet, campaigns, analytics, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
 });
 
 const sayi = (deger: unknown) => {

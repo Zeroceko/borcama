@@ -14,6 +14,7 @@ import {
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 import { googleAdsKayitDonusumu } from "./googleAds.js";
+import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -127,6 +128,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+
+  useEffect(() => {
+    if (kayitModu) funnelEtkinligiKaydet("register_view");
+  }, [kayitModu]);
 
   useEffect(() => {
     if (ilkProPlani) proNiyetiniKaydet(ilkProPlani);
@@ -267,6 +272,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       return setHata("Parolalar birbiriyle eşleşmiyor.");
     setGonderiliyor(true);
     setHata("");
+    const funnelKaynagi = funnelKaynakBilgisi();
     const { data, error } = await supabase.auth.signUp({
       email: eposta.trim(),
       password: parola,
@@ -278,6 +284,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           terms_accepted_at: new Date().toISOString(),
           privacy_version: "1.0",
           privacy_notice_read_at: new Date().toISOString(),
+          funnel_session_id: funnelOturumKimligi(),
+          funnel_source: funnelKaynagi.source,
+          funnel_campaign: funnelKaynagi.campaign,
         },
       },
     });

@@ -7,6 +7,7 @@ import LandingStory from "./LandingStory.jsx";
 import Backoffice from "./Backoffice.jsx";
 import CeoDashboard from "./CeoDashboard.jsx";
 import Marketing from "./Marketing.jsx";
+import Analytics from "./Analytics.jsx";
 import {
   KullaniciSozlesmesi,
   GizlilikMetni,
@@ -35,7 +36,7 @@ function yonetimYetkisiVar(session) {
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, "") || "/";
   useEffect(() => {
-    const yonetimSayfasi = ["/ceo", "/backoffice", "/marketing"].includes(yol);
+    const yonetimSayfasi = ["/ceo", "/backoffice", "/marketing", "/analytics"].includes(yol);
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -87,6 +88,12 @@ function Kok() {
     ) : (
       <YapilandirmaEksik />
     );
+  if (yol === "/analytics")
+    return supabaseHazir ? (
+      <KimlikliYonetim tur="analytics" />
+    ) : (
+      <YapilandirmaEksik />
+    );
   if (yol === "/welcome")
     return supabaseHazir ? <KimlikliWelcome /> : <YapilandirmaEksik />;
   if (yol === "/upgrade")
@@ -122,6 +129,7 @@ function KimlikliYonetim({ tur }) {
   if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
   if (tur === "ceo") return <CeoDashboard />;
   if (tur === "marketing") return <Marketing />;
+  if (tur === "analytics") return <Analytics />;
   return <Backoffice />;
 }
 
