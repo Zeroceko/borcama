@@ -1,3 +1,22 @@
+[auth]
+site_url = "https://borcama.com"
+additional_redirect_urls = ["https://borcama.com"]
+minimum_password_length = 8
+
+[auth.email]
+enable_confirmations = true
+otp_length = 8
+otp_expiry = 1800
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.hook.send_email]
+enabled = true
+uri = "https://pohxifqgxyxyiorejqvg.supabase.co/functions/v1/auth-email"
+secrets = "env(SEND_EMAIL_HOOK_SECRET)"
+
 [functions.auth-email]
 verify_jwt = false
 
