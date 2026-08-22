@@ -5740,7 +5740,17 @@ function StatementImportModal({ cards, onClose, onUse }) {
       setSelectedCard(matches.length === 1 ? matches[0].id : "__new__");
       setProgress({ stage: "done", progress: 1, page: parsed.pagesRead, pages: parsed.pagesRead });
     } catch (caught) {
-      setError(caught?.message || "Ekstre okunamadı. Lütfen başka bir dosya deneyin.");
+      const technicalMessage = String(caught?.message || "");
+      const isPdfCompatibilityError =
+        /getOrInsertComputed|Promise\.withResolvers|pdf\.worker/i.test(
+          technicalMessage,
+        );
+      setError(
+        isPdfCompatibilityError
+          ? "PDF bu tarayıcıda hazırlanamadı. Sayfayı yenileyip tekrar deneyin."
+          : technicalMessage ||
+              "Ekstre okunamadı. Lütfen başka bir dosya deneyin.",
+      );
     } finally {
       setBusy(false);
     }
