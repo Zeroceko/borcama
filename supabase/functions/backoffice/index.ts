@@ -347,7 +347,8 @@ Deno.serve(async (req) => {
     const proBitis = hak?.pro_expires_at || null;
     const trialBitis = hak?.trial_ends_at || null;
     const proAktif = !!proBitis && new Date(proBitis).getTime() > simdi;
-    const trialAktif = !proAktif && !!trialBitis && new Date(trialBitis).getTime() > simdi;
+    const denemedenCikarildi = ["admin_revoked", "self_revoked"].includes(hak?.source || "");
+    const trialAktif = !proAktif && !denemedenCikarildi && !!trialBitis && new Date(trialBitis).getTime() > simdi;
     return {
       id: u.id,
       email: epostaMaskele(u.email || ""),
