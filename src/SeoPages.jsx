@@ -44,6 +44,48 @@ const ARACLAR = [
 
 const REHBERLER = [
   {
+    slug: "2026-brut-net-maas-nasil-hesaplanir",
+    title: "2026 Brütten Nete Maaş Nasıl Hesaplanır?",
+    description: "2026 brüt maaştan net maaşa geçerken SGK, işsizlik primi, gelir vergisi ve damga vergisinin nasıl uygulandığını sade bir örnekle öğrenin.",
+    published: "2026-08-24",
+    intro: "Brüt maaş, kesintiler yapılmadan önceki toplam tutardır. Net maaş ise çalışanın eline geçen tutarı ifade eder. Aradaki farkı tek bir oran değil, birkaç ayrı kesinti belirler.",
+    sections: [
+      ["Brüt maaştan hangi kesintiler yapılır?", "Çalışan payı olarak SGK primi ve işsizlik sigortası primi ayrılır. Ardından gelir vergisi matrahına göre gelir vergisi ve brüt tutar üzerinden damga vergisi hesaplanır. Asgari ücret vergi istisnası da sonuçta dikkate alınır."],
+      ["Net maaş neden aylar ilerledikçe değişebilir?", "Gelir vergisi yıl içindeki toplam vergi matrahına göre kademeli hesaplanır. Bir üst vergi dilimine geçildiğinde, brüt maaş aynı kalsa bile ele geçen net tutar azalabilir."],
+      ["Netten brüte hesaplama nasıl yapılır?", "Hedeflenen net tutarı verecek brüt maaş, kesintiler ve vergi dilimi birlikte hesaba katılarak bulunur. Bu nedenle net tutara sabit bir yüzde eklemek doğru sonuç vermeyebilir."],
+      ["Hesaplamada hangi ayı seçmelisin?", "Maaşının bordroya yansıyacağı ayı seç. Araç, aynı brüt maaşı yılbaşından beri aldığın varsayımıyla o aya kadarki toplam matrahı tahmin eder."],
+    ],
+    tool: "brut-net-maas-hesaplama",
+  },
+  {
+    slug: "2026-kidem-tazminati-nasil-hesaplanir",
+    title: "2026 Kıdem Tazminatı Nasıl Hesaplanır?",
+    description: "2026 kıdem tazminatı hesabında brüt ücret, düzenli ek ödemeler, çalışma süresi, tavan ve damga vergisinin etkisini öğrenin.",
+    published: "2026-08-24",
+    intro: "Kıdem tazminatı tutarı; hesaba esas aylık kazanç, toplam çalışma süresi ve ilgili dönemdeki kıdem tazminatı tavanına göre tahmin edilir. Hak kazanma durumu ise işten ayrılma nedenine göre ayrıca değerlendirilir.",
+    sections: [
+      ["Hesaba esas aylık tutar nedir?", "Brüt maaşa, her ay düzenli sağlanan para ve para ile ölçülebilen bazı menfaatler eklenebilir. Düzensiz veya tek seferlik ödemelerin durumu farklı olabileceğinden bordro kayıtlarını esas al."],
+      ["Kıdem tazminatı tavanı nasıl etkiler?", "Hesaba esas aylık kazanç ilgili dönem tavanını aşıyorsa hesaplama tavan tutar üzerinden yapılır. Tavan yıl içinde güncellenebildiği için işten ayrılma tarihindeki tutar önemlidir."],
+      ["Çalışma süresi nasıl eklenir?", "Tam yıllara ek olarak artan ay ve günler de oranlanarak hesaba katılır. Başlangıç ve bitiş tarihlerini işveren kayıtlarından kontrol etmek sonucu daha doğru yapar."],
+      ["Net tutara nasıl ulaşılır?", "Tahmini brüt tazminattan damga vergisi düşülerek net tutar bulunur. Kesin bordroda yasal durum ve kayıtlar sonucu etkileyebileceğinden aracı bir ön hesap olarak kullan."],
+    ],
+    tool: "kidem-tazminati-hesaplama",
+  },
+  {
+    slug: "mevduat-faizi-net-getiri-nasil-hesaplanir",
+    title: "Mevduat Faizi Net Getiri Nasıl Hesaplanır?",
+    description: "Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini ve vade sonu net getirisini hesaplamayı öğrenin.",
+    published: "2026-08-24",
+    intro: "Bankanın ilan ettiği mevduat faizi genellikle yıllık brüt orandır. Hesabına geçecek net kazanç için vade süresi ve stopaj kesintisi de hesaba katılmalıdır.",
+    sections: [
+      ["Brüt faiz nasıl bulunur?", "Ana para, yıllık brüt faiz oranı ve vade günü birlikte kullanılır. Kısa vadede yıllık oranın yalnızca vade gününe karşılık gelen kısmı kazanılır."],
+      ["Stopaj net getiriyi nasıl etkiler?", "Stopaj, brüt faiz kazancı üzerinden kesilir. Oran; mevduatın türüne, açılış veya yenileme tarihine ve vadeye göre değişebileceği için bankanın teklifinde yazan oranı kullan."],
+      ["Vade sonu toplam tutar nedir?", "Ana paraya, stopaj düşüldükten sonra kalan net faiz eklenir. Vade sonunda hesabında görmeyi beklediğin yaklaşık toplam budur."],
+      ["Teklifleri karşılaştırırken neye bakmalısın?", "Yalnızca ilan edilen faiz oranını değil; vade gününü, stopajı, hoş geldin oranının geçerlilik süresini ve vade sonu net tutarı birlikte karşılaştır."],
+    ],
+    tool: "mevduat-faizi-hesaplama",
+  },
+  {
     slug: "borclarimi-nasil-duzenlerim",
     title: "Borçlarımı Nasıl Düzenlerim? Adım Adım Başlangıç Rehberi",
     description: "Dağınık kredi kartı, kredi ve ek hesap borçlarını tek listede toplamak ve uygulanabilir bir aylık plan kurmak için sade rehber.",
@@ -110,6 +152,12 @@ const REHBERLER = [
   },
 ];
 
+const TOOL_GUIDES = {
+  "/araclar/brut-net-maas-hesaplama": ["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş nasıl hesaplanır?"],
+  "/araclar/kidem-tazminati-hesaplama": ["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı nasıl hesaplanır?"],
+  "/araclar/mevduat-faizi-hesaplama": ["/rehber/mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat faizi net getiri nasıl hesaplanır?"],
+};
+
 export function seoYoluMu(yol) {
   return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
 }
@@ -160,7 +208,15 @@ function useSeo({ title, description, path, schema }) {
     const script = document.createElement("script");
     script.id = "borcama-seo-schema";
     script.type = "application/ld+json";
-    script.textContent = JSON.stringify(schema);
+    const parentPath = path.startsWith("/araclar") ? "/araclar" : "/rehber";
+    const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+    const breadcrumbItems = [
+      { "@type": "ListItem", position: 1, name: "Borcama", item: SITE },
+      { "@type": "ListItem", position: 2, name: parentName, item: `${SITE}${parentPath}` },
+    ];
+    if (path !== parentPath) breadcrumbItems.push({ "@type": "ListItem", position: 3, name: title, item: `${SITE}${path}` });
+    const schemaNode = Object.fromEntries(Object.entries(schema).filter(([key]) => key !== "@context"));
+    script.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": [schemaNode, { "@type": "BreadcrumbList", itemListElement: breadcrumbItems }] });
     document.head.appendChild(script);
     return () => script.remove();
   }, [title, description, path, schema]);
@@ -172,6 +228,12 @@ function Layout({ children }) {
 
 function Hero({ title, lead }) {
   return <section className="seo-hero"><div className="seo-shell seo-hero-inner"><div><h1>{title}</h1><p>{lead}</p></div></div></section>;
+}
+
+function Breadcrumb({ path, title }) {
+  const parentPath = path.startsWith("/araclar") ? "/araclar" : "/rehber";
+  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+  return <nav className="seo-breadcrumb seo-shell" aria-label="Sayfa yolu"><a href="/">Borcama</a><span>/</span>{path === parentPath ? <strong>{parentName}</strong> : <><a href={parentPath}>{parentName}</a><span>/</span><strong>{title}</strong></>}</nav>;
 }
 
 function AraclarAna() {
@@ -187,7 +249,8 @@ function AracCard({ slug, icon: Icon, title, text }) {
 function ToolLayout({ title, lead, path, schema, children, faq = [], showSources = true }) {
   useSeo({ title, description: lead, path, schema });
   const bolumler = React.Children.toArray(children);
-  return <Layout><main><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}<AdSlot/></div></div>{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
+  const guide = TOOL_GUIDES[path];
+  return <Layout><main><Breadcrumb path={path} title={title}/><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}<AdSlot/></div></div>{guide && <a className="seo-related-guide" href={guide[0]}><BookOpen/><span><b>Hesabın nasıl yapıldığını öğren</b><strong>{guide[1]}</strong></span><ArrowRight/></a>}{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
@@ -330,9 +393,9 @@ function RehberAna() {
 }
 
 function RehberDetay({ rehber }) {
-  const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:"2026-08-22", dateModified:"2026-08-22" }), [rehber]);
+  const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:rehber.published || "2026-08-22", dateModified:rehber.published || "2026-08-22" }), [rehber]);
   useSeo({ title:rehber.title, description:rehber.description, path:`/rehber/${rehber.slug}`, schema });
-  return <Layout><main><article className="seo-article seo-shell"><a className="seo-back" href="/rehber">← Tüm rehberler</a><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><SourceNote/><p className="seo-editorial">Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.</p></article></main></Layout>;
+  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><SourceNote/><p className="seo-editorial">Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.</p></article></main></Layout>;
 }
 
 function Cta() {

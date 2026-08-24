@@ -16,6 +16,9 @@ const tools = [
 ];
 
 const guides = [
+  ["2026-brut-net-maas-nasil-hesaplanir", "2026 Brütten Nete Maaş Nasıl Hesaplanır?", "2026 brüt maaştan net maaşa geçerken SGK, işsizlik primi, gelir vergisi ve damga vergisinin nasıl uygulandığını öğrenin."],
+  ["2026-kidem-tazminati-nasil-hesaplanir", "2026 Kıdem Tazminatı Nasıl Hesaplanır?", "2026 kıdem tazminatı hesabında brüt ücret, düzenli ek ödemeler, çalışma süresi, tavan ve damga vergisinin etkisini öğrenin."],
+  ["mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat Faizi Net Getiri Nasıl Hesaplanır?", "Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini ve vade sonu net getirisini hesaplamayı öğrenin."],
   ["borclarimi-nasil-duzenlerim", "Borçlarımı Nasıl Düzenlerim?", "Borçlarını tek listede toplamak, ödeme önceliğini belirlemek ve sürdürülebilir bir aylık plan kurmak için adım adım rehber."],
   ["kredi-karti-borcu-nasil-takip-edilir", "Kredi Kartı Borcu Nasıl Takip Edilir?", "Dönem borcu, asgari ödeme ve son ödeme tarihini düzenli takip etmek için uygulanabilir yöntemler."],
   ["asgari-odeme-borcu-nasil-etkiler", "Asgari Ödeme Yapmak Borcu Nasıl Etkiler?", "Kredi kartında asgari ödeme sonrası kalan borcun ve faizin nasıl değiştiğini sade örneklerle öğren."],
@@ -25,9 +28,14 @@ const guides = [
 
 const toolLinks = tools.map(([slug, title]) => [`/araclar/${slug}`, title]);
 const guideLinks = guides.map(([slug, title]) => [`/rehber/${slug}`, title]);
+const guideByTool = {
+  "brut-net-maas-hesaplama": ["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş rehberi"],
+  "kidem-tazminati-hesaplama": ["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı rehberi"],
+  "mevduat-faizi-hesaplama": ["/rehber/mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat faizi net getiri rehberi"],
+};
 const pages = [
   { path: "/araclar", title: "Finans ve Ödeme Hesaplama Araçları", description: "Borç, kredi kartı, mevduat, kredi taksiti, maaş ve kıdem tazminatı için ücretsiz hesaplama araçları.", links: toolLinks, type: "CollectionPage" },
-  ...tools.map(([slug, title, description]) => ({ path: `/araclar/${slug}`, title, description, links: toolLinks.filter(([path]) => path !== `/araclar/${slug}`), type: "WebApplication" })),
+  ...tools.map(([slug, title, description]) => ({ path: `/araclar/${slug}`, title, description, links: [...(guideByTool[slug] ? [guideByTool[slug]] : []), ...toolLinks.filter(([path]) => path !== `/araclar/${slug}`)], type: "WebApplication" })),
   { path: "/rehber", title: "Borç ve Ödeme Rehberi", description: "Borç düzenleme, kredi kartı takibi ve borç kapatma planı hakkında sade ve uygulanabilir rehberler.", links: guideLinks, type: "CollectionPage" },
   ...guides.map(([slug, title, description]) => ({ path: `/rehber/${slug}`, title, description, links: guideLinks.filter(([path]) => path !== `/rehber/${slug}`), type: "Article" })),
 ];
@@ -45,16 +53,28 @@ const baseHtml = await readFile(join(DIST, "index.html"), "utf8");
 for (const page of pages) {
   const canonical = `${SITE}${page.path}`;
   const fullTitle = `${page.title} | Borcama`;
+  const parentPath = page.path.startsWith("/araclar") ? "/araclar" : "/rehber";
+  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+  const breadcrumbItems = [
+    { "@type": "ListItem", position: 1, name: "Borcama", item: SITE },
+    { "@type": "ListItem", position: 2, name: parentName, item: `${SITE}${parentPath}` },
+  ];
+  if (page.path !== parentPath) breadcrumbItems.push({ "@type": "ListItem", position: 3, name: page.title, item: canonical });
   const schema = {
     "@context": "https://schema.org",
-    "@type": page.type,
-    name: page.title,
-    headline: page.type === "Article" ? page.title : undefined,
-    description: page.description,
-    url: canonical,
-    applicationCategory: page.type === "WebApplication" ? "FinanceApplication" : undefined,
-    operatingSystem: page.type === "WebApplication" ? "Web" : undefined,
-    offers: page.type === "WebApplication" ? { "@type": "Offer", price: "0", priceCurrency: "TRY" } : undefined,
+    "@graph": [
+      {
+        "@type": page.type,
+        name: page.title,
+        headline: page.type === "Article" ? page.title : undefined,
+        description: page.description,
+        url: canonical,
+        applicationCategory: page.type === "WebApplication" ? "FinanceApplication" : undefined,
+        operatingSystem: page.type === "WebApplication" ? "Web" : undefined,
+        offers: page.type === "WebApplication" ? { "@type": "Offer", price: "0", priceCurrency: "TRY" } : undefined,
+      },
+      { "@type": "BreadcrumbList", itemListElement: breadcrumbItems },
+    ],
   };
   let html = baseHtml
     .replace(/<title>.*?<\/title>/s, `<title>${escapeHtml(fullTitle)}</title>`)
