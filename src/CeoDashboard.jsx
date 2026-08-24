@@ -19,7 +19,7 @@ export default function CeoDashboard() {
   useEffect(()=>{yukle()},[]);
   const yeniler=useMemo(()=>[...(veri?.users||[])].sort((a,b)=>b.created_at.localeCompare(a.created_at)).slice(0,6),[veri]);
   const denemeler=useMemo(()=>[...(veri?.users||[])].filter(u=>u.trial_started_at).sort((a,b)=>b.trial_started_at.localeCompare(a.trial_started_at)),[veri]);
-  const uyeler=useMemo(()=>(veri?.users||[]).filter(u=>{const arama=u.email.toLocaleLowerCase("tr-TR").includes(uyeAra.toLocaleLowerCase("tr-TR"));const paket=uyeFiltresi==="all"||(uyeFiltresi==="trial"&&u.trial_active)||(uyeFiltresi==="pro"&&u.pro_active)||(uyeFiltresi==="free"&&!u.pro_active&&!u.trial_active);return arama&&paket}),[veri,uyeAra,uyeFiltresi]);
+  const uyeler=useMemo(()=>[...(veri?.users||[])].filter(u=>{const arama=u.email.toLocaleLowerCase("tr-TR").includes(uyeAra.toLocaleLowerCase("tr-TR"));const paket=uyeFiltresi==="all"||(uyeFiltresi==="trial"&&u.trial_active)||(uyeFiltresi==="pro"&&u.pro_active)||(uyeFiltresi==="free"&&!u.pro_active&&!u.trial_active);return arama&&paket}).sort((a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||""))),[veri,uyeAra,uyeFiltresi]);
   async function proDegistir(userId,action){
     if(action==="revoke_pro"&&onayId!==userId){setOnayId(userId);setYonetimMesaji(null);return}
     setIslemde(userId);setYonetimMesaji(null);setYonetimUrl("");
