@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { denemeDavetHtml, konuGuvenli, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
+import { borcToplamlariniHesapla, guvenliSayi, gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const izinliOriginler = new Set([
   "https://borcama.com",
@@ -330,7 +331,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "USERS_UNAVAILABLE" }), { status: 500, headers });
   }
 
-  const { data: kayitlar, error: kayitHatasi } = await admin.from("kv_store").select("user_id,updated_at,value");
+  const { data: kayitlar, error: kayitHatasi } = await admin.from("kv_store").select("user_id,updated_at,value").eq("key", "borctakip:v1");
   if (kayitHatasi) return new Response(JSON.stringify({ error: "DATA_UNAVAILABLE" }), { status: 500, headers });
   const { data: haklar, error: hakHatasi } = await admin
     .from("user_entitlements")
@@ -384,15 +385,26 @@ Deno.serve(async (req) => {
   try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
   const analytics = await funnelIstatistikleri(admin);
   const finansal = topluFinansalIstatistik(kayitlar || []);
+  if (finansal.available) {
+    try {
+      await gunlukBorcSnapshotKaydet(admin, kayitlar || []);
+      const baslangic = new Date(); baslangic.setUTCDate(baslangic.getUTCDate() - 29);
+      const { data: egilim, error: egilimHatasi } = await admin.from("financial_daily_snapshots")
+        .select("snapshot_date,participant_count,total_debt,cards,loans,overdrafts,others")
+        .gte("snapshot_date", baslangic.toISOString().slice(0, 10)).order("snapshot_date");
+      if (!egilimHatasi) finansal.debt_trend = (egilim || []).map((x) => ({
+        date: x.snapshot_date, participant_count: x.participant_count,
+        total_debt: Number(x.total_debt), cards: Number(x.cards), loans: Number(x.loans),
+        overdrafts: Number(x.overdrafts), others: Number(x.others),
+      }));
+    } catch { /* Snapshot tablosu geçici olarak ulaşılamazsa mevcut toplamlar yine gösterilir. */ }
+  }
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
   return new Response(JSON.stringify({ summary: ozet, campaigns, analytics, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
 });
 
-const sayi = (deger: unknown) => {
-  const n = Number(deger);
-  return Number.isFinite(n) && n >= 0 && n <= 1_000_000_000_000 ? n : 0;
-};
+const sayi = guvenliSayi;
 
 function geriBildirimleriHazirla(kullanicilar: Array<{ id: string; email?: string }>, kayitlar: Array<{ user_id: string; updated_at: string; value: string }>) {
   const epostalar = new Map(kullanicilar.map((u) => [u.id, epostaMaskele(u.email || "")]));
@@ -412,40 +424,26 @@ function geriBildirimleriHazirla(kullanicilar: Array<{ id: string; email?: strin
   return liste.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 100);
 }
 
-function kartBorcu(k: Record<string, unknown>) {
-  const yeniModel = k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined || k.yapilanOdeme !== undefined;
-  if (!yeniModel) return (sayi(k.donemIciToplam) || sayi(k.borc)) + sayi(k.donemIciEklenen);
-  const ekstre = sayi(k.toplamEkstreBorcu) || sayi(k.oncekiDonemBorcu);
-  const devreden = Math.max(ekstre - Math.min(sayi(k.yapilanOdeme), ekstre), 0);
-  const oran = ekstre >= 180000 ? 4.25 : ekstre >= 30000 ? 3.75 : 3.25;
-  return devreden + (devreden * oran) / 100;
-}
-
 function topluFinansalIstatistik(kayitlar: Array<{ user_id: string; value: string }>) {
   const ay = new Date().toISOString().slice(0, 7);
-  const toplam = { debt: 0, income: 0, expense: 0, cards: 0, loans: 0, overdrafts: 0, others: 0 };
-  let katilan = 0;
+  const borclar = borcToplamlariniHesapla(kayitlar);
+  const toplam = { income: 0, expense: 0 };
   for (const kayit of kayitlar) {
     try {
       const veri = JSON.parse(kayit.value);
       if (!veri || typeof veri !== "object") continue;
-      const cards = Array.isArray(veri.cards) ? veri.cards.reduce((t: number, x: Record<string, unknown>) => t + kartBorcu(x), 0) : 0;
-      const loans = Array.isArray(veri.loans) ? veri.loans.reduce((t: number, x: Record<string, unknown>) => t + sayi(x.kalanBorc), 0) : 0;
-      const overdrafts = Array.isArray(veri.overdrafts) ? veri.overdrafts.reduce((t: number, x: Record<string, unknown>) => t + sayi(x.kullanilan), 0) : 0;
-      const others = Array.isArray(veri.others) ? veri.others.reduce((t: number, x: Record<string, unknown>) => t + sayi(x.tutar), 0) : 0;
       const income = Array.isArray(veri.incomes) ? veri.incomes.reduce((t: number, x: Record<string, unknown>) => t + (x.tekrar === "Tek seferlik" && !String(x.tarih || "").startsWith(ay) ? 0 : sayi(x.tutar)), 0) : 0;
       const expense = Array.isArray(veri.expenses) ? veri.expenses.reduce((t: number, x: Record<string, unknown>) => t + (String(x.tarih || "").startsWith(ay) ? sayi(x.tutar) : 0), 0) : 0;
-      toplam.cards += cards; toplam.loans += loans; toplam.overdrafts += overdrafts; toplam.others += others;
-      toplam.debt += cards + loans + overdrafts + others; toplam.income += income; toplam.expense += expense;
-      katilan += 1;
+      toplam.income += income; toplam.expense += expense;
     } catch { /* Bozuk veya eski kayıt toplama dahil edilmez. */ }
   }
-  if (katilan < 3) return { available: false, participant_count: katilan, minimum_required: 3 };
+  if (borclar.participant_count < 3) return { available: false, participant_count: borclar.participant_count, minimum_required: 3 };
   return {
-    available: true, participant_count: katilan,
-    total_debt: toplam.debt, monthly_income: toplam.income, monthly_expense: toplam.expense,
-    debt_to_monthly_income: toplam.income > 0 ? toplam.debt / toplam.income : null,
-    breakdown: { cards: toplam.cards, loans: toplam.loans, overdrafts: toplam.overdrafts, others: toplam.others },
+    available: true, participant_count: borclar.participant_count,
+    total_debt: borclar.total_debt, monthly_income: toplam.income, monthly_expense: toplam.expense,
+    debt_to_monthly_income: toplam.income > 0 ? borclar.total_debt / toplam.income : null,
+    breakdown: { cards: borclar.cards, loans: borclar.loans, overdrafts: borclar.overdrafts, others: borclar.others },
+    debt_trend: [] as Array<Record<string, unknown>>,
   };
 }
 

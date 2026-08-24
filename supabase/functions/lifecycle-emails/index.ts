@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { denemeBasladiHtml, denemeBitiyorHtml } from "../_shared/borcama-email.ts";
+import { gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -77,6 +78,11 @@ Deno.serve(async (req) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  let debtSnapshotSaved = false;
+  try {
+    await gunlukBorcSnapshotKaydet(admin);
+    debtSnapshotSaved = true;
+  } catch { /* E-posta akışı snapshot hatasından etkilenmez. */ }
   try {
     const [startedCampaign, endingCampaign] = await Promise.all([
       kampanya(admin, "trial-started"), kampanya(admin, "trial-ending-3d"),
@@ -119,7 +125,7 @@ Deno.serve(async (req) => {
         }
       }
     }
-    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, skipped });
+    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, skipped, debt_snapshot_saved: debtSnapshotSaved });
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : "LIFECYCLE_EMAIL_FAILED" }, 500);
   }
