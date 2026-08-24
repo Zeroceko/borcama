@@ -58,6 +58,11 @@ import {
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
+import {
+  googleAdsOlcumIzniAyarla,
+  googleAdsOlcumTercihi,
+  googleAdsSatinAlmaDonusumu,
+} from "./googleAds.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -1988,6 +1993,7 @@ export default function BorcTakip() {
       });
       if (sonuc.cancelled) return;
       if (!sonuc.active) throw new Error("Satın alma tamamlanamadı.");
+      await googleAdsSatinAlmaDonusumu(sonuc);
       setReklamsiz((eski) => ({
         ...eski,
         yukleniyor: false,
@@ -3852,6 +3858,7 @@ function Ayarlar({
   const [iptalOnayi, setIptalOnayi] = useState(false);
   const [iptalDurumu, setIptalDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const [kartDurumu, setKartDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
+  const [olcumIzni, setOlcumIzni] = useState(() => googleAdsOlcumTercihi() === true);
   const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
@@ -4149,6 +4156,30 @@ function Ayarlar({
               <small>Yeni dönem ekstresi giriş zamanı.</small>
             </div>
             <span className="bt-yakinda">Yakında</span>
+          </div>
+        </section>
+        <section className="bt-settings-card">
+          <div className="bt-settings-title">
+            <ShieldCheck size={18} /> Gizlilik ve ölçüm
+          </div>
+          <div className="bt-setting-row">
+            <div>
+              <strong>Google Analytics ve reklam ölçümü</strong>
+              <small>
+                Site kullanımını ve reklam kaynaklı kayıtları ölçer; e-posta ve finansal kayıtlar gönderilmez.
+              </small>
+            </div>
+            <button
+              className="bt-btn kucuk ikincil"
+              type="button"
+              onClick={() => {
+                const yeniIzin = !olcumIzni;
+                setOlcumIzni(yeniIzin);
+                void googleAdsOlcumIzniAyarla(yeniIzin);
+              }}
+            >
+              {olcumIzni ? "Ölçümü kapat" : "Ölçüme izin ver"}
+            </button>
           </div>
         </section>
         <section className="bt-settings-card wide">

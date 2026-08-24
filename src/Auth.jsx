@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
-import { googleAdsKayitDonusumu } from "./googleAds.js";
+import { googleAdsYeniKullaniciDonusumu } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
 
 const CSS = `
@@ -79,6 +79,10 @@ export function useSession() {
   const [session, setSession] = useState(undefined); // undefined = yükleniyor, null = oturum yok
 
   useEffect(() => {
+    const sessionAyarla = (yeniSession) => {
+      setSession(yeniSession);
+      if (yeniSession?.user) void googleAdsYeniKullaniciDonusumu(yeniSession.user);
+    };
     const oturumuYukle = async () => {
       if (
         localStorage.getItem("borcama_session_only") === "1" &&
@@ -90,11 +94,11 @@ export function useSession() {
         return;
       }
       const { data } = await supabase.auth.getSession();
-      setSession(data.session);
+      sessionAyarla(data.session);
     };
     oturumuYukle();
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) =>
-      setSession(session),
+      sessionAyarla(session),
     );
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -168,14 +172,35 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   async function linkGonder(e) {
     e.preventDefault();
     if (!eposta.trim()) return;
+    if (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu))
+      return setHata(
+        "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
+      );
     setGonderiliyor(true);
     setHata("");
+    const funnelKaynagi = kayitModu ? funnelKaynakBilgisi() : null;
+    const kayitZamani = new Date().toISOString();
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
         emailRedirectTo: window.location.origin + sonrakiSayfa,
         captchaToken: captchaToken || undefined,
         shouldCreateUser: kayitModu,
+        data: kayitModu ? {
+          terms_version: "1.0",
+          terms_accepted_at: kayitZamani,
+          privacy_version: "1.0",
+          privacy_notice_read_at: kayitZamani,
+          borcama_registration_created_at: kayitZamani,
+          borcama_registration_method: "magic_link",
+          funnel_session_id: funnelOturumKimligi(),
+          funnel_source: funnelKaynagi.source,
+          funnel_medium: funnelKaynagi.medium,
+          funnel_campaign: funnelKaynagi.campaign,
+          funnel_content: funnelKaynagi.content,
+          funnel_term: funnelKaynagi.term,
+          funnel_click_id: funnelKaynagi.click_id,
+        } : undefined,
       },
     });
     setGonderiliyor(false);
@@ -273,6 +298,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     setGonderiliyor(true);
     setHata("");
     const funnelKaynagi = funnelKaynakBilgisi();
+    const kayitZamani = new Date().toISOString();
     const { data, error } = await supabase.auth.signUp({
       email: eposta.trim(),
       password: parola,
@@ -281,12 +307,18 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
         captchaToken: captchaToken || undefined,
         data: {
           terms_version: "1.0",
-          terms_accepted_at: new Date().toISOString(),
+          terms_accepted_at: kayitZamani,
           privacy_version: "1.0",
-          privacy_notice_read_at: new Date().toISOString(),
+          privacy_notice_read_at: kayitZamani,
+          borcama_registration_created_at: kayitZamani,
+          borcama_registration_method: "password",
           funnel_session_id: funnelOturumKimligi(),
           funnel_source: funnelKaynagi.source,
+          funnel_medium: funnelKaynagi.medium,
           funnel_campaign: funnelKaynagi.campaign,
+          funnel_content: funnelKaynagi.content,
+          funnel_term: funnelKaynagi.term,
+          funnel_click_id: funnelKaynagi.click_id,
         },
       },
     });
@@ -299,7 +331,6 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       );
     else {
       proNiyetiniTemizle();
-      await googleAdsKayitDonusumu();
       if (data?.session) {
         window.location.href = sonrakiSayfa;
       } else setGonderildi(true);

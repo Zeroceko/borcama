@@ -65,11 +65,13 @@ function planPackage(offering, plan) {
 function paketOzeti(rcPackage) {
   if (!rcPackage) return null;
   const product = rcPackage.webBillingProduct || rcPackage.rcBillingProduct;
+  const price = product?.currentPrice;
   return {
     packageId: rcPackage.identifier,
     priceId: product?.defaultPurchaseOption?.priceId || null,
-    formattedPrice: product?.currentPrice?.formattedPrice || null,
-    currency: product?.currentPrice?.currency || null,
+    formattedPrice: price?.formattedPrice || null,
+    currency: price?.currency || null,
+    value: Number.isFinite(price?.amountMicros) ? price.amountMicros / 1_000_000 : null,
     title: product?.title || product?.displayName || null,
   };
 }
@@ -116,7 +118,17 @@ export async function revenueCatProSatinAl({ userId, email, plan = "monthly" }) 
       termsAndConditionsUrl: `${window.location.origin}/terms`,
       metadata: { plan: `borcama_pro_${plan}` },
     });
-    return { ...proBilgisi(result.customerInfo), purchased: true };
+    const product = selectedPackage.webBillingProduct || selectedPackage.rcBillingProduct;
+    const price = product?.currentPrice;
+    return {
+      ...proBilgisi(result.customerInfo),
+      purchased: true,
+      transactionId: result.storeTransaction?.storeTransactionId || result.operationSessionId,
+      productId: result.storeTransaction?.productIdentifier || product?.identifier || selectedPackage.identifier,
+      value: Number.isFinite(price?.amountMicros) ? price.amountMicros / 1_000_000 : 0,
+      currency: price?.currency || "TRY",
+      plan,
+    };
   } catch (error) {
     const { ErrorCode, PurchasesError } = await revenueCatSdk();
     if (

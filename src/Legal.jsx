@@ -311,8 +311,9 @@ export function GizlilikMetni({ embedded = false }) {
           kullanımın önlenmesi için gerekli sınırlı log bilgileri.
         </li>
         <li>
-          <b>İsteğe bağlı reklam ölçüm verileri:</b> yalnızca kullanıcının izin
-          vermesi halinde reklam tıklaması ile başarılı hesap kaydını
+          <b>İsteğe bağlı kullanım ve reklam ölçüm verileri:</b> yalnızca
+          kullanıcının izin vermesi halinde sayfa görüntülemelerini ve reklam
+          tıklamasıyla başarılı hesap kaydı veya satın alma işlemini
           ilişkilendirmek için kullanılan sınırlı teknik tanımlayıcılar.
         </li>
         <li>
@@ -343,8 +344,8 @@ export function GizlilikMetni({ embedded = false }) {
           getirilmesi.
         </li>
         <li>
-          Kullanıcının isteğe bağlı izniyle reklamların hesap kaydı sağlayıp
-          sağlamadığının toplu olarak ölçülmesi.
+          Kullanıcının isteğe bağlı izniyle site kullanımının ve reklamların
+          hesap kaydı veya satın alma sağlayıp sağlamadığının toplu olarak ölçülmesi.
         </li>
       </ul>
       <h2>3. Hukuki sebepler</h2>
@@ -360,9 +361,11 @@ export function GizlilikMetni({ embedded = false }) {
         Veriler satılmaz. Hizmetin çalışması için gerekli olduğu ölçüde kimlik
         doğrulama ve veritabanı altyapısı (Supabase), barındırma (Vercel),
         güvenlik doğrulaması (Cloudflare), kullanıcının isteğe bağlı izin
-        vermesi halinde reklam dönüşüm ölçümü (Google Ads) ve yetkili kamu
+        vermesi halinde kullanım ve reklam dönüşüm ölçümü (Google Analytics ve
+        Google Ads) ve yetkili kamu
         kurumlarıyla paylaşım yapılabilir. Google Ads ölçümüne e-posta adresi
-        veya Borcama'ya girilen finansal kayıtlar eklenmez. Bu sağlayıcıların
+        veya Borcama'ya girilen finansal kayıtlar eklenmez. Ölçüm tercihi uygulama
+        Ayarları bölümünden her zaman değiştirilebilir. Bu sağlayıcıların
         yurt dışındaki altyapılarının kullanılması halinde aktarım, KVKK’daki
         yurt dışı aktarım hükümlerine ve uygun güvencelere tabi olarak
         gerçekleştirilir.

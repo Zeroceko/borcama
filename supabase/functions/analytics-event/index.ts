@@ -47,6 +47,9 @@ Deno.serve(async (req) => {
     source: metin(body?.source, 100) || "direct",
     medium: metin(body?.medium, 100),
     campaign: metin(body?.campaign, 120),
+    content: metin(body?.content, 120),
+    term: metin(body?.term, 120),
+    click_id: metin(body?.click_id, 160),
     plan: metin(body?.plan, 30),
   }, { onConflict: "session_id,event_name", ignoreDuplicates: true });
   if (error) return new Response(JSON.stringify({ error: "EVENT_NOT_SAVED" }), { status: 500, headers });

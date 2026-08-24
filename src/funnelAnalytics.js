@@ -23,10 +23,14 @@ function kaynakBilgisi() {
   } catch {
     referrer = "";
   }
+  const clickId = params.get("gclid") || params.get("gbraid") || params.get("wbraid") || "";
   const sonuc = {
-    source: kayitli?.source || params.get("utm_source") || referrer || "direct",
-    medium: kayitli?.medium || params.get("utm_medium") || "",
-    campaign: kayitli?.campaign || params.get("utm_campaign") || "",
+    source: params.get("utm_source") || (clickId ? "google" : "") || kayitli?.source || referrer || "direct",
+    medium: params.get("utm_medium") || (clickId ? "cpc" : "") || kayitli?.medium || "",
+    campaign: params.get("utm_campaign") || kayitli?.campaign || "",
+    content: params.get("utm_content") || kayitli?.content || "",
+    term: params.get("utm_term") || kayitli?.term || "",
+    click_id: clickId || kayitli?.click_id || "",
     plan: params.get("plan") || kayitli?.plan || "",
   };
   sessionStorage.setItem(KAYNAK_ANAHTARI, JSON.stringify(sonuc));
