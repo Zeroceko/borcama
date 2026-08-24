@@ -19,7 +19,7 @@ import ProCheckout from "./ProCheckout.jsx";
 import Faq from "./Faq.jsx";
 import { proNiyetiniOku } from "./proIntent.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
-import { googleAdsBaslat } from "./googleAds.js";
+import { googleAdsBaslat, googleAnalyticsSayfaGoruntulemesi } from "./googleAds.js";
 import SeoSayfasi, { seoYoluMu } from "./SeoPages.jsx";
 import "./storage.js";
 
@@ -36,6 +36,7 @@ function yonetimYetkisiVar(session) {
 function Kok() {
   const yol = window.location.pathname.replace(/\/+$/, "") || "/";
   useEffect(() => {
+    googleAnalyticsSayfaGoruntulemesi();
     const yonetimSayfasi = ["/ceo", "/backoffice", "/marketing", "/analytics"].includes(yol);
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {

@@ -1,4 +1,5 @@
 const GOOGLE_ADS_ID = "AW-18403194146";
+const GOOGLE_ANALYTICS_ID = "G-98HWSTTPDM";
 const KAYIT_DONUSUM_ETIKETI = "sVgPCI2w0eUcEKLqqcdE";
 const IZIN_ANAHTARI = "borcama:reklam-olcum-izni";
 const BEKLEYEN_KAYIT_ANAHTARI = "borcama:bekleyen-kayit-donusumu";
@@ -24,14 +25,24 @@ function izinDurumunuUygula(izinVar) {
 }
 
 function etiketiYukle() {
-  if (document.querySelector(`script[data-borcama-google-ads="${GOOGLE_ADS_ID}"]`))
+  if (document.querySelector("script[data-borcama-google-tag]"))
     return;
 
   const script = document.createElement("script");
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
-  script.dataset.borcamaGoogleAds = GOOGLE_ADS_ID;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`;
+  script.dataset.borcamaGoogleTag = GOOGLE_ANALYTICS_ID;
   document.head.appendChild(script);
+}
+
+export function googleAnalyticsSayfaGoruntulemesi() {
+  if (typeof window === "undefined" || !izinVerildiMi()) return;
+  gtag("event", "page_view", {
+    send_to: GOOGLE_ANALYTICS_ID,
+    page_title: document.title,
+    page_location: window.location.href,
+    page_path: `${window.location.pathname}${window.location.search}`,
+  });
 }
 
 function kayitDonusumunuGonder() {
@@ -70,6 +81,7 @@ export function googleAdsBaslat() {
   etiketiYukle();
   gtag("js", new Date());
   gtag("config", GOOGLE_ADS_ID);
+  gtag("config", GOOGLE_ANALYTICS_ID, { send_page_view: false });
 
   const izinVar = izinVerildiMi();
   izinDurumunuUygula(izinVar);
@@ -87,6 +99,7 @@ export function googleAdsOlcumTercihi() {
 export function googleAdsOlcumIzniAyarla(izinVar) {
   localStorage.setItem(IZIN_ANAHTARI, izinVar ? "evet" : "hayir");
   izinDurumunuUygula(izinVar);
+  if (izinVar) googleAnalyticsSayfaGoruntulemesi();
   if (izinVar && localStorage.getItem(BEKLEYEN_KAYIT_ANAHTARI) === "1")
     return kayitDonusumunuGonder();
   if (!izinVar) localStorage.removeItem(BEKLEYEN_KAYIT_ANAHTARI);

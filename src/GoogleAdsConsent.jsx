@@ -17,13 +17,14 @@ export default function GoogleAdsConsent() {
   }
 
   return (
-    <aside style={STILLER.kutu} aria-label="Reklam ölçüm tercihi">
+    <aside style={STILLER.kutu} aria-label="Analytics ve reklam ölçüm tercihi">
       <div style={STILLER.metin}>
         <strong style={STILLER.baslik}>Ölçüm tercihin</strong>
         <span>
-          Borcama, reklamların hesap kaydı getirip getirmediğini ölçmek için
-          isteğe bağlı Google Ads ölçümü kullanır. E-posta ve finansal
-          bilgilerin bu ölçüme eklenmez. Ayrıntılar için{" "}
+          Borcama, site kullanımını ve reklamların hesap kaydı getirip
+          getirmediğini ölçmek için isteğe bağlı Google Analytics ve Google Ads
+          ölçümü kullanır. E-posta ve finansal bilgiler bu ölçüme eklenmez.
+          Ayrıntılar için{" "}
           <a href="/privacy" style={STILLER.link}>Gizlilik ve KVKK</a>.
         </span>
       </div>
