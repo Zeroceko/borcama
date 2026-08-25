@@ -15,6 +15,7 @@ import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proInte
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 import { googleAdsYeniKullaniciDonusumu } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
+import { girisAktivitesiKaydet } from "./activityLog.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -97,9 +98,10 @@ export function useSession() {
       sessionAyarla(data.session);
     };
     oturumuYukle();
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) =>
-      sessionAyarla(session),
-    );
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      sessionAyarla(session);
+      if (event === "SIGNED_IN") void girisAktivitesiKaydet(session);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 

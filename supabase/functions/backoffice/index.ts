@@ -401,7 +401,45 @@ Deno.serve(async (req) => {
   }
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
-  return new Response(JSON.stringify({ summary: ozet, campaigns, analytics, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler }), { status: 200, headers });
+  const epostalar = new Map(kullanicilar.map((u) => [u.id, epostaMaskele(u.email || "")]));
+  let aktiviteler: Array<Record<string, unknown>> = [];
+  const { data: aktiviteKayitlari, error: aktiviteHatasi } = await admin
+    .from("activity_logs")
+    .select("id,user_id,event_type,entity_type,source,path,metadata,created_at")
+    .order("created_at", { ascending: false })
+    .limit(300);
+  if (!aktiviteHatasi) {
+    aktiviteler = (aktiviteKayitlari || []).map((x) => ({
+      id: x.id,
+      email: epostalar.get(x.user_id) || "***",
+      event_type: x.event_type,
+      entity_type: x.entity_type,
+      source: x.source,
+      path: x.path,
+      label: String(x.metadata?.label || "").slice(0, 80),
+      created_at: x.created_at,
+    }));
+  }
+  // Eski hesaplar için yalnızca en son girişi başlangıç kaydı olarak gösterir.
+  // Ayrıntılı giriş geçmişi bu sürümden itibaren activity_logs içinde birikir.
+  const girisiLoglananlar = new Set(aktiviteler.filter((x) => x.event_type === "login").map((x) => x.email));
+  for (const u of satirlar) {
+    if (!u.last_sign_in_at || girisiLoglananlar.has(u.email)) continue;
+    aktiviteler.push({
+      id: `last-login-${u.id}`,
+      email: u.email,
+      event_type: "login",
+      entity_type: "session",
+      source: "auth_last_seen",
+      path: null,
+      label: "",
+      created_at: u.last_sign_in_at,
+    });
+  }
+  aktiviteler.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+  aktiviteler = aktiviteler.slice(0, 300);
+  ozet.activity_24h = aktiviteler.filter((x) => simdi - new Date(String(x.created_at)).getTime() <= gun).length;
+  return new Response(JSON.stringify({ summary: ozet, campaigns, analytics, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler, activities: aktiviteler }), { status: 200, headers });
 });
 
 const sayi = guvenliSayi;

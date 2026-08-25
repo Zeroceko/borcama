@@ -77,6 +77,8 @@ function Kok() {
   if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
+  if (import.meta.env.DEV && yol === "/backoffice-preview")
+    return <Backoffice preview />;
   if (yol === "/backoffice")
     return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />;
   if (yol === "/ceo")

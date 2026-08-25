@@ -59,10 +59,17 @@ import {
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
 import {
+  matchStatementToCard,
+  savedCardLast4,
+} from "./statementCardMatcher.js";
+import {
   googleAdsOlcumIzniAyarla,
   googleAdsOlcumTercihi,
+  googleAdsIlkBorcDonusumu,
   googleAdsSatinAlmaDonusumu,
 } from "./googleAds.js";
+import { aktiviteOlaylariniCikar } from "./activityEvents.js";
+import { aktiviteleriKaydet } from "./activityLog.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -135,6 +142,13 @@ function bankaKodu(banka) {
   const b = (banka || "").trim();
   if (BANKA_KOD[b]) return BANKA_KOD[b];
   return b.slice(0, 3).toUpperCase() || "??";
+}
+function kartSon4Eki(kart) {
+  const son4 = savedCardLast4(kart);
+  return son4 ? ` · •••• ${son4}` : "";
+}
+function kartGorunenAdi(kart) {
+  return `${kart?.banka || "Banka"} · ${kart?.ad || "Kredi kartı"}${kartSon4Eki(kart)}`;
 }
 function rozetStil(bg, rot, boyut = 42) {
   return {
@@ -345,7 +359,7 @@ const CSS = `
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-soft);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
-.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
+.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-auto-card-match{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:68px;padding:11px 13px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:13px;background:color-mix(in srgb,${LIME} 14%,var(--panel2))}.bt-auto-card-match>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-auto-card-match strong{display:block;color:var(--text);font-size:12px}.bt-auto-card-match small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-auto-card-match button{border:0;background:transparent;color:var(--text);font:750 10.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
 .bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
@@ -506,7 +520,7 @@ const CSS = `
   .bt-alan{grid-template-rows:auto 44px}
   .bt-islem-satiri{align-items:flex-start;flex-direction:column}
   .bt-islem-satiri .bt-btn{width:100%;justify-content:center}
-  .bt-modal.bt-ekstre-yukle{width:100%;max-height:none;padding:18px 16px}.bt-extract-grid{grid-template-columns:1fr}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:auto}.bt-extract-head{flex-direction:column}.bt-extract-details .bt-extract-grid{padding:0 12px 12px}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:0}
+  .bt-modal.bt-ekstre-yukle{width:100%;max-height:none;padding:18px 16px}.bt-extract-grid{grid-template-columns:1fr}.bt-extract-grid .genis,.bt-extract-grid .yarim,.bt-auto-card-match{grid-column:auto}.bt-auto-card-match{grid-template-columns:auto minmax(0,1fr)}.bt-auto-card-match button{grid-column:2;justify-self:start}.bt-extract-head{flex-direction:column}.bt-extract-details .bt-extract-grid{padding:0 12px 12px}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:0}
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Sakin yüzey sistemi: normal yüzeylerde çizgi değil boşluk ve ton hiyerarşi kurar. */
@@ -1234,7 +1248,7 @@ function borcKalemleri(veri) {
         id: "kart-" + k.id,
         tur: "kart",
         banka: (k.banka || "").trim(),
-        ad: k.banka + (k.ad ? " · " + k.ad : " · Kredi kartı"),
+        ad: kartGorunenAdi(k),
         bakiye: guncelBorc,
         faiz:
           k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
@@ -2107,6 +2121,8 @@ export default function BorcTakip() {
   }
 
   async function kaydet(yeni) {
+    const aktiviteOlaylari = aktiviteOlaylariniCikar(veri, yeni);
+    const oncekiBorcKalemleri = borcKalemleri(veri);
     const kalemler = borcKalemleri(yeni);
     const toplam = kalemler.reduce((t, k) => t + k.bakiye, 0);
     yeni = {
@@ -2117,6 +2133,14 @@ export default function BorcTakip() {
     setKaydediliyor(true);
     try {
       await window.storage.set("borctakip:v1", JSON.stringify(yeni));
+      void aktiviteleriKaydet(aktiviteOlaylari);
+      if (oncekiBorcKalemleri.length === 0 && kalemler.length > 0) {
+        const ilkBorc = kalemler[0];
+        void googleAdsIlkBorcDonusumu({
+          transactionId: ilkBorc.id,
+          debtType: ilkBorc.tur,
+        });
+      }
       setHata("");
     } catch (e) {
       setHata(
@@ -2259,7 +2283,7 @@ export default function BorcTakip() {
           id: "kart-" + k.id,
           kartOdemesi: true,
           banka: k.banka,
-          ad: k.banka + (k.ad ? " · " + k.ad : ""),
+          ad: kartGorunenAdi(k),
           tutar,
           kalanToplam,
           minimumOdeme: hedefTutar,
@@ -5062,7 +5086,7 @@ function Odemeler({
             id: "kart-" + kart.id + "-" + kayit.ekstreAyi,
             kartOdemesi: true,
             banka: kart.banka,
-            ad: kart.banka + (kart.ad ? " · " + kart.ad : ""),
+            ad: kartGorunenAdi(kart),
             ekstreAyi: kayit.ekstreAyi,
             tutar,
             kalanToplam,
@@ -5145,7 +5169,7 @@ function Odemeler({
         id: "kart-" + kart.id + "-" + kayit.ekstreAyi,
         kartOdemesi: true,
         banka: kart.banka,
-        ad: kart.banka + (kart.ad ? " · " + kart.ad : ""),
+        ad: kartGorunenAdi(kart),
         ekstreAyi: kayit.ekstreAyi,
         tutar: Math.max(hedefTutar - yapilanOdeme, 0),
         kalanToplam,
@@ -5686,6 +5710,7 @@ function StatementImportModal({ cards, onClose, onUse }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [selectedCard, setSelectedCard] = useState("");
+  const [automaticCardMatch, setAutomaticCardMatch] = useState(null);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -5761,14 +5786,9 @@ function StatementImportModal({ cards, onClose, onUse }) {
     try {
       const parsed = await readStatementFile(file, setProgress);
       setResult(parsed);
-      const normalize = (value) =>
-        String(value || "")
-          .toLocaleLowerCase("tr-TR")
-          .replace(/[^a-zçğıöşü0-9]/g, "");
-      const matches = cards.filter(
-        (card) => normalize(card.banka) === normalize(parsed.bank),
-      );
-      setSelectedCard(matches.length === 1 ? matches[0].id : "__new__");
+      const match = matchStatementToCard(cards, parsed);
+      setAutomaticCardMatch(match);
+      setSelectedCard(match?.card?.id || "__new__");
       setProgress({ stage: "done", progress: 1, page: parsed.pagesRead, pages: parsed.pagesRead });
     } catch (caught) {
       const technicalMessage = String(caught?.message || "");
@@ -5881,22 +5901,40 @@ function StatementImportModal({ cards, onClose, onUse }) {
         {result && (
           <>
             <div className="bt-extract-grid">
-              <label className="genis">
-                Hangi karta kaydedilecek?
-                <select
-                  className="bt-input"
-                  value={selectedCard}
-                  onChange={(event) => setSelectedCard(event.target.value)}
-                >
-                  <option value="">Kart seçin…</option>
-                  {cards.map((card) => (
-                    <option key={card.id} value={card.id}>
-                      {card.banka} · {card.ad || "Kredi kartı"}
-                    </option>
-                  ))}
-                  <option value="__new__">Yeni kart oluştur</option>
-                </select>
-              </label>
+              {automaticCardMatch && selectedCard === automaticCardMatch.card.id ? (
+                <div className="bt-auto-card-match">
+                  <span><Check size={17} /></span>
+                  <span>
+                    <strong>
+                      {kartGorunenAdi(automaticCardMatch.card)}
+                    </strong>
+                    <small>
+                      Ekstre bu kartla otomatik eşleşti
+                      {result.cardLast4 ? ` · •••• ${result.cardLast4}` : ""}
+                    </small>
+                  </span>
+                  <button type="button" onClick={() => setAutomaticCardMatch(null)}>
+                    Değiştir
+                  </button>
+                </div>
+              ) : (
+                <label className="genis">
+                  Hangi karta kaydedilecek?
+                  <select
+                    className="bt-input"
+                    value={selectedCard}
+                    onChange={(event) => setSelectedCard(event.target.value)}
+                  >
+                    <option value="">Kart seçin…</option>
+                    {cards.map((card) => (
+                      <option key={card.id} value={card.id}>
+                        {kartGorunenAdi(card)}
+                      </option>
+                    ))}
+                    <option value="__new__">Yeni kart oluştur</option>
+                  </select>
+                </label>
+              )}
               <label>
                 Banka
                 <input className="bt-input" value={result.bank || ""} onChange={(e) => update("bank", e.target.value)} />
@@ -5992,6 +6030,7 @@ function StatementImportModal({ cards, onClose, onUse }) {
                   setResult(null);
                   setProgress(null);
                   setError("");
+                  setAutomaticCardMatch(null);
                 }}
               >
                 Başka dosya seç
@@ -6256,6 +6295,7 @@ function Borclar({
           ekstreBelgeOzeti: {
             banka: imported.bank,
             kart: imported.cardBrand,
+            kartSon4: imported.cardLast4 || eski.kartSon4 || "",
             ekstreTarihi: imported.statementDate,
             sonOdemeTarihi: imported.dueDate,
             oncekiBakiye: imported.previousBalance,
@@ -6265,6 +6305,7 @@ function Borclar({
             guven: imported.confidence,
             kaynak: imported.sourceType,
           },
+          kartSon4: imported.cardLast4 || eski.kartSon4 || "",
         });
         return;
       }
@@ -6648,7 +6689,9 @@ function Borclar({
         faizVeUcretler: imported.fees,
         guven: imported.confidence,
         kaynak: imported.sourceType,
+        kartSon4: imported.cardLast4 || eski.kartSon4 || "",
       },
+      kartSon4: imported.cardLast4 || eski.kartSon4 || "",
     };
   }
 
@@ -6877,7 +6920,7 @@ function Borclar({
                   <Lightbulb size={16} />
                   <div>
                     <b>
-                      {form.veri.banka} · {form.veri.ad || "Kredi kartı"}
+                      {kartGorunenAdi(form.veri)}
                     </b>{" "}
                     için yeni dönem ekstresi giriliyor. Mevcut ekstre geçmişe
                     taşınacak; silinmeyecek.
@@ -6889,7 +6932,7 @@ function Borclar({
                   <Lightbulb size={16} />
                   <div>
                     <b>
-                      {form.veri.banka} · {form.veri.ad || "Kredi kartı"}
+                      {kartGorunenAdi(form.veri)}
                     </b>{" "}
                     güncel ekstresi düzenleniyor. Burada yalnızca ekstre
                     bilgilerini değiştir; ödeme kayıtlarını Ödemeler ekranından yönet.
@@ -7567,7 +7610,7 @@ function EkstreKontrol({ veri }) {
                     {bankaKodu(k.banka)}
                   </div>
                   <div>
-                    <div className="bt-satir-ad">{etiket}</div>
+                    <div className="bt-satir-ad">{kartGorunenAdi(k)}</div>
                     <div className="bt-satir-meta">
                       Dönem içi:{" "}
                       {donem.baslangic.split("-").reverse().join(".")} –{" "}
@@ -7736,7 +7779,7 @@ function BorclarSatiri({
     if (ekstreVar && hesap.toplam > 0) {
       odemeNesnesi = {
         tur: "kart",
-        ad: k.banka + (k.ad ? " · " + k.ad : ""),
+        ad: kartGorunenAdi(k),
         anahtar: kartOdemeAnahtari({ ...k, ekstreAyi: donem }),
         tutar: Math.max(asgariTutar - hesap.odeme, 0),
         kalanToplam: hesap.toplam,
@@ -7813,10 +7856,14 @@ function BorclarSatiri({
       >
         <div className="bt-satir-ad">
           {baslik}
-          {ekAd && kategori !== "others" ? (
+          {kategori === "cards" ? (
             <span style={{ color: "var(--dim)", fontWeight: 500 }}>
               {" "}
-              · {ekAd}
+              · {ekAd || "Kredi kartı"}{kartSon4Eki(k)}
+            </span>
+          ) : ekAd && kategori !== "others" ? (
+            <span style={{ color: "var(--dim)", fontWeight: 500 }}>
+              {" "}· {ekAd}
             </span>
           ) : null}
         </div>
@@ -9662,7 +9709,7 @@ function Harcamalar({
                         const ad = k.banka + " · " + (k.ad || "Kredi kartı");
                         return (
                           <option key={k.id} value={ad}>
-                            {ad}
+                            {kartGorunenAdi(k)}
                           </option>
                         );
                       })
