@@ -66,8 +66,8 @@ function etiketiYukle() {
   if (document.querySelector("script[data-borcama-google-tag]")) return;
   const script = document.createElement("script");
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`;
-  script.dataset.borcamaGoogleTag = GOOGLE_ANALYTICS_ID;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
+  script.dataset.borcamaGoogleTag = GOOGLE_ADS_ID;
   document.head.appendChild(script);
 }
 function etkinlikGonder(eventName, params = {}) {
