@@ -35,11 +35,15 @@ function yonetimYetkisiVar(session) {
 }
 
 function Kok() {
-  const yol = window.location.pathname.replace(/\/+$/, "") || "/";
+  let yol = window.location.pathname.replace(/\/+$/, "") || "/";
+  const crmAlani = window.location.hostname.toLowerCase() === "crm.borcama.com";
+  if (crmAlani && yol === "/") yol = "/backoffice";
   useEffect(() => {
     if (yol === "/" || yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
-    const yonetimSayfasi = ["/ceo", "/backoffice", "/marketing", "/analytics"].includes(yol);
+    const yonetimSayfasi = crmAlani || ["/ceo", "/backoffice", "/marketing", "/analytics"].some(
+      (yonetimYolu) => yol === yonetimYolu || yol.startsWith(`${yonetimYolu}/`),
+    );
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -79,6 +83,14 @@ function Kok() {
   if (yol === "/landing-v2") return <LandingStory />;
   if (import.meta.env.DEV && yol === "/backoffice-preview")
     return <Backoffice preview />;
+  if (import.meta.env.DEV && yol.startsWith("/backoffice-preview/user/"))
+    return <Backoffice preview userId={decodeURIComponent(yol.slice("/backoffice-preview/user/".length))} />;
+  if (yol.startsWith("/backoffice/user/"))
+    return supabaseHazir ? (
+      <KimlikliBackoffice userId={decodeURIComponent(yol.slice("/backoffice/user/".length))} />
+    ) : (
+      <YapilandirmaEksik />
+    );
   if (yol === "/backoffice")
     return supabaseHazir ? <KimlikliBackoffice /> : <YapilandirmaEksik />;
   if (yol === "/ceo")
@@ -119,12 +131,17 @@ function Kok() {
   return <KimlikliKok />;
 }
 
-function KimlikliBackoffice() {
+function KimlikliBackoffice({ userId = "" }) {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
-  if (!session) return <GirisEkrani redirectTo="/backoffice" />;
+  if (!session)
+    return (
+      <GirisEkrani
+        redirectTo={userId ? `/backoffice/user/${encodeURIComponent(userId)}` : "/backoffice"}
+      />
+    );
   if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
-  return <Backoffice />;
+  return <Backoffice userId={userId} />;
 }
 
 function KimlikliYonetim({ tur }) {

@@ -402,15 +402,21 @@ Deno.serve(async (req) => {
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
   const epostalar = new Map(kullanicilar.map((u) => [u.id, epostaMaskele(u.email || "")]));
+  const istenenKullaniciId = new URL(req.url).searchParams.get("userId");
+  if (istenenKullaniciId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(istenenKullaniciId)) {
+    return new Response(JSON.stringify({ error: "INVALID_USER_ID" }), { status: 422, headers });
+  }
   let aktiviteler: Array<Record<string, unknown>> = [];
-  const { data: aktiviteKayitlari, error: aktiviteHatasi } = await admin
+  let aktiviteSorgusu = admin
     .from("activity_logs")
     .select("id,user_id,event_type,entity_type,source,path,metadata,created_at")
-    .order("created_at", { ascending: false })
-    .limit(300);
+    .order("created_at", { ascending: false });
+  if (istenenKullaniciId) aktiviteSorgusu = aktiviteSorgusu.eq("user_id", istenenKullaniciId);
+  const { data: aktiviteKayitlari, error: aktiviteHatasi } = await aktiviteSorgusu.limit(istenenKullaniciId ? 500 : 300);
   if (!aktiviteHatasi) {
     aktiviteler = (aktiviteKayitlari || []).map((x) => ({
       id: x.id,
+      user_id: x.user_id,
       email: epostalar.get(x.user_id) || "***",
       event_type: x.event_type,
       entity_type: x.entity_type,
@@ -424,9 +430,11 @@ Deno.serve(async (req) => {
   // Ayrıntılı giriş geçmişi bu sürümden itibaren activity_logs içinde birikir.
   const girisiLoglananlar = new Set(aktiviteler.filter((x) => x.event_type === "login").map((x) => x.email));
   for (const u of satirlar) {
+    if (istenenKullaniciId && u.id !== istenenKullaniciId) continue;
     if (!u.last_sign_in_at || girisiLoglananlar.has(u.email)) continue;
     aktiviteler.push({
       id: `last-login-${u.id}`,
+      user_id: u.id,
       email: u.email,
       event_type: "login",
       entity_type: "session",
