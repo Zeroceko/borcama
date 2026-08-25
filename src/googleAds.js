@@ -4,21 +4,34 @@ const KAYIT_DONUSUM_ETIKETI = "sVgPCI2w0eUcEKLqqcdE";
 const SATIN_ALMA_DONUSUM_ETIKETI = String(
   import.meta.env.VITE_GOOGLE_ADS_PURCHASE_LABEL || "Ms2qCOPS_eYcEKLqqcdE",
 ).trim();
+const ILK_BORC_DONUSUM_ETIKETI = String(
+  import.meta.env.VITE_GOOGLE_ADS_FIRST_DEBT_LABEL || "",
+).trim();
 const IZIN_ANAHTARI = "borcama:reklam-olcum-izni";
 const BEKLEYEN_KAYIT_ANAHTARI = "borcama:bekleyen-kayit-donusumu";
 const BEKLEYEN_SATIN_ALMA_ANAHTARI = "borcama:bekleyen-satin-alma-donusumu";
+const BEKLEYEN_ILK_BORC_ANAHTARI = "borcama:bekleyen-ilk-borc-donusumu";
 const GONDERILEN_KAYIT_ON_EKI = "borcama:gonderilen-kayit-donusumu:";
 const GONDERILEN_SATIN_ALMA_ON_EKI = "borcama:gonderilen-satin-alma-donusumu:";
+const GONDERILEN_ILK_BORC_ANAHTARI = "borcama:gonderilen-ilk-borc-donusumu";
 const YONETIM_YOLLARI = new Set(["/ceo", "/backoffice", "/marketing", "/analytics"]);
 
 let baslatildi = false;
 let sonSayfaYolu = "";
 const gonderilenKayitIstekleri = new Set();
 const gonderilenSatinAlmaIstekleri = new Set();
+let ilkBorcIstegiGonderiliyor = false;
 
-function gtag(...args) {
+// Google etiketi komutları Array değil Arguments nesnesi olarak bekler.
+// Resmî gtag.js snippet'iyle aynı kuyruk biçimini kullanmak, yükleme öncesi
+// biriken config/consent/event komutlarının etiket tarafından okunmasını sağlar.
+function gtag() {
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(args);
+  window.dataLayer.push(arguments);
+}
+
+function guncelSayfaYolu() {
+  return `${window.location.pathname}${window.location.search}`;
 }
 
 function depodanOku(anahtar) {
@@ -65,11 +78,11 @@ function etkinlikGonder(eventName, params = {}) {
 
 export function googleAnalyticsSayfaGoruntulemesi() {
   if (typeof window === "undefined" || YONETIM_YOLLARI.has(window.location.pathname)) return false;
-  sonSayfaYolu = window.location.pathname;
+  sonSayfaYolu = guncelSayfaYolu();
   return etkinlikGonder("page_view", {
     page_title: document.title,
     page_location: window.location.href,
-    page_path: `${window.location.pathname}${window.location.search}`,
+    page_path: sonSayfaYolu,
   });
 }
 
@@ -77,7 +90,7 @@ function spaNavigasyonunuIzle() {
   if (window.__borcamaGoogleNavigasyonIzleniyor) return;
   window.__borcamaGoogleNavigasyonIzleniyor = true;
   const sayfaDegisti = () => {
-    if (window.location.pathname === sonSayfaYolu) return;
+    if (guncelSayfaYolu() === sonSayfaYolu) return;
     window.setTimeout(googleAnalyticsSayfaGoruntulemesi, 0);
   };
   for (const method of ["pushState", "replaceState"]) {
@@ -167,9 +180,42 @@ function satinAlmaDonusumunuGonder(payload = jsonOku(BEKLEYEN_SATIN_ALMA_ANAHTAR
   });
 }
 
+function ilkBorcDonusumunuGonder(payload = jsonOku(BEKLEYEN_ILK_BORC_ANAHTARI)) {
+  if (!payload?.transactionId || !izinVerildiMi()) return Promise.resolve(false);
+  if (depodanOku(GONDERILEN_ILK_BORC_ANAHTARI) === "1") {
+    depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
+    return Promise.resolve(false);
+  }
+  if (ilkBorcIstegiGonderiliyor) return Promise.resolve(false);
+  ilkBorcIstegiGonderiliyor = true;
+
+  etkinlikGonder("first_debt_added", {
+    debt_type: payload.debtType || "unknown",
+  });
+
+  const tamamla = () => {
+    depoyaYaz(GONDERILEN_ILK_BORC_ANAHTARI, "1");
+    depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
+    ilkBorcIstegiGonderiliyor = false;
+  };
+  if (!ILK_BORC_DONUSUM_ETIKETI) {
+    tamamla();
+    return Promise.resolve(true);
+  }
+  return adsDonusumuGonder({
+    sendTo: `${GOOGLE_ADS_ID}/${ILK_BORC_DONUSUM_ETIKETI}`,
+    value: 1,
+    currency: "TRY",
+    transactionId: payload.transactionId,
+    tamamlaninca: tamamla,
+  });
+}
+
 export function googleAdsBaslat() {
   if (baslatildi || typeof window === "undefined") return;
   baslatildi = true;
+  // Tag Assistant ve sayfadaki diğer güvenli ölçüm entegrasyonları aynı kuyruğu kullanabilsin.
+  window.gtag = window.gtag || gtag;
   const tercih = izinDurumu();
   izinKomutu("default", tercih === true, tercih === null);
   etiketiYukle();
@@ -181,6 +227,7 @@ export function googleAdsBaslat() {
     googleAnalyticsSayfaGoruntulemesi();
     void kayitDonusumunuGonder();
     void satinAlmaDonusumunuGonder();
+    void ilkBorcDonusumunuGonder();
   }
 }
 
@@ -191,10 +238,15 @@ export function googleAdsOlcumIzniAyarla(izinVar) {
   window.dispatchEvent(new CustomEvent("borcama:google-consent-change", { detail: izinVar }));
   if (izinVar) {
     googleAnalyticsSayfaGoruntulemesi();
-    return Promise.all([kayitDonusumunuGonder(), satinAlmaDonusumunuGonder()]);
+    return Promise.all([
+      kayitDonusumunuGonder(),
+      satinAlmaDonusumunuGonder(),
+      ilkBorcDonusumunuGonder(),
+    ]);
   }
   depodanSil(BEKLEYEN_KAYIT_ANAHTARI);
   depodanSil(BEKLEYEN_SATIN_ALMA_ANAHTARI);
+  depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
   return Promise.resolve(false);
 }
 export function googleAdsYeniKullaniciDonusumu(user) {
@@ -208,4 +260,10 @@ export function googleAdsSatinAlmaDonusumu(payload) {
   if (!payload?.transactionId) return Promise.resolve(false);
   depoyaYaz(BEKLEYEN_SATIN_ALMA_ANAHTARI, JSON.stringify(payload));
   return satinAlmaDonusumunuGonder(payload);
+}
+export function googleAdsIlkBorcDonusumu(payload) {
+  if (!payload?.transactionId || depodanOku(GONDERILEN_ILK_BORC_ANAHTARI) === "1")
+    return Promise.resolve(false);
+  depoyaYaz(BEKLEYEN_ILK_BORC_ANAHTARI, JSON.stringify(payload));
+  return ilkBorcDonusumunuGonder(payload);
 }
