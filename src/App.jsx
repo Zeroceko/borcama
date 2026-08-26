@@ -63,6 +63,11 @@ import {
   savedCardLast4,
 } from "./statementCardMatcher.js";
 import {
+  listUploadedStatements,
+  moveUploadedStatement,
+  removeUploadedStatement,
+} from "./statementArchive.js";
+import {
   googleAdsOlcumIzniAyarla,
   googleAdsOlcumTercihi,
   googleAdsIlkBorcDonusumu,
@@ -430,6 +435,14 @@ const CSS = `
 .bt-modal-arka{position:fixed;inset:0;z-index:50;background:#0f110acc;display:flex;align-items:center;justify-content:center;padding:20px}
 .bt-modal{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:24px;box-shadow:8px 8px 0 ${CORAL}}
 .bt-modal.bt-ekstre-yukle{width:min(980px,calc(100vw - 48px));max-width:none;max-height:calc(100dvh - 48px);padding:clamp(22px,3vw,32px);overflow-y:auto;overscroll-behavior:contain}
+.bt-modal.bt-ekstre-arsiv{width:min(820px,calc(100vw - 48px));max-width:none;max-height:calc(100dvh - 48px);overflow-y:auto;overscroll-behavior:contain}
+.bt-ekstre-arsiv-aciklama,.bt-ekstre-sil-aciklama{margin:7px 0 0;color:var(--dim);font-size:13px;line-height:1.55;max-width:620px}
+.bt-ekstre-arsiv-gizlilik{margin:16px 0;padding:11px 13px;border-radius:12px;background:var(--panel2);color:var(--dim);font-size:12px;line-height:1.45}
+.bt-ekstre-arsiv-mesaj{margin-top:14px}.bt-ekstre-arsiv-liste{display:grid;gap:10px}
+.bt-ekstre-arsiv-satir{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.8fr);align-items:center;gap:18px;padding:16px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel)}
+.bt-ekstre-arsiv-bilgi{display:grid;gap:5px;min-width:0}.bt-ekstre-arsiv-bilgi strong{font-size:15px}.bt-ekstre-arsiv-bilgi span{font-size:14px;font-weight:750}.bt-ekstre-arsiv-bilgi small{color:var(--dim);font-size:11.5px}
+.bt-ekstre-arsiv-islemler{display:flex;align-items:flex-end;justify-content:flex-end;gap:8px}.bt-ekstre-arsiv-islemler label{display:grid;gap:5px;min-width:190px}.bt-ekstre-arsiv-islemler label>span{font-size:10.5px;font-weight:750;color:var(--dim)}.bt-ekstre-arsiv-islemler .bt-input{margin:0;padding:9px 11px}
+.bt-tehlike-yazi{color:#b43b2a}.bt-tehlike{background:${CORAL}!important}.bt-sil-ikon{width:42px;height:42px;border-radius:12px;background:${CORAL};display:grid;place-items:center;margin-bottom:14px}.bt-ekstre-sil-secenekler{display:grid;gap:9px;margin-top:18px}.bt-ekstre-sil-secenekler .bt-btn{justify-content:center}
 .bt-modalbaslik{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.bt-modalbaslik .bt-h2{margin:0}
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
@@ -521,6 +534,7 @@ const CSS = `
   .bt-islem-satiri{align-items:flex-start;flex-direction:column}
   .bt-islem-satiri .bt-btn{width:100%;justify-content:center}
   .bt-modal.bt-ekstre-yukle{width:100%;max-height:none;padding:18px 16px}.bt-extract-grid{grid-template-columns:1fr}.bt-extract-grid .genis,.bt-extract-grid .yarim,.bt-auto-card-match{grid-column:auto}.bt-auto-card-match{grid-template-columns:auto minmax(0,1fr)}.bt-auto-card-match button{grid-column:2;justify-self:start}.bt-extract-head{flex-direction:column}.bt-extract-details .bt-extract-grid{padding:0 12px 12px}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:0}
+  .bt-modal.bt-ekstre-arsiv{width:100%;max-height:none}.bt-ekstre-arsiv-satir{grid-template-columns:1fr}.bt-ekstre-arsiv-islemler{justify-content:stretch;align-items:stretch;flex-direction:column}.bt-ekstre-arsiv-islemler label{min-width:0}.bt-ekstre-arsiv-islemler .bt-btn{justify-content:center}
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Sakin yüzey sistemi: normal yüzeylerde çizgi değil boşluk ve ton hiyerarşi kurar. */
@@ -2435,6 +2449,29 @@ export default function BorcTakip() {
     }));
   };
 
+  function ekstreArsivIslemi(islem) {
+    const sonuc = islem.tip === "tasi"
+      ? moveUploadedStatement(veri, islem)
+      : removeUploadedStatement(veri, {
+          ...islem,
+          removeFinancialRecord: islem.tip === "kaydi_sil",
+        });
+    if (sonuc.error) return sonuc.error;
+    const kaynakKart = veri.cards.find((kart) => kart.id === islem.cardId);
+    const hedefKart = veri.cards.find((kart) => kart.id === islem.targetCardId);
+    const detay = islem.tip === "tasi"
+      ? `${ayEtiketi(islem.period)} ekstresi ${hedefKart?.banka || "diğer karta"} taşındı`
+      : islem.tip === "kaydi_sil"
+        ? `${ayEtiketi(islem.period)} ekstresi ve bağlı kayıt silindi`
+        : `${ayEtiketi(islem.period)} yükleme bilgisi kaldırıldı; finansal kayıt korundu`;
+    kaydet(islemEkle(sonuc.data, {
+      tur: islem.tip === "tasi" ? "guncelleme" : "silme",
+      baslik: `${kaynakKart?.banka || "Kart"} ekstre arşivi`,
+      detay,
+    }));
+    return null;
+  }
+
   function islemEkle(yeniVeri, islem) {
     const kayit = {
       id: "islem-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
@@ -3001,6 +3038,7 @@ export default function BorcTakip() {
                   setSekme("odemeler");
                   setForm(null);
                 }}
+                ekstreArsivIslemi={ekstreArsivIslemi}
               />
             )}
             {sekme === "odemeler" && (
@@ -6067,6 +6105,7 @@ function Borclar({
   kategori,
   setKategori,
   odemelereGit,
+  ekstreArsivIslemi,
 }) {
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
@@ -6075,6 +6114,19 @@ function Borclar({
   const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
   const [odemePenceresi, setOdemePenceresi] = useState(null);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
+  const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
+  const [silinecekYukleme, setSilinecekYukleme] = useState(null);
+  const [arsivMesaji, setArsivMesaji] = useState("");
+  const yuklenenEkstreler = useMemo(
+    () => listUploadedStatements(veri.cards),
+    [veri.cards],
+  );
+  useEffect(() => {
+    if (!ekstreArsiviAcik && !silinecekYukleme) return undefined;
+    const onceki = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = onceki; };
+  }, [ekstreArsiviAcik, silinecekYukleme]);
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const guncelEkstreAyi = useMemo(() => {
     const aylar = veri.cards
@@ -6690,6 +6742,7 @@ function Borclar({
         guven: imported.confidence,
         kaynak: imported.sourceType,
         kartSon4: imported.cardLast4 || eski.kartSon4 || "",
+        yuklenmeTarihi: new Date().toISOString(),
       },
       kartSon4: imported.cardLast4 || eski.kartSon4 || "",
     };
@@ -6714,6 +6767,17 @@ function Borclar({
 
     const ekstreVerisi = belgedenEkstreVerisi(imported, mevcut);
     const mevcutDonem = mevcut.ekstreAyi || guncelEkstreAyi;
+    if (ekstreVerisi.ekstreAyi === mevcutDonem) {
+      ekleGuncelle("cards", {
+        ...mevcut,
+        ...ekstreVerisi,
+        ekstreGecmisi: (mevcut.ekstreGecmisi || []).filter(
+          (ekstre) => ekstre.ekstreAyi !== mevcutDonem,
+        ),
+      });
+      setEkstreYuklemePenceresi(false);
+      return;
+    }
     if (ekstreVerisi.ekstreAyi < mevcutDonem) {
       ekleGuncelle("cards", {
         ...mevcut,
@@ -6739,6 +6803,40 @@ function Borclar({
       ],
     });
     setEkstreYuklemePenceresi(false);
+  }
+
+  function ekstreyiTasi(yukleme, hedefKartId) {
+    setArsivMesaji("");
+    const hata = ekstreArsivIslemi({
+      tip: "tasi",
+      cardId: yukleme.cardId,
+      period: yukleme.period,
+      targetCardId: hedefKartId,
+    });
+    if (hata === "TARGET_PERIOD_EXISTS") {
+      setArsivMesaji("Seçtiğin kartta bu döneme ait bir ekstre zaten var. Üzerine yazılmadı.");
+      return;
+    }
+    if (hata) {
+      setArsivMesaji("Ekstre taşınamadı. Sayfayı yenileyip tekrar deneyin.");
+      return;
+    }
+    setArsivMesaji("Ekstre doğru karta taşındı. İlgili ödeme kayıtları da kartla birlikte güncellendi.");
+  }
+
+  function yuklemeyiSil(finansalKaydiSil) {
+    if (!silinecekYukleme) return;
+    const hata = ekstreArsivIslemi({
+      tip: finansalKaydiSil ? "kaydi_sil" : "yuklemeyi_sil",
+      cardId: silinecekYukleme.cardId,
+      period: silinecekYukleme.period,
+    });
+    setSilinecekYukleme(null);
+    setArsivMesaji(hata
+      ? "Ekstre kaldırılamadı. Sayfayı yenileyip tekrar deneyin."
+      : finansalKaydiSil
+        ? "Yükleme ve bağlı ekstre kaydı silindi."
+        : "Yükleme bilgisi kaldırıldı; borç ve ödeme kaydı korunuyor.");
   }
 
   return (
@@ -6881,6 +6979,18 @@ function Borclar({
               <div className="bt-strip-total bt-mono">
                 {fmt(toplamHesapla())}
               </div>
+              {!acik && !saltOkunurGorunum && kategori === "cards" && (
+                <button
+                  className="bt-btn kucuk ikincil"
+                  onClick={() => {
+                    setArsivMesaji("");
+                    setEkstreArsiviAcik(true);
+                  }}
+                >
+                  <BookOpen size={14} /> Ekstre arşivi
+                  {yuklenenEkstreler.length > 0 ? ` (${yuklenenEkstreler.length})` : ""}
+                </button>
+              )}
               {!acik && !saltOkunurGorunum && kategori === "cards" && (
                 <button
                   className="bt-btn kucuk birincil"
@@ -7189,6 +7299,115 @@ function Borclar({
           onClose={() => setEkstreYuklemePenceresi(false)}
           onUse={belgedenEkstreKaydet}
         />
+      )}
+
+      {ekstreArsiviAcik && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setEkstreArsiviAcik(false);
+          }}
+        >
+          <div
+            className="bt-modal bt-ekstre-arsiv"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-ekstre-arsiv-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-ekstre-arsiv-baslik" className="bt-h2">Ekstre arşivi</div>
+                <p className="bt-ekstre-arsiv-aciklama">
+                  Daha önce PDF veya ekran görüntüsünden aktardığın ekstreleri gör,
+                  yanlış karta bağlanan kaydı doğru karta taşı.
+                </p>
+              </div>
+              <button className="bt-btn hayalet kucuk" type="button" aria-label="Kapat" onClick={() => setEkstreArsiviAcik(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {arsivMesaji && <div className="bt-ipucu bt-ekstre-arsiv-mesaj"><Info size={16} /><span>{arsivMesaji}</span></div>}
+
+            <div className="bt-ekstre-arsiv-gizlilik">
+              Borcama belgenin kendisini saklamaz. Burada yalnızca onaylayarak
+              kaydettiğin ekstre özeti gösterilir.
+            </div>
+
+            {yuklenenEkstreler.length === 0 ? (
+              <div className="bt-bos">Henüz dosyadan aktarılmış ekstre kaydı yok.</div>
+            ) : (
+              <div className="bt-ekstre-arsiv-liste">
+                {yuklenenEkstreler.map((yukleme) => {
+                  const ozet = yukleme.statement.ekstreBelgeOzeti || {};
+                  const toplam = yukleme.statement.belgedenToplamEkstreBorcu
+                    ?? yukleme.statement.toplamEkstreBorcu
+                    ?? yukleme.statement.oncekiDonemBorcu
+                    ?? 0;
+                  return (
+                    <div className="bt-ekstre-arsiv-satir" key={`${yukleme.cardId}-${yukleme.period}`}>
+                      <div className="bt-ekstre-arsiv-bilgi">
+                        <strong>{yukleme.cardBank} · {yukleme.cardName || "Kredi kartı"}{yukleme.cardLast4 ? ` • ${yukleme.cardLast4}` : ""}</strong>
+                        <span>{ayEtiketi(yukleme.period)} · {fmt(toplam)}</span>
+                        <small>
+                          {ozet.yuklenmeTarihi ? `${tarihSaatEtiketi(ozet.yuklenmeTarihi)} tarihinde aktarıldı` : "Geçmiş ekstre"}
+                          {ozet.kaynak ? ` · ${String(ozet.kaynak).toUpperCase()}` : ""}
+                        </small>
+                      </div>
+                      <div className="bt-ekstre-arsiv-islemler">
+                        <label>
+                          <span>Bağlı kart</span>
+                          <select
+                            className="bt-input"
+                            value={yukleme.cardId}
+                            onChange={(e) => ekstreyiTasi(yukleme, e.target.value)}
+                          >
+                            {veri.cards.map((kart) => (
+                              <option key={kart.id} value={kart.id}>
+                                {kartGorunenAdi(kart)}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <button className="bt-btn kucuk hayalet bt-tehlike-yazi" type="button" onClick={() => setSilinecekYukleme(yukleme)}>
+                          <Trash2 size={14} /> Sil
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {silinecekYukleme && (
+        <div className="bt-modal-arka" role="presentation">
+          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-ekstre-sil-baslik">
+            <div className="bt-sil-ikon"><Trash2 size={20} /></div>
+            <div id="bt-ekstre-sil-baslik" className="bt-h2" style={{ marginBottom: 8 }}>
+              Bağlı ekstre kaydı da silinsin mi?
+            </div>
+            <p className="bt-ekstre-sil-aciklama">
+              {silinecekYukleme.cardBank} · {silinecekYukleme.cardName || "Kredi kartı"} için
+              {` ${ayEtiketi(silinecekYukleme.period)} `}yüklemesini kaldırıyorsun.
+              Borç ve ödeme kayıtlarının da silinip silinmeyeceğini seç.
+            </p>
+            <div className="bt-ekstre-sil-secenekler">
+              <button className="bt-btn birincil bt-tehlike" type="button" onClick={() => yuklemeyiSil(true)}>
+                <Trash2 size={14} /> Evet, kaydı da sil
+              </button>
+              <button className="bt-btn ikincil" type="button" onClick={() => yuklemeyiSil(false)}>
+                Hayır, finansal kaydı koru
+              </button>
+              <button className="bt-btn hayalet" type="button" onClick={() => setSilinecekYukleme(null)}>
+                Vazgeç
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {bankaPenceresi && (
