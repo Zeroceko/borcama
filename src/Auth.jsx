@@ -17,6 +17,27 @@ import { googleAdsYeniKullaniciDonusumu } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
 
+const denemeMailiTetiklenenKullanicilar = new Set();
+
+async function proDenemesiniVeBaslangicMailiniTetikle(session) {
+  const userId = session?.user?.id;
+  const token = session?.access_token;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (!userId || !token || !supabaseUrl || denemeMailiTetiklenenKullanicilar.has(userId)) return;
+
+  denemeMailiTetiklenenKullanicilar.add(userId);
+  try {
+    const cevap = await fetch(`${supabaseUrl}/functions/v1/shopier-entitlement`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!cevap.ok) throw new Error("TRIAL_BOOTSTRAP_FAILED");
+  } catch {
+    // Bir sonraki oturum kontrolünde yeniden denenebilsin. Sunucu tarafındaki
+    // teslimat kaydı aynı kullanıcıya ikinci e-posta gitmesini engeller.
+    denemeMailiTetiklenenKullanicilar.delete(userId);
+  }
+}
+
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 .auth-wrap,.auth-wrap *{box-sizing:border-box}
@@ -82,7 +103,10 @@ export function useSession() {
   useEffect(() => {
     const sessionAyarla = (yeniSession) => {
       setSession(yeniSession);
-      if (yeniSession?.user) void googleAdsYeniKullaniciDonusumu(yeniSession.user);
+      if (yeniSession?.user) {
+        void googleAdsYeniKullaniciDonusumu(yeniSession.user);
+        void proDenemesiniVeBaslangicMailiniTetikle(yeniSession);
+      }
     };
     const oturumuYukle = async () => {
       if (
