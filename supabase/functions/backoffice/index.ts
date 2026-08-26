@@ -5,6 +5,7 @@ import { borcToplamlariniHesapla, guvenliSayi, gunlukBorcSnapshotKaydet } from "
 const izinliOriginler = new Set([
   "https://borcama.com",
   "https://www.borcama.com",
+  "https://crm.borcama.com",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
   "http://127.0.0.1:5175",
@@ -20,6 +21,8 @@ const izinliOriginler = new Set([
   "http://localhost:5180",
   "http://localhost:5181",
 ]);
+
+const TEK_YONETICI_EPOSTASI = "ozerocek@gmail.com";
 
 function cors(origin: string | null) {
   const izinli = origin && izinliOriginler.has(origin) ? origin : "https://borcama.com";
@@ -216,12 +219,11 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const adminEmails = new Set((Deno.env.get("BACKOFFICE_ADMIN_EMAILS") || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean));
   const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
   const { data: authData, error: authError } = await admin.auth.getUser(token);
   const email = authData.user?.email?.toLowerCase();
-  if (authError || !email || !adminEmails.has(email)) {
+  if (authError || email !== TEK_YONETICI_EPOSTASI) {
     return new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403, headers });
   }
 

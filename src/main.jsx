@@ -155,7 +155,8 @@ function KimlikliBackoffice({ userId = "" }) {
         redirectTo={yonetimYolu(userId ? `/backoffice/user/${encodeURIComponent(userId)}` : "/backoffice")}
       />
     );
-  if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
+  if (!yonetimYetkisiVar(session))
+    return <HariciYonlendirme url="https://borcama.com/summary" />;
   return <Backoffice userId={userId} />;
 }
 
@@ -170,7 +171,8 @@ function KimlikliYonetim({ tur }) {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
   if (!session) return <GirisEkrani redirectTo={`/${tur}`} />;
-  if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
+  if (!yonetimYetkisiVar(session))
+    return <HariciYonlendirme url="https://borcama.com/summary" />;
   if (tur === "ceo") return <CeoDashboard />;
   if (tur === "marketing") return <Marketing />;
   if (tur === "analytics") return <Analytics />;
