@@ -22,6 +22,7 @@ import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
 import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
 import SeoSayfasi, { seoYoluMu } from "./SeoPages.jsx";
+import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import "./storage.js";
 
 googleAdsBaslat();
@@ -36,8 +37,19 @@ function yonetimYetkisiVar(session) {
 
 function Kok() {
   let yol = window.location.pathname.replace(/\/+$/, "") || "/";
-  const crmAlani = window.location.hostname.toLowerCase() === "crm.borcama.com";
+  const alan = window.location.hostname.toLowerCase();
+  const crmAlani = alan === CRM_ALANI;
+  const anaAlan = alan === "borcama.com" || alan === "www.borcama.com";
+  const eskiYonetimYolu = anaAlan && ["/backoffice", "/ceo", "/marketing", "/analytics"].some(
+    (yonetimYolu) => yol === yonetimYolu || yol.startsWith(`${yonetimYolu}/`),
+  );
+  const temizCrmYolu = yol === "/backoffice"
+    ? "/"
+    : yol.startsWith("/backoffice/user/")
+      ? yol.replace("/backoffice", "")
+      : yol;
   if (crmAlani && yol === "/") yol = "/backoffice";
+  else if (crmAlani && yol.startsWith("/user/")) yol = `/backoffice${yol}`;
   useEffect(() => {
     if (yol === "/" || yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
@@ -52,6 +64,8 @@ function Kok() {
     }
     meta.setAttribute("content", yonetimSayfasi ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
+  if (eskiYonetimYolu)
+    return <HariciYonlendirme url={`https://${CRM_ALANI}${temizCrmYolu}`} />;
   if (demoModu && ["/login", "/register"].includes(yol)) {
     window.history.replaceState({}, "", "/assets");
     return <App />;
@@ -111,6 +125,7 @@ function Kok() {
     ) : (
       <YapilandirmaEksik />
     );
+  if (crmAlani) return <HariciYonlendirme url={`https://${CRM_ALANI}/`} />;
   if (yol === "/welcome")
     return supabaseHazir ? <KimlikliWelcome /> : <YapilandirmaEksik />;
   if (yol === "/upgrade")
@@ -137,11 +152,18 @@ function KimlikliBackoffice({ userId = "" }) {
   if (!session)
     return (
       <GirisEkrani
-        redirectTo={userId ? `/backoffice/user/${encodeURIComponent(userId)}` : "/backoffice"}
+        redirectTo={yonetimYolu(userId ? `/backoffice/user/${encodeURIComponent(userId)}` : "/backoffice")}
       />
     );
   if (!yonetimYetkisiVar(session)) return <YonetimYetkisiz />;
   return <Backoffice userId={userId} />;
+}
+
+function HariciYonlendirme({ url }) {
+  useEffect(() => {
+    window.location.replace(url);
+  }, [url]);
+  return <Yukleniyor />;
 }
 
 function KimlikliYonetim({ tur }) {

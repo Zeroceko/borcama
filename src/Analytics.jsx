@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, BarChart3, CheckCircle2, Eye, RefreshCw, UserPlus, Users } from "lucide-react";
 import { supabase } from "./supabaseClient.js";
+import { yonetimYolu } from "./yonetimUrls.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -43,7 +44,7 @@ export default function Analytics() {
   const max = Math.max(1, ...rows.map(x => Math.max(Number(x.visitors || 0), Number(x.register_views || 0))));
   const maxSource = Math.max(1, ...(veri?.sources || []).map(x => Number(x.visitors || 0)));
   return <div className="an"><style>{CSS}</style><main className="an-wrap">
-    <div className="an-top"><a className="an-back" href="/backoffice"><ArrowLeft size={15}/> Backoffice'e dön</a><div className="an-actions"><a className="an-btn" href="/marketing">Marketing</a><button className="an-btn primary" onClick={yukle} disabled={yukleniyor}><RefreshCw size={14}/> Yenile</button></div></div>
+    <div className="an-top"><a className="an-back" href={yonetimYolu("/backoffice")}><ArrowLeft size={15}/> Backoffice'e dön</a><div className="an-actions"><a className="an-btn" href={yonetimYolu("/marketing")}>Marketing</a><button className="an-btn primary" onClick={yukle} disabled={yukleniyor}><RefreshCw size={14}/> Yenile</button></div></div>
     <div className="an-toolbar"><div><h1>Kayıt funnel'ı</h1><p className="an-lead">Borcama'yı ziyaret edenlerin kayıt ve e-posta doğrulama adımlarında nasıl ilerlediğini gör.</p></div><div className="an-range">{[7,30,90].map(x=><button key={x} className={gun===x?"active":""} onClick={()=>setGun(x)}>Son {x} gün</button>)}</div></div>
     {hata?<div className="an-error">{hata}</div>:yukleniyor?<div className="an-panel an-empty">Veriler hazırlanıyor…</div>:!veri?.available?<div className="an-panel an-empty">Ölçüm altyapısı henüz veri toplamaya başlamadı.</div>:<>
       <section className="an-panel"><div className="an-funnel">

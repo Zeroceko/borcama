@@ -2,6 +2,38 @@
   "crons": [
     { "path": "/api/lifecycle-emails", "schedule": "15 7 * * *" }
   ],
+  "redirects": [
+    {
+      "source": "/backoffice",
+      "has": [{ "type": "host", "value": "borcama.com" }],
+      "destination": "https://crm.borcama.com",
+      "permanent": true
+    },
+    {
+      "source": "/backoffice/:path*",
+      "has": [{ "type": "host", "value": "borcama.com" }],
+      "destination": "https://crm.borcama.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/ceo",
+      "has": [{ "type": "host", "value": "borcama.com" }],
+      "destination": "https://crm.borcama.com/ceo",
+      "permanent": true
+    },
+    {
+      "source": "/marketing",
+      "has": [{ "type": "host", "value": "borcama.com" }],
+      "destination": "https://crm.borcama.com/marketing",
+      "permanent": true
+    },
+    {
+      "source": "/analytics",
+      "has": [{ "type": "host", "value": "borcama.com" }],
+      "destination": "https://crm.borcama.com/analytics",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/borcama-logo.png",
@@ -21,6 +53,11 @@
         { "key": "Cross-Origin-Resource-Policy", "value": "same-site" },
         { "key": "X-Frame-Options", "value": "DENY" }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "crm.borcama.com" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/backoffice",
@@ -69,6 +106,7 @@
     { "source": "/settings", "destination": "/index.html" },
     { "source": "/backoffice", "destination": "/index.html" },
     { "source": "/backoffice/:path*", "destination": "/index.html" },
+    { "source": "/user/:path*", "destination": "/index.html" },
     { "source": "/ceo", "destination": "/index.html" }
     ,{ "source": "/marketing", "destination": "/index.html" }
     ,{ "source": "/analytics", "destination": "/index.html" }
