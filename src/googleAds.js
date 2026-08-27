@@ -17,6 +17,7 @@ const GONDERILEN_ILK_BORC_ANAHTARI = "borcama:gonderilen-ilk-borc-donusumu";
 const YONETIM_YOLLARI = new Set(["/ceo", "/backoffice", "/marketing", "/analytics"]);
 
 let baslatildi = false;
+let etiketHazir = false;
 let sonSayfaYolu = "";
 const gonderilenKayitIstekleri = new Set();
 const gonderilenSatinAlmaIstekleri = new Set();
@@ -69,6 +70,20 @@ function etiketiYukle() {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`;
   script.dataset.borcamaGoogleTag = GOOGLE_ADS_ID;
   document.head.appendChild(script);
+}
+function etiketiHazirla() {
+  if (etiketHazir || typeof window === "undefined") return;
+  etiketHazir = true;
+  etiketiYukle();
+  gtag("js", new Date());
+  gtag("config", GOOGLE_ADS_ID);
+  gtag("config", GOOGLE_ANALYTICS_ID, { send_page_view: false });
+}
+function etiketiUygunZamandaHazirla() {
+  if (etiketHazir || typeof window === "undefined") return;
+  const baslat = () => etiketiHazirla();
+  if ("requestIdleCallback" in window) window.requestIdleCallback(baslat, { timeout: 2000 });
+  else window.setTimeout(baslat, 1200);
 }
 function etkinlikGonder(eventName, params = {}) {
   if (typeof window === "undefined" || !izinVerildiMi()) return false;
@@ -218,12 +233,9 @@ export function googleAdsBaslat() {
   window.gtag = window.gtag || gtag;
   const tercih = izinDurumu();
   izinKomutu("default", tercih === true, tercih === null);
-  etiketiYukle();
-  gtag("js", new Date());
-  gtag("config", GOOGLE_ADS_ID);
-  gtag("config", GOOGLE_ANALYTICS_ID, { send_page_view: false });
   spaNavigasyonunuIzle();
   if (tercih === true) {
+    etiketiUygunZamandaHazirla();
     googleAnalyticsSayfaGoruntulemesi();
     void kayitDonusumunuGonder();
     void satinAlmaDonusumunuGonder();
@@ -237,6 +249,7 @@ export function googleAdsOlcumIzniAyarla(izinVar) {
   izinKomutu("update", izinVar);
   window.dispatchEvent(new CustomEvent("borcama:google-consent-change", { detail: izinVar }));
   if (izinVar) {
+    etiketiHazirla();
     googleAnalyticsSayfaGoruntulemesi();
     return Promise.all([
       kayitDonusumunuGonder(),

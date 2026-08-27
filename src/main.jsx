@@ -1,33 +1,36 @@
-import React, { useEffect } from "react";
+import React, { lazy, useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import Landing from "./Landing.jsx";
 import LandingAlt from "./LandingAlt.jsx";
-import LandingStory from "./LandingStory.jsx";
-import Backoffice from "./Backoffice.jsx";
-import CeoDashboard from "./CeoDashboard.jsx";
-import Marketing from "./Marketing.jsx";
-import Analytics from "./Analytics.jsx";
-import {
-  KullaniciSozlesmesi,
-  GizlilikMetni,
-  IadePolitikasi,
-} from "./Legal.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
-import ProCheckout from "./ProCheckout.jsx";
-import Faq from "./Faq.jsx";
 import { proNiyetiniOku } from "./proIntent.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
 import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
-import SeoSayfasi, { seoYoluMu } from "./SeoPages.jsx";
 import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import "./storage.js";
+
+const App = lazy(() => import("./App.jsx"));
+const Landing = lazy(() => import("./Landing.jsx"));
+const LandingStory = lazy(() => import("./LandingStory.jsx"));
+const Backoffice = lazy(() => import("./Backoffice.jsx"));
+const CeoDashboard = lazy(() => import("./CeoDashboard.jsx"));
+const Marketing = lazy(() => import("./Marketing.jsx"));
+const Analytics = lazy(() => import("./Analytics.jsx"));
+const ProCheckout = lazy(() => import("./ProCheckout.jsx"));
+const Faq = lazy(() => import("./Faq.jsx"));
+const SeoSayfasi = lazy(() => import("./SeoPages.jsx"));
+const KullaniciSozlesmesi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.KullaniciSozlesmesi })));
+const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.GizlilikMetni })));
+const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
 googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
+
+function seoYoluMu(yol) {
+  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
+}
 
 function yonetimYetkisiVar(session) {
   return YONETIM_EPOSTALARI.has(
@@ -376,9 +379,9 @@ function KimlikliKok() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <>
+    <React.Suspense fallback={<Yukleniyor />}>
       <Kok />
       <GoogleAdsConsent />
-    </>
+    </React.Suspense>
   </React.StrictMode>,
 );
