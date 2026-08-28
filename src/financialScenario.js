@@ -118,9 +118,24 @@ export function calculateRevolvingDebtScenario({
   currentDate = new Date(),
   reserveRatio = 0.05,
   maxMonths = 240,
+  livingBudgetOverride = null,
 } = {}) {
   const monthlyIncome = Math.max(number(income), 0);
-  const living = estimateLivingSpend({ expenses, cards, currentDate });
+  const estimatedLiving = estimateLivingSpend({ expenses, cards, currentDate });
+  const hasLivingOverride =
+    livingBudgetOverride !== null &&
+    livingBudgetOverride !== "" &&
+    Number.isFinite(Number(livingBudgetOverride));
+  const overriddenLivingAmount = Math.max(number(livingBudgetOverride), 0);
+  const living = hasLivingOverride
+    ? {
+        ...estimatedLiving,
+        monthlyAmount: overriddenLivingAmount,
+        dailyAmount: overriddenLivingAmount / 30,
+        hasData: true,
+        modeled: true,
+      }
+    : estimatedLiving;
   const schedules = loans
     .filter((loan) => number(loan?.kalanBorc) > 0 && number(loan?.taksit) > 0)
     .map((loan) => ({
@@ -144,6 +159,29 @@ export function calculateRevolvingDebtScenario({
   const initialDebtBudget = monthlyIncome - fixedMonthly - livingBudget - reserve;
   const initialDebt = revolving.reduce((sum, debt) => sum + debt.balance, 0);
   const maximumLivingBudget = Math.max(monthlyIncome - fixedMonthly - reserve, 0);
+  const firstMonthInterest = revolving.reduce(
+    (sum, debt) => sum + debt.balance * debt.rate,
+    0,
+  );
+  // Yalnızca faizi karşılamak borcu küçültmez. İlk ay ana paranın %1'ini de
+  // azaltacak açık ve ihtiyatlı bir başlangıç hedefi kullan.
+  const principalReductionTarget = initialDebt * 0.01;
+  const minimumDebtBudget = firstMonthInterest + principalReductionTarget;
+  const recommendedLivingBudget = Math.max(
+    monthlyIncome - fixedMonthly - reserve - minimumDebtBudget,
+    0,
+  );
+  const recommendedDailyLiving = recommendedLivingBudget / 30;
+  const livingReductionNeeded = Math.max(livingBudget - recommendedLivingBudget, 0);
+
+  const recommendation = {
+    firstMonthInterest,
+    principalReductionTarget,
+    minimumDebtBudget,
+    recommendedLivingBudget,
+    recommendedDailyLiving,
+    livingReductionNeeded,
+  };
 
   if (!monthlyIncome || !initialDebt) {
     return {
@@ -157,6 +195,8 @@ export function calculateRevolvingDebtScenario({
       maximumLivingBudget,
       initialDebt,
       initialDebtBudget,
+      lastFixedPaymentMonth,
+      recommendation,
     };
   }
   if (!living.hasData) {
@@ -171,6 +211,8 @@ export function calculateRevolvingDebtScenario({
       maximumLivingBudget,
       initialDebt,
       initialDebtBudget,
+      lastFixedPaymentMonth,
+      recommendation,
     };
   }
 
@@ -217,6 +259,8 @@ export function calculateRevolvingDebtScenario({
         maximumLivingBudget,
         initialDebt,
         initialDebtBudget,
+        lastFixedPaymentMonth,
+        recommendation,
       };
     }
     // İlk aylarda sabit kredi taksitleri tüm bütçeyi kullanabilir. Bu durumda
@@ -243,7 +287,9 @@ export function calculateRevolvingDebtScenario({
     maximumLivingBudget,
     initialDebt,
     initialDebtBudget,
+    lastFixedPaymentMonth,
     totalInterest,
+    recommendation,
   };
 }
 

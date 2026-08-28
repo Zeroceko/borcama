@@ -62,3 +62,18 @@ test("uzun vadeli sabit taksit bitince açılan bütçeyi kart borcuna aktarır"
   assert.equal(result.status, "ok");
   assert.equal(result.months, 19);
 });
+
+test("bütçe yetmiyorsa harcamayı ne kadar azaltması gerektiğini söyler", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 7, 27),
+    income: 70000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 62000 }],
+    loans: [{ kalanBorc: 148800, taksit: 12400, kalanTaksit: 12 }],
+    debts: [{ bakiye: 100000, faiz: 4 }],
+  });
+
+  assert.equal(result.status, "not_sustainable");
+  assert.equal(Math.round(result.recommendation.recommendedLivingBudget), 49100);
+  assert.equal(Math.round(result.recommendation.recommendedDailyLiving), 1637);
+  assert.equal(Math.round(result.recommendation.livingReductionNeeded), 12900);
+});

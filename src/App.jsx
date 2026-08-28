@@ -77,6 +77,7 @@ import {
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
+import { getFinancialScenarioCopy } from "./financialScenarioCopy.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -353,9 +354,12 @@ const CSS = `
 .bt-bugun-odemeler{background:var(--summary-soft);border:1px solid var(--line-soft);border-radius:20px;padding:clamp(18px,4vw,26px)}.bt-bugun-bolum-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.bt-bugun-bolum-head h2{margin:0;color:var(--text);font:800 clamp(20px,3vw,25px)/1.1 'Space Grotesk',sans-serif}.bt-bugun-bolum-head p{margin:5px 0 0;color:var(--dim);font-size:11.5px}.bt-bugun-bolum-head .bt-link{white-space:nowrap}.bt-bugun-odeme-listesi{display:grid;gap:8px}.bt-bugun-odeme{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-bugun-odeme-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK};font:800 11px 'JetBrains Mono',monospace}.bt-bugun-odeme.gecikmis .bt-bugun-odeme-ikon{background:${CORAL}}.bt-bugun-odeme strong{display:block;color:var(--text);font-size:13.5px;line-height:1.25}.bt-bugun-odeme small{display:block;margin-top:3px;color:var(--dim);font-size:11px}.bt-bugun-odeme.gecikmis small{color:${CORAL};font-weight:750}.bt-bugun-odeme-tutar{text-align:right}.bt-bugun-odeme-tutar b{display:block;color:var(--text);font:750 14px 'JetBrains Mono',monospace}.bt-bugun-odeme-tutar span{display:block;margin-top:3px;color:var(--dim);font-size:10px}.bt-bugun-odeme-bos{padding:20px;border:1px dashed var(--line-soft);border-radius:14px;background:var(--panel);color:var(--dim);font-size:12px;text-align:center}
 .bt-bugun-icgoru{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px 17px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:17px;background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:0 7px 20px #14160f08}.bt-bugun-icgoru:hover{background:color-mix(in srgb,${LIME} 8%,var(--panel))}.bt-bugun-icgoru>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,${LIME} 45%,var(--panel2));color:${INK}}.bt-bugun-icgoru strong{display:block;font-size:13.5px}.bt-bugun-icgoru small{display:block;margin-top:3px;color:var(--dim);font-size:11px;line-height:1.4}
 .bt-bugun-icgoruler{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.bt-pro-senaryo{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:22px;background:linear-gradient(135deg,#173c30 0%,#0b2d25 68%,#12382e 100%);color:#f8f5e8;box-shadow:7px 7px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo:after{content:"";position:absolute;right:-45px;top:-55px;width:145px;height:145px;border-radius:50%;background:color-mix(in srgb,${LIME} 76%,transparent);opacity:.88}.bt-pro-senaryo-ust{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#dbe7d9;font-size:11px;font-weight:750}.bt-pro-senaryo-rozet{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid color-mix(in srgb,${LIME} 75%,transparent);border-radius:999px;background:#0b241e;color:${LIME};font-weight:850}.bt-pro-senaryo-ana{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.bt-pro-senaryo h2{max-width:720px;margin:0;color:#fffaf0;font:800 clamp(25px,4vw,36px)/1.04 'Space Grotesk',sans-serif}.bt-pro-senaryo p{max-width:760px;margin:10px 0 0;color:#c7d1ca;font-size:12.5px;line-height:1.55}.bt-pro-senaryo .bt-btn{white-space:nowrap}.bt-pro-senaryo-metrikler{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:24px;overflow:hidden;border:1px solid #ffffff26;border-radius:15px;background:#ffffff26}.bt-pro-senaryo-metrikler>div{padding:15px 17px;background:#0d2b24}.bt-pro-senaryo-metrikler span{display:block;color:#aebdb5;font-size:10.5px;line-height:1.35}.bt-pro-senaryo-metrikler strong{display:block;margin-top:6px;color:#fffaf0;font:750 clamp(15px,2.4vw,19px) 'JetBrains Mono',monospace}.bt-pro-senaryo .bt-pro-senaryo-not{position:relative;z-index:1;margin:12px 0 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0d;color:#e6ece7}.bt-pro-senaryo.kilitli{background:linear-gradient(135deg,#173c30,#12382e)}
+.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
 .bt-plan-giris{display:grid;gap:22px;padding:clamp(20px,4vw,32px);border:1px solid var(--line-soft);border-radius:22px;background:linear-gradient(145deg,var(--summary-bg),color-mix(in srgb,${LIME} 9%,var(--panel)));box-shadow:0 14px 34px #14160f0b}.bt-plan-giris-ust{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--dim);font-size:11px}.bt-plan-giris-ust .bt-link{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:800}.bt-plan-giris-ana{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:24px;align-items:end}.bt-plan-giris h1{max-width:720px;margin:0;color:var(--text);font:800 clamp(29px,5vw,44px)/1.02 'Space Grotesk',sans-serif}.bt-plan-giris p{max-width:700px;margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-faiz-ozeti{padding:17px;border:1px solid color-mix(in srgb,${CORAL} 50%,var(--line-soft));border-radius:16px;background:color-mix(in srgb,${CORAL} 8%,var(--panel))}.bt-plan-faiz-ozeti span,.bt-plan-faiz-ozeti small{display:block;color:var(--dim);font-size:10.5px}.bt-plan-faiz-ozeti strong{display:block;margin:7px 0 5px;color:var(--text);font:800 clamp(22px,4vw,31px) 'JetBrains Mono',monospace}.bt-plan-faiz-kirilim{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-plan-gecikme{padding:12px 14px;border-left:4px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:12px;font-weight:750}.bt-borc-donem-satiri{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 0 20px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2)}.bt-borc-donem-satiri>div{min-width:0}.bt-borc-donem-satiri strong{display:block;color:var(--text);font-size:13px}.bt-borc-donem-satiri span{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-borc-donem-satiri .bt-input{width:min(240px,100%);margin:0}
 .bt-bugun-bos{display:grid;justify-items:start;gap:14px;padding:clamp(26px,6vw,54px);border:1px solid var(--line-soft);border-radius:24px;background:var(--summary-bg);box-shadow:0 14px 34px #14160f0d}.bt-bugun-bos-ikon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:${LIME};color:${INK};box-shadow:4px 4px 0 ${CORAL}}.bt-bugun-bos h1{max-width:650px;margin:4px 0 0;color:var(--text);font:800 clamp(29px,6vw,48px)/1.02 'Space Grotesk',sans-serif}.bt-bugun-bos p{max-width:580px;margin:0;color:var(--dim);font-size:14px;line-height:1.55}.bt-bugun-bos .bt-btn{min-height:46px}
 @media(max-width:600px){.bt-bugun-aksiyon{grid-template-columns:38px minmax(0,1fr);padding:15px;column-gap:11px}.bt-bugun-aksiyon-ikon{width:38px;height:38px}.bt-bugun-aksiyon p span{display:block;margin-top:2px}.bt-bugun-bolum-head{align-items:flex-start;flex-direction:column;gap:8px}.bt-bugun-odeme{grid-template-columns:38px minmax(0,1fr);padding:11px}.bt-bugun-odeme-ikon{width:38px;height:38px}.bt-bugun-odeme-tutar{grid-column:2;text-align:left;display:flex;align-items:baseline;gap:7px}.bt-bugun-odeme-tutar span{margin:0}.bt-bugun-icgoru{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-bugun-icgoru>span:first-child{width:38px;height:38px}.bt-bugun-icgoru>svg{display:none}.bt-pro-senaryo{padding:19px 16px;box-shadow:4px 4px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo-ana{grid-template-columns:1fr;gap:17px;align-items:start}.bt-pro-senaryo-ana .bt-btn{justify-self:start}.bt-pro-senaryo-metrikler{grid-template-columns:1fr;margin-top:18px}.bt-pro-senaryo-metrikler>div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px}.bt-pro-senaryo-metrikler strong{margin:0;font-size:14px}.bt-plan-giris-ana{grid-template-columns:1fr}.bt-plan-giris-ust{align-items:flex-start;flex-direction:column}.bt-borc-donem-satiri{align-items:stretch;flex-direction:column}.bt-borc-donem-satiri .bt-input{width:100%}.bt-bugun-bos{padding:28px 20px}}
+@media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
+@media(max-width:460px){.bt-plan-senaryo-grid{grid-template-columns:1fr}.bt-plan-senaryo-grid>div{min-height:auto}}
 .bt-satirD{display:flex;align-items:center;gap:14px;row-gap:8px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel)}
 .bt-satirD-ad{font-size:14px;color:var(--text);font-weight:600}
 .bt-satirD-alt{font-size:12.5px;margin-top:2px}
@@ -3079,6 +3083,8 @@ export default function BorcTakip() {
                 kalemler={kalemler}
                 aylikFaiz={aylikFaiz}
                 setSekme={setSekme}
+                veri={veri}
+                gelir={buAyGelir.toplam}
               />
             )}
             {sekme === "gelir" && (
@@ -4526,6 +4532,7 @@ function Ozet({
     ),
     currentDate: bugun(),
   });
+  const senaryoMetni = getFinancialScenarioCopy(borcsuzlukSenaryosu);
   const odemeZamani = (odeme) => {
     const gun = kalanGun(odeme.tarih);
     if (gun < 0) return `${-gun} gün gecikti`;
@@ -4710,26 +4717,19 @@ function Ozet({
             <>
               <div className="bt-pro-senaryo-ana">
                 <div>
-                  <h2>
-                    Kart ve ek hesap borçların yaklaşık {borcsuzlukSenaryosu.months} ayda bitebilir
-                  </h2>
+                  <h2>{senaryoMetni.title}</h2>
                   <p>
-                    Kredi taksitlerin sabit gider olarak ayrıldı. Yaşam harcaması hedefin,
-                    son {Math.max(borcsuzlukSenaryosu.living.monthsUsed.length, 1)} dönemdeki
-                    ekstre ve harcama kayıtlarına göre hesaplandı. Yeni borç eklemezsen ve
-                    bu bütçeyi korursan oluşan tahmini senaryo.
+                    {senaryoMetni.reason} Mevcut kayıtlarınla tahmini kapanış süresi
+                    {" "}<b>{borcsuzlukSenaryosu.months} ay</b>.
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
-                  Planı incele <ChevronRight size={16} />
+                  Detayı gör <ChevronRight size={16} />
                 </button>
               </div>
               <div className="bt-pro-senaryo-metrikler">
-                <div><span>Aylık gelir</span><strong>{tutarGoster(gelir)}</strong></div>
-                <div><span>Sabit kredi taksitleri</span><strong>{tutarGoster(borcsuzlukSenaryosu.fixedMonthly)}</strong></div>
-                <div><span>Aylık yaşam harcaması hedefi</span><strong>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</strong></div>
-                <div><span>Günlük yaşam harcaması hedefi</span><strong>{tutarGoster(borcsuzlukSenaryosu.dailyLivingTarget)}</strong></div>
-                <div><span>Kart ve KMH'ye ilk ay ayrılabilen</span><strong>{tutarGoster(Math.max(borcsuzlukSenaryosu.initialDebtBudget, 0))}</strong></div>
+                <div><span>Tahmini süre</span><strong>{borcsuzlukSenaryosu.months} ay</strong></div>
+                <div><span>Kart ve KMH'ye ilk ay</span><strong>{tutarGoster(Math.max(borcsuzlukSenaryosu.initialDebtBudget, 0))}</strong></div>
                 <div><span>Tahmini toplam faiz</span><strong>{tutarGoster(borcsuzlukSenaryosu.totalInterest)}</strong></div>
               </div>
               {borcsuzlukSenaryosu.living.confidence === "low" && (
@@ -4741,12 +4741,8 @@ function Ozet({
           ) : proAktif && borcsuzlukSenaryosu.status === "missing_spending_history" ? (
             <div className="bt-pro-senaryo-ana">
               <div>
-                <h2>Güvenli günlük hedef için harcama geçmişin gerekiyor</h2>
-                <p>
-                  Borcama rastgele bir günlük limit üretmez. En az bir ekstre yükle veya
-                  harcamalarını kaydet; kredi taksitlerini ayırıp yaşam bütçeni ve kartlarının
-                  kapanış süresini hesaplayalım.
-                </p>
+                <h2>{senaryoMetni.title}</h2>
+                <p>{senaryoMetni.reason}</p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={() => setSekme("borclar")}>
                 Ekstre ekle <ChevronRight size={16} />
@@ -4755,11 +4751,8 @@ function Ozet({
           ) : proAktif && borcsuzlukSenaryosu.status === "missing_income" ? (
             <div className="bt-pro-senaryo-ana">
               <div>
-                <h2>Kapanış süresi için aylık gelirini ekle</h2>
-                <p>
-                  Kredi taksitlerini sabit gider olarak ayırıp kart ve KMH borçlarına
-                  kalabilecek gerçek bütçeyi hesaplamak için gelir kaydı gerekiyor.
-                </p>
+                <h2>{senaryoMetni.title}</h2>
+                <p>{senaryoMetni.reason}</p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={() => setSekme("gelir")}>
                 Gelir ekle <ChevronRight size={16} />
@@ -4768,11 +4761,8 @@ function Ozet({
           ) : proAktif && borcsuzlukSenaryosu.status === "no_revolving_debt" ? (
             <div className="bt-pro-senaryo-ana">
               <div>
-                <h2>Kart ve ek hesap borcun görünmüyor</h2>
-                <p>
-                  Sabit vadeli kredilerin ödeme planında devam ediyor. Kart veya KMH borcu
-                  oluşursa gelir ve yaşam harcaması kayıtlarınla kapanış senaryosunu burada gösteririz.
-                </p>
+                <h2>{senaryoMetni.title}</h2>
+                <p>{senaryoMetni.reason}</p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={() => setSekme("borclar")}>
                 Borçları gör <ChevronRight size={16} />
@@ -4782,24 +4772,25 @@ function Ozet({
             <>
               <div className="bt-pro-senaryo-ana">
                 <div>
-                  <h2>Mevcut yaşam harcamasıyla kart borcun azalmıyor</h2>
+                  <h2>
+                    {borcsuzlukSenaryosu.recommendation.livingReductionNeeded > 0
+                      ? `Aylık harcamanı ${tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded)} azalt`
+                      : senaryoMetni.title}
+                  </h2>
                   <p>
-                    Sabit kredi taksitleri, kayıtlarından hesaplanan yaşam harcaması ve
-                    %5 güvenlik payı ayrıldığında kart ve KMH için yeterli bütçe kalmıyor.
-                    Aşağıdaki rakamlar hangi kalemin baskı oluşturduğunu gösteriyor.
+                    {senaryoMetni.reason} Mevcut aylık harcaman
+                    {" "}<b>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</b>; ilk hedef
+                    {" "}<b>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</b>.
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
-                  Planı düzenle <ChevronRight size={16} />
+                  Detayı gör <ChevronRight size={16} />
                 </button>
               </div>
               <div className="bt-pro-senaryo-metrikler">
-                <div><span>Aylık gelir</span><strong>{tutarGoster(gelir)}</strong></div>
-                <div><span>Sabit kredi taksitleri</span><strong>{tutarGoster(borcsuzlukSenaryosu.fixedMonthly)}</strong></div>
-                <div><span>Kayıtlardaki aylık yaşam harcaması</span><strong>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</strong></div>
-                <div><span>Günlük kayıtlı harcama ortalaması</span><strong>{tutarGoster(borcsuzlukSenaryosu.dailyLivingTarget)}</strong></div>
-                <div><span>%5 güvenlik payı</span><strong>{tutarGoster(borcsuzlukSenaryosu.reserve)}</strong></div>
-                <div><span>Kart ve KMH'ye kalan</span><strong>{tutarGoster(Math.max(borcsuzlukSenaryosu.initialDebtBudget, 0))}</strong></div>
+                <div><span>Mevcut aylık yaşam harcaması</span><strong>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</strong></div>
+                <div><span>İlk aylık hedef</span><strong>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</strong></div>
+                <div><span>Aylık azaltılacak</span><strong>{tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded)}</strong></div>
               </div>
             </>
           ) : (
@@ -8557,9 +8548,32 @@ function GecikmisBorcSatiri({ g, i }) {
 }
 
 /* ---------------- Borç Planı ---------------- */
-function Plan({ kalemler, aylikFaiz, setSekme }) {
+function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir }) {
   const [strateji, setStrateji] = useState("cig");
   const [ekstra, setEkstra] = useState("");
+
+  const finansalSenaryo = calculateRevolvingDebtScenario({
+    income: gelir,
+    expenses: veri?.expenses || [],
+    cards: veri?.cards || [],
+    loans: veri?.loans || [],
+    debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
+    currentDate: bugun(),
+  });
+  const senaryoMetni = getFinancialScenarioCopy(finansalSenaryo);
+  const onerilenButce = finansalSenaryo.recommendation?.recommendedLivingBudget;
+  const onerilenSenaryo =
+    finansalSenaryo.status === "not_sustainable" && Number.isFinite(onerilenButce)
+      ? calculateRevolvingDebtScenario({
+          income: gelir,
+          expenses: veri?.expenses || [],
+          cards: veri?.cards || [],
+          loans: veri?.loans || [],
+          debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
+          currentDate: bugun(),
+          livingBudgetOverride: onerilenButce,
+        })
+      : null;
 
   const doner = kalemler.filter((k) => !k.sabitTaksit);
   const sabit = kalemler.filter((k) => k.sabitTaksit);
@@ -8652,6 +8666,84 @@ function Plan({ kalemler, aylikFaiz, setSekme }) {
           <div className="bt-plan-gecikme">
             {gecikmisler.length} kart vadesi geçmiş, bunlardan ayda{" "}
             {fmt0(gecikmisFaiz)} gecikme faizi işliyor
+          </div>
+        )}
+      </section>
+
+      <section className="bt-plan-senaryo">
+        <div className="bt-plan-senaryo-ust">
+          <div>
+            <h2>{senaryoMetni.title}</h2>
+            <p>{senaryoMetni.reason}</p>
+          </div>
+          <span className="bt-plan-senaryo-durum">
+            {finansalSenaryo.status === "ok"
+              ? `${finansalSenaryo.months} ay`
+              : onerilenSenaryo?.status === "ok"
+                ? `Hedef: ${onerilenSenaryo.months} ay`
+                : "Ek plan gerekir"}
+          </span>
+        </div>
+
+        {finansalSenaryo.status === "not_sustainable" ? (
+          <>
+            <div className="bt-plan-senaryo-grid">
+              <div><span>Aylık gelir</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
+              <div><span>Sabit kredi taksitleri</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
+              <div><span>Mevcut yaşam harcaması</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
+              <div><span>İlk aylık hedef</span><strong>{fmt0(onerilenButce)}</strong></div>
+              <div><span>İlk günlük hedef</span><strong>{fmt0(finansalSenaryo.recommendation.recommendedDailyLiving)}</strong></div>
+              <div>
+                <span>Olası sonuç</span>
+                <strong>
+                  {onerilenSenaryo?.status === "ok"
+                    ? `Kart ve KMH yaklaşık ${onerilenSenaryo.months} ayda kapanabilir`
+                    : "Gelir veya sabit gider planı da değişmeli"}
+                </strong>
+              </div>
+            </div>
+            <div className="bt-plan-senaryo-not">
+              <strong>Bu hedef nasıl hesaplandı?</strong>
+              <span>
+                {fmt0(finansalSenaryo.monthlyIncome)} gelirden {fmt0(finansalSenaryo.fixedMonthly)} kredi taksiti,
+                {" "}{fmt0(finansalSenaryo.reserve)} güvenlik payı, {fmt0(finansalSenaryo.recommendation.firstMonthInterest)}
+                {" "}ilk ay faizi ve {fmt0(finansalSenaryo.recommendation.principalReductionTarget)} ana para azaltma hedefi ayrıldı.
+              </span>
+            </div>
+            <div className="bt-plan-senaryo-actions">
+              <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
+                Harcamaları incele <ChevronRight size={16} />
+              </button>
+            </div>
+          </>
+        ) : finansalSenaryo.status === "ok" ? (
+          <>
+            <div className="bt-plan-senaryo-grid">
+              <div><span>Aylık gelir</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
+              <div><span>Sabit kredi taksitleri</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
+              <div><span>Yaşam harcaması hedefi</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
+              <div><span>Kart ve KMH kapanışı</span><strong>Yaklaşık {finansalSenaryo.months} ay</strong></div>
+              <div><span>Tahmini toplam faiz</span><strong>{fmt0(finansalSenaryo.totalInterest)}</strong></div>
+              <div><span>Hesaplanan dönem</span><strong>{Math.max(finansalSenaryo.living.monthsUsed.length, 1)} aylık kayıt</strong></div>
+            </div>
+            <div className="bt-plan-senaryo-not">
+              <strong>Olası sonuç</strong>
+              <span>
+                Yeni kart/KMH borcu eklenmez ve yaşam bütçesi korunursa bu senaryo geçerlidir.
+                Banka faizleri veya gelir değişirse süre de değişir.
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="bt-plan-senaryo-actions">
+            <button
+              className="bt-btn birincil"
+              type="button"
+              onClick={() => setSekme(finansalSenaryo.status === "missing_income" ? "gelir" : "borclar")}
+            >
+              {finansalSenaryo.status === "missing_income" ? "Gelir ekle" : "Kayıtları tamamla"}
+              <ChevronRight size={16} />
+            </button>
           </div>
         )}
       </section>
