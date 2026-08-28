@@ -76,6 +76,14 @@ export function resolveFinancialScenarioType(scenario = {}) {
   if (scenario.status === "no_revolving_debt") return "no_revolving_debt";
   if (scenario.status === "missing_spending_history") return "missing_spending_history";
 
+  if (scenario.status === "structural_gap") {
+    return "structural_gap";
+  }
+
+  if (scenario.status === "long_horizon") {
+    return "long_payoff";
+  }
+
   if (scenario.status === "not_sustainable") {
     const recommendation = scenario.recommendation || {};
     const essentialNeed =

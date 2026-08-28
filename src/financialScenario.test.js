@@ -60,7 +60,8 @@ test("uzun vadeli sabit taksit bitince açılan bütçeyi kart borcuna aktarır"
   });
 
   assert.equal(result.status, "ok");
-  assert.equal(result.months, 19);
+  assert.equal(result.months, 4);
+  assert.equal(Math.round(result.reserveBalance), 5000);
 });
 
 test("bütçe yetmiyorsa harcamayı ne kadar azaltması gerektiğini söyler", () => {
@@ -72,8 +73,80 @@ test("bütçe yetmiyorsa harcamayı ne kadar azaltması gerektiğini söyler", (
     debts: [{ bakiye: 100000, faiz: 4 }],
   });
 
-  assert.equal(result.status, "not_sustainable");
-  assert.equal(Math.round(result.recommendation.recommendedLivingBudget), 49100);
-  assert.equal(Math.round(result.recommendation.recommendedDailyLiving), 1637);
-  assert.equal(Math.round(result.recommendation.livingReductionNeeded), 12900);
+  assert.equal(result.status, "structural_gap");
+  assert.equal(Math.round(result.recommendation.recommendedLivingBudget), 52227);
+  assert.equal(Math.round(result.recommendation.recommendedDailyLiving), 1741);
+  assert.equal(Math.round(result.recommendation.livingReductionNeeded), 9773);
+  assert.equal(result.recommendation.targetRevolvingMonths, 24);
+  assert.equal(result.assumptions.newRevolvingDebt, 0);
+});
+
+test("mevcut plan kapanıyor olsa bile daha hızlı harcama hedefi üretir", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 7, 27),
+    income: 70000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 62000 }],
+    debts: [{ bakiye: 100000, faiz: 4 }],
+  });
+
+  assert.equal(result.status, "ok");
+  assert.ok(result.months > 0);
+  assert.equal(result.recommendation.method, "monthly_simulation_bisection");
+  assert.ok(result.recommendation.recommendedLivingBudget <= result.livingBudget);
+  assert.equal(result.assumptions.livingSpendFundedFromIncome, true);
+});
+
+test("kart ve KMH faizine KKDF ile BSMV ekler", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 7, 27),
+    income: 200000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 50000 }],
+    debts: [{ bakiye: 100000, faiz: 4, vergiFonOrani: 0.3 }],
+  });
+
+  assert.equal(Math.round(result.recommendation.firstMonthInterest), 5200);
+  assert.equal(result.assumptions.kkdfRate, 0.15);
+  assert.equal(result.assumptions.bsmvRate, 0.15);
+});
+
+test("faiz oranını kendiliğinden artırmaz ve enflasyon uygulamaz", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 7, 27),
+    income: 100000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 20000 }],
+    debts: [{ bakiye: 50000, faiz: 4 }],
+  });
+
+  assert.equal(result.assumptions.interestRatesStayAsEntered, true);
+  assert.equal(result.assumptions.inflationApplied, false);
+  assert.equal(result.assumptions.incomeGrowthApplied, false);
+});
+
+test("asgari toplamı ödeme gücünü aşıyorsa yapısal açık verir", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 7, 27),
+    income: 50000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 20000 }],
+    debts: [{ bakiye: 100000, faiz: 4, minimumOdeme: 35000, minimumOran: 0.4 }],
+  });
+
+  assert.equal(result.status, "structural_gap");
+  assert.ok(result.monthlyGap > 0);
+  assert.ok(result.requiredMinimum >= 35000);
+});
+
+test("harcama azaltma senaryolarında süre ve faiz kötüleşmez", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 7, 27),
+    income: 120000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 45000 }],
+    debts: [{ bakiye: 180000, faiz: 4, minimumOdeme: 30000, minimumOran: 0.2 }],
+  });
+  const closed = result.spendingScenarios.filter((scenario) => scenario.status === "ok");
+
+  assert.equal(result.spendingScenarios.length, 4);
+  for (let index = 1; index < closed.length; index += 1) {
+    assert.ok(closed[index].months <= closed[index - 1].months);
+    assert.ok(closed[index].totalInterest <= closed[index - 1].totalInterest + 0.01);
+  }
 });

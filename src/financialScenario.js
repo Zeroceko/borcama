@@ -105,6 +105,161 @@ function remainingInstallments(loan) {
   return payment > 0 ? Math.max(Math.ceil(number(loan?.kalanBorc) / payment), 1) : 0;
 }
 
+const clamp = (value, minimum, maximum) =>
+  Math.min(Math.max(number(value), minimum), maximum);
+
+function dynamicTargetMonths(debtToIncomeRatio) {
+  if (debtToIncomeRatio <= 0.5) return 12;
+  if (debtToIncomeRatio <= 1) return 18;
+  if (debtToIncomeRatio <= 2) return 24;
+  return 36;
+}
+
+function simulateRevolvingDebt({
+  monthlyIncome,
+  livingBudget,
+  schedules,
+  debts,
+  reserveTarget,
+  reserveStarting = 0,
+  freedPaymentRate = 0.7,
+  maxMonths = 60,
+}) {
+  const revolving = debts.map((debt) => ({ ...debt }));
+  const initialFixed = schedules.reduce((sum, loan) => sum + loan.payment, 0);
+  const baseAvailable = monthlyIncome - livingBudget - initialFixed;
+  let reserveBalance = Math.min(Math.max(number(reserveStarting), 0), reserveTarget);
+  let totalInterest = 0;
+  let previousTotal = revolving.reduce((sum, debt) => sum + debt.balance, 0);
+  let increasingMonths = 0;
+
+  for (let month = 1; month <= maxMonths; month += 1) {
+    const fixedForMonth = schedules.reduce(
+      (sum, loan) => sum + (loan.months >= month ? loan.payment : 0),
+      0,
+    );
+    const freedFixed = Math.max(initialFixed - fixedForMonth, 0);
+    const available = Math.max(baseAvailable + freedPaymentRate * freedFixed, 0);
+
+    revolving.forEach((debt) => {
+      if (debt.balance <= 0 || debt.rate <= 0) return;
+      const interest = debt.balance * debt.rate;
+      const levies = interest * debt.levyRate;
+      debt.balance += interest + levies;
+      totalInterest += interest + levies;
+    });
+
+    const minimums = revolving.map((debt) => {
+      if (debt.balance <= 0) return 0;
+      const requested = month === 1 && debt.currentMinimum > 0
+        ? debt.currentMinimum
+        : debt.minimumRate > 0
+          ? debt.balance * debt.minimumRate
+          : 0;
+      return Math.min(Math.max(requested, 0), debt.balance);
+    });
+    const totalMinimum = minimums.reduce((sum, value) => sum + value, 0);
+
+    if (available + 0.01 < totalMinimum) {
+      return {
+        status: "structural_gap",
+        month,
+        available,
+        requiredMinimum: totalMinimum,
+        monthlyGap: totalMinimum - available,
+        totalInterest,
+        reserveBalance,
+      };
+    }
+
+    minimums.forEach((minimum, index) => {
+      revolving[index].balance = Math.max(revolving[index].balance - minimum, 0);
+    });
+
+    let extra = Math.max(available - totalMinimum, 0);
+    const reserveContribution = Math.min(
+      Math.max(reserveTarget - reserveBalance, 0),
+      extra,
+    );
+    reserveBalance += reserveContribution;
+    extra -= reserveContribution;
+
+    revolving
+      .sort((a, b) => b.effectiveRate - a.effectiveRate || b.balance - a.balance)
+      .forEach((debt) => {
+        if (extra <= 0 || debt.balance <= 0) return;
+        const paid = Math.min(debt.balance, extra);
+        debt.balance -= paid;
+        extra -= paid;
+      });
+
+    const remaining = revolving.reduce((sum, debt) => sum + debt.balance, 0);
+    if (remaining <= 1) {
+      return {
+        status: "ok",
+        months: month,
+        totalInterest,
+        reserveBalance,
+        firstMonthMinimum: month === 1 ? totalMinimum : undefined,
+      };
+    }
+
+    increasingMonths = remaining > previousTotal + 0.01
+      ? increasingMonths + 1
+      : 0;
+    if (increasingMonths >= 3) {
+      const monthlyInterest = revolving.reduce(
+        (sum, debt) => sum + debt.balance * debt.effectiveRate,
+        0,
+      );
+      return {
+        status: "structural_gap",
+        month,
+        available,
+        requiredMinimum: Math.max(totalMinimum, monthlyInterest),
+        monthlyGap: Math.max(totalMinimum, monthlyInterest) - available,
+        totalInterest,
+        reserveBalance,
+      };
+    }
+    previousTotal = remaining;
+  }
+
+  return {
+    status: "long_horizon",
+    months: maxMonths,
+    totalInterest,
+    reserveBalance,
+  };
+}
+
+function findLivingBudgetForTarget({
+  targetMonths,
+  currentLivingBudget,
+  simulationInput,
+}) {
+  const closesInTarget = (livingBudget) => {
+    const result = simulateRevolvingDebt({
+      ...simulationInput,
+      livingBudget,
+      maxMonths: targetMonths,
+    });
+    return result.status === "ok" && result.months <= targetMonths;
+  };
+
+  if (!closesInTarget(0)) return null;
+  if (closesInTarget(currentLivingBudget)) return currentLivingBudget;
+
+  let low = 0;
+  let high = currentLivingBudget;
+  for (let step = 0; step < 32; step += 1) {
+    const middle = (low + high) / 2;
+    if (closesInTarget(middle)) low = middle;
+    else high = middle;
+  }
+  return low;
+}
+
 /**
  * Sabit vadeli kredileri bütçeden ay ay düşer; kart/KMH gibi değişken faizli
  * borçları ise kalan bütçeyle en yüksek faizden başlayarak kapatır.
@@ -117,9 +272,22 @@ export function calculateRevolvingDebtScenario({
   debts = [],
   currentDate = new Date(),
   reserveRatio = 0.05,
-  maxMonths = 240,
+  reserveStarting = 0,
+  maxMonths = 60,
+  targetRevolvingMonths = null,
+  freedPaymentRate = 0.7,
   livingBudgetOverride = null,
 } = {}) {
+  const assumptions = {
+    newRevolvingDebt: 0,
+    livingSpendFundedFromIncome: true,
+    fixedLoanPaymentsContinue: true,
+    inflationApplied: false,
+    incomeGrowthApplied: false,
+    interestRatesStayAsEntered: true,
+    kkdfRate: 0.15,
+    bsmvRate: 0.15,
+  };
   const monthlyIncome = Math.max(number(income), 0);
   const estimatedLiving = estimateLivingSpend({ expenses, cards, currentDate });
   const hasLivingOverride =
@@ -147,7 +315,17 @@ export function calculateRevolvingDebtScenario({
     .map((debt) => ({
       balance: Math.max(number(debt.bakiye), 0),
       rate: Math.max(number(debt.faiz), 0) / 100,
+      levyRate: clamp(
+        debt.vergiFonOrani === undefined ? 0.3 : debt.vergiFonOrani,
+        0,
+        1,
+      ),
+      currentMinimum: Math.max(number(debt.minimumOdeme), 0),
+      minimumRate: clamp(debt.minimumOran, 0, 1),
     }));
+  revolving.forEach((debt) => {
+    debt.effectiveRate = debt.rate * (1 + debt.levyRate);
+  });
 
   const fixedMonthly = schedules.reduce((sum, loan) => sum + loan.payment, 0);
   const lastFixedPaymentMonth = schedules.reduce(
@@ -156,23 +334,40 @@ export function calculateRevolvingDebtScenario({
   );
   const reserve = monthlyIncome * Math.max(number(reserveRatio), 0);
   const livingBudget = living.monthlyAmount;
-  const initialDebtBudget = monthlyIncome - fixedMonthly - livingBudget - reserve;
+  const initialDebtBudget = monthlyIncome - fixedMonthly - livingBudget;
   const initialDebt = revolving.reduce((sum, debt) => sum + debt.balance, 0);
   const maximumLivingBudget = Math.max(monthlyIncome - fixedMonthly - reserve, 0);
   const firstMonthInterest = revolving.reduce(
-    (sum, debt) => sum + debt.balance * debt.rate,
+    (sum, debt) => sum + debt.balance * debt.effectiveRate,
     0,
   );
-  // Yalnızca faizi karşılamak borcu küçültmez. İlk ay ana paranın %1'ini de
-  // azaltacak açık ve ihtiyatlı bir başlangıç hedefi kullan.
-  const principalReductionTarget = initialDebt * 0.01;
-  const minimumDebtBudget = firstMonthInterest + principalReductionTarget;
-  const recommendedLivingBudget = Math.max(
-    monthlyIncome - fixedMonthly - reserve - minimumDebtBudget,
-    0,
-  );
+  const debtIncomeRatio = monthlyIncome > 0 ? initialDebt / monthlyIncome : Infinity;
+  const safeTargetMonths = targetRevolvingMonths
+    ? Math.max(Math.floor(number(targetRevolvingMonths)), 1)
+    : dynamicTargetMonths(debtIncomeRatio);
+  const simulationInput = {
+    monthlyIncome,
+    schedules,
+    debts: revolving,
+    reserveTarget: reserve,
+    reserveStarting,
+    freedPaymentRate: clamp(freedPaymentRate, 0, 1),
+  };
+  const bisectionLivingBudget = findLivingBudgetForTarget({
+    targetMonths: safeTargetMonths,
+    currentLivingBudget: livingBudget,
+    simulationInput,
+  });
+  // Kullanıcıya yaşamını sıfırlayan bir hedef dayatma. En fazla %30 azaltımı
+  // doğrudan senaryo olarak göster; daha fazlası gerekiyorsa yapısal çözüm de.
+  const humaneLivingFloor = livingBudget * 0.7;
+  const recommendedLivingBudget = bisectionLivingBudget === null
+    ? humaneLivingFloor
+    : Math.max(bisectionLivingBudget, humaneLivingFloor);
   const recommendedDailyLiving = recommendedLivingBudget / 30;
   const livingReductionNeeded = Math.max(livingBudget - recommendedLivingBudget, 0);
+  const minimumDebtBudget = Math.max(monthlyIncome - fixedMonthly - recommendedLivingBudget, 0);
+  const principalReductionTarget = Math.max(minimumDebtBudget - firstMonthInterest, 0);
 
   const recommendation = {
     firstMonthInterest,
@@ -181,6 +376,10 @@ export function calculateRevolvingDebtScenario({
     recommendedLivingBudget,
     recommendedDailyLiving,
     livingReductionNeeded,
+    targetRevolvingMonths: safeTargetMonths,
+    targetReachableWithinHumaneFloor:
+      bisectionLivingBudget !== null && bisectionLivingBudget + 0.01 >= humaneLivingFloor,
+    method: "monthly_simulation_bisection",
   };
 
   if (!monthlyIncome || !initialDebt) {
@@ -197,6 +396,7 @@ export function calculateRevolvingDebtScenario({
       initialDebtBudget,
       lastFixedPaymentMonth,
       recommendation,
+      assumptions,
     };
   }
   if (!living.hasData) {
@@ -213,71 +413,39 @@ export function calculateRevolvingDebtScenario({
       initialDebtBudget,
       lastFixedPaymentMonth,
       recommendation,
+      assumptions,
     };
   }
 
-  let totalInterest = 0;
-  let previousTotal = initialDebt;
-  let nonDecreasingMonths = 0;
-
-  for (let month = 1; month <= maxMonths; month += 1) {
-    const fixedForMonth = schedules.reduce(
-      (sum, loan) => sum + (loan.months >= month ? loan.payment : 0),
-      0,
-    );
-    const available = Math.max(monthlyIncome - fixedForMonth - livingBudget - reserve, 0);
-
-    revolving.forEach((debt) => {
-      if (debt.balance <= 0 || debt.rate <= 0) return;
-      const interest = debt.balance * debt.rate;
-      debt.balance += interest;
-      totalInterest += interest;
+  const simulation = simulateRevolvingDebt({
+    ...simulationInput,
+    livingBudget,
+    maxMonths,
+  });
+  const spendingScenarios = [0, 0.1, 0.2, 0.3].map((reductionRate) => {
+    const scenarioLivingBudget = livingBudget * (1 - reductionRate);
+    const result = simulateRevolvingDebt({
+      ...simulationInput,
+      livingBudget: scenarioLivingBudget,
+      maxMonths,
     });
+    return {
+      reductionRate,
+      livingBudget: scenarioLivingBudget,
+      dailyLivingBudget: scenarioLivingBudget / 30,
+      status: result.status,
+      months: result.months,
+      totalInterest: result.totalInterest,
+      monthlyGap: result.monthlyGap || 0,
+    };
+  });
 
-    let payment = available;
-    revolving
-      .sort((a, b) => b.rate - a.rate || b.balance - a.balance)
-      .forEach((debt) => {
-        if (payment <= 0 || debt.balance <= 0) return;
-        const paid = Math.min(debt.balance, payment);
-        debt.balance -= paid;
-        payment -= paid;
-      });
-
-    const remaining = revolving.reduce((sum, debt) => sum + debt.balance, 0);
-    if (remaining <= 1) {
-      return {
-        status: "ok",
-        months: month,
-        totalInterest,
-        living,
-        monthlyIncome,
-        fixedMonthly,
-        reserve,
-        livingBudget,
-        dailyLivingTarget: livingBudget / 30,
-        maximumLivingBudget,
-        initialDebt,
-        initialDebtBudget,
-        lastFixedPaymentMonth,
-        recommendation,
-      };
-    }
-    // İlk aylarda sabit kredi taksitleri tüm bütçeyi kullanabilir. Bu durumda
-    // kart borcu geçici olarak büyüse bile krediler bittikten sonra açılan bütçe
-    // kapanışı mümkün kılabilir; artış sayacını ancak son sabit taksit ödendikten
-    // sonra başlat.
-    nonDecreasingMonths = month < lastFixedPaymentMonth
-      ? 0
-      : remaining >= previousTotal - 0.01
-        ? nonDecreasingMonths + 1
-        : 0;
-    if (nonDecreasingMonths >= 12) break;
-    previousTotal = remaining;
-  }
-
+  const publicStatus = simulation.status === "structural_gap"
+    ? "structural_gap"
+    : simulation.status;
   return {
-    status: "not_sustainable",
+    status: publicStatus,
+    months: simulation.months,
     living,
     monthlyIncome,
     fixedMonthly,
@@ -288,8 +456,14 @@ export function calculateRevolvingDebtScenario({
     initialDebt,
     initialDebtBudget,
     lastFixedPaymentMonth,
-    totalInterest,
+    totalInterest: simulation.totalInterest,
+    modeledMonths: simulation.months || simulation.month || 0,
+    requiredMinimum: simulation.requiredMinimum || 0,
+    monthlyGap: simulation.monthlyGap || 0,
+    reserveBalance: simulation.reserveBalance,
+    spendingScenarios,
     recommendation,
+    assumptions,
   };
 }
 
