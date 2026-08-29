@@ -356,9 +356,11 @@ const CSS = `
 .bt-bugun-icgoruler{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.bt-pro-senaryo{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:22px;background:linear-gradient(135deg,#173c30 0%,#0b2d25 68%,#12382e 100%);color:#f8f5e8;box-shadow:7px 7px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo:after{content:"";position:absolute;right:-45px;top:-55px;width:145px;height:145px;border-radius:50%;background:color-mix(in srgb,${LIME} 76%,transparent);opacity:.88}.bt-pro-senaryo-ust{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#dbe7d9;font-size:11px;font-weight:750}.bt-pro-senaryo-rozet{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid color-mix(in srgb,${LIME} 75%,transparent);border-radius:999px;background:#0b241e;color:${LIME};font-weight:850}.bt-pro-senaryo-ana{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.bt-pro-senaryo h2{max-width:720px;margin:0;color:#fffaf0;font:800 clamp(25px,4vw,36px)/1.04 'Space Grotesk',sans-serif}.bt-pro-senaryo p{max-width:760px;margin:10px 0 0;color:#c7d1ca;font-size:12.5px;line-height:1.55}.bt-pro-senaryo .bt-btn{white-space:nowrap}.bt-pro-senaryo-metrikler{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:24px;overflow:hidden;border:1px solid #ffffff26;border-radius:15px;background:#ffffff26}.bt-pro-senaryo-metrikler>div{padding:15px 17px;background:#0d2b24}.bt-pro-senaryo-metrikler span{display:block;color:#aebdb5;font-size:10.5px;line-height:1.35}.bt-pro-senaryo-metrikler strong{display:block;margin-top:6px;color:#fffaf0;font:750 clamp(15px,2.4vw,19px) 'JetBrains Mono',monospace}.bt-pro-senaryo .bt-pro-senaryo-not{position:relative;z-index:1;margin:12px 0 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0d;color:#e6ece7}.bt-pro-senaryo.kilitli{background:linear-gradient(135deg,#173c30,#12382e)}
 .bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-grid small{display:block;margin-top:6px;color:var(--dim);font-size:10.5px;line-height:1.4}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-cozum{margin-top:12px;padding:18px;border:1px solid color-mix(in srgb,${LIME} 68%,var(--line-soft));border-left:5px solid ${LIME};border-radius:16px;background:color-mix(in srgb,${LIME} 12%,#fff)}.bt-plan-cozum h3{margin:0;color:var(--text);font:800 18px/1.2 'Space Grotesk',sans-serif}.bt-plan-cozum p{margin:6px 0 0;color:var(--dim);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}.bt-plan-cozum-adimlar li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;color:var(--text);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${INK};color:${LIME};font:800 11px 'JetBrains Mono',monospace}.bt-plan-cozum-adimlar strong{font-weight:850}.bt-plan-cozum-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
 .bt-plan-giris{display:grid;gap:22px;padding:clamp(20px,4vw,32px);border:1px solid var(--line-soft);border-radius:22px;background:linear-gradient(145deg,var(--summary-bg),color-mix(in srgb,${LIME} 9%,var(--panel)));box-shadow:0 14px 34px #14160f0b}.bt-plan-giris-ust{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--dim);font-size:11px}.bt-plan-giris-ust .bt-link{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:800}.bt-plan-giris-ana{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:24px;align-items:end}.bt-plan-giris h1{max-width:720px;margin:0;color:var(--text);font:800 clamp(29px,5vw,44px)/1.02 'Space Grotesk',sans-serif}.bt-plan-giris p{max-width:700px;margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-faiz-ozeti{padding:17px;border:1px solid color-mix(in srgb,${CORAL} 50%,var(--line-soft));border-radius:16px;background:color-mix(in srgb,${CORAL} 8%,var(--panel))}.bt-plan-faiz-ozeti span,.bt-plan-faiz-ozeti small{display:block;color:var(--dim);font-size:10.5px}.bt-plan-faiz-ozeti strong{display:block;margin:7px 0 5px;color:var(--text);font:800 clamp(22px,4vw,31px) 'JetBrains Mono',monospace}.bt-plan-faiz-kirilim{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-plan-gecikme{padding:12px 14px;border-left:4px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:12px;font-weight:750}.bt-borc-donem-satiri{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 0 20px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2)}.bt-borc-donem-satiri>div{min-width:0}.bt-borc-donem-satiri strong{display:block;color:var(--text);font-size:13px}.bt-borc-donem-satiri span{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-borc-donem-satiri .bt-input{width:min(240px,100%);margin:0}
+.bt-plan-kisayol{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;padding:14px 16px;border:1px solid color-mix(in srgb,${LIME} 64%,var(--line-soft));border-radius:17px;background:linear-gradient(110deg,color-mix(in srgb,${LIME} 16%,var(--panel)),var(--panel) 58%,color-mix(in srgb,${CORAL} 7%,var(--panel)));box-shadow:0 9px 25px #14160f0a}.bt-plan-kisayol-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 color-mix(in srgb,${CORAL} 75%,transparent)}.bt-plan-kisayol-metin{min-width:0}.bt-plan-kisayol-metin strong{display:block;color:var(--text);font:800 15px/1.2 'Space Grotesk',sans-serif}.bt-plan-kisayol-metin span{display:block;margin-top:4px;color:var(--dim);font-size:11px;line-height:1.4}.bt-plan-kisayol .bt-btn{white-space:nowrap}
 .bt-bugun-bos{display:grid;justify-items:start;gap:14px;padding:clamp(26px,6vw,54px);border:1px solid var(--line-soft);border-radius:24px;background:var(--summary-bg);box-shadow:0 14px 34px #14160f0d}.bt-bugun-bos-ikon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:${LIME};color:${INK};box-shadow:4px 4px 0 ${CORAL}}.bt-bugun-bos h1{max-width:650px;margin:4px 0 0;color:var(--text);font:800 clamp(29px,6vw,48px)/1.02 'Space Grotesk',sans-serif}.bt-bugun-bos p{max-width:580px;margin:0;color:var(--dim);font-size:14px;line-height:1.55}.bt-bugun-bos .bt-btn{min-height:46px}
 @media(max-width:600px){.bt-bugun-aksiyon{grid-template-columns:38px minmax(0,1fr);padding:15px;column-gap:11px}.bt-bugun-aksiyon-ikon{width:38px;height:38px}.bt-bugun-aksiyon p span{display:block;margin-top:2px}.bt-bugun-bolum-head{align-items:flex-start;flex-direction:column;gap:8px}.bt-bugun-odeme{grid-template-columns:38px minmax(0,1fr);padding:11px}.bt-bugun-odeme-ikon{width:38px;height:38px}.bt-bugun-odeme-tutar{grid-column:2;text-align:left;display:flex;align-items:baseline;gap:7px}.bt-bugun-odeme-tutar span{margin:0}.bt-bugun-icgoru{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-bugun-icgoru>span:first-child{width:38px;height:38px}.bt-bugun-icgoru>svg{display:none}.bt-pro-senaryo{padding:19px 16px;box-shadow:4px 4px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo-ana{grid-template-columns:1fr;gap:17px;align-items:start}.bt-pro-senaryo-ana .bt-btn{justify-self:start}.bt-pro-senaryo-metrikler{grid-template-columns:1fr;margin-top:18px}.bt-pro-senaryo-metrikler>div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px}.bt-pro-senaryo-metrikler strong{margin:0;font-size:14px}.bt-plan-giris-ana{grid-template-columns:1fr}.bt-plan-giris-ust{align-items:flex-start;flex-direction:column}.bt-borc-donem-satiri{align-items:stretch;flex-direction:column}.bt-borc-donem-satiri .bt-input{width:100%}.bt-bugun-bos{padding:28px 20px}}
 @media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-cozum{padding:15px 13px}.bt-plan-cozum-actions{display:grid;grid-template-columns:1fr}.bt-plan-cozum-actions .bt-btn{width:100%}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
+@media(max-width:620px){.bt-plan-kisayol{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-plan-kisayol-ikon{width:38px;height:38px}.bt-plan-kisayol .bt-btn{grid-column:1/-1;width:100%;justify-content:center}}
 @media(max-width:460px){.bt-plan-senaryo-grid{grid-template-columns:1fr}.bt-plan-senaryo-grid>div{min-height:auto}}
 .bt-satirD{display:flex;align-items:center;gap:14px;row-gap:8px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel)}
 .bt-satirD-ad{font-size:14px;color:var(--text);font-weight:600}
@@ -3070,6 +3072,10 @@ export default function BorcTakip() {
                   setSekme("odemeler");
                   setForm(null);
                 }}
+                planaGit={() => {
+                  setSekme("plan");
+                  setForm(null);
+                }}
                 ekstreArsivIslemi={ekstreArsivIslemi}
               />
             )}
@@ -4657,7 +4663,7 @@ function Ozet({
                 </button>
               )}
               {aylikFaiz > 0 && (
-                <button className="bt-onemli-satir" type="button" onClick={() => setSekme("borclar")}>
+                <button className="bt-onemli-satir" type="button" onClick={() => setSekme("plan")}>
                   <span className="bt-onemli-ikon" aria-hidden="true"><TrendingUp size={18} /></span>
                   <span>
                     <strong>{fmt0(aylikFaiz)} tahmini faiz</strong>
@@ -4768,7 +4774,7 @@ function Ozet({
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
-                  Detayı gör <ChevronRight size={16} />
+                  Borç planını aç <ChevronRight size={16} />
                 </button>
               </div>
               <div className="bt-pro-senaryo-metrikler">
@@ -4838,7 +4844,7 @@ function Ozet({
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
-                  Detayı gör <ChevronRight size={16} />
+                  Borç planını aç <ChevronRight size={16} />
                 </button>
               </div>
               <div className="bt-pro-senaryo-metrikler">
@@ -6283,6 +6289,7 @@ function Borclar({
   kategori,
   setKategori,
   odemelereGit,
+  planaGit,
   ekstreArsivIslemi,
 }) {
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
@@ -7019,6 +7026,18 @@ function Borclar({
 
   return (
     <div className="bt-stack">
+      <section className="bt-plan-kisayol" aria-label="Borç kapatma planı">
+        <span className="bt-plan-kisayol-ikon" aria-hidden="true">
+          <Target size={20} />
+        </span>
+        <div className="bt-plan-kisayol-metin">
+          <strong>Borç kapatma planın</strong>
+          <span>Gelirini, faiz yükünü ve borçlarını hangi sırayla kapatacağını birlikte gör.</span>
+        </div>
+        <button className="bt-btn kucuk birincil" type="button" onClick={planaGit}>
+          Planı aç <ChevronRight size={15} />
+        </button>
+      </section>
       {kategori === "kontrol" && (
         <div className="bt-borc-araclari">
           <div>
