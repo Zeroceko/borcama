@@ -354,11 +354,11 @@ const CSS = `
 .bt-bugun-odemeler{background:var(--summary-soft);border:1px solid var(--line-soft);border-radius:20px;padding:clamp(18px,4vw,26px)}.bt-bugun-bolum-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.bt-bugun-bolum-head h2{margin:0;color:var(--text);font:800 clamp(20px,3vw,25px)/1.1 'Space Grotesk',sans-serif}.bt-bugun-bolum-head p{margin:5px 0 0;color:var(--dim);font-size:11.5px}.bt-bugun-bolum-head .bt-link{white-space:nowrap}.bt-bugun-odeme-listesi{display:grid;gap:8px}.bt-bugun-odeme{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-bugun-odeme-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK};font:800 11px 'JetBrains Mono',monospace}.bt-bugun-odeme.gecikmis .bt-bugun-odeme-ikon{background:${CORAL}}.bt-bugun-odeme strong{display:block;color:var(--text);font-size:13.5px;line-height:1.25}.bt-bugun-odeme small{display:block;margin-top:3px;color:var(--dim);font-size:11px}.bt-bugun-odeme.gecikmis small{color:${CORAL};font-weight:750}.bt-bugun-odeme-tutar{text-align:right}.bt-bugun-odeme-tutar b{display:block;color:var(--text);font:750 14px 'JetBrains Mono',monospace}.bt-bugun-odeme-tutar span{display:block;margin-top:3px;color:var(--dim);font-size:10px}.bt-bugun-odeme-bos{padding:20px;border:1px dashed var(--line-soft);border-radius:14px;background:var(--panel);color:var(--dim);font-size:12px;text-align:center}
 .bt-bugun-icgoru{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px 17px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:17px;background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:0 7px 20px #14160f08}.bt-bugun-icgoru:hover{background:color-mix(in srgb,${LIME} 8%,var(--panel))}.bt-bugun-icgoru>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,${LIME} 45%,var(--panel2));color:${INK}}.bt-bugun-icgoru strong{display:block;font-size:13.5px}.bt-bugun-icgoru small{display:block;margin-top:3px;color:var(--dim);font-size:11px;line-height:1.4}
 .bt-bugun-icgoruler{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.bt-pro-senaryo{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:22px;background:linear-gradient(135deg,#173c30 0%,#0b2d25 68%,#12382e 100%);color:#f8f5e8;box-shadow:7px 7px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo:after{content:"";position:absolute;right:-45px;top:-55px;width:145px;height:145px;border-radius:50%;background:color-mix(in srgb,${LIME} 76%,transparent);opacity:.88}.bt-pro-senaryo-ust{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#dbe7d9;font-size:11px;font-weight:750}.bt-pro-senaryo-rozet{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid color-mix(in srgb,${LIME} 75%,transparent);border-radius:999px;background:#0b241e;color:${LIME};font-weight:850}.bt-pro-senaryo-ana{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.bt-pro-senaryo h2{max-width:720px;margin:0;color:#fffaf0;font:800 clamp(25px,4vw,36px)/1.04 'Space Grotesk',sans-serif}.bt-pro-senaryo p{max-width:760px;margin:10px 0 0;color:#c7d1ca;font-size:12.5px;line-height:1.55}.bt-pro-senaryo .bt-btn{white-space:nowrap}.bt-pro-senaryo-metrikler{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:24px;overflow:hidden;border:1px solid #ffffff26;border-radius:15px;background:#ffffff26}.bt-pro-senaryo-metrikler>div{padding:15px 17px;background:#0d2b24}.bt-pro-senaryo-metrikler span{display:block;color:#aebdb5;font-size:10.5px;line-height:1.35}.bt-pro-senaryo-metrikler strong{display:block;margin-top:6px;color:#fffaf0;font:750 clamp(15px,2.4vw,19px) 'JetBrains Mono',monospace}.bt-pro-senaryo .bt-pro-senaryo-not{position:relative;z-index:1;margin:12px 0 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0d;color:#e6ece7}.bt-pro-senaryo.kilitli{background:linear-gradient(135deg,#173c30,#12382e)}
-.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-grid small{display:block;margin-top:6px;color:var(--dim);font-size:10.5px;line-height:1.4}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-cozum{margin-top:12px;padding:18px;border:1px solid color-mix(in srgb,${LIME} 68%,var(--line-soft));border-left:5px solid ${LIME};border-radius:16px;background:color-mix(in srgb,${LIME} 12%,#fff)}.bt-plan-cozum h3{margin:0;color:var(--text);font:800 18px/1.2 'Space Grotesk',sans-serif}.bt-plan-cozum p{margin:6px 0 0;color:var(--dim);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}.bt-plan-cozum-adimlar li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;color:var(--text);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${INK};color:${LIME};font:800 11px 'JetBrains Mono',monospace}.bt-plan-cozum-adimlar strong{font-weight:850}.bt-plan-cozum-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
 .bt-plan-giris{display:grid;gap:22px;padding:clamp(20px,4vw,32px);border:1px solid var(--line-soft);border-radius:22px;background:linear-gradient(145deg,var(--summary-bg),color-mix(in srgb,${LIME} 9%,var(--panel)));box-shadow:0 14px 34px #14160f0b}.bt-plan-giris-ust{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--dim);font-size:11px}.bt-plan-giris-ust .bt-link{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:800}.bt-plan-giris-ana{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:24px;align-items:end}.bt-plan-giris h1{max-width:720px;margin:0;color:var(--text);font:800 clamp(29px,5vw,44px)/1.02 'Space Grotesk',sans-serif}.bt-plan-giris p{max-width:700px;margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-faiz-ozeti{padding:17px;border:1px solid color-mix(in srgb,${CORAL} 50%,var(--line-soft));border-radius:16px;background:color-mix(in srgb,${CORAL} 8%,var(--panel))}.bt-plan-faiz-ozeti span,.bt-plan-faiz-ozeti small{display:block;color:var(--dim);font-size:10.5px}.bt-plan-faiz-ozeti strong{display:block;margin:7px 0 5px;color:var(--text);font:800 clamp(22px,4vw,31px) 'JetBrains Mono',monospace}.bt-plan-faiz-kirilim{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-plan-gecikme{padding:12px 14px;border-left:4px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:12px;font-weight:750}.bt-borc-donem-satiri{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 0 20px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2)}.bt-borc-donem-satiri>div{min-width:0}.bt-borc-donem-satiri strong{display:block;color:var(--text);font-size:13px}.bt-borc-donem-satiri span{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-borc-donem-satiri .bt-input{width:min(240px,100%);margin:0}
 .bt-bugun-bos{display:grid;justify-items:start;gap:14px;padding:clamp(26px,6vw,54px);border:1px solid var(--line-soft);border-radius:24px;background:var(--summary-bg);box-shadow:0 14px 34px #14160f0d}.bt-bugun-bos-ikon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:${LIME};color:${INK};box-shadow:4px 4px 0 ${CORAL}}.bt-bugun-bos h1{max-width:650px;margin:4px 0 0;color:var(--text);font:800 clamp(29px,6vw,48px)/1.02 'Space Grotesk',sans-serif}.bt-bugun-bos p{max-width:580px;margin:0;color:var(--dim);font-size:14px;line-height:1.55}.bt-bugun-bos .bt-btn{min-height:46px}
 @media(max-width:600px){.bt-bugun-aksiyon{grid-template-columns:38px minmax(0,1fr);padding:15px;column-gap:11px}.bt-bugun-aksiyon-ikon{width:38px;height:38px}.bt-bugun-aksiyon p span{display:block;margin-top:2px}.bt-bugun-bolum-head{align-items:flex-start;flex-direction:column;gap:8px}.bt-bugun-odeme{grid-template-columns:38px minmax(0,1fr);padding:11px}.bt-bugun-odeme-ikon{width:38px;height:38px}.bt-bugun-odeme-tutar{grid-column:2;text-align:left;display:flex;align-items:baseline;gap:7px}.bt-bugun-odeme-tutar span{margin:0}.bt-bugun-icgoru{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-bugun-icgoru>span:first-child{width:38px;height:38px}.bt-bugun-icgoru>svg{display:none}.bt-pro-senaryo{padding:19px 16px;box-shadow:4px 4px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo-ana{grid-template-columns:1fr;gap:17px;align-items:start}.bt-pro-senaryo-ana .bt-btn{justify-self:start}.bt-pro-senaryo-metrikler{grid-template-columns:1fr;margin-top:18px}.bt-pro-senaryo-metrikler>div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px}.bt-pro-senaryo-metrikler strong{margin:0;font-size:14px}.bt-plan-giris-ana{grid-template-columns:1fr}.bt-plan-giris-ust{align-items:flex-start;flex-direction:column}.bt-borc-donem-satiri{align-items:stretch;flex-direction:column}.bt-borc-donem-satiri .bt-input{width:100%}.bt-bugun-bos{padding:28px 20px}}
-@media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
+@media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-cozum{padding:15px 13px}.bt-plan-cozum-actions{display:grid;grid-template-columns:1fr}.bt-plan-cozum-actions .bt-btn{width:100%}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
 @media(max-width:460px){.bt-plan-senaryo-grid{grid-template-columns:1fr}.bt-plan-senaryo-grid>div{min-height:auto}}
 .bt-satirD{display:flex;align-items:center;gap:14px;row-gap:8px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel)}
 .bt-satirD-ad{font-size:14px;color:var(--text);font-weight:600}
@@ -8632,6 +8632,28 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir }) {
     finansalSenaryo.status === "ok" && onerilenSenaryo?.status === "ok"
       ? Math.max(finansalSenaryo.months - onerilenSenaryo.months, 0)
       : 0;
+  const zorunluOdemelerSonrasiYasamButcesi = Math.max(
+    finansalSenaryo.monthlyIncome -
+      finansalSenaryo.fixedMonthly -
+      finansalSenaryo.requiredMinimum,
+    0,
+  );
+  const gerekenYasamAzaltimi = Math.max(
+    finansalSenaryo.livingBudget - zorunluOdemelerSonrasiYasamButcesi,
+    0,
+  );
+  const gerekenAzaltimYuzdesi = finansalSenaryo.livingBudget > 0
+    ? Math.ceil((gerekenYasamAzaltimi / finansalSenaryo.livingBudget) * 100)
+    : 0;
+  const harcamasizKalanAcik = Math.max(
+    finansalSenaryo.fixedMonthly +
+      finansalSenaryo.requiredMinimum -
+      finansalSenaryo.monthlyIncome,
+    0,
+  );
+  const yuzdeOtuzSenaryosu = finansalSenaryo.spendingScenarios?.find(
+    (scenario) => Math.abs(scenario.reductionRate - 0.3) < 0.001,
+  );
 
   const doner = kalemler.filter((k) => !k.sabitTaksit);
   const sabit = kalemler.filter((k) => k.sabitTaksit);
@@ -8749,49 +8771,140 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir }) {
               <div><span>Aylık gelir</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
               <div><span>Sabit kredi taksitleri</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
               <div><span>Mevcut yaşam harcaması</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
-              <div><span>İlk aylık hedef</span><strong>{fmt0(onerilenButce)}</strong></div>
-              <div><span>İlk günlük hedef</span><strong>{fmt0(finansalSenaryo.recommendation.recommendedDailyLiving)}</strong></div>
-              <div>
-                <span>Olası sonuç</span>
-                <strong>
-                  {onerilenSenaryo?.status === "ok"
-                    ? `Kart ve KMH yaklaşık ${onerilenSenaryo.months} ayda kapanabilir`
-                    : finansalSenaryo.status === "long_horizon"
-                      ? `Mevcut kayıtlarla süre ${finansalSenaryo.months} ayı aşıyor`
-                      : "Aylık zorunlu ödeme için bütçe açığı var"}
-                </strong>
-              </div>
+              {finansalSenaryo.status === "structural_gap" ? (
+                <>
+                  <div>
+                    <span>Kart ve KMH için bu ay gereken en az ödeme</span>
+                    <strong>{fmt0(finansalSenaryo.requiredMinimum)}</strong>
+                  </div>
+                  <div>
+                    <span>Kredi ve yaşam giderinden sonra kalan</span>
+                    <strong>{fmt0(Math.max(finansalSenaryo.initialDebtBudget, 0))}</strong>
+                    <small>Kart ve KMH ödemelerine ayrılabilecek tutar</small>
+                  </div>
+                  <div>
+                    <span>Asgari ödemeler için eksik kalan</span>
+                    <strong>{fmt0(finansalSenaryo.monthlyGap)}</strong>
+                    <small>Asgari ödemeleri tamamlamak için gereken ek para</small>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span>Önerilen aylık yaşam harcaması</span>
+                    <strong>{fmt0(onerilenButce)}</strong>
+                  </div>
+                  <div>
+                    <span>Bu bütçenin günlük karşılığı</span>
+                    <strong>{fmt0(finansalSenaryo.recommendation.recommendedDailyLiving)}</strong>
+                  </div>
+                  <div>
+                    <span>Bu bütçeyle tahmini sonuç</span>
+                    <strong>
+                      {onerilenSenaryo?.status === "ok"
+                        ? `Kart ve KMH yaklaşık ${onerilenSenaryo.months} ayda kapanabilir`
+                        : `Kart ve KMH borcunun kapanması ${finansalSenaryo.months} ayı aşıyor`}
+                    </strong>
+                  </div>
+                </>
+              )}
             </div>
             <div className="bt-plan-senaryo-not">
-              <strong>Bu hedef nasıl hesaplandı?</strong>
-              <span>
-                {fmt0(finansalSenaryo.monthlyIncome)} gelirden {fmt0(finansalSenaryo.fixedMonthly)} kredi taksiti,
-                {" "}{fmt0(finansalSenaryo.reserve)} birikimli tampon hedefi ve yaşam harcaması düşülür.
-                Kart/KMH faizi vergi ve fonlarla birlikte ay ay hesaplanır; asgariler önce ödenir,
-                kalan para en yüksek maliyetli borca gider. Yeni kart/KMH borcu hedefi ₺0'dır.
-              </span>
+              <strong>{finansalSenaryo.status === "structural_gap" ? "Açık neden oluşuyor?" : "Plan nasıl hesaplandı?"}</strong>
+              {finansalSenaryo.status === "structural_gap" ? (
+                <span>
+                  {fmt0(finansalSenaryo.monthlyIncome)} gelirden {fmt0(finansalSenaryo.fixedMonthly)} kredi taksiti ve
+                  {" "}{fmt0(finansalSenaryo.livingBudget)} mevcut yaşam harcaması çıkınca kart ve KMH için
+                  {" "}{fmt0(Math.max(finansalSenaryo.initialDebtBudget, 0))} kalıyor. Bu ay en az
+                  {" "}{fmt0(finansalSenaryo.requiredMinimum)} ödenmesi gerektiği için
+                  {" "}{fmt0(finansalSenaryo.monthlyGap)} eksik oluşuyor. Güvenlik tamponu yalnızca bu zorunlu
+                  ödemeler karşılandıktan sonra biriktirilir; bu açığa dahil değildir.
+                </span>
+              ) : (
+                <span>
+                  Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart/KMH faizi vergi ve fonlarla birlikte
+                  ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik
+                  tamponu bir kez birikir ve yeni kart/KMH borcu eklenmediği varsayılır.
+                </span>
+              )}
             </div>
+            {finansalSenaryo.status === "structural_gap" && (
+              <div className="bt-plan-cozum">
+                <h3>Bu ay ne yapmalısın?</h3>
+                <p>
+                  Amaç, açığı büyütmeden zorunlu ödemeleri karşılamak ve yeni borç oluşmasını durdurmak.
+                </p>
+                <ol className="bt-plan-cozum-adimlar">
+                  <li>
+                    <b>1</b>
+                    <span><strong>Yeni kart ve KMH borcu oluşturma.</strong> Yeni harcama, bu ayki açığı doğrudan büyütür.</span>
+                  </li>
+                  {harcamasizKalanAcik > 0 ? (
+                    <li>
+                      <b>2</b>
+                      <span>
+                        <strong>Harcama kısıntısı tek başına yeterli değil.</strong> Yaşam harcaması ayrılmasa bile
+                        zorunlu ödemeler için ayda {fmt0(harcamasizKalanAcik)} eksik kalıyor. En az bu tutarda ek
+                        gelir gerekir veya bankanla ödeme planı ve yapılandırma seçeneklerini görüşmelisin.
+                      </span>
+                    </li>
+                  ) : (
+                    <>
+                      <li>
+                        <b>2</b>
+                        <span>
+                          <strong>Yaşam harcamasını bu ay en fazla {fmt0(zorunluOdemelerSonrasiYasamButcesi)} seviyesinde tut.</strong>{" "}
+                          Bu, mevcut düzeyden {fmt0(gerekenYasamAzaltimi)} yani yaklaşık %{gerekenAzaltimYuzdesi} azaltım demek.
+                        </span>
+                      </li>
+                      {yuzdeOtuzSenaryosu?.monthlyGap > 0 && gerekenAzaltimYuzdesi > 30 && (
+                        <li>
+                          <b>3</b>
+                          <span>
+                            <strong>%30 azaltım daha gerçekçiyse</strong>, aylık yaşam bütçen
+                            {" "}{fmt0(yuzdeOtuzSenaryosu.livingBudget)} olur; zorunlu ödemeler için yine
+                            {" "}{fmt0(yuzdeOtuzSenaryosu.monthlyGap)} eksik kalır. Bu fark için ek gelir yaratman veya
+                            bankanla ödeme planı ve yapılandırma seçeneklerini görüşmen gerekir.
+                          </span>
+                        </li>
+                      )}
+                    </>
+                  )}
+                </ol>
+                <div className="bt-plan-cozum-actions">
+                  <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
+                    Harcamaları incele <ChevronRight size={16} />
+                  </button>
+                  <button className="bt-btn ikincil" type="button" onClick={() => setSekme("odemeler")}>
+                    Zorunlu ödemeleri aç
+                  </button>
+                </div>
+              </div>
+            )}
             {finansalSenaryo.spendingScenarios?.length > 1 && (
               <div className="bt-plan-senaryo-grid">
                 {finansalSenaryo.spendingScenarios.slice(1).map((scenario) => (
                   <div key={scenario.reductionRate}>
-                    <span>Harcama %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
-                    <strong>
+                    <span>Yaşam harcaması %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
+                    <strong>Bu senaryoda aylık yaşam bütçesi {fmt0(scenario.livingBudget)}</strong>
+                    <small>
                       {scenario.status === "ok"
-                        ? `≈ ${scenario.months} ay · ${fmt0(scenario.totalInterest)} faiz`
+                        ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
                         : scenario.status === "long_horizon"
-                          ? "60 aydan uzun"
-                          : `${fmt0(scenario.monthlyGap)} aylık açık`}
-                    </strong>
+                          ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
+                          : `Kart ve KMH asgarileri için ayda ${fmt0(scenario.monthlyGap)} eksik kalır.`}
+                    </small>
                   </div>
                 ))}
               </div>
             )}
-            <div className="bt-plan-senaryo-actions">
-              <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
-                Harcamaları incele <ChevronRight size={16} />
-              </button>
-            </div>
+            {finansalSenaryo.status !== "structural_gap" && (
+              <div className="bt-plan-senaryo-actions">
+                <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
+                  Harcamaları incele <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </>
         ) : finansalSenaryo.status === "ok" ? (
           <>
@@ -8821,14 +8934,15 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir }) {
               <div className="bt-plan-senaryo-grid">
                 {finansalSenaryo.spendingScenarios.slice(1).map((scenario) => (
                   <div key={scenario.reductionRate}>
-                    <span>Harcama %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
-                    <strong>
+                    <span>Yaşam harcaması %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
+                    <strong>Bu senaryoda aylık yaşam bütçesi {fmt0(scenario.livingBudget)}</strong>
+                    <small>
                       {scenario.status === "ok"
-                        ? `≈ ${scenario.months} ay · ${fmt0(scenario.totalInterest)} faiz`
+                        ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
                         : scenario.status === "long_horizon"
-                          ? "60 aydan uzun"
-                          : `${fmt0(scenario.monthlyGap)} aylık açık`}
-                    </strong>
+                          ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
+                          : `Kart ve KMH asgarileri için ayda ${fmt0(scenario.monthlyGap)} eksik kalır.`}
+                    </small>
                   </div>
                 ))}
               </div>

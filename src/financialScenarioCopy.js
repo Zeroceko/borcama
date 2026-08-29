@@ -22,10 +22,10 @@ export const FINANCIAL_SCENARIO_COPY = {
   },
   structural_gap: {
     titles: [
-      "Gelirin sabit ödemeler ve faiz yükünü karşılamıyor",
-      "Bu plan yalnızca harcama azaltarak dengelenemiyor",
+      "Gelir, mevcut giderler ve zorunlu borç ödemelerine yetmiyor",
+      "Bu ayın zorunlu ödemelerinde bütçe açığı var",
     ],
-    reason: "Sabit kredi taksitleri, güvenlik payı ve borcun ilk ay maliyeti geliri aşıyor.",
+    reason: "Kredi taksitleri, mevcut yaşam harcaması ve kart/KMH için gereken en az ödeme aynı ayda geliri aşıyor.",
   },
   interest_only: {
     titles: [
