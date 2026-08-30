@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   addStatementMonths,
+  expenseInstallmentAmountForPeriod,
   statementPeriodForTransaction,
   statementPeriodsForExpense,
 } from "./statementPeriod.js";
@@ -34,4 +35,21 @@ test("taksitli harcamanın bütün ekstre aylarını üretir", () => {
 
 test("yıl geçişinde ekstre ayını doğru artırır", () => {
   assert.equal(addStatementMonths("2026-12", 1), "2027-01");
+});
+
+test("taksitli harcamayı ekstre aylarına eşit dağıtır", () => {
+  const expense = { tarih: "2026-08-10", taksitSayisi: 3, tutar: 18000 };
+  const card = { kesimGunu: 20 };
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-08"), 6000);
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-09"), 6000);
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-10"), 6000);
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-11"), 0);
+});
+
+test("bölünemeyen kuruş farkını son taksite ekler", () => {
+  const expense = { tarih: "2026-08-10", taksitSayisi: 3, tutar: 100 };
+  const card = { kesimGunu: 20 };
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-08"), 33.33);
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-09"), 33.33);
+  assert.equal(expenseInstallmentAmountForPeriod(expense, card, "2026-10"), 33.34);
 });

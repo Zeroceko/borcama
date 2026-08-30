@@ -41,3 +41,21 @@ export function statementPeriodsForExpense(expense, card) {
     addStatementMonths(firstPeriod, index),
   );
 }
+
+export function expenseInstallmentAmountForPeriod(expense, card, period) {
+  if (!expense || !card || !MONTH_KEY_PATTERN.test(String(period || ""))) {
+    return 0;
+  }
+  const periods = statementPeriodsForExpense(expense, card);
+  const installmentIndex = periods.indexOf(period);
+  if (installmentIndex < 0) return 0;
+
+  const installmentCount = periods.length || 1;
+  const totalCents = Math.round((Number(expense.tutar) || 0) * 100);
+  const regularInstallmentCents = Math.floor(totalCents / installmentCount);
+  const installmentCents =
+    installmentIndex === installmentCount - 1
+      ? totalCents - regularInstallmentCents * (installmentCount - 1)
+      : regularInstallmentCents;
+  return installmentCents / 100;
+}
