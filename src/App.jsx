@@ -78,6 +78,10 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { getFinancialScenarioCopy } from "./financialScenarioCopy.js";
+import {
+  statementPeriodForTransaction,
+  statementPeriodsForExpense,
+} from "./statementPeriod.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -416,6 +420,8 @@ const CSS = `
 .bt-btn.ikincil:hover{background:var(--panel2)}
 .bt-btn.hayalet{background:transparent;color:var(--dim);border:none;padding:7px;border-radius:10px}
 .bt-btn.hayalet:hover{color:var(--text);background:var(--panel2)}
+.bt-kart-ust-araclar .bt-btn.hayalet{width:100%;min-height:36px;justify-content:center;padding:7px 10px;border:1px solid color-mix(in srgb,var(--text) 24%,var(--line-soft));border-radius:12px;background:color-mix(in srgb,var(--panel2) 82%,var(--panel));color:var(--text);font-size:11px;box-shadow:0 3px 10px #14160f08}
+.bt-kart-ust-araclar .bt-btn.hayalet:hover{border-color:color-mix(in srgb,${LIME} 58%,var(--text));background:color-mix(in srgb,${LIME} 13%,var(--panel2));color:var(--text)}
 .bt-btn.tehlike:hover{color:${CORAL}}
 .bt-btn.kucuk{padding:6px 13px;font-size:12px}
 .bt-btn.heroghost{background:var(--panel);color:var(--text);border-color:var(--line-soft)}
@@ -822,6 +828,8 @@ const yerelTarihSaatDegeri = (deger = new Date()) => {
   const yerel = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
   return yerel.toISOString().slice(0, 16);
 };
+const yerelTarihDegeri = (deger = new Date()) =>
+  yerelTarihSaatDegeri(deger).slice(0, 10);
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 function sonrakiOdemeTarihi(gun) {
@@ -7917,12 +7925,10 @@ function harcamaEkstrePayi(harcama, kart, ekstreAyi) {
     Math.max(parseInt(harcama.taksitSayisi) || 1, 1),
     60,
   );
-  const [yil, ay, gun] = harcama.tarih.split("-").map(Number);
-  if (!yil || !ay || !gun) return 0;
-  const kesimGunu = Math.min(Math.max(parseInt(kart.kesimGunu) || 1, 1), 31);
-  const ilkEkstreAyi = ayAnahtari(
-    new Date(yil, ay - 1 + (gun > kesimGunu ? 1 : 0), 1),
-  );
+  const ilkEkstreAyi =
+    harcama.ekstreAyi ||
+    statementPeriodForTransaction(harcama.tarih, kart.kesimGunu);
+  if (!ilkEkstreAyi) return 0;
   const taksitSirasi = ayFarki(ilkEkstreAyi, ekstreAyi);
   if (taksitSirasi < 0 || taksitSirasi >= taksitSayisi) return 0;
 
@@ -7936,7 +7942,6 @@ function harcamaEkstrePayi(harcama, kart, ekstreAyi) {
 }
 
 function EkstreKontrol({ veri }) {
-  const [seciliAy, setSeciliAy] = useState(() => ayAnahtari());
   const kontrolAylar = useMemo(
     () =>
       [
@@ -7946,14 +7951,40 @@ function EkstreKontrol({ veri }) {
             ...veri.cards.flatMap((k) => [
               k.ekstreAyi,
               ...(k.ekstreGecmisi || []).map((e) => e.ekstreAyi),
+              ...veri.expenses
+                .filter(
+                  (h) =>
+                    h.kaynak === k.banka + " · " + (k.ad || "Kredi kartı"),
+                )
+                .flatMap((h) => statementPeriodsForExpense(h, k)),
             ]),
           ].filter(Boolean),
         ),
       ]
         .sort()
         .reverse(),
-    [veri.cards],
+    [veri.cards, veri.expenses],
   );
+  const varsayilanKontrolAyi = useMemo(() => {
+    const bugununTarihi = yerelTarihDegeri();
+    return [
+      ayAnahtari(),
+      ...veri.cards.map((kart) =>
+        statementPeriodForTransaction(bugununTarihi, kart.kesimGunu),
+      ),
+    ]
+      .filter(Boolean)
+      .sort()
+      .at(-1);
+  }, [veri.cards]);
+  const [seciliAy, setSeciliAy] = useState(
+    () => varsayilanKontrolAyi || ayAnahtari(),
+  );
+  useEffect(() => {
+    if (!kontrolAylar.includes(seciliAy)) {
+      setSeciliAy(varsayilanKontrolAyi || kontrolAylar[0] || ayAnahtari());
+    }
+  }, [kontrolAylar, seciliAy, varsayilanKontrolAyi]);
   const kaynaklar = useMemo(() => {
     const m = {};
     veri.expenses.forEach((h) => {
@@ -10310,7 +10341,7 @@ function Harcamalar({
         form.veri.id
           ? form.veri
           : {
-              tarih: new Date().toISOString().slice(0, 10),
+              tarih: yerelTarihDegeri(),
               kategori: "Market",
               ...form.veri,
             },
@@ -10346,16 +10377,24 @@ function Harcamalar({
   const seciliKart = veri.cards.find(
     (k) => k.banka + " · " + (k.ad || "Kredi kartı") === f.kaynak,
   );
+  const seciliEkstreAyi = seciliKart
+    ? statementPeriodForTransaction(f.tarih, seciliKart.kesimGunu)
+    : "";
 
   function gonder() {
     if (!f.tutar || !f.tarih) return;
     const taksitSayisi = seciliKart
       ? Math.min(Math.max(parseInt(f.taksitSayisi) || 1, 1), 60)
       : 1;
-    harcamaKaydet(
-      { id: f.id || uid(), ...f, tutar: +f.tutar, taksitSayisi },
-      false,
-    );
+    const kayit = {
+      id: f.id || uid(),
+      ...f,
+      tutar: +f.tutar,
+      taksitSayisi,
+    };
+    if (seciliEkstreAyi) kayit.ekstreAyi = seciliEkstreAyi;
+    else delete kayit.ekstreAyi;
+    harcamaKaydet(kayit, false);
   }
 
   return (
@@ -10478,6 +10517,19 @@ function Harcamalar({
                 />
               </label>
             </div>
+            {seciliKart && seciliEkstreAyi && (
+              <div className="bt-ipucu" style={{ marginTop: 12 }}>
+                <Info size={16} />
+                <div>
+                  <b>Bu harcama {ayEtiketi(seciliEkstreAyi)} ekstresine yazılacak.</b>{" "}
+                  İşlem tarihi {ayEtiketi((f.tarih || "").slice(0, 7))} olarak
+                  kalır
+                  {seciliEkstreAyi !== (f.tarih || "").slice(0, 7)
+                    ? `; kartın ayın ${seciliKart.kesimGunu}. günündeki hesap kesimi geçtiği için ekstre dönemi bir sonraki aydır.`
+                    : "."}
+                </div>
+              </div>
+            )}
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" onClick={gonder}>
                 <Check size={14} /> {f.id ? "Güncelle" : "Kaydet"}
@@ -10555,7 +10607,7 @@ function Harcamalar({
         <div className="bt-card">
           <div className="bt-cardhead">
             <div className="bt-h2" style={{ margin: 0 }}>
-              {ayEtiketi(gorunenAy)} harcamaları
+              İşlem tarihi: {ayEtiketi(gorunenAy)}
             </div>
             <select
               className="bt-input"
@@ -10574,48 +10626,65 @@ function Harcamalar({
           {gorunenHarcamalar.length === 0 ? (
             <div className="bt-bos">Bu ay için harcama kaydı yok.</div>
           ) : (
-          <div className="bt-stack" style={{ gap: 10 }}>
-            {gorunenHarcamalar.map((h) => (
-              <div key={h.id} className="bt-satir">
-                <div style={{ flex: 1, minWidth: 150 }}>
-                  <div className="bt-satir-ad">
-                    {h.kategori}
-                    {h.aciklama && (
-                      <span style={{ color: "var(--dim)", fontWeight: 500 }}>
-                        {" "}
-                        · {h.aciklama}
-                      </span>
-                    )}
+            <div className="bt-stack" style={{ gap: 10 }}>
+              {gorunenHarcamalar.map((h) => {
+                const harcamaKarti = veri.cards.find(
+                  (kart) =>
+                    h.kaynak ===
+                    kart.banka + " · " + (kart.ad || "Kredi kartı"),
+                );
+                const harcamaEkstreAyi = harcamaKarti
+                  ? h.ekstreAyi ||
+                    statementPeriodForTransaction(
+                      h.tarih,
+                      harcamaKarti.kesimGunu,
+                    )
+                  : "";
+                return (
+                  <div key={h.id} className="bt-satir">
+                    <div style={{ flex: 1, minWidth: 150 }}>
+                      <div className="bt-satir-ad">
+                        {h.kategori}
+                        {h.aciklama && (
+                          <span style={{ color: "var(--dim)", fontWeight: 500 }}>
+                            {" "}
+                            · {h.aciklama}
+                          </span>
+                        )}
+                      </div>
+                      <div className="bt-satir-meta">
+                        {h.tarih && h.tarih.split("-").reverse().join(".")}
+                        {h.kaynak && <> · {h.kaynak}</>}
+                        {harcamaEkstreAyi && (
+                          <> · Ekstre: {ayEtiketi(harcamaEkstreAyi)}</>
+                        )}
+                        {(+h.taksitSayisi || 1) > 1 && (
+                          <>
+                            {" "}· {h.taksitSayisi} taksit · aylık{" "}
+                            {fmt((+h.tutar || 0) / +h.taksitSayisi)}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bt-satir-tutar">{fmt(h.tutar)}</div>
+                    <div style={{ display: "flex", gap: 2 }}>
+                      <button
+                        className="bt-btn hayalet"
+                        onClick={() => setForm({ liste: "expenses", veri: h })}
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        className="bt-btn hayalet tehlike"
+                        onClick={() => sil("expenses", h.id)}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="bt-satir-meta">
-                    {h.tarih && h.tarih.split("-").reverse().join(".")}
-                    {h.kaynak && <> · {h.kaynak}</>}
-                    {(+h.taksitSayisi || 1) > 1 && (
-                      <>
-                        {" "}· {h.taksitSayisi} taksit · aylık{" "}
-                        {fmt((+h.tutar || 0) / +h.taksitSayisi)}
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="bt-satir-tutar">{fmt(h.tutar)}</div>
-                <div style={{ display: "flex", gap: 2 }}>
-                  <button
-                    className="bt-btn hayalet"
-                    onClick={() => setForm({ liste: "expenses", veri: h })}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    className="bt-btn hayalet tehlike"
-                    onClick={() => sil("expenses", h.id)}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
