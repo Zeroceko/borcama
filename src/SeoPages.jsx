@@ -86,6 +86,34 @@ const REHBERLER = [
     tool: "mevduat-faizi-hesaplama",
   },
   {
+    slug: "32-gunluk-mevduat-faizi-nasil-hesaplanir",
+    title: "32 Günlük Mevduat Faizi Nasıl Hesaplanır?",
+    description: "32 günlük vadeli mevduatta ana para, yıllık brüt faiz ve stopajla net kazanç ve vade sonu toplamın nasıl hesaplandığını öğrenin.",
+    published: "2026-08-31",
+    intro: "32 günlük mevduat getirisi, bankanın verdiği yıllık brüt oranın 32 güne düşen kısmıdır. Net kazanç için brüt faizden bankanın bildirdiği stopaj kesilir.",
+    sections: [
+      ["32 günlük brüt faiz formülü", "Ana para, yıllık brüt faiz oranı ve 32 gün çarpılır; sonuç 365 gün ve 100'e bölünür. Bankaların gün hesabı ve ürün koşulları farklılaşabildiği için teklif belgesini kontrol et."],
+      ["Net getiri nasıl bulunur?", "Brüt faiz kazancından stopaj tutarı çıkarılır. Stopaj oranını varsaymak yerine bankanın ilgili mevduat için bildirdiği güncel oranı hesaplayıcıya yaz."],
+      ["Vade sonu toplam nedir?", "Ana para ile net faiz kazancının toplamıdır. Bu rakam, vade bozulmadığı ve oranın teklif boyunca geçerli olduğu varsayımıyla hesaplanır."],
+      ["Teklifleri nasıl karşılaştırmalısın?", "Aynı ana para ve 32 günü kullanarak farklı bankaların brüt oranlarını ayrı ayrı hesapla. Karar verirken net getiri kadar erken çekim, alt bakiye ve kampanya süresi koşullarına da bak."],
+    ],
+    tool: "mevduat-faizi-hesaplama",
+  },
+  {
+    slug: "100-bin-tl-mevduat-getirisi-nasil-hesaplanir",
+    title: "100 Bin TL Mevduat Getirisi Nasıl Hesaplanır?",
+    description: "100.000 TL için bankanın verdiği yıllık faiz, seçtiğin vade ve stopaj oranıyla tahmini net mevduat getirisini hesaplayın.",
+    published: "2026-08-31",
+    intro: "100 bin TL'nin getirisi sabit değildir; bankanın sunduğu yıllık brüt faiz, vade günü ve stopaj oranına göre değişir. Bu nedenle güncel teklifteki rakamlarla hesap yapmak gerekir.",
+    sections: [
+      ["Hesap için hangi bilgiler gerekir?", "Ana para alanına 100.000 TL, faiz alanına bankanın yıllık brüt oranını, vade alanına paranın hesapta kalacağı günü ve stopaj alanına bankanın bildirdiği oranı gir."],
+      ["Faiz oranı neden yıllıktır?", "Bankalar mevduat oranını genellikle yıllık brüt olarak sunar. Hesaplayıcı bu oranı seçtiğin gün sayısına oranlayarak vade kazancını tahmin eder."],
+      ["Brüt ve net kazanç arasındaki fark", "Brüt kazanç kesinti öncesidir. Net kazanç, brüt faizden stopaj düşüldükten sonra kalan ve ana paraya eklenecek tahmini tutardır."],
+      ["Sonuç neden banka teklifinden farklı olabilir?", "Valör, vade bozulması, kampanya süresi, alt ve üst bakiye sınırları ile bankanın gün hesabı sonucu etkileyebilir. Kesin tutar için bankanın vade sonu teklifini esas al."],
+    ],
+    tool: "mevduat-faizi-hesaplama",
+  },
+  {
     slug: "borclarimi-nasil-duzenlerim",
     title: "Borçlarımı Nasıl Düzenlerim? Adım Adım Başlangıç Rehberi",
     description: "Dağınık kredi kartı, kredi ve ek hesap borçlarını tek listede toplamak ve uygulanabilir bir aylık plan kurmak için sade rehber.",
@@ -153,9 +181,13 @@ const REHBERLER = [
 ];
 
 const TOOL_GUIDES = {
-  "/araclar/brut-net-maas-hesaplama": ["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş nasıl hesaplanır?"],
-  "/araclar/kidem-tazminati-hesaplama": ["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı nasıl hesaplanır?"],
-  "/araclar/mevduat-faizi-hesaplama": ["/rehber/mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat faizi net getiri nasıl hesaplanır?"],
+  "/araclar/brut-net-maas-hesaplama": [["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş nasıl hesaplanır?"]],
+  "/araclar/kidem-tazminati-hesaplama": [["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı nasıl hesaplanır?"]],
+  "/araclar/mevduat-faizi-hesaplama": [
+    ["/rehber/mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat faizi net getiri nasıl hesaplanır?"],
+    ["/rehber/32-gunluk-mevduat-faizi-nasil-hesaplanir", "32 günlük mevduat faizi nasıl hesaplanır?"],
+    ["/rehber/100-bin-tl-mevduat-getirisi-nasil-hesaplanir", "100 bin TL mevduat getirisi nasıl hesaplanır?"],
+  ],
 };
 
 export function seoYoluMu(yol) {
@@ -246,11 +278,11 @@ function AracCard({ slug, icon: Icon, title, text }) {
   return <a className="seo-tool-card" href={`/araclar/${slug}`}><span className="seo-icon"><Icon/></span><h2>{title}</h2><p>{text}</p><span className="seo-card-link">Aracı aç <ArrowRight size={15}/></span></a>;
 }
 
-function ToolLayout({ title, lead, path, schema, children, faq = [], showSources = true }) {
-  useSeo({ title, description: lead, path, schema });
+function ToolLayout({ title, metaTitle, lead, path, schema, children, afterContent, faq = [], showSources = true }) {
+  useSeo({ title: metaTitle || title, description: lead, path, schema });
   const bolumler = React.Children.toArray(children);
-  const guide = TOOL_GUIDES[path];
-  return <Layout><main><Breadcrumb path={path} title={title}/><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}<AdSlot/></div></div>{guide && <a className="seo-related-guide" href={guide[0]}><BookOpen/><span><b>Hesabın nasıl yapıldığını öğren</b><strong>{guide[1]}</strong></span><ArrowRight/></a>}{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
+  const guides = TOOL_GUIDES[path] || [];
+  return <Layout><main><Breadcrumb path={path} title={title}/><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}<AdSlot/></div></div>{afterContent}{guides.length > 0 && <section className="seo-related-guides" aria-label="İlgili rehberler"><h2>Hesabını daha iyi anla</h2>{guides.map(([href, label]) => <a className="seo-related-guide" href={href} key={href}><BookOpen/><span><b>Adım adım rehber</b><strong>{label}</strong></span><ArrowRight/></a>)}</section>}{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
@@ -289,7 +321,8 @@ function MevduatFaizi() {
   const [stopaj, setStopaj] = useState("15");
   const sonuc = useMemo(() => mevduatFaiziHesapla({ anaPara, yillikFaiz, vadeGunu, stopaj }), [anaPara, yillikFaiz, vadeGunu, stopaj]);
   const schema = useMemo(() => toolSchema("Mevduat Faizi Hesaplama", "/araclar/mevduat-faizi-hesaplama"), []);
-  return <ToolLayout title="Mevduat faizi hesaplama" lead="Ana para, bankanın sunduğu yıllık brüt faiz, vade günü ve stopaj oranıyla tahmini net mevduat kazancını hesapla." path="/araclar/mevduat-faizi-hesaplama" schema={schema} showSources={false} faq={[["Hangi faiz oranını girmeliyim?","Bankanın mevduat teklifi veya sözleşmesinde yazan yıllık brüt faiz oranını gir."],["Stopaj oranını nereden bulurum?","Oran vade ve mevduat türüne göre değişebileceği için bankanın ürün detayında bildirilen güncel oranı kullan."]]}><div className="seo-panel"><h2>Mevduat bilgilerini gir</h2><NumberField label="Yatıracağın ana para" value={anaPara} onChange={setAnaPara}/><NumberField label="Yıllık brüt faiz oranı" value={yillikFaiz} onChange={setYillikFaiz} suffix="%" step="0.01" hint="Bankanın sana sunduğu yıllık oranı gir."/><NumberField label="Vade süresi" value={vadeGunu} onChange={setVadeGunu} suffix="Gün" step="1"/><NumberField label="Stopaj oranı" value={stopaj} onChange={setStopaj} suffix="%" step="0.01" hint="Bankanın bu mevduat için bildirdiği güncel oranı gir."/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ NET GETİRİ</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.netFaiz}/></div><Summary items={[["Brüt faiz", <Money value={sonuc.brutFaiz}/>],["Stopaj", <Money value={sonuc.stopajTutari}/>],["Vade sonu toplam", <Money value={sonuc.vadeSonuTutar}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Hesaplama 365 gün üzerinden yaklaşık sonuç üretir. Kesin getiri ve stopaj için bankanın teklifini esas al."/></div></ToolLayout>;
+  const explanation = <section className="seo-explainer"><h2>Mevduat faizi nasıl hesaplanır?</h2><p>Brüt faiz; ana para, bankanın verdiği yıllık faiz oranı ve vade günü kullanılarak hesaplanır. Net getiri için brüt faizden stopaj tutarı çıkarılır.</p><div className="seo-formula"><b>Brüt faiz</b><span>Ana para × yıllık faiz × vade günü ÷ 365</span></div><p>Vade sonu toplam, ana paran ile stopaj sonrası net faiz kazancının toplamıdır. Banka kampanyaları ve oranlar değişebildiği için hesaplayıcıya her zaman kendi teklifindeki rakamları gir.</p></section>;
+  return <ToolLayout title="Mevduat faizi hesaplama" metaTitle="Mevduat Faizi Hesaplama 2026 | Net Getiri" lead="Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini, net getirisini ve vade sonu toplamını hesapla." path="/araclar/mevduat-faizi-hesaplama" schema={schema} showSources={false} afterContent={explanation} faq={[["Hangi faiz oranını girmeliyim?","Bankanın mevduat teklifi veya sözleşmesinde yazan yıllık brüt faiz oranını gir."],["32 günlük mevduat nasıl hesaplanır?","Vade süresini 32 gün seç; araç yıllık brüt oranı 32 güne oranlayıp stopaj sonrası net getiriyi gösterir."],["Stopaj oranını nereden bulurum?","Oran vade ve mevduat türüne göre değişebileceği için bankanın ürün detayında bildirilen güncel oranı kullan."]]}><div className="seo-panel"><h2>Mevduat bilgilerini gir</h2><NumberField label="Yatıracağın ana para" value={anaPara} onChange={setAnaPara}/><NumberField label="Yıllık brüt faiz oranı" value={yillikFaiz} onChange={setYillikFaiz} suffix="%" step="0.01" hint="Bankanın sana sunduğu yıllık oranı gir."/><NumberField label="Vade süresi" value={vadeGunu} onChange={setVadeGunu} suffix="Gün" step="1"/><div className="seo-term-shortcuts" aria-label="Sık kullanılan vadeler">{[7,32,46,92].map((gun) => <button type="button" className={Number(vadeGunu) === gun ? "active" : ""} onClick={() => setVadeGunu(String(gun))} key={gun}>{gun} gün</button>)}</div><NumberField label="Stopaj oranı" value={stopaj} onChange={setStopaj} suffix="%" step="0.01" hint="Bankanın bu mevduat için bildirdiği güncel oranı gir."/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ NET GETİRİ</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.netFaiz}/></div><Summary items={[["Brüt faiz", <Money value={sonuc.brutFaiz}/>],["Stopaj", <Money value={sonuc.stopajTutari}/>],["Vade sonu toplam", <Money value={sonuc.vadeSonuTutar}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Hesaplama 365 gün üzerinden yaklaşık sonuç üretir. Kesin getiri ve stopaj için bankanın teklifini esas al."/></div></ToolLayout>;
 }
 
 function KrediOdemePlani() {
