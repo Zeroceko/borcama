@@ -68,6 +68,19 @@ ${ozellikSatiri("Ödemeyi borcun yanında kaydet", "Asgari, kısmi veya tam öde
 </table>${buton(url, "Yeni özellikleri dene")}`);
 }
 
+export function surum133DuyuruHtml(url: string) {
+  return cerceve(`<div style="display:none;max-height:0;overflow:hidden;color:transparent">Ekstre ekleme, kart görünümü, taksit dağılımı ve borç planı yenilendi.</div>
+<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Borcama'yı birlikte geliştirdik.</h1>
+<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">Geri bildirimlerinize göre borç takibini daha güvenli, anlaşılır ve gerçekçi yapan dört yenilik hazırladık.</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+${ozellikSatiri("Ekstre eklemek daha güvenli ve esnek", "Dosyan cihazında okunur. İstersen ekstre bilgilerini dosya seçmeden manuel olarak da girebilirsin.", "#eef8d0")}
+${ozellikSatiri("Kartını doğru bankayla ayırt et", "Desteklenen bankaların marka işaretleri kart, ödeme ve borç planı listelerinde görünür.", "#e5f1ee")}
+${ozellikSatiri("Taksitler doğru aylara dağılsın", "Taksitli harcamanın tamamı ilk aya yığılmaz; her taksit ilgili ekstre döneminde gösterilir.", "#fff0ec")}
+${ozellikSatiri("Borç planın gerçek bütçeni kullansın", "Gelir, kredi taksitleri, yaşam harcaması, güvenlik payı ve faiz yükü birlikte değerlendirilir.", "#f3eafa")}
+</table>${buton(url, "Yenilikleri gör")}
+<p style="margin:16px 0 0;color:#85877d;font-size:12px;line-height:1.55;text-align:center">Hesabındaki kayıtları yalnızca sen görebilirsin.</p>`);
+}
+
 export function denemeDavetHtml(kalanGun: number, url: string) {
   return denemeBasladiHtml(kalanGun, url);
 }

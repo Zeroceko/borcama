@@ -34,5 +34,14 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Sonraki kampanya için taslak konu satırı
 
-`Siz istediniz, biz yaptık: Borcama'da ekstre ve borç takibi yenilendi`
+`Siz istediniz, biz yaptık: Borcama'da 4 yenilik`
 
+## v1.33 kampanya hazırlığı
+
+- Durum: Taslak; gönderilmedi.
+- Hedef kitle: E-posta adresini doğrulamış tüm üyeler.
+- Önizleme metni: `Ekstre ekleme, kart görünümü, taksit dağılımı ve borç planı yenilendi.`
+- Ana CTA: `Yenilikleri gör`
+- Hedef: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ana_cta`
+- Hariç tutulacaklar: E-posta doğrulaması olmayan, iletişimden çıkan, şikâyet/bounce kaydı bulunan ve bu kampanyayı daha önce alan kullanıcılar.
+- Gönderim öncesi zorunlu kontrol: `ozerocek@gmail.com` adresine test gönderimi, masaüstü/mobil önizleme, Resend domain durumu, açılma/tıklama webhook'u ve hedef URL.
