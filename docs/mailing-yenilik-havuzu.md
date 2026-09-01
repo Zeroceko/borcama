@@ -11,12 +11,12 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Faydası: Ham ekstre dosyan cihazında işlenir; istersen dosya seçmeden bilgileri kendin girebilirsin.
 - Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ekstre_ekle`
 
-### Kartlarını daha kolay ayırt et — v1.33.0
+### Geçmiş ekstrelerini yönet — v1.32.0
 
-- Siz istediniz: Birden fazla bankadaki kartları listelerde daha hızlı ayırt etmek.
-- Biz yaptık: Desteklenen bankaların gerçek marka işaretlerini Borcama'nın görsel diliyle kart, ödeme ve plan ekranlarına ekledik.
-- Faydası: Ödemeyi veya ekstreyi yanlış karta işleme riski azalır.
-- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=banka_isaretleri`
+- Siz istediniz: Daha önce yüklenen ekstreleri görmek ve yanlış karta eklenen bir kaydı düzeltebilmek.
+- Biz yaptık: Ekstre arşivine görüntüleme, başka karta taşıma ve silme aksiyonlarını ekledik.
+- Faydası: Geçmiş kayıtlarını kaybetmeden yönetebilir, yanlış karta giden ekstreyi düzeltebilirsin.
+- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ekstre_arsivi`
 
 ### Taksitler doğru aya dağılıyor — v1.33.0
 
@@ -34,13 +34,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Sonraki kampanya için taslak konu satırı
 
-`Siz istediniz, biz yaptık: Borcama'da 4 yenilik`
+`Siz istediniz, biz yaptık: Borcama'daki önemli yenilikler`
 
 ## v1.33 kampanya hazırlığı
 
 - Durum: Taslak; gönderilmedi.
 - Hedef kitle: E-posta adresini doğrulamış tüm üyeler.
-- Önizleme metni: `Ekstre ekleme, kart görünümü, taksit dağılımı ve borç planı yenilendi.`
+- Önizleme metni: `Ekstrelerini yönet, taksitlerini doğru aylarda gör ve borç kapatma planını oluştur.`
 - Ana CTA: `Yenilikleri gör`
 - Hedef: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ana_cta`
 - Hariç tutulacaklar: E-posta doğrulaması olmayan, iletişimden çıkan, şikâyet/bounce kaydı bulunan ve bu kampanyayı daha önce alan kullanıcılar.
