@@ -87,6 +87,10 @@ import {
   statementPeriodForTransaction,
   statementPeriodsForExpense,
 } from "./statementPeriod.js";
+import {
+  ekHesapOdemesiKaldir,
+  ekHesapOdemesiUygula,
+} from "./overdraftPayments.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -1106,13 +1110,6 @@ function ekHesapHesabi(k) {
   const oran = +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ_EK_HESAP;
   return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100 };
 }
-const odemeGecmisiToplami = (gecmis = []) =>
-  gecmis.reduce((t, o) => t + Math.max(+o.tutar || 0, 0), 0);
-const gecmisDisiEkHesapOdemesi = (k) =>
-  Math.max(
-    (+k.yapilanOdeme || 0) - odemeGecmisiToplami(k.odemeGecmisi || []),
-    0,
-  );
 const BOS_VERI = {
   cards: [],
   loans: [],
@@ -6885,44 +6882,15 @@ function Borclar({
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
     if (ekHesapOdemeModu) {
       const eski = form.veri;
-      const hesap = ekHesapHesabi(eski);
-      const eskiGecmis = eski.odemeGecmisi || [];
-      const gecmisDisi = gecmisDisiEkHesapOdemesi(eski);
-      const digerGecmis = form.odemeDuzenle
-        ? eskiGecmis.filter((o) => o.id !== form.odemeDuzenle.id)
-        : eskiGecmis;
-      const azamiOdeme = Math.max(
-        hesap.kullanilan - gecmisDisi - odemeGecmisiToplami(digerGecmis),
-        0,
-      );
-      const odeme = Math.min(Math.max(+f.odemeTutari || 0, 0), azamiOdeme);
-      if (odeme <= 0) return;
-      const tarih = new Date(f.odemeTarihi);
-      if (Number.isNaN(tarih.getTime())) return;
-      const kayit = {
-        ...(form.odemeDuzenle || {}),
-        id: form.odemeDuzenle?.id || uid(),
-        tutar: odeme,
-        tarih: tarih.toISOString(),
-        duzenlenmeTarihi: form.odemeDuzenle
-          ? new Date().toISOString()
-          : undefined,
-      };
-      const odemeGecmisi = form.odemeDuzenle
-        ? eskiGecmis.map((o) => (o.id === kayit.id ? kayit : o))
-        : [...eskiGecmis, kayit];
-      const hesaplananToplamOdeme =
-        gecmisDisi + odemeGecmisiToplami(odemeGecmisi);
-      ekleGuncelle("overdrafts", {
-        ...eski,
-        // Eski kayıtlarda ödeme geçmişi ile kümülatif ödeme birbirini
-        // tutmayabiliyor. Kullanıcı "Borcu kapat" dediğinde kalan bakiyeyi
-        // geçmiş veri biçiminden bağımsız olarak kesin biçimde sıfırla.
-        yapilanOdeme: form.kapat
-          ? hesap.kullanilan
-          : Math.min(hesaplananToplamOdeme, hesap.kullanilan),
-        odemeGecmisi,
+      const sonuc = ekHesapOdemesiUygula(eski, {
+        tutar: f.odemeTutari,
+        tarih: f.odemeTarihi,
+        kapat: !!form.kapat,
+        duzenlenenOdeme: form.odemeDuzenle || null,
+        yeniId: uid(),
       });
+      if (!sonuc.tamam) return;
+      ekleGuncelle("overdrafts", sonuc.hesap);
       return;
     }
     const ekstreVerisi = ekstreFormu
@@ -6999,12 +6967,7 @@ function Borclar({
   function ekHesapOdemesiSilmeyiOnayla() {
     if (!silinecekEkHesapOdemesi) return;
     const { kart, odeme } = silinecekEkHesapOdemesi;
-    const odemeGecmisi = (kart.odemeGecmisi || []).filter((o) =>
-      odeme.id ? o.id !== odeme.id : o.tarih !== odeme.tarih,
-    );
-    const yapilanOdeme =
-      gecmisDisiEkHesapOdemesi(kart) + odemeGecmisiToplami(odemeGecmisi);
-    ekleGuncelle("overdrafts", { ...kart, yapilanOdeme, odemeGecmisi });
+    ekleGuncelle("overdrafts", ekHesapOdemesiKaldir(kart, odeme));
     setSilinecekEkHesapOdemesi(null);
   }
 
@@ -7460,21 +7423,17 @@ function Borclar({
                 f.odemeTutari &&
                 (() => {
                   const h = ekHesapHesabi(form.veri);
-                  const gecmisDisi = gecmisDisiEkHesapOdemesi(form.veri);
-                  const digerGecmis = form.odemeDuzenle
-                    ? (form.veri.odemeGecmisi || []).filter(
-                        (o) => o.id !== form.odemeDuzenle.id,
-                      )
-                    : form.veri.odemeGecmisi || [];
-                  const azami = Math.max(
-                    h.kullanilan -
-                      gecmisDisi -
-                      odemeGecmisiToplami(digerGecmis),
-                    0,
-                  );
+                  const oncekiKayitTutari = form.odemeDuzenle
+                    ? Math.max(+form.odemeDuzenle.tutar || 0, 0)
+                    : 0;
+                  const azami = Math.max(h.kalan + oncekiKayitTutari, 0);
                   const odeme = Math.min(+f.odemeTutari || 0, azami);
-                  const toplamOdeme =
-                    gecmisDisi + odemeGecmisiToplami(digerGecmis) + odeme;
+                  const toplamOdeme = form.kapat
+                    ? h.kullanilan
+                    : Math.min(
+                        h.odeme - oncekiKayitTutari + odeme,
+                        h.kullanilan,
+                      );
                   const kalan = Math.max(h.kullanilan - toplamOdeme, 0);
                   return (
                     <div className="bt-ipucu" style={{ marginTop: 14 }}>
