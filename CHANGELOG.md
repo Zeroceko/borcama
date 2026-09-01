@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Henüz yayımlanmamış değişiklik yok.
+
+## [1.33.1] - 2026-09-01
+
 ### Düzeltildi
 
 - Kullanıcıya özel uygulama ekranları ile eski landing varyantlarının arama motorlarında sonuç olarak görünmesi engellendi.
@@ -54,5 +60,6 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - VakıfBank ekstrelerinde metin katmanı OCR'dan önce okunarak kesim tarihi ve asgari tutar yakalama güvenilirliği artırıldı.
 - Kredi kartı ödeme ve ek hesap kapatma formlarının açıldığı kayıtla aynı yerde kalması sağlandı.
 
+[1.33.1]: https://github.com/Zeroceko/borcama/releases/tag/v1.33.1
 [1.33.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.33.0
 [1.32.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.32.0
