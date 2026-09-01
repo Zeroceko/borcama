@@ -6519,21 +6519,21 @@ function Borclar({
   const ekHesapOdemeModu =
     kategori === "od" && acik && (form.odemeGir || form.odemeDuzenle);
   const [f, setF] = useState({});
-  const ekstreDuzenlemeHedefi = ekstreFormu && form.veri?.id
-    ? `ekstre-form-${form.veri.id}`
+  const yerindeFormHedefi = acik && form.veri?.id
+    ? `borc-form-${form.veri.id}`
     : null;
   const yeniKayitHedefi = acik && !form.veri?.id ? "borc-yeni-formu" : null;
 
   useEffect(() => {
-    if (!ekstreDuzenlemeHedefi) return;
+    if (!yerindeFormHedefi) return;
     const kare = requestAnimationFrame(() => {
-      document.getElementById(ekstreDuzenlemeHedefi)?.scrollIntoView({
+      document.getElementById(yerindeFormHedefi)?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
     });
     return () => cancelAnimationFrame(kare);
-  }, [ekstreDuzenlemeHedefi]);
+  }, [yerindeFormHedefi]);
 
   useEffect(() => {
     if (!yeniKayitHedefi) return;
@@ -7346,7 +7346,7 @@ function Borclar({
           )}
 
           {acik && (
-            <YerindeForm hedef={ekstreDuzenlemeHedefi}>
+            <YerindeForm hedef={yerindeFormHedefi}>
               <div className="bt-form" id={yeniKayitHedefi || undefined}>
               {yeniEkstreModu && (
                 <div className="bt-ipucu" style={{ marginBottom: 14 }}>
@@ -8711,9 +8711,9 @@ function BorclarSatiri({
           )}
         </div>
       )}
-      {kategori === "cards" && !arsiv && (
+      {!arsiv && (
         <div
-          id={`ekstre-form-${k.id}`}
+          id={`borc-form-${k.id}`}
           className="bt-inline-ekstre-hedef"
         />
       )}
