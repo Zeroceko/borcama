@@ -402,7 +402,7 @@ const CSS = `
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-soft);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
-.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-upload-zone{display:grid;place-items:center;min-height:210px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-auto-card-match{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:68px;padding:11px 13px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:13px;background:color-mix(in srgb,${LIME} 14%,var(--panel2))}.bt-auto-card-match>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-auto-card-match strong{display:block;color:var(--text);font-size:12px}.bt-auto-card-match small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-auto-card-match button{border:0;background:transparent;color:var(--text);font:750 10.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
+.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-privacy-first{display:grid;grid-template-columns:44px minmax(0,1fr);gap:13px;align-items:start;margin-bottom:14px;padding:15px 17px;border:1.5px solid color-mix(in srgb,${LIME} 78%,var(--line));border-radius:15px;background:color-mix(in srgb,${LIME} 16%,var(--panel))}.bt-privacy-first>span:first-child{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-privacy-first strong{display:block;color:var(--text);font-size:14px}.bt-privacy-first p{margin:5px 0 0;color:var(--dim);font-size:11.5px;line-height:1.5}.bt-privacy-first-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.bt-privacy-first-list span{padding:5px 8px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--text);font-size:9.5px;font-weight:800}.bt-upload-zone{display:grid;place-items:center;min-height:190px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-manual{display:flex;justify-content:center;margin-top:10px}.bt-upload-icon+strong{font-size:14px}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-auto-card-match{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:68px;padding:11px 13px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:13px;background:color-mix(in srgb,${LIME} 14%,var(--panel2))}.bt-auto-card-match>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-auto-card-match strong{display:block;color:var(--text);font-size:12px}.bt-auto-card-match small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-auto-card-match button{border:0;background:transparent;color:var(--text);font:750 10.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
 .bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
@@ -5974,7 +5974,7 @@ function BorcUzerindenOdemeModal({
   );
 }
 
-function StatementImportModal({ cards, onClose, onUse }) {
+function StatementImportModal({ cards, onClose, onUse, onManual }) {
   const [result, setResult] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
@@ -6122,10 +6122,10 @@ function StatementImportModal({ cards, onClose, onUse }) {
         <div className="bt-extract-head">
           <div>
             <div id="ekstre-yukle-baslik" className="bt-h2" style={{ margin: "4px 0 6px" }}>
-              Ekstreyi Borcama'ya aktar
+              Ekstreni cihazında güvenle oku
             </div>
             <div style={{ color: "var(--dim)", fontSize: 12, lineHeight: 1.5 }}>
-              Bankayı ve ekstre özetini okur; kaydetmeden önce sana doğrulatır.
+              Borcama yalnızca onayladığın özet rakamları hesabına kaydeder.
             </div>
           </div>
           {result && (
@@ -6138,19 +6138,43 @@ function StatementImportModal({ cards, onClose, onUse }) {
         </div>
 
         {!result && (
-          <label className="bt-upload-zone">
-            <input
-              type="file"
-              accept="application/pdf,image/png,image/jpeg"
-              disabled={busy}
-              onChange={(event) => handleFile(event.target.files?.[0])}
-            />
-            <span className="bt-upload-icon"><Upload size={24} /></span>
-            <strong>{busy ? stageLabel : "PDF, JPG veya PNG seç"}</strong>
-            <span style={{ marginTop: 6, color: "var(--dim)", fontSize: 11.5 }}>
-              En fazla 12 MB. PDF'lerde özet için ilk iki sayfa okunur.
-            </span>
-          </label>
+          <>
+            <div className="bt-privacy-first" role="note">
+              <span><ShieldCheck size={22} /></span>
+              <div>
+                <strong>Dosyan Borcama'ya yüklenmez</strong>
+                <p>
+                  PDF veya görsel bu tarayıcıda okunur. Belgenin kendisi, tam
+                  kart numarası ve harcama listesi sunucuda saklanmaz.
+                </p>
+                <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
+                  <span>Cihazında okunur</span>
+                  <span>Ham belge saklanmaz</span>
+                  <span>Kaydetmeden önce sen onaylarsın</span>
+                </div>
+              </div>
+            </div>
+            <label className="bt-upload-zone">
+              <input
+                type="file"
+                accept="application/pdf,image/png,image/jpeg"
+                disabled={busy}
+                onChange={(event) => handleFile(event.target.files?.[0])}
+              />
+              <span className="bt-upload-icon"><Upload size={24} /></span>
+              <strong>{busy ? stageLabel : "Cihazından PDF, JPG veya PNG seç"}</strong>
+              <span style={{ marginTop: 6, color: "var(--dim)", fontSize: 11.5 }}>
+                En fazla 12 MB. PDF'lerde özet için ilk iki sayfa cihazında okunur.
+              </span>
+            </label>
+            {onManual && (
+              <div className="bt-upload-manual">
+                <button className="bt-btn ikincil kucuk" type="button" onClick={onManual}>
+                  <Pencil size={14} /> Dosya seçmeden manuel gir
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {(busy || progress) && !result && (
@@ -7181,14 +7205,14 @@ function Borclar({
                 <div className="bt-kart-ust-islemler">
                   <div className="bt-kart-islem-baslik">
                     <strong>Ekstre işlemleri</strong>
-                    <span>Ekstreni yükle, geçmiş kayıtlarını gör veya karşılaştır.</span>
+                    <span>Ekstreni cihazında oku, geçmiş kayıtlarını gör veya karşılaştır.</span>
                   </div>
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
                       onClick={() => setEkstreYuklemePenceresi(true)}
                     >
-                      <Upload size={14} /> Ekstre yükle
+                      <ShieldCheck size={14} /> Ekstreyi cihazında oku
                     </button>
                   </div>
                   <div className="bt-kart-ust-araclar" aria-label="Ekstre araçları">
@@ -7601,7 +7625,7 @@ function Borclar({
                   Nasıl başlamak istersin?
                 </div>
                 <p className="bt-baslangic-secim-aciklama">
-                  Ekstreni yükleyebilir veya kart bilgilerini kendin girebilirsin.
+                  Ekstreni cihazında okutabilir veya bilgileri kendin girebilirsin.
                 </p>
               </div>
               <button
@@ -7624,8 +7648,8 @@ function Borclar({
               >
                 <span><Upload size={19} /></span>
                 <span>
-                  <strong>Ekstre yükle</strong>
-                  <small>PDF veya ekstre görselinden bilgileri okuyalım.</small>
+                  <strong>Ekstreyi cihazında oku</strong>
+                  <small>Dosya Borcama'ya yüklenmeden özet rakamları çıkaralım.</small>
                 </span>
               </button>
               <button
@@ -7659,6 +7683,10 @@ function Borclar({
           cards={veri.cards}
           onClose={() => setEkstreYuklemePenceresi(false)}
           onUse={belgedenEkstreKaydet}
+          onManual={() => {
+            setEkstreYuklemePenceresi(false);
+            setForm({ liste: "cards", veri: {} });
+          }}
         />
       )}
 
@@ -7709,7 +7737,7 @@ function Borclar({
                       setEkstreYuklemePenceresi(true);
                     }}
                   >
-                    <Upload size={14} /> Ekstre yükle
+                    <ShieldCheck size={14} /> Ekstreyi cihazında oku
                   </button>
                 </div>
               </div>
@@ -8158,7 +8186,7 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
             <Plus size={14} /> Kart ekle
           </button>
           <button className="bt-btn ikincil" type="button" onClick={onEkstreYukle}>
-            <Upload size={14} /> Ekstre yükle
+            <ShieldCheck size={14} /> Ekstreyi cihazında oku
           </button>
         </div>
       </div>
