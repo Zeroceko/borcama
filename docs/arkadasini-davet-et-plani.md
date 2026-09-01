@@ -28,22 +28,37 @@ Kullanıcıya verilecek söz:
 
 ## Kullanıcı akışı
 
-1. Ayarlar ve Pro ekranında **Arkadaşını davet et** kartı görünür.
-2. Kullanıcı kişisel bağlantısını kopyalar veya telefonun paylaşım menüsüyle gönderir.
-3. Arkadaş bağlantıyı açtığında sade bir mesaj görür: **Davetle geldin. E-postanı doğruladığında ikiniz de 30 gün Pro kazanacaksınız.**
-4. Referans kodu kayıt boyunca korunur; Google Analytics'e, Google Ads'e veya üçüncü taraf servislere gönderilmez.
-5. Arkadaş e-posta adresini doğruladığında backend iki ödülü tek işlemde oluşturur.
-6. İki kullanıcı da uygulama içi başarı mesajı ve e-posta alır.
-7. Davet eden kullanıcı kartta ödülün durumunu **Bekliyor**, **Kazanıldı** veya **İncelemede** olarak görür. Arkadaşın e-posta adresi gösterilmez.
+1. Her kullanıcı için ilk ihtiyaçta bir kez kalıcı referans kodu oluşturulur. Kullanıcı her paylaşımda yeni bağlantı üretmez.
+2. Ayarlar ve Pro ekranında **Arkadaşını davet et** kartı; aynı kodu taşıyan kalıcı bağlantıyı kopyalama ve paylaşma aksiyonları görünür.
+3. Arkadaş bağlantıyı açtığında kayıt ekranında sade bir mesaj görür: **Davetle geldin. E-postanı doğruladığında ikiniz de 30 gün Pro kazanacaksınız.**
+4. Kayıt ekranındaki isteğe bağlı **Referans kodu** alanı bağlantıdaki kodla otomatik dolar ve **Davet kodu uygulandı** durumunu gösterir.
+5. Bağlantı kullanmayan kişi, kendisine gönderilen kalıcı kodu kayıt ekranındaki alana elle yazabilir.
+6. Referans kodu kayıt boyunca korunur; Google Analytics'e, Google Ads'e veya üçüncü taraf servislere gönderilmez.
+7. Arkadaş e-posta adresini doğruladığında backend iki ödülü tek işlemde oluşturur.
+8. İki kullanıcı da uygulama içi başarı mesajı ve e-posta alır.
+9. Davet eden kullanıcı kartta ödülün durumunu **Bekliyor**, **Kazanıldı** veya **İncelemede** olarak görür. Arkadaşın e-posta adresi gösterilmez.
+
+## Kalıcı kod ve kayıt alanı
+
+- Kod kullanıcı başına bir kez oluşturulur ve normal kullanımda değişmez.
+- Örnek paylaşım bağlantısı: `https://borcama.com/davet/BRCM-7K4M2Q`.
+- Kod e-posta, ad veya kullanıcı kimliğinden türetilmez; büyük harf ve kolay ayırt edilen rakamlardan oluşur.
+- Kodu değiştirme aksiyonu kullanıcıya verilmez. Güvenlik veya kötüye kullanım halinde yalnız CRM yöneticisi eski kodu iptal edip yenisini üretebilir.
+- Kayıt ekranındaki alan isteğe bağlıdır; normal üyelik akışına ilave zorunluluk getirmez.
+- Kod bağlantıdan geldiyse alan otomatik dolar. Kullanıcı isterse kayıt tamamlanmadan önce kodu kaldırabilir veya kendisine verilen başka geçerli kodu yazabilir.
+- Kod elle girildiğinde yalnız **Geçerli kod** veya **Kod bulunamadı** bilgisi gösterilir; kod sahibinin adı ya da e-postası açıklanmaz.
+- Kayıt tamamlandıktan sonra davet kodu eklenemez veya değiştirilemez.
 
 ## Veri modeli
 
 ### `referral_codes`
 
-- `user_id`: Kodu oluşturan kullanıcı; kullanıcı başına tek aktif kod.
+- `user_id`: Kodun sahibi; kullanıcı başına tek aktif ve kalıcı kod.
 - `code`: Tahmin edilmesi zor, kısa ve benzersiz kod.
 - `status`: `active`, `paused` veya `revoked`.
 - `created_at`, `updated_at`.
+
+`user_id` ve aktif `code` için benzersiz kısıt bulunur. Kod ancak yönetici tarafından iptal edilirse yeni bir kod üretilebilir; eski kod tekrar kullanılamaz.
 
 ### `referrals`
 
@@ -72,7 +87,9 @@ Her `referral_id + user_id` çifti benzersiz olur. Ödül defteri silinmez; geri
 
 ## Backend akışı
 
+- Referans kodu ilk davet ekranı açıldığında oluşturulur; sonraki isteklerde yeni kod üretmek yerine mevcut kalıcı kod döndürülür.
 - Referans kodu oluşturma ve durum sorgulama yalnız oturum açmış kullanıcıya açık bir Edge Function üzerinden yapılır.
+- Kayıt ekranındaki kod doğrulaması yalnız kodun geçerli olup olmadığını döndüren, kod sahibinin bilgisini açıklamayan sınırlı bir sunucu çağrısıyla yapılır.
 - Kayıt sırasında kod `raw_user_meta_data` içinde taşınır; doğrulama anında sunucu tarafından gerçek ve aktif bir koda karşı doğrulanır.
 - Mevcut `start_borcama_trial_after_confirmation` akışı davet ödülünü de tek veritabanı işlemi içinde yönetecek şekilde genişletilir.
 - Önce yeni kullanıcının temel 30 günlük denemesi başlatılır, ardından iki ödül satırı idempotent biçimde oluşturulur.
@@ -94,9 +111,16 @@ Her `referral_id + user_id` çifti benzersiz olur. Ödül defteri silinmez; geri
 ### Borcama
 
 - Ayarlar ve Pro alanında davet kartı.
-- Bağlantıyı kopyala ve paylaş butonları.
+- Değişmeyen referans kodu ile kalıcı bağlantıyı kopyala ve paylaş butonları.
 - Kaç davetin beklediği ve kaç gün kazanıldığı.
 - Başarılı davet sonrası kutlama mesajı.
+
+### Kayıt ekranı
+
+- Parola alanlarından sonra **Referans kodu (isteğe bağlı)** alanı.
+- Davet bağlantısıyla gelindiyse otomatik dolu ve başarılı durum görünümü.
+- Elle girilen kod için güvenli sunucu doğrulaması.
+- Kodun ödüle dönüşmesi için e-posta doğrulamasının gerektiğini anlatan tek cümlelik açıklama.
 
 ### CRM
 
@@ -126,7 +150,7 @@ GA4'e yalnız olay adı ve genel kaynak bilgisi gönderilir. Referans kodu, kull
 ## Yayın sırası
 
 1. Veritabanı tabloları, kısıtlar ve ödül fonksiyonu.
-2. Referans kodu oluşturma ve kayıt sırasında ilişkilendirme.
+2. Kalıcı referans kodu oluşturma, davet bağlantısı ve kayıt ekranındaki isteğe bağlı kod alanı.
 3. Ayarlar/Pro davet kartı ve davet landing durumu.
 4. Ödül e-postaları ve CRM görünümü.
 5. Birim testleri, iki ayrı gerçek test hesabıyla uçtan uca doğrulama.
@@ -139,7 +163,9 @@ GA4'e yalnız olay adı ve genel kaynak bilgisi gönderilir. Referans kodu, kull
 - Davet edilen kullanıcı e-postasını doğrulamadan kimse Pro günü kazanmaz.
 - Aktif denemenin sonuna tam 30 gün eklenir; kalan gün kaybolmaz.
 - Giriş/kayıt sırasında referans kodu kaybolmaz.
+- Kullanıcı aynı davet ekranını tekrar açtığında yeni kod değil aynı kalıcı kodu görür.
+- Davet bağlantısı ve elle girilen kod aynı davet ilişkisini üretir.
+- Geçersiz kod üyeliği engellemez ve kod sahibine ilişkin bilgi sızdırmaz.
 - Ücretli Pro aboneliğinin Paddle/RevenueCat yenileme tarihi değiştirilmez.
 - Referral kodu ve kullanıcı tanımlayıcıları Google ölçümüne gönderilmez.
 - CRM'de her ödülün nedeni, tarihi ve durumu denetlenebilir.
-
