@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
-import { googleAdsYeniKullaniciDonusumu } from "./googleAds.js";
+import {
+  googleAdsYeniKullaniciDonusumu,
+  googleAnalyticsProDenemeBaslangici,
+} from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
 
@@ -31,6 +34,14 @@ async function proDenemesiniVeBaslangicMailiniTetikle(session) {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!cevap.ok) throw new Error("TRIAL_BOOTSTRAP_FAILED");
+    const sonuc = await cevap.json().catch(() => ({}));
+    if (sonuc.trialActive && sonuc.trialStartedAt) {
+      void googleAnalyticsProDenemeBaslangici({
+        userId,
+        trialStartedAt: sonuc.trialStartedAt,
+        trialDaysRemaining: sonuc.trialDaysRemaining,
+      });
+    }
   } catch {
     // Bir sonraki oturum kontrolünde yeniden denenebilsin. Sunucu tarafındaki
     // teslimat kaydı aynı kullanıcıya ikinci e-posta gitmesini engeller.

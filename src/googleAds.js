@@ -2,26 +2,36 @@ const GOOGLE_ADS_ID = "AW-18403194146";
 const GOOGLE_ANALYTICS_ID = "G-98HWSTTPDM";
 const KAYIT_DONUSUM_ETIKETI = "sVgPCI2w0eUcEKLqqcdE";
 const SATIN_ALMA_DONUSUM_ETIKETI = String(
-  import.meta.env.VITE_GOOGLE_ADS_PURCHASE_LABEL || "Ms2qCOPS_eYcEKLqqcdE",
-).trim();
-const ILK_BORC_DONUSUM_ETIKETI = String(
-  import.meta.env.VITE_GOOGLE_ADS_FIRST_DEBT_LABEL || "",
+  import.meta.env?.VITE_GOOGLE_ADS_PURCHASE_LABEL || "Ms2qCOPS_eYcEKLqqcdE",
 ).trim();
 const IZIN_ANAHTARI = "borcama:reklam-olcum-izni";
 const BEKLEYEN_KAYIT_ANAHTARI = "borcama:bekleyen-kayit-donusumu";
 const BEKLEYEN_SATIN_ALMA_ANAHTARI = "borcama:bekleyen-satin-alma-donusumu";
+const BEKLEYEN_DENEME_ANAHTARI = "borcama:bekleyen-pro-deneme-olayi";
 const BEKLEYEN_ILK_BORC_ANAHTARI = "borcama:bekleyen-ilk-borc-donusumu";
 const GONDERILEN_KAYIT_ON_EKI = "borcama:gonderilen-kayit-donusumu:";
 const GONDERILEN_SATIN_ALMA_ON_EKI = "borcama:gonderilen-satin-alma-donusumu:";
+const GONDERILEN_DENEME_ON_EKI = "borcama:gonderilen-pro-deneme-olayi:";
 const GONDERILEN_ILK_BORC_ANAHTARI = "borcama:gonderilen-ilk-borc-donusumu";
 const YONETIM_YOLLARI = new Set(["/ceo", "/backoffice", "/marketing", "/analytics"]);
+const GOOGLE_OLCUM_PARAMETRELERI = new Set([
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "gclid",
+  "gbraid",
+  "wbraid",
+  "plan",
+]);
 
 let baslatildi = false;
 let etiketHazir = false;
 let sonSayfaYolu = "";
 const gonderilenKayitIstekleri = new Set();
 const gonderilenSatinAlmaIstekleri = new Set();
-let ilkBorcIstegiGonderiliyor = false;
+const gonderilenDenemeIstekleri = new Set();
 
 // Google etiketi komutları Array değil Arguments nesnesi olarak bekler.
 // Resmî gtag.js snippet'iyle aynı kuyruk biçimini kullanmak, yükleme öncesi
@@ -33,6 +43,28 @@ function gtag() {
 
 function guncelSayfaYolu() {
   return `${window.location.pathname}${window.location.search}`;
+}
+
+export function googleOlcumUrliniTemizle(hamUrl, tabanUrl = "https://www.borcama.com") {
+  try {
+    const url = new URL(hamUrl, tabanUrl);
+    const temizParametreler = new URLSearchParams();
+    for (const [anahtar, deger] of url.searchParams.entries()) {
+      const standartAnahtar = anahtar.toLowerCase();
+      if (GOOGLE_OLCUM_PARAMETRELERI.has(standartAnahtar)) {
+        temizParametreler.append(standartAnahtar, deger);
+      }
+    }
+    url.search = temizParametreler.toString();
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return tabanUrl;
+  }
+}
+
+export function googleDonusumuRaporlanabilirMi(payload) {
+  return Boolean(payload?.transactionId) && payload?.isSandbox !== true;
 }
 
 function depodanOku(anahtar) {
@@ -76,8 +108,13 @@ function etiketiHazirla() {
   etiketHazir = true;
   etiketiYukle();
   gtag("js", new Date());
-  gtag("config", GOOGLE_ADS_ID);
-  gtag("config", GOOGLE_ANALYTICS_ID, { send_page_view: false });
+  gtag("set", "ads_data_redaction", true);
+  gtag("config", GOOGLE_ADS_ID, { allow_enhanced_conversions: false });
+  gtag("config", GOOGLE_ANALYTICS_ID, {
+    send_page_view: false,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+  });
 }
 function etiketiUygunZamandaHazirla() {
   if (etiketHazir || typeof window === "undefined") return;
@@ -94,10 +131,12 @@ function etkinlikGonder(eventName, params = {}) {
 export function googleAnalyticsSayfaGoruntulemesi() {
   if (typeof window === "undefined" || YONETIM_YOLLARI.has(window.location.pathname)) return false;
   sonSayfaYolu = guncelSayfaYolu();
+  const temizKonum = googleOlcumUrliniTemizle(window.location.href, window.location.origin);
+  const temizUrl = new URL(temizKonum);
   return etkinlikGonder("page_view", {
     page_title: document.title,
-    page_location: window.location.href,
-    page_path: sonSayfaYolu,
+    page_location: temizKonum,
+    page_path: `${temizUrl.pathname}${temizUrl.search}`,
   });
 }
 
@@ -145,6 +184,7 @@ function kayitDonusumunuGonder(payload = jsonOku(BEKLEYEN_KAYIT_ANAHTARI)) {
   if (gonderilenKayitIstekleri.has(payload.transactionId)) return Promise.resolve(false);
   gonderilenKayitIstekleri.add(payload.transactionId);
   etkinlikGonder("sign_up", { method: payload.method || "email" });
+  etkinlikGonder("email_verified", { method: payload.method || "email" });
   return adsDonusumuGonder({
     sendTo: `${GOOGLE_ADS_ID}/${KAYIT_DONUSUM_ETIKETI}`,
     value: 1,
@@ -159,7 +199,11 @@ function kayitDonusumunuGonder(payload = jsonOku(BEKLEYEN_KAYIT_ANAHTARI)) {
 }
 
 function satinAlmaDonusumunuGonder(payload = jsonOku(BEKLEYEN_SATIN_ALMA_ANAHTARI)) {
-  if (!payload?.transactionId || !izinVerildiMi()) return Promise.resolve(false);
+  if (!googleDonusumuRaporlanabilirMi(payload)) {
+    depodanSil(BEKLEYEN_SATIN_ALMA_ANAHTARI);
+    return Promise.resolve(false);
+  }
+  if (!izinVerildiMi()) return Promise.resolve(false);
   const gonderildiAnahtari = `${GONDERILEN_SATIN_ALMA_ON_EKI}${payload.transactionId}`;
   if (depodanOku(gonderildiAnahtari) === "1") {
     depodanSil(BEKLEYEN_SATIN_ALMA_ANAHTARI);
@@ -195,35 +239,24 @@ function satinAlmaDonusumunuGonder(payload = jsonOku(BEKLEYEN_SATIN_ALMA_ANAHTAR
   });
 }
 
-function ilkBorcDonusumunuGonder(payload = jsonOku(BEKLEYEN_ILK_BORC_ANAHTARI)) {
-  if (!payload?.transactionId || !izinVerildiMi()) return Promise.resolve(false);
-  if (depodanOku(GONDERILEN_ILK_BORC_ANAHTARI) === "1") {
-    depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
+function proDenemeOlayiniGonder(payload = jsonOku(BEKLEYEN_DENEME_ANAHTARI)) {
+  if (!payload?.eventId || !izinVerildiMi()) return Promise.resolve(false);
+  const gonderildiAnahtari = `${GONDERILEN_DENEME_ON_EKI}${payload.eventId}`;
+  if (depodanOku(gonderildiAnahtari) === "1") {
+    depodanSil(BEKLEYEN_DENEME_ANAHTARI);
     return Promise.resolve(false);
   }
-  if (ilkBorcIstegiGonderiliyor) return Promise.resolve(false);
-  ilkBorcIstegiGonderiliyor = true;
-
-  etkinlikGonder("first_debt_added", {
-    debt_type: payload.debtType || "unknown",
+  if (gonderilenDenemeIstekleri.has(payload.eventId)) return Promise.resolve(false);
+  gonderilenDenemeIstekleri.add(payload.eventId);
+  const gonderildi = etkinlikGonder("trial_started", {
+    trial_days: Math.max(1, Number(payload.trialDays) || 30),
   });
-
-  const tamamla = () => {
-    depoyaYaz(GONDERILEN_ILK_BORC_ANAHTARI, "1");
-    depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
-    ilkBorcIstegiGonderiliyor = false;
-  };
-  if (!ILK_BORC_DONUSUM_ETIKETI) {
-    tamamla();
-    return Promise.resolve(true);
+  gonderilenDenemeIstekleri.delete(payload.eventId);
+  if (gonderildi) {
+    depoyaYaz(gonderildiAnahtari, "1");
+    depodanSil(BEKLEYEN_DENEME_ANAHTARI);
   }
-  return adsDonusumuGonder({
-    sendTo: `${GOOGLE_ADS_ID}/${ILK_BORC_DONUSUM_ETIKETI}`,
-    value: 1,
-    currency: "TRY",
-    transactionId: payload.transactionId,
-    tamamlaninca: tamamla,
-  });
+  return Promise.resolve(gonderildi);
 }
 
 export function googleAdsBaslat() {
@@ -231,6 +264,9 @@ export function googleAdsBaslat() {
   baslatildi = true;
   // Tag Assistant ve sayfadaki diğer güvenli ölçüm entegrasyonları aynı kuyruğu kullanabilsin.
   window.gtag = window.gtag || gtag;
+  // Eski sürümün finansal içerikli ilk borç kuyruğu hiçbir koşulda gönderilmez.
+  depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
+  depodanSil(GONDERILEN_ILK_BORC_ANAHTARI);
   const tercih = izinDurumu();
   izinKomutu("default", tercih === true, tercih === null);
   spaNavigasyonunuIzle();
@@ -239,7 +275,7 @@ export function googleAdsBaslat() {
     googleAnalyticsSayfaGoruntulemesi();
     void kayitDonusumunuGonder();
     void satinAlmaDonusumunuGonder();
-    void ilkBorcDonusumunuGonder();
+    void proDenemeOlayiniGonder();
   }
 }
 
@@ -254,11 +290,12 @@ export function googleAdsOlcumIzniAyarla(izinVar) {
     return Promise.all([
       kayitDonusumunuGonder(),
       satinAlmaDonusumunuGonder(),
-      ilkBorcDonusumunuGonder(),
+      proDenemeOlayiniGonder(),
     ]);
   }
   depodanSil(BEKLEYEN_KAYIT_ANAHTARI);
   depodanSil(BEKLEYEN_SATIN_ALMA_ANAHTARI);
+  depodanSil(BEKLEYEN_DENEME_ANAHTARI);
   depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
   return Promise.resolve(false);
 }
@@ -270,13 +307,17 @@ export function googleAdsYeniKullaniciDonusumu(user) {
   return kayitDonusumunuGonder(payload);
 }
 export function googleAdsSatinAlmaDonusumu(payload) {
-  if (!payload?.transactionId) return Promise.resolve(false);
+  if (!googleDonusumuRaporlanabilirMi(payload)) {
+    depodanSil(BEKLEYEN_SATIN_ALMA_ANAHTARI);
+    return Promise.resolve(false);
+  }
   depoyaYaz(BEKLEYEN_SATIN_ALMA_ANAHTARI, JSON.stringify(payload));
   return satinAlmaDonusumunuGonder(payload);
 }
-export function googleAdsIlkBorcDonusumu(payload) {
-  if (!payload?.transactionId || depodanOku(GONDERILEN_ILK_BORC_ANAHTARI) === "1")
-    return Promise.resolve(false);
-  depoyaYaz(BEKLEYEN_ILK_BORC_ANAHTARI, JSON.stringify(payload));
-  return ilkBorcDonusumunuGonder(payload);
+export function googleAnalyticsProDenemeBaslangici(payload) {
+  if (!payload?.userId || !payload?.trialStartedAt) return Promise.resolve(false);
+  const eventId = `${payload.userId}:${payload.trialStartedAt}`;
+  const olay = { eventId, trialDays: payload.trialDaysRemaining || 30 };
+  depoyaYaz(BEKLEYEN_DENEME_ANAHTARI, JSON.stringify(olay));
+  return proDenemeOlayiniGonder(olay);
 }

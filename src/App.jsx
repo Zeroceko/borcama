@@ -71,7 +71,6 @@ import {
 import {
   googleAdsOlcumIzniAyarla,
   googleAdsOlcumTercihi,
-  googleAdsIlkBorcDonusumu,
   googleAdsSatinAlmaDonusumu,
 } from "./googleAds.js";
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
@@ -2276,7 +2275,6 @@ export default function BorcTakip() {
 
   async function kaydet(yeni) {
     const aktiviteOlaylari = aktiviteOlaylariniCikar(veri, yeni);
-    const oncekiBorcKalemleri = borcKalemleri(veri);
     const kalemler = borcKalemleri(yeni);
     const toplam = kalemler.reduce((t, k) => t + k.bakiye, 0);
     yeni = {
@@ -2288,13 +2286,6 @@ export default function BorcTakip() {
     try {
       await window.storage.set(veriDepolamaAnahtari, JSON.stringify(yeni));
       void aktiviteleriKaydet(aktiviteOlaylari);
-      if (oncekiBorcKalemleri.length === 0 && kalemler.length > 0) {
-        const ilkBorc = kalemler[0];
-        void googleAdsIlkBorcDonusumu({
-          transactionId: ilkBorc.id,
-          debtType: ilkBorc.tur,
-        });
-      }
       setHata("");
     } catch (e) {
       setHata(

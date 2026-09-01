@@ -8,6 +8,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - CRM kullanıcı detayında e-posta doğrulama ve deneme tarihleriyle birlikte destek geçmişi ve kampanya etkileşimleri tek müşteri görünümünde birleştirildi; CEO ekranından ilgili kullanıcıya doğrudan geçiş eklendi.
 
+### Düzeltildi
+
+- E-posta doğrulaması ve Pro deneme başlangıcı ayrı, tekilleştirilmiş huni olayları olarak ölçülüyor; sandbox satın almaları canlı dönüşüm sayılmıyor.
+
+### Güvenlik
+
+- Google ölçümüne borç türü ve hassas doğrulama bağlantısı parametreleri gönderilmesi engellendi; yalnız izin verilen kampanya parametreleri ölçülüyor.
+
 ## [1.34.0] - 2026-09-01
 
 ### Eklendi
