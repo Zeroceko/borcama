@@ -190,6 +190,29 @@ const TOOL_GUIDES = {
   ],
 };
 
+const REHBER_KAYNAKLARI = {
+  "2026-brut-net-maas-nasil-hesaplanir": [
+    [GIB_VERGI_2026, "GİB 2026 gelir vergisi tarifesi"],
+    [GIB_ASGARI_2026, "GİB 2026 asgari ücret kesintileri"],
+    [SGK_2026, "SGK 2026 prime esas kazanç sınırları"],
+  ],
+  "2026-kidem-tazminati-nasil-hesaplanir": [
+    [KIDEM_2026, "Çalışma Bakanlığı kıdem tazminatı tavanı"],
+  ],
+  "asgari-odeme-borcu-nasil-etkiler": [
+    [BDDK_KAYNAK, "BDDK asgari ödeme kararı"],
+    [TCMB_KAYNAK, "TCMB kredi kartı azami faiz oranları"],
+  ],
+};
+
+const REHBER_UYARILARI = {
+  "2026-brut-net-maas-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin tutar için işvereninin hazırladığı maaş bordrosunu esas al.",
+  "2026-kidem-tazminati-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Hak kazanma durumu ve kesin tutar için çalışma kayıtlarını ve güncel mevzuatı esas al.",
+  "mevduat-faizi-net-getiri-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin getiri ve kesinti için bankanın güncel teklifini esas al.",
+  "32-gunluk-mevduat-faizi-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin getiri ve kesinti için bankanın güncel teklifini esas al.",
+  "100-bin-tl-mevduat-getirisi-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin getiri ve kesinti için bankanın güncel teklifini esas al.",
+};
+
 export function seoYoluMu(yol) {
   return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
 }
@@ -278,7 +301,7 @@ function AracCard({ slug, icon: Icon, title, text }) {
   return <a className="seo-tool-card" href={`/araclar/${slug}`}><span className="seo-icon"><Icon/></span><h2>{title}</h2><p>{text}</p><span className="seo-card-link">Aracı aç <ArrowRight size={15}/></span></a>;
 }
 
-function ToolLayout({ title, metaTitle, lead, path, schema, children, afterContent, faq = [], showSources = true }) {
+function ToolLayout({ title, metaTitle, lead, path, schema, children, afterContent, faq = [], showSources = false }) {
   useSeo({ title: metaTitle || title, description: lead, path, schema });
   const bolumler = React.Children.toArray(children);
   const guides = TOOL_GUIDES[path] || [];
@@ -311,7 +334,7 @@ function AsgariOdeme() {
   const [borc, setBorc] = useState("25000");
   const sonuc = useMemo(() => krediKartiAsgariOdemeHesapla({ donemBorcu: borc, kartLimiti: limit }), [limit, borc]);
   const schema = useMemo(() => toolSchema("Kredi Kartı Asgari Ödeme Hesaplayıcı", "/araclar/kredi-karti-asgari-odeme-hesaplayici"), []);
-  return <ToolLayout title="Kredi kartı asgari ödeme hesaplayıcı" lead="Kart limitin ve dönem borcuna göre güncel BDDK oranıyla tahmini asgari ödeme tutarını gör." path="/araclar/kredi-karti-asgari-odeme-hesaplayici" schema={schema} faq={[["Hangi oran kullanılıyor?","Kart limiti 50 bin TL ve altındaysa yüzde 20, üzerindeyse yüzde 40."],["Ekstredeki tutar farklıysa ne yapmalıyım?","Her zaman bankanın güncel ekstrende bildirdiği asgari tutarı esas al."]]}><div className="seo-panel"><h2>Kart bilgilerini gir</h2><NumberField label="Kart limiti" value={limit} onChange={setLimit}/><NumberField label="Dönem borcu" value={borc} onChange={setBorc}/><p className="seo-inline-note">26 Eylül 2024 tarihli BDDK kararındaki kart limiti eşiği kullanılır.</p></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ ASGARİ</span><div className="seo-big-money"><Money value={sonuc.tahminiAsgari}/></div><Summary items={[["Uygulanan oran", `%${Math.round(sonuc.oran * 100)}`],["Ödeme sonrası kalan", <Money value={sonuc.odemeSonrasiKalan}/>]]}/><Disclaimer text="Bu araç yasal orana göre tahmin üretir. Kesin tutar için bankanın ekstrende bildirdiği asgari ödemeyi esas al."/></div></ToolLayout>;
+  return <ToolLayout title="Kredi kartı asgari ödeme hesaplayıcı" lead="Kart limitin ve dönem borcuna göre güncel BDDK oranıyla tahmini asgari ödeme tutarını gör." path="/araclar/kredi-karti-asgari-odeme-hesaplayici" schema={schema} showSources faq={[["Hangi oran kullanılıyor?","Kart limiti 50 bin TL ve altındaysa yüzde 20, üzerindeyse yüzde 40."],["Ekstredeki tutar farklıysa ne yapmalıyım?","Her zaman bankanın güncel ekstrende bildirdiği asgari tutarı esas al."]]}><div className="seo-panel"><h2>Kart bilgilerini gir</h2><NumberField label="Kart limiti" value={limit} onChange={setLimit}/><NumberField label="Dönem borcu" value={borc} onChange={setBorc}/><p className="seo-inline-note">26 Eylül 2024 tarihli BDDK kararındaki kart limiti eşiği kullanılır.</p></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ ASGARİ</span><div className="seo-big-money"><Money value={sonuc.tahminiAsgari}/></div><Summary items={[["Uygulanan oran", `%${Math.round(sonuc.oran * 100)}`],["Ödeme sonrası kalan", <Money value={sonuc.odemeSonrasiKalan}/>]]}/><Disclaimer text="Bu araç yasal orana göre tahmin üretir. Kesin tutar için bankanın ekstrende bildirdiği asgari ödemeyi esas al."/></div></ToolLayout>;
 }
 
 function MevduatFaizi() {
@@ -411,6 +434,11 @@ function OfficialSources({ children }) {
   return <aside className="seo-official-sources"><b>Resmî bilgiler</b><div>{children}</div></aside>;
 }
 
+function GuideSources({ items = [] }) {
+  if (!items.length) return null;
+  return <OfficialSources>{items.map(([href, label]) => <a href={href} target="_blank" rel="noreferrer" key={href}>{label}</a>)}</OfficialSources>;
+}
+
 function AdSlot() {
   return <aside className="seo-ad-slot"><span className="seo-ad-icon"><Megaphone size={27}/></span><div><h2>Markanızı burada tanıtın.</h2><p>Borcama ziyaretçilerine ulaşmak için bu alanda reklam verebilirsiniz.</p></div><a href="mailto:zero@borcama.com?subject=Borcama%20reklam%20alan%C4%B1">zero@borcama.com</a></aside>;
 }
@@ -428,7 +456,8 @@ function RehberAna() {
 function RehberDetay({ rehber }) {
   const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:rehber.published || "2026-08-22", dateModified:rehber.published || "2026-08-22" }), [rehber]);
   useSeo({ title:rehber.title, description:rehber.description, path:`/rehber/${rehber.slug}`, schema });
-  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><SourceNote/><p className="seo-editorial">Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.</p></article></main></Layout>;
+  const uyari = REHBER_UYARILARI[rehber.slug] || "Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.";
+  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><GuideSources items={REHBER_KAYNAKLARI[rehber.slug]}/><p className="seo-editorial">{uyari}</p></article></main></Layout>;
 }
 
 function Cta() {

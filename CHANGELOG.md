@@ -4,9 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
-### Eklendi
+### Düzeltildi
 
-- Henüz yayımlanmamış değişiklik yok.
+- Kullanıcıya özel uygulama ekranları ile eski landing varyantlarının arama motorlarında sonuç olarak görünmesi engellendi.
+- Rehber ve hesaplama araçlarındaki resmî kaynak notları yalnızca ilgili konuya ait kaynakları gösterecek biçimde düzeltildi.
 
 ## [1.33.0] - 2026-09-01
 
@@ -55,4 +56,3 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 [1.33.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.33.0
 [1.32.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.32.0
-

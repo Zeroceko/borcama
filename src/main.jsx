@@ -8,6 +8,7 @@ import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
 import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
 import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
+import { noindexYoluMu } from "./seoIndexing.js";
 import "./storage.js";
 
 const App = lazy(() => import("./App.jsx"));
@@ -56,16 +57,14 @@ function Kok() {
   useEffect(() => {
     if (yol === "/" || yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
-    const yonetimSayfasi = crmAlani || ["/ceo", "/backoffice", "/marketing", "/analytics"].some(
-      (yonetimYolu) => yol === yonetimYolu || yol.startsWith(`${yonetimYolu}/`),
-    );
+    const indekslenmemeli = noindexYoluMu(yol, crmAlani);
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {
       meta = document.createElement("meta");
       meta.setAttribute("name", "robots");
       document.head.appendChild(meta);
     }
-    meta.setAttribute("content", yonetimSayfasi ? "noindex,nofollow,noarchive" : "index,follow");
+    meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
   if (eskiYonetimYolu)
     return <HariciYonlendirme url={`https://${CRM_ALANI}${temizCrmYolu}`} />;
