@@ -232,9 +232,7 @@ function BankaRozeti({ banka, bg = LIME, rot = 0, boyut = 42, className }) {
         overflow: "hidden",
         padding: logo ? Math.max(Math.round(boyut * 0.13), 4) : 0,
         border: logo ? `1.5px solid ${marka.renk}` : `2px solid ${INK}`,
-        background: logo
-          ? `linear-gradient(145deg, ${marka.zemin} 0 72%, ${marka.renk} 72% 100%)`
-          : bg,
+        background: logo ? marka.zemin : bg,
         boxShadow: logo ? `3px 3px 0 ${CORAL}` : `3px 3px 0 ${bg === CORAL ? LIME : CORAL}`,
       }}
       aria-hidden="true"
