@@ -5453,52 +5453,12 @@ function Odemeler({
 
   const sirali = donemOdemeleri;
   const hedefiTamamlanan = sirali.filter((x) => x.odendi);
-  // "Ödenenler" bir takvim filtresi değil, ödeme geçmişidir. Kullanıcı başka
-  // ödeme ayına ait bir kartın asgarisini ödediğinde kayıt seçili ay yüzünden
-  // kaybolmamalı; tüm ekstre dönemlerindeki kart ödemelerini burada toplarız.
-  const tumKartOdemeleri = (veri.cards || []).flatMap((kart) => {
-    const ekstreler = [
-      kart.ekstreAyi ? kart : null,
-      ...(kart.ekstreGecmisi || []).map((ekstre) =>
-        mergeArchivedCardStatement(kart, ekstre),
-      ),
-    ].filter(Boolean);
-    return ekstreler.map((kayit) => {
-      const h = kartHesabi(kayit);
-      const odemeAnahtari = kartOdemeAnahtari(kayit);
-      const elleOdendi = !!veri.paid?.[odemeAnahtari];
-      const hedefTutar = h.asgari;
-      const yapilanOdeme = Math.min(
-        elleOdendi ? Math.max(h.odeme, hedefTutar) : h.odeme,
-        h.onceki || h.toplam,
-      );
-      const kalanToplam = h.toplam;
-      return {
-        id: "kart-" + kart.id + "-" + kayit.ekstreAyi,
-        kartOdemesi: true,
-        banka: kart.banka,
-        ad: kartGorunenAdi(kart),
-        ekstreAyi: kayit.ekstreAyi,
-        tutar: Math.max(hedefTutar - yapilanOdeme, 0),
-        kalanToplam,
-        minimumOdeme: hedefTutar,
-        hedefTutar,
-        yapilanOdeme,
-        odemeKayitSayisi: (veri.cardPaymentHistory?.[odemeAnahtari] || []).length,
-        not: ayEtiketi(kayit.ekstreAyi) + " ekstresi · " + ayEtiketi(kartOdemeAyi(kayit)) + " ödeme ayı",
-        tarih: kartGecikmeTarihi(kayit),
-        odendi: hedefTutar > 0 && hedefTutar - yapilanOdeme <= 0.01,
-        minimumTamam: hedefTutar > 0 && hedefTutar - yapilanOdeme <= 0.01,
-        tamamiOdendi: kalanToplam <= 0.01,
-        anahtar: odemeAnahtari,
-      };
-    });
-  });
-  const odemeYapilan = [...new Map(
-    [...sirali, ...tumKartOdemeleri]
-      .filter((x) => (+x.yapilanOdeme || 0) > 0)
-      .map((x) => [x.id, x]),
-  ).values()].sort((a, b) => b.tarih - a.tarih);
+  // Ödenen kayıtlar da seçili ödeme ayına aittir. Böylece aynı kartın bütün
+  // arşiv ekstreleri tek ekranda tekrarlanmaz; geçmiş aylar dönem seçicisinden
+  // ayrı ayrı incelenebilir.
+  const odemeYapilan = sirali
+    .filter((x) => (+x.yapilanOdeme || 0) > 0)
+    .sort((a, b) => b.tarih - a.tarih);
   // Asgari tamamlandıysa o ayın zorunlu kart ödemesi tamamlanmıştır. Kalan
   // devreden bakiye borç ekranında görünür; burada tekrar bekliyor denmez.
   const bekleyen = sirali.filter(isMandatoryPaymentPending);
@@ -5538,7 +5498,7 @@ function Odemeler({
         const aktifBaslik = filtre === "bekleyen" ? "Bekleyen ödemeler" : "Kısmen veya tamamen ödenenler";
         const bosMetin = filtre === "bekleyen"
           ? "Bekleyen ödeme yok."
-          : "Bu ay henüz ödeme kaydı yok.";
+          : `${ayEtiketi(donem)} ödeme döneminde işlenmiş ödeme yok.`;
         return (
           <div className="bt-card bt-odeme-aktif-liste">
             <div className="bt-cardhead">
