@@ -115,6 +115,40 @@ async function kampanyaListesi(admin: ReturnType<typeof createClient>) {
   });
 }
 
+async function kullaniciKampanyaGecmisi(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const { data, error } = await admin.from("marketing_deliveries")
+    .select("id,campaign_id,status,sent_at,delivered_at,opened_at,clicked_at,visited_at,error_code,created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) return [];
+  const kampanyaIdleri = [...new Set((data || []).map((delivery) => delivery.campaign_id))];
+  const { data: campaigns } = kampanyaIdleri.length
+    ? await admin.from("marketing_campaigns").select("id,name,subject,kind").in("id", kampanyaIdleri)
+    : { data: [] };
+  const kampanyaHaritasi = new Map((campaigns || []).map((campaign) => [campaign.id, campaign]));
+  return (data || []).map((delivery) => {
+    const campaign = kampanyaHaritasi.get(delivery.campaign_id);
+    return {
+      id: delivery.id,
+      campaign_name: campaign?.name || "Borcama e-postası",
+      subject: campaign?.subject || "",
+      kind: campaign?.kind || "",
+      status: delivery.status,
+      sent_at: delivery.sent_at,
+      delivered_at: delivery.delivered_at,
+      opened_at: delivery.opened_at,
+      clicked_at: delivery.clicked_at,
+      visited_at: delivery.visited_at,
+      error_code: delivery.error_code,
+      created_at: delivery.created_at,
+    };
+  });
+}
+
 async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
   const since = new Date(Date.now() - 90 * 86400000).toISOString();
   const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }] = await Promise.all([
@@ -373,31 +407,39 @@ Deno.serve(async (req) => {
     features_unannounced: satirlar.filter((x) => !x.features_announcement_sent_at && x.email_confirmed_at).length,
   };
 
-  let campaigns = [];
-  try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
-  const analytics = await funnelIstatistikleri(admin);
-  const finansal = topluFinansalIstatistik(kayitlar || []);
-  if (finansal.available) {
-    try {
-      await gunlukBorcSnapshotKaydet(admin, kayitlar || []);
-      const baslangic = new Date(); baslangic.setUTCDate(baslangic.getUTCDate() - 29);
-      const { data: egilim, error: egilimHatasi } = await admin.from("financial_daily_snapshots")
-        .select("snapshot_date,participant_count,total_debt,cards,loans,overdrafts,others")
-        .gte("snapshot_date", baslangic.toISOString().slice(0, 10)).order("snapshot_date");
-      if (!egilimHatasi) finansal.debt_trend = (egilim || []).map((x) => ({
-        date: x.snapshot_date, participant_count: x.participant_count,
-        total_debt: Number(x.total_debt), cards: Number(x.cards), loans: Number(x.loans),
-        overdrafts: Number(x.overdrafts), others: Number(x.others),
-      }));
-    } catch { /* Snapshot tablosu geçici olarak ulaşılamazsa mevcut toplamlar yine gösterilir. */ }
-  }
-  const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
-  const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
-  const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
   const istenenKullaniciId = new URL(req.url).searchParams.get("userId");
   if (istenenKullaniciId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(istenenKullaniciId)) {
     return new Response(JSON.stringify({ error: "INVALID_USER_ID" }), { status: 422, headers });
   }
+  let campaigns = [];
+  let analytics = null;
+  let finansal = null;
+  let yonetim = null;
+  if (!istenenKullaniciId) {
+    try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
+    analytics = await funnelIstatistikleri(admin);
+    finansal = topluFinansalIstatistik(kayitlar || []);
+    if (finansal.available) {
+      try {
+        await gunlukBorcSnapshotKaydet(admin, kayitlar || []);
+        const baslangic = new Date(); baslangic.setUTCDate(baslangic.getUTCDate() - 29);
+        const { data: egilim, error: egilimHatasi } = await admin.from("financial_daily_snapshots")
+          .select("snapshot_date,participant_count,total_debt,cards,loans,overdrafts,others")
+          .gte("snapshot_date", baslangic.toISOString().slice(0, 10)).order("snapshot_date");
+        if (!egilimHatasi) finansal.debt_trend = (egilim || []).map((x) => ({
+          date: x.snapshot_date, participant_count: x.participant_count,
+          total_debt: Number(x.total_debt), cards: Number(x.cards), loans: Number(x.loans),
+          overdrafts: Number(x.overdrafts), others: Number(x.others),
+        }));
+      } catch { /* Snapshot tablosu geçici olarak ulaşılamazsa mevcut toplamlar yine gösterilir. */ }
+    }
+    yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
+  }
+  const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || [], istenenKullaniciId);
+  const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
+  const kullaniciKampanyalari = istenenKullaniciId
+    ? await kullaniciKampanyaGecmisi(admin, istenenKullaniciId)
+    : [];
   let aktiviteler: Array<Record<string, unknown>> = [];
   let aktiviteSorgusu = admin
     .from("activity_logs")
@@ -439,23 +481,35 @@ Deno.serve(async (req) => {
   aktiviteler.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
   aktiviteler = aktiviteler.slice(0, 300);
   ozet.activity_24h = aktiviteler.filter((x) => simdi - new Date(String(x.created_at)).getTime() <= gun).length;
-  return new Response(JSON.stringify({ summary: ozet, campaigns, analytics, financial: finansal, management: yonetim, users: satirlar, feedback: geriBildirimler, activities: aktiviteler }), { status: 200, headers });
+  const gorunenKullanicilar = istenenKullaniciId ? satirlar.filter((u) => u.id === istenenKullaniciId) : satirlar;
+  return new Response(JSON.stringify({
+    summary: ozet,
+    campaigns,
+    user_campaigns: kullaniciKampanyalari,
+    analytics,
+    financial: finansal,
+    management: yonetim,
+    users: gorunenKullanicilar,
+    feedback: geriBildirimler,
+    activities: aktiviteler,
+  }), { status: 200, headers });
 });
 
 const sayi = guvenliSayi;
 
-function geriBildirimleriHazirla(kullanicilar: Array<{ id: string; email?: string }>, kayitlar: Array<{ user_id: string; updated_at: string; value: string }>) {
+function geriBildirimleriHazirla(kullanicilar: Array<{ id: string; email?: string }>, kayitlar: Array<{ user_id: string; updated_at: string; value: string }>, userId: string | null = null) {
   const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
   const izinliTurler = new Set(["Fikir", "İyileştirme", "Sorun"]);
-  const liste: Array<{ id: string; email: string; type: string; message: string; screen: string; created_at: string; status: string }> = [];
+  const liste: Array<{ id: string; user_id: string; email: string; type: string; message: string; screen: string; created_at: string; status: string }> = [];
   for (const kayit of kayitlar) {
+    if (userId && kayit.user_id !== userId) continue;
     try {
       const veri = JSON.parse(kayit.value);
       for (const x of Array.isArray(veri?.feedbacks) ? veri.feedbacks : []) {
         const mesaj = String(x?.mesaj || "").trim().slice(0, 1000);
         if (!mesaj) continue;
         const tur = String(x?.tur || "Fikir");
-        liste.push({ id: String(x?.id || crypto.randomUUID()), email: epostalar.get(kayit.user_id) || "***", type: izinliTurler.has(tur) ? tur : "Fikir", message: mesaj, screen: String(x?.ekran || "/").slice(0, 80), created_at: String(x?.created_at || kayit.updated_at), status: String(x?.durum || "yeni") === "yeni" ? "yeni" : "incelendi" });
+        liste.push({ id: String(x?.id || crypto.randomUUID()), user_id: kayit.user_id, email: epostalar.get(kayit.user_id) || "***", type: izinliTurler.has(tur) ? tur : "Fikir", message: mesaj, screen: String(x?.ekran || "/").slice(0, 80), created_at: String(x?.created_at || kayit.updated_at), status: String(x?.durum || "yeni") === "yeni" ? "yeni" : "incelendi" });
       }
     } catch { /* Geçersiz kullanıcı verisi geri bildirime dahil edilmez. */ }
   }
