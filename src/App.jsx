@@ -207,15 +207,35 @@ const BANKA_LOGO_ANAHTARI = {
   "Kuveyt Türk": "kuveytturk",
   Fibabanka: "fibabanka",
 };
+const BANKA_MARKA_STILI = {
+  halkbank: { renk: "#005596", zemin: "#dceefa" },
+  vakifbank: { renk: "#f5b800", zemin: "#fff1b8" },
+  qnb: { renk: "#6f2c91", zemin: "#eadcf2" },
+  enpara: { renk: "#7b2e91", zemin: "#eadcf1" },
+  garanti: { renk: "#188447", zemin: "#dcefe3" },
+  akbank: { renk: "#d71920", zemin: "#f8dedf" },
+  isbank: { renk: "#005ca9", zemin: "#dcecf8" },
+  yapikredi: { renk: "#17479e", zemin: "#dee6f6" },
+  kuveytturk: { renk: "#009b77", zemin: "#d8f0e9" },
+  fibabanka: { renk: "#668b9b", zemin: "#e1eaed" },
+};
 function BankaRozeti({ banka, bg = LIME, rot = 0, boyut = 42, className }) {
-  const logo = BANK_LOGOS[BANKA_LOGO_ANAHTARI[(banka || "").trim()]];
+  const logoAnahtari = BANKA_LOGO_ANAHTARI[(banka || "").trim()];
+  const logo = BANK_LOGOS[logoAnahtari];
+  const marka = BANKA_MARKA_STILI[logoAnahtari] || { renk: INK, zemin: bg };
   return (
     <div
       className={["bt-banka-rozet", className].filter(Boolean).join(" ")}
       style={{
-        ...rozetStil(bg, rot, boyut),
-        padding: logo ? Math.max(Math.round(boyut * 0.1), 3) : 0,
-        boxShadow: `3px 3px 0 ${bg === CORAL ? LIME : CORAL}`,
+        ...rozetStil(logo ? marka.zemin : bg, rot, boyut),
+        position: "relative",
+        overflow: "hidden",
+        padding: logo ? Math.max(Math.round(boyut * 0.13), 4) : 0,
+        border: logo ? `1.5px solid ${marka.renk}` : `2px solid ${INK}`,
+        background: logo
+          ? `linear-gradient(145deg, ${marka.zemin} 0 72%, ${marka.renk} 72% 100%)`
+          : bg,
+        boxShadow: logo ? `3px 3px 0 ${CORAL}` : `3px 3px 0 ${bg === CORAL ? LIME : CORAL}`,
       }}
       aria-hidden="true"
     >
@@ -227,8 +247,10 @@ function BankaRozeti({ banka, bg = LIME, rot = 0, boyut = 42, className }) {
             width: "100%",
             height: "100%",
             objectFit: "contain",
-            borderRadius: Math.max(Math.round(boyut * 0.13), 4),
-            background: "#fff",
+            position: "relative",
+            zIndex: 1,
+            mixBlendMode: "multiply",
+            filter: "saturate(1.08) contrast(1.08)",
           }}
         />
       ) : (
