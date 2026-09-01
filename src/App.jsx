@@ -96,6 +96,7 @@ import {
   mergeArchivedCardStatement,
   summarizeMandatoryPayments,
 } from "./paymentSummary.js";
+import { BANK_LOGOS } from "./bankLogos.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -193,6 +194,48 @@ function rozetStil(bg, rot, boyut = 42) {
     color: INK,
     transform: "rotate(" + rot + "deg)",
   };
+}
+const BANKA_LOGO_ANAHTARI = {
+  VakıfBank: "vakifbank",
+  Halkbank: "halkbank",
+  Enpara: "enpara",
+  "Garanti BBVA": "garanti",
+  QNB: "qnb",
+  Akbank: "akbank",
+  "İş Bankası": "isbank",
+  "Yapı Kredi": "yapikredi",
+  "Kuveyt Türk": "kuveytturk",
+  Fibabanka: "fibabanka",
+};
+function BankaRozeti({ banka, bg = LIME, rot = 0, boyut = 42, className }) {
+  const logo = BANK_LOGOS[BANKA_LOGO_ANAHTARI[(banka || "").trim()]];
+  return (
+    <div
+      className={["bt-banka-rozet", className].filter(Boolean).join(" ")}
+      style={{
+        ...rozetStil(bg, rot, boyut),
+        padding: logo ? Math.max(Math.round(boyut * 0.1), 3) : 0,
+        boxShadow: `3px 3px 0 ${bg === CORAL ? LIME : CORAL}`,
+      }}
+      aria-hidden="true"
+    >
+      {logo ? (
+        <img
+          src={logo}
+          alt=""
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            borderRadius: Math.max(Math.round(boyut * 0.13), 4),
+            background: "#fff",
+          }}
+        />
+      ) : (
+        bankaKodu(banka)
+      )}
+    </div>
+  );
 }
 function baslikGolgesiStil(isDark, fontSize) {
   return isDark
@@ -5195,14 +5238,11 @@ function OdemeSatiri({
         : { sinif: "", metin: "Henüz ödeme yapılmadı" };
   return (
     <div className="bt-satirD">
-      <div
-        style={rozetStil(
-          gercektenGecikmis ? CORAL : LIME,
-          ROTASYONLAR[i % ROTASYONLAR.length],
-        )}
-      >
-        {bankaKodu(o.banka)}
-      </div>
+      <BankaRozeti
+        banka={o.banka}
+        bg={gercektenGecikmis ? CORAL : LIME}
+        rot={ROTASYONLAR[i % ROTASYONLAR.length]}
+      />
       <div style={{ flex: 1, minWidth: 140 }}>
         <div
           className="bt-satirD-ad"
@@ -6375,6 +6415,7 @@ function Borclar({
   const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
   const [odemePenceresi, setOdemePenceresi] = useState(null);
   const [baslangicSecimiAcik, setBaslangicSecimiAcik] = useState(false);
+  const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
   const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
   const [silinecekYukleme, setSilinecekYukleme] = useState(null);
@@ -6398,6 +6439,15 @@ function Borclar({
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = onceki; };
   }, [ekstreArsiviAcik, silinecekYukleme]);
+  function manuelEkstreAkisiniAc() {
+    setBaslangicSecimiAcik(false);
+    setEkstreYuklemePenceresi(false);
+    if (veri.cards.length > 0) {
+      setManuelEkstreSecimiAcik(true);
+      return;
+    }
+    setForm({ liste: "cards", veri: {} });
+  }
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const guncelEkstreAyi = useMemo(() => {
     const aylar = veri.cards
@@ -7167,7 +7217,7 @@ function Borclar({
             setKategori("cards");
             setForm({ liste: "cards", veri: {} });
           }}
-          onEkstreYukle={() => setEkstreYuklemePenceresi(true)}
+          onEkstreYukle={() => setBaslangicSecimiAcik(true)}
         />
       ) : (
         <div className="bt-card" data-tour="borclar">
@@ -7205,14 +7255,14 @@ function Borclar({
                 <div className="bt-kart-ust-islemler">
                   <div className="bt-kart-islem-baslik">
                     <strong>Ekstre işlemleri</strong>
-                    <span>Ekstreni cihazında oku, geçmiş kayıtlarını gör veya karşılaştır.</span>
+                    <span>Ekstreni cihazında okut veya bilgileri manuel ekle.</span>
                   </div>
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
-                      onClick={() => setEkstreYuklemePenceresi(true)}
+                      onClick={() => setBaslangicSecimiAcik(true)}
                     >
-                      <ShieldCheck size={14} /> Ekstreyi cihazında oku
+                      <Plus size={14} /> Ekstre ekle
                     </button>
                   </div>
                   <div className="bt-kart-ust-araclar" aria-label="Ekstre araçları">
@@ -7622,10 +7672,10 @@ function Borclar({
             <div className="bt-modalbaslik">
               <div>
                 <div id="bt-baslangic-secim-baslik" className="bt-h2">
-                  Nasıl başlamak istersin?
+                  Ekstreyi nasıl eklemek istersin?
                 </div>
                 <p className="bt-baslangic-secim-aciklama">
-                  Ekstreni cihazında okutabilir veya bilgileri kendin girebilirsin.
+                  Dosyayı cihazında okutabilir veya özet rakamları kendin girebilirsin.
                 </p>
               </div>
               <button
@@ -7648,7 +7698,7 @@ function Borclar({
               >
                 <span><Upload size={19} /></span>
                 <span>
-                  <strong>Ekstreyi cihazında oku</strong>
+                  <strong>Cihazında okut</strong>
                   <small>Dosya Borcama'ya yüklenmeden özet rakamları çıkaralım.</small>
                 </span>
               </button>
@@ -7656,14 +7706,13 @@ function Borclar({
                 className="bt-baslangic-yontem manuel"
                 type="button"
                 onClick={() => {
-                  setBaslangicSecimiAcik(false);
-                  setForm({ liste: "cards", veri: {} });
+                  manuelEkstreAkisiniAc();
                 }}
               >
                 <span><Pencil size={18} /></span>
                 <span>
-                  <strong>Manuel gir</strong>
-                  <small>Kartını ve borç bilgilerini kendin ekle.</small>
+                  <strong>Manuel ekle</strong>
+                  <small>Ekstre tarihlerini ve özet rakamları kendin gir.</small>
                 </span>
               </button>
             </div>
@@ -7683,11 +7732,78 @@ function Borclar({
           cards={veri.cards}
           onClose={() => setEkstreYuklemePenceresi(false)}
           onUse={belgedenEkstreKaydet}
-          onManual={() => {
-            setEkstreYuklemePenceresi(false);
-            setForm({ liste: "cards", veri: {} });
-          }}
+          onManual={manuelEkstreAkisiniAc}
         />
+      )}
+
+      {manuelEkstreSecimiAcik && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setManuelEkstreSecimiAcik(false);
+          }}
+        >
+          <div
+            className="bt-modal bt-baslangic-secim"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-manuel-ekstre-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-manuel-ekstre-baslik" className="bt-h2">
+                  Hangi kartın ekstresini ekleyeceksin?
+                </div>
+                <p className="bt-baslangic-secim-aciklama">
+                  Seçtiğin kartın yeni dönem ekstre formunu açacağız.
+                </p>
+              </div>
+              <button
+                className="bt-btn hayalet kucuk"
+                type="button"
+                aria-label="Kapat"
+                onClick={() => setManuelEkstreSecimiAcik(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="bt-baslangic-yontemler">
+              {veri.cards.map((kart, i) => (
+                <button
+                  className="bt-baslangic-yontem"
+                  type="button"
+                  key={kart.id}
+                  onClick={() => {
+                    setManuelEkstreSecimiAcik(false);
+                    setForm({ liste: "cards", veri: kart, yeniEkstre: true });
+                  }}
+                >
+                  <BankaRozeti
+                    banka={kart.banka}
+                    bg={LIME}
+                    rot={ROTASYONLAR[i % ROTASYONLAR.length]}
+                    boyut={38}
+                  />
+                  <span>
+                    <strong>{kartGorunenAdi(kart)}</strong>
+                    <small>Yeni dönem ekstresini manuel ekle</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <button
+              className="bt-btn ikincil bt-baslangic-sonra"
+              type="button"
+              onClick={() => {
+                setManuelEkstreSecimiAcik(false);
+                setForm({ liste: "cards", veri: {} });
+              }}
+            >
+              <Plus size={14} /> Önce yeni kart ekle
+            </button>
+          </div>
+        </div>
       )}
 
       {ekstreArsiviAcik && (
@@ -7734,10 +7850,10 @@ function Borclar({
                     type="button"
                     onClick={() => {
                       setEkstreArsiviAcik(false);
-                      setEkstreYuklemePenceresi(true);
+                      setBaslangicSecimiAcik(true);
                     }}
                   >
-                    <ShieldCheck size={14} /> Ekstreyi cihazında oku
+                    <Plus size={14} /> Ekstre ekle
                   </button>
                 </div>
               </div>
@@ -8186,7 +8302,7 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
             <Plus size={14} /> Kart ekle
           </button>
           <button className="bt-btn ikincil" type="button" onClick={onEkstreYukle}>
-            <ShieldCheck size={14} /> Ekstreyi cihazında oku
+            <Plus size={14} /> Ekstre ekle
           </button>
         </div>
       </div>
@@ -8262,15 +8378,12 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
             <div className="bt-card" key={k.id}>
               <div className="bt-cardhead">
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div
-                    style={rozetStil(
-                      LIME,
-                      ROTASYONLAR[i % ROTASYONLAR.length],
-                      36,
-                    )}
-                  >
-                    {bankaKodu(k.banka)}
-                  </div>
+                  <BankaRozeti
+                    banka={k.banka}
+                    bg={LIME}
+                    rot={ROTASYONLAR[i % ROTASYONLAR.length]}
+                    boyut={36}
+                  />
                   <div>
                     <div className="bt-satir-ad">{kartGorunenAdi(k)}</div>
                     <div className="bt-satir-meta">
@@ -8362,8 +8475,7 @@ function BorclarSatiri({
     tutarEtiketi = null,
     kartDetay = null,
     ekHesapDetay = null,
-    odemeNesnesi = null,
-    kod = bankaKodu(k.banka);
+    odemeNesnesi = null;
   const krediOdemeAnahtari =
     kategori === "loans" ? "kredi-" + k.id + "-" + ayAnahtari() : null;
   const buAyKrediOdendi =
@@ -8505,12 +8617,12 @@ function BorclarSatiri({
 
   return (
     <div className={`bt-satir${kategori === "cards" ? " bt-kredi-karti" : ""}`}>
-      <div
+      <BankaRozeti
+        banka={k.banka}
+        bg={meta.rozetBg}
+        rot={ROTASYONLAR[i % ROTASYONLAR.length]}
         className={kategori === "cards" ? "bt-kart-rozet" : undefined}
-        style={rozetStil(meta.rozetBg, ROTASYONLAR[i % ROTASYONLAR.length])}
-      >
-        {kod}
-      </div>
+      />
       <div
         className={kategori === "cards" ? "bt-kart-bilgi" : undefined}
         style={{ flex: 1, minWidth: 150 }}
@@ -8810,9 +8922,11 @@ function EkstreSatirDetayi({ detay, arsivSayisi = 0 }) {
 function GecikmisBorcSatiri({ g, i }) {
   return (
     <div className="bt-satir" style={{ borderColor: CORAL }}>
-      <div style={rozetStil(CORAL, ROTASYONLAR[i % ROTASYONLAR.length])}>
-        {bankaKodu(g.banka)}
-      </div>
+      <BankaRozeti
+        banka={g.banka}
+        bg={CORAL}
+        rot={ROTASYONLAR[i % ROTASYONLAR.length]}
+      />
       <div style={{ flex: 1, minWidth: 150 }}>
         <div className="bt-satir-ad">
           {g.banka}{" "}
@@ -9344,19 +9458,18 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                   >
                     {i + 1}
                   </div>
-                  <div
-                    style={rozetStil(
+                  <BankaRozeti
+                    banka={k.banka}
+                    bg={
                       k.tur === "diger"
                         ? "#d8c9a0"
                         : k.tur === "ek"
                           ? CORAL
-                          : LIME,
-                      ROTASYONLAR[i % ROTASYONLAR.length],
-                      36,
-                    )}
-                  >
-                    {bankaKodu(k.banka)}
-                  </div>
+                          : LIME
+                    }
+                    rot={ROTASYONLAR[i % ROTASYONLAR.length]}
+                    boyut={36}
+                  />
                   <div style={{ flex: 1, minWidth: 160 }}>
                     <div className="bt-satir-ad">
                       {k.ad}{" "}
@@ -9403,15 +9516,12 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             <div className="bt-stack" style={{ gap: 10 }}>
               {sabit.map((k, i) => (
                 <div key={k.id} className="bt-satir" style={{ opacity: 0.75 }}>
-                  <div
-                    style={rozetStil(
-                      "#c8c9be",
-                      ROTASYONLAR[i % ROTASYONLAR.length],
-                      36,
-                    )}
-                  >
-                    {bankaKodu(k.banka)}
-                  </div>
+                  <BankaRozeti
+                    banka={k.banka}
+                    bg="#c8c9be"
+                    rot={ROTASYONLAR[i % ROTASYONLAR.length]}
+                    boyut={36}
+                  />
                   <div style={{ flex: 1 }} className="bt-satir-ad">
                     {k.ad}
                   </div>
