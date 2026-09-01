@@ -6911,9 +6911,16 @@ function Borclar({
       const odemeGecmisi = form.odemeDuzenle
         ? eskiGecmis.map((o) => (o.id === kayit.id ? kayit : o))
         : [...eskiGecmis, kayit];
+      const hesaplananToplamOdeme =
+        gecmisDisi + odemeGecmisiToplami(odemeGecmisi);
       ekleGuncelle("overdrafts", {
         ...eski,
-        yapilanOdeme: gecmisDisi + odemeGecmisiToplami(odemeGecmisi),
+        // Eski kayıtlarda ödeme geçmişi ile kümülatif ödeme birbirini
+        // tutmayabiliyor. Kullanıcı "Borcu kapat" dediğinde kalan bakiyeyi
+        // geçmiş veri biçiminden bağımsız olarak kesin biçimde sıfırla.
+        yapilanOdeme: form.kapat
+          ? hesap.kullanilan
+          : Math.min(hesaplananToplamOdeme, hesap.kullanilan),
         odemeGecmisi,
       });
       return;
