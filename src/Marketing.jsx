@@ -16,6 +16,8 @@ const FALLBACK=[
  {slug:"auth-confirmation",name:"E-posta doğrulama",subject:"Borcama hesabını doğrula",description:"Yeni üyelerin e-posta adresini doğrular.",audience_type:"Yeni üye",kind:"auth",preview:"/borcama-confirmation-email-preview.html"},
  {slug:"trial-started",name:"Pro denemesi başladı",subject:"Borcama Pro deneme üyeliğin başladı",description:"E-posta doğrulamasından sonra otomatik gider.",audience_type:"Yeni Pro denemesi",kind:"lifecycle",preview:"/borcama-trial-email-preview.html"},
  {slug:"trial-ending-3d",name:"Pro denemesi bitiyor",subject:"Borcama Pro denemen 3 gün içinde bitiyor",description:"Deneme bitimine üç gün kala Pro satın alma bağlantısıyla otomatik gider.",audience_type:"Denemesinin son 3 günündeki üyeler",kind:"lifecycle",preview:"/borcama-trial-ending-email-preview.html"},
+ {slug:"referral-reward-referrer",name:"Davet ödülü · davet eden",subject:"Arkadaşın katıldı, 30 gün Pro kazandın",description:"Arkadaşının e-posta doğrulaması tamamlandığında otomatik gider.",audience_type:"Davet ödülü kazanan üye",kind:"lifecycle",preview:"/borcama-referral-reward-email-preview.html"},
+ {slug:"referral-reward-invitee",name:"Davet ödülü · yeni üye",subject:"Davet ödülün hazır: Pro sürene 30 gün eklendi",description:"Davet koduyla gelen yeni üye e-postasını doğruladığında otomatik gider.",audience_type:"Davetle doğrulanan yeni üye",kind:"lifecycle",preview:"/borcama-referral-reward-email-preview.html?role=invitee"},
 ];
 
 export default function Marketing(){

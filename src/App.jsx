@@ -56,6 +56,9 @@ import {
   ArrowRight,
   Info,
   ScanSearch,
+  Gift,
+  Copy,
+  Share2,
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
@@ -96,6 +99,7 @@ import {
   summarizeMandatoryPayments,
 } from "./paymentSummary.js";
 import { BANK_LOGOS } from "./bankLogos.js";
+import { davetDurumunuGetir } from "./referrals.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -584,6 +588,7 @@ const CSS = `
 @media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
 .bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:1px solid var(--line-soft);border-radius:18px;padding:20px;box-shadow:0 8px 24px #14160f08}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line-soft)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line-soft);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
 .bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.62fr);gap:22px;align-items:center;background:var(--panel);color:var(--text);border:1px solid var(--line-soft);border-radius:20px;padding:22px 24px;box-shadow:0 10px 28px #14160f0a;overflow:hidden}.bt-premium-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;align-items:flex-start}.bt-premium-card h2{max-width:680px;margin:10px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,2.6vw,29px);line-height:1.08;letter-spacing:-.025em;color:var(--text);text-shadow:none}.bt-premium-card p{margin:0;color:var(--dim);font-size:12px;line-height:1.5;max-width:620px}.bt-premium-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:14px}.bt-premium-meta span{display:inline-flex;align-items:center;min-height:29px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2);color:var(--dim);font-size:10.5px;font-weight:800}.bt-premium-meta span.vurgu{border-color:color-mix(in srgb,${LIME} 70%,var(--line-soft));background:color-mix(in srgb,${LIME} 22%,var(--panel));color:#4d681b}.bt-premium-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:8px;padding:14px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel2)}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center;white-space:nowrap}.bt-premium-actions>a.bt-btn,.bt-premium-actions>.bt-btn:first-of-type{min-height:42px}.bt-premium-help{grid-column:1/-1;margin:3px 2px 0!important;text-align:left;font-size:10px!important;color:var(--faint)!important}.bt-premium-help a{color:#5d7a2e;font-weight:800}.bt-pro-choice{grid-column:1/-1;display:grid;gap:8px;min-width:245px}.bt-pro-toggle{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel)}.bt-pro-toggle button{min-height:36px;border:0;border-radius:999px;background:transparent;color:var(--dim);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.bt-pro-toggle button.aktif{background:${LIME};color:${INK}}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:999px;padding:5px 9px;background:color-mix(in srgb,${LIME} 20%,var(--panel));color:#4d681b;font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:var(--text);border-color:var(--line-soft)}.bt-premium-card .bt-btn.ikincil:hover{background:var(--panel)}@media(max-width:900px){.bt-premium-card{grid-template-columns:1fr;gap:16px}.bt-premium-card h2{max-width:620px}.bt-premium-actions{grid-template-columns:1fr 1fr}}@media(max-width:600px){.bt-premium-card{grid-column:auto;padding:18px 16px}.bt-premium-card h2{margin-top:9px;font-size:23px}.bt-premium-actions{grid-template-columns:1fr;padding:11px}.bt-premium-actions .bt-btn,.bt-pro-choice{width:100%}.bt-premium-help{grid-column:auto}.bt-premium-meta{margin-top:12px}}
+.bt-referral-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.7fr);gap:22px;padding:24px;border:1px solid color-mix(in srgb,${LIME} 75%,var(--line-soft));border-radius:20px;background:linear-gradient(125deg,color-mix(in srgb,${LIME} 23%,var(--panel)),color-mix(in srgb,${CORAL} 9%,var(--panel)));overflow:hidden}.bt-referral-copy h2{margin:8px 0 7px;font:clamp(22px,3vw,30px)/1.08 'Archivo Black',sans-serif;letter-spacing:-.025em}.bt-referral-copy p{max-width:650px;margin:0;color:var(--dim);font-size:12px;line-height:1.55}.bt-referral-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.bt-referral-stats span{padding:6px 9px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);font-size:10.5px;font-weight:800}.bt-referral-panel{align-self:center;padding:15px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel)}.bt-referral-code{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:10px 13px;border:1px dashed var(--line);border-radius:12px;background:var(--panel2)}.bt-referral-code strong{font:700 14px 'JetBrains Mono',monospace;letter-spacing:.05em}.bt-referral-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.bt-referral-message{margin-top:8px;color:#5d7a2e;font-size:10.5px;font-weight:700}.bt-referral-error{color:#a53a2a}@media(max-width:760px){.bt-referral-card{grid-template-columns:1fr;padding:18px 16px}.bt-referral-actions{grid-template-columns:1fr}}
 .bt-pro-modal-arka{overscroll-behavior:contain}.bt-pro-modal{width:min(760px,100%);max-width:none;padding:0;overflow:hidden;background:${INK};color:${CREAM};box-shadow:10px 10px 0 ${CORAL}}.bt-pro-modal-head{position:relative;padding:28px 30px 24px;border-bottom:1.5px solid #45483d;background:radial-gradient(circle at 88% 0%,#cdf56430 0 18%,transparent 19%),${INK}}.bt-pro-modal-head .bt-premium-badge{margin-bottom:13px}.bt-pro-modal-head h2{max-width:560px;margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(26px,5vw,40px);line-height:1.04;color:${CREAM}}.bt-pro-modal-head h2 span{color:${LIME};text-shadow:3px 3px 0 ${CORAL}}.bt-pro-modal-head p{max-width:590px;margin:12px 0 0;color:#bfc1b4;font-size:13px;line-height:1.55}.bt-pro-modal-kapat{position:absolute;right:20px;top:20px;width:38px;height:38px;display:grid;place-items:center;border:1.5px solid #77796d;border-radius:50%;background:#292c20;color:${CREAM};cursor:pointer}.bt-pro-modal-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:24px;padding:26px 30px 30px}.bt-pro-faydalar{display:grid;gap:10px}.bt-pro-fayda{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start;padding:11px;border:1px solid #45483d;border-radius:13px;background:#1d2017}.bt-pro-fayda svg{width:32px;height:32px;padding:7px;border:1.5px solid ${INK};border-radius:9px;background:${LIME};color:${INK}}.bt-pro-fayda strong{display:block;font-size:12.5px}.bt-pro-fayda small{display:block;margin-top:3px;color:#a9ab9e;font-size:10.5px;line-height:1.4}.bt-pro-satin-al{align-self:start;display:grid;gap:10px;padding:14px;border:1.5px solid #5b5e51;border-radius:16px;background:#24271e}.bt-pro-planlar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bt-pro-plan{padding:11px 9px;border:1.5px solid #5b5e51;border-radius:12px;background:transparent;color:${CREAM};font:inherit;text-align:left;cursor:pointer}.bt-pro-plan.aktif{border-color:${LIME};background:#cdf56418;box-shadow:inset 0 0 0 1px ${LIME}}.bt-pro-plan span{display:block;color:#a9ab9e;font-size:10px;font-weight:700}.bt-pro-plan strong{display:block;margin-top:4px;color:${CREAM};font-size:13px}.bt-pro-satin-al .bt-btn{width:100%;justify-content:center;min-height:44px}.bt-pro-guvence{display:flex;align-items:flex-start;gap:7px;color:#9fa294;font-size:9.5px;line-height:1.4}.bt-pro-guvence svg{flex:0 0 auto;margin-top:1px;color:${LIME}}.bt-pro-hata{padding:9px;border:1px solid ${CORAL};border-radius:10px;color:#ffc0b7;font-size:10px;line-height:1.4}@media(max-width:700px){.bt-pro-modal-arka{padding:8px}.bt-pro-modal{margin:8px 0;box-shadow:5px 5px 0 ${CORAL}}.bt-pro-modal-head{padding:23px 18px 19px}.bt-pro-modal-head h2{padding-right:38px;font-size:28px}.bt-pro-modal-head p{font-size:12px}.bt-pro-modal-kapat{right:14px;top:14px}.bt-pro-modal-body{grid-template-columns:1fr;gap:17px;padding:18px}.bt-pro-faydalar{gap:7px}.bt-pro-fayda{padding:9px}.bt-pro-satin-al{position:sticky;bottom:0}}
 .bt-pro-kilit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:26px;padding:16px;background:#24271e;border:1.5px solid #55584c;border-radius:16px}.bt-pro-kilit-ikon{display:grid;place-items:center;width:42px;height:42px;border:1.5px solid ${INK};border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-pro-kilit strong{display:block;color:${CREAM};font-size:14px}.bt-pro-kilit span{display:block;margin-top:3px;color:#9fa294;font-size:11.5px;line-height:1.45}.bt-pro-kilit .bt-btn{white-space:nowrap}
 .bt-adfree-card{background:var(--panel2)}.bt-adfree-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bt-adfree-actions a{text-decoration:none}
@@ -4036,6 +4041,60 @@ function ProTanitimPenceresi({
   );
 }
 
+function DavetKarti() {
+  const [durum, setDurum] = useState({ yukleniyor: true, hata: "", veri: null, mesaj: "" });
+  useEffect(() => {
+    let active = true;
+    if (demoModu) {
+      setDurum({ yukleniyor: false, hata: "", mesaj: "", veri: { code: "BRCM7K4M2Q", inviteUrl: "https://borcama.com/davet/BRCM7K4M2Q", totals: { waiting: 1, rewarded: 2, review: 0, earnedDays: 60, pendingDays: 0 } } });
+      return undefined;
+    }
+    davetDurumunuGetir().then((veri) => {
+      if (active) setDurum({ yukleniyor: false, hata: "", veri, mesaj: "" });
+    }).catch(() => {
+      if (active) setDurum({ yukleniyor: false, hata: "Davet bilgilerin şu anda yüklenemedi.", veri: null, mesaj: "" });
+    });
+    return () => { active = false; };
+  }, []);
+
+  const kopyala = async () => {
+    if (!durum.veri?.inviteUrl) return;
+    try {
+      await navigator.clipboard.writeText(durum.veri.inviteUrl);
+      setDurum((old) => ({ ...old, mesaj: "Davet bağlantın kopyalandı." }));
+    } catch {
+      setDurum((old) => ({ ...old, mesaj: "Bağlantı kopyalanamadı; kodu elle paylaşabilirsin." }));
+    }
+  };
+  const paylas = async () => {
+    if (!durum.veri?.inviteUrl) return;
+    const text = "Borcama'ya davet bağlantımla katıl. E-postanı doğruladığında ikimiz de 30 gün Pro kazanalım.";
+    if (navigator.share) {
+      try { await navigator.share({ title: "Borcama daveti", text, url: durum.veri.inviteUrl }); return; } catch { return; }
+    }
+    await kopyala();
+  };
+  const totals = durum.veri?.totals || {};
+  return (
+    <section className="bt-referral-card">
+      <div className="bt-referral-copy">
+        <span className="bt-premium-badge"><Gift size={13}/> Arkadaşını davet et</span>
+        <h2>İkiniz de 30 gün Pro kazanın.</h2>
+        <p>Arkadaşın kalıcı bağlantınla kayıt olup e-postasını doğruladığında ödül otomatik eklenir. Ücretli Pro kullanıyorsan kazandığın günler aboneliğin bittikten sonra devreye girer.</p>
+        {!durum.yukleniyor && !durum.hata && <div className="bt-referral-stats"><span>{totals.waiting || 0} doğrulama bekliyor</span><span>{totals.rewarded || 0} başarılı davet</span><span>{totals.earnedDays || 0} gün kazanıldı</span>{totals.pendingDays > 0 && <span>{totals.pendingDays} gün sırada</span>}{totals.review > 0 && <span>{totals.review} incelemede</span>}</div>}
+      </div>
+      <div className="bt-referral-panel">
+        <div className="bt-referral-code"><span>{durum.yukleniyor ? "Kod hazırlanıyor…" : durum.hata ? "Kod yüklenemedi" : "Kalıcı kodun"}</span><strong>{durum.veri?.code || "—"}</strong></div>
+        <div className="bt-referral-actions">
+          <button className="bt-btn birincil" type="button" disabled={!durum.veri} onClick={kopyala}><Copy size={14}/> Bağlantıyı kopyala</button>
+          <button className="bt-btn ikincil" type="button" disabled={!durum.veri} onClick={paylas}><Share2 size={14}/> Paylaş</button>
+        </div>
+        {(durum.mesaj || durum.hata) && <div className={`bt-referral-message ${durum.hata ? "bt-referral-error" : ""}`}>{durum.hata || durum.mesaj}</div>}
+      </div>
+    </section>
+  );
+}
+
 function Ayarlar({
   eposta,
   isDark,
@@ -4260,6 +4319,7 @@ function Ayarlar({
             )}
           </div>
         </section>
+        <DavetKarti />
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <AtSign size={18} /> Hesap

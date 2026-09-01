@@ -6,7 +6,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
-- Henüz yayımlanmamış değişiklik yok.
+- Kullanıcıların değişmeyen kişisel davet bağlantısıyla arkadaşlarını çağırabildiği, doğrulama sonrası iki tarafa da 30 gün Pro kazandıran referans sistemi eklendi.
+- Kayıt ekranına bağlantıdan otomatik dolabilen veya elle yazılabilen isteğe bağlı referans kodu alanı eklendi.
+- Ayarlar ekranına davet bağlantısını kopyalama, paylaşma ve kazanılan/bekleyen Pro günlerini görme kartı eklendi.
+- CRM'e referans hunisi, verilen Pro günleri ve olağan dışı davetleri onaylama veya reddetme araçları eklendi.
+
+### Güvenlik
+
+- Referans ödülleri e-posta doğrulamasına, tekil davet kayıtlarına ve aylık otomatik ödül sınırına bağlandı; ücretli abonelik tarihleri değiştirilmeden ödüller sıraya alınıyor.
 
 ## [1.35.1] - 2026-09-01
 

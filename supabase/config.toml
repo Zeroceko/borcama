@@ -29,5 +29,8 @@ verify_jwt = false
 [functions.resend-webhook]
 verify_jwt = false
 
+[functions.referrals]
+verify_jwt = false
+
 [functions.lifecycle-emails]
 verify_jwt = false

@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
   X,
+  Gift,
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
@@ -19,6 +20,7 @@ import {
 } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
+import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
@@ -83,6 +85,7 @@ const CSS = `
 .auth-tab.active{background:#14160f;color:#fff}
 .auth-password{position:relative}.auth-password .auth-input{padding-right:46px}.auth-eye{position:absolute;right:7px;top:7px;width:34px;height:34px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:#55584c}
 .auth-help{font-size:11.5px;color:#777a6d;line-height:1.45;margin:-2px 0 12px}
+.auth-referral{margin:2px 0 14px;padding:12px;border:1px solid #d7d4c7;border-radius:13px;background:#f8faef}.auth-referral-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:12px;font-weight:800}.auth-referral .auth-input{margin:0;background:#fff}.auth-referral-state{display:block;margin-top:7px;font-size:10.5px;color:#686b60}.auth-referral-state.valid{color:#46651f;font-weight:700}.auth-referral-state.invalid{color:#a53a2a;font-weight:700}.auth-invite-note{margin:-8px 0 14px;padding:10px 12px;border-radius:12px;background:#e9f7cd;color:#35521c;font-size:11.5px;line-height:1.45;font-weight:650}
 .auth-reset-link{display:block;margin:-4px 0 13px auto;padding:0;border:0;background:none;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .auth-remember{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:12.5px;font-weight:600;color:#55584c;cursor:pointer}
 .auth-remember input{appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;border:2px solid #14160f;border-radius:5px;background:#fff;display:grid;place-items:center;cursor:pointer}
@@ -168,6 +171,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const ilkReferansKodu = kayitModu ? davetKodunuYoldanOku("", window.location.search) : "";
+  const [referansKodu, setReferansKodu] = useState(ilkReferansKodu);
+  const [referansDurumu, setReferansDurumu] = useState(ilkReferansKodu ? "checking" : "idle");
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
@@ -177,6 +183,21 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   useEffect(() => {
     if (ilkProPlani) proNiyetiniKaydet(ilkProPlani);
   }, [ilkProPlani]);
+
+  useEffect(() => {
+    if (!kayitModu || !referansKodu) return undefined;
+    let active = true;
+    const timer = window.setTimeout(async () => {
+      setReferansDurumu("checking");
+      try {
+        const result = await referansKodunuDogrula(referansKodu);
+        if (active) setReferansDurumu(result.valid ? "valid" : "invalid");
+      } catch {
+        if (active) setReferansDurumu("unknown");
+      }
+    }, 350);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [kayitModu, referansKodu]);
 
   useEffect(() => {
     if (!yasalMetin) return undefined;
@@ -237,6 +258,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           funnel_content: funnelKaynagi.content,
           funnel_term: funnelKaynagi.term,
           funnel_click_id: funnelKaynagi.click_id,
+          referral_code: referansKodu || undefined,
         } : undefined,
       },
     });
@@ -356,6 +378,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           funnel_content: funnelKaynagi.content,
           funnel_term: funnelKaynagi.term,
           funnel_click_id: funnelKaynagi.click_id,
+          referral_code: referansKodu || undefined,
         },
       },
     });
@@ -561,14 +584,36 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
               </button>
             </div>
             {kayitModu && (
-              <input
-                className="auth-input"
-                type={parolaGorunur ? "text" : "password"}
-                placeholder="Parolayı tekrar yaz"
-                value={parolaTekrar}
-                onChange={(e) => setParolaTekrar(e.target.value)}
-                required
-              />
+              <>
+                <input
+                  className="auth-input"
+                  type={parolaGorunur ? "text" : "password"}
+                  placeholder="Parolayı tekrar yaz"
+                  value={parolaTekrar}
+                  onChange={(e) => setParolaTekrar(e.target.value)}
+                  required
+                />
+                <div className="auth-referral">
+                  <div className="auth-referral-head"><Gift size={15}/> Referans kodu <span style={{fontWeight:500,color:"#777a6d"}}>(isteğe bağlı)</span></div>
+                  <input
+                    className="auth-input"
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    placeholder="Örn. BRCM7K4M2Q"
+                    value={referansKodu}
+                    onChange={(event) => {
+                      const value = referansKodunuTemizle(event.target.value);
+                      setReferansKodu(value);
+                      setReferansDurumu(value ? "checking" : "idle");
+                    }}
+                    aria-describedby="referans-kodu-durumu"
+                  />
+                  <span id="referans-kodu-durumu" className={`auth-referral-state ${referansDurumu}`}>
+                    {referansDurumu === "checking" ? "Kod kontrol ediliyor…" : referansDurumu === "valid" ? "Davet kodu uygulandı. E-postanı doğruladığında ikiniz de 30 gün Pro kazanacaksınız." : referansDurumu === "invalid" ? "Bu kod bulunamadı. Kodu düzeltebilir veya boş bırakarak devam edebilirsin." : referansDurumu === "unknown" ? "Kod şu anda kontrol edilemedi; üyeliğin yine de oluşturulabilir." : "Bir arkadaşın davet ettiyse kalıcı kodunu buraya yazabilirsin."}
+                  </span>
+                </div>
+              </>
             )}
             <div className="auth-help">
               {kayitModu

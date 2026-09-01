@@ -160,6 +160,40 @@ async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
   return { available: true, daily: daily || [], sources: sources || [] };
 }
 
+async function referralOverview(
+  admin: ReturnType<typeof createClient>,
+  emails: Map<string, string>,
+  userId: string | null = null,
+) {
+  let query = admin.from("referrals")
+    .select("id,referrer_user_id,invitee_user_id,status,risk_reason,attributed_at,verified_at,rewarded_at,reviewed_at")
+    .order("created_at", { ascending: false }).limit(300);
+  if (userId) query = query.or(`referrer_user_id.eq.${userId},invitee_user_id.eq.${userId}`);
+  const { data: rows, error } = await query;
+  if (error) return { available: false, summary: {}, items: [] };
+  const ids = (rows || []).map((row) => row.id);
+  const { data: rewards } = ids.length
+    ? await admin.from("referral_rewards").select("referral_id,user_id,role,days,status,starts_at,ends_at,applied_at").in("referral_id", ids)
+    : { data: [] };
+  const items = (rows || []).map((row) => ({
+    ...row,
+    referrer_email: emails.get(row.referrer_user_id) || "—",
+    invitee_email: emails.get(row.invitee_user_id) || "—",
+    rewards: (rewards || []).filter((reward) => reward.referral_id === row.id),
+  }));
+  return {
+    available: true,
+    summary: {
+      registered: items.length,
+      verified: items.filter((item) => !!item.verified_at).length,
+      rewarded: items.filter((item) => item.status === "rewarded").length,
+      review: items.filter((item) => item.status === "review").length,
+      granted_days: (rewards || []).filter((reward) => reward.status === "applied").reduce((sum, reward) => sum + Number(reward.days || 0), 0),
+    },
+    items,
+  };
+}
+
 async function yeniOzelliklerDuyurusuGonder(
   admin: ReturnType<typeof createClient>,
   kullanicilar: Array<{ id: string; email?: string; email_confirmed_at?: string | null }>,
@@ -355,6 +389,18 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
       }
     }
+    if (["approve_referral", "reject_referral"].includes(action)) {
+      const referralId = String(body?.referralId || "");
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(referralId))
+        return new Response(JSON.stringify({ error: "INVALID_REFERRAL" }), { status: 422, headers });
+      const { error } = await admin.rpc("review_referral_reward", {
+        target_referral_id: referralId,
+        target_admin_id: authData.user!.id,
+        approve: action === "approve_referral",
+      });
+      if (error) return new Response(JSON.stringify({ error: "REFERRAL_REVIEW_FAILED" }), { status: 500, headers });
+      return new Response(JSON.stringify({ ok: true, referralId, status: action === "approve_referral" ? "approved" : "rejected" }), { status: 200, headers });
+    }
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId) || !["grant_pro", "revoke_pro", "manage_pro"].includes(action)) {
       return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
     }
@@ -510,6 +556,7 @@ Deno.serve(async (req) => {
   }
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || [], istenenKullaniciId);
   const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
+  const referrals = await referralOverview(admin, epostalar, istenenKullaniciId);
   const kullaniciKampanyalari = istenenKullaniciId
     ? await kullaniciKampanyaGecmisi(admin, istenenKullaniciId)
     : [];
@@ -565,6 +612,7 @@ Deno.serve(async (req) => {
     users: gorunenKullanicilar,
     feedback: geriBildirimler,
     activities: aktiviteler,
+    referrals,
   }), { status: 200, headers });
 });
 

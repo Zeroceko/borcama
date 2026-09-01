@@ -9,6 +9,7 @@ import { googleAdsBaslat } from "./googleAds.js";
 import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
 import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import { noindexYoluMu } from "./seoIndexing.js";
+import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 
 const App = lazy(() => import("./App.jsx"));
@@ -66,6 +67,8 @@ function Kok() {
     }
     meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
+  if (yol.startsWith("/davet/"))
+    return <HariciYonlendirme url={davetKayitYolu(davetKodunuYoldanOku(yol, window.location.search))} />;
   if (eskiYonetimYolu)
     return <HariciYonlendirme url={`https://${CRM_ALANI}${temizCrmYolu}`} />;
   if (demoModu && ["/login", "/register"].includes(yol)) {

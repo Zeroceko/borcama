@@ -64,6 +64,16 @@ ${buton(url, "Borcama Pro'ya geç")}
 <p style="margin:15px 0 0;color:#85877d;font-size:12px;line-height:1.5;text-align:center">Satın alma ekranında aylık veya yıllık planı seçebilirsin.</p>`);
 }
 
+export function referansOduluHtml(role: "referrer" | "invitee", url: string) {
+  const referrer = role === "referrer";
+  return cerceve(`<div style="padding:28px;border-radius:22px;background:#073b2d;box-shadow:7px 7px 0 #ff6c5c">
+<div style="font-size:38px;line-height:1.05;font-weight:900;letter-spacing:-1.3px;color:#fff">${referrer ? "Arkadaşın katıldı." : "Davet ödülün hazır."}<br><span style="color:#cdf564">30 gün Pro kazandın.</span></div>
+<p style="margin:16px 0 0;color:#dcebe5;font-size:15px;line-height:1.55">${referrer ? "Davet ettiğin kişi e-posta adresini doğruladı." : "Davet koduyla kaydını tamamlayıp e-posta adresini doğruladın."} Pro ödülün hesabına işlendi.</p>
+</div>
+<div style="margin-top:25px;padding:20px;border-radius:18px;background:#effbd8;color:#3f5428;font-size:14px;line-height:1.6"><strong style="color:#14160f">Ödül nasıl kullanılır?</strong><br>Aktif denemen varsa bitişine eklenir. Ücretli Pro kullanıyorsan 30 günün abonelik dönemin bittikten sonra otomatik başlar.</div>
+${buton(url, "Ödülümü gör")}`);
+}
+
 export function yeniOzelliklerHtml(url: string) {
   return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Ekstre ve kredi planı girmek artık daha kısa.</h1>
 <p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">İstediğiniz iki büyük yeniliği Borcama'ya ekledik.</p>

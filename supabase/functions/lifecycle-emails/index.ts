@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { denemeBasladiHtml, denemeBitiyorHtml } from "../_shared/borcama-email.ts";
+import { denemeBasladiHtml, denemeBitiyorHtml, referansOduluHtml } from "../_shared/borcama-email.ts";
 import { gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
@@ -23,13 +23,14 @@ async function takipliGonder(params: {
   email: string;
   html: (url: string) => string;
   destination: string;
+  deliveryKey?: string;
 }) {
-  const { admin, campaign, userId, email, html, destination } = params;
+  const { admin, campaign, userId, email, html, destination, deliveryKey = "default" } = params;
   const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
   if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
 
   const { data: existing } = await admin.from("marketing_deliveries")
-    .select("id,status").eq("campaign_id", campaign.id).eq("user_id", userId).maybeSingle();
+    .select("id,status").eq("campaign_id", campaign.id).eq("user_id", userId).eq("delivery_key", deliveryKey).maybeSingle();
   if (existing && existing.status !== "failed") return { sent: false, duplicate: true };
 
   let deliveryId = existing?.id;
@@ -37,6 +38,7 @@ async function takipliGonder(params: {
     const { data, error } = await admin.from("marketing_deliveries").insert({
       campaign_id: campaign.id,
       user_id: userId,
+      delivery_key: deliveryKey,
       recipient_email: email,
       status: "queued",
     }).select("id").single();
@@ -84,8 +86,9 @@ Deno.serve(async (req) => {
     debtSnapshotSaved = true;
   } catch { /* E-posta akışı snapshot hatasından etkilenmez. */ }
   try {
-    const [startedCampaign, endingCampaign] = await Promise.all([
+    const [startedCampaign, endingCampaign, referralReferrerCampaign, referralInviteeCampaign] = await Promise.all([
       kampanya(admin, "trial-started"), kampanya(admin, "trial-ending-3d"),
+      kampanya(admin, "referral-reward-referrer"), kampanya(admin, "referral-reward-invitee"),
     ]);
     const now = new Date();
     const threeDays = new Date(now.getTime() + 3 * 86400000);
@@ -95,7 +98,7 @@ Deno.serve(async (req) => {
       .gt("trial_ends_at", now.toISOString());
     if (error) throw new Error("ENTITLEMENTS_UNAVAILABLE");
 
-    let started = 0, ending = 0, skipped = 0;
+    let started = 0, ending = 0, referralSent = 0, skipped = 0;
     for (const entitlement of entitlements || []) {
       const paid = entitlement.pro_expires_at && new Date(entitlement.pro_expires_at).getTime() > now.getTime();
       if (paid) { skipped += 1; continue; }
@@ -125,7 +128,30 @@ Deno.serve(async (req) => {
         }
       }
     }
-    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, skipped, debt_snapshot_saved: debtSnapshotSaved });
+    const { data: referralRewards, error: referralError } = await admin.from("referral_rewards")
+      .select("id,user_id,role,status,email_sent_at")
+      .eq("status", "applied").is("email_sent_at", null).order("created_at").limit(100);
+    if (referralError) throw new Error("REFERRAL_REWARDS_UNAVAILABLE");
+    for (const reward of referralRewards || []) {
+      const { data } = await admin.auth.admin.getUserById(reward.user_id);
+      const user = data.user;
+      if (!user?.email || !user.email_confirmed_at) { skipped += 1; continue; }
+      const role = reward.role === "invitee" ? "invitee" : "referrer";
+      const result = await takipliGonder({
+        admin,
+        campaign: role === "invitee" ? referralInviteeCampaign : referralReferrerCampaign,
+        userId: user.id,
+        email: user.email.trim().toLowerCase(),
+        destination: "/settings?source=referral-reward-email",
+        deliveryKey: reward.id,
+        html: (url) => referansOduluHtml(role, url),
+      });
+      if (result.sent || result.duplicate) {
+        await admin.from("referral_rewards").update({ email_sent_at: now.toISOString(), updated_at: now.toISOString() }).eq("id", reward.id);
+        if (result.sent) referralSent += 1;
+      }
+    }
+    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, referral_reward_sent: referralSent, skipped, debt_snapshot_saved: debtSnapshotSaved });
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : "LIFECYCLE_EMAIL_FAILED" }, 500);
   }

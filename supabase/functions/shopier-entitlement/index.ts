@@ -354,6 +354,9 @@ Deno.serve(async (req) => {
       }
     }
 
+    try {
+      await admin.rpc("activate_pending_referral_rewards", { target_user_id: user.id });
+    } catch { /* Referans tablosu yayında değilse mevcut hak kontrolü devam eder. */ }
     let { data: hak } = await admin
       .from("user_entitlements")
       .select("ad_free_lifetime,pro_expires_at,source,granted_at,trial_started_at,trial_ends_at,trial_started_email_sent_at")

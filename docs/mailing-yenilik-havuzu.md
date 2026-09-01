@@ -2,6 +2,15 @@
 
 Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki kayıtlar gönderim onayı değildir; kampanya oluşturulurken hedef kitle ve metin ayrıca kontrol edilir.
 
+## Gelecek sürüm adayları
+
+### Arkadaşını davet et, ikiniz de 30 gün Pro kazanın — Unreleased
+
+- Siz istediniz: Borcama'yı arkadaşına önerirken her seferinde yeni bağlantı üretmeden karşılıklı bir avantaj kazanmak.
+- Biz yaptık: Her kullanıcıya kalıcı bir davet kodu ve bağlantısı; kayıt ekranına da isteğe bağlı referans kodu alanı ekledik.
+- Faydası: Arkadaşın e-postasını doğruladığında ikinizin hesabına da 30 gün Pro eklenir; ücretli Pro kullanıyorsan ödülün abonelik sonrasına saklanır.
+- Aksiyon: `https://borcama.com/settings?utm_source=resend&utm_medium=email&utm_campaign=arkadasini_davet_et&utm_content=davet_karti`
+
 ## Gönderilmeye hazır adaylar
 
 ### Ekstre eklemek artık daha anlaşılır — v1.33.0
