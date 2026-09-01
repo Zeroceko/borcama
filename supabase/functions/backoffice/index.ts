@@ -34,16 +34,6 @@ function cors(origin: string | null) {
   };
 }
 
-function epostaMaskele(eposta: string) {
-  const [kullanici = "", alan = ""] = eposta.split("@");
-  const alanParcalari = alan.split(".");
-  const alanAdi = alanParcalari.shift() || "";
-  const uzanti = alanParcalari.length ? `.${alanParcalari.join(".")}` : "";
-  const sol = kullanici.slice(0, 3);
-  const sag = alanAdi.slice(0, 2);
-  return `${sol}${kullanici.length > 3 ? "***" : ""}@${sag}${alanAdi.length > 2 ? "***" : ""}${uzanti}`;
-}
-
 async function tumKullanicilariGetir(admin: ReturnType<typeof createClient>) {
   const kullanicilar = [];
   for (let page = 1; page <= 20; page += 1) {
@@ -354,7 +344,7 @@ Deno.serve(async (req) => {
     const trialAktif = !proAktif && !denemedenCikarildi && !!trialBitis && new Date(trialBitis).getTime() > simdi;
     return {
       id: u.id,
-      email: epostaMaskele(u.email || ""),
+      email: u.email || "",
       created_at: u.created_at,
       last_sign_in_at: sonGiris,
       email_confirmed_at: u.email_confirmed_at || null,
@@ -403,7 +393,7 @@ Deno.serve(async (req) => {
   }
   const yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || []);
-  const epostalar = new Map(kullanicilar.map((u) => [u.id, epostaMaskele(u.email || "")]));
+  const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
   const istenenKullaniciId = new URL(req.url).searchParams.get("userId");
   if (istenenKullaniciId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(istenenKullaniciId)) {
     return new Response(JSON.stringify({ error: "INVALID_USER_ID" }), { status: 422, headers });
@@ -455,7 +445,7 @@ Deno.serve(async (req) => {
 const sayi = guvenliSayi;
 
 function geriBildirimleriHazirla(kullanicilar: Array<{ id: string; email?: string }>, kayitlar: Array<{ user_id: string; updated_at: string; value: string }>) {
-  const epostalar = new Map(kullanicilar.map((u) => [u.id, epostaMaskele(u.email || "")]));
+  const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
   const izinliTurler = new Set(["Fikir", "İyileştirme", "Sorun"]);
   const liste: Array<{ id: string; email: string; type: string; message: string; screen: string; created_at: string; status: string }> = [];
   for (const kayit of kayitlar) {
