@@ -15,6 +15,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Referans ödülleri e-posta doğrulamasına, tekil davet kayıtlarına ve aylık otomatik ödül sınırına bağlandı; ücretli abonelik tarihleri değiştirilmeden ödüller sıraya alınıyor.
 
+### Değiştirildi
+
+- Kayıt ekranındaki isteğe bağlı referans kodu alanı sade bir açılır bölüme taşındı; davet bağlantısıyla gelenlerde alan otomatik açılıyor.
+
 ## [1.35.1] - 2026-09-01
 
 ### Değiştirildi
