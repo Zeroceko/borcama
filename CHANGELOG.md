@@ -10,7 +10,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Yenilik e-postası önemli geliştirmeleri anlatan renkli bir hero, birbirinden ayrılan özellik kartları ve daha güçlü ana aksiyonlarla yenilendi; kullanıcılar e-postadaki bağlantıdan Borcama geri bildirim formunu doğrudan açabiliyor.
+- Yenilik e-postası önemli geliştirmeleri anlatan renkli bir hero, özellik kartları ve güçlü ana aksiyonlarla yenilendi; gerçek “Görüş bildir” butonu görseli kullanıcıyı geri bildirim formuna yönlendiriyor ve iletişim metni soru, görüş ve önerileri kapsıyor.
 
 ## [1.35.0] - 2026-09-01
 

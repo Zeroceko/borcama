@@ -20,7 +20,7 @@ function cerceve(icerik: string, altMetin = "Bu e-posta Borcama hesabınla ilgil
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:auto;background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 12px 36px rgba(20,22,15,.08)">
 <tr><td style="height:10px;background:linear-gradient(90deg,#cdf564 0 42%,#ff6c5c 42% 72%,#bfe1dd 72%)"></td></tr><tr><td style="padding:34px 34px 30px">
 <div style="font-size:31px;line-height:1;font-weight:900;letter-spacing:-1.4px;color:#14160f;margin-bottom:28px">Borcama<span style="color:#ff6c5c">.</span></div>${icerik}
-<p style="margin:26px 0 0;color:#85877d;font-size:12px;line-height:1.55">${htmlEscape(altMetin)} Soruların için <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a></p>
+<p style="margin:26px 0 0;color:#85877d;font-size:12px;line-height:1.55">${htmlEscape(altMetin)} Soru, görüş ve önerilerin için <a href="mailto:zero@borcama.com" style="color:#315c43">zero@borcama.com</a></p>
 </td></tr></table></td></tr></table></body></html>`;
 }
 
@@ -88,6 +88,7 @@ ${duyuruKarti("04", "Borçlarını kapatma sırasını planla", "Gelirin, taksit
 ${duyuruKarti("05", "Daha sade bir Borcama kullan", "Bugün ve Borçlar ekranları artık sıradaki önemli aksiyonunu daha net gösteriyor.", "#fff7d6", "#f2d25f")}
 </table><div style="padding:2px 7px 7px"><a href="${htmlEscape(url)}" style="display:block;margin-top:22px;padding:17px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900;box-shadow:6px 6px 0 #ff6c5c">Yenilikleri hesabımda gör →</a></div>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:32px;background:#ff6c5c;border-radius:22px;overflow:hidden"><tr><td style="padding:27px 26px">
+<img src="https://borcama.com/email-assets/gorus-bildir-ekran.jpg" width="245" alt="Borcama ekranındaki Görüş bildir butonu" style="display:block;width:245px;max-width:100%;height:auto;margin:0 auto 24px;border:2px solid #14160f;border-radius:16px;box-shadow:6px 6px 0 #cdf564">
 <div style="font-size:24px;line-height:1.15;font-weight:900;color:#14160f">Sırada neyi yapalım?</div>
 <p style="margin:10px 0 18px;color:#3c251f;font-size:14px;line-height:1.55">Borcama'da ihtiyaç duyduğun özelliği veya iyileştirmeyi bize yaz. Dilediğin zaman görüş bildirebilirsin; hepsini tek tek okuyoruz.</p>
 <a href="${htmlEscape(feedbackUrl)}" style="display:block;padding:14px 18px;border:2px solid #14160f;border-radius:999px;background:#fff;color:#14160f;text-align:center;text-decoration:none;font-size:15px;font-weight:900">Fikrimi paylaş →</a>
