@@ -74,7 +74,7 @@ ${ozellikSatiri("Ödemeyi borcun yanında kaydet", "Asgari, kısmi veya tam öde
 </table>${buton(url, "Yeni özellikleri dene")}`);
 }
 
-export function surum133DuyuruHtml(url: string) {
+export function surum133DuyuruHtml(url: string, feedbackUrl = "https://borcama.com/summary?feedback=1&utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=feedback_cta") {
   return cerceve(`<div style="display:none;max-height:0;overflow:hidden;color:transparent">Ekstrelerini yönet, taksitlerini doğru aylarda gör ve borç kapatma planını oluştur.</div>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;background:#073b2d;border-radius:24px;overflow:hidden;box-shadow:8px 8px 0 #ff6c5c"><tr><td style="padding:34px 30px">
 <div style="font-size:39px;line-height:1.05;letter-spacing:-1.5px;font-weight:900;color:#fff">Siz istediniz.<br><span style="color:#cdf564">Biz yaptık.</span></div>
@@ -87,6 +87,11 @@ ${duyuruKarti("03", "Taksitleri gerçek aylarında gör", "Taksitli harcamanın 
 ${duyuruKarti("04", "Borçlarını kapatma sırasını planla", "Gelirin, taksitlerin, yaşam giderlerin ve faiz yükün birlikte hesaplanır. Önce hangi borca yönelmenin etkisini görürsün.", "#f3eafa", "#d6b8ef")}
 ${duyuruKarti("05", "Daha sade bir Borcama kullan", "Bugün ve Borçlar ekranları artık sıradaki önemli aksiyonunu daha net gösteriyor.", "#fff7d6", "#f2d25f")}
 </table><div style="padding:2px 7px 7px"><a href="${htmlEscape(url)}" style="display:block;margin-top:22px;padding:17px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900;box-shadow:6px 6px 0 #ff6c5c">Yenilikleri hesabımda gör →</a></div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:32px;background:#ff6c5c;border-radius:22px;overflow:hidden"><tr><td style="padding:27px 26px">
+<div style="font-size:24px;line-height:1.15;font-weight:900;color:#14160f">Sırada neyi yapalım?</div>
+<p style="margin:10px 0 18px;color:#3c251f;font-size:14px;line-height:1.55">Borcama'da ihtiyaç duyduğun özelliği veya iyileştirmeyi bize yaz. Dilediğin zaman görüş bildirebilirsin; hepsini tek tek okuyoruz.</p>
+<a href="${htmlEscape(feedbackUrl)}" style="display:block;padding:14px 18px;border:2px solid #14160f;border-radius:999px;background:#fff;color:#14160f;text-align:center;text-decoration:none;font-size:15px;font-weight:900">Fikrimi paylaş →</a>
+</td></tr></table>
 <p style="margin:16px 0 0;color:#85877d;font-size:12px;line-height:1.55;text-align:center">Hesabındaki kayıtları yalnızca sen görebilirsin.</p>`);
 }
 

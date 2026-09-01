@@ -10,7 +10,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Yenilik e-postası teknik ayrıntılar yerine kullanıcıların doğrudan görebileceği önemli geliştirmeleri anlatan renkli bir hero, birbirinden ayrılan özellik kartları ve daha güçlü bir ana aksiyonla yenilendi.
+- Yenilik e-postası önemli geliştirmeleri anlatan renkli bir hero, birbirinden ayrılan özellik kartları ve daha güçlü ana aksiyonlarla yenilendi; kullanıcılar e-postadaki bağlantıdan Borcama geri bildirim formunu doğrudan açabiliyor.
 
 ## [1.35.0] - 2026-09-01
 

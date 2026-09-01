@@ -1927,6 +1927,14 @@ export default function BorcTakip() {
   }, []);
 
   useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("feedback") !== "1") return;
+    setGeriBildirimPenceresi(true);
+    url.searchParams.delete("feedback");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }, []);
+
+  useEffect(() => {
     if (yukleniyor || rehberKontrolEdildi) return;
     setRehberKontrolEdildi(true);
     const zorla = new URLSearchParams(window.location.search).get("rehber") === "1";

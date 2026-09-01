@@ -365,7 +365,13 @@ function KimlikliKok() {
     return <Yukleniyor />;
   }
 
-  if (!session) return <GirisEkrani />;
+  if (!session) {
+    const sorgu = new URLSearchParams(window.location.search);
+    const feedbackYolu = sorgu.get("feedback") === "1"
+      ? `${window.location.pathname}${window.location.search}`
+      : "/summary";
+    return <GirisEkrani redirectTo={feedbackYolu} />;
+  }
 
   const bekleyenPlan = proNiyetiniOku();
   if (bekleyenPlan) {
