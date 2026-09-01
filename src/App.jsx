@@ -321,7 +321,7 @@ const CSS = `
 .bt-cardhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap}
 .bt-h2{margin:0 0 22px;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--text);display:flex;align-items:center;gap:10px}
 
-.bt-hero{position:relative;overflow:hidden;background:var(--summary-bg);color:var(--summary-text);border:1px solid var(--line-soft);border-radius:24px;padding:clamp(24px,5vw,40px) clamp(20px,4.5vw,38px);margin-bottom:24px;box-shadow:0 14px 34px #14160f0d}
+.bt-hero{position:relative;overflow:hidden;background:var(--summary-bg);color:var(--summary-text);border:1px solid var(--line-soft);border-radius:24px;padding:clamp(24px,5vw,40px) clamp(20px,4.5vw,38px);margin-bottom:0;box-shadow:0 14px 34px #14160f0d}
 .bt-hero .deko-daire{position:absolute;top:-24px;right:60px;width:56px;height:56px;border-radius:50%;background:${CORAL};border:2px solid ${INK};transform:rotate(8deg)}
 .bt-hero .deko-kare{position:absolute;bottom:20px;right:-18px;width:44px;height:44px;background:${LIME};border:2px solid ${INK};border-radius:10px;transform:rotate(20deg)}
 .bt-hero-label{font-size:13px;font-weight:600;letter-spacing:.08em;color:var(--summary-muted);text-transform:uppercase;margin-bottom:16px}
@@ -4046,7 +4046,7 @@ function DavetKarti() {
   useEffect(() => {
     let active = true;
     if (demoModu) {
-      setDurum({ yukleniyor: false, hata: "", mesaj: "", veri: { code: "BRCM7K4M2Q", inviteUrl: "https://borcama.com/davet/BRCM7K4M2Q", totals: { waiting: 1, rewarded: 2, review: 0, earnedDays: 60, pendingDays: 0 } } });
+      setDurum({ yukleniyor: false, hata: "", mesaj: "", veri: { code: "BRCM7K4M2Q", inviteUrl: "https://borcama.com/davet/BRCM7K4M2Q", totals: { waiting: 1, rewarded: 2, review: 0, earnedDays: 60, pendingDays: 0, billingScheduledDays: 30 } } });
       return undefined;
     }
     davetDurumunuGetir().then((veri) => {
@@ -4080,8 +4080,8 @@ function DavetKarti() {
       <div className="bt-referral-copy">
         <span className="bt-premium-badge"><Gift size={13}/> Arkadaşını davet et</span>
         <h2>İkiniz de 30 gün Pro kazanın.</h2>
-        <p>Arkadaşın kalıcı bağlantınla kayıt olup e-postasını doğruladığında ödül otomatik eklenir. Ücretli Pro kullanıyorsan kazandığın günler aboneliğin bittikten sonra devreye girer.</p>
-        {!durum.yukleniyor && !durum.hata && <div className="bt-referral-stats"><span>{totals.waiting || 0} doğrulama bekliyor</span><span>{totals.rewarded || 0} başarılı davet</span><span>{totals.earnedDays || 0} gün kazanıldı</span>{totals.pendingDays > 0 && <span>{totals.pendingDays} gün sırada</span>}{totals.review > 0 && <span>{totals.review} incelemede</span>}</div>}
+        <p>Arkadaşın kalıcı bağlantınla kayıt olup e-postasını doğruladığında ödül otomatik eklenir. Ücretli Pro kullanıyorsan sıradaki tahsilatın ödül süresi boyunca ertelenir, ardından aboneliğin otomatik devam eder.</p>
+        {!durum.yukleniyor && !durum.hata && <div className="bt-referral-stats"><span>{totals.waiting || 0} doğrulama bekliyor</span><span>{totals.rewarded || 0} başarılı davet</span><span>{totals.earnedDays || 0} gün kazanıldı</span>{totals.billingScheduledDays > 0 && <span>Sıradaki yenilemede {totals.billingScheduledDays} gün ücretsiz</span>}{totals.pendingDays > 0 && <span>{totals.pendingDays} gün hazırlanıyor</span>}{totals.review > 0 && <span>{totals.review} incelemede</span>}</div>}
       </div>
       <div className="bt-referral-panel">
         <div className="bt-referral-code"><span>{durum.yukleniyor ? "Kod hazırlanıyor…" : durum.hata ? "Kod yüklenemedi" : "Kalıcı kodun"}</span><strong>{durum.veri?.code || "—"}</strong></div>

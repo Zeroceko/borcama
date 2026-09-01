@@ -70,7 +70,7 @@ export function referansOduluHtml(role: "referrer" | "invitee", url: string) {
 <div style="font-size:38px;line-height:1.05;font-weight:900;letter-spacing:-1.3px;color:#fff">${referrer ? "Arkadaşın katıldı." : "Davet ödülün hazır."}<br><span style="color:#cdf564">30 gün Pro kazandın.</span></div>
 <p style="margin:16px 0 0;color:#dcebe5;font-size:15px;line-height:1.55">${referrer ? "Davet ettiğin kişi e-posta adresini doğruladı." : "Davet koduyla kaydını tamamlayıp e-posta adresini doğruladın."} Pro ödülün hesabına işlendi.</p>
 </div>
-<div style="margin-top:25px;padding:20px;border-radius:18px;background:#effbd8;color:#3f5428;font-size:14px;line-height:1.6"><strong style="color:#14160f">Ödül nasıl kullanılır?</strong><br>Aktif denemen varsa bitişine eklenir. Ücretli Pro kullanıyorsan 30 günün abonelik dönemin bittikten sonra otomatik başlar.</div>
+<div style="margin-top:25px;padding:20px;border-radius:18px;background:#effbd8;color:#3f5428;font-size:14px;line-height:1.6"><strong style="color:#14160f">Ödül nasıl kullanılır?</strong><br>Aktif denemen varsa bitişine eklenir. Ücretli Pro kullanıyorsan sıradaki tahsilatın 30 gün ertelenir; ödül dönemi bitince aboneliğin ve otomatik tahsilatın devam eder.</div>
 ${buton(url, "Ödülümü gör")}`);
 }
 

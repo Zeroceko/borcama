@@ -10,15 +10,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Kayıt ekranına bağlantıdan otomatik dolabilen veya elle yazılabilen isteğe bağlı referans kodu alanı eklendi.
 - Ayarlar ekranına davet bağlantısını kopyalama, paylaşma ve kazanılan/bekleyen Pro günlerini görme kartı eklendi.
 - CRM'e referans hunisi, verilen Pro günleri ve olağan dışı davetleri onaylama veya reddetme araçları eklendi.
+- Aktif ücretli Pro kullanıcısı referans ödülü kazandığında sıradaki tahsilatı 30 gün erteleyen ve sonrasında otomatik yenilemeyi sürdüren abonelik akışı eklendi.
 
 ### Güvenlik
 
-- Referans ödülleri e-posta doğrulamasına, tekil davet kayıtlarına ve aylık otomatik ödül sınırına bağlandı; ücretli abonelik tarihleri değiştirilmeden ödüller sıraya alınıyor.
+- Referans ödülleri e-posta doğrulamasına, tekil davet kayıtlarına ve aylık otomatik ödül sınırına bağlandı; kullanıcının planladığı iptal veya abonelik değişikliği otomatik olarak ezilmiyor.
 
 ### Değiştirildi
 
 - Kayıt ekranındaki isteğe bağlı referans kodu alanı sade bir açılır bölüme taşındı; davet bağlantısıyla gelenlerde alan otomatik açılıyor.
 - Arkadaşını davet et kartının mobil aksiyonları kompaktlaştırıldı ve kampanya kullanıcının Bugün ekranına sade bir davet bandı olarak eklendi.
+- Kayıt ekranındaki tekrar eden avantaj şeridi kaldırıldı, referans alanının açılışı yumuşatıldı ve Bugün ekranındaki gereksiz dikey boşluk azaltıldı.
 
 ## [1.35.1] - 2026-09-01
 

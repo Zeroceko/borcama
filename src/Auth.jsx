@@ -73,7 +73,6 @@ const CSS = `
   border-radius:26px; padding:40px 36px;box-shadow:12px 12px 0 #ff6f59;
 }
 .auth-title{display:block;width:190px;height:auto;margin:0 0 18px}
-.auth-plan{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 17px;padding:9px 11px;border:2px solid #14160f;border-radius:12px;background:#efffd1;color:#14160f;font:700 10.5px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.03em}.auth-plan strong{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0}
 .auth-welcome{font-size:17px;font-weight:800;margin-bottom:7px}
 .auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 24px}
 .auth-input{
@@ -86,7 +85,7 @@ const CSS = `
 .auth-tab.active{background:#14160f;color:#fff}
 .auth-password{position:relative}.auth-password .auth-input{padding-right:46px}.auth-eye{position:absolute;right:7px;top:7px;width:34px;height:34px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:#55584c}
 .auth-help{font-size:11.5px;color:#777a6d;line-height:1.45;margin:-2px 0 12px}
-.auth-referral-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 12px;padding:10px 12px;border:1px solid #d7d4c7;border-radius:12px;background:#fff;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.auth-referral-toggle span{display:flex;align-items:center;gap:7px}.auth-referral-toggle small{margin-left:auto;color:#5d7a2e;font-size:10px}.auth-referral-toggle svg:last-child{transition:transform .18s ease}.auth-referral-toggle.acik svg:last-child{transform:rotate(180deg)}.auth-referral{margin:-5px 0 14px;padding:12px;border:1px solid #d7d4c7;border-radius:13px;background:#f8faef}.auth-referral-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:12px;font-weight:800}.auth-referral .auth-input{margin:0;background:#fff}.auth-referral-state{display:block;margin-top:7px;font-size:10.5px;color:#686b60}.auth-referral-state.valid{color:#46651f;font-weight:700}.auth-referral-state.invalid{color:#a53a2a;font-weight:700}.auth-invite-note{margin:-8px 0 14px;padding:10px 12px;border-radius:12px;background:#e9f7cd;color:#35521c;font-size:11.5px;line-height:1.45;font-weight:650}
+.auth-referral-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 12px;padding:10px 12px;border:1px solid #d7d4c7;border-radius:12px;background:#fff;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.auth-referral-toggle span{display:flex;align-items:center;gap:7px}.auth-referral-toggle small{margin-left:auto;color:#5d7a2e;font-size:10px}.auth-referral-toggle svg:last-child{transition:transform .24s ease}.auth-referral-toggle.acik svg:last-child{transform:rotate(180deg)}.auth-referral-collapse{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-6px);pointer-events:none;transition:grid-template-rows .26s ease,opacity .2s ease,transform .26s ease}.auth-referral-collapse.acik{grid-template-rows:1fr;opacity:1;transform:translateY(0);pointer-events:auto}.auth-referral-collapse-inner{min-height:0;overflow:hidden}.auth-referral{margin:-5px 0 14px;padding:12px;border:1px solid #d7d4c7;border-radius:13px;background:#f8faef}.auth-referral-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:12px;font-weight:800}.auth-referral .auth-input{margin:0;background:#fff}.auth-referral-state{display:block;margin-top:7px;font-size:10.5px;color:#686b60}.auth-referral-state.valid{color:#46651f;font-weight:700}.auth-referral-state.invalid{color:#a53a2a;font-weight:700}.auth-invite-note{margin:-8px 0 14px;padding:10px 12px;border-radius:12px;background:#e9f7cd;color:#35521c;font-size:11.5px;line-height:1.45;font-weight:650}
 .auth-reset-link{display:block;margin:-4px 0 13px auto;padding:0;border:0;background:none;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .auth-remember{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:12.5px;font-weight:600;color:#55584c;cursor:pointer}
 .auth-remember input{appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;border:2px solid #14160f;border-radius:5px;background:#fff;display:grid;place-items:center;cursor:pointer}
@@ -108,8 +107,9 @@ const CSS = `
 .auth-sent svg{color:#5D7A2E}
 .auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
 .auth-foot svg{flex:0 0 auto;margin-top:2px}
-@media(max-width:520px){.auth-wrap{align-items:flex-start;min-height:100dvh;padding:78px 12px 32px;overflow-x:hidden;overflow-y:auto}.auth-card{padding:28px 20px;box-shadow:6px 6px 0 #ff6f59;border-radius:20px}.auth-back{top:15px;left:12px}.auth-title{width:155px}.auth-tabs{margin-bottom:15px}.auth-legal-modal{padding:7px}.auth-legal-dialog{height:96dvh;border-radius:16px;box-shadow:4px 4px 0 #cdf564}.auth-legal-head{padding:10px 12px}.auth-consents{padding:11px}.auth-btn{min-height:46px}}
-.auth-back,.auth-card,.auth-plan,.auth-input,.auth-tabs,.auth-remember input,.auth-legal-dialog,.auth-legal-close,.auth-btn{border-width:1px;border-color:#14160f24}.auth-card,.auth-legal-dialog{box-shadow:0 18px 46px #14160f18}.auth-legal-head{border-bottom-width:1px;border-bottom-color:#14160f1f}.auth-error{border-width:1px}
+@media(max-width:720px){.auth-wrap{display:block;min-height:100dvh;padding:78px 12px 32px;overflow-x:clip;overflow-y:visible}.auth-card{margin:0 auto}.auth-back{top:15px;left:12px}}
+@media(max-width:520px){.auth-card{padding:28px 20px;box-shadow:6px 6px 0 #ff6f59;border-radius:20px}.auth-title{width:155px}.auth-tabs{margin-bottom:15px}.auth-legal-modal{padding:7px}.auth-legal-dialog{height:96dvh;border-radius:16px;box-shadow:4px 4px 0 #cdf564}.auth-legal-head{padding:10px 12px}.auth-consents{padding:11px}.auth-btn{min-height:46px}}
+.auth-back,.auth-card,.auth-input,.auth-tabs,.auth-remember input,.auth-legal-dialog,.auth-legal-close,.auth-btn{border-width:1px;border-color:#14160f24}.auth-card,.auth-legal-dialog{box-shadow:0 18px 46px #14160f18}.auth-legal-head{border-bottom-width:1px;border-bottom-color:#14160f1f}.auth-error{border-width:1px}
 `;
 
 export function useSession() {
@@ -413,13 +413,6 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       </a>
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
-        {kayitModu && (
-          <div className="auth-plan">
-            <span>Yeni hesap avantajı</span>
-            <strong>30 gün Pro denemesi</strong>
-            <span>Kart gerekmez</span>
-          </div>
-        )}
         <div className="auth-welcome">
           {kayitModu
             ? "Ücretsiz hesabını oluştur"
@@ -606,13 +599,16 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                   {!referansAcik && referansKodu && <small>Kod eklendi</small>}
                   <ChevronDown size={15}/>
                 </button>
-                {referansAcik && <div className="auth-referral" id="referans-kodu-alani">
+                <div className={`auth-referral-collapse ${referansAcik ? "acik" : ""}`} aria-hidden={!referansAcik}>
+                  <div className="auth-referral-collapse-inner">
+                    <div className="auth-referral" id="referans-kodu-alani">
                     <div className="auth-referral-head">Referans kodu <span style={{fontWeight:500,color:"#777a6d"}}>(isteğe bağlı)</span></div>
                     <input
                       className="auth-input"
                       type="text"
                       inputMode="text"
                       autoComplete="off"
+                      tabIndex={referansAcik ? undefined : -1}
                       placeholder="Örn. BRCM7K4M2Q"
                       value={referansKodu}
                       onChange={(event) => {
@@ -625,7 +621,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
                     <span id="referans-kodu-durumu" className={`auth-referral-state ${referansDurumu}`}>
                       {referansDurumu === "checking" ? "Kod kontrol ediliyor…" : referansDurumu === "valid" ? "Davet kodu uygulandı. E-postanı doğruladığında ikiniz de 30 gün Pro kazanacaksınız." : referansDurumu === "invalid" ? "Bu kod bulunamadı. Kodu düzeltebilir veya boş bırakarak devam edebilirsin." : referansDurumu === "unknown" ? "Kod şu anda kontrol edilemedi; üyeliğin yine de oluşturulabilir." : "Bir arkadaşın davet ettiyse kalıcı kodunu buraya yazabilirsin."}
                     </span>
-                  </div>}
+                    </div>
+                  </div>
+                </div>
               </>
             )}
             <div className="auth-help">

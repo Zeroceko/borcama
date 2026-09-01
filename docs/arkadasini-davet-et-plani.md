@@ -21,10 +21,10 @@ Kullanıcıya verilecek söz:
 |---|---|
 | Aktif Pro denemesi | Mevcut deneme bitiş tarihine 30 gün eklenir. |
 | Denemesi bitmiş veya Ücretsiz | Doğrulama anından başlayan 30 günlük Pro erişimi açılır. |
-| Aktif ücretli Pro | Ödül bekleyen hak olarak saklanır; ücretli erişim sona erdiğinde 30 gün olarak devreye girer. |
+| Aktif ücretli Pro | Sıradaki yenileme bir ödül süresi kadar ertelenir; kullanıcı bu sürede Pro'yu ödülden kullanır ve tahsilat daha sonra otomatik devam eder. |
 | Pro erişimi yönetici tarafından kaldırılmış | Otomatik ödül verilmez; CRM incelemesine düşer. |
 
-Ücretli aboneliğin Paddle/RevenueCat yenileme tarihini referans ödülü nedeniyle değiştirmemek gerekir. Böylece ödeme sağlayıcısıyla Borcama hakkı çelişmez.
+Ücretli abonelikte Paddle'ın planlı duraklatma ve otomatik devam tarihi kullanılır. Kullanıcının mevcut dönem erişimine dokunulmaz; bir sonraki tahsilat 30 gün ertelenir. Abonelikte iptal veya başka bir planlı değişiklik varsa otomasyon bunu ezmez ve kaydı CRM incelemesine taşır.
 
 ## Kullanıcı akışı
 
@@ -166,6 +166,6 @@ GA4'e yalnız olay adı ve genel kaynak bilgisi gönderilir. Referans kodu, kull
 - Kullanıcı aynı davet ekranını tekrar açtığında yeni kod değil aynı kalıcı kodu görür.
 - Davet bağlantısı ve elle girilen kod aynı davet ilişkisini üretir.
 - Geçersiz kod üyeliği engellemez ve kod sahibine ilişkin bilgi sızdırmaz.
-- Ücretli Pro aboneliğinin Paddle/RevenueCat yenileme tarihi değiştirilmez.
+- Ücretli Pro kullanıcısının sıradaki tahsilatı tam 30 gün ertelenir ve ödül sonrası otomatik yenileme devam eder.
 - Referral kodu ve kullanıcı tanımlayıcıları Google ölçümüne gönderilmez.
 - CRM'de her ödülün nedeni, tarihi ve durumu denetlenebilir.

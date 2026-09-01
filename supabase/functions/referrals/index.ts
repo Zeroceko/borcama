@@ -83,7 +83,7 @@ Deno.serve(async (request) => {
 
   const [{ data: invitations, error: invitationError }, { data: rewards, error: rewardError }] = await Promise.all([
     admin.from("referrals").select("id,status,attributed_at,verified_at,rewarded_at,risk_reason").eq("referrer_user_id", user.id).order("created_at", { ascending: false }),
-    admin.from("referral_rewards").select("id,status,days,role,starts_at,ends_at,applied_at").eq("user_id", user.id).order("created_at", { ascending: false }),
+    admin.from("referral_rewards").select("id,status,days,role,starts_at,ends_at,applied_at,billing_pause_status,billing_pause_effective_at,billing_resume_at").eq("user_id", user.id).order("created_at", { ascending: false }),
   ]);
   if (invitationError || rewardError)
     return new Response(JSON.stringify({ error: "REFERRAL_STATUS_UNAVAILABLE" }), { status: 500, headers });
@@ -99,7 +99,10 @@ Deno.serve(async (request) => {
       rewarded: (invitations || []).filter((item) => item.status === "rewarded").length,
       review: (invitations || []).filter((item) => item.status === "review").length,
       earnedDays: rewardRows.filter((item) => item.status === "applied").reduce((sum, item) => sum + Number(item.days || 0), 0),
-      pendingDays: rewardRows.filter((item) => item.status === "pending").reduce((sum, item) => sum + Number(item.days || 0), 0),
+      pendingDays: rewardRows.filter((item) => item.status === "pending" && item.billing_pause_status !== "scheduled").reduce((sum, item) => sum + Number(item.days || 0), 0),
+      billingScheduledDays: rewardRows.filter((item) => item.status === "applied" && item.billing_pause_status === "scheduled").reduce((sum, item) => sum + Number(item.days || 0), 0),
+      billingResumeAt: rewardRows.filter((item) => item.status === "applied" && item.billing_pause_status === "scheduled" && item.billing_resume_at)
+        .map((item) => item.billing_resume_at).sort().at(-1) || null,
     },
     invitations: (invitations || []).map((item) => ({
       id: item.id,

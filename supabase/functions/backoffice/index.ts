@@ -173,7 +173,7 @@ async function referralOverview(
   if (error) return { available: false, summary: {}, items: [] };
   const ids = (rows || []).map((row) => row.id);
   const { data: rewards } = ids.length
-    ? await admin.from("referral_rewards").select("referral_id,user_id,role,days,status,starts_at,ends_at,applied_at").in("referral_id", ids)
+    ? await admin.from("referral_rewards").select("referral_id,user_id,role,days,status,starts_at,ends_at,applied_at,billing_pause_status,paddle_subscription_id,billing_pause_effective_at,billing_resume_at,billing_error").in("referral_id", ids)
     : { data: [] };
   const items = (rows || []).map((row) => ({
     ...row,

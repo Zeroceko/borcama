@@ -47,6 +47,11 @@ create table if not exists public.referral_rewards (
   ends_at timestamptz,
   applied_at timestamptz,
   email_sent_at timestamptz,
+  billing_pause_status text not null default 'pending' check (billing_pause_status in ('pending', 'not_required', 'scheduled', 'completed', 'failed', 'review')),
+  paddle_subscription_id text,
+  billing_pause_effective_at timestamptz,
+  billing_resume_at timestamptz,
+  billing_error text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (referral_id, user_id),
@@ -164,7 +169,9 @@ begin
 
   update public.referral_rewards
   set status = 'applied', starts_at = start_at, ends_at = end_at,
-      applied_at = now(), updated_at = now()
+      applied_at = now(),
+      billing_pause_status = case when billing_pause_status = 'pending' then 'not_required' else billing_pause_status end,
+      updated_at = now()
   where id = reward.id;
   update public.referrals
   set status = 'rewarded', rewarded_at = coalesce(rewarded_at, now()), updated_at = now()
@@ -276,6 +283,9 @@ begin
   on conflict (referral_id, user_id) do nothing;
 
   if reward_status = 'review' then
+    update public.referral_rewards
+    set billing_pause_status = 'review', updated_at = now()
+    where referral_id = referral.id;
     return;
   end if;
 
@@ -367,7 +377,7 @@ begin
         reviewed_by = target_admin_id, updated_at = now()
     where id = target_referral_id and status = 'review';
     update public.referral_rewards
-    set status = 'pending', updated_at = now()
+    set status = 'pending', billing_pause_status = 'pending', billing_error = null, updated_at = now()
     where referral_id = target_referral_id and status = 'review';
     for item in
       select id from public.referral_rewards
@@ -382,7 +392,7 @@ begin
         updated_at = now()
     where id = target_referral_id and status = 'review';
     update public.referral_rewards
-    set status = 'revoked', updated_at = now()
+    set status = 'revoked', billing_pause_status = 'review', updated_at = now()
     where referral_id = target_referral_id and status = 'review';
   end if;
 end;
