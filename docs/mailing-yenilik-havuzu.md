@@ -41,7 +41,8 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Durum: Taslak; gönderilmedi.
 - Hedef kitle: E-posta adresini doğrulamış tüm üyeler.
 - Önizleme metni: `Ekstrelerini yönet, taksitlerini doğru aylarda gör ve borç kapatma planını oluştur.`
-- Ana CTA: `Yenilikleri gör`
+- Ana CTA: `Yenilikleri hesabımda gör`
+- Görsel yön: Koyu yeşil, lime ve mercan hero; her önemli yenilik için farklı renkli numaralı kart; tek güçlü CTA.
 - Hedef: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ana_cta`
 - Hariç tutulacaklar: E-posta doğrulaması olmayan, iletişimden çıkan, şikâyet/bounce kaydı bulunan ve bu kampanyayı daha önce alan kullanıcılar.
 - Gönderim öncesi zorunlu kontrol: `ozerocek@gmail.com` adresine test gönderimi, masaüstü/mobil önizleme, Resend domain durumu, açılma/tıklama webhook'u ve hedef URL.

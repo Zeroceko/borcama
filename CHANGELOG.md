@@ -10,7 +10,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Yenilik e-postası teknik ve ikincil ayrıntılar yerine ekstre arşivi, taksit dağılımı, borç kapatma planı ve sadeleşen ana ekranlar gibi kullanıcıların doğrudan görebileceği önemli geliştirmeleri anlatacak şekilde yenilendi.
+- Yenilik e-postası teknik ayrıntılar yerine kullanıcıların doğrudan görebileceği önemli geliştirmeleri anlatan renkli bir hero, birbirinden ayrılan özellik kartları ve daha güçlü bir ana aksiyonla yenilendi.
 
 ## [1.35.0] - 2026-09-01
 

@@ -8,6 +8,12 @@ const ozellikSatiri = (baslik: string, metin: string, renk: string) => `
 <td style="padding:17px 18px"><div style="font-size:16px;line-height:1.35;font-weight:800;color:#14160f">${htmlEscape(baslik)}</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:#55584c">${htmlEscape(metin)}</div></td>
 </tr></table></td></tr>`;
 
+const duyuruKarti = (sira: string, baslik: string, metin: string, zemin: string, vurgu: string) => `
+<tr><td style="padding:0 0 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:${zemin};border:1px solid ${vurgu};border-radius:22px;overflow:hidden"><tr>
+<td width="62" valign="top" style="padding:20px 0 20px 20px"><span style="display:block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:13px;background:${vurgu};color:#14160f;font-size:15px;font-weight:900">${htmlEscape(sira)}</span></td>
+<td style="padding:20px 22px 20px 14px"><div style="font-size:18px;line-height:1.25;font-weight:900;color:#14160f">${htmlEscape(baslik)}</div><div style="margin-top:7px;font-size:14px;line-height:1.55;color:#505348">${htmlEscape(metin)}</div></td>
+</tr></table></td></tr>`;
+
 function cerceve(icerik: string, altMetin = "Bu e-posta Borcama hesabınla ilgili gönderildi.") {
   return `<!doctype html><html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
 <body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:28px 12px">
@@ -70,15 +76,17 @@ ${ozellikSatiri("Ödemeyi borcun yanında kaydet", "Asgari, kısmi veya tam öde
 
 export function surum133DuyuruHtml(url: string) {
   return cerceve(`<div style="display:none;max-height:0;overflow:hidden;color:transparent">Ekstrelerini yönet, taksitlerini doğru aylarda gör ve borç kapatma planını oluştur.</div>
-<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Siz istediniz, biz yaptık.</h1>
-<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">Borcama'da doğrudan görebileceğin ve hemen kullanabileceğin önemli yenilikler var.</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;background:#073b2d;border-radius:24px;overflow:hidden;box-shadow:8px 8px 0 #ff6c5c"><tr><td style="padding:34px 30px">
+<div style="font-size:39px;line-height:1.05;letter-spacing:-1.5px;font-weight:900;color:#fff">Siz istediniz.<br><span style="color:#cdf564">Biz yaptık.</span></div>
+<p style="color:#dcebe5;font-size:16px;line-height:1.55;margin:17px 0 0">Borcama'da doğrudan görebileceğin ve hemen kullanabileceğin önemli yenilikler var.</p>
+</td></tr></table>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-${ozellikSatiri("Ekstreni istediğin şekilde ekle", "Ekstreni cihazında okutabilir veya bilgileri manuel girebilirsin. Ham dosyan Borcama'ya yüklenmez.", "#eef8d0")}
-${ozellikSatiri("Geçmiş ekstrelerini yönet", "Ekstre arşivinden eski kayıtlarını görebilir, yanlış karta eklenen ekstreyi taşıyabilir veya silebilirsin.", "#e5f1ee")}
-${ozellikSatiri("Taksitleri gerçek aylarında gör", "Taksitli harcamanın tamamı tek aya yazılmaz; her taksit ödeneceği ekstre dönemine dağıtılır.", "#fff0ec")}
-${ozellikSatiri("Borçlarını kapatma sırasını planla", "Gelirin, kredi taksitlerin, yaşam giderlerin ve faiz yükün birlikte hesaplanır; hangi borca önce yönelmenin etkisini görürsün.", "#f3eafa")}
-${ozellikSatiri("Daha sade bir Borcama kullan", "Bugün ve Borçlar ekranları gereksiz ayrıntılar azaltılarak sıradaki önemli aksiyonunu daha net gösterecek şekilde yenilendi.", "#fff7d6")}
-</table>${buton(url, "Yenilikleri gör")}
+${duyuruKarti("01", "Ekstreni istediğin şekilde ekle", "Cihazında okut veya bilgileri manuel gir. Ham ekstre dosyan Borcama'ya yüklenmez.", "#effbd8", "#b9ea4f")}
+${duyuruKarti("02", "Geçmiş ekstrelerini yönet", "Eski kayıtlarını gör; yanlış karta eklenen ekstreyi taşı veya ihtiyacın yoksa sil.", "#e6f4f1", "#9fd7ce")}
+${duyuruKarti("03", "Taksitleri gerçek aylarında gör", "Taksitli harcamanın tamamı tek aya yazılmaz. Her taksit ödeneceği döneme dağıtılır.", "#fff0ec", "#ff8a78")}
+${duyuruKarti("04", "Borçlarını kapatma sırasını planla", "Gelirin, taksitlerin, yaşam giderlerin ve faiz yükün birlikte hesaplanır. Önce hangi borca yönelmenin etkisini görürsün.", "#f3eafa", "#d6b8ef")}
+${duyuruKarti("05", "Daha sade bir Borcama kullan", "Bugün ve Borçlar ekranları artık sıradaki önemli aksiyonunu daha net gösteriyor.", "#fff7d6", "#f2d25f")}
+</table><div style="padding:2px 7px 7px"><a href="${htmlEscape(url)}" style="display:block;margin-top:22px;padding:17px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900;box-shadow:6px 6px 0 #ff6c5c">Yenilikleri hesabımda gör →</a></div>
 <p style="margin:16px 0 0;color:#85877d;font-size:12px;line-height:1.55;text-align:center">Hesabındaki kayıtları yalnızca sen görebilirsin.</p>`);
 }
 
