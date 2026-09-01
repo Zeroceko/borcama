@@ -1,6 +1,6 @@
 # Borcama çalışma kuralları
 
-Bu klasörde çalışan her ajan, işe başlamadan önce `CHANGELOG.md`, `package.json` ve `docs/surum-ve-yayin-sureci.md` dosyalarını okumalıdır.
+Bu klasörde çalışan her ajan, işe başlamadan önce `CHANGELOG.md`, `package.json`, `docs/surum-ve-yayin-sureci.md` ve `docs/ajan-rolleri.md` dosyalarını okumalıdır.
 
 ## Değişiklik kaydı zorunluluğu
 
@@ -27,4 +27,3 @@ Bir sürüm canlıya hazırlanırken:
 5. Mailing havuzundaki yayımlanan maddelere sürüm numarasını ekle; aynı yeniliği ikinci kez duyurma.
 
 Sürüm numarasını sessizce veya yalnızca commit mesajına dayanarak değiştirme. Büyük sürümü kullanıcı onayı olmadan yükseltme.
-
