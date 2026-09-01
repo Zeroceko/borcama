@@ -1,10 +1,10 @@
 const BANK_PROFILES = [
-  { bank: "Halkbank", brand: "Paraf", tokens: ["halkbank", "paraf"] },
-  { bank: "TEB", brand: "SHE", tokens: ["teb", "turk ekonomi bankasi", "she kredi"] },
-  { bank: "Garanti BBVA", brand: "Bonus", tokens: ["garanti bbva", "bonus trink", "bonus"] },
-  { bank: "Akbank", brand: "Axess", tokens: ["akbank", "axess"] },
-  { bank: "VakıfBank", brand: "World", tokens: ["vakifbank", "vakif bank", "world"] },
-  { bank: "Enpara", brand: "Enpara", tokens: ["enpara", "en para"] },
+  { bank: "Halkbank", brand: "Paraf", issuerTokens: ["halkbank"], brandTokens: ["paraf"] },
+  { bank: "TEB", brand: "SHE", issuerTokens: ["turk ekonomi bankasi", "teb"], brandTokens: ["she kredi"] },
+  { bank: "Garanti BBVA", brand: "Bonus", issuerTokens: ["garanti bbva", "turkiye garanti bankasi", "garanti bankasi"], brandTokens: ["bonus trink", "bonus"] },
+  { bank: "Akbank", brand: "Axess", issuerTokens: ["akbank"], brandTokens: ["axess"] },
+  { bank: "VakıfBank", brand: "World", issuerTokens: ["vakifbank", "vakif bank"], brandTokens: ["world"] },
+  { bank: "Enpara", brand: "Enpara", issuerTokens: ["enpara bank", "enpara.com", "enpara", "en para"], brandTokens: [] },
 ];
 
 const FIELD_ALIASES = {
@@ -199,15 +199,41 @@ function isoDate(date) {
 
 function detectBank(text) {
   const normalized = normalizeStatementText(text);
-  let best = null;
+  const firstPage = normalized.split(/---\s*(?:sayfa|ocr)\s*---/, 1)[0];
+  const printedPageEnd = firstPage.search(/\bsayfa\s*1\s*\/\s*\d+\b/);
+  // Banka kimligi yalniz ilk sayfanin ust bolumunden gelir. Boylece islem
+  // aciklamalari, dipnotlar ve sonraki sayfalardaki marka adlari sonucu
+  // degistiremez.
+  const bankScope = (printedPageEnd >= 0 ? firstPage.slice(0, printedPageEnd) : firstPage)
+    .slice(0, 2600);
+  const header = bankScope
+    .split(/\b(?:islem tarihi|donem ici islemler)\b/, 1)[0]
+    .slice(0, 2200);
+  const tokenCount = (haystack, token) => {
+    const pattern = escapeRegex(token).replace(/\\ /g, "[\\s._-]+");
+    return [...haystack.matchAll(new RegExp(`(?:^|[^a-z0-9])${pattern}(?=$|[^a-z0-9])`, "g"))].length;
+  };
+  const scored = [];
   for (const profile of BANK_PROFILES) {
-    const score = profile.tokens.reduce(
-      (total, token) => total + (normalized.includes(token) ? 1 : 0),
+    // Kurum adı ilk sayfanin ust bolumunde güçlü kanıttır. Bonus/World gibi kart
+    // markaları ise işlem açıklamasında veya işyeri adında geçebildiği için
+    // yalnız özet başlığında ve daha düşük ağırlıkla değerlendirilir.
+    const issuerScore = profile.issuerTokens.reduce(
+      (total, token) => total + Math.min(tokenCount(bankScope, token), 3) * 100,
       0,
     );
-    if (!best || score > best.score) best = { ...profile, score };
+    const brandScore = profile.brandTokens.reduce(
+      (total, token) => total + Math.min(tokenCount(header, token), 2) * 10,
+      0,
+    );
+    const score = issuerScore + brandScore;
+    scored.push({ ...profile, score });
   }
-  return best?.score > 0 ? best : { bank: "", brand: "", score: 0 };
+  scored.sort((left, right) => right.score - left.score);
+  const best = scored[0];
+  if (!best?.score || scored[1]?.score === best.score)
+    return { bank: "", brand: "", score: 0 };
+  return best;
 }
 
 function findCardLast4(text) {
@@ -222,6 +248,7 @@ function findCardLast4(text) {
 function parseEnparaSummaryTable(text) {
   const lines = normalizeStatementText(text).split(/\n/);
   const moneyPattern = /[-+]?\s*\d{1,3}(?:[.\s]\d{3})*,\d{2}\s*(?:tl)?/gi;
+  let invalidEquation = false;
   for (let index = 0; index < lines.length; index += 1) {
     // Enpara's column names wrap across several OCR lines. Treat the whole
     // header block as one unit instead of depending on a particular wrap.
@@ -233,16 +260,27 @@ function parseEnparaSummaryTable(text) {
         .map((match) => parseMoney(match[0]))
         .filter((value) => value !== null);
       if (values.length < 5) continue;
+      const previousBalance = values[0];
+      const periodPayments = Math.abs(values[1]);
+      const currentPurchases = values[2] + (values.length >= 6 ? values[3] : 0);
+      const fees = values.at(-2);
+      const statementTotal = values.at(-1);
+      const equationTotal = previousBalance - periodPayments + currentPurchases + fees;
+      const tolerance = Math.max(1, Math.abs(statementTotal) * 0.005);
+      if (Math.abs(equationTotal - statementTotal) > tolerance) {
+        invalidEquation = true;
+        continue;
+      }
       return {
-        previousBalance: values[0],
-        periodPayments: Math.abs(values[1]),
-        currentPurchases: values[2],
-        fees: values.length >= 6 ? values.at(-2) : values.at(-1),
-        statementTotal: values.length >= 6 ? values.at(-1) : null,
+        previousBalance,
+        periodPayments,
+        currentPurchases,
+        fees,
+        statementTotal,
       };
     }
   }
-  return null;
+  return invalidEquation ? { invalid: true } : null;
 }
 
 function amountsAfterLine(text, label, maxLines = 8) {
@@ -375,12 +413,16 @@ function parseAkbankPayments(text, previousBalance) {
 
 export function parseStatementText(text, options = {}) {
   const recoveredFields = new Set();
+  const profileErrors = [];
   const profile = detectBank(text);
   const statementDate =
     dateNearAlias(text, ["hesap kesim tarihi", "ekstre tarihi", "ekstre tari"]) ||
     dateNearAlias(text, ["ekstre donemi"], true);
   const dueDate = dateNearAlias(text, ["son odeme tarihi"]);
-  const nextStatementDate = dateNearAlias(text, ["bir sonraki hesap kesim tarihi"]);
+  const nextStatementDate = dateNearAlias(text, [
+    "bir sonraki hesap kesim tarihi",
+    "bir sonraki ekstrenizin tarihi",
+  ]);
   const totalAliases =
     profile.bank === "Halkbank"
       ? ["hesap bakiyesi", "donem borcu", "ekstre borcu"]
@@ -399,7 +441,11 @@ export function parseStatementText(text, options = {}) {
 
   if (profile.bank === "Enpara") {
     const table = parseEnparaSummaryTable(text);
-    if (table) {
+    if (table?.invalid) {
+      profileErrors.push(
+        "Enpara özetindeki tutarlar birbiriyle uyuşmuyor; kaydetmeden önce ekstre rakamlarını kontrol edin.",
+      );
+    } else if (table) {
       statementTotal = table.statementTotal ?? statementTotal;
       previousBalance = table.previousBalance;
       periodPayments = table.periodPayments;
@@ -509,17 +555,20 @@ export function parseStatementText(text, options = {}) {
       "OCR bazı tutarlardaki kuruş ayıracını kaybetti; son iki hane kuruş kabul edilerek düzeltildi. Kaydetmeden önce rakamları kontrol edin.",
     );
 
-  const blockingErrors = validateStatementResult({
-    statementDate: isoDate(statementDate),
-    dueDate: isoDate(dueDate),
-    statementTotal,
-    minimumPayment,
-    creditLimit,
-    previousBalance,
-    periodPayments,
-    currentPurchases,
-    fees,
-  });
+  const blockingErrors = [
+    ...validateStatementResult({
+      statementDate: isoDate(statementDate),
+      dueDate: isoDate(dueDate),
+      statementTotal,
+      minimumPayment,
+      creditLimit,
+      previousBalance,
+      periodPayments,
+      currentPurchases,
+      fees,
+    }),
+    ...profileErrors,
+  ];
 
   const confidenceParts = [
     profile.bank ? 20 : 0,

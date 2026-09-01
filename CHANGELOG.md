@@ -22,6 +22,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Arkadaşını davet et kartının mobil aksiyonları kompaktlaştırıldı ve kampanya kullanıcının Bugün ekranına sade bir davet bandı olarak eklendi.
 - Kayıt ekranındaki tekrar eden avantaj şeridi kaldırıldı, referans alanının açılışı yumuşatıldı ve Bugün ekranındaki gereksiz dikey boşluk azaltıldı.
 
+### Düzeltildi
+
+- Enpara ekstrelerindeki işyeri adında geçen “Bonus” ifadesinin kartı Garanti olarak tanıtması engellendi; ekstre borcu, ödemeler, yeni dönem işlemleri ve ücretler Enpara özet denkleminden doğrulanarak ayrıştırılıyor.
+
 ## [1.35.1] - 2026-09-01
 
 ### Değiştirildi

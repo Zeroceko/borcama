@@ -150,3 +150,62 @@ Bir onceki ekstre borcu Odemeler Harcamalar ve yansiyan taksitler Nakit avans Ar
     },
   );
 });
+
+test("Enpara islem aciklamasindaki Bonus kelimesini Garanti sanmaz", () => {
+  const result = parseStatementText(`Kredi Kartı Ekstresi
+Ekstre tarihi 23/08/2026
+Ekstre borcu 10.797,05 TL
+Minimum ödeme tutarı 2.160,00 TL
+Son ödeme tarihi 02/09/2026
+Kart numarası 5269 11** **** 9619
+Kart limiti 50.000,00 TL
+Bir önceki ekstre borcu Ödemeler Harcamalar ve yansıyan taksitler Nakit avans / Artı bakiye transferi Faiz, vergiler, ücretler ve diğer Ekstre borcu
+13.666,66 TL 13.666,66 TL 10.549,96 TL 0,00 TL 247,09 TL 10.797,05 TL
+22/08/2026 BONUSPARKORMAN 1.600,00 TL
+Bir sonraki ekstrenizin tarihi 23/09/2026, son ödeme tarihi ise 05/10/2026'dır.
+Enpara Bank A.Ş.`);
+
+  assert.equal(result.bank, "Enpara");
+  assert.equal(result.cardBrand, "Enpara");
+  assert.equal(result.cardLast4, "9619");
+  assert.equal(result.statementTotal, 10797.05);
+  assert.equal(result.minimumPayment, 2160);
+  assert.equal(result.creditLimit, 50000);
+  assert.equal(result.previousBalance, 13666.66);
+  assert.equal(result.periodPayments, 13666.66);
+  assert.equal(result.currentPurchases, 10549.96);
+  assert.equal(result.fees, 247.09);
+  assert.equal(result.carriedBalance, 0);
+  assert.equal(result.currentPeriodDebt, 10797.05);
+  assert.equal(result.nextStatementDate, "2026-09-23");
+  assert.deepEqual(result.blockingErrors, []);
+});
+
+test("banka taniminda sonraki sayfalari ve islem satirlarini kullanmaz", () => {
+  const result = parseStatementText(`Kredi Kartı Ekstresi
+Ekstre tarihi 23/08/2026
+Ekstre borcu 1.000,00 TL
+Minimum ödeme tutarı 200,00 TL
+Son ödeme tarihi 02/09/2026
+İşlem tarihi Açıklama Tutar
+22/08/2026 BONUS MARKET 1.000,00 TL
+--- SAYFA ---
+Garanti BBVA Bonus kampanya koşulları`);
+
+  assert.equal(result.bank, "");
+  assert.equal(result.cardBrand, "");
+  assert.ok(result.warnings.includes("Banka otomatik tanınamadı."));
+});
+
+test("Enpara ozet denklemi tutmuyorsa kaydi engeller", () => {
+  const result = parseStatementText(`Enpara Bank A.Ş. Kredi Kartı Ekstresi
+Ekstre tarihi 23/08/2026
+Ekstre borcu 10.797,05 TL
+Minimum ödeme tutarı 2.160,00 TL
+Son ödeme tarihi 02/09/2026
+Bir önceki ekstre borcu Ödemeler Harcamalar ve yansıyan taksitler Nakit avans / Artı bakiye transferi Faiz, vergiler, ücretler ve diğer Ekstre borcu
+13.666,66 TL 1.000,00 TL 10.549,96 TL 0,00 TL 247,09 TL 10.797,05 TL`);
+
+  assert.equal(result.bank, "Enpara");
+  assert.ok(result.blockingErrors.some((error) => error.includes("birbiriyle uyuşmuyor")));
+});
