@@ -36,10 +36,11 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 `Siz istediniz, biz yaptık: Borcama'daki önemli yenilikler`
 
-## v1.33 kampanya hazırlığı
+## 1 Eylül 2026 yenilik kampanyası
 
-- Durum: Taslak; gönderilmedi.
-- Hedef kitle: E-posta adresini doğrulamış tüm üyeler.
+- Yayın sürümü: `v1.35.1`
+- Durum: Marketing ekranında gönderime hazır; toplu gönderim yapılmadı.
+- Hedef kitle: E-posta adresini doğrulamış, iletişim engeli bulunmayan ve bu kampanyayı daha önce almamış üyeler.
 - Önizleme metni: `Ekstrelerini yönet, taksitlerini doğru aylarda gör ve borç kapatma planını oluştur.`
 - Ana CTA: `Yenilikleri hesabımda gör`
 - Görsel yön: Koyu yeşil, lime ve mercan hero; her önemli yenilik için farklı renkli numaralı kart; tek güçlü CTA.

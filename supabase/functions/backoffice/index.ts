@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { denemeDavetHtml, konuGuvenli, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
+import { denemeDavetHtml, konuGuvenli, surum133DuyuruHtml, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
 import { borcToplamlariniHesapla, guvenliSayi, gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const izinliOriginler = new Set([
@@ -81,6 +81,7 @@ async function takipliKampanyaGonder(
       from: "Borcama <zero@borcama.com>", to: [target.email], reply_to: "zero@borcama.com",
       subject: campaign.subject, html: html(track),
       tags: [{ name: "campaign", value: campaign.slug }, { name: "delivery", value: deliveryId }],
+      headers: { "List-Unsubscribe": `<mailto:zero@borcama.com?subject=Abonelikten%20ayril>` },
     }),
   });
   const result = await response.json().catch(() => ({}));
@@ -187,6 +188,62 @@ async function yeniOzelliklerDuyurusuGonder(
   return gonderilen;
 }
 
+type KampanyaKullanicisi = {
+  id: string;
+  email?: string;
+  email_confirmed_at?: string | null;
+  app_metadata?: Record<string, unknown>;
+  user_metadata?: Record<string, unknown>;
+};
+
+function iletisimdenCikmis(user: KampanyaKullanicisi) {
+  const metadata = { ...(user.app_metadata || {}), ...(user.user_metadata || {}) };
+  return metadata.marketing_opt_out === true ||
+    metadata.email_opt_out === true ||
+    metadata.communication_opt_out === true;
+}
+
+async function surum133Hedefleri(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: KampanyaKullanicisi[],
+) {
+  const campaign = await kampanyaGetir(admin, "features-v1-33");
+  if (campaign.status !== "active") throw new Error("CAMPAIGN_NOT_ACTIVE");
+  const [{ data: mevcutlar, error: mevcutHatasi }, { data: engellenenler, error: engelHatasi }] = await Promise.all([
+    admin.from("marketing_deliveries").select("user_id,status").eq("campaign_id", campaign.id),
+    admin.from("marketing_deliveries").select("user_id,status").in("status", ["bounced", "complained"]),
+  ]);
+  if (mevcutHatasi || engelHatasi) throw new Error("DELIVERIES_UNAVAILABLE");
+  const dahaOnceGonderilen = new Set(
+    (mevcutlar || []).filter((x) => x.user_id && x.status !== "failed").map((x) => x.user_id),
+  );
+  const teslimatiEngellenen = new Set((engellenenler || []).filter((x) => x.user_id).map((x) => x.user_id));
+  const hedefler = kullanicilar
+    .filter((u) => u.email && u.email_confirmed_at)
+    .filter((u) => !iletisimdenCikmis(u) && !teslimatiEngellenen.has(u.id) && !dahaOnceGonderilen.has(u.id))
+    .map((u) => ({ user_id: u.id, email: String(u.email).trim().toLowerCase() }));
+  return { campaign, hedefler };
+}
+
+async function surum133DuyurusuGonder(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: KampanyaKullanicisi[],
+) {
+  const { campaign, hedefler } = await surum133Hedefleri(admin, kullanicilar);
+  let gonderilen = 0;
+  for (const hedef of hedefler) {
+    const sent = await takipliKampanyaGonder(
+      admin,
+      campaign,
+      hedef,
+      (url) => surum133DuyuruHtml(url),
+      "/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ana_cta",
+    );
+    if (sent) gonderilen += 1;
+  }
+  return gonderilen;
+}
+
 async function denemeDuyurusuGonder(
   admin: ReturnType<typeof createClient>,
   kullanicilar: Array<{ id: string; email?: string }>,
@@ -282,6 +339,16 @@ Deno.serve(async (req) => {
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await yeniOzelliklerDuyurusuGonder(admin, kullanicilar);
+        return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
+        return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
+      }
+    }
+    if (action === "send_release_133_announcement") {
+      try {
+        const kullanicilar = await tumKullanicilariGetir(admin);
+        const sent = await surum133DuyurusuGonder(admin, kullanicilar);
         return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
       } catch (error) {
         const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
@@ -405,7 +472,13 @@ Deno.serve(async (req) => {
     trial_active: satirlar.filter((x) => x.trial_active).length,
     trial_unannounced: satirlar.filter((x) => x.trial_active && !x.trial_announcement_sent_at).length,
     features_unannounced: satirlar.filter((x) => !x.features_announcement_sent_at && x.email_confirmed_at).length,
+    release_133_unannounced: 0,
   };
+
+  try {
+    const { hedefler } = await surum133Hedefleri(admin, kullanicilar);
+    ozet.release_133_unannounced = hedefler.length;
+  } catch { /* Kampanya canlı değilse gönderim sayısı sıfır kalır. */ }
 
   const istenenKullaniciId = new URL(req.url).searchParams.get("userId");
   if (istenenKullaniciId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(istenenKullaniciId)) {

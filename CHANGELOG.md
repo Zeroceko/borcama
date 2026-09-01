@@ -8,9 +8,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Henüz yayımlanmamış değişiklik yok.
 
+## [1.35.1] - 2026-09-01
+
 ### Değiştirildi
 
 - Yenilik e-postası önemli geliştirmeleri anlatan renkli bir hero, özellik kartları ve güçlü ana aksiyonlarla yenilendi; gerçek “Görüş bildir” butonu görseli kullanıcıyı geri bildirim formuna yönlendiriyor ve iletişim metni soru, görüş ve önerileri kapsıyor.
+- Tarihli yenilik kampanyası Marketing ekranında uygun alıcı sayısı, iki aşamalı gönderim onayı ve geçmiş teslimat engellerini dikkate alan hedeflemeyle kullanıma açıldı.
 
 ## [1.35.0] - 2026-09-01
 
@@ -84,6 +87,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - VakıfBank ekstrelerinde metin katmanı OCR'dan önce okunarak kesim tarihi ve asgari tutar yakalama güvenilirliği artırıldı.
 - Kredi kartı ödeme ve ek hesap kapatma formlarının açıldığı kayıtla aynı yerde kalması sağlandı.
 
+[1.35.1]: https://github.com/Zeroceko/borcama/releases/tag/v1.35.1
 [1.35.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.35.0
 [1.34.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.34.0
 [1.33.1]: https://github.com/Zeroceko/borcama/releases/tag/v1.33.1
