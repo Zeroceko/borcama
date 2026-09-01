@@ -48,6 +48,6 @@ E-posta adresinle giriş yaptığında verilerine telefon, tablet veya bilgisaya
 
 ## Sürümler
 
-Önceki sürümleri indirmek için [Releases](https://github.com/Zeroceko/borcama/releases) sayfasını kullanabilirsin.
+Güncel sürüm ve tüm kullanıcı etkili değişiklikler için [CHANGELOG.md](CHANGELOG.md) dosyasına bak. Önceki sürümleri indirmek için [Releases](https://github.com/Zeroceko/borcama/releases) sayfasını kullanabilirsin.
 
 > Borcama bir takip ve planlama aracıdır. Tahmini hesaplar banka ekstresinin yerine geçmez.
