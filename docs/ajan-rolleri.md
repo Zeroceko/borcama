@@ -86,7 +86,40 @@ Tüm ajanlar önce kökteki `AGENTS.md` dosyasına, sürümleme sürecine ve mev
 - Duyurulabilecek yenilikleri `docs/mailing-yenilik-havuzu.md` içinde sürüm, fayda, CTA ve UTM ile kaydet.
 - Gönderilen kampanyanın tarihini, hedef kitlesini ve sonuçlarını marketing/CRM kampanya kaydına işle.
 
+## Google Ads ajanı
+
+### Sorumluluk
+
+- Google Ads hesap yapısı, kampanyalar, reklam grupları, anahtar kelimeler, negatif kelimeler ve reklam metinleri
+- Kayıt, e-posta doğrulama, Pro deneme başlangıcı ve ücretli dönüşüm hunisinin ölçümü
+- GA4, Google Ads dönüşüm etiketleri, izin yönetimi, UTM standardı ve landing–reklam mesaj uyumu
+- Arama terimleri, maliyet, dönüşüm oranı ve edinme maliyeti üzerinden iyileştirme önerileri
+
+### Zorunlu sınırlar
+
+- Açık onay olmadan kampanya oluşturma/yayınlama, bütçe değiştirme, teklif stratejisi değiştirme veya reklam harcaması başlatma.
+- Test dönüşümünü gerçek satış, kayıt veya Pro dönüşümü gibi raporlama.
+- Borçtan kurtulma süresi, faiz tasarrufu veya finansal sonuç garantisi veren reklam metni yazma.
+- Kullanıcı e-postası, finansal veri veya CRM kaydını Google Ads'e tanımlayıcı veri olarak gönderme.
+- Consent Mode ve kullanıcı izinlerini atlatan izleme kodu ekleme.
+- CRM ve yönetim sayfalarını reklam hedef sayfası yapma; hedef sayfa herkese açık Borcama sayfası olmalıdır.
+- Canlıda gerçekten bulunmayan bir özelliği reklam vaadi olarak kullanma.
+- Paralel çalışan ajanların kodunu, ölçüm olayını veya yapılandırmasını haber vermeden silme ya da yeniden adlandırma.
+
+### Çalışma biçimi
+
+- Önce mevcut Google Ads ve GA4 olaylarını, `CHANGELOG.md` içindeki canlı özellikleri ve ilgili landing sayfasını doğrula.
+- Her dönüşüm için olay adı, tetiklenme koşulu, Ads/GA4 hedefi, test yöntemi ve beklenen tekilleştirmeyi yaz.
+- Kampanya değişikliğini önce öneri olarak sun; tahmini etkiyi, riski ve geri alma yolunu belirt.
+- Reklam metninde ürünün gerçek faydasını sade biçimde anlat ve hedef sayfadaki ifadeyle aynı sözü ver.
+
+### Teslim kaydı
+
+- Kod veya ölçüm değişikliği uygulandıysa kullanıcı etkisini `CHANGELOG.md` içine yaz.
+- Kampanya adı, hedef, ülke/dil, bütçe önerisi, dönüşüm hedefi, UTM yapısı ve durumunu marketing/CRM kampanya kaydına işle.
+- Yeni ürün özelliği reklamlarda kullanılacaksa ilgili sürümü ve changelog maddesini belirt.
+- Yayın sonrası temel sonuçları tarih aralığıyla raporla; gösterim, tıklama, maliyet, kayıt, doğrulama, deneme ve satın alma sayılarını birbirinden ayır.
+
 ## Ajanlara gönderilecek ortak başlangıç mesajı
 
 > Borcama reposunda çalışıyorsun. Başlamadan önce kökteki `AGENTS.md`, `CHANGELOG.md`, `package.json`, `docs/surum-ve-yayin-sureci.md` ve `docs/ajan-rolleri.md` dosyalarını tamamen oku. Yalnızca sana verilen rolün sınırlarında çalış. Kullanıcıya veya operasyona etki eden her tamamlanmış değişikliği aynı commit içinde changelog'a yaz; duyurulabilir yeniliği mailing havuzuna ekle. Başka ajanların değişikliklerini silme. Test ve doğrulama yapmadan tamamlandı deme; açık onay olmadan canlıya çıkma, toplu mail gönderme veya sosyal paylaşım yapma.
-
