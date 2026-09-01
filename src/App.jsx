@@ -91,6 +91,11 @@ import {
   ekHesapOdemesiKaldir,
   ekHesapOdemesiUygula,
 } from "./overdraftPayments.js";
+import {
+  isMandatoryPaymentPending,
+  mergeArchivedCardStatement,
+  summarizeMandatoryPayments,
+} from "./paymentSummary.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -5332,7 +5337,7 @@ function Odemeler({
       if (kart.ekstreAyi) aylar.add(kartOdemeAyi(kart));
       (kart.ekstreGecmisi || []).forEach((ekstre) => {
         if (ekstre.ekstreAyi)
-          aylar.add(kartOdemeAyi({ ...kart, ...ekstre }));
+          aylar.add(kartOdemeAyi(mergeArchivedCardStatement(kart, ekstre)));
       });
     });
     Object.keys(veri.loanPaymentHistory || {}).forEach((ay) => aylar.add(ay));
@@ -5359,10 +5364,11 @@ function Odemeler({
     (veri.cards || []).forEach((kart) => {
       const ekstreler = [
         kart.ekstreAyi ? kart : null,
-        ...(kart.ekstreGecmisi || []).map((ekstre) => ({
-          ...kart,
-          ...ekstre,
-        })),
+        ...(donem === ayAnahtari()
+          ? []
+          : (kart.ekstreGecmisi || []).map((ekstre) =>
+              mergeArchivedCardStatement(kart, ekstre),
+            )),
       ].filter(Boolean);
       ekstreler
         .filter((kayit) => kartOdemeAyi(kayit) === donem)
@@ -5453,7 +5459,9 @@ function Odemeler({
   const tumKartOdemeleri = (veri.cards || []).flatMap((kart) => {
     const ekstreler = [
       kart.ekstreAyi ? kart : null,
-      ...(kart.ekstreGecmisi || []).map((ekstre) => ({ ...kart, ...ekstre })),
+      ...(kart.ekstreGecmisi || []).map((ekstre) =>
+        mergeArchivedCardStatement(kart, ekstre),
+      ),
     ].filter(Boolean);
     return ekstreler.map((kayit) => {
       const h = kartHesabi(kayit);
@@ -5491,14 +5499,14 @@ function Odemeler({
       .filter((x) => (+x.yapilanOdeme || 0) > 0)
       .map((x) => [x.id, x]),
   ).values()].sort((a, b) => b.tarih - a.tarih);
-  // Kartta minimumun tamamlanması ödeme hedefini kapatır; borcu kapatmaz.
-  // Kalan toplam sıfırlanana kadar kart "Bekleyen ödemeler" içinde kalır.
-  const bekleyen = sirali.filter((x) =>
-    x.kartOdemesi ? !x.tamamiOdendi : !x.odendi,
-  );
-  const toplam = sirali.reduce((t, x) => t + (+x.hedefTutar || 0), 0);
-  const kalan = sirali.reduce((t, x) => t + (+x.tutar || 0), 0);
-  const odenen = sirali.reduce((t, x) => t + (+x.yapilanOdeme || 0), 0);
+  // Asgari tamamlandıysa o ayın zorunlu kart ödemesi tamamlanmıştır. Kalan
+  // devreden bakiye borç ekranında görünür; burada tekrar bekliyor denmez.
+  const bekleyen = sirali.filter(isMandatoryPaymentPending);
+  const {
+    total: toplam,
+    covered: odenen,
+    remaining: kalan,
+  } = summarizeMandatoryPayments(sirali);
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return (
     <div className="bt-stack">
@@ -5608,9 +5616,11 @@ function Odemeler({
             </div>
           </div>
           <div className="bt-metric">
-            <div className="bt-metric-lbl">Şimdiye kadar ödenen</div>
+            <div className="bt-metric-lbl">Tamamlanan zorunlu ödeme</div>
             <div className="bt-metric-amt">{fmt(odenen)}</div>
-            <div className="bt-metric-cap">Bu listeye işlenen tutar</div>
+            <div className="bt-metric-cap">
+              Minimum ve taksit hedeflerine sayılan tutar
+            </div>
           </div>
           <div className="bt-metric">
             <div className="bt-metric-lbl">Kalan zorunlu ödeme</div>
