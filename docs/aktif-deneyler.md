@@ -18,4 +18,4 @@
 - Varyant: `9c12123` commitindeki sade, güven ve plan odaklı welcome sayfası
 - Birincil metrik: Tamamlanan kayıt / landing ziyareti
 - Koruma metrikleri: E-posta doğrulama, ilk borç veya ekstre kaydı, sayfa performansı ve hata oranı
-- Sonraki karar: A/B atama ve olay tekilleştirme tasarımı ana koordinatör tarafından incelenecek; kullanıcı onayı olmadan canlıya çıkmayacak.
+- Sonraki karar: A/B atama, olay tekilleştirme ve trafik oranı CEO tarafından incelenip yönetilecek; köklü ürün değişikliği oluşmadıkça ayrıca Yönetim Kurulu Başkanı onayı beklenmeyecek.

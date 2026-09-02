@@ -155,18 +155,26 @@ Ekipler CEO toplantısını beklemez. Her ekip yol haritasındaki en yüksek ön
 - Riskli değişikliğin Yönetim Kurulu Başkanı'na sunulmaya hazır olup olmadığı
 - Testi başarısız veya metrik sonucu belirsiz işin durdurulması
 - Modelin Luna → Terra → Sol yükseltilmesi
+- Rutin, geri alınabilir ve köklü olmayan sürümlerin canlı yayın kararı
+- Onaylı azami bütçe içinde reklam kampanyası, teklif ve dağılım değişiklikleri
+- Sosyal medya aylık planı ve plana uygun paylaşımlar
+- A/B testinin başlatılması, trafik oranı, durdurulması ve kazananın kalıcılaştırılması
+- Toplu e-postanın hedef, içerik, test, teknik ayar ve gönderime hazır olma kontrolü
 
 ### Yönetim Kurulu Başkanı onayı gerekir
 
-- Canlı yayın ve veritabanı migration'ı
-- Reklam kampanyası, bütçe, teklif veya dönüşüm hedefi değişikliği
-- Toplu e-posta, sosyal paylaşım ve deney trafik oranı
-- Fiyat, paket, Pro süresi, finansal öneri modeli veya temel ürün stratejisi
+- Köklü ürün değişikliği, geri dönüşü zor canlı yayın ve temel veri modeli migration'ı
+- Reklam için tanımlanmış azami bütçenin artırılması
+- Toplu e-postanın nihai gönderimi
+- Fiyat, paket veya Pro süresinde mevcut politikanın değiştirilmesi
+- Finansal öneri modeli veya temel ürün stratejisinin değiştirilmesi
 - Kullanıcı verisini değiştiren toplu operasyon ve geri dönüşü zor dış sistem işlemi
+
+Mevcut onaylı reklam tavanı toplam **₺60/gün**dür. Ekip bu toplam sınır içinde kampanyalar arasında dağılım yapabilir; tavanın artırılması Başkan kararıdır.
 
 ### Acil durum
 
-Canlıda güvenlik, veri kaybı, yanlış finansal hesap veya ödeme riski varsa ekip işi P0 olarak CEO'ya anında bildirir; haftalık toplantıyı beklemez. CEO güvenli durdurma ve salt okunur teşhis yapabilir. Kullanıcıya veya dış sisteme kalıcı etkisi olan düzeltme mevcut onay kuralına göre Başkan'a çıkarılır.
+Canlıda güvenlik, veri kaybı, yanlış finansal hesap veya ödeme riski varsa ekip işi P0 olarak CEO'ya anında bildirir; haftalık toplantıyı beklemez. CEO güvenli durdurma, salt okunur teşhis ve geri alınabilir acil düzeltmeyi yönetebilir. Toplu kullanıcı verisi veya geri döndürülemez etkisi olan müdahale Başkan'a çıkarılır.
 
 ## Karar kuralları
 
@@ -174,4 +182,4 @@ Canlıda güvenlik, veri kaybı, yanlış finansal hesap veya ödeme riski varsa
 - Yeni özellik, aktivasyon veya güvenilirliği iyileştirmiyorsa 60 günlük dönemde bekler.
 - Kanal ajanı tek başına ürün vaadi oluşturamaz; canlı changelog ile eşleşir.
 - Düşük örneklemde kazanan veya başarısız ilan edilmez.
-- Otomasyonlar analiz, taslak ve denetim yapabilir; canlı yayın, toplu iletişim, bütçe, sosyal paylaşım ve deney trafiği için mevcut onay kapıları korunur.
+- Otomasyonlar analiz, taslak, denetim ve kendi yetki alanlarındaki rutin uygulamaları yapabilir. Başkan kapıları yalnız köklü yayın, azami reklam bütçesi artışı, toplu e-posta gönderimi, fiyat/Pro politika değişikliği ve toplu ya da geri döndürülemez kullanıcı verisi işlemlerinde uygulanır.

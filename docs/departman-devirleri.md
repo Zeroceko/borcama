@@ -8,6 +8,14 @@ Operasyon yapısı kanal departmanlarından dört sonuç ekibine dönüştürül
 
 Model bütçesi `docs/ajan-rolleri.md > Model ve maliyet politikası` üzerinden yönetilir. Departmanların varsayılanı Sol değildir; görev bazında Luna veya Terra kullanılır, Sol yalnız tanımlı yüksek risk kapılarında devreye girer.
 
+### 2 Eylül 2026 yetki kararı
+
+- Yönetim Kurulu Başkanı Özer; köklü ürün ve yayın kararları, azami reklam bütçesi artışı, toplu e-postanın nihai gönderimi, fiyat/Pro politika değişikliği ile toplu veya geri döndürülemez kullanıcı verisi işlemlerinde son onayı verir.
+- CEO; rutin ve geri alınabilir yayınları, mevcut onaylı **₺60/gün azami reklam bütçesi** içindeki optimizasyonları, sosyal medya aylık planını ve A/B test trafik kararlarını ekiplerle birlikte yönetir.
+- Departmanlar tanımlı sınırlarında CEO toplantısı beklemeden analiz, geliştirme, test, hazırlık ve rutin uygulama yapar; yalnız yetki kapısına giren kararları yükseltir.
+- Fiyatlandırma ve Pro süresi mevcut haliyle korunur; ekipler indirim veya politika önerisi hazırlayabilir ancak Başkan kararı olmadan uygulayamaz.
+- Haftalık departman otomasyonlarının görev metinleri bu yetki matrisiyle uyumlu hale getirilmiştir; toplu e-posta gönderim kapısı Özer'de kalır.
+
 ## Görev haritası
 
 | Departman | Codex görev başlığı | Görev kimliği | Ana teslim |

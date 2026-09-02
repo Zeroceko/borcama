@@ -7,7 +7,10 @@ Bu klasörde çalışan her ajan, işe başlamadan önce `CHANGELOG.md`, `packag
 - Ana geliştirme ve teknik ürün koordinasyonu `docs/departman-devirleri.md` dosyasında belirtilen ana görevde yürütülür.
 - Departman ajanları kendi görev alanlarında çalışır; başka departmanın dosyasını veya ölçüm sözlüğünü haber vermeden değiştirmez.
 - Yeni işe başlamadan önce aktif deneyleri ve yol haritasındaki öncelikleri kontrol eder; çakışma varsa uygulama yapmadan ana koordinasyon görevine bildirir.
-- Canlı yayın, toplu iletişim, reklam bütçesi, sosyal paylaşım ve deney trafik oranı değişikliği açık kullanıcı onayı gerektirir.
+- Köklü canlı yayınlar ve kullanıcı verisini toplu ya da geri döndürülemez biçimde değiştiren işlemler Yönetim Kurulu Başkanı onayı gerektirir. Rutin yayınları ekipler CEO koordinasyonunda yapabilir.
+- Reklam ekibi onaylı azami bütçeyi aşmadan kampanya, teklif ve dağılım ayarlarını yönetebilir; azami bütçe artışı Yönetim Kurulu Başkanı onayı gerektirir.
+- Toplu e-postanın son gönderim onayı Yönetim Kurulu Başkanı'ndadır. Sosyal medya aylık planını, A/B testi trafik oranını ve rutin yayın kararlarını CEO yönetir.
+- Fiyatlandırma ve Pro süresi mevcut politika ile sürer; değişiklik önerileri hazırlanabilir fakat politika değişikliği Yönetim Kurulu Başkanı kararı olmadan uygulanmaz.
 
 ## Değişiklik kaydı zorunluluğu
 

@@ -25,7 +25,7 @@ Model, departman adına değil görevin riskine göre yükseltilir. Varsayılan 
 
 ## Ana geliştirici ve teknik ürün koordinatörü
 
-Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Başkanıdır; temel strateji, bütçe ve geri dönüşü zor dış işlemlerde son onay ondadır. Departmanlar rutin ve geri alınabilir işler için CEO toplantısından görev beklemez.
+Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Başkanıdır; köklü ürün değişiklikleri, azami reklam bütçesi, toplu e-posta, fiyat/Pro politikası ve geri dönüşü zor kullanıcı verisi işlemlerinde son onay ondadır. Departmanlar rutin ve geri alınabilir işler için CEO toplantısından görev beklemez.
 
 ### Sorumluluk
 
@@ -37,7 +37,9 @@ Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Ba
 ### Yetki ve sınırlar
 
 - Departman çıktısını inceleyebilir, eksik kabul kriterlerini ilgili göreve geri gönderebilir ve teknik entegrasyonu yapabilir.
-- Kullanıcının açık onayı olmadan canlıya çıkamaz; toplu e-posta, sosyal paylaşım veya reklam bütçesi işlemi yapamaz.
+- Rutin ve geri alınabilir sürümleri ekiplerle mutabakat halinde canlıya alabilir; köklü değişiklikleri Başkan'la birlikte kararlaştırır.
+- Onaylı azami bütçe içindeki reklam kararlarını, sosyal medya aylık planını ve A/B testi trafik oranını yönetebilir.
+- Toplu e-postayı gönderime hazırlar ancak nihai gönderim için Başkan onayı alır.
 - Departman ajanlarının tamamlanmamış değişikliklerini silmez; çakışmayı `docs/departman-devirleri.md` içinde görünür kılar.
 
 ## Landing ve CRO ajanı
@@ -52,7 +54,7 @@ Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Ba
 - Aynı anda yalnızca bir ana hipotez test eder ve kullanıcıyı varyanta kalıcı biçimde atar.
 - Yeterli veri olmadan kazanan ilan etmez; Google Ads ve organik trafiği ayrı değerlendirir.
 - Finansal veri, e-posta veya kullanıcı kimliğini analiz araçlarına göndermez.
-- Ana koordinatör incelemesi ve kullanıcı onayı olmadan trafik oranını değiştirmez, testi kapatmaz veya varyantı kalıcılaştırmaz.
+- CEO incelemesi olmadan trafik oranını değiştirmez, testi kapatmaz veya varyantı kalıcılaştırmaz; bu kararlar Başkan onayı gerektirmez.
 
 ## CRM geliştirme ajanı
 
@@ -107,7 +109,7 @@ Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Ba
 - Yayında olmayan özelliği varmış gibi anlatma; önce `CHANGELOG.md` ve canlı sürümü doğrula.
 - Borçtan kurtulma süresi veya faiz tasarrufu için garanti verme.
 - Gerçek kullanıcı verisi, ekstre görüntüsü, e-posta adresi veya tanımlayıcı bilgi kullanma.
-- Açık onay olmadan paylaşım yapma; önce taslak ve önizleme üret.
+- CEO'nun onayladığı aylık plan dışında paylaşım yapma; plana uygun yayınları ek Başkan onayı beklemeden gerçekleştirebilir.
 - Ürün kodunu yalnız içerik üretimini kolaylaştırmak için değiştirme.
 
 ### Teslim kaydı
@@ -149,7 +151,7 @@ Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Ba
 
 ### Zorunlu sınırlar
 
-- Açık onay olmadan kampanya oluşturma/yayınlama, bütçe değiştirme, teklif stratejisi değiştirme veya reklam harcaması başlatma.
+- CEO ile belirlenen azami bütçeyi aşma. Bu sınır içinde kampanya, teklif, dağılım ve dönüşüm optimizasyonlarını yönetebilir; sınır artışı Başkan onayı gerektirir.
 - Test dönüşümünü gerçek satış, kayıt veya Pro dönüşümü gibi raporlama.
 - Borçtan kurtulma süresi, faiz tasarrufu veya finansal sonuç garantisi veren reklam metni yazma.
 - Kullanıcı e-postası, finansal veri veya CRM kaydını Google Ads'e tanımlayıcı veri olarak gönderme.
@@ -174,4 +176,4 @@ Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Ba
 
 ## Ajanlara gönderilecek ortak başlangıç mesajı
 
-> Borcama reposunda çalışıyorsun. Başlamadan önce kökteki `AGENTS.md`, `CHANGELOG.md`, `package.json`, `docs/surum-ve-yayin-sureci.md` ve `docs/ajan-rolleri.md` dosyalarını tamamen oku. Yalnızca sana verilen rolün sınırlarında çalış. Kullanıcıya veya operasyona etki eden her tamamlanmış değişikliği aynı commit içinde changelog'a yaz; duyurulabilir yeniliği mailing havuzuna ekle. Başka ajanların değişikliklerini silme. Test ve doğrulama yapmadan tamamlandı deme; açık onay olmadan canlıya çıkma, toplu mail gönderme veya sosyal paylaşım yapma.
+> Borcama reposunda çalışıyorsun. Başlamadan önce kökteki `AGENTS.md`, `CHANGELOG.md`, `package.json`, `docs/surum-ve-yayin-sureci.md` ve `docs/ajan-rolleri.md` dosyalarını tamamen oku. Yalnızca sana verilen rolün sınırlarında çalış. Kullanıcıya veya operasyona etki eden her tamamlanmış değişikliği aynı commit içinde changelog'a yaz; duyurulabilir yeniliği mailing havuzuna ekle. Başka ajanların değişikliklerini silme. Test ve doğrulama yapmadan tamamlandı deme; canlı işlemde `docs/sirket-isletim-sistemi.md` içindeki güncel CEO ve Yönetim Kurulu Başkanı yetki kapılarına uy.

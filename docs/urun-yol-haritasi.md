@@ -33,8 +33,10 @@ Bu dosya departmanların ortak öncelik kaynağıdır. Bir departman yeni işe b
 
 ## Karar kapıları
 
-- Canlı yayın: kullanıcı onayı
-- Toplu e-posta: kullanıcı onayı ve test gönderimi
-- Sosyal paylaşım: mevcut otomasyon kapsamı dışında kullanıcı onayı
-- Reklam bütçesi veya teklif değişikliği: kullanıcı onayı
-- A/B trafik oranı veya kazanan seçimi: ana koordinatör incelemesi ve kullanıcı onayı
+- Canlı yayın: rutin ve geri alınabilir değişikliklerde CEO; köklü veya geri dönüşü zor değişikliklerde Yönetim Kurulu Başkanı onayı
+- Toplu e-posta: hazırlık ve test ekipte; nihai gönderim Yönetim Kurulu Başkanı onayı
+- Sosyal paylaşım: CEO tarafından onaylanan aylık plan içinde ekip; plan dışı veya riskli durumda CEO kararı
+- Reklam: toplam ₺60/gün azami bütçe içinde ekip ve CEO; tavan artışında Yönetim Kurulu Başkanı onayı
+- A/B trafik oranı veya kazanan seçimi: CEO kararı
+- Fiyatlandırma ve Pro süresi: mevcut politika korunur; değişiklik Yönetim Kurulu Başkanı kararı
+- Toplu veya geri döndürülemez kullanıcı verisi işlemi: Yönetim Kurulu Başkanı onayı
