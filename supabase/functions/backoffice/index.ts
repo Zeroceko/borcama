@@ -476,8 +476,12 @@ Deno.serve(async (req) => {
     .from("user_entitlements")
     .select("user_id,pro_expires_at,source,trial_started_at,trial_ends_at,trial_announcement_sent_at,features_announcement_sent_at");
   if (hakHatasi) return new Response(JSON.stringify({ error: "ENTITLEMENTS_UNAVAILABLE" }), { status: 500, headers });
+  const { data: edinimler, error: edinimHatasi } = await admin.from("user_acquisition")
+    .select("user_id,source,medium,campaign,content,term,click_id_present,plan,first_touch_at,captured_at");
+  if (edinimHatasi) return new Response(JSON.stringify({ error: "ACQUISITION_UNAVAILABLE" }), { status: 500, headers });
   const veriDurumu = new Map((kayitlar || []).map((x) => [x.user_id, x.updated_at]));
   const hakDurumu = new Map((haklar || []).map((x) => [x.user_id, x]));
+  const edinimDurumu = new Map((edinimler || []).map((x) => [x.user_id, x]));
   const simdi = Date.now();
   const gun = 86400000;
   const satirlar = kullanicilar.map((u) => {
@@ -489,7 +493,7 @@ Deno.serve(async (req) => {
     const proAktif = !!proBitis && new Date(proBitis).getTime() > simdi;
     const denemedenCikarildi = ["admin_revoked", "self_revoked"].includes(hak?.source || "");
     const trialAktif = !proAktif && !denemedenCikarildi && !!trialBitis && new Date(trialBitis).getTime() > simdi;
-    const meta = u.user_metadata || {};
+    const edinim = edinimDurumu.get(u.id);
     return {
       id: u.id,
       email: u.email || "",
@@ -508,15 +512,18 @@ Deno.serve(async (req) => {
       trial_days_remaining: trialAktif ? Math.max(1, Math.ceil((new Date(trialBitis).getTime() - simdi) / gun)) : 0,
       trial_announcement_sent_at: hak?.trial_announcement_sent_at || null,
       features_announcement_sent_at: hak?.features_announcement_sent_at || null,
-      acquisition: {
-        source: String(meta.funnel_source || "direct").slice(0, 100),
-        medium: String(meta.funnel_medium || "").slice(0, 100),
-        campaign: String(meta.funnel_campaign || "").slice(0, 120),
-        content: String(meta.funnel_content || "").slice(0, 120),
-        term: String(meta.funnel_term || "").slice(0, 120),
-        paid_click: Boolean(meta.funnel_click_id),
-        plan: String(meta.funnel_plan || "").slice(0, 30),
-      },
+      acquisition: edinim ? {
+        captured: true,
+        source: String(edinim.source || "direct").slice(0, 100),
+        medium: String(edinim.medium || "").slice(0, 100),
+        campaign: String(edinim.campaign || "").slice(0, 120),
+        content: String(edinim.content || "").slice(0, 120),
+        term: String(edinim.term || "").slice(0, 120),
+        paid_click: Boolean(edinim.click_id_present),
+        plan: String(edinim.plan || "").slice(0, 30),
+        first_touch_at: edinim.first_touch_at || null,
+        captured_at: edinim.captured_at || null,
+      } : { captured: false },
     };
   }).sort((a, b) => (b.last_sign_in_at || b.created_at).localeCompare(a.last_sign_in_at || a.created_at));
 

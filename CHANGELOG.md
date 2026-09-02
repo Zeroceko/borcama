@@ -12,10 +12,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Welcome sayfası borç kapatma planını ve bütçe faydasını daha net anlatacak, ekstrelerin cihazda işlendiğini görünür kılacak ve kalıcı Ücretsiz paketi ana başlangıç seçeneği olarak sunacak biçimde sadeleştirildi; ilk 30 günlük Pro erişimi ek fayda olarak anlatılıyor.
 - Kullanıcının edinim kaynağı aynı oturumdaki sonraki kampanya bağlantılarıyla ezilmeyecek biçimde ilk temas olarak sabitlendi.
+- CRM ve Analytics edinim bilgileri kullanıcının değiştirebildiği hesap alanları yerine kayıt anında sabitlenen yönetim kaydından okunuyor; ölçülemeyen eski hesaplar artık doğrudan trafik sayılmıyor.
 
 ### Güvenlik
 
 - Google Ads kayıt dönüşümünde kullanıcı kimliği yerine kayıt başına üretilen ilişkisiz olay kimliği kullanılmaya başlandı; e-posta doğrulama olayı yalnız gerçek doğrulama sonrasında gönderiliyor.
+- Edinim alanları güvenli karakter ve uzunluk sınırlarıyla normalize edildi; ziyaretçi ölçümü oturum imzası ve dakikalık alım sınırıyla kötüye kullanıma karşı güçlendirildi ve ham reklam tıklama kimliğinin yeni ölçüm satırlarında saklanması durduruldu.
+
+### Düzeltildi
+
+- Kişisel davet bağlantılarının arama sonuçlarında görünmesi engellendi ve kampanya parametreli ana sayfa adresleri tek ana adreste birleştirildi.
 
 ## [1.36.4] - 2026-09-02
 

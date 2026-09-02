@@ -4,6 +4,7 @@ export { edinimKaynaginiOlustur } from "./acquisition.js";
 
 const OTURUM_ANAHTARI = "borcama:funnel-session";
 const KAYNAK_ANAHTARI = "borcama:funnel-source";
+const OTURUM_TOKEN_ANAHTARI = "borcama:funnel-session-token";
 const IZINLI_ETKINLIKLER = new Set(["landing_visit", "register_view"]);
 
 function oturumKimligi() {
@@ -38,17 +39,26 @@ export function funnelKaynakBilgisi() {
   return kaynakBilgisi();
 }
 
-export function funnelEtkinligiKaydet(eventName) {
-  if (!supabaseHazir || !IZINLI_ETKINLIKLER.has(eventName)) return;
+export async function funnelEtkinligiKaydet(eventName) {
+  if (!supabaseHazir || !IZINLI_ETKINLIKLER.has(eventName)) return false;
   const sessionId = oturumKimligi();
-  if (!sessionId) return;
+  if (!sessionId) return false;
   const kaynak = kaynakBilgisi();
-  void supabase.functions.invoke("analytics-event", {
-    body: {
-      event_name: eventName,
-      session_id: sessionId,
-      path: window.location.pathname,
-      ...kaynak,
-    },
-  }).catch(() => undefined);
+  try {
+    const { data, error } = await supabase.functions.invoke("analytics-event", {
+      body: {
+        event_name: eventName,
+        session_id: sessionId,
+        session_token: sessionStorage.getItem(OTURUM_TOKEN_ANAHTARI) || "",
+        path: window.location.pathname,
+        ...kaynak,
+      },
+    });
+    if (error) return false;
+    if (data?.session_token)
+      sessionStorage.setItem(OTURUM_TOKEN_ANAHTARI, String(data.session_token));
+    return true;
+  } catch {
+    return false;
+  }
 }

@@ -2,6 +2,27 @@
 
 Tüm ajanlar önce kökteki `AGENTS.md` dosyasına, sürümleme sürecine ve mevcut changelog'a uyar. Bir iş birden fazla alanı etkiliyorsa ilgili ajanların dosyalarına müdahale etmeden önce mevcut akışı inceler; başka bir ajanın tamamlanmamış çalışmasını silmez veya geri almaz.
 
+## Model ve maliyet politikası
+
+Model, departman adına değil görevin riskine göre yükseltilir. Varsayılan reasoning seviyesi `low`; sonuç kalitesi yetersizse önce `medium`, ardından model yükseltmesi denenir.
+
+| İş türü / departman | Varsayılan model | Sol'e yükseltme koşulu |
+|---|---|---|
+| Ana geliştirme ve koordinasyon | `gpt-5.6-terra` · medium | Finansal hesaplama, veri modeli/migration, güvenlik, ödeme/üyelik, üretim hatası veya son yayın incelemesi |
+| CRM geliştirme | `gpt-5.6-terra` · medium | Yetkilendirme, kişisel veri, migration veya birden fazla sistemi etkileyen operasyon |
+| Google Ads ve GA4 | `gpt-5.6-terra` · low | Dönüşüm mimarisi, Consent Mode/gizlilik veya geri dönüşü zor hesap değişikliği |
+| SEO | `gpt-5.6-luna` · low | Canonical/noindex mimarisi, büyük teknik SEO değişikliği veya belirsiz canlı hata için Terra; Sol normalde kullanılmaz |
+| E-posta ve kullanıcı operasyonu | `gpt-5.6-luna` · low | Kişisel veri sorgusu, karmaşık segmentasyon veya canlı backend değişikliği için Terra; Sol yalnız güvenlik krizi |
+| Instagram içerik | `gpt-5.6-luna` · low | Marka yönü/CRO ile çelişen stratejik karar için Terra; Sol kullanılmaz |
+| Landing ve CRO | `gpt-5.6-terra` · low | Çok değişkenli deney mimarisi veya ana ürün akışını değiştiren karar |
+
+- Okuma, envanter, özet, metin varyasyonu, dosya sınıflama ve rutin raporlama Luna'da yapılır.
+- Kod yazma ve dış sistem ayarı Terra'da yapılır; ilgili alanın testleriyle doğrulanır.
+- Sol bir “son kontrol ve yüksek risk çözüm” modelidir; sürekli departman modeli değildir.
+- Aynı bağlamı tüm ajanlara taşımak yerine görev başına yalnız gerekli dosya, sürüm ve kabul kriterleri gönderilir.
+- Bir departman işi bitirdiğinde ana koordinatör tüm araştırmayı tekrarlamaz; diff, test kanıtı ve riskli kararları inceler.
+- Başarısız işte otomatik model yükseltme yoktur: önce talimat/dosya kapsamı düzeltilir, sonra reasoning veya model tek kademe yükseltilir.
+
 ## Ana geliştirici ve teknik ürün koordinatörü
 
 ### Sorumluluk

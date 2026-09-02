@@ -19,7 +19,7 @@ import {
   googleAdsYeniKullaniciDonusumu,
   googleAnalyticsProDenemeBaslangici,
 } from "./googleAds.js";
-import { funnelEtkinligiKaydet, funnelKaynakBilgisi, funnelOturumKimligi } from "./funnelAnalytics.js";
+import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 
@@ -238,7 +238,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       );
     setGonderiliyor(true);
     setHata("");
-    const funnelKaynagi = kayitModu ? funnelKaynakBilgisi() : null;
+    if (kayitModu) await funnelEtkinligiKaydet("register_view");
     const kayitZamani = new Date().toISOString();
     const kayitOlayKimligi = kayitModu ? crypto.randomUUID() : null;
     const { error } = await supabase.auth.signInWithOtp({
@@ -256,13 +256,6 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           borcama_registration_method: "magic_link",
           borcama_registration_event_id: kayitOlayKimligi,
           funnel_session_id: funnelOturumKimligi(),
-          funnel_source: funnelKaynagi.source,
-          funnel_plan: funnelKaynagi.plan,
-          funnel_medium: funnelKaynagi.medium,
-          funnel_campaign: funnelKaynagi.campaign,
-          funnel_content: funnelKaynagi.content,
-          funnel_term: funnelKaynagi.term,
-          funnel_click_id: funnelKaynagi.click_id,
           referral_code: referansKodu || undefined,
         } : undefined,
       },
@@ -361,7 +354,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       return setHata("Parolalar birbiriyle eşleşmiyor.");
     setGonderiliyor(true);
     setHata("");
-    const funnelKaynagi = funnelKaynakBilgisi();
+    await funnelEtkinligiKaydet("register_view");
     const kayitZamani = new Date().toISOString();
     const kayitOlayKimligi = crypto.randomUUID();
     const { data, error } = await supabase.auth.signUp({
@@ -379,13 +372,6 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           borcama_registration_method: "password",
           borcama_registration_event_id: kayitOlayKimligi,
           funnel_session_id: funnelOturumKimligi(),
-          funnel_source: funnelKaynagi.source,
-          funnel_plan: funnelKaynagi.plan,
-          funnel_medium: funnelKaynagi.medium,
-          funnel_campaign: funnelKaynagi.campaign,
-          funnel_content: funnelKaynagi.content,
-          funnel_term: funnelKaynagi.term,
-          funnel_click_id: funnelKaynagi.click_id,
           referral_code: referansKodu || undefined,
         },
       },

@@ -25,6 +25,7 @@ test("kullanıcı ve yönetim ekranları noindex olarak sınıflandırılır", (
   for (const yol of kullaniciYollari) assert.equal(noindexYoluMu(yol), true, yol);
   assert.equal(noindexYoluMu("/backoffice/user/123"), true);
   assert.equal(noindexYoluMu("/user/123"), true);
+  assert.equal(noindexYoluMu("/davet/BRCMABC234"), true);
   assert.equal(noindexYoluMu("/", true), true);
 });
 
@@ -42,5 +43,11 @@ test("Vercel kullanıcı ekranlarında X-Robots-Tag gönderir", async () => {
   );
   for (const yol of kullaniciYollari) assert.equal(noindexKaynaklari.has(yol), true, yol);
   assert.equal(noindexKaynaklari.has("/user/:path*"), true);
+  assert.equal(noindexKaynaklari.has("/davet/:path*"), true);
 });
 
+test("ana landing tek ve sorgudan bağımsız canonical kullanır", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const canonicalEtiketleri = html.match(/<link rel="canonical" href="[^"]+"\s*\/>/g) || [];
+  assert.deepEqual(canonicalEtiketleri, ['<link rel="canonical" href="https://borcama.com/" />']);
+});
