@@ -2,6 +2,15 @@
 
 Bu dosya departmanların ortak öncelik kaynağıdır. Bir departman yeni işe başlamadan önce burada çakışan veya daha yüksek öncelikli iş olup olmadığını kontrol eder.
 
+60 günlük şirket hedefi ve ekip işletim modeli için `docs/sirket-isletim-sistemi.md` esas alınır. Aktif sprint işleri bu hedefe hizmet etmiyorsa başlatılmaz.
+
+## 60 günlük ana sonuç
+
+- 200 e-postası doğrulanmış kullanıcı
+- 80 aktive kullanıcı
+- 40 haftalık aktif kullanıcı
+- Kanal bazında güvenilir ziyaret → doğrulama → aktivasyon ölçümü
+
 ## Aktif sprint
 
 ### P0 — Güvenilir temel ürün

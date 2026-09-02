@@ -4,6 +4,8 @@
 
 Ürün sahibi son kararı verir. Ana geliştirici ve teknik ürün koordinatörü departman çıktılarını birleştirir, teknik kaliteyi denetler ve yayın onayını kullanıcıdan alır. Departman görevleri eş görevlerdir; koordinasyon bu dosya, yol haritası, aktif deney kaydı ve changelog üzerinden yürür.
 
+Operasyon yapısı kanal departmanlarından dört sonuç ekibine dönüştürülmüştür: Ürün ve Mühendislik, Büyüme, Yaşam Döngüsü ve Müşteri Başarısı, Güven/Veri/Operasyon. Kanal görevleri korunur ancak hedef ve önceliklerini `docs/sirket-isletim-sistemi.md` içindeki ortak metrik ağacından alır.
+
 Model bütçesi `docs/ajan-rolleri.md > Model ve maliyet politikası` üzerinden yönetilir. Departmanların varsayılanı Sol değildir; görev bazında Luna veya Terra kullanılır, Sol yalnız tanımlı yüksek risk kapılarında devreye girer.
 
 ## Görev haritası

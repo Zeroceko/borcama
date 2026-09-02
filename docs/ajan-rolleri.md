@@ -30,6 +30,7 @@ Model, departman adına değil görevin riskine göre yükseltilir. Varsayılan 
 - Ürün mimarisi, ana kullanıcı deneyimi, veri modeli, test, sürüm ve canlı yayın bütünlüğü
 - Departman işlerinin yol haritasına alınması, çakışmaların çözülmesi ve kullanıcıya tek durum raporu sunulması
 - Canlı özelliklerle reklam, SEO, e-posta ve sosyal medya vaatlerinin uyumunun denetlenmesi
+- `docs/sirket-isletim-sistemi.md` içindeki 60 günlük şirket hedefinin, haftalık metriklerin ve ekipler arası bağımlılıkların CEO düzeyinde yönetilmesi
 
 ### Yetki ve sınırlar
 
