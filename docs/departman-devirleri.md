@@ -124,3 +124,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: `Campaign #1` etkin ve `₺60/gün` ortalama bütçede; 2 Eylül canlı raporu 51 gösterim, 2 tıklama, `%3,92` TO, `₺118,44` maliyet ve 0 dönüşüm gösteriyor. Google Ads ortalama günlük bütçede tek gün yaklaşık iki katına kadar harcama yapabilir; test dönüşümü üretilmedi.
 - Başka departmanı etkileyen karar: Dönüşüm verisi oluşmadan teklif veya hedefleme optimizasyonu uygulanmayacak; GA4/Ads doğrudan dönüşüm mimarisi korunacak.
 - Kullanıcı onayı veya sonraki aksiyon: Devam eden tek yayın engeli Mali Hizmetler Doğrulaması incelemesidir. Google ek bilgi isterse yalnız bu talep değerlendirilmelidir.
+
+### 2026-09-02 · Yaşam Döngüsü
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`; referans ve edinim altyapısının koordinasyon göreviyle canlıya alındığı doğrulandı.
+- Yapılan çalışma: 14 günlük aktivasyon sprinti için davranış segmentleri ve en fazla üç mesajlık yardım akışı taslaklandı; kampanya gönderilmedi.
+- Değişen dosyalar ve dış sistemler: `docs/yasam-dongusu-aktivasyon-sprinti.md` eklendi; canlı Supabase, Resend ve CRM'de değişiklik yapılmadı.
+- Test ve doğrulama: 2 Eylül 2026 22:46 TRT toplulaştırmasında 21 doğrulanmış kullanıcı; 12 borç/ekstre yok, 3 borç var gelir yok, 4 aktivasyon proxy'si tamam, 18 son 7 gündür dönmemiş, doğrulanmamış 0 olarak ölçüldü.
+- Başka departmanı etkileyen karar: Hazırlık aşamasındaki Welcome deneyi iletişimden çıkarıldı; planı oluşmuş kullanıcılar aktivasyon yardım akışından bastırılacak. Referans ödülü iletişimi ayrı davranış olayı olarak izlenmeli.
+- Kullanıcı onayı ve sonraki aksiyon: Segment başına test gönderimi, UTM/CTA/oturum yönlendirmesi ve hariç liste kontrolü tamamlanmadan; Yönetim Kurulu Başkanı'nın son toplu gönderim onayı alınmadan gönderim yapılmamalı.
