@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Borcama'yı keşfetmek artık daha kolay — sürüm bekliyor
+
+- Siz istediniz: Borcama'nın ne işe yaradığını ve ekstrelerin nasıl korunduğunu daha ilk bakışta anlamak.
+- Biz yaptık: Welcome sayfasını borç kapatma planı, gerçekçi bütçe ve cihazda ekstre okuma faydalarını sade biçimde anlatacak şekilde yeniledik.
+- Faydası: Ürünü denemeden önce ne kazanacağını ve finansal belgenin nasıl işlendiğini açıkça görebilirsin.
+- Aksiyon: `https://borcama.com/?utm_source=resend&utm_medium=email&utm_campaign=welcome_yenilendi&utm_content=ana_cta`
+
 ### Düzenli gelir ve giderlerin artık her ay hazır — v1.36.0
 
 - Siz istediniz: Kira, abonelik, aidat ve maaş gibi her ay tekrar eden tutarları yeniden girmemek.
