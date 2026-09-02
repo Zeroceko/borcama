@@ -61,3 +61,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: Sürüm kontrolü, 66 test ve production build geçti; canlı kampanya kaydı, e-posta önizlemesi ve görseli doğrulandı. Kampanya sonrası 20/20 teslimat, 0 ölçülen açılma, 0 ölçülen tıklama, 1 Borcama ziyareti ve 0 hata kaydedildi.
 - Başka departmanı etkileyen karar: Google Ads, SEO ve Instagram bu e-postadaki vaatleri yalnız belirtilen canlı sürümlerle eşleştirmeli; hazırlık aşamasındaki Welcome deneyi bu kampanyaya dahil edilmedi.
 - Kullanıcı onayı ve sonraki aksiyon: Canlı yayın kullanıcı isteğiyle yapıldı; toplu gönderim sonradan Marketing ekranından gerçekleşti. Ayrı test gönderimi kaydı bulunmadığı için gelecek kampanyalarda test gönderimi kapısı teknik olarak zorunlu hale getirilmeli.
+
+### 2026-09-02 · E-posta kampanya kontrolü
+
+- Baz alınan Borcama sürümü: canlı `v1.36.4`; `Unreleased` Welcome ve edinim ölçümü değişiklikleri canlı kabul edilmedi.
+- Yapılan inceleme: Canlı kampanya tablosu, teslimatlar, Supabase fonksiyonları, bekleyen migration'lar, Marketing önizlemeleri ve mailing havuzu karşılaştırıldı; e-posta gönderilmedi ve yeni kampanya oluşturulmadı.
+- Değişen dosyalar ve dış sistemler: Yalnız bu devir kaydı eklendi; Supabase, Resend, CRM ve canlı uygulamada değişiklik yapılmadı.
+- Test ve doğrulama: `features-v1-33` kampanyasının 20/20 teslim edildiği doğrulandı. `v1.36.0` için sabit gelir/gider, kart ödemesi düzeltme ve arkadaş daveti faydaları mailing havuzunda bulunuyor ancak bunlara ait toplu kampanya, şablon veya test gönderimi yok.
+- Başka departmanı etkileyen karar: Referans ödülü e-posta şablonları ve iki lifecycle kampanyası repoda hazır olsa da `20260901230000_referral_system.sql` canlı veritabanında uygulanmamış, `referrals` Edge Function canlıda bulunmuyor ve canlı `lifecycle-emails` sürümü referans e-postalarından önceye ait. Bu nedenle referans sistemi ve otomatik ödül bilgilendirmesi canlı kabul edilmemeli; ana koordinasyon veri modeli, `referrals`, `lifecycle-emails`, `shopier-entitlement` ve ilgili CRM bağımlılıklarını tek yayın olarak doğrulamalı.
+- Kullanıcı onayı ve sonraki aksiyon: Referans veya `v1.36.0` yenilik e-postası gönderilmeden önce ana koordinasyon canlı özellikleri doğrulamalı; ardından hedef/hariç listesi, konu, önizleme, gönderen, UTM, ölçüm ve ayrı test gönderimi tamamlanarak toplu gönderim için yeniden kullanıcı onayı alınmalı.
