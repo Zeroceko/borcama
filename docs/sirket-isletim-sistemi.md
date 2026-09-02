@@ -136,6 +136,15 @@ Her departman haftalık raporunda yalnız şu formatı kullanır:
 - Cuma: metrik, öğrenim, harcama ve yayın değerlendirmesi.
 - Ayda iki kez: kullanıcı görüşmesi ve ürün öncelik güncellemesi.
 
+## Yönetim Kurulu Başkanı çevrimdışıyken çalışma
+
+- Yönetim Kurulu Başkanı bir hafta erişilebilir olmasa bile ekipler haftalık toplantı veya yeni görev beklemeden 60 günlük hedefteki en yüksek etkili, kendi yetki alanındaki tek işi seçer ve yürütür.
+- CEO sabah ve akşam metrikleri ile departman devirlerini birleştirir; ölçüm, aktivasyon, edinim veya canlı hata engelini ilgili ekibe dağıtır ve tamamlanana kadar takip eder.
+- Salt okunur analiz, içerik hazırlığı, test, geri alınabilir düzeltme, onaylı plan içindeki sosyal yayın, mevcut azami bütçe içindeki reklam optimizasyonu ve rutin yayınlar devam eder.
+- Bir ekip engellendiğinde boşta beklemez; aynı hedefe hizmet eden, yetki sınırındaki sıradaki en yüksek etkili işi seçer ve engeli CEO raporuna yazar.
+- Yönetim Kurulu Başkanı kararı gereken konu işi tamamen durdurmaz. Ekip güvenli hazırlık, taslak, test ve geri alma planını tamamlar; yalnız son geri döndürülemez veya yetki dışı adımı bekletir.
+- Başkan'a yalnız kararın etkisi, önerilen seçenek, beklenen sonuç, risk ve son karar tarihi olan kısa bir karar notu gönderilir.
+
 ## Özerklik ve karar matrisi
 
 Ekipler CEO toplantısını beklemez. Her ekip yol haritasındaki en yüksek öncelikli, kendi alanına ait tek işi seçer; uygular, doğrular ve devir kaydıyla CEO'ya raporlar.
@@ -170,7 +179,7 @@ Ekipler CEO toplantısını beklemez. Her ekip yol haritasındaki en yüksek ön
 - Finansal öneri modeli veya temel ürün stratejisinin değiştirilmesi
 - Kullanıcı verisini değiştiren toplu operasyon ve geri dönüşü zor dış sistem işlemi
 
-Mevcut onaylı reklam tavanı toplam **₺60/gün**dür. Ekip bu toplam sınır içinde kampanyalar arasında dağılım yapabilir; tavanın artırılması Başkan kararıdır.
+Mevcut onaylı reklam tavanı gerçekleşen toplam harcamada **₺120/gün**dür. Google'ın ortalama günlük bütçeyi bazı günler iki kata kadar harcayabilmesi nedeniyle mevcut kampanya ortalama bütçesi **₺60/gün** seviyesinde tutulur. Ekip gerçekleşen ₺120 sınırı içinde kampanyalar arasında dağılım yapabilir; tavanın artırılması Başkan kararıdır.
 
 ### Acil durum
 
