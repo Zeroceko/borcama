@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.36.4] - 2026-09-02
+
+### Değiştirildi
+
+- Hareketler menüsü kullanıcı önceliğine göre Ödemeler, Sabit Giderler, Harcamalar ve Sabit Gelirler sırasına alındı.
+
 ## [1.36.3] - 2026-09-02
 
 ### Düzeltildi

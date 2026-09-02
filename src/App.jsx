@@ -3181,10 +3181,10 @@ export default function BorcTakip() {
         {anaSekme === "hareketler" && (
           <nav className="bt-nav bt-nav-alt" aria-label="Para hareketleri">
             {[
-              ["sabit-giderler", "Sabit Giderler"],
-              ["sabit-gelirler", "Sabit Gelirler"],
               ["odemeler", "Ödemeler"],
+              ["sabit-giderler", "Sabit Giderler"],
               ["harcamalar", "Harcamalar"],
+              ["sabit-gelirler", "Sabit Gelirler"],
             ].map(([k, ad]) => (
               <button
                 key={k}
