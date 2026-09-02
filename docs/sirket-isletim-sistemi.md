@@ -17,7 +17,7 @@ Bu rakamlar hedef, garanti değildir. Büyüme uğruna güvenlik, ölçüm doğr
 
 ### 1. CEO ve şirket koordinasyonu
 
-Ana koordinasyon görevi şirketin tek karar merkezidir. Haftalık önceliği belirler, departman çıktısını kabul veya iade eder, metrikleri birleştirir ve kullanıcı onayı gereken işleri ürün sahibine getirir.
+Yönetim Kurulu Başkanı son stratejik kararı verir. Ana koordinasyon görevi CEO merkezidir: şirket hedefini ve yetki sınırlarını belirler, ekipler arası çakışmayı çözer, metrikleri birleştirir ve yönetim kurulu onayı gereken işleri Başkan'a getirir. CEO haftalık işi dağıtan bir kuyruk değildir; sonuç ekipleri tanımlı sınırlar içinde kendi işini seçer ve yürütür.
 
 Sahip olduğu metrikler: doğrulanmış kullanıcı, aktive kullanıcı, haftalık aktif kullanıcı, Pro deneme ve ücretli dönüşüm.
 
@@ -136,6 +136,38 @@ Her departman haftalık raporunda yalnız şu formatı kullanır:
 - Cuma: metrik, öğrenim, harcama ve yayın değerlendirmesi.
 - Ayda iki kez: kullanıcı görüşmesi ve ürün öncelik güncellemesi.
 
+## Özerklik ve karar matrisi
+
+Ekipler CEO toplantısını beklemez. Her ekip yol haritasındaki en yüksek öncelikli, kendi alanına ait tek işi seçer; uygular, doğrular ve devir kaydıyla CEO'ya raporlar.
+
+### Ekip doğrudan karar verir ve uygular
+
+- Salt okunur analiz, hata yeniden üretimi ve veri kalite kontrolü
+- Taslak, prototip, yerel kod, otomatik test ve dokümantasyon
+- Mevcut kabul kriteri içindeki geri alınabilir hata düzeltmesi hazırlığı
+- Onaylanmış içerik planı sınırlarında taslak üretim ve tekrar kontrolü
+- Kullanıcı geri bildirimini sınıflandırma ve ürün kuyruğuna öneri ekleme
+
+### CEO karar verir
+
+- İki ekibi etkileyen teknik öncelik ve ölçüm sözlüğü
+- Sprint içi iş sırası ve kapasite değişimi
+- Riskli değişikliğin Yönetim Kurulu Başkanı'na sunulmaya hazır olup olmadığı
+- Testi başarısız veya metrik sonucu belirsiz işin durdurulması
+- Modelin Luna → Terra → Sol yükseltilmesi
+
+### Yönetim Kurulu Başkanı onayı gerekir
+
+- Canlı yayın ve veritabanı migration'ı
+- Reklam kampanyası, bütçe, teklif veya dönüşüm hedefi değişikliği
+- Toplu e-posta, sosyal paylaşım ve deney trafik oranı
+- Fiyat, paket, Pro süresi, finansal öneri modeli veya temel ürün stratejisi
+- Kullanıcı verisini değiştiren toplu operasyon ve geri dönüşü zor dış sistem işlemi
+
+### Acil durum
+
+Canlıda güvenlik, veri kaybı, yanlış finansal hesap veya ödeme riski varsa ekip işi P0 olarak CEO'ya anında bildirir; haftalık toplantıyı beklemez. CEO güvenli durdurma ve salt okunur teşhis yapabilir. Kullanıcıya veya dış sisteme kalıcı etkisi olan düzeltme mevcut onay kuralına göre Başkan'a çıkarılır.
+
 ## Karar kuralları
 
 - Her ekipte aynı anda yalnız bir ana iş bulunur.
@@ -143,4 +175,3 @@ Her departman haftalık raporunda yalnız şu formatı kullanır:
 - Kanal ajanı tek başına ürün vaadi oluşturamaz; canlı changelog ile eşleşir.
 - Düşük örneklemde kazanan veya başarısız ilan edilmez.
 - Otomasyonlar analiz, taslak ve denetim yapabilir; canlı yayın, toplu iletişim, bütçe, sosyal paylaşım ve deney trafiği için mevcut onay kapıları korunur.
-

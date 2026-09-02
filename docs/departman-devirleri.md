@@ -2,7 +2,7 @@
 
 ## Yönetim modeli
 
-Ürün sahibi son kararı verir. Ana geliştirici ve teknik ürün koordinatörü departman çıktılarını birleştirir, teknik kaliteyi denetler ve yayın onayını kullanıcıdan alır. Departman görevleri eş görevlerdir; koordinasyon bu dosya, yol haritası, aktif deney kaydı ve changelog üzerinden yürür.
+Yönetim Kurulu Başkanı son stratejik kararı verir. CEO ve ana teknik ürün koordinatörü ekip çıktılarını birleştirir, teknik kaliteyi denetler ve gerekli onayları Başkan'dan alır. Sonuç ekipleri CEO toplantısından görev beklemez; `docs/sirket-isletim-sistemi.md` içindeki hedef ve yetki matrisine göre kendi haftalık işini seçer, uygular ve raporlar.
 
 Operasyon yapısı kanal departmanlarından dört sonuç ekibine dönüştürülmüştür: Ürün ve Mühendislik, Büyüme, Yaşam Döngüsü ve Müşteri Başarısı, Güven/Veri/Operasyon. Kanal görevleri korunur ancak hedef ve önceliklerini `docs/sirket-isletim-sistemi.md` içindeki ortak metrik ağacından alır.
 
@@ -12,12 +12,12 @@ Model bütçesi `docs/ajan-rolleri.md > Model ve maliyet politikası` üzerinden
 
 | Departman | Codex görev başlığı | Görev kimliği | Ana teslim |
 |---|---|---|---|
-| Ana geliştirme ve koordinasyon | Uygulamayı incele | `019f5604-b9e1-7312-9c5c-12c7c529e55a` | Ürün, entegrasyon, test, sürüm ve yayın kararı |
-| Google Ads | Google Ads işlerini gözden geçir | `01a03434-d24f-7fe1-b17a-fb8b3732d313` | Kampanya ve dönüşüm önerileri |
-| Instagram | Instagram içeriklerini yönet | `01a03da8-fb51-7a33-8b5d-b5bb0fe62ad4` | İçerik planı ve yaratıcı dosyalar |
-| SEO | SEO | `01a02578-7ac6-72f3-9774-8b958b705e86` | Organik büyüme ve teknik SEO |
-| E-posta | Email - Marketing - Bilgilendirme | `01a059a6-c68c-7551-a99f-443b73c2711b` | Kampanya ve kullanıcı iletişimi |
-| CRM | CRM:BORCAMA Ajanı | `01a059a7-ff61-79c0-8301-45803c85135c` | CRM, CEO ve operasyon ekranları |
+| CEO ve koordinasyon | CEO · Borcama Yönetim Merkezi | `019f5604-b9e1-7312-9c5c-12c7c529e55a` | Şirket hedefi, entegrasyon, kalite ve yönetim kurulu kararları |
+| Büyüme · Ücretli edinim | Büyüme · Ücretli Edinim ve Analytics | `01a03434-d24f-7fe1-b17a-fb8b3732d313` | Ücretli edinim ve dönüşüm kalitesi |
+| Büyüme · İçerik | Büyüme · İçerik ve Sosyal | `01a03da8-fb51-7a33-8b5d-b5bb0fe62ad4` | İçerik planı ve yaratıcı dosyalar |
+| Büyüme · Organik | Büyüme · SEO ve Organik | `01a02578-7ac6-72f3-9774-8b958b705e86` | Organik edinim ve teknik SEO |
+| Yaşam döngüsü | Yaşam Döngüsü · E-posta ve Müşteri Başarısı | `01a059a6-c68c-7551-a99f-443b73c2711b` | Aktivasyon, tutundurma ve kullanıcı iletişimi |
+| Ürün · Operasyon | Ürün · CRM ve Operasyon | `01a059a7-ff61-79c0-8301-45803c85135c` | CRM, veri kalitesi ve operasyon ekranları |
 | Landing ve CRO | Ana koordinasyon içinde, ayrı görev açılana kadar | — | Landing hipotezi, varyant ve huni raporu |
 
 ## Devir formatı

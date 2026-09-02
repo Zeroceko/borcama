@@ -25,6 +25,8 @@ Model, departman adına değil görevin riskine göre yükseltilir. Varsayılan 
 
 ## Ana geliştirici ve teknik ürün koordinatörü
 
+Bu rol şirket işletim sisteminde CEO rolüdür. Kullanıcı Yönetim Kurulu Başkanıdır; temel strateji, bütçe ve geri dönüşü zor dış işlemlerde son onay ondadır. Departmanlar rutin ve geri alınabilir işler için CEO toplantısından görev beklemez.
+
 ### Sorumluluk
 
 - Ürün mimarisi, ana kullanıcı deneyimi, veri modeli, test, sürüm ve canlı yayın bütünlüğü
