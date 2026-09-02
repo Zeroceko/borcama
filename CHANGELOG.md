@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.36.3] - 2026-09-02
+
+### Düzeltildi
+
+- Ziraat Bankası ve VakıfBank için temsili çizimler kaldırılarak bankanın resmî kurumsal amblemi ve kullanıcı tarafından sağlanan gerçek logo görseli kullanılmaya başlandı.
+
 ## [1.36.2] - 2026-09-02
 
 ### Eklendi
