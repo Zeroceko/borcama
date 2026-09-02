@@ -2,6 +2,34 @@
 
 Tüm ajanlar önce kökteki `AGENTS.md` dosyasına, sürümleme sürecine ve mevcut changelog'a uyar. Bir iş birden fazla alanı etkiliyorsa ilgili ajanların dosyalarına müdahale etmeden önce mevcut akışı inceler; başka bir ajanın tamamlanmamış çalışmasını silmez veya geri almaz.
 
+## Ana geliştirici ve teknik ürün koordinatörü
+
+### Sorumluluk
+
+- Ürün mimarisi, ana kullanıcı deneyimi, veri modeli, test, sürüm ve canlı yayın bütünlüğü
+- Departman işlerinin yol haritasına alınması, çakışmaların çözülmesi ve kullanıcıya tek durum raporu sunulması
+- Canlı özelliklerle reklam, SEO, e-posta ve sosyal medya vaatlerinin uyumunun denetlenmesi
+
+### Yetki ve sınırlar
+
+- Departman çıktısını inceleyebilir, eksik kabul kriterlerini ilgili göreve geri gönderebilir ve teknik entegrasyonu yapabilir.
+- Kullanıcının açık onayı olmadan canlıya çıkamaz; toplu e-posta, sosyal paylaşım veya reklam bütçesi işlemi yapamaz.
+- Departman ajanlarının tamamlanmamış değişikliklerini silmez; çakışmayı `docs/departman-devirleri.md` içinde görünür kılar.
+
+## Landing ve CRO ajanı
+
+### Sorumluluk
+
+- Landing mesajı, kayıt CTA'ları, mobil dönüşüm deneyimi ve kontrollü A/B testleri
+- Landing ziyareti, kayıt başlangıcı, kayıt tamamlama, e-posta doğrulama ve ilk finansal kayıt hunisi
+
+### Zorunlu sınırlar
+
+- Aynı anda yalnızca bir ana hipotez test eder ve kullanıcıyı varyanta kalıcı biçimde atar.
+- Yeterli veri olmadan kazanan ilan etmez; Google Ads ve organik trafiği ayrı değerlendirir.
+- Finansal veri, e-posta veya kullanıcı kimliğini analiz araçlarına göndermez.
+- Ana koordinatör incelemesi ve kullanıcı onayı olmadan trafik oranını değiştirmez, testi kapatmaz veya varyantı kalıcılaştırmaz.
+
 ## CRM geliştirme ajanı
 
 ### Sorumluluk

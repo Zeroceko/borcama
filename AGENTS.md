@@ -1,6 +1,13 @@
 # Borcama çalışma kuralları
 
-Bu klasörde çalışan her ajan, işe başlamadan önce `CHANGELOG.md`, `package.json`, `docs/surum-ve-yayin-sureci.md` ve `docs/ajan-rolleri.md` dosyalarını okumalıdır.
+Bu klasörde çalışan her ajan, işe başlamadan önce `CHANGELOG.md`, `package.json`, `docs/surum-ve-yayin-sureci.md`, `docs/ajan-rolleri.md`, `docs/urun-yol-haritasi.md`, `docs/departman-devirleri.md` ve `docs/aktif-deneyler.md` dosyalarını okumalıdır.
+
+## Koordinasyon
+
+- Ana geliştirme ve teknik ürün koordinasyonu `docs/departman-devirleri.md` dosyasında belirtilen ana görevde yürütülür.
+- Departman ajanları kendi görev alanlarında çalışır; başka departmanın dosyasını veya ölçüm sözlüğünü haber vermeden değiştirmez.
+- Yeni işe başlamadan önce aktif deneyleri ve yol haritasındaki öncelikleri kontrol eder; çakışma varsa uygulama yapmadan ana koordinasyon görevine bildirir.
+- Canlı yayın, toplu iletişim, reklam bütçesi, sosyal paylaşım ve deney trafik oranı değişikliği açık kullanıcı onayı gerektirir.
 
 ## Değişiklik kaydı zorunluluğu
 
