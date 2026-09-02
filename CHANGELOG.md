@@ -4,8 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.36.0] - 2026-09-02
+
 ### Eklendi
 
+- Hareketler ekranına her ay otomatik hesaba katılan Sabit Giderler ve Sabit Gelirler alanları eklendi.
+- Kredi kartındaki ödeme durumuna tıklayarak o ekstreye ait ödemeleri görme, yanlış tutarı düzenleme veya kaydı silme akışı eklendi.
 - Kullanıcıların değişmeyen kişisel davet bağlantısıyla arkadaşlarını çağırabildiği, doğrulama sonrası iki tarafa da 30 gün Pro kazandıran referans sistemi eklendi.
 - Kayıt ekranına bağlantıdan otomatik dolabilen veya elle yazılabilen isteğe bağlı referans kodu alanı eklendi.
 - Ayarlar ekranına davet bağlantısını kopyalama, paylaşma ve kazanılan/bekleyen Pro günlerini görme kartı eklendi.
@@ -18,6 +22,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
+- Hareketler menüsü Sabit Giderler, Sabit Gelirler, Ödemeler ve Harcamalar olarak dört anlaşılır bölüme sadeleştirildi.
 - Kayıt ekranındaki isteğe bağlı referans kodu alanı sade bir açılır bölüme taşındı; davet bağlantısıyla gelenlerde alan otomatik açılıyor.
 - Arkadaşını davet et kartının mobil aksiyonları kompaktlaştırıldı ve kampanya kullanıcının Bugün ekranına sade bir davet bandı olarak eklendi.
 - Kayıt ekranındaki tekrar eden avantaj şeridi kaldırıldı, referans alanının açılışı yumuşatıldı ve Bugün ekranındaki gereksiz dikey boşluk azaltıldı.

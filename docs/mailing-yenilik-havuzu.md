@@ -4,7 +4,21 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Arkadaşını davet et, ikiniz de 30 gün Pro kazanın — Unreleased
+### Düzenli gelir ve giderlerin artık her ay hazır — v1.36.0
+
+- Siz istediniz: Kira, abonelik, aidat ve maaş gibi her ay tekrar eden tutarları yeniden girmemek.
+- Biz yaptık: Hareketler altında Sabit Giderler ve Sabit Gelirler alanlarını oluşturduk.
+- Faydası: Düzenli tutarlar her ayın ödeme gücü hesabına otomatik katılır; tek seferlik harcamalarla karışmaz.
+- Aksiyon: `https://borcama.com/fixed-expenses?utm_source=resend&utm_medium=email&utm_campaign=sabit_hareketler&utm_content=sabit_giderler`
+
+### Yanlış kart ödemesini kartından düzelt — v1.36.0
+
+- Siz istediniz: Yanlış girilen kart ödemesini uzun menülerde aramadan düzeltmek.
+- Biz yaptık: Kartın ödeme durumuna tıklayınca o ekstreye ait ödeme geçmişini ve düzenleme/silme araçlarını açtık.
+- Faydası: Yanlış tutarı kartından ayrılmadan düzeltebilir, kalan borcu anında yeniden hesaplatabilirsin.
+- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=kart_odeme_duzeltme&utm_content=odeme_gecmisi`
+
+### Arkadaşını davet et, ikiniz de 30 gün Pro kazanın — v1.36.0
 
 - Siz istediniz: Borcama'yı arkadaşına önerirken her seferinde yeni bağlantı üretmeden karşılıklı bir avantaj kazanmak.
 - Biz yaptık: Her kullanıcıya kalıcı bir davet kodu ve bağlantısı; kayıt ekranına da isteğe bağlı referans kodu alanı ekledik.
