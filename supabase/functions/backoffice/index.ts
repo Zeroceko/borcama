@@ -489,6 +489,7 @@ Deno.serve(async (req) => {
     const proAktif = !!proBitis && new Date(proBitis).getTime() > simdi;
     const denemedenCikarildi = ["admin_revoked", "self_revoked"].includes(hak?.source || "");
     const trialAktif = !proAktif && !denemedenCikarildi && !!trialBitis && new Date(trialBitis).getTime() > simdi;
+    const meta = u.user_metadata || {};
     return {
       id: u.id,
       email: u.email || "",
@@ -507,6 +508,15 @@ Deno.serve(async (req) => {
       trial_days_remaining: trialAktif ? Math.max(1, Math.ceil((new Date(trialBitis).getTime() - simdi) / gun)) : 0,
       trial_announcement_sent_at: hak?.trial_announcement_sent_at || null,
       features_announcement_sent_at: hak?.features_announcement_sent_at || null,
+      acquisition: {
+        source: String(meta.funnel_source || "direct").slice(0, 100),
+        medium: String(meta.funnel_medium || "").slice(0, 100),
+        campaign: String(meta.funnel_campaign || "").slice(0, 120),
+        content: String(meta.funnel_content || "").slice(0, 120),
+        term: String(meta.funnel_term || "").slice(0, 120),
+        paid_click: Boolean(meta.funnel_click_id),
+        plan: String(meta.funnel_plan || "").slice(0, 30),
+      },
     };
   }).sort((a, b) => (b.last_sign_in_at || b.created_at).localeCompare(a.last_sign_in_at || a.created_at));
 
@@ -601,7 +611,9 @@ Deno.serve(async (req) => {
   aktiviteler.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
   aktiviteler = aktiviteler.slice(0, 300);
   ozet.activity_24h = aktiviteler.filter((x) => simdi - new Date(String(x.created_at)).getTime() <= gun).length;
-  const gorunenKullanicilar = istenenKullaniciId ? satirlar.filter((u) => u.id === istenenKullaniciId) : satirlar;
+  const gorunenKullanicilar = istenenKullaniciId
+    ? satirlar.filter((u) => u.id === istenenKullaniciId)
+    : satirlar.map(({ acquisition: _acquisition, ...u }) => u);
   return new Response(JSON.stringify({
     summary: ozet,
     campaigns,

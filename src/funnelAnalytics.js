@@ -1,4 +1,6 @@
 import { supabase, supabaseHazir } from "./supabaseClient.js";
+import { edinimKaynaginiOlustur } from "./acquisition.js";
+export { edinimKaynaginiOlustur } from "./acquisition.js";
 
 const OTURUM_ANAHTARI = "borcama:funnel-session";
 const KAYNAK_ANAHTARI = "borcama:funnel-source";
@@ -15,24 +17,15 @@ function oturumKimligi() {
 }
 
 function kaynakBilgisi() {
-  const params = new URLSearchParams(window.location.search);
-  const kayitli = JSON.parse(sessionStorage.getItem(KAYNAK_ANAHTARI) || "null");
+  let kayitli = null;
+  try { kayitli = JSON.parse(sessionStorage.getItem(KAYNAK_ANAHTARI) || "null"); } catch { kayitli = null; }
   let referrer = "";
   try {
     referrer = document.referrer ? new URL(document.referrer).hostname : "";
   } catch {
     referrer = "";
   }
-  const clickId = params.get("gclid") || params.get("gbraid") || params.get("wbraid") || "";
-  const sonuc = {
-    source: params.get("utm_source") || (clickId ? "google" : "") || kayitli?.source || referrer || "direct",
-    medium: params.get("utm_medium") || (clickId ? "cpc" : "") || kayitli?.medium || "",
-    campaign: params.get("utm_campaign") || kayitli?.campaign || "",
-    content: params.get("utm_content") || kayitli?.content || "",
-    term: params.get("utm_term") || kayitli?.term || "",
-    click_id: clickId || kayitli?.click_id || "",
-    plan: params.get("plan") || kayitli?.plan || "",
-  };
+  const sonuc = edinimKaynaginiOlustur({ search: window.location.search, saved: kayitli, referrer });
   sessionStorage.setItem(KAYNAK_ANAHTARI, JSON.stringify(sonuc));
   return sonuc;
 }

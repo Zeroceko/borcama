@@ -183,8 +183,10 @@ function kayitDonusumunuGonder(payload = jsonOku(BEKLEYEN_KAYIT_ANAHTARI)) {
   }
   if (gonderilenKayitIstekleri.has(payload.transactionId)) return Promise.resolve(false);
   gonderilenKayitIstekleri.add(payload.transactionId);
-  etkinlikGonder("sign_up", { method: payload.method || "email" });
-  etkinlikGonder("email_verified", { method: payload.method || "email" });
+  etkinlikGonder("sign_up", { method: payload.method || "email", event_id: payload.transactionId });
+  if (payload.emailVerified) {
+    etkinlikGonder("email_verified", { method: payload.method || "email", event_id: `${payload.transactionId}:verified` });
+  }
   return adsDonusumuGonder({
     sendTo: `${GOOGLE_ADS_ID}/${KAYIT_DONUSUM_ETIKETI}`,
     value: 1,
@@ -250,6 +252,7 @@ function proDenemeOlayiniGonder(payload = jsonOku(BEKLEYEN_DENEME_ANAHTARI)) {
   gonderilenDenemeIstekleri.add(payload.eventId);
   const gonderildi = etkinlikGonder("trial_started", {
     trial_days: Math.max(1, Number(payload.trialDays) || 30),
+    event_id: payload.eventId,
   });
   gonderilenDenemeIstekleri.delete(payload.eventId);
   if (gonderildi) {
@@ -301,8 +304,13 @@ export function googleAdsOlcumIzniAyarla(izinVar) {
 }
 export function googleAdsYeniKullaniciDonusumu(user) {
   const metadata = user?.user_metadata || {};
-  if (!user?.id || !metadata.borcama_registration_created_at) return Promise.resolve(false);
-  const payload = { transactionId: user.id, method: metadata.borcama_registration_method || "email" };
+  const eventId = String(metadata.borcama_registration_event_id || "").trim();
+  if (!eventId || !metadata.borcama_registration_created_at) return Promise.resolve(false);
+  const payload = {
+    transactionId: eventId,
+    method: metadata.borcama_registration_method || "email",
+    emailVerified: Boolean(user?.email_confirmed_at),
+  };
   depoyaYaz(BEKLEYEN_KAYIT_ANAHTARI, JSON.stringify(payload));
   return kayitDonusumunuGonder(payload);
 }

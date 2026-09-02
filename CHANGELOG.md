@@ -4,9 +4,18 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- CRM kullanıcı detayına kayıt kaynağı, kanal, kampanya, reklam içeriği, arama terimi ve başlangıç planı; Analytics ekranına da kaynak bazında ziyaret, kayıt ve doğrulama sonuçları eklendi.
+
 ### Değiştirildi
 
 - Welcome sayfası borç kapatma planını ve bütçe faydasını daha net anlatacak, ekstrelerin cihazda işlendiğini görünür kılacak ve kalıcı Ücretsiz paketi ana başlangıç seçeneği olarak sunacak biçimde sadeleştirildi; ilk 30 günlük Pro erişimi ek fayda olarak anlatılıyor.
+- Kullanıcının edinim kaynağı aynı oturumdaki sonraki kampanya bağlantılarıyla ezilmeyecek biçimde ilk temas olarak sabitlendi.
+
+### Güvenlik
+
+- Google Ads kayıt dönüşümünde kullanıcı kimliği yerine kayıt başına üretilen ilişkisiz olay kimliği kullanılmaya başlandı; e-posta doğrulama olayı yalnız gerçek doğrulama sonrasında gönderiliyor.
 
 ## [1.36.4] - 2026-09-02
 

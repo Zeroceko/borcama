@@ -240,6 +240,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     setHata("");
     const funnelKaynagi = kayitModu ? funnelKaynakBilgisi() : null;
     const kayitZamani = new Date().toISOString();
+    const kayitOlayKimligi = kayitModu ? crypto.randomUUID() : null;
     const { error } = await supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
@@ -253,8 +254,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           privacy_notice_read_at: kayitZamani,
           borcama_registration_created_at: kayitZamani,
           borcama_registration_method: "magic_link",
+          borcama_registration_event_id: kayitOlayKimligi,
           funnel_session_id: funnelOturumKimligi(),
           funnel_source: funnelKaynagi.source,
+          funnel_plan: funnelKaynagi.plan,
           funnel_medium: funnelKaynagi.medium,
           funnel_campaign: funnelKaynagi.campaign,
           funnel_content: funnelKaynagi.content,
@@ -360,6 +363,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     setHata("");
     const funnelKaynagi = funnelKaynakBilgisi();
     const kayitZamani = new Date().toISOString();
+    const kayitOlayKimligi = crypto.randomUUID();
     const { data, error } = await supabase.auth.signUp({
       email: eposta.trim(),
       password: parola,
@@ -373,8 +377,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           privacy_notice_read_at: kayitZamani,
           borcama_registration_created_at: kayitZamani,
           borcama_registration_method: "password",
+          borcama_registration_event_id: kayitOlayKimligi,
           funnel_session_id: funnelOturumKimligi(),
           funnel_source: funnelKaynagi.source,
+          funnel_plan: funnelKaynagi.plan,
           funnel_medium: funnelKaynagi.medium,
           funnel_campaign: funnelKaynagi.campaign,
           funnel_content: funnelKaynagi.content,
