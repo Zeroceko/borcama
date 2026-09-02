@@ -6,7 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Welcome sayfası borç kapatma planını ve bütçe faydasını daha net anlatacak, ekstrelerin cihazda işlendiğini görünür kılacak ve kullanıcıyı ayrıntıya boğmadan 30 günlük Pro denemesine yönlendirecek biçimde sadeleştirildi.
+- Welcome sayfası borç kapatma planını ve bütçe faydasını daha net anlatacak, ekstrelerin cihazda işlendiğini görünür kılacak ve kalıcı Ücretsiz paketi ana başlangıç seçeneği olarak sunacak biçimde sadeleştirildi; ilk 30 günlük Pro erişimi ek fayda olarak anlatılıyor.
 
 ## [1.36.4] - 2026-09-02
 
