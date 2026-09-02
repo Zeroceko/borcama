@@ -167,6 +167,8 @@ const BANKA_KOD = {
   "Yapı Kredi": "YK",
   "Kuveyt Türk": "KT",
   Fibabanka: "FB",
+  Ziraat: "ZB",
+  "Ziraat Bankası": "ZB",
 };
 function bankaKodu(banka) {
   const b = (banka || "").trim();
@@ -209,6 +211,8 @@ const BANKA_LOGO_ANAHTARI = {
   "Yapı Kredi": "yapikredi",
   "Kuveyt Türk": "kuveytturk",
   Fibabanka: "fibabanka",
+  Ziraat: "ziraat",
+  "Ziraat Bankası": "ziraat",
 };
 const BANKA_MARKA_STILI = {
   halkbank: { renk: "#005596", zemin: "#dceefa" },
@@ -221,6 +225,7 @@ const BANKA_MARKA_STILI = {
   yapikredi: { renk: "#17479e", zemin: "#dee6f6" },
   kuveytturk: { renk: "#009b77", zemin: "#d8f0e9" },
   fibabanka: { renk: "#668b9b", zemin: "#e1eaed" },
+  ziraat: { renk: "#d71920", zemin: "#f9dfe0" },
 };
 function BankaRozeti({ banka, bg = LIME, rot = 0, boyut = 42, className }) {
   const logoAnahtari = BANKA_LOGO_ANAHTARI[(banka || "").trim()];

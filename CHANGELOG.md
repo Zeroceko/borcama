@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.36.1] - 2026-09-02
+
+### Düzeltildi
+
+- Ziraat Bankası kartlarında eksik olan banka işareti eklendi ve VakıfBank işareti mobil ekranlarda pikselleşmeyen vektör çizimle yenilendi.
+
 ## [1.36.0] - 2026-09-02
 
 ### Eklendi
