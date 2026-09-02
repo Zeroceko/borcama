@@ -4,7 +4,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Borcama'yı keşfetmek artık daha kolay — sürüm bekliyor
+### Borcama'yı keşfetmek artık daha kolay — v1.37.0
 
 - Siz istediniz: Borcama'nın ne işe yaradığını ve ekstrelerin nasıl korunduğunu daha ilk bakışta anlamak.
 - Biz yaptık: Welcome sayfasını borç kapatma planı, gerçekçi bütçe ve cihazda ekstre okuma faydalarını sade biçimde anlatacak şekilde yeniledik.

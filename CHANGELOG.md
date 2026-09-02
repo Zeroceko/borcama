@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.37.0] - 2026-09-02
+
 ### Eklendi
 
 - CRM kullanıcı detayına kayıt kaynağı, kanal, kampanya, reklam içeriği, arama terimi ve başlangıç planı; Analytics ekranına da kaynak bazında ziyaret, kayıt ve doğrulama sonuçları eklendi.
@@ -153,6 +155,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - VakıfBank ekstrelerinde metin katmanı OCR'dan önce okunarak kesim tarihi ve asgari tutar yakalama güvenilirliği artırıldı.
 - Kredi kartı ödeme ve ek hesap kapatma formlarının açıldığı kayıtla aynı yerde kalması sağlandı.
 
+[1.37.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.37.0
 [1.35.1]: https://github.com/Zeroceko/borcama/releases/tag/v1.35.1
 [1.35.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.35.0
 [1.34.0]: https://github.com/Zeroceko/borcama/releases/tag/v1.34.0
