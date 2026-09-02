@@ -102,3 +102,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: Edinim normalizasyonu, server-owned tablo, session kohortu, RPC yetkisi, oturum imzası, oran sınırı ve ham click-id saklamama sözleşmeleri otomatik testlere eklendi; 82/82 test, `release:check`, production build, iki Edge Function için TypeScript bundle kontrolü ve ölçülmüş/ölçülmemiş CRM detaylarının yerel tarayıcı kontrolü başarılı.
 - Başka departmanı etkileyen karar: Landing/CRO ve Google Ads, kaynak bilgisini ilk tarayıcı oturumuna bağlı kabul etmeli; `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term` alanları güvenli karakterlerle sınırlıdır. Yeni analytics kayıtları ham `gclid/gbraid/wbraid` değerini saklamaz, yalnız tıklama kimliği bulundu bilgisini tutar.
 - Kullanıcı onayı ve sonraki aksiyon: Migration, `analytics-event`, `backoffice` ve frontend birlikte ve bu sırayla yayınlanmalıdır. Bu çalışmada commit, canlı yayın veya kullanıcı verisi değişikliği yapılmadı; yayın için açık kullanıcı onayı gerekir.
+
+### 2026-09-02 · Google Ads yayın kontrolü
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`.
+- Yapılan değişiklik: Kampanya, öğe grubu, faturalandırma ve dönüşüm hedefleri canlı hesapta denetlendi; duraklatılmış uygun öğe bulunmadığı için yayın, bütçe veya teklif ayarı değiştirilmedi. Önceki kurulumdan gelen Pro Abonelik dönüşüm sayımı `Bir` olarak kalıyor.
+- Değişen dosyalar ve dış sistemler: Yalnız bu devir kaydı; Google Ads hesabında yeni mali taahhüt, bütçe artışı veya kampanya yapısı değişikliği yapılmadı.
+- Test ve doğrulama: `Campaign #1` etkin, Maksimum Performans türünde ve onaylı `₺60/gün` bütçe ile yayınlanıyor; aktif ödeme yöntemi mevcut. Tek öğe grubu da etkin. Dönüşüm hedefleri birincil durumda olsa da Google henüz kayıt ve Pro etiketlerinden canlı dönüşüm verisi almamış görünüyor.
+- Başka departmanı etkileyen karar: GA4/Ads doğrudan dönüşüm mimarisi korunmalı; test dönüşümü oluşturarak sinyal üretilemez. İlk gerçek dönüşümden sonra ölçüm tanılaması yeniden kontrol edilmeli.
+- Kullanıcı onayı ve sonraki aksiyon: Yayını sınırlayan tek uyarı Mali Hizmetler Doğrulaması politika incelemesi; daha önce gönderilmiş başvurunun Google sonucunu bekliyor. İnceleme sonucunda ek bilgi talep edilirse yalnız o talep ele alınmalı.
