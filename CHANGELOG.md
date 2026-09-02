@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.36.2] - 2026-09-02
+
+### Eklendi
+
+- DenizBank, ING Bank, TEB, HSBC ve Türkiye Finans seçim listelerine ve çözünürlükten bağımsız banka işaretleriyle kart görünümlerine eklendi.
+
 ## [1.36.1] - 2026-09-02
 
 ### Düzeltildi

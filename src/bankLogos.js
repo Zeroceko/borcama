@@ -20,6 +20,11 @@ const svgData = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
 const VECTOR_BANK_LOGOS = {
   vakifbank: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="none" stroke="#f5b800" stroke-width="5" stroke-linecap="round"><path d="M32 7v14M18 11l7 12M8 21l13 7M7 36l14-2M14 50l11-10M32 57V43M50 50L39 40M57 36l-14-2M56 21l-13 7M46 11l-7 12"/></g><circle cx="32" cy="32" r="8" fill="#f5b800"/></svg>`),
   ziraat: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="#d71920" d="M32 5c-6 8-12 14-21 18 5 2 9 3 14 3l-12 8c5 2 10 2 15 1v17H16v7h32v-7H36V35c5 1 10 1 15-1l-12-8c5 0 9-1 14-3C44 19 38 13 32 5Zm0 10 8 7-8 5-8-5 8-7Zm0 16 7 4-7 5-7-5 7-4Z"/></svg>`),
+  denizbank: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="#e31b23" d="M18 10h17c14 0 23 9 23 22S49 54 35 54H18V10Zm10 10v24h7c8 0 13-5 13-12s-5-12-13-12h-7Z"/><path fill="#005baa" d="M6 18h7v28H6z"/></svg>`),
+  ing: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="5" y="42" fill="#ff6200" font-family="Arial,sans-serif" font-size="27" font-weight="800">ING</text><circle cx="52" cy="17" r="5" fill="#ff6200"/></svg>`),
+  teb: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="#00529b" d="M5 19h54v26H5z"/><text x="10" y="39" fill="white" font-family="Arial,sans-serif" font-size="22" font-weight="800">TEB</text><path fill="none" stroke="#e31b23" stroke-width="3" d="M8 15c14-8 34-8 48 0"/></svg>`),
+  hsbc: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="#db0011" d="m7 32 13-15 12 15-12 15L7 32Zm25 0 12-15 13 15-13 15-12-15Z"/><path fill="white" d="m20 17 12 15-12 15 12-15 12 15-12-15 12-15-12 15-12-15Z"/></svg>`),
+  turkiyefinans: svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="#00a6a6" d="M9 32 27 12l11 12-18 20L9 32Z"/><path fill="#f7941d" d="m26 42 18-20 11 10-18 20-11-10Z"/></svg>`),
 };
 
 export const BANK_LOGOS = { ...RASTER_BANK_LOGOS, ...VECTOR_BANK_LOGOS };

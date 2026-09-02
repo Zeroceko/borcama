@@ -169,6 +169,13 @@ const BANKA_KOD = {
   Fibabanka: "FB",
   Ziraat: "ZB",
   "Ziraat Bankası": "ZB",
+  DenizBank: "DB",
+  ING: "ING",
+  "ING Bank": "ING",
+  TEB: "TEB",
+  "Türk Ekonomi Bankası": "TEB",
+  HSBC: "HSBC",
+  "Türkiye Finans": "TF",
 };
 function bankaKodu(banka) {
   const b = (banka || "").trim();
@@ -213,6 +220,13 @@ const BANKA_LOGO_ANAHTARI = {
   Fibabanka: "fibabanka",
   Ziraat: "ziraat",
   "Ziraat Bankası": "ziraat",
+  DenizBank: "denizbank",
+  ING: "ing",
+  "ING Bank": "ing",
+  TEB: "teb",
+  "Türk Ekonomi Bankası": "teb",
+  HSBC: "hsbc",
+  "Türkiye Finans": "turkiyefinans",
 };
 const BANKA_MARKA_STILI = {
   halkbank: { renk: "#005596", zemin: "#dceefa" },
@@ -226,6 +240,11 @@ const BANKA_MARKA_STILI = {
   kuveytturk: { renk: "#009b77", zemin: "#d8f0e9" },
   fibabanka: { renk: "#668b9b", zemin: "#e1eaed" },
   ziraat: { renk: "#d71920", zemin: "#f9dfe0" },
+  denizbank: { renk: "#005baa", zemin: "#dcecf8" },
+  ing: { renk: "#ff6200", zemin: "#ffeadc" },
+  teb: { renk: "#00529b", zemin: "#dcebf7" },
+  hsbc: { renk: "#db0011", zemin: "#fae0e2" },
+  turkiyefinans: { renk: "#00a6a6", zemin: "#daf2ef" },
 };
 function BankaRozeti({ banka, bg = LIME, rot = 0, boyut = 42, className }) {
   const logoAnahtari = BANKA_LOGO_ANAHTARI[(banka || "").trim()];
@@ -1017,6 +1036,12 @@ const BANKALAR = [
   "Yapı Kredi",
   "Kuveyt Türk",
   "Fibabanka",
+  "Ziraat Bankası",
+  "DenizBank",
+  "ING Bank",
+  "TEB",
+  "HSBC",
+  "Türkiye Finans",
 ];
 function tcmbKartAzamiFaizi(bakiye) {
   if (bakiye >= 180000) return 4.25;
