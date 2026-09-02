@@ -43,3 +43,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: 63 test, sürüm kontrolü ve production build başarılı; canlıda özel rotaların `X-Robots-Tag: noindex, nofollow, noarchive`, halka açık SEO rotalarının indekslenebilir olduğu doğrulandı.
 - Başka departmanı etkileyen karar: `LANDING-001` hazırlık aşamasındayken SEO ajanı ana landing metnini, CTA'larını, canonical yapısını veya deney ölçümünü tek başına değiştirmeyecek; organik ve Google Ads trafiğinin ayrı raporlanması korunacak.
 - Kullanıcı onayı ve sonraki aksiyon: `v1.33.1` canlı yayını kullanıcı tarafından onaylandı. Rehberlerin tam içeriğinin hazır HTML'e taşınması ve ana sayfa başlangıç JavaScript paketinin küçültülmesi ana koordinasyonla çakışma kontrolü sonrası ele alınacak.
+
+### 2026-09-02 · CRM
+
+- Baz alınan Borcama sürümü: `v1.34.0`; devir anındaki güncel ürün sürümü `v1.36.4`.
+- Yapılan değişiklik: Kullanıcı detayına e-posta doğrulama ve deneme tarihleri, destek geçmişi ve kullanıcı bazlı kampanya etkileşimleri eklendi; CEO geri bildirim ve üyelik kayıtlarından ilgili kullanıcıya geçiş sağlandı; detay API yanıtı yalnız seçili kullanıcıyla sınırlandı.
+- Değişen dosyalar ve dış sistemler: `src/Backoffice.jsx`, `src/CeoDashboard.jsx`, `supabase/functions/backoffice/index.ts`, `CHANGELOG.md`; teslim commit'i `6540637`. Commit `origin/main` içinde; canlı `backoffice` fonksiyonu bu committen sonra güncellenmiş aktif sürümde.
+- Test ve doğrulama: 63 otomatik test, `release:check`, production build ve masaüstü/mobil yerel CRM görsel kontrolü başarılı.
+- Başka departmanı etkileyen karar: E-posta departmanının teslimat, açılma, tıklama ve ziyaret kayıtları CRM'de salt okunur gösteriliyor; gönderim davranışı veya hedef kitle değiştirilmedi. E-posta/ana koordinasyon kampanya teslimat şemasını değiştirirken `user_campaigns` CRM yanıtını korumalı.
+- Kullanıcı onayı ve sonraki aksiyon: Bu devir sırasında yeni yayın veya kullanıcı verisi değişikliği yapılmadı. Destek kaydını CRM'den “incelendi” olarak işaretleme gibi yazma operasyonları ayrı kapsam ve açık onay gerektirir.
