@@ -69,7 +69,8 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 ## 1 Eylül 2026 yenilik kampanyası
 
 - Yayın sürümü: `v1.35.1`
-- Durum: Marketing ekranında gönderime hazır; toplu gönderim yapılmadı.
+- Durum: 1 Eylül 2026'da Marketing ekranından gönderildi.
+- Gönderimde kullanılan konu: `Siz istediniz, biz yaptık: Borcama'daki önemli yenilikler - 2 -`
 - Hedef kitle: E-posta adresini doğrulamış, iletişim engeli bulunmayan ve bu kampanyayı daha önce almamış üyeler.
 - Önizleme metni: `Ekstrelerini yönet, taksitlerini doğru aylarda gör ve borç kapatma planını oluştur.`
 - Ana CTA: `Yenilikleri hesabımda gör`
@@ -80,3 +81,5 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Hedef: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_v1_33_0&utm_content=ana_cta`
 - Hariç tutulacaklar: E-posta doğrulaması olmayan, iletişimden çıkan, şikâyet/bounce kaydı bulunan ve bu kampanyayı daha önce alan kullanıcılar.
 - Gönderim öncesi zorunlu kontrol: `ozerocek@gmail.com` adresine test gönderimi, masaüstü/mobil önizleme, Resend domain durumu, açılma/tıklama webhook'u ve hedef URL.
+- Sonuç (2 Eylül 2026 kontrolü): 20 gönderim, 20 teslimat, 0 ölçülen açılma, 0 ölçülen tıklama ve e-posta bağlantısından 1 Borcama ziyareti; hata, bounce veya şikâyet kaydı yok.
+- Test kaydı: Kampanyadan ayrı bir test gönderimi teslimat kaydında görülmedi.

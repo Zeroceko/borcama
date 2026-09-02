@@ -52,3 +52,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: 63 otomatik test, `release:check`, production build ve masaüstü/mobil yerel CRM görsel kontrolü başarılı.
 - Başka departmanı etkileyen karar: E-posta departmanının teslimat, açılma, tıklama ve ziyaret kayıtları CRM'de salt okunur gösteriliyor; gönderim davranışı veya hedef kitle değiştirilmedi. E-posta/ana koordinasyon kampanya teslimat şemasını değiştirirken `user_campaigns` CRM yanıtını korumalı.
 - Kullanıcı onayı ve sonraki aksiyon: Bu devir sırasında yeni yayın veya kullanıcı verisi değişikliği yapılmadı. Destek kaydını CRM'den “incelendi” olarak işaretleme gibi yazma operasyonları ayrı kapsam ve açık onay gerektirir.
+
+### 2026-09-02 · E-posta
+
+- Baz alınan Borcama sürümü: `v1.35.1`; kampanyadaki özellikler canlı `v1.33.0–v1.33.1` kapsamından seçildi.
+- Yapılan değişiklik: `Siz istediniz, biz yaptık · 1 Eylül 2026` kampanyası Marketing ekranında tarihli ad, uygun alıcı sayısı, iki aşamalı onay ve tekilleştirilmiş hedeflemeyle kullanıma açıldı.
+- Değişen dosyalar ve dış sistemler: `src/Marketing.jsx`, `supabase/functions/backoffice/index.ts`, `supabase/functions/_shared/borcama-email.ts`, `public/borcama-v1-33-email-preview.html`, `public/email-assets/gorus-bildir-ekran.jpg`, kampanya migration'ları, Supabase `backoffice` fonksiyonu, Marketing/CRM kampanya kaydı ve Vercel canlı dosyaları.
+- Test ve doğrulama: Sürüm kontrolü, 66 test ve production build geçti; canlı kampanya kaydı, e-posta önizlemesi ve görseli doğrulandı. Kampanya sonrası 20/20 teslimat, 0 ölçülen açılma, 0 ölçülen tıklama, 1 Borcama ziyareti ve 0 hata kaydedildi.
+- Başka departmanı etkileyen karar: Google Ads, SEO ve Instagram bu e-postadaki vaatleri yalnız belirtilen canlı sürümlerle eşleştirmeli; hazırlık aşamasındaki Welcome deneyi bu kampanyaya dahil edilmedi.
+- Kullanıcı onayı ve sonraki aksiyon: Canlı yayın kullanıcı isteğiyle yapıldı; toplu gönderim sonradan Marketing ekranından gerçekleşti. Ayrı test gönderimi kaydı bulunmadığı için gelecek kampanyalarda test gönderimi kapısı teknik olarak zorunlu hale getirilmeli.
