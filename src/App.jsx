@@ -79,6 +79,7 @@ import {
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
+import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
 import { getFinancialScenarioCopy } from "./financialScenarioCopy.js";
 import {
   getActivationState,
@@ -314,6 +315,7 @@ function baslikGolgesiStil(isDark, fontSize) {
 
 /* ---------------- Stil ---------------- */
 const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 .bt-budget-check{position:relative;z-index:1;margin:18px 0;border:1px solid var(--line-soft);border-radius:20px;background:var(--panel);color:var(--text);overflow:hidden;box-shadow:0 8px 22px #14160f08}
 .bt-budget-check summary{display:flex;align-items:center;gap:14px;cursor:pointer;padding:18px 20px;list-style:none;background:linear-gradient(110deg,#cdf56425,transparent 75%)}
 .bt-budget-check summary::-webkit-details-marker{display:none}.bt-budget-check summary:focus-visible{outline:3px solid #5d7a2e;outline-offset:-4px;border-radius:18px}
@@ -324,8 +326,6 @@ const CSS = `
 .bt-budget-check-ledger button{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;text-align:left;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel-soft,var(--panel));color:var(--text);cursor:pointer;font:inherit}.bt-budget-check-ledger button:hover{border-color:#5d7a2e;background:#cdf56420}.bt-budget-check-ledger span{font-size:13px;color:var(--dim)}.bt-budget-check-ledger strong{font:700 clamp(15px,2vw,20px) 'JetBrains Mono',monospace;overflow-wrap:anywhere}.bt-budget-check-ledger small{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--text)}
 .bt-budget-check-note{display:flex;align-items:flex-start;gap:9px;margin:14px 0 0;font-size:13px;line-height:1.5;color:var(--dim)}.bt-budget-check-note svg{flex-shrink:0;margin-top:2px}
 @media(max-width:560px){.bt-budget-check summary{padding:16px;gap:12px}.bt-budget-check-title strong{font-size:16px}.bt-budget-check-body{padding:0 16px 16px}.bt-budget-check-ledger{grid-template-columns:1fr}.bt-budget-check-ledger button{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px 12px}.bt-budget-check-ledger small{grid-column:1/-1}.bt-budget-check-icon{width:38px;height:38px}}
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
-
 *{box-sizing:border-box}
 ::selection{background:${LIME};color:${INK}}
 .bt-app{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s ease,color .2s ease;font-variant-numeric:tabular-nums}
@@ -2516,7 +2516,7 @@ export default function BorcTakip() {
       }
     });
     veri.loans.forEach((k) => {
-      if ((+k.kalanBorc || 0) > 0) {
+      if ((+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun())) {
         const anahtar = "kredi-" + k.id + "-" + ay;
         const odemeKaydi = veri.loanPaymentHistory?.[ay]?.[k.id];
         const taksit = +k.taksit || 0;
@@ -2549,7 +2549,7 @@ export default function BorcTakip() {
     const yil = simdi.getFullYear();
     const ay = simdi.getMonth() + 1;
     return veri.loans
-      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0)
+      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0 && loanIsDueInMonth(k, new Date(yil, ay, 1)))
       .map((k) => {
         const gun = Math.min(
           Math.max(parseInt(k.odemeGunu) || 1, 1),
@@ -6822,7 +6822,8 @@ function Borclar({
             })
           : krediGelecekGorunumu
             ? veri.loans.flatMap((k) => {
-                const fark = ayFarki(ayAnahtari(), seciliKrediAyi);
+                if (!loanIsDueInMonth(k, new Date(seciliKrediAyi + "-01T12:00:00"))) return [];
+                const fark = Math.max(ayFarki(ayAnahtari(), seciliKrediAyi) - loanStartsInMonths(k, bugun()), 0);
                 const kalanTaksit = +k.kalanTaksit || null;
                 if (
                   (+k.kalanBorc || 0) <= 0 ||
@@ -6909,6 +6910,7 @@ function Borclar({
       }
     });
     veri.loans.forEach((k) => {
+      if (!loanIsDueInMonth(k, bugun())) return;
       const tarih = buAyOdemeTarihi(k.odemeGunu);
       const gun = -kalanGun(tarih);
       const odendi = !!veri.paid?.["kredi-" + k.id + "-" + ay];
@@ -7042,7 +7044,8 @@ function Borclar({
       { k: "taksit", e: "Aylık taksit (₺)", t: "number", z: true },
       { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
       { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
-      { k: "odemeGunu", e: "Ödeme günü", t: "number", z: true },
+      { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form.veri?.id },
+      { k: "odemeGunu", e: "Aylık ödeme günü (tarih girilince otomatik)", t: "number", z: !f.ilkOdemeTarihi },
     ],
     od: [
       { k: "banka", e: "Banka", t: "text", z: true },
@@ -7282,7 +7285,9 @@ function Borclar({
       ekleGuncelle("cards", { ...form.veri, ...ekstreVerisi });
       return;
     }
-    ekleGuncelle(meta.liste, { id: f.id || uid(), ...f });
+    ekleGuncelle(meta.liste, { id: f.id || uid(), ...f,
+      ...(kategori === "loans" && f.ilkOdemeTarihi ? { odemeGunu: Number(f.ilkOdemeTarihi.slice(-2)) } : {}),
+    });
   }
 
   function bankaGonder(e) {
@@ -8830,7 +8835,7 @@ function BorclarSatiri({
     ekHesapDetay = null,
     odemeNesnesi = null;
   const krediOdemeAnahtari =
-    kategori === "loans" ? "kredi-" + k.id + "-" + ayAnahtari() : null;
+    kategori === "loans" ? loanPaymentKey(k, ayAnahtari()) : null;
   const buAyKrediOdendi =
     krediOdemeAnahtari !== null && !!paid?.[krediOdemeAnahtari];
   const tamamlananKrediTaksiti = kategori === "loans"
@@ -8948,7 +8953,8 @@ function BorclarSatiri({
           ". günü" +
           (+k.kalanTaksit > 0 ? " · " + gorunenKalanTaksit + " taksit kaldı" : "") +
           (buAyKrediOdendi ? " · bu ayki taksit ödendi" : "");
-    if (!arsiv && !k._gelecek && (+k.kalanBorc || 0) > 0) {
+    if (k.ilkOdemeTarihi) altMeta += " · ilk taksit " + k.ilkOdemeTarihi.split("-").reverse().join(".");
+    if (!arsiv && !k._gelecek && (+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun())) {
       const odemeKaydi = krediOdemeGecmisi?.[ayAnahtari()]?.[k.id];
       const yapilanOdeme = Math.max(+(odemeKaydi?.tutar || 0), 0);
       odemeNesnesi = {

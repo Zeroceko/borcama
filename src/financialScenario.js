@@ -1,4 +1,5 @@
 import { statementPeriodsForExpense, expenseInstallmentAmountForPeriod } from "./statementPeriod.js";
+import { loanStartsInMonths } from "./loanSchedule.js";
 
 const number = (value) => {
   const parsed = Number(value);
@@ -128,7 +129,7 @@ function simulateRevolvingDebt({
   maxMonths = 60,
 }) {
   const revolving = debts.map((debt) => ({ ...debt }));
-  const initialFixed = schedules.reduce((sum, loan) => sum + loan.payment, 0);
+  const initialFixed = schedules.reduce((sum, loan) => sum + (loan.start === 0 ? loan.payment : 0), 0);
   const baseAvailable = monthlyIncome - livingBudget - initialFixed;
   let reserveBalance = Math.min(Math.max(number(reserveStarting), 0), reserveTarget);
   let totalInterest = 0;
@@ -137,11 +138,11 @@ function simulateRevolvingDebt({
 
   for (let month = 1; month <= maxMonths; month += 1) {
     const fixedForMonth = schedules.reduce(
-      (sum, loan) => sum + (loan.months >= month ? loan.payment : 0),
+      (sum, loan) => sum + (month > loan.start && loan.months + loan.start >= month ? loan.payment : 0),
       0,
     );
     const freedFixed = Math.max(initialFixed - fixedForMonth, 0);
-    const rawAvailable = baseAvailable + freedPaymentRate * freedFixed;
+    const rawAvailable = baseAvailable + freedPaymentRate * freedFixed - Math.max(fixedForMonth - initialFixed, 0);
     const available = Math.max(rawAvailable, 0);
 
     revolving.forEach((debt) => {
@@ -311,6 +312,7 @@ export function calculateRevolvingDebtScenario({
     .filter((loan) => number(loan?.kalanBorc) > 0 && number(loan?.taksit) > 0)
     .map((loan) => ({
       payment: Math.max(number(loan.taksit), 0),
+      start: loanStartsInMonths(loan, currentDate),
       months: remainingInstallments(loan),
     }));
   const revolving = debts
@@ -330,9 +332,9 @@ export function calculateRevolvingDebtScenario({
     debt.effectiveRate = debt.rate * (1 + debt.levyRate);
   });
 
-  const fixedMonthly = schedules.reduce((sum, loan) => sum + loan.payment, 0);
+  const fixedMonthly = schedules.reduce((sum, loan) => sum + (loan.start === 0 ? loan.payment : 0), 0);
   const lastFixedPaymentMonth = schedules.reduce(
-    (latest, loan) => Math.max(latest, loan.months),
+    (latest, loan) => Math.max(latest, loan.months + loan.start),
     0,
   );
   const reserve = monthlyIncome * Math.max(number(reserveRatio), 0);

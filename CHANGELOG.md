@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Kredi taksitlerinin ödendi görünümü seçili aya göre hesaplanıyor; bu ayki ödeme gelecek ayın taksidinin üzerini çizmiyor.
+- Yeni kredilerde ilk taksit tarihi girilebiliyor; ödeme takvimi ve borç planı taksitleri başlangıç ayından önce hesaba katmıyor.
+- Bütçe kartı stilleri eklenirken bozulan font yükleme sırası düzeltildi; ana borç tutarının özgün yazı tipi geri getirildi.
+
 ### Değiştirildi
 
 - Bugün ekranındaki hesap açıklaması renkli bir bütçe kartına dönüştürüldü; gelir, ödeme ve harcama tutarları mobilde alt alta, doğrudan incelenebilen alanlarla sunuluyor.

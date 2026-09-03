@@ -2,6 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { calculateRevolvingDebtScenario, estimateLivingSpend } from "./financialScenario.js";
 
+test("gelecek ay başlayan kredinin taksiti ilk ayın bütçesinden düşülmez", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 8, 4), income: 20000,
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 10000 }],
+    loans: [{ kalanBorc: 240000, taksit: 20000, kalanTaksit: 12, ilkOdemeTarihi: "2026-10-15" }],
+    debts: [{ bakiye: 50000, faiz: 3, minimumOdeme: 1000, asgariOran: .2 }],
+  });
+  assert.equal(result.fixedMonthly, 0);
+  assert.equal(result.initialDebtBudget, 10000);
+  assert.equal(result.status, "structural_gap");
+  assert.equal(result.modeledMonths, 2);
+});
+
 test("yaşam giderleri zaten geliri aşıyorsa açık asgarilere eklenir", () => {
   const result = calculateRevolvingDebtScenario({
     income: 223000,
