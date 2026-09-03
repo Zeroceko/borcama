@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.40.1] - 2026-09-03
+
+### Düzeltildi
+
+- Tamamı yapılandırılan kart borcu kartta yapılandırma durumu ve taksit sayısıyla gösteriliyor; yeni taksit planı kredi ve ödeme akışına aktarılırken eski kart ekstresi gecikmiş borçtan çıkarılıyor.
+- Ödenen kredi taksitleri kredi satırında tamamlanmış görünümle işaretleniyor ve kalan taksit sayısı kayıtlı ödeme geçmişine göre doğru azaltılıyor.
+
 ## [1.40.0] - 2026-09-03
 
 ### Eklendi

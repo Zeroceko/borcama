@@ -5,6 +5,11 @@ export function cardRestructuredAmount(card = {}) {
     .reduce((total, item) => total + number(item?.tutar), 0);
 }
 
+export function latestCardRestructuring(card = {}) {
+  const records = Array.isArray(card.yapilandirmaKayitlari) ? card.yapilandirmaKayitlari : [];
+  return records.length ? records[records.length - 1] : null;
+}
+
 export function cardOutstandingBeforeRestructuring(card = {}) {
   const newModel = card.yeniDonemEkstreBorcu !== undefined
     || card.toplamEkstreBorcu !== undefined
@@ -72,6 +77,8 @@ export function applyCardRestructuring(data = {}, input = {}) {
     yapilandirilanTutar: amount,
     toplamGeriOdeme: totalRepayment,
     ilkOdemeTarihi: input.firstPaymentDate,
+    aylikTaksit: installment,
+    taksitSayisi: installmentCount,
     bankaPlaniEsas: true,
     ...(monthlyInterest == null ? {} : { aylikNominalFaiz: monthlyInterest }),
     ...(kkdfRate == null ? {} : { kkdfOrani: kkdfRate }),

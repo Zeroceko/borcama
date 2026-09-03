@@ -103,6 +103,7 @@ import {
   calculateRestructuringInstallment,
   cardRestructuredAmount,
   cardRestructurableBalance,
+  latestCardRestructuring,
 } from "./cardRestructuring.js";
 import { BANK_LOGOS } from "./bankLogos.js";
 import { davetDurumunuGetir } from "./referrals.js";
@@ -374,6 +375,7 @@ const CSS = `
 .bt-chip.secilebilir:hover{transform:translateY(-1px)}
 .bt-chip.haric{opacity:.45;border-style:dashed}
 .bt-chip.haric .lbl,.bt-chip.haric .amt{text-decoration:line-through}
+.bt-satir.bt-odendi{opacity:.68}.bt-satir.bt-odendi .bt-satir-ad,.bt-satir.bt-odendi .bt-satir-tutar{text-decoration:line-through;text-decoration-thickness:2px}.bt-satir.bt-odendi .bt-btn{opacity:1;text-decoration:none}
 .bt-borc-dagilim{position:relative;z-index:1;margin-top:8px}.bt-borc-dagilim>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:13px 15px;list-style:none;color:var(--summary-text);border:1px solid color-mix(in srgb,var(--line) 16%,transparent);border-radius:14px;background:color-mix(in srgb,var(--panel) 62%,var(--summary-bg));cursor:pointer}.bt-borc-dagilim>summary>span{display:flex;align-items:center;gap:11px}.bt-borc-dagilim>summary>span>span{display:grid;gap:2px}.bt-borc-dagilim>summary b{font-size:13px}.bt-borc-dagilim>summary small{color:var(--summary-muted);font-size:10.5px;font-weight:500}.bt-borc-dagilim>summary::-webkit-details-marker{display:none}.bt-borc-dagilim>summary::after{content:'+';display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel);font-size:18px}.bt-borc-dagilim[open]>summary::after{content:'−'}.bt-borc-dagilim-icerik{padding:14px 2px 2px}
 
 .bt-metric{background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;padding:22px;box-shadow:0 7px 20px #14160f08}
@@ -8707,7 +8709,7 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
 function KartYapilandirmaModal({ kart, onClose, onSave }) {
   const kalan = cardRestructurableBalance(kart);
   const [f, setF] = useState({
-    amount: "", installment: "", installmentCount: "", firstPaymentDate: "", totalRepayment: "",
+    amount: kalan > 0 ? String(kalan) : "", installment: "", installmentCount: "", firstPaymentDate: "", totalRepayment: "",
     monthlyInterest: "", kkdfRate: "", bsmvRate: "",
   });
   const [hata, setHata] = useState("");
@@ -8783,9 +8785,19 @@ function BorclarSatiri({
     kategori === "loans" ? "kredi-" + k.id + "-" + ayAnahtari() : null;
   const buAyKrediOdendi =
     krediOdemeAnahtari !== null && !!paid?.[krediOdemeAnahtari];
+  const tamamlananKrediTaksiti = kategori === "loans"
+    ? Object.values(krediOdemeGecmisi || {}).reduce((toplam, ayKayitlari) => {
+        const odeme = ayKayitlari?.[k.id];
+        return toplam + (+(odeme?.tutar || 0) + 0.01 >= (+k.taksit || 0) && (+k.taksit || 0) > 0 ? 1 : 0);
+      }, 0)
+    : 0;
+  const gorunenKalanTaksit = kategori === "loans" && +k.kalanTaksit > 0
+    ? Math.max(+k.kalanTaksit - tamamlananKrediTaksiti, 0)
+    : 0;
 
   if (kategori === "cards") {
     const hesap = kartHesabi(k);
+    const yapilandirma = latestCardRestructuring(k);
     const ekstreVar =
       k.yeniDonemEkstreBorcu !== undefined ||
       k.toplamEkstreBorcu !== undefined ||
@@ -8808,7 +8820,9 @@ function BorclarSatiri({
       (ekstreVar && hesap.toplam <= 0);
     const borcKapandi = ekstreVar && hesap.toplam <= 0;
     const durum = borcKapandi
-      ? "Ödendi"
+      ? yapilandirma
+        ? `Yapılandırıldı${yapilandirma.taksitSayisi ? ` · ${yapilandirma.taksitSayisi} taksit` : ""}`
+        : "Ödendi"
       : asgariTamam || odendi
         ? "Asgari ödendi"
         : hesap.odeme > 0
@@ -8822,7 +8836,9 @@ function BorclarSatiri({
       : arsiv
         ? ayEtiketi(k.ekstreAyi) + " ekstresi"
         : "Son ödeme " + gecikmeTarihi.toLocaleDateString("tr-TR");
-    if (gecikmis) {
+    if (yapilandirma && borcKapandi) {
+      altYazi = `${fmt(yapilandirma.tutar)} kart borcu taksit planına taşındı`;
+    } else if (gecikmis) {
       const gecikmeOrani = tcmbKartAzamiGecikmeFaizi(
         hesap.onceki || hesap.toplam,
       );
@@ -8882,7 +8898,7 @@ function BorclarSatiri({
           " · her ayın " +
           k.odemeGunu +
           ". günü" +
-          (+k.kalanTaksit > 0 ? " · " + k.kalanTaksit + " taksit kaldı" : "") +
+          (+k.kalanTaksit > 0 ? " · " + gorunenKalanTaksit + " taksit kaldı" : "") +
           (buAyKrediOdendi ? " · bu ayki taksit ödendi" : "");
     if (!arsiv && !k._gelecek && (+k.kalanBorc || 0) > 0) {
       const odemeKaydi = krediOdemeGecmisi?.[ayAnahtari()]?.[k.id];
@@ -8927,7 +8943,7 @@ function BorclarSatiri({
     : [];
 
   return (
-    <div className={`bt-satir${kategori === "cards" ? " bt-kredi-karti" : ""}`}>
+    <div className={`bt-satir${kategori === "cards" ? " bt-kredi-karti" : ""}${kategori === "loans" && buAyKrediOdendi ? " bt-odendi" : ""}`}>
       <BankaRozeti
         banka={k.banka}
         bg={meta.rozetBg}

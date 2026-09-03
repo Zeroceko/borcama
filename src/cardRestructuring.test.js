@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applyCardRestructuring, calculateRestructuringInstallment, cardRestructurableBalance } from "./cardRestructuring.js";
+import { applyCardRestructuring, calculateRestructuringInstallment, cardRestructurableBalance, latestCardRestructuring } from "./cardRestructuring.js";
 
 const data = { cards: [{ id: "kart-1", banka: "Banka", toplamEkstreBorcu: 10000, yapilanOdeme: 1000 }], loans: [] };
 const plan = { cardId: "kart-1", amount: 4000, installment: 850, installmentCount: 6, firstPaymentDate: "2026-10-05", totalRepayment: 5100, restructuringId: "y1", loanId: "k1", createdAt: "2026-09-03T00:00:00.000Z" };
@@ -13,6 +13,7 @@ test("kart yapılandırması kısmi borcu tek kez krediye taşır", () => {
   assert.equal(cardRestructurableBalance(result.data.cards[0]) + result.data.loans[0].kalanBorc, 10100);
   assert.equal(result.data.loans[0].taksit, 850);
   assert.equal(result.data.loans[0].kaynakKartId, "kart-1");
+  assert.equal(latestCardRestructuring(result.data.cards[0]).taksitSayisi, 6);
 });
 
 test("tam yapılandırma kartta kalan borç bırakmaz", () => {
