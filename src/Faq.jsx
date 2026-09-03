@@ -18,6 +18,12 @@ const questions = [
     "Banka hesaplarım otomatik olarak bağlanıyor mu?",
     <>Hayır. Şimdilik bilgileri sen girersin; Borcama internet bankacılığı parolanı istemez. Yeni ekstreleri ve yaptığın ödemeleri aylık olarak güncellersin.</>,
   ],
+  ["Ödeme yaptığım halde neden borç görünüyor?", <>Ödeme kaydı ilgili borcun bakiyesinden ve ekstre döneminden ayrı izlenebilir. <strong>Ödemeler</strong> ekranından kaydın doğru borca ve aya bağlı olduğunu kontrol et; düzelmiyorsa bize yaz.</>],
+  ["Asgari ödeme ile tam ödeme arasındaki fark nedir?", <>Asgari ödeme ekstrede belirtilen minimum tutardır; tam ödeme ise o dönemki borcun tamamını kapatmayı hedefler. Kesin hesap özeti için bankanı kontrol et.</>],
+  ["Yapılandırma ödeme sayılır mı?", <>Yapılandırma, ödeme kaydıyla aynı şey değildir. Plan koşullarını bankanla doğrula ve Borcama'daki kayıtlarını buna göre güncel tut.</>],
+  ["Ekstre ayı ile ödeme ayı neden farklı?", <>Ekstre harcamaların hesaplandığı dönemi, ödeme ise borcun kapatıldığı tarihi anlatır. İlgili ekstreyi ve ödeme kaydını ayrı ayrı kontrol et.</>],
+  ["Borcama'daki tahmin ile banka bakiyem neden farklı?", <>Tahminler senin girdiğin kayıtlara dayanır; banka bakiyesi değildir. Güncel tutar için bankanı kontrol et ve eksik kayıtları uygulamada düzelt.</>],
+  ["Hesap kaynağımı nasıl kontrol eder veya düzeltirim?", <>Kayıt kaynağını <strong>Ayarlar</strong> ekranından kontrol edebilirsin. Yanlışsa değişiklik yapmadan önce <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresine yaz.</>],
   [
     "Ücretsiz paket ile Pro arasındaki fark nedir?",
     <>Ücretsiz paket temel borç, ödeme, harcama ve varlık takibiyle her ay bir kişisel öneri içerir. Pro; tüm kişisel finansal sinyalleri, faiz ve ödeme önceliği analizlerini ve gelişmiş senaryoları açar.</>,
@@ -44,7 +50,7 @@ const questions = [
   ],
   [
     "Finansal bilgilerim kimlerle paylaşılır?",
-    <>Veri işleme ve saklama açıklamaları <a href="/privacy">Gizlilik ve KVKK Aydınlatma Metni</a>'nde yer alır. Kart ödeme bilgilerin Borcama tarafından saklanmaz.</>,
+    <>Veri işleme ve saklama açıklamaları <a href="/privacy">Gizlilik ve KVKK Aydınlatma Metni</a>'nde yer alır. Abonelik kart bilgileri Borcama tarafından saklanmaz; bu, uygulamaya kendi eklediğin borç ve ödeme kayıtlarından ayrıdır.</>,
   ],
 ];
 
