@@ -16,12 +16,16 @@ Canlı `v1.37.0` verisinden 2 Eylül 2026 22:46 TRT kontrolü:
 
 Segmentler davranış sinyallerine göre örtüşebilir; 7 gündür dönmeyenler ayrı bir geri kazanım katmanıdır. Bu sorguda 21 hesabın tamamı doğrulanmış, 19 hesabın veri kaydı vardır.
 
-## En fazla üç mesajlık yardım akışı
+## Canlı cadence (tekil ve davranış durdurmalı)
+
+Doğrulama e-postası bu sayaca dahil değildir. `trial-started` doğrulama sonrası 5–15 dakika içinde yalnızca bir kez gönderilen transactional karşılama mesajıdır. Kullanıcı 48 saat boyunca login/activity üretmezse `trial-first-plan-reminder` yalnızca bir kez gönderilir; herhangi bir activity bunu kalıcı olarak bastırır.
+
+İlk 7 gün e-posta yerine uygulama içi yönlendirme kullanılır. E-posta gerekiyorsa 7. günden sonra yalnızca en yüksek öncelikli eksik adıma göre tek mesaj seçilir: `no_debt` → `debt_no_income` → `first_activity`. Bu üç durum birbirini dışlar; aynı kullanıcıya aynı anda üç mesaj gönderilmez. Eksik-adım mesajından önce en az 72 saat, tüm mesajlar arasında en az 48 saat bırakılır. İlk 14 günde (doğrulama hariç) üst sınır üç lifecycle e-postasıdır.
 
 ### Mesaj 1 — Borç/ekstre adımı
 
-- Hedef: Doğrulanmış ve borç/ekstre eklememiş 12 kullanıcı.
-- Zaman: Doğrulamadan sonra 30 dakika; gönderilmemişse 48 saat sonra tek hatırlatma hakkı.
+- Hedef: 7. günden sonra seçilen tek öncelikli eksik adım.
+- Zaman: İlk 7 gün uygulama içi; gerekiyorsa 7. günden sonra tek mesaj.
 - Konu taslağı: `Borcama'da ilk adımın hazır`
 - Önizleme: `Bir kartını veya borcunu ekle; ödeme tarihlerini ve önceliklerini tek yerde gör.`
 - CTA: Borçlar ekranı.
@@ -29,8 +33,8 @@ Segmentler davranış sinyallerine göre örtüşebilir; 7 gündür dönmeyenler
 
 ### Mesaj 2 — Gelir adımı
 
-- Hedef: Borç/ekstre eklemiş ancak gelir kaydı olmayan 3 kullanıcı.
-- Zaman: İlk borç kaydından 24 saat sonra; gelir eklenirse bastırılır.
+- Hedef: Öncelik sırasındaki ikinci eksik adım; yalnızca tek seçim.
+- Zaman: İlk 7 gün e-posta yok; 7. günden sonra ve son Borcama e-postasından en az 72 saat sonra.
 - Konu taslağı: `Aylık ödeme gücünü birlikte netleştirelim`
 - Önizleme: `Gelirini eklediğinde zorunlu ödemelerden sonra kalan alanı daha gerçekçi görebilirsin.`
 - CTA: Gelir ekranı.
@@ -38,8 +42,8 @@ Segmentler davranış sinyallerine göre örtüşebilir; 7 gündür dönmeyenler
 
 ### Mesaj 3 — İlk değer veya geri dönüş adımı
 
-- Hedef: Borç ve gelir kaydı bulunan, ilk ödeme/harcama hareketi olmayan kullanıcılar; 7 gündür dönmeyen doğrulanmış kullanıcılar için geri kazanım varyantı.
-- Zaman: Mesaj 2'den 48 saat sonra veya son girişten 7 gün sonra; kullanıcı ilk hareketi yaptığında bastırılır.
+- Hedef: Öncelik sırasındaki üçüncü eksik adım; yalnızca tek seçim.
+- Zaman: 7. günden sonra, önceki 72 saatte Borcama e-postası almamışsa; ilk hareket yapıldığında bastırılır.
 - Konu taslağı: `İlk planını tamamlamak için son bir adım`
 - Önizleme: `Bir ödeme ya da harcama kaydettiğinde aylık planın kişisel kayıtlarına dayanır.`
 - CTA: Ödemeler veya Harcamalar ekranı.
@@ -50,7 +54,7 @@ Planı oluşmuş 4 kullanıcı bu akıştan çıkarılır; onlara aktivasyon yar
 ## Gönderim güvenliği ve ölçüm
 
 - Hariç liste: doğrulanmamış hesaplar; iletişimden çıkma metadatası; geçmiş `bounced` veya `complained` teslimat; ilgili kampanyada daha önce gönderim; silinmiş/bloke hesaplar; planı oluşmuş kullanıcılar.
-- Her kullanıcıda en fazla üç mesaj ve her adımda davranış gerçekleşince sonraki mesaj bastırılır.
+- Her kullanıcıda ilk 14 günde (doğrulama hariç) en fazla üç lifecycle mesajı; `trial-started` + no-login reminder + gerekirse tek eksik-adım mesajı. Aktivasyon tamamlanınca seri derhal durur.
 - Gönderen: `Borcama <zero@borcama.com>`; konu ve önizleme test gönderiminden sonra sabitlenir.
 - Test: Önce `ozerocek@gmail.com` adresine segment başına bir test gönderimi; masaüstü/mobil önizleme, ana CTA ve oturum açmamış yönlendirme kontrolü yapılır. Test teslimatı toplu kampanya metriğine dahil edilmez.
 - Ölçüm: Resend teslim/bounce/complaint, açılma ve tıklama; Borcama dönüşü; 7 gün içinde aktivasyon proxy'si (borç + gelir + ilk hareket). Finansal sonuç veya aktivasyon artışı garanti edilmez; kontrol grubu olmadan nedensel etki ilan edilmez.

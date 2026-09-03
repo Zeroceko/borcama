@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { denemeBasladiHtml, denemeBitiyorHtml, referansOduluHtml } from "../_shared/borcama-email.ts";
+import { denemeBasladiHtml, denemeBitiyorHtml, denemeIlkPlanHatirlatmaHtml, referansOduluHtml } from "../_shared/borcama-email.ts";
 import { gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
@@ -218,6 +218,12 @@ async function takipliGonder(params: {
   deliveryKey?: string;
 }) {
   const { admin, campaign, userId, email, html, destination, deliveryKey = "default" } = params;
+  const istanbulHour = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Istanbul", hour: "2-digit", hour12: false }).format(new Date()));
+  if (istanbulHour < 10 || istanbulHour >= 18) return { sent: false, duplicate: false, skipped: "quiet_hours" };
+  const since14 = new Date(Date.now() - 14 * 86400000).toISOString();
+  const since48 = new Date(Date.now() - 48 * 3600000).toISOString();
+  const { data: recent } = await admin.from("marketing_deliveries").select("sent_at").eq("user_id", userId).eq("status", "sent").gte("sent_at", since14);
+  if ((recent || []).length >= 3 || (recent || []).some((row) => row.sent_at && row.sent_at >= since48)) return { sent: false, duplicate: false, skipped: "frequency_cap" };
   const apiKey = String(Deno.env.get("RESEND_API_KEY") || "").trim();
   if (!apiKey) throw new Error("EMAIL_PROVIDER_NOT_CONFIGURED");
 
@@ -279,19 +285,20 @@ Deno.serve(async (req) => {
   } catch { /* E-posta akışı snapshot hatasından etkilenmez. */ }
   try {
     const referralBillingScheduled = await processReferralBilling(admin);
-    const [startedCampaign, endingCampaign, referralReferrerCampaign, referralInviteeCampaign] = await Promise.all([
+    const [startedCampaign, endingCampaign, reminderCampaign, referralReferrerCampaign, referralInviteeCampaign] = await Promise.all([
       kampanya(admin, "trial-started"), kampanya(admin, "trial-ending-3d"),
+      kampanya(admin, "trial-first-plan-reminder"),
       kampanya(admin, "referral-reward-referrer"), kampanya(admin, "referral-reward-invitee"),
     ]);
     const now = new Date();
     const threeDays = new Date(now.getTime() + 3 * 86400000);
     const { data: entitlements, error } = await admin.from("user_entitlements")
-      .select("user_id,trial_started_at,trial_ends_at,pro_expires_at,trial_started_email_sent_at,trial_ending_email_sent_at")
+      .select("user_id,trial_started_at,trial_ends_at,pro_expires_at,trial_started_email_sent_at,trial_ending_email_sent_at,trial_reminder_email_sent_at")
       .not("trial_ends_at", "is", null)
       .gt("trial_ends_at", now.toISOString());
     if (error) throw new Error("ENTITLEMENTS_UNAVAILABLE");
 
-    let started = 0, ending = 0, referralSent = 0, skipped = 0;
+    let started = 0, ending = 0, reminder = 0, referralSent = 0, skipped = 0;
     for (const entitlement of entitlements || []) {
       const paid = entitlement.pro_expires_at && new Date(entitlement.pro_expires_at).getTime() > now.getTime();
       if (paid) { skipped += 1; continue; }
@@ -308,6 +315,16 @@ Deno.serve(async (req) => {
         if (result.sent || result.duplicate) {
           await admin.from("user_entitlements").update({ trial_started_email_sent_at: now.toISOString(), updated_at: now.toISOString() }).eq("user_id", user.id);
           if (result.sent) started += 1;
+        }
+      }
+      if (!entitlement.trial_reminder_email_sent_at && entitlement.trial_started_at && Date.now() - new Date(entitlement.trial_started_at).getTime() >= 48 * 3600000) {
+        const { data: activity } = await admin.from("activity_logs").select("id").eq("user_id", user.id).limit(1);
+        if (!(activity || []).length) {
+          const result = await takipliGonder({ admin, campaign: reminderCampaign, userId: user.id, email, destination: "/summary?source=trial-first-plan-reminder", html: denemeIlkPlanHatirlatmaHtml });
+          if (result.sent || result.duplicate) {
+            await admin.from("user_entitlements").update({ trial_reminder_email_sent_at: now.toISOString(), updated_at: now.toISOString() }).eq("user_id", user.id);
+            if (result.sent) reminder += 1;
+          }
         }
       }
       if (!entitlement.trial_ending_email_sent_at && new Date(entitlement.trial_ends_at) <= threeDays) {
@@ -344,7 +361,7 @@ Deno.serve(async (req) => {
         if (result.sent) referralSent += 1;
       }
     }
-    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, referral_reward_sent: referralSent, referral_billing_scheduled: referralBillingScheduled, skipped, debt_snapshot_saved: debtSnapshotSaved });
+    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, trial_reminder_sent: reminder, referral_reward_sent: referralSent, referral_billing_scheduled: referralBillingScheduled, skipped, debt_snapshot_saved: debtSnapshotSaved });
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : "LIFECYCLE_EMAIL_FAILED" }, 500);
   }

@@ -26,6 +26,33 @@ function cerceve(icerik: string, altMetin = "Bu e-posta Borcama hesabınla ilgil
 
 const buton = (url: string, metin: string) => `<a href="${htmlEscape(url)}" style="display:block;margin-top:22px;padding:16px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">${htmlEscape(metin)} →</a>`;
 
+export type AktivasyonMesajSegmenti = "no-debt" | "debt-no-income" | "first-activity";
+
+export function aktivasyonYardimHtml(segment: AktivasyonMesajSegmenti, url: string) {
+  const icerik: Record<AktivasyonMesajSegmenti, { baslik: string; metin: string; buton: string }> = {
+    "no-debt": {
+      baslik: "Borcama'da ilk adımın hazır.",
+      metin: "Bir kartını veya borcunu ekle; ödeme tarihlerini ve önceliklerini tek yerde gör.",
+      buton: "Borç ekle",
+    },
+    "debt-no-income": {
+      baslik: "Aylık ödeme gücünü birlikte netleştirelim.",
+      metin: "Gelirini eklediğinde zorunlu ödemelerden sonra kalan alanı daha gerçekçi görebilirsin.",
+      buton: "Gelir ekle",
+    },
+    "first-activity": {
+      baslik: "İlk planını tamamlamak için son bir adım.",
+      metin: "Bir ödeme ya da harcama kaydettiğinde aylık planın kişisel kayıtlarına dayanır.",
+      buton: "İlk hareketi kaydet",
+    },
+  };
+  const x = icerik[segment];
+  return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">${htmlEscape(x.baslik)}</h1>
+<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0">${htmlEscape(x.metin)}</p>
+${buton(url, x.buton)}
+<div style="margin-top:18px;padding:16px 18px;border-radius:16px;background:#e5f1ee;color:#4b554f;font-size:13px;line-height:1.55">Borcama yalnızca senin kaydettiğin bilgilerle çalışır. İstersen sonraki adımı daha sonra tamamlayabilirsin.</div>`);
+}
+
 export function dogrulamaHtml(url: string) {
   return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Borcama hesabını doğrula.</h1>
 <p style="color:#55584c;font-size:16px;line-height:1.6;margin:0">Borçlarını tek yerde takip etmeye başlamak için e-posta adresini doğrula. Bağlantı yalnızca bu hesap için çalışır.</p>
@@ -54,6 +81,12 @@ ${ozellikSatiri("Kişisel ödeme öncelikleri", "Önce hangi borca yönelmenin d
 ${ozellikSatiri("Tahmini faiz görünümü", "Devreden bakiyelerin yaklaşık aylık maliyetini takip et.", "#fff0ec")}
 ${ozellikSatiri("Daha net aylık plan", "Ödeme baskısını ve toplam maliyeti farklı hedeflerle incele.", "#e5f1ee")}
 </table>${buton(url, "Borcama Pro'yu kullan")}`);
+}
+
+export function denemeIlkPlanHatirlatmaHtml(url: string) {
+  return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Borcama Pro ücretsiz denemen hazır.</h1>
+<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0">İlk planını oluşturmak için hesabına giriş yapabilirsin. Ücretsiz plan kalıcıdır; kart bilgisi gerekmez.</p>
+${buton(url, "İlk planımı oluştur")}`);
 }
 
 export function denemeBitiyorHtml(kalanGun: number, url: string) {
