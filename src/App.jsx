@@ -9038,7 +9038,7 @@ function BorclarSatiri({
                 >
                   <Pencil size={13} /> Kart bilgilerini düzenle
                 </button>
-                {hesap.toplam > 0 && (
+                {tutar > 0 && (
                   <button
                     className="bt-btn kucuk hayalet"
                     onClick={(e) => {

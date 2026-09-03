@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.39.1] - 2026-09-03
+
+### Düzeltildi
+
+- Kart borcu yapılandırma işlemi eklendikten sonra Borçlar ekranının veriler yüklenince kapanmasına neden olan gösterim hatası giderildi.
+
 ## [1.39.0] - 2026-09-03
 
 ### Eklendi
