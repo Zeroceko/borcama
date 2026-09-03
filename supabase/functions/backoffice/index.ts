@@ -349,9 +349,9 @@ function edinimKanali(edinim: Record<string, unknown> | undefined) {
 async function tumAktiviteOlaylariniGetir(
   admin: ReturnType<typeof createClient>, olayTurleri: string[], baslangic: string | null = null, artan = false,
 ) {
-  const sonuc: Array<{ user_id: string; created_at: string }> = [];
+  const sonuc: Array<{ user_id: string; event_type: string; created_at: string }> = [];
   for (let sayfa = 0; sayfa < 200; sayfa += 1) {
-    let sorgu = admin.from("activity_logs").select("user_id,created_at")
+    let sorgu = admin.from("activity_logs").select("user_id,event_type,created_at")
       .in("event_type", olayTurleri).order("created_at", { ascending: artan })
       .range(sayfa * 1000, sayfa * 1000 + 999);
     if (baslangic) sorgu = sorgu.gte("created_at", baslangic);
@@ -440,6 +440,137 @@ async function buyumeHunisiIstatistikleri(
     },
     channels: [...kanalSayilari.values()].sort((a, b) => (b.new_today + b.verified_today + b.activated_today) - (a.new_today + a.verified_today + a.activated_today)),
     unmeasured: olculemeyen,
+  };
+}
+
+const TAM_AKTIVASYON_BORC_OLAYLARI = AKTIVASYON_OLAYLARI;
+const TAM_AKTIVASYON_HAREKET_OLAYLARI = ["expense_added", "payment_added"];
+
+function gecersizOlmayanTarih(deger: string | null | undefined) {
+  const zaman = new Date(String(deger || "")).getTime();
+  return Number.isFinite(zaman) ? zaman : null;
+}
+
+function turkiyeTarihAnahtari(tarih = new Date()) {
+  const parcalar = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(tarih);
+  const parca = (tur: string) => parcalar.find((x) => x.type === tur)?.value || "";
+  return `${parca("year")}-${parca("month")}-${parca("day")}`;
+}
+
+function urunSagligiDonemi(req: Request) {
+  const url = new URL(req.url);
+  const tip = url.searchParams.get("health_period") || "30d";
+  const bugun = turkiyeGunBaslangici();
+  const sonrakiGun = new Date(bugun.getTime() + 86400000);
+  let baslangic = new Date(sonrakiGun);
+  let bitis = new Date(sonrakiGun);
+  let etiket = "Son 30 gün";
+  if (tip === "today") { baslangic = bugun; etiket = "Bugün"; }
+  else if (tip === "7d") { baslangic = new Date(sonrakiGun.getTime() - 7 * 86400000); etiket = "Son 7 gün"; }
+  else if (tip === "30d") { baslangic = new Date(sonrakiGun.getTime() - 30 * 86400000); }
+  else if (tip === "custom") {
+    const baslangicMetni = url.searchParams.get("health_from") || "";
+    const bitisMetni = url.searchParams.get("health_to") || "";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(baslangicMetni) || !/^\d{4}-\d{2}-\d{2}$/.test(bitisMetni)) throw new Error("INVALID_HEALTH_PERIOD");
+    baslangic = new Date(`${baslangicMetni}T00:00:00+03:00`);
+    bitis = new Date(`${bitisMetni}T00:00:00+03:00`);
+    bitis = new Date(bitis.getTime() + 86400000);
+    if (baslangic.getTime() >= bitis.getTime() || bitis.getTime() - baslangic.getTime() > 366 * 86400000) throw new Error("INVALID_HEALTH_PERIOD");
+    etiket = "Özel dönem";
+  } else throw new Error("INVALID_HEALTH_PERIOD");
+  const oncekiBaslangic = new Date(baslangic.getTime() - (bitis.getTime() - baslangic.getTime()));
+  return { tip, etiket, baslangic, bitis, oncekiBaslangic };
+}
+
+// Bu özet ham finansal kayıt okumaz: yalnız anonimleştirilmiş olay adları, auth
+// zamanları, edinim kaydı ve ödeme referansı olan entitlement satırlarını kullanır.
+async function urunSagligiIstatistikleri(
+  admin: ReturnType<typeof createClient>,
+  req: Request,
+  kullanicilar: Array<{ id: string; created_at: string; email_confirmed_at?: string | null }>,
+  edinimler: Array<Record<string, unknown>>,
+  haklar: Array<Record<string, unknown>>,
+) {
+  const simdi = new Date();
+  const donem = urunSagligiDonemi(req);
+  let olaylar: Array<{ user_id: string; event_type: string; created_at: string }> = [];
+  try { olaylar = await tumAktiviteOlaylariniGetir(admin, ANLAMLI_KULLANIM_OLAYLARI, null, true); }
+  catch { return { available: false, generated_at: simdi.toISOString(), error: "ACTIVITY_MEASUREMENT_UNAVAILABLE" }; }
+
+  const aralikta = (deger: string | null | undefined, baslangic = donem.baslangic, bitis = donem.bitis) => {
+    const zaman = gecersizOlmayanTarih(deger);
+    return zaman !== null && zaman >= baslangic.getTime() && zaman < bitis.getTime();
+  };
+  const ilkOlay = olaylar[0]?.created_at || null;
+  const izlemeBaslangici = gecersizOlmayanTarih(ilkOlay);
+  const kullaniciDurumu = new Map<string, { borc?: number; gelir?: number; hareket?: number; tam?: number }>();
+  for (const olay of olaylar) {
+    const userId = String(olay.user_id || ""); const zaman = gecersizOlmayanTarih(olay.created_at);
+    if (!userId || zaman === null) continue;
+    const durum = kullaniciDurumu.get(userId) || {};
+    if (TAM_AKTIVASYON_BORC_OLAYLARI.includes(olay.event_type) && durum.borc === undefined) durum.borc = zaman;
+    if (olay.event_type === "income_added" && durum.gelir === undefined) durum.gelir = zaman;
+    if (TAM_AKTIVASYON_HAREKET_OLAYLARI.includes(olay.event_type) && durum.hareket === undefined) durum.hareket = zaman;
+    if (durum.tam === undefined && durum.borc !== undefined && durum.gelir !== undefined && durum.hareket !== undefined) durum.tam = Math.max(durum.borc, durum.gelir, durum.hareket);
+    kullaniciDurumu.set(userId, durum);
+  }
+  const anlamliTekiller = (baslangic: Date, bitis: Date) => new Set(olaylar.filter((x) => aralikta(x.created_at, baslangic, bitis)).map((x) => String(x.user_id || "")).filter(Boolean)).size;
+  const say = (alan: "created_at" | "email_confirmed_at", baslangic = donem.baslangic, bitis = donem.bitis) => kullanicilar.filter((x) => aralikta(x[alan], baslangic, bitis)).length;
+  const ilkBorcSayisi = (baslangic = donem.baslangic, bitis = donem.bitis) => [...kullaniciDurumu.values()].filter((x) => x.borc !== undefined && x.borc >= baslangic.getTime() && x.borc < bitis.getTime()).length;
+  const tamAktivasyonSayisi = (baslangic = donem.baslangic, bitis = donem.bitis) => [...kullaniciDurumu.values()].filter((x) => x.tam !== undefined && x.tam >= baslangic.getTime() && x.tam < bitis.getTime()).length;
+  const onceki = { registered: say("created_at", donem.oncekiBaslangic, donem.baslangic), verified: say("email_confirmed_at", donem.oncekiBaslangic, donem.baslangic), first_debt_or_statement: ilkBorcSayisi(donem.oncekiBaslangic, donem.baslangic), full_activation_observed: tamAktivasyonSayisi(donem.oncekiBaslangic, donem.baslangic), meaningful_active: anlamliTekiller(donem.oncekiBaslangic, donem.baslangic) };
+
+  const edinimHaritasi = new Map(edinimler.map((x) => [String(x.user_id || ""), x]));
+  const kanalSatirlari = new Map<string, { source: string; medium: string; campaign: string; registered: number; verified: number; full_activation_observed: number }>();
+  const bilinmeyenKanal = { registered: 0, verified: 0, full_activation_observed: 0 };
+  const kanalaEkle = (userId: string, alan: "registered" | "verified" | "full_activation_observed") => {
+    const edinim = edinimKanali(edinimHaritasi.get(userId));
+    if (!edinim) { bilinmeyenKanal[alan] += 1; return; }
+    const anahtar = `${edinim.source}\u0000${edinim.medium}\u0000${edinim.campaign}`;
+    const satir = kanalSatirlari.get(anahtar) || { ...edinim, registered: 0, verified: 0, full_activation_observed: 0 };
+    satir[alan] += 1; kanalSatirlari.set(anahtar, satir);
+  };
+  for (const kullanici of kullanicilar) {
+    if (aralikta(kullanici.created_at)) kanalaEkle(kullanici.id, "registered");
+    if (aralikta(kullanici.email_confirmed_at)) kanalaEkle(kullanici.id, "verified");
+  }
+  for (const [userId, durum] of kullaniciDurumu) if (durum.tam !== undefined && durum.tam >= donem.baslangic.getTime() && durum.tam < donem.bitis.getTime()) kanalaEkle(userId, "full_activation_observed");
+
+  const retention = (gun: number) => {
+    if (izlemeBaslangici === null) return { available: false, reason: "Aktivite günlüğü henüz veri içermiyor." };
+    const olgunlukSiniri = Math.min(donem.bitis.getTime(), simdi.getTime()) - (gun + 1) * 86400000;
+    const kohort = kullanicilar.filter((x) => { const kayit = gecersizOlmayanTarih(x.created_at); return kayit !== null && kayit >= Math.max(izlemeBaslangici, donem.baslangic.getTime()) && kayit <= olgunlukSiniri; });
+    if (!kohort.length) return { available: false, reason: "Yeterli gözlem süresi olan izlenebilir kohort yok." };
+    const geriDonen = kohort.filter((x) => {
+      const kayit = gecersizOlmayanTarih(x.created_at)!; const hedefBaslangic = kayit + gun * 86400000; const hedefBitis = hedefBaslangic + 86400000;
+      return olaylar.some((o) => o.user_id === x.id && aralikta(o.created_at, new Date(hedefBaslangic), new Date(hedefBitis)));
+    }).length;
+    return { available: true, returned: geriDonen, eligible: kohort.length };
+  };
+  const hakHaritasi = new Map(haklar.map((x) => [String(x.user_id || ""), x]));
+  const aktifDeneme = [...hakHaritasi.values()].filter((x) => {
+    const deneme = gecersizOlmayanTarih(String(x.trial_ends_at || "")); const pro = gecersizOlmayanTarih(String(x.pro_expires_at || ""));
+    return deneme !== null && deneme > simdi.getTime() && !(pro !== null && pro > simdi.getTime());
+  }).length;
+  const ucretliAktifPro = [...hakHaritasi.values()].filter((x) => {
+    const pro = gecersizOlmayanTarih(String(x.pro_expires_at || ""));
+    return pro !== null && pro > simdi.getTime() && Boolean(String(x.pro_purchase_id || "").trim());
+  }).length;
+  const toplamDogrulanmis = kullanicilar.filter((x) => x.email_confirmed_at).length;
+  const eskiIzlenemeyen = izlemeBaslangici === null ? kullanicilar.length : kullanicilar.filter((x) => (gecersizOlmayanTarih(x.created_at) || 0) < izlemeBaslangici && !kullaniciDurumu.get(x.id)?.tam).length;
+  return {
+    available: true, generated_at: simdi.toISOString(), time_zone: "Europe/Istanbul",
+    period: { type: donem.tip, label: donem.etiket, from: turkiyeTarihAnahtari(donem.baslangic), to: turkiyeTarihAnahtari(new Date(donem.bitis.getTime() - 1)) },
+    target: { verified_users: 200, current_verified_users: toplamDogrulanmis, definition: "60. gün hedefi: e-postası doğrulanmış benzersiz hesaplar." },
+    summary: { registered: say("created_at"), verified: say("email_confirmed_at"), first_debt_or_statement: ilkBorcSayisi(), full_activation_observed: tamAktivasyonSayisi(), meaningful_active: anlamliTekiller(donem.baslangic, donem.bitis), previous: onceki },
+    active_users: { today: anlamliTekiller(turkiyeGunBaslangici(simdi), new Date(turkiyeGunBaslangici(simdi).getTime() + 86400000)), last_7_days: anlamliTekiller(new Date(turkiyeGunBaslangici(simdi).getTime() - 6 * 86400000), new Date(turkiyeGunBaslangici(simdi).getTime() + 86400000)), last_30_days: anlamliTekiller(new Date(turkiyeGunBaslangici(simdi).getTime() - 29 * 86400000), new Date(turkiyeGunBaslangici(simdi).getTime() + 86400000)), definition: "Giriş hariç borç/ekstre, gelir, gider, varlık veya ödeme olayı yapan tekil kullanıcı." },
+    retention: { d7: retention(7), d30: retention(30), definition: "Kayıttan tam 7. veya 30. gündeki anlamlı kullanım; oran her zaman dönen/uygun kohort olarak verilir." },
+    pro: { active_trial: aktifDeneme, paid_active_pro: ucretliAktifPro, first_paid_conversion: { available: false, reason: "İlk ücretli dönüşümün değişmez tarihçesi mevcut entitlement kaynağında tutulmuyor." }, definition: "Ücretli aktif Pro yalnız geçerli Pro bitişi ve ödeme referansı olan hesaplardır; deneme veya yönetici ödülü gelir değildir." },
+    channels: [...kanalSatirlari.values()].sort((a, b) => (b.registered + b.verified + b.full_activation_observed) - (a.registered + a.verified + a.full_activation_observed)),
+    unknown_channel: bilinmeyenKanal,
+    measurement: { activation_definition: "Tam aktivasyon: ilk borç/ekstre + gelir + ilk gider veya ödeme olayı.", activity_tracking_started_at: ilkOlay, legacy_or_unmeasured_accounts: eskiIzlenemeyen, test_admin_classification: { available: false, reason: "Doğrulanmış test/yönetici/çevre işareti kaynakta yok; eski tarih veya ilk temas kaydı müşteri türü sayılmaz." }, cost_data: { available: false, reason: "Bu CRM kaynağında dönemsel kanal maliyeti yok; maliyet ve edinme başına maliyet hesaplanmadı." }, critical_flow_errors: { available: false, reason: "Kritik akış hata kaynağı bu rapora bağlı değil." }, open_support: { available: false, reason: "Açık destek kaydı için tamamlanmış, dönemsel bir kaynak yok." } },
   };
 }
 
@@ -593,7 +724,7 @@ Deno.serve(async (req) => {
   if (kayitHatasi) return new Response(JSON.stringify({ error: "DATA_UNAVAILABLE" }), { status: 500, headers });
   const { data: haklar, error: hakHatasi } = await admin
     .from("user_entitlements")
-    .select("user_id,pro_expires_at,source,trial_started_at,trial_ends_at,trial_announcement_sent_at,features_announcement_sent_at");
+    .select("user_id,pro_expires_at,pro_purchase_id,source,trial_started_at,trial_ends_at,trial_announcement_sent_at,features_announcement_sent_at");
   if (hakHatasi) return new Response(JSON.stringify({ error: "ENTITLEMENTS_UNAVAILABLE" }), { status: 500, headers });
   const { data: edinimler, error: edinimHatasi } = await admin.from("user_acquisition")
     .select("user_id,source,medium,campaign,content,term,click_id_present,plan,first_touch_at,captured_at");
@@ -671,6 +802,7 @@ Deno.serve(async (req) => {
   let finansal = null;
   let yonetim = null;
   let buyumeHunisi = null;
+  let urunSagligi = null;
   if (!istenenKullaniciId) {
     try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
     analytics = await funnelIstatistikleri(admin);
@@ -691,6 +823,14 @@ Deno.serve(async (req) => {
     }
     yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
     buyumeHunisi = await buyumeHunisiIstatistikleri(admin, kullanicilar, edinimler || []);
+    try {
+      urunSagligi = await urunSagligiIstatistikleri(admin, req, kullanicilar, edinimler || [], haklar || []);
+    } catch (error) {
+      if (error instanceof Error && error.message === "INVALID_HEALTH_PERIOD") {
+        return new Response(JSON.stringify({ error: "INVALID_HEALTH_PERIOD" }), { status: 422, headers });
+      }
+      urunSagligi = { available: false, generated_at: new Date().toISOString(), error: "PRODUCT_HEALTH_UNAVAILABLE" };
+    }
   }
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || [], istenenKullaniciId);
   const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
@@ -750,6 +890,7 @@ Deno.serve(async (req) => {
     financial: finansal,
     management: yonetim,
     growth_funnel: buyumeHunisi,
+    product_health: urunSagligi,
     users: gorunenKullanicilar,
     feedback: geriBildirimler,
     activities: aktiviteler,

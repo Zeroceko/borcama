@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.41.0] - 2026-09-03
+
+### Eklendi
+
+- CEO görünümüne, 60 günlük doğrulanmış kullanıcı hedefini; kayıt, doğrulama, ilk borç/ekstre, gözlemlenen tam aktivasyon, anlamlı kullanım, kohort geri dönüşü, Pro ve kanal sonuçlarını dönem ve önceki eşit dönem karşılaştırmasıyla gösteren gizlilik odaklı Ürün Sağlığı özeti eklendi.
+
 ## [1.40.3] - 2026-09-03
 
 ### Düzeltildi
