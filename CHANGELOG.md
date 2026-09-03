@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.2] - 2026-09-03
+
 ### Düzeltildi
 
 - Pro ödeme ekranından veya giriş ekranından ana sayfaya dönüşte eski paket seçimi temizleniyor; kullanıcı tekrar ödeme ekranına gönderilmiyor.
