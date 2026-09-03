@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Yapılandırma taksitini Borcama hesaplasın — v1.40.0
+
+- Siz istediniz: Kart yapılandırmasının aylık taksitini faiz ve vergilerle kendin hesaplamak zorunda kalmamak.
+- Biz yaptık: Anapara, aylık faiz, KKDF, BSMV ve vade girildiğinde eşit aylık taksiti otomatik hesaplayan seçeneği ekledik.
+- Faydası: Bankanın kesin taksiti elinde olmasa da tahmini ödeme planını oluşturabilir; kesin tutarı biliyorsan onu doğrudan kullanabilirsin.
+- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=yapilandirma_hesabi&utm_content=ana_cta`
+
 ### Kart borcu yapılandırmanı tek yerde takip et — v1.38.0
 
 - Siz istediniz: Bankayla yaptığın kart borcu yapılandırmasının, kart bakiyesi ve yeni taksit planında iki kez görünmemesi.

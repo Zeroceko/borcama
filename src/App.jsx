@@ -100,6 +100,7 @@ import {
 } from "./paymentSummary.js";
 import {
   applyCardRestructuring,
+  calculateRestructuringInstallment,
   cardRestructuredAmount,
   cardRestructurableBalance,
 } from "./cardRestructuring.js";
@@ -8711,11 +8712,12 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
   });
   const [hata, setHata] = useState("");
   const adet = Math.max(Number.parseInt(f.installmentCount, 10) || 0, 0);
-  const aylikTaksit = Math.max(Number(f.installment) || 0, 0);
+  const hesaplananTaksit = calculateRestructuringInstallment(f);
+  const aylikTaksit = Math.max(Number(f.installment) || hesaplananTaksit, 0);
   const toplam = f.totalRepayment === "" ? aylikTaksit * adet : Math.max(Number(f.totalRepayment) || 0, 0);
   const tutar = Math.max(Number(f.amount) || 0, 0);
   const kaydet = () => {
-    const kod = onSave({ cardId: kart.id, ...f });
+    const kod = onSave({ cardId: kart.id, ...f, installment: aylikTaksit });
     if (!kod) return;
     const mesajlar = {
       INVALID_AMOUNT: "Yapılandırılan tutar, kartın kalan borcundan büyük olamaz.",
@@ -8731,7 +8733,7 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
       <div className="bt-ipucu" style={{ marginBottom: 14 }}><Info size={16}/><div>Bankanın ödeme planı esastır. Kesin aylık taksiti girdiğinde Borcama tahmini faizle onu değiştirmez.</div></div>
       <div className="bt-alanlar">
         <label className="bt-alan">Yapılandırılan tutar (₺) *<input className="bt-input" type="number" min="0.01" max={kalan} step="0.01" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })}/><small>Kartta yapılandırılabilir kalan: {fmt(kalan)}</small></label>
-        <label className="bt-alan">Aylık taksit (₺) *<input className="bt-input" type="number" min="0.01" step="0.01" value={f.installment} onChange={(e) => setF({ ...f, installment: e.target.value })}/></label>
+        <label className="bt-alan">Aylık taksit (₺)<input className="bt-input" type="number" min="0.01" step="0.01" value={f.installment} placeholder={hesaplananTaksit > 0 ? hesaplananTaksit.toFixed(2) : "Otomatik hesaplanır"} onChange={(e) => setF({ ...f, installment: e.target.value })}/><small>{f.installment ? "Bankanın verdiği kesin taksit kullanılır." : hesaplananTaksit > 0 ? `Faiz ve vergilerle tahmini: ${fmt(hesaplananTaksit)}` : "Faiz, vergi ve taksit sayısını girersen otomatik hesaplanır."}</small></label>
         <label className="bt-alan">Taksit sayısı *<input className="bt-input" type="number" min="1" max="120" step="1" value={f.installmentCount} onChange={(e) => setF({ ...f, installmentCount: e.target.value })}/></label>
         <label className="bt-alan">İlk ödeme tarihi *<input className="bt-input" type="date" value={f.firstPaymentDate} onChange={(e) => setF({ ...f, firstPaymentDate: e.target.value })}/></label>
         <label className="bt-alan">Toplam geri ödeme (₺) <input className="bt-input" type="number" min="0.01" step="0.01" value={f.totalRepayment} onChange={(e) => setF({ ...f, totalRepayment: e.target.value })}/><small>Boş bırakırsan kesin taksit × taksit sayısı kullanılır.</small></label>

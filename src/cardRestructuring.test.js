@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applyCardRestructuring, cardRestructurableBalance } from "./cardRestructuring.js";
+import { applyCardRestructuring, calculateRestructuringInstallment, cardRestructurableBalance } from "./cardRestructuring.js";
 
 const data = { cards: [{ id: "kart-1", banka: "Banka", toplamEkstreBorcu: 10000, yapilanOdeme: 1000 }], loans: [] };
 const plan = { cardId: "kart-1", amount: 4000, installment: 850, installmentCount: 6, firstPaymentDate: "2026-10-05", totalRepayment: 5100, restructuringId: "y1", loanId: "k1", createdAt: "2026-09-03T00:00:00.000Z" };
@@ -24,6 +24,13 @@ test("kesin banka taksiti tahmini oranla ezilmez", () => {
   const result = applyCardRestructuring(data, { ...plan, installment: 777.25, monthlyInterest: "4.2", kkdfRate: "15", bsmvRate: "15" });
   assert.equal(result.data.loans[0].taksit, 777.25);
   assert.equal(result.data.loans[0].aylikNominalFaiz, 4.2);
+});
+
+test("anapara, faiz, vergiler ve vadeden aylık taksiti hesaplar", () => {
+  const installment = calculateRestructuringInstallment({ amount: 46000, installmentCount: 6, monthlyInterest: 3.75, kkdfRate: 15, bsmvRate: 15 });
+  assert.ok(Math.abs(installment - 9026.61) < 0.01);
+  const result = applyCardRestructuring(data, { ...plan, installment: "", monthlyInterest: 3.75, kkdfRate: 15, bsmvRate: 15 });
+  assert.ok(result.data.loans[0].taksit > 0);
 });
 
 test("geçersiz veya mevcut bakiyeyi aşan yapılandırma engellenir", () => {

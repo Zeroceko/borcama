@@ -33,11 +33,23 @@ function validDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) && !Number.isNaN(new Date(`${value}T12:00:00`).getTime());
 }
 
+export function calculateRestructuringInstallment({ amount, installmentCount, monthlyInterest, kkdfRate, bsmvRate } = {}) {
+  const principal = number(amount);
+  const count = Math.floor(number(installmentCount));
+  const nominalRate = number(monthlyInterest) / 100;
+  const taxMultiplier = 1 + (number(kkdfRate) + number(bsmvRate)) / 100;
+  const effectiveRate = nominalRate * taxMultiplier;
+  if (principal <= 0 || count < 1 || count > 120) return 0;
+  if (effectiveRate <= 0) return principal / count;
+  return principal * effectiveRate / (1 - Math.pow(1 + effectiveRate, -count));
+}
+
 export function applyCardRestructuring(data = {}, input = {}) {
   const cardId = String(input.cardId || "");
   const card = (data.cards || []).find((item) => item.id === cardId);
   const amount = number(input.amount);
-  const installment = number(input.installment);
+  const installmentProvided = input.installment !== "" && input.installment != null;
+  const installment = installmentProvided ? number(input.installment) : calculateRestructuringInstallment(input);
   const installmentCount = Math.floor(number(input.installmentCount));
   const totalRepaymentInput = input.totalRepayment === "" || input.totalRepayment == null ? null : number(input.totalRepayment);
   if (!card) return { error: "CARD_NOT_FOUND" };

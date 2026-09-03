@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.40.0] - 2026-09-03
+
+### Eklendi
+
+- Kart borcu yapılandırma formu anapara, aylık faiz, KKDF, BSMV ve vade girildiğinde eşit aylık taksiti otomatik hesaplıyor; bankanın verdiği kesin taksit biliniyorsa kullanıcı bu tutarı kullanmaya devam edebiliyor.
+
 ## [1.39.1] - 2026-09-03
 
 ### Düzeltildi
