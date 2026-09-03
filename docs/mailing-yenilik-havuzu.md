@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Kredin doğru ayda başlasın — v1.42.4
+
+- Siz istediniz: İlk taksiti gelecek ay başlayacak kredinin bu ay ödenecek gibi görünmemesi.
+- Biz yaptık: Kredi girişine ilk taksit tarihi ekledik; ödeme takvimini ve planı başlangıç ayına bağladık.
+- Faydası: Taksitler doğru ayda görünür; bir ayın ödendi işareti diğer aylara taşınmaz.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Rakamın dayanağından kaydına ulaş — v1.42.3
 
 - Siz istediniz: Ekrandaki farkın ne olduğunu ve yanlış bir rakamı nereden kontrol edeceğini anlamak.

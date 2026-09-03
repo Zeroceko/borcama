@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.4] - 2026-09-04
+
 ### Düzeltildi
 
 - Kredi taksitlerinin ödendi görünümü seçili aya göre hesaplanıyor; bu ayki ödeme gelecek ayın taksidinin üzerini çizmiyor.
