@@ -314,6 +314,16 @@ function baslikGolgesiStil(isDark, fontSize) {
 
 /* ---------------- Stil ---------------- */
 const CSS = `
+.bt-budget-check{position:relative;z-index:1;margin:18px 0;border:1px solid var(--line-soft);border-radius:20px;background:var(--panel);color:var(--text);overflow:hidden;box-shadow:0 8px 22px #14160f08}
+.bt-budget-check summary{display:flex;align-items:center;gap:14px;cursor:pointer;padding:18px 20px;list-style:none;background:linear-gradient(110deg,#cdf56425,transparent 75%)}
+.bt-budget-check summary::-webkit-details-marker{display:none}.bt-budget-check summary:focus-visible{outline:3px solid #5d7a2e;outline-offset:-4px;border-radius:18px}
+.bt-budget-check-icon{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border-radius:14px;background:#cdf564;color:#14160f;box-shadow:3px 3px 0 #ff6f59}
+.bt-budget-check-title{flex:1;min-width:0}.bt-budget-check-title strong{display:block;font-size:18px;line-height:1.25}.bt-budget-check-title small{display:block;margin-top:5px;font-size:13px;line-height:1.4;color:var(--dim)}
+.bt-budget-check-arrow{flex-shrink:0;transition:transform .2s}.bt-budget-check[open] .bt-budget-check-arrow{transform:rotate(90deg)}
+.bt-budget-check-body{padding:0 20px 20px}.bt-budget-check-ledger{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.bt-budget-check-ledger button{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0;text-align:left;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel-soft,var(--panel));color:var(--text);cursor:pointer;font:inherit}.bt-budget-check-ledger button:hover{border-color:#5d7a2e;background:#cdf56420}.bt-budget-check-ledger span{font-size:13px;color:var(--dim)}.bt-budget-check-ledger strong{font:700 clamp(15px,2vw,20px) 'JetBrains Mono',monospace;overflow-wrap:anywhere}.bt-budget-check-ledger small{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--text)}
+.bt-budget-check-note{display:flex;align-items:flex-start;gap:9px;margin:14px 0 0;font-size:13px;line-height:1.5;color:var(--dim)}.bt-budget-check-note svg{flex-shrink:0;margin-top:2px}
+@media(max-width:560px){.bt-budget-check summary{padding:16px;gap:12px}.bt-budget-check-title strong{font-size:16px}.bt-budget-check-body{padding:0 16px 16px}.bt-budget-check-ledger{grid-template-columns:1fr}.bt-budget-check-ledger button{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px 12px}.bt-budget-check-ledger small{grid-column:1/-1}.bt-budget-check-icon{width:38px;height:38px}}
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
 *{box-sizing:border-box}
@@ -5052,16 +5062,19 @@ function Ozet({
             <strong>{tutarGoster(buAyHarcama.toplam)}</strong>
           </div>
         </div>
-        <details className="bt-ipucu" style={{ display: "block" }}>
-          <summary style={{ cursor: "pointer", fontWeight: 700 }}>Bu rakamlar nasıl hesaplandı?</summary>
-          <div>
-            <p>Kayıtlı aylık gelir {tutarGoster(gelir)} − bu ay kalan zorunlu ödemeler {tutarGoster(buAyOdenecek)} − kayıtlı harcamalar {tutarGoster(buAyHarcama.toplam)}.
-              Gelirin hesabına geçip geçmediğini ve bankadaki nakdini doğrulamıyoruz. Eksik kayıtlar bu farkı olduğundan yüksek gösterebilir.</p>
-            <div className="bt-form-butonlar">
-              <button type="button" className="bt-btn kucuk" onClick={() => setSekme("odemeler")}>Ödemeleri kontrol et</button>
-              <button type="button" className="bt-btn kucuk" onClick={() => setSekme("harcamalar")}>Harcamaları kontrol et</button>
-              <button type="button" className="bt-btn kucuk" onClick={() => setSekme("gelir")}>Geliri kontrol et</button>
+        <details className="bt-budget-check">
+          <summary>
+            <span className="bt-budget-check-icon"><CalendarCheck size={23} /></span>
+            <span className="bt-budget-check-title"><strong>Bütçenin hesabı burada</strong><small>Gelir, ödeme ve harcamalarını birlikte kontrol et.</small></span>
+            <ChevronRight className="bt-budget-check-arrow" size={21} />
+          </summary>
+          <div className="bt-budget-check-body">
+            <div className="bt-budget-check-ledger">
+              <button type="button" onClick={() => setSekme("gelir")}><span>+ Kayıtlı aylık gelir</span><strong>{tutarGoster(gelir)}</strong><small>Geliri incele <ChevronRight size={13}/></small></button>
+              <button type="button" onClick={() => setSekme("odemeler")}><span>− Kalan zorunlu ödeme</span><strong>{tutarGoster(buAyOdenecek)}</strong><small>Ödemeleri incele <ChevronRight size={13}/></small></button>
+              <button type="button" onClick={() => setSekme("harcamalar")}><span>− Kayıtlı harcamalar</span><strong>{tutarGoster(buAyHarcama.toplam)}</strong><small>Harcamaları incele <ChevronRight size={13}/></small></button>
             </div>
+            <p className="bt-budget-check-note"><Info size={16}/><span>Bu hesap banka bakiyen değildir. Gelirin hesaba geçişini ve nakdini doğrulamıyoruz; eksik kayıtlar farkı yüksek gösterebilir.</span></p>
           </div>
         </details>
         {(oran !== null || gelir > 0) && (

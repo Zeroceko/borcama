@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Bugün ekranındaki hesap açıklaması renkli bir bütçe kartına dönüştürüldü; gelir, ödeme ve harcama tutarları mobilde alt alta, doğrudan incelenebilen alanlarla sunuluyor.
+
 ## [1.42.3] - 2026-09-04
 
 ### Değiştirildi
