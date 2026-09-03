@@ -2,6 +2,50 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { calculateRevolvingDebtScenario, estimateLivingSpend } from "./financialScenario.js";
 
+test("yaşam giderleri zaten geliri aşıyorsa açık asgarilere eklenir", () => {
+  const result = calculateRevolvingDebtScenario({
+    income: 223000,
+    currentDate: new Date(2026, 8, 3),
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 109976 }],
+    loans: [{ kalanBorc: 1414950, taksit: 141495, kalanTaksit: 10 }],
+    debts: [{ bakiye: 100000, faiz: 3.75, minimumOdeme: 29749 }],
+  });
+  assert.equal(result.initialDebtBudget, -28471);
+  assert.equal(result.monthlyGap, 58220);
+  const [base, ten, twenty] = result.spendingScenarios;
+  assert.ok(base.monthlyGap > ten.monthlyGap && ten.monthlyGap > twenty.monthlyGap);
+});
+
+test("taksitli harcama yaşam tahminine aylık payıyla girer ve erken ayda büyütülmez", () => {
+  const result = estimateLivingSpend({
+    currentDate: new Date(2026, 7, 3),
+    expenses: [{ tarih: "2026-08-02", tutar: 18000, taksitSayisi: 3 }],
+  });
+  assert.equal(result.monthlyAmount, 6000);
+  assert.equal(result.partialMonthOnly, true);
+});
+
+test("yeni ayın kısmi kayıtları kapanmış ayın harcamasını aşağı çekmez", () => {
+  const result = estimateLivingSpend({
+    currentDate: new Date(2026, 8, 3),
+    expenses: [{ tarih: "2026-09-02", tutar: 100 }],
+    cards: [{ ekstreAyi: "2026-08", yeniDonemEkstreBorcu: 20000 }],
+  });
+  assert.equal(result.monthlyAmount, 20000);
+  assert.deepEqual(result.monthsUsed, ["2026-08"]);
+});
+
+test("yalnız kısmi ay verisi varsa güvenli günlük limit veya kapanış tarihi vermez", () => {
+  const result = calculateRevolvingDebtScenario({
+    currentDate: new Date(2026, 8, 3), income: 100000,
+    expenses: [{ tarih: "2026-09-02", tutar: 100 }],
+    debts: [{ bakiye: 50000, faiz: 3.75 }],
+  });
+  assert.equal(result.status, "missing_spending_history");
+  assert.equal(result.dailyLivingTarget, 0);
+  assert.equal(result.months, undefined);
+});
+
 test("ekstre yeni dönem harcamalarını manuel kayıtlarla iki kez saymaz", () => {
   const result = estimateLivingSpend({
     currentDate: new Date(2026, 7, 27),

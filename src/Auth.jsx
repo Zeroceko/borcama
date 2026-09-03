@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { runAuthAttempt, recoveryErrorMessage } from "./authAttempt.js";
 import { supabase, supabaseHazir } from "./supabaseClient.js";
 import {
   ArrowLeft,
@@ -252,6 +253,14 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     };
   }, [turnstileSiteKey]);
 
+  function authIstegiYap(request) {
+    return runAuthAttempt(request, () => {
+      setCaptchaToken("");
+      setCaptchaAttempt((x) => x + 1);
+      setGonderiliyor(false);
+    });
+  }
+
   async function linkGonder(e) {
     e.preventDefault();
     if (!eposta.trim()) return;
@@ -259,14 +268,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       return setHata(
         "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
       );
-    setCaptchaAttempt((x) => x + 1);
-    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
     if (kayitModu) await funnelEtkinligiKaydet("register_view");
     const kayitZamani = new Date().toISOString();
     const kayitOlayKimligi = kayitModu ? crypto.randomUUID() : null;
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await authIstegiYap(() => supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
         emailRedirectTo: window.location.origin + sonrakiSayfa,
@@ -284,9 +291,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           referral_code: referansKodu || undefined,
         } : undefined,
       },
-    });
-    setCaptchaToken("");
-    setGonderiliyor(false);
+    }));
     if (error)
       setHata(
         error.status === 429
@@ -301,16 +306,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   async function parolaylaGiris(e) {
     e.preventDefault();
     if (!eposta.trim() || !parola) return;
-    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await authIstegiYap(() => supabase.auth.signInWithPassword({
       email: eposta.trim(),
       password: parola,
       options: { captchaToken: captchaToken || undefined },
-    });
-    setCaptchaToken("");
-    setGonderiliyor(false);
+    }));
     if (error) {
       const kod = error.code || "";
       if (error.status === 429 || kod === "over_request_rate_limit")
@@ -354,21 +356,14 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       );
       return;
     }
-    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
-    const { error } = await supabase.auth.resetPasswordForEmail(eposta.trim(), {
+    const { error } = await authIstegiYap(() => supabase.auth.resetPasswordForEmail(eposta.trim(), {
       redirectTo: window.location.origin + "/reset-password",
       captchaToken: captchaToken || undefined,
-    });
-    setCaptchaToken("");
-    setGonderiliyor(false);
+    }));
     if (error)
-      setHata(
-        error.status === 429
-          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
-          : "Parola yenileme bağlantısı gönderilemedi. Lütfen tekrar deneyin.",
-      );
+      setHata(recoveryErrorMessage(error));
     else setGonderildi(true);
   }
 
@@ -382,13 +377,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     if (parola.length < 8) return setHata("Parolanız en az 8 karakter olmalı.");
     if (parola !== parolaTekrar)
       return setHata("Parolalar birbiriyle eşleşmiyor.");
-    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
     await funnelEtkinligiKaydet("register_view");
     const kayitZamani = new Date().toISOString();
     const kayitOlayKimligi = crypto.randomUUID();
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await authIstegiYap(() => supabase.auth.signUp({
       email: eposta.trim(),
       password: parola,
       options: {
@@ -406,9 +400,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
           referral_code: referansKodu || undefined,
         },
       },
-    });
-    setCaptchaToken("");
-    setGonderiliyor(false);
+    }));
     if (error)
       setHata(
         error.status === 429
@@ -432,7 +424,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
-      <a className="auth-back" href="/">
+      <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
         <ArrowLeft size={15} /> Ana sayfaya dön
       </a>
       <div className="auth-card">

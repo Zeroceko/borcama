@@ -5204,7 +5204,9 @@ function Ozet({
               <div className="bt-pro-senaryo-ana">
                 <div>
                   <h2>
-                    {borcsuzlukSenaryosu.recommendation.livingReductionNeeded > 0
+                    {borcsuzlukSenaryosu.status === "structural_gap"
+                      ? `Aylık planında ${tutarGoster(borcsuzlukSenaryosu.monthlyGap)} açık var`
+                      : borcsuzlukSenaryosu.recommendation.livingReductionNeeded > 0
                       ? `Aylık harcamanı ${tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded)} azalt`
                       : senaryoMetni.title}
                   </h2>
@@ -5212,6 +5214,7 @@ function Ozet({
                     Yeni kart veya KMH borcu oluşturmadan mevcut aylık harcaman
                     {" "}<b>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</b>; ilk hedef
                     {" "}<b>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</b>.
+                    {onerilenBorcsuzlukSenaryosu?.status === "structural_gap" && " Bu azaltım tek başına açığı kapatmıyor. Gereken ek değişikliği borç planında gör."}
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
@@ -9566,6 +9569,13 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
       </section>
 
       <section className="bt-plan-senaryo">
+        <div className="bt-plan-senaryo-not">
+          <strong>Bu bir aylık plan tahminidir.</strong>
+          <span>Bankadaki kullanılabilir bakiyen veya bugünden kalan ödeme listen değildir.
+            Yaşam harcaması {finansalSenaryo.living.monthsUsed.join(", ") || "henüz bulunmayan"} dönemlerinin kayıtlarından hesaplanır; taksitler aylık paylarıyla alınır.
+            {finansalSenaryo.living.partialMonthOnly && " Yalnızca bu ayın eksik kayıtları var; görünen harcama tutarı güvenli bir günlük limit değildir."}
+          </span>
+        </div>
         <div className="bt-plan-senaryo-ust">
           <div>
             <h2>{senaryoMetni.title}</h2>
@@ -9589,18 +9599,18 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
               {finansalSenaryo.status === "structural_gap" ? (
                 <>
                   <div>
-                    <span>Kart ve KMH için bu ay gereken en az ödeme</span>
+                    <span>Planda kart ve KMH için gereken en az ödeme</span>
                     <strong>{fmt0(finansalSenaryo.requiredMinimum)}</strong>
                   </div>
                   <div>
                     <span>Kredi ve yaşam giderinden sonra kalan</span>
-                    <strong>{fmt0(Math.max(finansalSenaryo.initialDebtBudget, 0))}</strong>
-                    <small>Kart ve KMH ödemelerine ayrılabilecek tutar</small>
+                    <strong>{fmt0(finansalSenaryo.initialDebtBudget)}</strong>
+                    <small>Eksi tutar, kart ödemelerinden önce de açık olduğunu gösterir</small>
                   </div>
                   <div>
-                    <span>Asgari ödemeler için eksik kalan</span>
+                    <span>Toplam aylık bütçe açığı</span>
                     <strong>{fmt0(finansalSenaryo.monthlyGap)}</strong>
-                    <small>Asgari ödemeleri tamamlamak için gereken ek para</small>
+                    <small>Yaşam giderleri, kredi taksitleri ve kart/KMH asgarileri birlikte</small>
                   </div>
                 </>
               ) : (
@@ -9630,7 +9640,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                 <span>
                   {fmt0(finansalSenaryo.monthlyIncome)} gelirden {fmt0(finansalSenaryo.fixedMonthly)} kredi taksiti ve
                   {" "}{fmt0(finansalSenaryo.livingBudget)} mevcut yaşam harcaması çıkınca kart ve KMH için
-                  {" "}{fmt0(Math.max(finansalSenaryo.initialDebtBudget, 0))} kalıyor. Bu ay en az
+                  {" "}{fmt0(finansalSenaryo.initialDebtBudget)} kalıyor. Eksi tutar varsa bu da açığa dahildir. Planda en az
                   {" "}{fmt0(finansalSenaryo.requiredMinimum)} ödenmesi gerektiği için
                   {" "}{fmt0(finansalSenaryo.monthlyGap)} eksik oluşuyor. Güvenlik tamponu yalnızca bu zorunlu
                   ödemeler karşılandıktan sonra biriktirilir; bu açığa dahil değildir.
@@ -9707,7 +9717,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                         ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
                         : scenario.status === "long_horizon"
                           ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
-                          : `Kart ve KMH asgarileri için ayda ${fmt0(scenario.monthlyGap)} eksik kalır.`}
+                          : `Giderler ve zorunlu borç ödemeleri için ayda ${fmt0(scenario.monthlyGap)} açık kalır.`}
                     </small>
                   </div>
                 ))}
@@ -9756,7 +9766,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                         ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
                         : scenario.status === "long_horizon"
                           ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
-                          : `Kart ve KMH asgarileri için ayda ${fmt0(scenario.monthlyGap)} eksik kalır.`}
+                          : `Giderler ve zorunlu borç ödemeleri için ayda ${fmt0(scenario.monthlyGap)} açık kalır.`}
                     </small>
                   </div>
                 ))}

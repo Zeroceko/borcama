@@ -103,7 +103,7 @@ export default function ProCheckout() {
       <div className="pc-shell">
         <header className="pc-head">
           <img className="pc-logo" src="/borcama-logo.png" alt="Borcama" />
-          <a className="pc-back" href="/">
+          <a className="pc-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
             <ChevronLeft size={15} /> Ana sayfa
           </a>
         </header>

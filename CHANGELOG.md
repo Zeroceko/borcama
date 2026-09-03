@@ -4,6 +4,15 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Pro ödeme ekranından veya giriş ekranından ana sayfaya dönüşte eski paket seçimi temizleniyor; kullanıcı tekrar ödeme ekranına gönderilmiyor.
+
+- Borç planında yaşam giderleri geliri aştığında oluşan eksi bakiye artık asgari ödemelerle birlikte toplam bütçe açığında gösteriliyor.
+- Yaşam harcaması tahmininde taksitli alışverişlerin aylık payları kullanılıyor; eksik ay kayıtları tüm aya çarpılmıyor ve tek başına güvenli günlük limit üretemiyor.
+- Harcama azaltımı açığı kapatmaya yetmiyorsa Bugün ekranı bunu açıkça belirtiyor; borç planı tahmini ile kalan gerçek ödemelerin farklı olduğu açıklanıyor.
+- Giriş ve parola yenileme denemeleri tamamlandıktan sonra güvenlik doğrulaması yenileniyor; bağlantı hatalarında işlem takılı kalmıyor ve yeniden deneme mesajı gösteriliyor.
+
 ## [1.42.1] - 2026-09-03
 
 ### Düzeltildi

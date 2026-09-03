@@ -1,3 +1,5 @@
+import { statementPeriodsForExpense, expenseInstallmentAmountForPeriod } from "./statementPeriod.js";
+
 const number = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -40,9 +42,15 @@ export function estimateLivingSpend({ expenses = [], cards = [], currentDate = n
   expenses.forEach((expense) => {
     const key = String(expense?.tarih || "").slice(0, 7);
     if (!/^\d{4}-\d{2}$/.test(key)) return;
-    const row = ensure(key);
-    row.manual += Math.max(number(expense?.tutar), 0);
-    row.manualCount += 1;
+    const card = cards.find((item) => expense.kaynak === `${item.banka} · ${item.ad || "Kredi kartı"}`);
+    // Use the same statement allocation as the expenses screen. Cash entries
+    // retain their transaction month rather than inheriting a card cutoff.
+    const allocationCard = card || { kesimGunu: 31 };
+    statementPeriodsForExpense(expense, allocationCard).forEach((period) => {
+      const row = ensure(period);
+      row.manual += Math.max(expenseInstallmentAmountForPeriod(expense, allocationCard, period), 0);
+      row.manualCount += 1;
+    });
   });
 
   statements(cards).forEach((statement) => {
@@ -56,22 +64,15 @@ export function estimateLivingSpend({ expenses = [], cards = [], currentDate = n
     row.statementCount += 1;
   });
 
-  const current = monthly.get(currentMonth);
-  if (current && current.statement <= 0 && current.manual > 0) {
-    const elapsed = Math.max(currentDate.getDate(), 1);
-    const days = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-    current.projectedManual = current.manual * (days / elapsed);
-  }
-
+  const completeHistory = [...monthly.values()].some((row) => row.key < currentMonth && (row.statement > 0 || row.manual > 0));
   const candidates = [...monthly.values()]
     .filter((row) => row.key <= currentMonth)
+    .filter((row) => row.key !== currentMonth || row.statement > 0 || !completeHistory)
     .map((row) => ({
       ...row,
       amount: row.statement > 0
         ? Math.max(row.statement, row.manual)
-        : row.key === currentMonth
-          ? row.projectedManual || row.manual
-          : row.manual,
+        : row.manual,
     }))
     .filter((row) => row.amount > 0)
     .sort((a, b) => b.key.localeCompare(a.key))
@@ -95,6 +96,7 @@ export function estimateLivingSpend({ expenses = [], cards = [], currentDate = n
     statementMonths,
     manualCount,
     hasData: monthlyAmount > 0,
+    partialMonthOnly: candidates.length === 1 && candidates[0].key === currentMonth && !statementMonths,
   };
 }
 
@@ -139,7 +141,8 @@ function simulateRevolvingDebt({
       0,
     );
     const freedFixed = Math.max(initialFixed - fixedForMonth, 0);
-    const available = Math.max(baseAvailable + freedPaymentRate * freedFixed, 0);
+    const rawAvailable = baseAvailable + freedPaymentRate * freedFixed;
+    const available = Math.max(rawAvailable, 0);
 
     revolving.forEach((debt) => {
       if (debt.balance <= 0 || debt.rate <= 0) return;
@@ -160,13 +163,13 @@ function simulateRevolvingDebt({
     });
     const totalMinimum = minimums.reduce((sum, value) => sum + value, 0);
 
-    if (available + 0.01 < totalMinimum) {
+    if (rawAvailable + 0.01 < totalMinimum) {
       return {
         status: "structural_gap",
         month,
         available,
         requiredMinimum: totalMinimum,
-        monthlyGap: totalMinimum - available,
+        monthlyGap: totalMinimum - rawAvailable,
         totalInterest,
         reserveBalance,
       };
@@ -217,7 +220,7 @@ function simulateRevolvingDebt({
         month,
         available,
         requiredMinimum: Math.max(totalMinimum, monthlyInterest),
-        monthlyGap: Math.max(totalMinimum, monthlyInterest) - available,
+        monthlyGap: Math.max(totalMinimum, monthlyInterest) - rawAvailable,
         totalInterest,
         reserveBalance,
       };
@@ -399,7 +402,7 @@ export function calculateRevolvingDebtScenario({
       assumptions,
     };
   }
-  if (!living.hasData) {
+  if (!living.hasData || (living.partialMonthOnly && !hasLivingOverride)) {
     return {
       status: "missing_spending_history",
       living,
