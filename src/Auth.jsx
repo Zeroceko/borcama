@@ -28,6 +28,7 @@ const denemeMailiTetiklenenKullanicilar = new Set();
 function TurnstileWidget({ siteKey, onToken, widgetKey }) {
   const ref = useRef(null);
   useEffect(() => {
+    onToken('');
     let widget;
     let active = true;
     const render = () => {
@@ -42,7 +43,7 @@ function TurnstileWidget({ siteKey, onToken, widgetKey }) {
     };
     if (window.turnstile) render();
     else window.addEventListener('turnstile-ready', render, { once: true });
-    return () => { active = false; if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
+    return () => { active = false; window.removeEventListener('turnstile-ready', render); if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
   }, [siteKey, widgetKey, onToken]);
   return <div ref={ref} style={{ marginBottom: 12 }} />;
 }
@@ -194,6 +195,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaAttempt, setCaptchaAttempt] = useState(0);
   const ilkReferansKodu = kayitModu ? davetKodunuYoldanOku("", window.location.search) : "";
   const [referansKodu, setReferansKodu] = useState(ilkReferansKodu);
   const [referansDurumu, setReferansDurumu] = useState(ilkReferansKodu ? "checking" : "idle");
@@ -240,7 +242,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   useEffect(() => {
     if (!turnstileSiteKey) return;
     const script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     script.async = true;
     script.defer = true;
     script.onload = () => window.dispatchEvent(new Event("turnstile-ready"));
@@ -257,6 +259,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       return setHata(
         "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
       );
+    setCaptchaAttempt((x) => x + 1);
+    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
     if (kayitModu) await funnelEtkinligiKaydet("register_view");
@@ -297,6 +301,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   async function parolaylaGiris(e) {
     e.preventDefault();
     if (!eposta.trim() || !parola) return;
+    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
     const { error } = await supabase.auth.signInWithPassword({
@@ -349,6 +354,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
       );
       return;
     }
+    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
     const { error } = await supabase.auth.resetPasswordForEmail(eposta.trim(), {
@@ -376,6 +382,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     if (parola.length < 8) return setHata("Parolanız en az 8 karakter olmalı.");
     if (parola !== parolaTekrar)
       return setHata("Parolalar birbiriyle eşleşmiyor.");
+    setCaptchaAttempt((x) => x + 1);
     setGonderiliyor(true);
     setHata("");
     await funnelEtkinligiKaydet("register_view");
@@ -498,7 +505,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
               required
             />
             {turnstileSiteKey && (
-              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`reset-${sifirlamaModu}`} onToken={setCaptchaToken} />
+              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`reset-${sifirlamaModu}-${captchaAttempt}`} onToken={setCaptchaToken} />
             )}
             <button
               className="auth-btn"
@@ -534,7 +541,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
               required
             />
             {turnstileSiteKey && (
-              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`link-${yontem}-${kayitModu}`} onToken={setCaptchaToken} />
+              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`link-${yontem}-${kayitModu}-${captchaAttempt}`} onToken={setCaptchaToken} />
             )}
             <button
               className="auth-btn"
@@ -700,7 +707,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
               </label>
             )}
             {turnstileSiteKey && (
-              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`password-${kayitModu}`} onToken={setCaptchaToken} />
+              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`password-${kayitModu}-${captchaAttempt}`} onToken={setCaptchaToken} />
             )}
             <button
               className="auth-btn"
