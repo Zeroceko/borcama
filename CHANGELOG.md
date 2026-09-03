@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.1] - 2026-09-03
+
+### Düzeltildi
+
+- Yapılandırma planına taşınan kartlar artık gerçek ödeme veya gecikmiş bekleyen ödeme gibi görünmüyor; zorunlu ödeme ilerlemesi yalnız gerçekten ödenecek asgari ve taksit hedeflerini sayıyor.
+- Varlıklarda alış maliyeti bilinmeyen kayıtlar toplam değerde korunurken kazanç/kayıp hesabından ayrı tutuluyor; karşılaştırmanın kapsamadığı kayıtlar açıkça belirtiliyor.
+- CRM’de son 30 günlük giriş etkinliği erişim durumundan ayrıldı; gerçek erişim engeli yalnız doğrulanmış ban kaydı varsa ayrı gösteriliyor.
+
 ## [1.42.0] - 2026-09-03
 
 ### Eklendi

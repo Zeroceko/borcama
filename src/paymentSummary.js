@@ -1,5 +1,9 @@
 export function isMandatoryPaymentPending(payment) {
-  if (payment?.kartOdemesi) return !payment.minimumTamam;
+  if (payment?.kartOdemesi) {
+    if (payment?.yapilandirmaIleKapandi || payment?.tamamiOdendi) return false;
+    if (!(+payment?.hedefTutar > 0.01)) return false;
+    return !payment.minimumTamam;
+  }
   return !payment?.odendi;
 }
 

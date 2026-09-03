@@ -39,12 +39,17 @@ test("arşiv ekstre güncel kartın kesin tarihlerini miras almaz", () => {
   assert.equal(record.kesimGunu, 25);
 });
 
-test("asgari hedefi eksik kart ve ödenmemiş kredi bekleyen sayılır", () => {
+test("açık asgari hedefi olan kart ve ödenmemiş kredi bekleyen sayılır", () => {
   assert.equal(
-    isMandatoryPaymentPending({ kartOdemesi: true, minimumTamam: false }),
+    isMandatoryPaymentPending({ kartOdemesi: true, hedefTutar: 100, minimumTamam: false }),
     true,
   );
   assert.equal(isMandatoryPaymentPending({ odendi: false }), true);
+});
+
+test("sıfır asgari hedefi ve yapılandırmaya taşınan kart bekleyen ödeme değildir", () => {
+  assert.equal(isMandatoryPaymentPending({ kartOdemesi: true, hedefTutar: 0, minimumTamam: false }), false);
+  assert.equal(isMandatoryPaymentPending({ kartOdemesi: true, hedefTutar: 100, yapilandirmaIleKapandi: true }), false);
 });
 
 test("zorunlu ödeme özeti fazla ödemeyi hedef tutarla sınırlar", () => {

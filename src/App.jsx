@@ -98,6 +98,7 @@ import {
   mergeArchivedCardStatement,
   summarizeMandatoryPayments,
 } from "./paymentSummary.js";
+import { summarizeComparableAssets } from "./assetSummary.js";
 import {
   applyCardRestructuring,
   calculateRestructuringInstallment,
@@ -910,13 +911,12 @@ function varlikOzetiHesapla(varliklar = [], fiyatlar = {}) {
     ...kayit,
     hesaplananDeger: varlikDegeri(kayit, fiyatlar),
   }));
-  const toplam = kalemler.reduce((t, k) => t + k.hesaplananDeger, 0);
-  const maliyet = kalemler.reduce(
-    (t, k) =>
-      t + Math.max(+k.toplamMaliyet || 0, 0) * paraBirimiKuru(k, fiyatlar),
-    0,
-  );
-  return { kalemler, toplam, maliyet, kazanc: toplam - maliyet };
+  const ozet = summarizeComparableAssets(kalemler.map((k) => ({
+    value: k.hesaplananDeger,
+    cost: Math.max(+k.toplamMaliyet || 0, 0) * paraBirimiKuru(k, fiyatlar),
+    costKnown: k.maliyetBiliniyor === true,
+  })));
+  return { kalemler, toplam: ozet.total, maliyet: ozet.cost, kazanc: ozet.gain, karsilastirilabilirDeger: ozet.comparableValue, maliyetBilinenKalemSayisi: ozet.comparableCount, maliyetEksikKalemSayisi: ozet.missingCostCount };
 }
 const AYLAR = [
   "Ocak",
@@ -5473,8 +5473,10 @@ function OdemeSatiri({
   const gun = kalanGun(o.tarih);
   const gercektenGecikmis =
     gun < 0 &&
-    !(o.kartOdemesi ? o.minimumTamam || o.tamamiOdendi : o.odendi);
-  const kartDurumu = o.tamamiOdendi
+    !(o.kartOdemesi ? o.minimumTamam || o.tamamiOdendi || o.yapilandirmaIleKapandi : o.odendi);
+  const kartDurumu = o.yapilandirmaIleKapandi
+    ? { sinif: "minimum", metin: "Yapılandırıldı · ödeme planına taşındı" }
+    : o.tamamiOdendi
     ? { sinif: "tamami", metin: "Tamamı ödendi" }
     : o.minimumTamam
       ? { sinif: "minimum", metin: "Asgari ödeme tamamlandı · kalan borç var" }
@@ -5507,7 +5509,9 @@ function OdemeSatiri({
         >
           {o.kartOdemesi
             ? (o.not ? o.not + " · " : "") +
-              (o.minimumTamam && !o.tamamiOdendi
+              (o.yapilandirmaIleKapandi
+              ? "kart borcu yapılandırma planına taşındı"
+              : o.minimumTamam && !o.tamamiOdendi
               ? "asgari ödeme tamamlandı · kalan borç devam ediyor"
               : gercektenGecikmis
                 ? -gun + " gün gecikti"
@@ -5539,9 +5543,11 @@ function OdemeSatiri({
               marginTop: 3,
             }}
           >
-            {o.tutar > 0.01
-              ? "Kalan asgari ödeme: " + fmt(o.tutar)
-              : "Asgari ödeme tamamlandı"}
+            {o.yapilandirmaIleKapandi
+              ? "Zorunlu kart ödemesi yok · plan kayda taşındı"
+              : o.tutar > 0.01
+                ? "Kalan asgari ödeme: " + fmt(o.tutar)
+                : "Asgari ödeme tamamlandı"}
           </div>
         )}
         <div
@@ -5551,8 +5557,9 @@ function OdemeSatiri({
             fontWeight: 700,
           }}
         >
-          Yapılan ödeme:{" "}
-          {o.odemeBilgisiYok ? "Eski kayıtta bilgi yok" : fmt(o.yapilanOdeme)}
+          {o.yapilandirmaIleKapandi
+            ? "Yapılandırmaya taşınan: " + fmt(o.yapilandirilanTutar)
+            : <>Yapılan ödeme: {o.odemeBilgisiYok ? "Eski kayıtta bilgi yok" : fmt(o.yapilanOdeme)}</>}
           {o.odemeKayitSayisi > 0 ? ` · ${o.odemeKayitSayisi} yeni kayıt` : ""}
         </div>
         {o.kartOdemesi && (
@@ -5569,7 +5576,11 @@ function OdemeSatiri({
           Ödemelere git <ChevronRight size={12} />
         </button>
       ) : o.kartOdemesi ? (
-        o.tamamiOdendi ? (
+        o.yapilandirmaIleKapandi ? (
+          <div className="bt-btn kucuk heroghost" style={{ cursor: "default" }}>
+            <Check size={12} /> Yapılandırma planı
+          </div>
+        ) : o.tamamiOdendi ? (
           <div className="bt-btn kucuk heroghost" style={{ cursor: "default" }}>
             <Check size={12} /> Tamamı ödendi
           </div>
@@ -5659,7 +5670,8 @@ function Odemeler({
         .filter((kayit) => kartOdemeAyi(kayit) === donem)
         .forEach((kayit) => {
           const h = kartHesabi(kayit);
-          if (h.onceki <= 0 && h.toplam <= 0) return;
+          const yapilandirmaIleKapandi = Boolean(latestCardRestructuring(kart)) && h.toplam <= 0.01;
+          if (h.onceki <= 0 && h.toplam <= 0 && !yapilandirmaIleKapandi) return;
           const hedefTutar = h.asgari;
           const odemeAnahtari = kartOdemeAnahtari(kayit);
           const elleOdendi = !!veri.paid?.[odemeAnahtari];
@@ -5671,8 +5683,8 @@ function Odemeler({
           );
           const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
           const kalanToplam = h.toplam;
-          const minimumTamam = hedefTutar > 0 && tutar <= 0.01;
-          const tamamiOdendi = kalanToplam <= 0.01;
+          const minimumTamam = hedefTutar > 0.01 && tutar <= 0.01;
+          const tamamiOdendi = !yapilandirmaIleKapandi && kalanToplam <= 0.01;
           liste.push({
             id: "kart-" + kart.id + "-" + kayit.ekstreAyi,
             kartOdemesi: true,
@@ -5694,6 +5706,8 @@ function Odemeler({
             odendi: minimumTamam,
             minimumTamam,
             tamamiOdendi,
+            yapilandirmaIleKapandi,
+            yapilandirilanTutar: yapilandirmaIleKapandi ? latestCardRestructuring(kart)?.tutar || 0 : 0,
             anahtar: odemeAnahtari,
           });
         });
@@ -5737,12 +5751,13 @@ function Odemeler({
   ]);
 
   const sirali = donemOdemeleri;
-  const hedefiTamamlanan = sirali.filter((x) => x.odendi);
+  const zorunluHedefler = sirali.filter((x) => +x.hedefTutar > 0.01 && !x.yapilandirmaIleKapandi);
+  const hedefiTamamlanan = zorunluHedefler.filter((x) => x.odendi);
   // Ödenen kayıtlar da seçili ödeme ayına aittir. Böylece aynı kartın bütün
   // arşiv ekstreleri tek ekranda tekrarlanmaz; geçmiş aylar dönem seçicisinden
   // ayrı ayrı incelenebilir.
   const odemeYapilan = sirali
-    .filter((x) => (+x.yapilanOdeme || 0) > 0)
+    .filter((x) => (+x.yapilanOdeme || 0) > 0 || x.yapilandirmaIleKapandi)
     .sort((a, b) => b.tarih - a.tarih);
   // Asgari tamamlandıysa o ayın zorunlu kart ödemesi tamamlanmıştır. Kalan
   // devreden bakiye borç ekranında görünür; burada tekrar bekliyor denmez.
@@ -5802,7 +5817,7 @@ function Odemeler({
                     gecikmis={
                       filtre === "bekleyen" &&
                       kalanGun(o.tarih) < 0 &&
-                      !(o.kartOdemesi && o.minimumTamam)
+                      !(o.kartOdemesi && (o.minimumTamam || o.yapilandirmaIleKapandi))
                     }
                     odendiIsaretle={odendiIsaretle}
                     kartOdemesiAc={(odeme) => {
@@ -5847,7 +5862,7 @@ function Odemeler({
               ))}
             </select>
             <div className="bt-mono" style={{ fontWeight: 800 }}>
-              {hedefiTamamlanan.length}/{sirali.length} asgari/taksit hedefi
+              {hedefiTamamlanan.length}/{zorunluHedefler.length} asgari/taksit hedefi
               tamamlandı
             </div>
           </div>
@@ -10205,7 +10220,8 @@ function Varliklar({
         : undefined,
       besToplamTutar: tur.id === "bes" ? Math.max(+f.besToplamTutar || 0, 0) : undefined,
       guncelDeger: Math.max(+f.guncelDeger || 0, 0),
-      toplamMaliyet: Math.max(+f.toplamMaliyet || 0, 0),
+      toplamMaliyet: f.toplamMaliyet === "" || f.toplamMaliyet == null ? null : Math.max(+f.toplamMaliyet || 0, 0),
+      maliyetBiliniyor: f.toplamMaliyet !== "" && f.toplamMaliyet != null,
       paraBirimi: seciliTur.fon
         ? "TRY"
         : tur.hisse && tur.piyasa === "US"
@@ -10261,12 +10277,19 @@ function Varliklar({
         <div className="bt-varlik-mini">
           <div className="bt-metric-lbl">Toplam kazanç / kayıp</div>
           <strong style={{ color: ozet.kazanc < 0 ? CORAL : LIME }}>
-            {ozet.maliyet > 0
+            {ozet.maliyetBilinenKalemSayisi > 0
               ? (ozet.kazanc >= 0 ? "+" : "") + fmt(ozet.kazanc)
               : "—"}
           </strong>
         </div>
       </div>
+
+      {ozet.maliyetEksikKalemSayisi > 0 && (
+        <div className="bt-ipucu">
+          <Info size={16} />
+          <div><b>Kazanç/kayıp kısmi kapsamda:</b> alış maliyeti girilmiş {ozet.maliyetBilinenKalemSayisi}/{ozet.kalemler.length} varlık karşılaştırılıyor. {ozet.maliyetEksikKalemSayisi} varlık toplam değere dahil, ancak maliyeti bilinmediği için kazanç/kayıp hesabına dahil değil.</div>
+        </div>
+      )}
 
       <div className="bt-card">
         <div className="bt-cardhead" style={{ marginBottom: 0 }}>
@@ -10592,7 +10615,7 @@ function Varliklar({
                 type="number"
                 min="0"
                 step="any"
-                value={f.toplamMaliyet ?? ""}
+                value={f.maliyetBiliniyor === true ? f.toplamMaliyet ?? "" : ""}
                 onChange={(e) => fSet({ toplamMaliyet: e.target.value })}
               />
             </label>
@@ -10696,7 +10719,7 @@ function Varliklar({
               const tur = varlikTuru(k.tur);
               const birimFiyat = varlikBirimFiyati(k, piyasa.prices);
               const fark =
-                +k.toplamMaliyet > 0
+                k.maliyetBiliniyor === true
                   ? k.hesaplananDeger -
                     +k.toplamMaliyet * paraBirimiKuru(k, piyasa.prices)
                   : null;

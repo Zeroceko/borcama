@@ -737,6 +737,8 @@ Deno.serve(async (req) => {
   const satirlar = kullanicilar.map((u) => {
     const sonGiris = u.last_sign_in_at || null;
     const sonGirisMs = sonGiris ? new Date(sonGiris).getTime() : 0;
+    const yasakBitisi = u.banned_until || null;
+    const erisimEngelli = !!yasakBitisi && new Date(yasakBitisi).getTime() > simdi;
     const hak = hakDurumu.get(u.id);
     const proBitis = hak?.pro_expires_at || null;
     const trialBitis = hak?.trial_ends_at || null;
@@ -753,6 +755,8 @@ Deno.serve(async (req) => {
       has_data: veriDurumu.has(u.id),
       data_updated_at: veriDurumu.get(u.id) || null,
       status: sonGirisMs && simdi - sonGirisMs <= 30 * gun ? "active" : "inactive",
+      access_status: erisimEngelli ? "blocked" : "normal",
+      banned_until: erisimEngelli ? yasakBitisi : null,
       pro_active: proAktif,
       pro_expires_at: proBitis,
       pro_source: hak?.source || null,
