@@ -4,7 +4,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Rakamın dayanağından kaydına ulaş — hazırlanıyor
+### Rakamın dayanağından kaydına ulaş — v1.42.3
 
 - Siz istediniz: Ekrandaki farkın ne olduğunu ve yanlış bir rakamı nereden kontrol edeceğini anlamak.
 - Biz yaptık: Bugün ekranına gelir, kalan ödeme ve harcamayı açıklayan açılır hesap dayanağı ve kayıtlarına doğrudan geçişler ekledik.

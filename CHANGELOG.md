@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.3] - 2026-09-04
+
 ### Değiştirildi
 
 - Bugün ekranındaki aylık farkın banka bakiyesi olmadığı belirginleştirildi; hesap dayanağından ödeme, harcama ve gelir kayıtlarına doğrudan geçiş eklendi.
