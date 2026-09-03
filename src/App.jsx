@@ -98,6 +98,11 @@ import {
   mergeArchivedCardStatement,
   summarizeMandatoryPayments,
 } from "./paymentSummary.js";
+import {
+  applyCardRestructuring,
+  cardRestructuredAmount,
+  cardRestructurableBalance,
+} from "./cardRestructuring.js";
 import { BANK_LOGOS } from "./bankLogos.js";
 import { davetDurumunuGetir } from "./referrals.js";
 
@@ -1061,6 +1066,7 @@ function gunlukBirikmisFaiz(bakiye, aylikOran, gecikenGun) {
   );
 }
 function kartHesabi(k) {
+  const yapilandirilan = cardRestructuredAmount(k);
   const yeniModel =
     k.yeniDonemEkstreBorcu !== undefined ||
     k.toplamEkstreBorcu !== undefined ||
@@ -1071,12 +1077,12 @@ function kartHesabi(k) {
     return {
       onceki: ana,
       odeme: 0,
-      devreden: ana,
+      devreden: Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0),
       yeni: +k.donemIciEklenen || 0,
       faiz: 0,
       oran: tcmbKartAzamiFaizi(ana),
-      toplam: ana + (+k.donemIciEklenen || 0),
-      asgari: +k.asgari || 0,
+      toplam: Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0),
+      asgari: Math.min(+k.asgari || 0, Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0)),
     };
   }
   const oncekiDevreden = +k.oncekiAydanKalan || 0;
@@ -1094,7 +1100,7 @@ function kartHesabi(k) {
       ? yeni + oncekiDevreden
       : +k.toplamEkstreBorcu || +k.oncekiDonemBorcu || 0;
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), onceki);
-  const devreden = Math.max(onceki - odeme, 0);
+  const devreden = Math.max(onceki - odeme - yapilandirilan, 0);
   const oran = tcmbKartAzamiFaizi(onceki);
   const faiz = (devreden * oran) / 100;
   const toplam = devreden;
@@ -1108,7 +1114,7 @@ function kartHesabi(k) {
     faiz,
     oran,
     toplam,
-    asgari: +k.asgari > 0 ? +k.asgari : (onceki * asgariOran) / 100,
+    asgari: Math.min(+k.asgari > 0 ? +k.asgari : (onceki * asgariOran) / 100, devreden),
   };
 }
 function ekstreSnapshot(k, ekstreAyi = k.ekstreAyi) {
@@ -2638,6 +2644,28 @@ export default function BorcTakip() {
     }));
   };
 
+  const kartYapilandir = (plan) => {
+    const sonuc = applyCardRestructuring(veri, {
+      ...plan,
+      restructuringId: uid(),
+      loanId: uid(),
+      createdAt: new Date().toISOString(),
+    });
+    if (sonuc.error) return sonuc.error;
+    kaydet(islemEkle(sonuc.data, {
+      tur: "guncelleme",
+      baslik: `${sonuc.cardBefore.banka || "Kart"} · borç yapılandırması`,
+      detay: `${fmt(plan.amount)} kart borcu yapılandırma kredisine taşındı`,
+      geriAl: {
+        tip: "kart_yapilandirma",
+        kartId: sonuc.cardBefore.id,
+        oncekiKart: sonuc.cardBefore,
+        krediId: sonuc.loan.id,
+      },
+    }));
+    return null;
+  };
+
   function ekstreArsivIslemi(islem) {
     const sonuc = islem.tip === "tasi"
       ? moveUploadedStatement(veri, islem)
@@ -2709,6 +2737,11 @@ export default function BorcTakip() {
         ...(veri.paid || {}),
         [geriAl.anahtar]: !!geriAl.oncekiPaid,
       };
+    } else if (geriAl.tip === "kart_yapilandirma") {
+      yeniVeri.cards = (veri.cards || []).map((kart) =>
+        kart.id === geriAl.kartId ? geriAl.oncekiKart : kart,
+      );
+      yeniVeri.loans = (veri.loans || []).filter((kredi) => kredi.id !== geriAl.krediId);
     }
     yeniVeri.activityHistory = (veri.activityHistory || []).map((x) =>
       x.id === islemId ? { ...x, geriAlindi: true } : x,
@@ -3280,6 +3313,7 @@ export default function BorcTakip() {
                 kartOdemesiKaydet={kartOdemesiKaydet}
                 kartOdemesiDegistir={kartOdemesiDegistir}
                 krediOdemesiKaydet={krediOdemesiKaydet}
+                kartYapilandir={kartYapilandir}
                 bankalar={bankalar}
                 bankaEkle={bankaEkle}
                 kategori={borcKategori}
@@ -6600,6 +6634,7 @@ function Borclar({
   kartOdemesiKaydet,
   kartOdemesiDegistir,
   krediOdemesiKaydet,
+  kartYapilandir,
   bankalar,
   bankaEkle,
   kategori,
@@ -6618,6 +6653,7 @@ function Borclar({
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
   const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
   const [odemePenceresi, setOdemePenceresi] = useState(null);
+  const [yapilandirmaPenceresi, setYapilandirmaPenceresi] = useState(null);
   const [baslangicSecimiAcik, setBaslangicSecimiAcik] = useState(false);
   const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
@@ -7791,6 +7827,7 @@ function Borclar({
                   kartOdemeGecmisi={veri.cardPaymentHistory}
                   kartOdemesiDegistir={kartOdemesiDegistir}
                   krediOdemesiAc={(odeme) => setOdemePenceresi(odeme)}
+                  kartYapilandirmaAc={(kart) => setYapilandirmaPenceresi(kart)}
                   arsiv={saltOkunurGorunum}
                 />
               ))}
@@ -7858,6 +7895,18 @@ function Borclar({
           onClose={() => setOdemePenceresi(null)}
           kartOdemesiKaydet={kartOdemesiKaydet}
           krediOdemesiKaydet={krediOdemesiKaydet}
+        />
+      )}
+
+      {yapilandirmaPenceresi && (
+        <KartYapilandirmaModal
+          kart={yapilandirmaPenceresi}
+          onClose={() => setYapilandirmaPenceresi(null)}
+          onSave={(plan) => {
+            const hata = kartYapilandir?.(plan);
+            if (!hata) setYapilandirmaPenceresi(null);
+            return hata;
+          }}
         />
       )}
 
@@ -8654,6 +8703,47 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
   );
 }
 
+function KartYapilandirmaModal({ kart, onClose, onSave }) {
+  const kalan = cardRestructurableBalance(kart);
+  const [f, setF] = useState({
+    amount: "", installment: "", installmentCount: "", firstPaymentDate: "", totalRepayment: "",
+    monthlyInterest: "", kkdfRate: "", bsmvRate: "",
+  });
+  const [hata, setHata] = useState("");
+  const adet = Math.max(Number.parseInt(f.installmentCount, 10) || 0, 0);
+  const aylikTaksit = Math.max(Number(f.installment) || 0, 0);
+  const toplam = f.totalRepayment === "" ? aylikTaksit * adet : Math.max(Number(f.totalRepayment) || 0, 0);
+  const tutar = Math.max(Number(f.amount) || 0, 0);
+  const kaydet = () => {
+    const kod = onSave({ cardId: kart.id, ...f });
+    if (!kod) return;
+    const mesajlar = {
+      INVALID_AMOUNT: "Yapılandırılan tutar, kartın kalan borcundan büyük olamaz.",
+      INVALID_INSTALLMENT: "Aylık taksit ve taksit sayısını geçerli girin.",
+      INVALID_FIRST_PAYMENT_DATE: "İlk ödeme tarihini girin.",
+      INVALID_TOTAL_REPAYMENT: "Toplam geri ödeme yapılandırılan tutardan düşük olamaz.",
+    };
+    setHata(mesajlar[kod] || "Yapılandırma kaydedilemedi.");
+  };
+  return <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kart-yapilandirma-baslik">
+      <div className="bt-modalbaslik"><div><div id="kart-yapilandirma-baslik" className="bt-h2">Kart borcumu yapılandırdım</div><p className="bt-baslangic-secim-aciklama">{kartGorunenAdi(kart)} için bankanın verdiği ödeme planını kaydet.</p></div><button className="bt-btn hayalet kucuk" type="button" aria-label="Kapat" onClick={onClose}><X size={18}/></button></div>
+      <div className="bt-ipucu" style={{ marginBottom: 14 }}><Info size={16}/><div>Bankanın ödeme planı esastır. Kesin aylık taksiti girdiğinde Borcama tahmini faizle onu değiştirmez.</div></div>
+      <div className="bt-alanlar">
+        <label className="bt-alan">Yapılandırılan tutar (₺) *<input className="bt-input" type="number" min="0.01" max={kalan} step="0.01" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })}/><small>Kartta yapılandırılabilir kalan: {fmt(kalan)}</small></label>
+        <label className="bt-alan">Aylık taksit (₺) *<input className="bt-input" type="number" min="0.01" step="0.01" value={f.installment} onChange={(e) => setF({ ...f, installment: e.target.value })}/></label>
+        <label className="bt-alan">Taksit sayısı *<input className="bt-input" type="number" min="1" max="120" step="1" value={f.installmentCount} onChange={(e) => setF({ ...f, installmentCount: e.target.value })}/></label>
+        <label className="bt-alan">İlk ödeme tarihi *<input className="bt-input" type="date" value={f.firstPaymentDate} onChange={(e) => setF({ ...f, firstPaymentDate: e.target.value })}/></label>
+        <label className="bt-alan">Toplam geri ödeme (₺) <input className="bt-input" type="number" min="0.01" step="0.01" value={f.totalRepayment} onChange={(e) => setF({ ...f, totalRepayment: e.target.value })}/><small>Boş bırakırsan kesin taksit × taksit sayısı kullanılır.</small></label>
+      </div>
+      <details className="bt-ekstre-bilgi" style={{ marginTop: 12 }}><summary>Faiz, KKDF ve BSMV bilgileri (isteğe bağlı)</summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">Nominal aylık faiz (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></div></details>
+      {tutar > 0 && adet > 0 && <div className="bt-ipucu" style={{ marginTop: 14 }}><Check size={16}/><div><b>Kaydetmeden önce:</b> Kart borcundan {fmt(tutar)} düşecek, {adet} taksitli yeni plan oluşacak. Toplam geri ödeme {fmt(toplam)}; borç iki kez sayılmayacak.</div></div>}
+      {hata && <div className="bt-ipucu" role="alert" style={{ marginTop: 12, borderColor: CORAL }}>{hata}</div>}
+      <div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={kaydet}><Check size={14}/> Yapılandırmayı kaydet</button><button className="bt-btn ikincil" type="button" onClick={onClose}>Vazgeç</button></div>
+    </div>
+  </div>;
+}
+
 function BorclarSatiri({
   k,
   i,
@@ -8670,6 +8760,7 @@ function BorclarSatiri({
   kartOdemeGecmisi,
   kartOdemesiDegistir,
   krediOdemesiAc,
+  kartYapilandirmaAc,
   arsiv = false,
 }) {
   const [kartGecmisiAcik, setKartGecmisiAcik] = useState(false);
@@ -8947,6 +9038,17 @@ function BorclarSatiri({
                 >
                   <Pencil size={13} /> Kart bilgilerini düzenle
                 </button>
+                {hesap.toplam > 0 && (
+                  <button
+                    className="bt-btn kucuk hayalet"
+                    onClick={(e) => {
+                      e.currentTarget.closest("details")?.removeAttribute("open");
+                      kartYapilandirmaAc?.(k);
+                    }}
+                  >
+                    <ArrowLeftRight size={13} /> Kart borcumu yapılandırdım
+                  </button>
+                )}
                 <button
                   className="bt-btn kucuk hayalet tehlike"
                   onClick={() => sil(meta.liste, k.id)}

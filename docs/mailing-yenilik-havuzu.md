@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Kart borcu yapılandırmanı tek yerde takip et — v1.38.0
+
+- Siz istediniz: Bankayla yaptığın kart borcu yapılandırmasının, kart bakiyesi ve yeni taksit planında iki kez görünmemesi.
+- Biz yaptık: Karttaki yapılandırılan tutarı kalan borçtan düşüp, bankanın verdiği kesin aylık taksit ve ilk ödeme tarihiyle ayrı bir yapılandırma kredisi oluşturduk.
+- Faydası: Kartının kalan borcunu ve yapılandırma planını birlikte, çifte sayım olmadan takip edebilirsin.
+- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=kart_borcu_yapilandirma&utm_content=ana_cta`
+
 ### Borcama'yı keşfetmek artık daha kolay — v1.37.0
 
 - Siz istediniz: Borcama'nın ne işe yaradığını ve ekstrelerin nasıl korunduğunu daha ilk bakışta anlamak.

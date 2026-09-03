@@ -10,6 +10,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Doğrulama sonrası Pro deneme bilgilendirmesine, 48 saatlik tek nazik ilk-plan hatırlatması ve kullanıcı başına 7 günde en fazla iki yaşam döngüsü e-postası sınırı eklendi.
 - Aktivasyon cadence'i tekil öncelikli eksik-adım mesajına indirildi; ilk 7 gün uygulama içi yönlendirme, ilk 14 günde doğrulama hariç en fazla üç lifecycle e-postası ve 72 saatlik eksik-adım baskısı tanımlandı.
 
+## [1.38.0] - 2026-09-03
+
+### Eklendi
+
+- Kartlar bölümüne, bankanın kesin ödeme planını esas alarak kart borcunun seçilen tutarını tek işlemde sabit taksitli yapılandırma kredisine taşıyan; kartta ve kredide çifte sayımı önleyen yapılandırma akışı eklendi.
+
 ## [1.37.0] - 2026-09-02
 
 ### Eklendi
