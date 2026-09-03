@@ -2,7 +2,7 @@ const number = (value) => Math.max(Number(value) || 0, 0);
 
 export function cardRestructuredAmount(card = {}) {
   return (Array.isArray(card.yapilandirmaKayitlari) ? card.yapilandirmaKayitlari : [])
-    .reduce((total, item) => total + number(item?.tutar), 0);
+    .reduce((total, item) => total + number(item?.karttanDusulenTutar ?? item?.tutar), 0);
 }
 
 export function latestCardRestructuring(card = {}) {
@@ -58,7 +58,8 @@ export function applyCardRestructuring(data = {}, input = {}) {
   const installmentCount = Math.floor(number(input.installmentCount));
   const totalRepaymentInput = input.totalRepayment === "" || input.totalRepayment == null ? null : number(input.totalRepayment);
   if (!card) return { error: "CARD_NOT_FOUND" };
-  if (amount <= 0 || amount - cardRestructurableBalance(card) > 0.01) return { error: "INVALID_AMOUNT" };
+  if (!Number.isFinite(Number(input.amount)) || amount <= 0) return { error: "INVALID_AMOUNT" };
+  const cardReduction = Math.min(amount, cardRestructurableBalance(card));
   if (installment <= 0 || installmentCount < 1 || installmentCount > 120) return { error: "INVALID_INSTALLMENT" };
   if (!validDate(input.firstPaymentDate)) return { error: "INVALID_FIRST_PAYMENT_DATE" };
   const impliedTotal = installment * installmentCount;
@@ -75,6 +76,7 @@ export function applyCardRestructuring(data = {}, input = {}) {
     kaynakKartId: card.id,
     yapilandirmaId: restructuringId,
     yapilandirilanTutar: amount,
+    karttanDusulenTutar: cardReduction,
     toplamGeriOdeme: totalRepayment,
     ilkOdemeTarihi: input.firstPaymentDate,
     aylikTaksit: installment,

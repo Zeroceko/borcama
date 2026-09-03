@@ -34,8 +34,17 @@ test("anapara, faiz, vergiler ve vadeden aylık taksiti hesaplar", () => {
   assert.ok(result.data.loans[0].taksit > 0);
 });
 
-test("geçersiz veya mevcut bakiyeyi aşan yapılandırma engellenir", () => {
-  assert.equal(applyCardRestructuring(data, { ...plan, amount: 9001 }).error, "INVALID_AMOUNT");
+test("bankanın kayıtlı bakiyeyi aşan tutarı kabul edilir ve kart negatif olmaz", () => {
+  const result = applyCardRestructuring(data, { ...plan, amount: 11000, installment: 2000, totalRepayment: 12000 });
+  assert.equal(result.error, undefined);
+  assert.equal(result.loan.yapilandirilanTutar, 11000);
+  assert.equal(result.loan.kalanBorc, 12000);
+  assert.equal(cardRestructurableBalance(result.data.cards[0]), 0);
+  assert.equal(latestCardRestructuring(result.data.cards[0]).karttanDusulenTutar, 9000);
+});
+
+test("geçersiz yapılandırma girişleri engellenir", () => {
+  assert.equal(applyCardRestructuring(data, { ...plan, amount: 0 }).error, "INVALID_AMOUNT");
   assert.equal(applyCardRestructuring(data, { ...plan, installment: 0 }).error, "INVALID_INSTALLMENT");
   assert.equal(applyCardRestructuring(data, { ...plan, firstPaymentDate: "geçersiz" }).error, "INVALID_FIRST_PAYMENT_DATE");
 });

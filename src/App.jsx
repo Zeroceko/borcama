@@ -548,6 +548,7 @@ const CSS = `
 
 .bt-form{background:var(--panel2);border:1px solid var(--line-soft);border-radius:16px;padding:16px;margin-bottom:14px}
 .bt-alanlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;align-items:start}
+.bt-modal.bt-yapilandirma-modal{max-width:680px;max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;min-width:0}.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-yapilandirma-modal .bt-alan{min-width:0}.bt-yapilandirma-modal .bt-input{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}.bt-yapilandirma-modal .bt-ekstre-bilgi{min-width:0;overflow-wrap:anywhere}.bt-yapilandirma-modal .bt-modalbaslik>div{min-width:0}.bt-yapilandirma-modal .bt-ipucu>div{min-width:0;overflow-wrap:anywhere}@media(max-width:600px){.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:minmax(0,1fr)}.bt-yapilandirma-modal .bt-form-butonlar{flex-wrap:wrap}}
 .bt-alan{display:grid;grid-template-rows:minmax(38px,auto) 44px;align-content:start;gap:5px;min-width:0;font-size:12px;font-weight:600;color:var(--dim)}
 .bt-input{padding:10px 13px;border-radius:10px;border:1.5px solid var(--line-soft);font-size:14px;color:var(--text);
   background:var(--panel);font-family:'Space Grotesk',sans-serif;width:100%;height:44px;min-width:0}
@@ -8722,7 +8723,7 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
     const kod = onSave({ cardId: kart.id, ...f, installment: aylikTaksit });
     if (!kod) return;
     const mesajlar = {
-      INVALID_AMOUNT: "Yapılandırılan tutar, kartın kalan borcundan büyük olamaz.",
+      INVALID_AMOUNT: "Bankanın yapılandırdığı geçerli tutarı girin.",
       INVALID_INSTALLMENT: "Aylık taksit ve taksit sayısını geçerli girin.",
       INVALID_FIRST_PAYMENT_DATE: "İlk ödeme tarihini girin.",
       INVALID_TOTAL_REPAYMENT: "Toplam geri ödeme yapılandırılan tutardan düşük olamaz.",
@@ -8730,18 +8731,18 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
     setHata(mesajlar[kod] || "Yapılandırma kaydedilemedi.");
   };
   return <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-    <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kart-yapilandirma-baslik">
+    <div className="bt-modal bt-yapilandirma-modal" role="dialog" aria-modal="true" aria-labelledby="kart-yapilandirma-baslik">
       <div className="bt-modalbaslik"><div><div id="kart-yapilandirma-baslik" className="bt-h2">Kart borcumu yapılandırdım</div><p className="bt-baslangic-secim-aciklama">{kartGorunenAdi(kart)} için bankanın verdiği ödeme planını kaydet.</p></div><button className="bt-btn hayalet kucuk" type="button" aria-label="Kapat" onClick={onClose}><X size={18}/></button></div>
       <div className="bt-ipucu" style={{ marginBottom: 14 }}><Info size={16}/><div>Bankanın ödeme planı esastır. Kesin aylık taksiti girdiğinde Borcama tahmini faizle onu değiştirmez.</div></div>
       <div className="bt-alanlar">
-        <label className="bt-alan">Yapılandırılan tutar (₺) *<input className="bt-input" type="number" min="0.01" max={kalan} step="0.01" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })}/><small>Kartta yapılandırılabilir kalan: {fmt(kalan)}</small></label>
+        <label className="bt-alan">Bankanın yapılandırdığı tutar (₺) *<input className="bt-input" type="number" min="0.01" step="0.01" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })}/><small>Borcama'da kayıtlı bakiye: {fmt(kalan)}. Bankanın tutarı güncel dönem borcunu da içerdiği için daha yüksek olabilir.</small></label>
         <label className="bt-alan">Aylık taksit (₺)<input className="bt-input" type="number" min="0.01" step="0.01" value={f.installment} placeholder={hesaplananTaksit > 0 ? hesaplananTaksit.toFixed(2) : "Otomatik hesaplanır"} onChange={(e) => setF({ ...f, installment: e.target.value })}/><small>{f.installment ? "Bankanın verdiği kesin taksit kullanılır." : hesaplananTaksit > 0 ? `Faiz ve vergilerle tahmini: ${fmt(hesaplananTaksit)}` : "Faiz, vergi ve taksit sayısını girersen otomatik hesaplanır."}</small></label>
         <label className="bt-alan">Taksit sayısı *<input className="bt-input" type="number" min="1" max="120" step="1" value={f.installmentCount} onChange={(e) => setF({ ...f, installmentCount: e.target.value })}/></label>
         <label className="bt-alan">İlk ödeme tarihi *<input className="bt-input" type="date" value={f.firstPaymentDate} onChange={(e) => setF({ ...f, firstPaymentDate: e.target.value })}/></label>
         <label className="bt-alan">Toplam geri ödeme (₺) <input className="bt-input" type="number" min="0.01" step="0.01" value={f.totalRepayment} onChange={(e) => setF({ ...f, totalRepayment: e.target.value })}/><small>Boş bırakırsan kesin taksit × taksit sayısı kullanılır.</small></label>
       </div>
       <details className="bt-ekstre-bilgi" style={{ marginTop: 12 }}><summary>Faiz, KKDF ve BSMV bilgileri (isteğe bağlı)</summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">Nominal aylık faiz (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></div></details>
-      {tutar > 0 && adet > 0 && <div className="bt-ipucu" style={{ marginTop: 14 }}><Check size={16}/><div><b>Kaydetmeden önce:</b> Kart borcundan {fmt(tutar)} düşecek, {adet} taksitli yeni plan oluşacak. Toplam geri ödeme {fmt(toplam)}; borç iki kez sayılmayacak.</div></div>}
+      {tutar > 0 && adet > 0 && <div className="bt-ipucu" style={{ marginTop: 14 }}><Check size={16}/><div><b>Kaydetmeden önce:</b> {fmt(tutar)} için {adet} taksitli plan oluşacak. Kayıtlı kart borcundan {fmt(Math.min(tutar, kalan))} düşecek. Toplam geri ödeme {fmt(toplam)}.{tutar > kalan && <> Kayıtlı bakiyenin üzerindeki {fmt(tutar - kalan)} de yapılandırma planına dahil.</>}</div></div>}
       {hata && <div className="bt-ipucu" role="alert" style={{ marginTop: 12, borderColor: CORAL }}>{hata}</div>}
       <div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={kaydet}><Check size={14}/> Yapılandırmayı kaydet</button><button className="bt-btn ikincil" type="button" onClick={onClose}>Vazgeç</button></div>
     </div>

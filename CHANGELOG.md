@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.40.2] - 2026-09-03
+
+### Düzeltildi
+
+- Bankanın güncel dönem borcunu dahil ederek kayıtlı ekstre bakiyesinden yüksek tutarda yaptığı yapılandırmalar kabul ediliyor; karttan yalnız kayıtlı bakiye düşülüyor ve mobil faiz/KKDF/BSMV alanları taşmadan gösteriliyor.
+
 ## [1.40.1] - 2026-09-03
 
 ### Düzeltildi
