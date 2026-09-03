@@ -4,11 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.39.0] - 2026-09-03
+
 ### Eklendi
 
 - CEO görünümüne kayıt, doğrulama, anlamlı kullanım ve gözlemlenen aktivasyonu Türkiye saatine göre özetleyen; kanal bazındaki günlük yeni/doğrulanan/aktive sayıları ile ölçülemeyen hesapları ayrı gösteren gizlilik odaklı büyüme hunisi eklendi.
 - Doğrulama sonrası Pro deneme bilgilendirmesine, 48 saatlik tek nazik ilk-plan hatırlatması ve kullanıcı başına 7 günde en fazla iki yaşam döngüsü e-postası sınırı eklendi.
 - Aktivasyon cadence'i tekil öncelikli eksik-adım mesajına indirildi; ilk 7 gün uygulama içi yönlendirme, ilk 14 günde doğrulama hariç en fazla üç lifecycle e-postası ve 72 saatlik eksik-adım baskısı tanımlandı.
+
+### Değiştirildi
+
+- Borç kapatma hesaplayıcısına hesabın nasıl ilerlediğini anlatan kısa açıklama ve ilgili borç kapatma rehberine doğrudan bağlantı eklendi.
 
 ## [1.38.0] - 2026-09-03
 

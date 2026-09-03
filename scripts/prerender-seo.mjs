@@ -31,6 +31,7 @@ const guides = [
 const toolLinks = tools.map(([slug, title]) => [`/araclar/${slug}`, title]);
 const guideLinks = guides.map(([slug, title]) => [`/rehber/${slug}`, title]);
 const guideByTool = {
+  "borc-kapatma-hesaplayici": [["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"]],
   "brut-net-maas-hesaplama": [["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş rehberi"]],
   "kidem-tazminati-hesaplama": [["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı rehberi"]],
   "mevduat-faizi-hesaplama": [
@@ -40,6 +41,10 @@ const guideByTool = {
   ],
 };
 const staticSections = {
+  "/araclar/borc-kapatma-hesaplayici": [
+    ["Borç kapatma süresi nasıl hesaplanır?", "Hesaplama, kalan borca her ay girdiğin faiz oranını uygular ve belirlediğin aylık ödemeyi bakiyeden düşer. Aylık ödeme ilk ayın faizini karşılamıyorsa borç bu varsayımla kapanmaz."],
+    ["Sonucu nasıl kullanmalısın?", "Tahmini kapanış süresini ve toplam ödemeyi bir başlangıç planı olarak kullan. Yeni harcama, faiz oranı veya ayırabildiğin ödeme değiştiğinde hesabı güncel rakamlarla yeniden yap."],
+  ],
   "/araclar/mevduat-faizi-hesaplama": [
     ["Mevduat faizi nasıl hesaplanır?", "Brüt faiz; ana para, bankanın verdiği yıllık faiz oranı ve vade günü kullanılarak hesaplanır. Net getiri için brüt faizden stopaj tutarı çıkarılır."],
     ["32 günlük mevduat getirisi", "Vade süresini 32 gün seçerek bankanın teklifindeki yıllık brüt oran ve stopajla tahmini net kazancı görebilirsin."],

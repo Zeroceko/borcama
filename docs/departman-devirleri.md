@@ -43,6 +43,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-09-03 · Ürün · CRM ve Operasyon · Baz sürüm `v1.37.0`: Kartlar içindeki erişilebilir “Kart borcumu yapılandırdım” akışı yerelde eklendi. Kullanıcı banka planındaki yapılandırılan tutar, kesin aylık taksit, taksit sayısı, ilk ödeme tarihi ve isteğe bağlı toplam geri ödemeyi giriyor; işlem kartın kalan borcundan tutarı düşüp aynı kayıtta “Kredi kartı yapılandırması” kredisi oluşturuyor. Banka planı kesin kabul edildiği için tahmini faiz oranı taksiti ezmiyor; faiz/KKDF/BSMV yalnız isteğe bağlı metadata olarak saklanıyor. Kısmi/tam yapılandırma, çifte sayım, kesin taksit, geçersiz tutar ve eski veri uyumluluğu test edildi; geri al işlemi kartı ve yeni krediyi birlikte eski durumuna döndürüyor. Doğrulama: 88/88 otomatik test, production build ve `git diff --check` başarılı. Kullanıcı verisi, migration veya canlı yayın yapılmadı. Sonraki adım: CEO koordinasyonu minor sürüm kararını ve rutin yayın paketini değerlendirmeli.
+
+- 2026-09-02 · Yönetim / Test yetkisi: Yönetim Kurulu Başkanı, yalnız tanımlı yönetici test adreslerine giden ve gerçek kullanıcı segmenti, backfill, mali taahhüt veya geri döndürülemez işlem oluşturmayan testler için tekrar onay alınmamasını kararlaştırdı. Gerçek kullanıcılara toplu e-postanın nihai gönderim onayı Başkan'da kalır.
+
+- 2026-09-02 · Ürün · CRM ve Operasyon · Baz sürüm `v1.37.0`: CEO görünümüne güvenilir büyüme hunisi eklendi. Toplam kayıtlı/doğrulanmış, bugün yeni/doğrulanan, bugün/son 7 gün anlamlı kullanım ve gözlemlenen aktivasyon sayıları yalnız auth, `user_acquisition` ve gizlilik-minimize edilmiş `activity_logs` kaynaklarından üretiliyor; kişisel e-posta veya finansal ayrıntı huniye taşınmıyor. Aktivasyon, ilk kart/ekstre/kredi/KMH/diğer borç ekleme olayı; kullanım ise giriş hariç borç, ekstre, gelir, gider, varlık veya ödeme kaydı olarak tanımlandı. İlk temas kaydı olmayan eski/ölçülemeyen hesaplar kanal metriklerine “direct” olarak eklenmeyip ayrı satırda tutuluyor. Doğrulama: 83/83 otomatik test, production build ve diff denetimi başarılı. Dış sistem veya kullanıcı verisi değiştirilmedi; canlı yayın bu devir kapsamında yapılmadı. Sonraki adım: CEO koordinasyonunda `backoffice` Edge Function ve web sürümü birlikte rutin yayına alınmalı, ardından sabah/akşam raporu bu ekranın aynı zamanlı çıktısıyla paylaşılmalı.
+
 - 2026-09-02 · Yönetim / Google Ads: Yönetim Kurulu Başkanı gerçekleşen reklam harcaması tavanını ₺120/gün olarak onayladı. Google Ads'in ortalama günlük bütçeyi bazı günler iki kata kadar harcayabilmesi nedeniyle `Campaign #1` için ortalama bütçe ₺60/gün seviyesinde korunacak; gerçekleşen günlük toplam ₺120'yi aşmayacak. Önceki ₺30'a indirme talimatı geri çekildi; daha yüksek tavan yeniden Başkan kararı gerektirir.
 
 - 2026-09-02 · Instagram · Baz sürüm `1.37.0`: 14 günlük büyüme sprinti için mevcut Instagram otomasyonu onaylı aylık plan kapsamında ücretsiz kayıt ve ilk kullanımı destekleyecek şekilde güncellendi; yeni içeriklerde tek CTA tam olarak `Ücretsiz başla`, problem odaklı ilk hafta içerikleri ve kullanıcı tarafından reddedilen Reels pilotları tekrar kullanılmayacak, sabah/akşam CEO raporunda yayın, erişim, tıklama ve ölçülebilen doğrulanmış/aktive katkı ayrı raporlanacak. Değişen dış sistem: Codex otomasyonu `borcama-1-ayl-k-instagram-serisi`; ürün kodu, sosyal medya kreatif dosyaları ve diğer departman dosyaları değiştirilmedi. Doğrulama: otomasyon etkin ve koordinasyon görevine sprint kapsamı bildirildi; bu güncellemede paylaşım, zamanlama, yeni Reels üretimi veya reklam bütçesi işlemi yapılmadı. Bağımlılık: mesajlar canlı `1.37.0` ve önceki doğrulanmış sürümlerle eşleşecek; `LANDING-001` kullanılmayacak, Meta’daki mevcut plan durumları yeniden kullanım öncesi doğrulanacak.
@@ -133,3 +139,43 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: 2 Eylül 2026 22:46 TRT toplulaştırmasında 21 doğrulanmış kullanıcı; 12 borç/ekstre yok, 3 borç var gelir yok, 4 aktivasyon proxy'si tamam, 18 son 7 gündür dönmemiş, doğrulanmamış 0 olarak ölçüldü.
 - Başka departmanı etkileyen karar: Hazırlık aşamasındaki Welcome deneyi iletişimden çıkarıldı; planı oluşmuş kullanıcılar aktivasyon yardım akışından bastırılacak. Referans ödülü iletişimi ayrı davranış olayı olarak izlenmeli.
 - Kullanıcı onayı ve sonraki aksiyon: Segment başına test gönderimi, UTM/CTA/oturum yönlendirmesi ve hariç liste kontrolü tamamlanmadan; Yönetim Kurulu Başkanı'nın son toplu gönderim onayı alınmadan gönderim yapılmamalı.
+
+### 2026-09-03 · SEO Perşembe erken sinyal kontrolü
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`; Search Console verisi 31 Ağustos 2026 sonuna kadar günceldir.
+- Yapılan inceleme: Son 7 günde 85 gösterim, 1 tıklama, `%1,2` TO ve `81,3` ortalama konum görüldü. Mevduat hesaplayıcısı 71 gösterim ve 0 tıklamayla görünürlüğün ana kaynağıdır; ürünle daha doğrudan eşleşen `borç hesaplama` sorgusu son 7 günde 4, toplam dönemde 12 gösterim almıştır. Yeni içerik açılmadı; `borç kapatma hesaplayıcı` ve diğer 13 URL Google tarafından keşfedilmiş fakat henüz taranmamış olduğundan mevcut sayfaların değerlendirilmesi beklenecektir.
+- Değişen dosyalar ve dış sistemler: Yalnız bu devir kaydı eklendi; Search Console, site haritası, canlı sayfalar ve ürün kodunda değişiklik yapılmadı.
+- Test ve doğrulama: `sitemap.xml` 1 Eylül 2026 tarihinde başarıyla okunmuş, 23 URL keşfedilmiş; dizinde 7 URL, “keşfedildi, henüz dizine eklenmedi” durumunda 14 URL ve “tarandı, dizine eklenmedi” durumunda 0 URL vardır. GİB 2026 ücret tarifesi, SGK 2026 prime esas kazanç sınırları, BDDK kart kararları, TCMB 1 Eylül 2026 azami kart faizleri, Çalışma Bakanlığı ikinci yarı kıdem tavanı ve Hazine/Maliye kaynakları kontrol edildi; hesaplayıcılardaki `33.030 TL` asgari brüt, `297.270 TL` SGK tavanı, ücret gelirleri vergi dilimleri ve `73.729,87 TL` kıdem tavanı günceldir. Mevduat stopajı kullanıcı tarafından bankanın teklifine göre girildiğinden sabit oran değişikliği yapılmadı.
+- Başka departmanı etkileyen karar: Organik başarıyı aktive kullanıcıyla ilişkilendirecek kanal kırılımı bu kontrolde erişilebilir değildi; CRM oturumu olmadığı için tıklamadan kayıt/doğrulama/aktivasyona katkı uydurulmadı. CEO/CRM raporunda `organic` kanalının yeni, doğrulanmış ve aktive sayıları ayrı gösterilmelidir.
+- Kullanıcı onayı ve sonraki aksiyon: Yeni site haritası veya URL gönderimi gerekmiyor; mevcut site haritası başarılı ve tarama kuyruğu günceldir. Pazartesi kontrolünde `borç kapatma hesaplayıcı` taranmışsa `borç hesaplama` sorgusunun konum ve TO değişimi ölçülecek; taranmamışsa en yüksek niyetli bu tek URL için dizine ekleme isteği CEO koordinasyonuna önerilecektir.
+
+### 2026-09-03 · Instagram sprint otomasyonu
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`.
+- Yapılan değişiklik: Mevcut Instagram heartbeat otomasyonu, yeni iş beklemeden her gün 09:30 ve 18:30 TRT CEO raporu verecek; perşembe sabahı takip eden haftanın onaylı içeriklerini çakışma kontrolüyle hazırlayıp zamanlayacak şekilde güncellendi.
+- Değişen dosyalar ve dış sistemler: Codex otomasyonu `borcama-1-ayl-k-instagram-serisi`; Meta’da yeni içerik veya reklam bütçesi değişikliği yapılmadı.
+- Test ve doğrulama: Otomasyon ACTIVE olarak güncellendi; tek CTA `Ücretsiz başla`, yalnız canlı v1.37.0 özellikleri, reddedilmiş Reels pilotlarının dışlanması ve ödeme/bütçe ekranında iptal koşulu prompt’a işlendi.
+- Başka departmanı etkileyen karar: CEO raporlarında yayınlanan/zamanlanan içerik, erişim, tıklama ve ölçülebilen doğrulanmış kayıt/aktivasyon katkısı veri yoksa açıkça “erişilemedi” olarak belirtilmeli.
+- Kullanıcı onayı veya sonraki aksiyon: Kullanıcının rutin yayın için verdiği açık onay kapsamında çalışır; kapsam dışı reklam, bütçe veya sonuç garantisi kararı yükseltilmelidir.
+
+### 2026-09-03 · Instagram 09:30 plan kontrolü
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`.
+- Yapılan inceleme: 4, 7 ve 9 Eylül haftası-1 içerikleri yeni görsellerle Meta’da planlanmış; dosya/görsel-caption eşleşmesi yerel yayın paketinde doğrulandı ve tekrar bulunmadı.
+- Bulgular: Mevcut yayın paketi CTA olarak `borcama.com` kullanıyor; sprint kuralındaki tek CTA `Ücretsiz başla` standardıyla tutarsız olduğu için plan dışı yeni içerik üretilmedi ve mevcut zamanlamalar değiştirilmedi.
+- Sonraki aksiyon: Meta’da düzenleme yetkisi/uyarısı olmadan planlanmış içeriklere müdahale edilmeyecek; uygun ilk düzenleme penceresinde CTA standardizasyonu CEO’ya yükseltilecek. Erişim, tıklama ve doğrulanmış+aktive katkı bu çalışmada ölçülemedi.
+
+### 2026-09-03 · Instagram sosyal dinleme kalıcı kuralı
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`.
+- Yapılan değişiklik: Heartbeat prompt’una günlük en fazla 3, son 14 gün (tercihen 72 saat) UI-tarih doğrulamalı özgün yorum; bağlam uygunsa en fazla 2 doğal Borcama fayda açıklaması ve 24/48 saat ölçüm kuralı eklendi.
+- Sonraki aksiyon: Tekrar/spam/DM/garanti yok; platform doğrulaması veya güvenlik uyarısında durulacak.
+
+### 2026-09-03 · SEO yüksek niyetli borç kapatma sayfası
+
+- Baz alınan Borcama sürümü: canlı `v1.37.0`; çalışma alanında başka departmanların tamamlanmamış değişiklikleri korunmuştur.
+- Yapılan değişiklik: `/araclar/borc-kapatma-hesaplayici` sayfasına hesaplama mantığını sade biçimde açıklayan bölüm eklendi; aynı içerik Google'a ilk HTML yanıtında sunulan statik çıktıya taşındı ve mevcut borç kapatma rehberine doğrudan bağlantı kuruldu. Yeni URL veya düşük niyetli içerik üretilmedi.
+- Değişen dosyalar ve dış sistemler: `src/SeoPages.jsx`, `scripts/prerender-seo.mjs`, `CHANGELOG.md` ve bu devir kaydı değişti. Search Console'da yalnız canlı URL testi yapıldı; dizine ekleme isteği gönderilmedi.
+- Test ve doğrulama: `npm test` 83/83 başarılı; `npm run build` başarılı ve 20 SEO sayfası üretildi. Üretilen HTML'de doğru canonical, iki açıklama bölümü ve `/rehber/borc-kapatma-plani-nasil-hazirlanir` bağlantısı doğrulandı; `git diff --check` geçti. Search Console URL denetiminde sayfanın hiç taranmadığı, yönlendiren sayfa algılanmadığı ve dizinde olmadığı görüldü; 3 Eylül 12:18 canlı testi URL'nin Google tarafından kullanılabilir ve dizine eklenebilir olduğunu, iki geçerli breadcrumb öğesi bulunduğunu doğruladı.
+- Başka departmanı etkileyen karar: Değişiklik canlıya alınmadan dizine ekleme isteği gönderilmemeli. Organik başarı bugünden sonraki dış kullanıcılarla ölçülmeli; Search Console tıklaması CRM'deki `organic` kanalının yeni doğrulanmış ve aktive kullanıcılarıyla aynı tarih aralığında karşılaştırılmalıdır.
+- Kullanıcı onayı veya sonraki aksiyon: Güvenli rutin sürümde bu yamayı canlıya al; ardından tek URL için Search Console dizine ekleme isteğini kullanıcı onayıyla gönder. CRM yönetim oturumu bu kontrolde açık olmadığı için organik doğrulama/aktivasyon eşleşmesi ölçülemedi; CEO raporunda ölçüm açığı olarak gösterilmelidir.

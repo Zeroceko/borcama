@@ -324,6 +324,125 @@ async function revenueCatYonetimUrl(userId: string) {
   return String(json?.subscriber?.management_url || "").trim() || null;
 }
 
+// Finansal kayıtların içeriğini okumadan, yalnız gizlilik-minimize edilmiş olay
+// adlarından CEO için güvenilir ürün kullanım hunisi üretilir.
+const AKTIVASYON_OLAYLARI = ["card_added", "statement_added", "loan_added", "overdraft_added", "other_debt_added"];
+const ANLAMLI_KULLANIM_OLAYLARI = [...AKTIVASYON_OLAYLARI, "expense_added", "income_added", "asset_added", "payment_added"];
+
+function turkiyeGunBaslangici(simdi = new Date()) {
+  const parcalar = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Istanbul", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(simdi);
+  const parca = (tur: string) => parcalar.find((x) => x.type === tur)?.value || "";
+  return new Date(`${parca("year")}-${parca("month")}-${parca("day")}T00:00:00+03:00`);
+}
+
+function edinimKanali(edinim: Record<string, unknown> | undefined) {
+  if (!edinim) return null;
+  return {
+    source: String(edinim.source || "direct").slice(0, 100),
+    medium: String(edinim.medium || "").slice(0, 100),
+    campaign: String(edinim.campaign || "").slice(0, 120),
+  };
+}
+
+async function tumAktiviteOlaylariniGetir(
+  admin: ReturnType<typeof createClient>, olayTurleri: string[], baslangic: string | null = null, artan = false,
+) {
+  const sonuc: Array<{ user_id: string; created_at: string }> = [];
+  for (let sayfa = 0; sayfa < 200; sayfa += 1) {
+    let sorgu = admin.from("activity_logs").select("user_id,created_at")
+      .in("event_type", olayTurleri).order("created_at", { ascending: artan })
+      .range(sayfa * 1000, sayfa * 1000 + 999);
+    if (baslangic) sorgu = sorgu.gte("created_at", baslangic);
+    const { data, error } = await sorgu;
+    if (error) throw new Error("ACTIVITY_MEASUREMENT_UNAVAILABLE");
+    sonuc.push(...(data || []));
+    if ((data || []).length < 1000) return sonuc;
+  }
+  // Eksik toplam dönmek yerine kapasite aşıldığını görünür kıl; rapor yanlış güven yaratmasın.
+  throw new Error("ACTIVITY_MEASUREMENT_TOO_LARGE");
+}
+
+async function buyumeHunisiIstatistikleri(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: Array<{ id: string; created_at: string; email_confirmed_at?: string | null }>,
+  edinimler: Array<Record<string, unknown>>,
+) {
+  const simdi = new Date();
+  const bugunBaslangici = turkiyeGunBaslangici(simdi);
+  const yediGunOnce = new Date(simdi.getTime() - 7 * 86400000);
+  let aktivasyonOlaylari: Array<{ user_id: string; created_at: string }> = [];
+  let kullanimOlaylari: Array<{ user_id: string; created_at: string }> = [];
+  try {
+    [aktivasyonOlaylari, kullanimOlaylari] = await Promise.all([
+      tumAktiviteOlaylariniGetir(admin, AKTIVASYON_OLAYLARI, null, true),
+      tumAktiviteOlaylariniGetir(admin, ANLAMLI_KULLANIM_OLAYLARI, yediGunOnce.toISOString()),
+    ]);
+  } catch {
+    return {
+      available: false,
+      generated_at: simdi.toISOString(),
+      error: "ACTIVITY_MEASUREMENT_UNAVAILABLE",
+    };
+  }
+
+  const edinimHaritasi = new Map(edinimler.map((x) => [String(x.user_id), x]));
+  const ilkAktivasyon = new Map<string, string>();
+  for (const olay of aktivasyonOlaylari) {
+    const userId = String(olay.user_id || "");
+    if (userId && !ilkAktivasyon.has(userId)) ilkAktivasyon.set(userId, String(olay.created_at));
+  }
+  const bugunKullananlar = new Set<string>();
+  const yediGundeKullananlar = new Set<string>();
+  for (const olay of kullanimOlaylari) {
+    const userId = String(olay.user_id || "");
+    if (!userId) continue;
+    yediGundeKullananlar.add(userId);
+    if (new Date(String(olay.created_at)).getTime() >= bugunBaslangici.getTime()) bugunKullananlar.add(userId);
+  }
+
+  const kanalSayilari = new Map<string, { source: string; medium: string; campaign: string; new_today: number; verified_today: number; activated_today: number }>();
+  const olculemeyen = { new_today: 0, verified_today: 0, activated_today: 0 };
+  const kanalaEkle = (userId: string, alan: "new_today" | "verified_today" | "activated_today") => {
+    const kanal = edinimKanali(edinimHaritasi.get(userId));
+    if (!kanal) { olculemeyen[alan] += 1; return; }
+    const anahtar = `${kanal.source}\u0000${kanal.medium}\u0000${kanal.campaign}`;
+    const satir = kanalSayilari.get(anahtar) || { ...kanal, new_today: 0, verified_today: 0, activated_today: 0 };
+    satir[alan] += 1;
+    kanalSayilari.set(anahtar, satir);
+  };
+  let toplamDogrulanmis = 0;
+  for (const kullanici of kullanicilar) {
+    if (kullanici.email_confirmed_at) toplamDogrulanmis += 1;
+    if (new Date(kullanici.created_at).getTime() >= bugunBaslangici.getTime()) kanalaEkle(kullanici.id, "new_today");
+    if (kullanici.email_confirmed_at && new Date(kullanici.email_confirmed_at).getTime() >= bugunBaslangici.getTime()) kanalaEkle(kullanici.id, "verified_today");
+  }
+  for (const [userId, tarih] of ilkAktivasyon) {
+    if (new Date(tarih).getTime() >= bugunBaslangici.getTime()) kanalaEkle(userId, "activated_today");
+  }
+
+  return {
+    available: true,
+    generated_at: simdi.toISOString(),
+    time_zone: "Europe/Istanbul",
+    activation_definition: "İlk kart, ekstre, kredi, ek hesap/KMH veya diğer borç ekleme olayı",
+    usage_definition: "Giriş hariç borç, ekstre, gelir, gider, varlık veya ödeme kaydı",
+    summary: {
+      total_registered: kullanicilar.length,
+      total_verified: toplamDogrulanmis,
+      new_today: [...kanalSayilari.values()].reduce((toplam, x) => toplam + x.new_today, 0) + olculemeyen.new_today,
+      verified_today: [...kanalSayilari.values()].reduce((toplam, x) => toplam + x.verified_today, 0) + olculemeyen.verified_today,
+      used_today: bugunKullananlar.size,
+      used_7d: yediGundeKullananlar.size,
+      activated_total_observed: ilkAktivasyon.size,
+      activated_today: [...kanalSayilari.values()].reduce((toplam, x) => toplam + x.activated_today, 0) + olculemeyen.activated_today,
+    },
+    channels: [...kanalSayilari.values()].sort((a, b) => (b.new_today + b.verified_today + b.activated_today) - (a.new_today + a.verified_today + a.activated_today)),
+    unmeasured: olculemeyen,
+  };
+}
+
 Deno.serve(async (req) => {
   const headers = { ...cors(req.headers.get("origin")), "Content-Type": "application/json; charset=utf-8" };
   if (req.method === "OPTIONS") return new Response("ok", { headers });
@@ -551,6 +670,7 @@ Deno.serve(async (req) => {
   let analytics = null;
   let finansal = null;
   let yonetim = null;
+  let buyumeHunisi = null;
   if (!istenenKullaniciId) {
     try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
     analytics = await funnelIstatistikleri(admin);
@@ -570,6 +690,7 @@ Deno.serve(async (req) => {
       } catch { /* Snapshot tablosu geçici olarak ulaşılamazsa mevcut toplamlar yine gösterilir. */ }
     }
     yonetim = yonetimIstatistikleri(kullanicilar, kayitlar || [], finansal.available);
+    buyumeHunisi = await buyumeHunisiIstatistikleri(admin, kullanicilar, edinimler || []);
   }
   const geriBildirimler = geriBildirimleriHazirla(kullanicilar, kayitlar || [], istenenKullaniciId);
   const epostalar = new Map(kullanicilar.map((u) => [u.id, u.email || ""]));
@@ -628,6 +749,7 @@ Deno.serve(async (req) => {
     analytics,
     financial: finansal,
     management: yonetim,
+    growth_funnel: buyumeHunisi,
     users: gorunenKullanicilar,
     feedback: geriBildirimler,
     activities: aktiviteler,

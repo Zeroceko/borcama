@@ -10,6 +10,7 @@ Bu klasörde çalışan her ajan, işe başlamadan önce `CHANGELOG.md`, `packag
 - Köklü canlı yayınlar ve kullanıcı verisini toplu ya da geri döndürülemez biçimde değiştiren işlemler Yönetim Kurulu Başkanı onayı gerektirir. Rutin yayınları ekipler CEO koordinasyonunda yapabilir.
 - Reklam ekibi onaylı azami bütçeyi aşmadan kampanya, teklif ve dağılım ayarlarını yönetebilir; azami bütçe artışı Yönetim Kurulu Başkanı onayı gerektirir.
 - Toplu e-postanın son gönderim onayı Yönetim Kurulu Başkanı'ndadır. Sosyal medya aylık planını, A/B testi trafik oranını ve rutin yayın kararlarını CEO yönetir.
+- Yalnız önceden tanımlı yönetici test adreslerine giden, gerçek kullanıcı segmentini veya backfill'i çalıştırmayan ve mali ya da geri döndürülemez etkisi olmayan e-posta/ürün testleri ayrıca Yönetim Kurulu Başkanı onayı beklemeden yapılabilir. Gerçek kullanıcılara toplu gönderimin son onayı Yönetim Kurulu Başkanı'nda kalır.
 - Fiyatlandırma ve Pro süresi mevcut politika ile sürer; değişiklik önerileri hazırlanabilir fakat politika değişikliği Yönetim Kurulu Başkanı kararı olmadan uygulanmaz.
 
 ## Değişiklik kaydı zorunluluğu

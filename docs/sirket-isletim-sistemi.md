@@ -156,6 +156,7 @@ Ekipler CEO toplantısını beklemez. Her ekip yol haritasındaki en yüksek ön
 - Mevcut kabul kriteri içindeki geri alınabilir hata düzeltmesi hazırlığı
 - Onaylanmış içerik planı sınırlarında taslak üretim ve tekrar kontrolü
 - Kullanıcı geri bildirimini sınıflandırma ve ürün kuyruğuna öneri ekleme
+- Yalnız tanımlı yönetici test hesaplarına giden, gerçek kullanıcı segmenti/backfill çalıştırmayan ve mali veya geri döndürülemez etkisi olmayan e-posta, lifecycle, ürün ve ölçüm testleri
 
 ### CEO karar verir
 
