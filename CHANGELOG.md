@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.0] - 2026-09-03
+
+### Eklendi
+
+- Borcama ve CRM ekranlarına, kişisel ve finansal içerikleri göndermeden uygulama hatalarını sürüm ve kod konumuyla izleyen Sentry takibi ve ekran hatasında yeniden deneme seçeneği eklendi.
+
 ## [1.41.0] - 2026-09-03
 
 ### Eklendi

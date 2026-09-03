@@ -360,7 +360,7 @@ export function GizlilikMetni({ embedded = false }) {
       <p>
         Veriler satılmaz. Hizmetin çalışması için gerekli olduğu ölçüde kimlik
         doğrulama ve veritabanı altyapısı (Supabase), barındırma (Vercel),
-        güvenlik doğrulaması (Cloudflare), kullanıcının isteğe bağlı izin
+        güvenlik doğrulaması (Cloudflare), teknik hata izleme (Sentry), kullanıcının isteğe bağlı izin
         vermesi halinde kullanım ve reklam dönüşüm ölçümü (Google Analytics ve
         Google Ads) ve yetkili kamu
         kurumlarıyla paylaşım yapılabilir. Google Ads ölçümüne e-posta adresi
@@ -371,6 +371,13 @@ export function GizlilikMetni({ embedded = false }) {
         gerçekleştirilir.
       </p>
       <h2>5. Saklama süresi ve güvenlik</h2>
+      <p>
+        Sentry hata raporlarında uygulama sürümü, hata türü ve kod konumu yer alır.
+        Ekstre ve form içerikleri, finansal kayıtlar, e-posta adresleri ve hata
+        mesajlarının özel içerikleri gönderilmez. Ekran kaydı ve tıklama geçmişi
+        toplanmaz. Ağ bağlantısının kurulması sırasında sağlayıcı IP adresini
+        teknik olarak görebilir; rapordaki kullanıcı IP alanı maskelenir.
+      </p>
       <p>
         Hesap verileri, hesap aktif olduğu veya hizmetin sunulması için gerekli
         olduğu sürece; güvenlik ve yasal kayıtlar ilgili amaç için gereken

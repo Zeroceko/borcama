@@ -1,5 +1,6 @@
 import React, { lazy, useEffect } from "react";
 import ReactDOM from "react-dom/client";
+import { ErrorBoundary } from './errorMonitoring.js';
 import LandingAlt from "./LandingAlt.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
@@ -387,9 +388,11 @@ function KimlikliKok() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
       <Kok />
       <GoogleAdsConsent />
     </React.Suspense>
+    </ErrorBoundary>
   </React.StrictMode>,
 );
