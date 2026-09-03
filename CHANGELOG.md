@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.40.3] - 2026-09-03
+
+### Düzeltildi
+
+- Yapılandırma formundaki faiz ve vergi bölümü dar bir bilgi simgesine dönüşmek yerine tam genişlikte açılır başlıkla gösteriliyor; metin artık düğmelerin üzerine taşmıyor.
+
 ## [1.40.2] - 2026-09-03
 
 ### Düzeltildi
