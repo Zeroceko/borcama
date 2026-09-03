@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Rakamın dayanağından kaydına ulaş — hazırlanıyor
+
+- Siz istediniz: Ekrandaki farkın ne olduğunu ve yanlış bir rakamı nereden kontrol edeceğini anlamak.
+- Biz yaptık: Bugün ekranına gelir, kalan ödeme ve harcamayı açıklayan açılır hesap dayanağı ve kayıtlarına doğrudan geçişler ekledik.
+- Faydası: Kayıtlı bütçe farkını banka bakiyenle karıştırmadan, eksik bilgileri kontrol edebilirsin.
+- Aksiyon: `https://borcama.com/summary`
+
 ### Yapılandırma taksitini Borcama hesaplasın — v1.40.0
 
 - Siz istediniz: Kart yapılandırmasının aylık taksitini faiz ve vergilerle kendin hesaplamak zorunda kalmamak.

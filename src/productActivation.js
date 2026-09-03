@@ -87,8 +87,8 @@ export function getMonthlyBalancePresentation({
     };
   }
   return {
-    etiket: "Ödemeler ve kayıtlı harcamalardan sonra",
+    etiket: "Kayıtlarına göre aylık fark",
     tutar: Number(income) - Number(mandatoryPayments) - Number(expenses),
-    aciklama: "Yalnızca kaydettiğin bu ayki hareketlere göre.",
+    aciklama: "Yalnızca kaydettiğin tutarlara göre; banka bakiyen veya harcama izni değildir.",
   };
 }

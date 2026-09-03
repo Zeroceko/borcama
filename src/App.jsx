@@ -5035,7 +5035,7 @@ function Ozet({
         </div>
         <div className="bt-ozet-kisa" aria-label="Bu ayın özeti">
           <div>
-            <span>Yaklaşan minimum</span>
+            <span>Bu ay kalan zorunlu ödeme</span>
             <strong>{tutarGoster(buAyOdenecek)}</strong>
           </div>
           <div>
@@ -5052,6 +5052,18 @@ function Ozet({
             <strong>{tutarGoster(buAyHarcama.toplam)}</strong>
           </div>
         </div>
+        <details className="bt-ipucu" style={{ display: "block" }}>
+          <summary style={{ cursor: "pointer", fontWeight: 700 }}>Bu rakamlar nasıl hesaplandı?</summary>
+          <div>
+            <p>Kayıtlı aylık gelir {tutarGoster(gelir)} − bu ay kalan zorunlu ödemeler {tutarGoster(buAyOdenecek)} − kayıtlı harcamalar {tutarGoster(buAyHarcama.toplam)}.
+              Gelirin hesabına geçip geçmediğini ve bankadaki nakdini doğrulamıyoruz. Eksik kayıtlar bu farkı olduğundan yüksek gösterebilir.</p>
+            <div className="bt-form-butonlar">
+              <button type="button" className="bt-btn kucuk" onClick={() => setSekme("odemeler")}>Ödemeleri kontrol et</button>
+              <button type="button" className="bt-btn kucuk" onClick={() => setSekme("harcamalar")}>Harcamaları kontrol et</button>
+              <button type="button" className="bt-btn kucuk" onClick={() => setSekme("gelir")}>Geliri kontrol et</button>
+            </div>
+          </div>
+        </details>
         {(oran !== null || gelir > 0) && (
           <div className="bt-ozet-durum">
             {oran !== null && (
