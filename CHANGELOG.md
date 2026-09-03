@@ -8,6 +8,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- Turnstile doğrulaması Auth ekranında açık render yaşam döngüsü, süre dolumu/hata temizliği ve her denemede tek kullanımlık token yenilemesiyle güvenli hale getirildi.
 - Yardım/SSS ekranına borç ve ödeme kayıtlarını doğru yorumlamaya yönelik güvenli açıklamalar ile abonelik kartı ve kullanıcı kayıtları ayrımını netleştiren metinler eklendi.
 - Borcama ve CRM ekranlarına, kişisel ve finansal içerikleri göndermeden uygulama hatalarını sürüm ve kod konumuyla izleyen Sentry takibi ve ekran hatasında yeniden deneme seçeneği eklendi.
 
