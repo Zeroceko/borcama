@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Borçlar ekranının kredi formu kapalıyken ilk taksit tarihi kontrolünde çökmesi giderildi.
+
 ## [1.42.5] - 2026-09-04
 
 ### Düzeltildi

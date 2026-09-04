@@ -7044,7 +7044,7 @@ function Borclar({
       { k: "taksit", e: "Aylık taksit (₺)", t: "number", z: true },
       { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
       { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
-      { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form.veri?.id },
+      { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form?.veri?.id },
       { k: "odemeGunu", e: "Aylık ödeme günü (tarih girilince otomatik)", t: "number", z: !f.ilkOdemeTarihi },
     ],
     od: [
