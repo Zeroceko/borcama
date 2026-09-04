@@ -4,6 +4,19 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.7] - 2026-09-05
+
+### Değiştirildi
+
+- Borç Planı'nın bütçe açığı görünümü karar odaklı sadeleştirildi; aylık açık ve güvenli yaşam harcaması sınırı öne çıkarılırken hesap dökümü ile alternatif senaryolar isteğe bağlı açılır hale getirildi.
+- Bugün ekranındaki “Şimdi ne yapmalısın?” alanına aylık açığı veya faiz yükünü açıklayan doğrudan Borç Planı bağlantısı eklendi.
+- Bugün ve Borç Planı ekranlarında aylık sonuç ile kullanıcının sıradaki eylemi görsel olarak öne alındı; hesap ayrıntıları ikinci seviyeye indirildi.
+- Bugün ekranındaki borç dağılımı ek bir bilgi katmanı oluşturmadan doğrudan görülecek biçimde varsayılan açık hale getirildi.
+- Bugün ekranındaki yoğun “ne yapmalısın” kutusu kaldırıldı; yaklaşan ödeme ve aylık plan kısa, bağımsız aksiyonlara dönüştürüldü.
+- Bugün ekranında rakamları tekrar eden bütçe açıklaması kaldırıldı; borç dağılımı açılır başlık olmadan doğrudan ve tek tıkla düzenlenebilir hale getirildi.
+- Anlaşılmayan “aylık fark” yerine Bugün özetinde planın gerçek aylık açığı gösterilmeye başlandı ve tekrar eden gelir-oran metni kaldırıldı.
+- Borç dağılımı kategorileri seçilirken toplam alanının konumu sabitlendi; filtreleme artık ekranı sıçratmadan yalnızca sayıyı ve dağılımı değiştiriyor.
+
 ## [1.42.6] - 2026-09-04
 
 ### Düzeltildi

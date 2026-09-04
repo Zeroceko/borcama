@@ -372,7 +372,7 @@ const CSS = `
 .bt-hero-delta-grup{display:grid;justify-items:start;gap:7px;margin-bottom:16px}.bt-hero-delta{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;padding:6px 11px;border:1px solid currentColor;border-radius:999px;margin:0;font-family:'JetBrains Mono',monospace}.bt-hero-delta-kaynak{max-width:440px;color:var(--summary-muted);font-size:10.5px;line-height:1.4}
 .bt-hero-delta.azaldi{background:#f0ffd2;color:#466611}.bt-hero-delta.artti{background:#ffe4de;color:#9a3023}
 .bt-hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr);gap:clamp(20px,4vw,38px);align-items:start;margin-top:0}
-.bt-onemli-panel{min-width:0;padding:14px 16px;border:1px solid color-mix(in srgb,var(--line) 16%,transparent);border-radius:18px;background:color-mix(in srgb,var(--panel) 78%,var(--summary-bg));box-shadow:0 8px 22px #14160f0a}.bt-onemli-panel h3{margin:0 0 4px;color:var(--summary-text);font-size:13px;font-weight:850}.bt-onemli-liste{display:grid}.bt-onemli-satir{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:8px 0;border:0;border-top:1px solid color-mix(in srgb,var(--line) 12%,transparent);background:transparent;color:var(--summary-text);text-align:left;font-family:inherit;cursor:pointer}.bt-onemli-satir:first-child{border-top:0}.bt-onemli-ikon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-onemli-satir.acil .bt-onemli-ikon{background:${CORAL}}.bt-onemli-satir strong{display:block;font-size:14px;line-height:1.25}.bt-onemli-satir small{display:block;margin-top:2px;color:var(--summary-muted);font-size:10.5px;line-height:1.3}.bt-onemli-satir small b{color:var(--summary-text);font-weight:750}.bt-onemli-satir>svg{color:var(--summary-muted)}.bt-onemli-satir:hover strong{text-decoration:underline;text-underline-offset:3px}.bt-onemli-bos{padding:10px 0;color:var(--summary-muted);font-size:11px;line-height:1.4}
+.bt-onemli-panel{min-width:0}.bt-onemli-liste{display:grid;gap:9px}.bt-onemli-satir{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:12px;border:1px solid color-mix(in srgb,var(--line) 16%,transparent);border-radius:14px;background:color-mix(in srgb,var(--panel) 72%,var(--summary-bg));color:var(--summary-text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px #14160f08}.bt-onemli-ikon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:${LIME};color:${INK}}.bt-onemli-satir.acil .bt-onemli-ikon{background:${CORAL}}.bt-onemli-satir.plan{background:${INK};color:#fff}.bt-onemli-satir.plan .bt-onemli-ikon{background:${LIME};color:${INK}}.bt-onemli-satir.plan small{color:#d5d8cc}.bt-onemli-satir.plan>svg{color:${LIME}}.bt-onemli-satir strong{display:block;font-size:13.5px;line-height:1.25}.bt-onemli-satir small{display:block;margin-top:3px;color:var(--summary-muted);font-size:10.5px;line-height:1.3}.bt-onemli-satir small b{color:inherit;font-weight:750}.bt-onemli-satir>svg{color:var(--summary-muted)}.bt-onemli-satir:hover{transform:translateY(-1px)}.bt-onemli-bos{padding:10px 0;color:var(--summary-muted);font-size:11px;line-height:1.4}
 .bt-ozet-kisa{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:6px 0 14px;border-top:1px solid color-mix(in srgb,var(--line) 28%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 28%,transparent)}
 .bt-ozet-kisa>div{min-width:0;padding:16px}.bt-ozet-kisa>div:first-child{padding-left:0}.bt-ozet-kisa>div+div{border-left:1px solid color-mix(in srgb,var(--line) 20%,transparent)}.bt-ozet-kisa span{display:block;margin-bottom:7px;color:var(--summary-muted);font-size:12.5px;font-weight:750}.bt-ozet-kisa strong{display:block;color:var(--summary-text);font:700 clamp(16px,2.3vw,21px) 'JetBrains Mono',monospace;line-height:1.15;overflow-wrap:anywhere}
 .bt-ozet-durum{position:relative;z-index:1;display:flex;align-items:center;gap:9px 18px;flex-wrap:wrap;margin:0 0 17px;color:var(--summary-muted);font-size:11px;line-height:1.45}.bt-ozet-durum b{color:var(--summary-text);font-family:'JetBrains Mono',monospace}
@@ -481,13 +481,13 @@ const CSS = `
 .bt-bugun-odemeler{background:var(--summary-soft);border:1px solid var(--line-soft);border-radius:20px;padding:clamp(18px,4vw,26px)}.bt-bugun-bolum-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.bt-bugun-bolum-head h2{margin:0;color:var(--text);font:800 clamp(20px,3vw,25px)/1.1 'Space Grotesk',sans-serif}.bt-bugun-bolum-head p{margin:5px 0 0;color:var(--dim);font-size:11.5px}.bt-bugun-bolum-head .bt-link{white-space:nowrap}.bt-bugun-odeme-listesi{display:grid;gap:8px}.bt-bugun-odeme{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-bugun-odeme-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK};font:800 11px 'JetBrains Mono',monospace}.bt-bugun-odeme.gecikmis .bt-bugun-odeme-ikon{background:${CORAL}}.bt-bugun-odeme strong{display:block;color:var(--text);font-size:13.5px;line-height:1.25}.bt-bugun-odeme small{display:block;margin-top:3px;color:var(--dim);font-size:11px}.bt-bugun-odeme.gecikmis small{color:${CORAL};font-weight:750}.bt-bugun-odeme-tutar{text-align:right}.bt-bugun-odeme-tutar b{display:block;color:var(--text);font:750 14px 'JetBrains Mono',monospace}.bt-bugun-odeme-tutar span{display:block;margin-top:3px;color:var(--dim);font-size:10px}.bt-bugun-odeme-bos{padding:20px;border:1px dashed var(--line-soft);border-radius:14px;background:var(--panel);color:var(--dim);font-size:12px;text-align:center}
 .bt-bugun-icgoru{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px 17px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:17px;background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:0 7px 20px #14160f08}.bt-bugun-icgoru:hover{background:color-mix(in srgb,${LIME} 8%,var(--panel))}.bt-bugun-icgoru>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,${LIME} 45%,var(--panel2));color:${INK}}.bt-bugun-icgoru strong{display:block;font-size:13.5px}.bt-bugun-icgoru small{display:block;margin-top:3px;color:var(--dim);font-size:11px;line-height:1.4}
 .bt-bugun-icgoruler{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.bt-pro-senaryo{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:22px;background:linear-gradient(135deg,#173c30 0%,#0b2d25 68%,#12382e 100%);color:#f8f5e8;box-shadow:7px 7px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo:after{content:"";position:absolute;right:-45px;top:-55px;width:145px;height:145px;border-radius:50%;background:color-mix(in srgb,${LIME} 76%,transparent);opacity:.88}.bt-pro-senaryo-ust{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#dbe7d9;font-size:11px;font-weight:750}.bt-pro-senaryo-rozet{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid color-mix(in srgb,${LIME} 75%,transparent);border-radius:999px;background:#0b241e;color:${LIME};font-weight:850}.bt-pro-senaryo-ana{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.bt-pro-senaryo h2{max-width:720px;margin:0;color:#fffaf0;font:800 clamp(25px,4vw,36px)/1.04 'Space Grotesk',sans-serif}.bt-pro-senaryo p{max-width:760px;margin:10px 0 0;color:#c7d1ca;font-size:12.5px;line-height:1.55}.bt-pro-senaryo .bt-btn{white-space:nowrap}.bt-pro-senaryo-metrikler{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:24px;overflow:hidden;border:1px solid #ffffff26;border-radius:15px;background:#ffffff26}.bt-pro-senaryo-metrikler>div{padding:15px 17px;background:#0d2b24}.bt-pro-senaryo-metrikler span{display:block;color:#aebdb5;font-size:10.5px;line-height:1.35}.bt-pro-senaryo-metrikler strong{display:block;margin-top:6px;color:#fffaf0;font:750 clamp(15px,2.4vw,19px) 'JetBrains Mono',monospace}.bt-pro-senaryo .bt-pro-senaryo-not{position:relative;z-index:1;margin:12px 0 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0d;color:#e6ece7}.bt-pro-senaryo.kilitli{background:linear-gradient(135deg,#173c30,#12382e)}
-.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-grid small{display:block;margin-top:6px;color:var(--dim);font-size:10.5px;line-height:1.4}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-cozum{margin-top:12px;padding:18px;border:1px solid color-mix(in srgb,${LIME} 68%,var(--line-soft));border-left:5px solid ${LIME};border-radius:16px;background:color-mix(in srgb,${LIME} 12%,#fff)}.bt-plan-cozum h3{margin:0;color:var(--text);font:800 18px/1.2 'Space Grotesk',sans-serif}.bt-plan-cozum p{margin:6px 0 0;color:var(--dim);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}.bt-plan-cozum-adimlar li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;color:var(--text);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${INK};color:${LIME};font:800 11px 'JetBrains Mono',monospace}.bt-plan-cozum-adimlar strong{font-weight:850}.bt-plan-cozum-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo.oncelikli{display:flex;flex-direction:column}.bt-plan-senaryo.oncelikli>.bt-plan-senaryo-ust{order:1}.bt-plan-senaryo.oncelikli>.bt-plan-karar{order:2}.bt-plan-senaryo.oncelikli>.bt-plan-cozum{order:3}.bt-plan-senaryo.oncelikli>.bt-plan-detay{order:4}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-kicker{display:block;margin-bottom:7px;color:#5d7a2e;font:800 10.5px 'JetBrains Mono',monospace;letter-spacing:.08em}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-grid small{display:block;margin-top:6px;color:var(--dim);font-size:10.5px;line-height:1.4}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-karar{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(180px,.65fr);gap:12px;margin-top:18px}.bt-plan-karar-ana,.bt-plan-karar-yan{padding:20px;border-radius:16px}.bt-plan-karar-ana{background:${INK};color:#fff;box-shadow:5px 5px 0 ${CORAL}}.bt-plan-karar-ana span,.bt-plan-karar-yan span{display:block;font-size:11px;font-weight:750}.bt-plan-karar-ana strong{display:block;margin-top:7px;color:${LIME};font:800 clamp(30px,5vw,46px)/1 'Archivo Black',sans-serif}.bt-plan-karar-ana small{display:block;margin-top:9px;color:#ffffffc2;line-height:1.45}.bt-plan-karar-yan{border:1px solid color-mix(in srgb,${LIME} 65%,var(--line-soft));background:color-mix(in srgb,${LIME} 18%,#fff)}.bt-plan-karar-yan strong{display:block;margin-top:7px;font:800 22px/1.15 'JetBrains Mono',monospace}.bt-plan-detay{margin-top:12px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-detay>summary{cursor:pointer;padding:14px 16px;font-weight:850;list-style:none}.bt-plan-detay>summary::-webkit-details-marker{display:none}.bt-plan-detay>summary:after{content:'+';float:right;font-size:20px;line-height:1}.bt-plan-detay[open]>summary:after{content:'−'}.bt-plan-detay .bt-plan-senaryo-grid{margin:0;padding:0 12px 12px}.bt-plan-detay .bt-plan-senaryo-not{margin:0 12px 12px}.bt-plan-cozum{margin-top:14px;padding:18px;border:1px solid color-mix(in srgb,${LIME} 68%,var(--line-soft));border-left:5px solid ${LIME};border-radius:16px;background:color-mix(in srgb,${LIME} 12%,#fff)}.bt-plan-cozum h3{margin:0;color:var(--text);font:800 18px/1.2 'Space Grotesk',sans-serif}.bt-plan-cozum p{margin:6px 0 0;color:var(--dim);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}.bt-plan-cozum-adimlar li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;color:var(--text);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${INK};color:${LIME};font:800 11px 'JetBrains Mono',monospace}.bt-plan-cozum-adimlar strong{font-weight:850}.bt-plan-cozum-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
 .bt-plan-giris{display:grid;gap:22px;padding:clamp(20px,4vw,32px);border:1px solid var(--line-soft);border-radius:22px;background:linear-gradient(145deg,var(--summary-bg),color-mix(in srgb,${LIME} 9%,var(--panel)));box-shadow:0 14px 34px #14160f0b}.bt-plan-giris-ust{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--dim);font-size:11px}.bt-plan-giris-ust .bt-link{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:800}.bt-plan-giris-ana{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:24px;align-items:end}.bt-plan-giris h1{max-width:720px;margin:0;color:var(--text);font:800 clamp(29px,5vw,44px)/1.02 'Space Grotesk',sans-serif}.bt-plan-giris p{max-width:700px;margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-faiz-ozeti{padding:17px;border:1px solid color-mix(in srgb,${CORAL} 50%,var(--line-soft));border-radius:16px;background:color-mix(in srgb,${CORAL} 8%,var(--panel))}.bt-plan-faiz-ozeti span,.bt-plan-faiz-ozeti small{display:block;color:var(--dim);font-size:10.5px}.bt-plan-faiz-ozeti strong{display:block;margin:7px 0 5px;color:var(--text);font:800 clamp(22px,4vw,31px) 'JetBrains Mono',monospace}.bt-plan-faiz-kirilim{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-plan-gecikme{padding:12px 14px;border-left:4px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:12px;font-weight:750}.bt-borc-donem-satiri{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 0 20px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2)}.bt-borc-donem-satiri>div{min-width:0}.bt-borc-donem-satiri strong{display:block;color:var(--text);font-size:13px}.bt-borc-donem-satiri span{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-borc-donem-satiri .bt-input{width:min(240px,100%);margin:0}
 .bt-plan-kisayol{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;padding:14px 16px;border:1px solid color-mix(in srgb,${LIME} 64%,var(--line-soft));border-radius:17px;background:linear-gradient(110deg,color-mix(in srgb,${LIME} 16%,var(--panel)),var(--panel) 58%,color-mix(in srgb,${CORAL} 7%,var(--panel)));box-shadow:0 9px 25px #14160f0a}.bt-plan-kisayol-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 color-mix(in srgb,${CORAL} 75%,transparent)}.bt-plan-kisayol-metin{min-width:0}.bt-plan-kisayol-metin strong{display:block;color:var(--text);font:800 15px/1.2 'Space Grotesk',sans-serif}.bt-plan-kisayol-metin span{display:block;margin-top:4px;color:var(--dim);font-size:11px;line-height:1.4}.bt-plan-kisayol .bt-btn{white-space:nowrap}
 .bt-bugun-bos{display:grid;justify-items:start;gap:14px;padding:clamp(26px,6vw,54px);border:1px solid var(--line-soft);border-radius:24px;background:var(--summary-bg);box-shadow:0 14px 34px #14160f0d}.bt-bugun-bos-ikon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:${LIME};color:${INK};box-shadow:4px 4px 0 ${CORAL}}.bt-bugun-bos h1{max-width:650px;margin:4px 0 0;color:var(--text);font:800 clamp(29px,6vw,48px)/1.02 'Space Grotesk',sans-serif}.bt-bugun-bos p{max-width:580px;margin:0;color:var(--dim);font-size:14px;line-height:1.55}.bt-bugun-bos>p{font-size:16px;line-height:1.5}.bt-bugun-bos .bt-btn{min-height:46px}
 .bt-aktivasyon{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;padding:20px 22px;border:1px solid color-mix(in srgb,${LIME} 58%,var(--line-soft));border-radius:20px;background:linear-gradient(110deg,color-mix(in srgb,${LIME} 13%,var(--panel)),var(--panel));box-shadow:0 10px 28px #14160f0a}.bt-aktivasyon-kopya{min-width:0}.bt-aktivasyon-sayac{display:block;margin-bottom:7px;color:#5d7a2e;font:800 12px 'JetBrains Mono',monospace}.bt-aktivasyon h2{margin:0;color:var(--text);font:800 clamp(21px,3vw,26px)/1.12 'Space Grotesk',sans-serif}.bt-aktivasyon p{margin:7px 0 0;color:var(--dim);font-size:13.5px;line-height:1.45}.bt-aktivasyon-ilerleme{display:grid;grid-template-columns:repeat(3,minmax(34px,1fr));gap:7px;max-width:360px;margin-top:16px}.bt-aktivasyon-ilerleme span{height:7px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel)}.bt-aktivasyon-ilerleme span.tamam{border-color:color-mix(in srgb,${LIME} 74%,var(--line-soft));background:${LIME}}.bt-aktivasyon-ilerleme span.sirada{border-color:color-mix(in srgb,${CORAL} 70%,var(--line-soft));background:color-mix(in srgb,${CORAL} 38%,var(--panel))}.bt-aktivasyon-aksiyon{display:grid;justify-items:end}.bt-aktivasyon-aksiyon .bt-btn{min-width:132px;justify-content:center}.bt-bugun-bos .bt-aktivasyon{width:100%;margin-top:5px;background:color-mix(in srgb,var(--panel) 78%,transparent)}.bt-ozet-kisa small{display:block;margin-top:6px;color:var(--summary-muted);font-size:9.5px;line-height:1.35}
 @media(max-width:600px){.bt-bugun-aksiyon{grid-template-columns:38px minmax(0,1fr);padding:15px;column-gap:11px}.bt-bugun-aksiyon-ikon{width:38px;height:38px}.bt-bugun-aksiyon p span{display:block;margin-top:2px}.bt-bugun-bolum-head{align-items:flex-start;flex-direction:column;gap:8px}.bt-bugun-odeme{grid-template-columns:38px minmax(0,1fr);padding:11px}.bt-bugun-odeme-ikon{width:38px;height:38px}.bt-bugun-odeme-tutar{grid-column:2;text-align:left;display:flex;align-items:baseline;gap:7px}.bt-bugun-odeme-tutar span{margin:0}.bt-bugun-icgoru{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-bugun-icgoru>span:first-child{width:38px;height:38px}.bt-bugun-icgoru>svg{display:none}.bt-pro-senaryo{padding:19px 16px;box-shadow:4px 4px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo-ana{grid-template-columns:1fr;gap:17px;align-items:start}.bt-pro-senaryo-ana .bt-btn{justify-self:start}.bt-pro-senaryo-metrikler{grid-template-columns:1fr;margin-top:18px}.bt-pro-senaryo-metrikler>div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px}.bt-pro-senaryo-metrikler strong{margin:0;font-size:14px}.bt-plan-giris-ana{grid-template-columns:1fr}.bt-plan-giris-ust{align-items:flex-start;flex-direction:column}.bt-borc-donem-satiri{align-items:stretch;flex-direction:column}.bt-borc-donem-satiri .bt-input{width:100%}.bt-bugun-bos{padding:28px 20px}}
-@media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-cozum{padding:15px 13px}.bt-plan-cozum-actions{display:grid;grid-template-columns:1fr}.bt-plan-cozum-actions .bt-btn{width:100%}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
+@media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-karar{grid-template-columns:1fr}.bt-plan-cozum{padding:15px 13px}.bt-plan-cozum-actions{display:grid;grid-template-columns:1fr}.bt-plan-cozum-actions .bt-btn{width:100%}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
 @media(max-width:620px){.bt-plan-kisayol{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-plan-kisayol-ikon{width:38px;height:38px}.bt-plan-kisayol .bt-btn{grid-column:1/-1;width:100%;justify-content:center}}
 @media(max-width:700px){.bt-aktivasyon{grid-template-columns:1fr;gap:18px;padding:18px}.bt-aktivasyon-aksiyon,.bt-aktivasyon-aksiyon>.bt-btn{width:100%;justify-self:stretch}.bt-aktivasyon-aksiyon>.bt-btn{justify-content:center}.bt-aktivasyon-aksiyon{justify-items:stretch}.bt-aktivasyon-ilerleme{max-width:none}}
 @media(max-width:460px){.bt-plan-senaryo-grid{grid-template-columns:1fr}.bt-plan-senaryo-grid>div{min-height:auto}}
@@ -4847,7 +4847,6 @@ function Ozet({
 }) {
   const [haricTurler, setHaricTurler] = useState([]);
   const gelir = buAyGelir.toplam;
-  const oran = gelir > 0 ? (buAyOdenecek / gelir) * 100 : null;
   const aktivasyon = getActivationState(veri);
   const aylikDenge = getMonthlyBalancePresentation({
     income: gelir,
@@ -4966,9 +4965,7 @@ function Ozet({
           <div>
             <div className="bt-hero-label-row">
               <div className="bt-hero-label">
-                {haricTurler.length
-                  ? "Seçili borçların toplamı"
-                  : "Tüm bankalardaki toplam borcunuz"}
+                Borç toplamın
               </div>
               <button
                 className="bt-btn hayalet bt-tutar-toggle"
@@ -4983,14 +4980,21 @@ function Ozet({
             <div className="bt-hero-tutar">
               {tutarGoster(gosterilenToplam)}
             </div>
-            {haricTurler.length > 0 && (
-              <div style={{ color: "var(--summary-muted)", fontSize: 11.5, margin: "-7px 0 13px" }}>
-                {haricTurler.length} kategori toplamdan çıkarıldı ·{" "}
-                <button className="bt-link" onClick={() => setHaricTurler([])}>
-                  Tümünü geri ekle
-                </button>
-              </div>
-            )}
+            <div
+              aria-hidden={!haricTurler.length}
+              style={{
+                color: "var(--summary-muted)",
+                fontSize: 11.5,
+                minHeight: 18,
+                margin: "-7px 0 13px",
+                visibility: haricTurler.length ? "visible" : "hidden",
+              }}
+            >
+              {haricTurler.length || 0} kategori toplamdan çıkarıldı ·{" "}
+              <button className="bt-link" onClick={() => setHaricTurler([])} tabIndex={haricTurler.length ? 0 : -1}>
+                Tümünü geri ekle
+              </button>
+            </div>
             {gecenAyDelta && (
               <div className="bt-hero-delta-grup">
                 <div className={"bt-hero-delta " + (gecenAyDelta.fark <= 0 ? "azaldi" : "artti")}>
@@ -5008,8 +5012,7 @@ function Ozet({
               </div>
             )}
           </div>
-          <aside className="bt-onemli-panel" aria-label="Şimdi ne yapmalısın">
-            <h3>Şimdi ne yapmalısın?</h3>
+          <aside className="bt-onemli-panel" aria-label="Bugünün aksiyonları">
             <div className="bt-onemli-liste">
               {oncelikliOdeme && (
                 <button
@@ -5021,23 +5024,33 @@ function Ozet({
                     {gecikmisler.length ? <AlertTriangle size={18} /> : <CalendarCheck size={18} />}
                   </span>
                   <span>
-                    <strong>{oncelikliBaslik}</strong>
-                    <small><b>{oncelikliOdeme.ad}</b> · {oncelikliAciklama}</small>
+                    <strong>{oncelikliOdeme.ad}</strong>
+                    <small>{gecikmisler.length ? oncelikliBaslik : "Sıradaki ödeme"} · {oncelikliAciklama}</small>
                   </span>
                   <ChevronRight size={17} aria-hidden="true" />
                 </button>
               )}
-              {!oncelikliOdeme && aylikFaiz > 0 && (
-                <button className="bt-onemli-satir" type="button" onClick={() => setSekme("plan")}>
+              {["ok", "long_horizon", "structural_gap"].includes(borcsuzlukSenaryosu.status) && (
+                <button className="bt-onemli-satir plan" type="button" onClick={() => setSekme("plan")}>
                   <span className="bt-onemli-ikon" aria-hidden="true"><TrendingUp size={18} /></span>
                   <span>
-                    <strong>Faiz yükünü incele</strong>
-                    <small>Bu ay tahmini {fmt0(aylikFaiz)} · hesap dayanağını gör</small>
+                    <strong>
+                      {borcsuzlukSenaryosu.status === "structural_gap"
+                        ? `Aylık açık ${tutarGoster(borcsuzlukSenaryosu.monthlyGap)}`
+                        : "Borç planına geç"}
+                    </strong>
+                    <small>
+                      {borcsuzlukSenaryosu.status === "structural_gap"
+                        ? "Nasıl kapatacağını gör"
+                        : aylikFaiz > 0
+                          ? `${fmt0(aylikFaiz)} tahmini aylık faiz · kapatma sırasını gör`
+                          : "Kapatma sıranı ve aylık hedefini gör"}
+                    </small>
                   </span>
                   <ChevronRight size={17} aria-hidden="true" />
                 </button>
               )}
-              {!oncelikliOdeme && aylikFaiz <= 0 && (
+              {!oncelikliOdeme && !["ok", "long_horizon", "structural_gap"].includes(borcsuzlukSenaryosu.status) && (
                 <div className="bt-onemli-bos">Bu ay için kritik bir durum görünmüyor.</div>
               )}
             </div>
@@ -5045,62 +5058,30 @@ function Ozet({
         </div>
         <div className="bt-ozet-kisa" aria-label="Bu ayın özeti">
           <div>
-            <span>Bu ay kalan zorunlu ödeme</span>
+            <span>Kalan zorunlu ödeme</span>
             <strong>{tutarGoster(buAyOdenecek)}</strong>
           </div>
           <div>
-            <span>{aylikDenge.etiket}</span>
+            <span>Aylık plan</span>
             <strong>
-              {aylikDenge.tutar !== null
-                ? `${aylikDenge.tutar >= 0 ? "+" : ""}${tutarGoster(aylikDenge.tutar)}`
-                : "—"}
+              {borcsuzlukSenaryosu.status === "structural_gap"
+                ? `${tutarGoster(borcsuzlukSenaryosu.monthlyGap)} açık`
+                : aylikDenge.tutar !== null
+                  ? `${aylikDenge.tutar >= 0 ? "+" : ""}${tutarGoster(aylikDenge.tutar)}`
+                  : "Veri eksik"}
             </strong>
-            <small>{aylikDenge.aciklama}</small>
+            <small>
+              {borcsuzlukSenaryosu.status === "structural_gap"
+                ? "Gelir, harcama ve zorunlu ödemelere göre"
+                : aylikDenge.aciklama}
+            </small>
           </div>
           <div>
-            <span>Bu ay harcama</span>
+            <span>Ay içindeki harcama</span>
             <strong>{tutarGoster(buAyHarcama.toplam)}</strong>
           </div>
         </div>
-        <details className="bt-budget-check">
-          <summary>
-            <span className="bt-budget-check-icon"><CalendarCheck size={23} /></span>
-            <span className="bt-budget-check-title"><strong>Bütçenin hesabı burada</strong><small>Gelir, ödeme ve harcamalarını birlikte kontrol et.</small></span>
-            <ChevronRight className="bt-budget-check-arrow" size={21} />
-          </summary>
-          <div className="bt-budget-check-body">
-            <div className="bt-budget-check-ledger">
-              <button type="button" onClick={() => setSekme("gelir")}><span>+ Kayıtlı aylık gelir</span><strong>{tutarGoster(gelir)}</strong><small>Geliri incele <ChevronRight size={13}/></small></button>
-              <button type="button" onClick={() => setSekme("odemeler")}><span>− Kalan zorunlu ödeme</span><strong>{tutarGoster(buAyOdenecek)}</strong><small>Ödemeleri incele <ChevronRight size={13}/></small></button>
-              <button type="button" onClick={() => setSekme("harcamalar")}><span>− Kayıtlı harcamalar</span><strong>{tutarGoster(buAyHarcama.toplam)}</strong><small>Harcamaları incele <ChevronRight size={13}/></small></button>
-            </div>
-            <p className="bt-budget-check-note"><Info size={16}/><span>Bu hesap banka bakiyen değildir. Gelirin hesaba geçişini ve nakdini doğrulamıyoruz; eksik kayıtlar farkı yüksek gösterebilir.</span></p>
-          </div>
-        </details>
-        {(oran !== null || gelir > 0) && (
-          <div className="bt-ozet-durum">
-            {oran !== null && (
-              <span>
-                Gelirin <b>%{Math.round(oran)}</b>'i zorunlu borç ödemesine gidiyor.
-              </span>
-            )}
-            {gelir > 0 && (
-              <span>
-                Bu ay gelir: <b>{tutarGoster(gelir)}</b>
-              </span>
-            )}
-          </div>
-        )}
-        <details className="bt-borc-dagilim">
-          <summary>
-            <span>
-              <PieChart size={19} />
-              <span>
-                <b>Borç dağılımı</b>
-                <small>Kategorileri gör, toplam kapsamını düzenle</small>
-              </span>
-            </span>
-          </summary>
+        <div className="bt-borc-dagilim" aria-label="Borç dağılımı">
           <div className="bt-borc-dagilim-icerik">
             <div className="bt-serit">
               {gosterilenToplam > 0 && parcalar
@@ -5125,7 +5106,7 @@ function Ozet({
               ))}
             </div>
           </div>
-        </details>
+        </div>
       </div>
 
       <section className="bt-referral-campaign" aria-label="Arkadaşını davet et kampanyası">
@@ -9556,10 +9537,9 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         </div>
         <div className="bt-plan-giris-ana">
           <div>
-            <h1>Borçlarını hangi sırayla kapatacağını planla</h1>
+            <h1>Bu ayın borç planı</h1>
             <p>
-              Faiz maliyetini azaltan çığ yöntemiyle veya küçük borçları önce
-              bitiren kartopu yöntemiyle sana uygun sırayı karşılaştır.
+              Önce bu ayı dengele; sonra hangi borcu hangi sırayla kapatacağını gör.
             </p>
           </div>
           <div className="bt-plan-faiz-ozeti">
@@ -9599,8 +9579,8 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         )}
       </section>
 
-      <section className="bt-plan-senaryo">
-        <div className="bt-plan-senaryo-not">
+      <section className={`bt-plan-senaryo ${finansalSenaryo.status === "structural_gap" ? "oncelikli" : ""}`}>
+        <div className="bt-plan-senaryo-not" style={{ display: "none" }}>
           <strong>Bu bir aylık plan tahminidir.</strong>
           <span>Bankadaki kullanılabilir bakiyen veya bugünden kalan ödeme listen değildir.
             Yaşam harcaması {finansalSenaryo.living.monthsUsed.join(", ") || "henüz bulunmayan"} dönemlerinin kayıtlarından hesaplanır; taksitler aylık paylarıyla alınır.
@@ -9609,8 +9589,9 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         </div>
         <div className="bt-plan-senaryo-ust">
           <div>
-            <h2>{senaryoMetni.title}</h2>
-            <p>{senaryoMetni.reason}</p>
+            <span className="bt-plan-senaryo-kicker">ÖNCE BU AY</span>
+            <h2>{finansalSenaryo.status === "structural_gap" ? "Planını dengeye getirelim" : senaryoMetni.title}</h2>
+            <p>{finansalSenaryo.status === "structural_gap" ? "Aşağıdaki iki rakam, bu ay vereceğin kararı özetliyor." : senaryoMetni.reason}</p>
           </div>
           <span className="bt-plan-senaryo-durum">
             {finansalSenaryo.status === "ok"
@@ -9623,7 +9604,23 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
 
         {["structural_gap", "long_horizon"].includes(finansalSenaryo.status) ? (
           <>
-            <div className="bt-plan-senaryo-grid">
+            {finansalSenaryo.status === "structural_gap" && (
+              <div className="bt-plan-karar">
+                <div className="bt-plan-karar-ana">
+                  <span>AYLIK BÜTÇE AÇIĞIN</span>
+                  <strong>{fmt0(finansalSenaryo.monthlyGap)}</strong>
+                  <small>Zorunlu ödemeleri aksatmamak için gelir, harcama veya ödeme planında bu kadar alan açmalısın.</small>
+                </div>
+                <div className="bt-plan-karar-yan">
+                  <span>GÜVENLİ HARCAMA SINIRIN</span>
+                  <strong>{fmt0(Math.max(0, zorunluOdemelerSonrasiYasamButcesi))}</strong>
+                  <small>Mevcut kayıtlarına göre zorunlu ödemeleri aksatmayan yaklaşık sınır.</small>
+                </div>
+              </div>
+            )}
+            <details className="bt-plan-detay">
+              <summary>Rakamlar nasıl hesaplandı?</summary>
+              <div className="bt-plan-senaryo-grid">
               <div><span>Aylık gelir</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
               <div><span>Sabit kredi taksitleri</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
               <div><span>Mevcut yaşam harcaması</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
@@ -9664,8 +9661,8 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                   </div>
                 </>
               )}
-            </div>
-            <div className="bt-plan-senaryo-not">
+              </div>
+              <div className="bt-plan-senaryo-not">
               <strong>{finansalSenaryo.status === "structural_gap" ? "Açık neden oluşuyor?" : "Plan nasıl hesaplandı?"}</strong>
               {finansalSenaryo.status === "structural_gap" ? (
                 <span>
@@ -9683,10 +9680,11 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                   tamponu bir kez birikir ve yeni kart/KMH borcu eklenmediği varsayılır.
                 </span>
               )}
-            </div>
+              </div>
+            </details>
             {finansalSenaryo.status === "structural_gap" && (
               <div className="bt-plan-cozum">
-                <h3>Bu ay ne yapmalısın?</h3>
+                <h3>Şimdi yapacağın 2 adım</h3>
                 <p>
                   Amaç, açığı büyütmeden zorunlu ödemeleri karşılamak ve yeni borç oluşmasını durdurmak.
                 </p>
@@ -9738,21 +9736,24 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
               </div>
             )}
             {finansalSenaryo.spendingScenarios?.length > 1 && (
-              <div className="bt-plan-senaryo-grid">
-                {finansalSenaryo.spendingScenarios.slice(1).map((scenario) => (
-                  <div key={scenario.reductionRate}>
-                    <span>Yaşam harcaması %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
-                    <strong>Bu senaryoda aylık yaşam bütçesi {fmt0(scenario.livingBudget)}</strong>
-                    <small>
-                      {scenario.status === "ok"
-                        ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
-                        : scenario.status === "long_horizon"
-                          ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
-                          : `Giderler ve zorunlu borç ödemeleri için ayda ${fmt0(scenario.monthlyGap)} açık kalır.`}
-                    </small>
-                  </div>
-                ))}
-              </div>
+              <details className="bt-plan-detay">
+                <summary>Farklı harcama senaryolarını karşılaştır</summary>
+                <div className="bt-plan-senaryo-grid">
+                  {finansalSenaryo.spendingScenarios.slice(1).map((scenario) => (
+                    <div key={scenario.reductionRate}>
+                      <span>Yaşam harcaması %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
+                      <strong>Aylık bütçe {fmt0(scenario.livingBudget)}</strong>
+                      <small>
+                        {scenario.status === "ok"
+                          ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
+                          : scenario.status === "long_horizon"
+                            ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
+                            : `Zorunlu ödemeler için ayda ${fmt0(scenario.monthlyGap)} açık kalır.`}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              </details>
             )}
             {finansalSenaryo.status !== "structural_gap" && (
               <div className="bt-plan-senaryo-actions">

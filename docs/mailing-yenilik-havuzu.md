@@ -111,3 +111,6 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Gönderim öncesi zorunlu kontrol: `ozerocek@gmail.com` adresine test gönderimi, masaüstü/mobil önizleme, Resend domain durumu, açılma/tıklama webhook'u ve hedef URL.
 - Sonuç (2 Eylül 2026 kontrolü): 20 gönderim, 20 teslimat, 0 ölçülen açılma, 0 ölçülen tıklama ve e-posta bağlantısından 1 Borcama ziyareti; hata, bounce veya şikâyet kaydı yok.
 - Test kaydı: Kampanyadan ayrı bir test gönderimi teslimat kaydında görülmedi.
+## Borç Planı karar görünümü · 1.42.7
+
+- Borç Planı artık önce bu ay kapatılması gereken açığı ve yaşam harcaması üst sınırını gösteriyor; hesap ayrıntıları ve alternatif senaryolar ihtiyaç olduğunda açılıyor.
