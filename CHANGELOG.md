@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.5] - 2026-09-04
+
 ### Düzeltildi
 
 - Google Ads kayıt dönüşümü, doğrulanmamış oturumlar yerine yalnız e-posta doğrulamasını tamamlayan uygulama kaynaklı hesaplarda gönderilir.
