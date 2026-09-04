@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   googleDonusumuRaporlanabilirMi,
+  googleKayitDonusumuRaporlanabilirMi,
   googleOlcumUrliniTemizle,
 } from "./googleAds.js";
 
@@ -32,4 +33,20 @@ test("sandbox satın almaları canlı Google dönüşümü olarak raporlanmaz", 
     false,
   );
   assert.equal(googleDonusumuRaporlanabilirMi({ isSandbox: false }), false);
+});
+
+test("kayıt dönüşümü yalnız doğrulanmış ve uygulama kaynaklı hesapta raporlanabilir", () => {
+  const metadata = {
+    borcama_registration_event_id: "registration-1",
+    borcama_registration_created_at: "2026-09-04T08:00:00.000Z",
+  };
+  assert.equal(googleKayitDonusumuRaporlanabilirMi({ user_metadata: metadata }), false);
+  assert.equal(googleKayitDonusumuRaporlanabilirMi({
+    email_confirmed_at: "2026-09-04T08:01:00.000Z",
+    user_metadata: metadata,
+  }), true);
+  assert.equal(googleKayitDonusumuRaporlanabilirMi({
+    email_confirmed_at: "2026-09-04T08:01:00.000Z",
+    user_metadata: {},
+  }), false);
 });

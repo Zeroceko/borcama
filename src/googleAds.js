@@ -67,6 +67,17 @@ export function googleDonusumuRaporlanabilirMi(payload) {
   return Boolean(payload?.transactionId) && payload?.isSandbox !== true;
 }
 
+// Kayıt hedefi yalnız e-posta doğrulamasını tamamlamış gerçek hesapları sayar.
+// Böylece doğrulamasız oturum veya kayıt ekranı ziyaretleri Ads dönüşümüne dönüşmez.
+export function googleKayitDonusumuRaporlanabilirMi(user) {
+  const metadata = user?.user_metadata || {};
+  return Boolean(
+    user?.email_confirmed_at
+    && String(metadata.borcama_registration_event_id || "").trim()
+    && metadata.borcama_registration_created_at,
+  );
+}
+
 function depodanOku(anahtar) {
   try { return localStorage.getItem(anahtar); } catch { return null; }
 }
@@ -303,9 +314,9 @@ export function googleAdsOlcumIzniAyarla(izinVar) {
   return Promise.resolve(false);
 }
 export function googleAdsYeniKullaniciDonusumu(user) {
+  if (!googleKayitDonusumuRaporlanabilirMi(user)) return Promise.resolve(false);
   const metadata = user?.user_metadata || {};
   const eventId = String(metadata.borcama_registration_event_id || "").trim();
-  if (!eventId || !metadata.borcama_registration_created_at) return Promise.resolve(false);
   const payload = {
     transactionId: eventId,
     method: metadata.borcama_registration_method || "email",
