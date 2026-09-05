@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.43.0] - 2026-09-05
+
 ### Eklendi
 
 - Google Ads PMax'tan gelen ziyaretçilerin kayıt ve ilk finansal kayıt yolculuğu, landing deneyini veya sayfa mesajlarını değiştirmeden yönetimden ayrı izlenebilir hale geldi.

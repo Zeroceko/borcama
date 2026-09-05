@@ -13,16 +13,26 @@ security definer
 set search_path = ''
 as $$
   with first_events as (
-    select distinct on (ae.session_id) ae.session_id, ae.created_at as first_touch_at
+    select distinct on (ae.session_id)
+      ae.session_id,
+      ae.source,
+      ae.medium,
+      ae.campaign,
+      ae.created_at as first_touch_at
     from public.analytics_events ae
-    where ae.source = 'google' and ae.medium = 'cpc' and ae.campaign = 'tr_pmax_borcama'
-      and ae.created_at >= p_since
     order by ae.session_id, ae.created_at asc, ae.id asc
+  ), pmax_sessions as (
+    select f.session_id, f.first_touch_at
+    from first_events f
+    where f.source = 'google'
+      and f.medium = 'cpc'
+      and f.campaign = 'tr_pmax_borcama'
+      and f.first_touch_at >= p_since
   ), event_steps as (
     select ae.session_id,
       bool_or(ae.event_name = 'landing_visit') as visited,
       bool_or(ae.event_name = 'register_view') as viewed_register
-    from public.analytics_events ae join first_events f using (session_id)
+    from public.analytics_events ae join pmax_sessions f using (session_id)
     group by ae.session_id
   ), account_steps as (
     select ua.session_id,
@@ -30,11 +40,11 @@ as $$
       count(*) filter (where u.email_confirmed_at is not null)::bigint as verified,
       count(*) filter (where exists (
         select 1 from public.activity_logs al
-        where al.user_id = ua.user_id and al.created_at >= ua.first_touch_at
+        where al.user_id = ua.user_id and al.created_at >= f.first_touch_at
           and al.event_type in ('card_added','statement_added','loan_added','overdraft_added','other_debt_added')
       ))::bigint as first_debt
     from public.user_acquisition ua join auth.users u on u.id = ua.user_id
-    join first_events f using (session_id)
+    join pmax_sessions f using (session_id)
     group by ua.session_id
   )
   select count(*) filter (where e.visited)::bigint,

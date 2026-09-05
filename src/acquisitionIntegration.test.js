@@ -60,9 +60,21 @@ test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu say
     oku("./Analytics.jsx"),
   ]);
   assert.match(migration, /admin_pmax_control_funnel/);
-  assert.match(migration, /ae\.source = 'google' and ae\.medium = 'cpc' and ae\.campaign = 'tr_pmax_borcama'/);
+  assert.match(migration, /select distinct on \(ae\.session_id\)[\s\S]+from public\.analytics_events ae[\s\S]+pmax_sessions as/);
+  assert.match(migration, /f\.source = 'google'[\s\S]+f\.medium = 'cpc'[\s\S]+f\.campaign = 'tr_pmax_borcama'/);
   assert.match(migration, /first_debt_or_statement/);
   assert.doesNotMatch(migration, /experiment_assignment|experiment_variant|experiment_id/);
   assert.match(backoffice, /admin_pmax_control_funnel/);
   assert.match(analytics, /PMax kontrol hunisi/);
+  assert.match(migration, /al\.created_at >= f\.first_touch_at/);
+  assert.doesNotMatch(migration, /ua\.first_touch_at/);
+});
+
+test("LANDING-001 varyant önizlemesi yalnız geliştirmede hero CTA metnini değiştirir", async () => {
+  const landing = await oku("./LandingAlt.jsx");
+  assert.match(landing, /import\.meta\.env\.DEV/);
+  assert.match(landing, /landing_preview/);
+  assert.match(landing, /Ücretsiz başla, ilk planını gör/);
+  assert.match(landing, /href="\/register\?plan=free">\{heroCta\}/);
+  assert.doesNotMatch(landing, /experiment_assignment|experiment_variant/);
 });
