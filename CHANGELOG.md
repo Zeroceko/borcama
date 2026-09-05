@@ -4,6 +4,25 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.46.0] - 2026-09-06
+
+### Değiştirildi
+
+- Borcama Asistanı, belirgin düşük maliyetli yeni kredinin daha pahalı kayıtlı borcu tamamen kapatması ve taksidin bütçeye sığması halinde bunun mantıklı bir refinansman olabileceğini koşullarıyla birlikte söyleyebiliyor.
+- “Borcama'ya sor” girişi masaüstünde ekranın orta kenarında, mobilde alt gezinmenin hemen üzerinde kalan kalıcı bir asistan kısayoluna dönüştürüldü.
+- Kullanıcı ölçümü reddetse bile Google etiketi varsayılan `denied` durumunda çerezsiz sinyaller gönderecek şekilde gelişmiş Consent Mode'a alındı; tam ölçüm yalnız izin verildiğinde açılıyor ve kişisel/finansal veri paylaşılmıyor.
+- Ana sayfanın ilk ekranındaki kalabalık soru kutuları kaldırıldı; ödeme yükü, aylık açık ve sıradaki adım vaadi ana açıklamanın doğal bir parçası haline getirildi, kalıcı Ücretsiz plan vurgusu korundu.
+
+### Eklendi
+
+- Bugün ekranına, kullanıcının yalnız kendi kayıtlarından aylık durumunu, açığın nedenini, ilk adımını ve yanlış kaydı düzeltme yolunu açıklayan güvenli Borcama Asistanı eklendi.
+- Borcama Asistanı'na serbest soru alanı eklendi; desteklenmeyen sorularda yanıt uydurmak yerine kullanıcı görüş bildirimine yönlendiriliyor.
+- Borcama Asistanı, kullanıcının açık onayından sonra yalnız normalize edilmiş finansal özetini Gemini Flash ile yorumlayarak bütçe, kredi, yapılandırma, ödeme ve gider konularındaki farklı soru biçimlerine kişisel yanıt verebilir hale getirildi; günlük kullanım Ücretsiz planda 10, Pro'da 50 soruyla sınırlandı.
+
+### Düzeltildi
+
+- Borcama Asistanı demo görünümünde serbest soruyu reddetmek yerine temsili kayıtlardan kredi, gider ve aylık plan etkisini açıklayan güvenli bir örnek yanıt veriyor.
+
 ## [1.45.0] - 2026-09-05
 
 ### Eklendi

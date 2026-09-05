@@ -109,6 +109,8 @@ import {
 } from "./cardRestructuring.js";
 import { BANK_LOGOS } from "./bankLogos.js";
 import { davetDurumunuGetir } from "./referrals.js";
+import { asistanBaglamiOlustur } from "./assistantContext.js";
+import { finansalAsistanaSor } from "./financialAssistant.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -611,6 +613,10 @@ const CSS = `
 .bt-modalbaslik{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.bt-modalbaslik .bt-h2{margin:0}
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
+.bt-assistant-trigger{position:fixed;right:0;top:50%;z-index:40;display:inline-flex;align-items:center;gap:8px;padding:14px 17px 14px 14px;border:1px solid ${INK};border-right:0;border-radius:18px 0 0 18px;background:${INK};color:${CREAM};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:0 10px 26px #14160f2e;cursor:pointer;transform:translateY(-50%);transition:padding .18s ease,box-shadow .18s ease}.bt-assistant-trigger svg{color:${LIME}}.bt-assistant-trigger:hover{padding-right:21px;box-shadow:0 12px 30px #14160f3a}.bt-assistant-trigger:focus-visible{outline:3px solid ${LIME};outline-offset:3px}
+.bt-assistant-modal{max-width:560px;max-height:calc(100dvh - 40px);overflow-y:auto}.bt-assistant-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center}.bt-assistant-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-head h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:20px}.bt-assistant-head p{margin:3px 0 0;color:var(--dim);font-size:11.5px}.bt-assistant-close{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-assistant-prompts{display:flex;gap:7px;flex-wrap:wrap;margin:19px 0 12px}.bt-assistant-prompts button{padding:8px 10px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2);color:var(--text);font:750 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-assistant-prompts button.aktif{background:${LIME};color:${INK};border-color:${INK}}.bt-assistant-answer{padding:17px;border:1px solid var(--line-soft);border-radius:15px;background:color-mix(in srgb,${LIME} 11%,var(--panel));font-size:13px;line-height:1.58}.bt-assistant-answer strong{display:block;margin-bottom:7px;font-size:14px}.bt-assistant-answer p{margin:0;color:var(--dim)}.bt-assistant-answer small{display:block;margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:10px;line-height:1.45}.bt-assistant-action{margin-top:13px}.bt-assistant-action .bt-btn{justify-content:center}
+.bt-assistant-custom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0}.bt-assistant-custom .bt-input{margin:0}.bt-assistant-custom .bt-btn{min-width:74px;justify-content:center}@media(max-width:520px){.bt-assistant-custom{grid-template-columns:1fr}.bt-assistant-custom .bt-btn{width:100%}}
+.bt-assistant-consent{margin:12px 0;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);font-size:11.5px;line-height:1.5;color:var(--dim)}.bt-assistant-consent strong{display:block;margin-bottom:5px;color:var(--text);font-size:13px}.bt-assistant-consent .bt-btn{margin-top:11px}.bt-assistant-quota{margin-top:8px;color:var(--faint);font-size:10.5px}.bt-assistant-loading{display:inline-flex;align-items:center;gap:7px}.bt-assistant-loading svg{animation:bt-spin .9s linear infinite}@keyframes bt-spin{to{transform:rotate(360deg)}}
 .bt-quick-add{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(70px,8vw,86px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${CORAL};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${LIME};cursor:pointer}
 .bt-quick-add:hover{transform:translateY(-1px)}
 .bt-quick-menu{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(120px,13vw,142px);z-index:41;width:min(310px,calc(100vw - 28px));display:grid;gap:7px;padding:10px;background:var(--panel);border:2px solid var(--line);border-radius:18px;box-shadow:7px 7px 0 ${LIME}}
@@ -690,6 +696,8 @@ const CSS = `
   .bt-modal-arka{padding:10px;align-items:flex-start;overflow-y:auto}
   .bt-modal{padding:18px 16px;margin:12px 0;box-shadow:5px 5px 0 ${CORAL}}
   .bt-feedback-trigger{right:12px;bottom:76px;padding:10px 13px;font-size:11.5px}
+  .bt-assistant-trigger{left:50%;right:auto;top:auto;bottom:76px;min-height:44px;padding:10px 16px;border-right:1px solid ${INK};border-radius:999px;font-size:11.5px;transform:translateX(-50%);white-space:nowrap;box-shadow:0 8px 24px #14160f35}
+  .bt-assistant-trigger:hover{padding-right:16px}
   .bt-quick-add{right:12px;bottom:128px;width:46px;height:46px;padding:0;justify-content:center;border-radius:50%;box-shadow:3px 3px 0 ${LIME}}
   .bt-quick-add span{display:none}
   .bt-quick-menu{right:12px;bottom:184px;width:min(300px,calc(100vw - 24px));box-shadow:5px 5px 0 ${LIME}}
@@ -1734,6 +1742,7 @@ export default function BorcTakip() {
   const [form, setForm] = useState(null);
   const [kaydediliyor, setKaydediliyor] = useState(false);
   const [geriBildirimPenceresi, setGeriBildirimPenceresi] = useState(false);
+  const [asistanPenceresi, setAsistanPenceresi] = useState(false);
   const [geriBildirimFormu, setGeriBildirimFormu] = useState({
     tur: "Fikir",
     mesaj: "",
@@ -3511,6 +3520,35 @@ export default function BorcTakip() {
       >
         <MessageCircle size={16} /> Görüş bildir
       </button>
+      <button
+        className="bt-assistant-trigger"
+        type="button"
+        onClick={() => setAsistanPenceresi(true)}
+      >
+        <Sparkles size={16} /> Borcama'ya sor
+      </button>
+      <BorcamaAsistani
+        acik={asistanPenceresi}
+        kapat={() => setAsistanPenceresi(false)}
+        gelir={buAyGelir.toplam}
+        zorunluOdeme={buAyOdenecek}
+        harcama={buAyHarcama.toplam}
+        oneriler={borcamaOnerileri}
+        veri={veri}
+        kalemler={kalemler}
+        proAktif={etkinPro}
+        yapayZekaIzni={!!veri.ayarlar?.finansalAsistanIzniV1}
+        yapayZekaIzniVer={() => ayarKaydet({ finansalAsistanIzniV1: true })}
+        git={(hedef) => {
+          setSekme(hedef);
+          setForm(null);
+          setAsistanPenceresi(false);
+        }}
+        gorusBildir={() => {
+          setAsistanPenceresi(false);
+          setGeriBildirimPenceresi(true);
+        }}
+      />
       <ProTanitimPenceresi
         acik={proPenceresiAcik}
         kapat={() => setProPenceresiAcik(false)}
@@ -4046,6 +4084,135 @@ function IlkKullanimRehberi({
             {sonAdim ? <Check size={15} /> : <ChevronRight size={15} />}
           </button>
         </div>
+      </section>
+    </div>
+  );
+}
+
+function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, veri, kalemler, git, gorusBildir, proAktif, yapayZekaIzni, yapayZekaIzniVer }) {
+  const [secim, setSecim] = useState("durum");
+  const [soru, setSoru] = useState("");
+  const [modelYaniti, setModelYaniti] = useState(null);
+  const [modelDurumu, setModelDurumu] = useState({ yukleniyor: false, hata: "", kota: null });
+  useEffect(() => {
+    if (!acik) {
+      setSecim("durum");
+      setSoru("");
+      setModelYaniti(null);
+      setModelDurumu({ yukleniyor: false, hata: "", kota: null });
+    }
+  }, [acik]);
+  if (!acik) return null;
+
+  const aylikKalan = gelir - zorunluOdeme - harcama;
+  const senaryo = calculateRevolvingDebtScenario({
+    income: gelir,
+    expenses: veri?.expenses || [],
+    cards: veri?.cards || [],
+    loans: veri?.loans || [],
+    debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
+    currentDate: bugun(),
+  });
+  const planAcigi = senaryo.status === "structural_gap" ? senaryo.monthlyGap : Math.max(-aylikKalan, 0);
+  const planAlani = planAcigi > 0 ? -planAcigi : aylikKalan;
+  const ilkOneri = oneriler?.[0];
+  const yanitlar = {
+    durum: {
+      baslik: planAlani < 0 ? `Bu ay ${fmt0(Math.abs(planAlani))} açık görünüyor` : `Bu ay ${fmt0(planAlani)} alanın görünüyor`,
+      metin: gelir > 0
+        ? senaryo.status === "structural_gap"
+          ? `${fmt0(gelir)} gelirin; kredi taksitleri, kart/ek hesap zorunlu ödemeleri ve ${fmt0(senaryo.livingBudget)} tahmini aylık yaşam harcamasıyla birlikte değerlendirildi.`
+          : `${fmt0(gelir)} gelirinden ${fmt0(zorunluOdeme)} zorunlu ödeme ve ${fmt0(harcama)} kayıtlı harcama düşüldü.`
+        : "Aylık durumunu hesaplayabilmem için gelirini eklemen gerekiyor. Borç ve harcama kayıtların korunur.",
+      hedef: gelir > 0 ? "odemeler" : "sabit-gelirler",
+      aksiyon: gelir > 0 ? "Ödemeleri gör" : "Gelir ekle",
+    },
+    ilk: {
+      baslik: ilkOneri?.baslik || "Önce finansal tablonu tamamla",
+      metin: ilkOneri?.aciklama || "İlk borcunu, gelirini ve düzenli giderlerini eklediğinde Borcama sıradaki adımı kayıtlarından hesaplar.",
+      hedef: ilkOneri?.hedef || "borclar",
+      aksiyon: ilkOneri?.aksiyon || "Borçlara git",
+    },
+    acik: {
+      baslik: planAcigi > 0 ? "Açık, aylık çıkışlarının gelirini aşmasından oluşuyor" : "Kayıtlarına göre aylık açık görünmüyor",
+      metin: senaryo.status === "structural_gap"
+        ? `${fmt0(senaryo.fixedLoanPayments)} kredi taksiti, ${fmt0(senaryo.livingBudget)} tahmini yaşam harcaması ve ${fmt0(senaryo.initialDebtBudget)} kart/ek hesap ödeme bütçesi birlikte gelirini aşıyor.`
+        : `${fmt0(zorunluOdeme)} zorunlu ödeme ile ${fmt0(harcama)} kayıtlı harcamayı birlikte değerlendiriyorum. Bu tutarlar banka bakiyesi değildir.`,
+      hedef: "plan",
+      aksiyon: "Borç planını aç",
+    },
+    duzelt: {
+      baslik: "Yanlış kaydı bulunduğu yerden düzeltebilirsin",
+      metin: "Kart ödemesi için Borçlar > Kartlar bölümünde kartın ödeme durumuna dokun. Diğer tamamlanan işlemler için Hareketler > Ödemeler içindeki işlem geçmişini aç.",
+      hedef: "borclar",
+      aksiyon: "Kartlara git",
+    },
+  };
+  const yanit = yanitlar[secim];
+  const soruSor = async (event) => {
+    event.preventDefault();
+    if (!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor) return;
+    const metin = soru.toLocaleLowerCase("tr-TR");
+    setSecim("model");
+    setModelYaniti(null);
+    setModelDurumu({ yukleniyor: true, hata: "", kota: null });
+    try {
+      const context = asistanBaglamiOlustur({
+        veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
+      });
+      const sonuc = await finansalAsistanaSor({ question: metin, context });
+      setModelYaniti(sonuc);
+      setModelDurumu({ yukleniyor: false, hata: "", kota: sonuc.quota || null });
+    } catch (error) {
+      const mesaj = error?.message === "DAILY_LIMIT"
+        ? `Bugünkü ${error.quota?.limit || (proAktif ? 50 : 10)} soru hakkını kullandın. Yarın yeniden sorabilirsin.`
+        : error?.message === "DEMO_MODE"
+          ? "Yapay zekâ yanıtları yalnız giriş yapılmış gerçek hesapta çalışır. Hazır cevapları bu önizlemede kullanabilirsin."
+          : "Şu anda güvenilir bir yanıt oluşturamadım. Biraz sonra tekrar deneyebilirsin.";
+      setModelDurumu({ yukleniyor: false, hata: mesaj, kota: error?.quota || null });
+    }
+  };
+  const gosterilenYanit = secim === "model" ? {
+    baslik: modelYaniti?.title || (modelDurumu.yukleniyor ? "Kayıtlarını değerlendiriyorum" : "Yanıt oluşturulamadı"),
+    metin: modelYaniti?.answer || modelDurumu.hata || "Sorunu finansal kayıtlarınla karşılaştırıyorum.",
+    aksiyon: modelYaniti?.actionLabel || "İlgili ekranı aç",
+  } : secim === "bilinmiyor" ? {
+    baslik: "Bu soruya henüz güvenilir bir yanıt veremiyorum",
+    metin: "Sorunu bize iletirsen hepsini okuyoruz. Yanıt uydurmak yerine bu ihtiyacı asistanın sonraki sürümüne eklemek istiyoruz.",
+    aksiyon: "Görüş bildir",
+  } : yanit;
+
+  return (
+    <div className="bt-modal-arka" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && kapat()}>
+      <section className="bt-modal bt-assistant-modal" role="dialog" aria-modal="true" aria-labelledby="bt-assistant-title">
+        <div className="bt-assistant-head">
+          <span className="bt-assistant-mark"><Sparkles size={20}/></span>
+          <div><h2 id="bt-assistant-title">Borcama Asistanı</h2><p>Kendi kayıtlarından kısa ve açıklanabilir yanıtlar.</p></div>
+          <button className="bt-assistant-close" type="button" aria-label="Asistanı kapat" onClick={kapat}><X size={17}/></button>
+        </div>
+        <div className="bt-assistant-prompts" role="group" aria-label="Hazır sorular">
+          {[["durum","Bu ay ne durumdayım?"],["ilk","Önce ne yapmalıyım?"],["acik","Neden açık var?"],["duzelt","Yanlış kaydı nasıl düzeltirim?"]].map(([id, etiket]) => (
+            <button key={id} type="button" className={secim === id ? "aktif" : ""} onClick={() => setSecim(id)}>{etiket}</button>
+          ))}
+        </div>
+        {!yapayZekaIzni && (
+          <div className="bt-assistant-consent">
+            <strong>Kişisel finansal soru-cevabı etkinleştir</strong>
+            Borcama; ham ekstreni, kart numaranı ve işlem açıklamalarını göndermez. Yalnız hesaplanmış borç, gelir, gider ve ödeme özetin Gemini'nin ücretli API hizmetine gönderilerek soruna özel yanıt hazırlanır.
+            <button className="bt-btn kucuk birincil" type="button" onClick={yapayZekaIzniVer}>Etkinleştir</button>
+          </div>
+        )}
+        <form className="bt-assistant-custom" onSubmit={soruSor}>
+          <input className="bt-input" value={soru} onChange={(e) => setSoru(e.target.value)} placeholder="Örn. Borcumu 6 ay yapılandırsam ne olur?" aria-label="Başka sorunuzu yazın" disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
+          <button className="bt-btn ikincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> Bakıyorum</span> : "Sor"}</button>
+        </form>
+        <div className="bt-assistant-answer" aria-live="polite">
+          <strong>{gosterilenYanit.baslik}</strong>
+          <p>{gosterilenYanit.metin}</p>
+          <small>Borcama yalnızca kaydettiğin verileri açıklar; banka hesabına erişmez, kesin banka teklifi veya sonuç garantisi vermez ve onayın olmadan kayıt değiştirmez.</small>
+          {modelDurumu.kota && <div className="bt-assistant-quota">Bugün {modelDurumu.kota.remaining} soru hakkın kaldı · {proAktif ? "Pro" : "Ücretsiz"}</div>}
+        </div>
+        <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>
       </section>
     </div>
   );

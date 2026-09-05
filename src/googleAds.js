@@ -134,7 +134,7 @@ function etiketiUygunZamandaHazirla() {
   else window.setTimeout(baslat, 1200);
 }
 function etkinlikGonder(eventName, params = {}) {
-  if (typeof window === "undefined" || !izinVerildiMi()) return false;
+  if (typeof window === "undefined" || izinDurumu() === undefined || !etiketHazir) return false;
   gtag("event", eventName, { send_to: GOOGLE_ANALYTICS_ID, ...params });
   return true;
 }
@@ -282,15 +282,15 @@ export function googleAdsBaslat() {
   depodanSil(BEKLEYEN_ILK_BORC_ANAHTARI);
   depodanSil(GONDERILEN_ILK_BORC_ANAHTARI);
   const tercih = izinDurumu();
-  izinKomutu("default", tercih === true, tercih === null);
+  // Gelişmiş Consent Mode: etiket izin verilmeden de yüklenir; varsayılan
+  // denied durumunda yalnız çerezsiz/modelleme sinyalleri gönderilebilir.
+  izinKomutu("default", false, tercih === null);
+  etiketiHazirla();
   spaNavigasyonunuIzle();
-  if (tercih === true) {
-    etiketiUygunZamandaHazirla();
-    googleAnalyticsSayfaGoruntulemesi();
-    void kayitDonusumunuGonder();
-    void satinAlmaDonusumunuGonder();
-    void proDenemeOlayiniGonder();
-  }
+  googleAnalyticsSayfaGoruntulemesi();
+  void kayitDonusumunuGonder();
+  void satinAlmaDonusumunuGonder();
+  void proDenemeOlayiniGonder();
 }
 
 export function googleAdsOlcumTercihi() { return izinDurumu(); }

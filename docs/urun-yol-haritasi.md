@@ -42,6 +42,28 @@ Yönetim Kurulu Başkanı “roadmap'e bakalım” dediğinde yalnızca aktif i�
 
 ## Değerlendirme sırasındaki yeni özellikler
 
+### Kullanıcıya özel Borcama yardım asistanı
+
+- Durum: Kural tabanlı yanıtlar ile açık onay, veri minimizasyonu ve sunucu tarafı günlük kota kullanan Gemini Flash soru-cevap katmanı yerelde hazır; canlı ortam anahtarı, migration ve Edge Function yayını bekliyor.
+- Amaç: Kullanıcının kendi Borcama kayıtlarını anlamasına, eksik veriyi fark etmesine ve yapmak istediği işlem için doğru ekrana ulaşmasına yardımcı olmak.
+- İlk sürüm: Bugün ekranından açılan kısa bir soru alanı; “Bu ay neden açığım var?”, “Sıradaki ödemem ne?”, “Yanlış ödemeyi nasıl düzeltirim?” ve “Planım hangi kayıtlara dayanıyor?” gibi soruları kullanıcının kayıtlarından açıklamalı yanıtlar.
+- Eylem sınırı: Asistan ilk sürümde finansal kaydı kendiliğinden oluşturmaz, değiştirmez veya silmez; kullanıcıyı ilgili forma götürür ve yapılacak değişikliği onaya bırakır.
+- Güvenlik: Finansal tavsiye, kredi/yatırım önerisi veya sonuç garantisi vermez; banka verisi uydurmaz, hesabın dışındaki veriye erişmez ve cevabın dayandığı kayıtları kullanıcıya gösterir.
+- Gizlilik: Ham ekstre dosyası modele gönderilmez; mümkün olan yanıtlar uygulamanın hesapladığı özetlerden üretilir. Harici model kullanımı başlamadan veri minimizasyonu, saklama ve sağlayıcı sözleşmesi ayrıca onaylanır.
+- Başarı ölçümü: Yardım alan kullanıcının sorusunu tekrar sormadan ilgili ekrana gitmesi, eksik aktivasyon adımını tamamlaması ve destek talebi oranının azalması.
+- Yayın sırası: Önce kural tabanlı ve açıklanabilir yardım merkezi; gerçek kullanıcı sorularından güvenli bir değerlendirme seti oluştuktan sonra sınırlı yapay zekâ desteği.
+- Soru kapsamı: 20 ana finansal niyet ailesi altında bütçe, ödeme takvimi, kart/asgari/gecikme, kredi ve yeni kredi, yapılandırma, faiz-vergi, borç kapatma, ek hesap, gider analizi, gelir, tasarruf, kayıt düzeltme, ürün kullanımı ve gizlilik; farklı ifade biçimleri tek tek sabit cevap çoğaltmadan model tarafından sınıflandırılır.
+
+### Ekstrelerden aylık gider analizi
+
+- Amaç: Kullanıcının kredi kartı ekstresindeki işlem satırlarını cihazında okuyup aylık harcamalarını kategori, işyeri, tekrar ve dönem eğilimiyle anlamasını sağlamak; Borcama Asistanı'nın bu özetleri açıklayabilmesi.
+- Mevcut durum: Ekstre okuyucu ilk iki sayfadaki banka ve özet alanlarını çıkarıyor; işlem satırlarını kalıcı gider detayına dönüştürmüyor. Bu nedenle asistan bugün ekstre içindeki harcama dağılımını güvenilir biçimde yorumlayamaz.
+- Cihaz içi akış: Tarih, işyeri açıklaması, tutar, taksit ve iade işaretleri tarayıcıda çıkarılır; kullanıcı kategori eşleşmelerini kontrol eder ve yalnız onayladığı normalize edilmiş kayıtları hesabına kaydeder.
+- Asistan bağlamı: Harici modele ham PDF, tam işlem açıklaması veya kart bilgisi gönderilmez. Model yalnız kategori toplamı, dönem farkı, tekrar eden gider, olağandışı değişim ve anonimleştirilmiş işyeri grubu gibi hesaplanmış özetleri açıklar.
+- Doğruluk koruması: Toplam işlem tutarı ekstre özetiyle mutabık değilse otomatik analiz engellenir; iade, nakit avans, faiz/vergi ve taksit satırları alışverişten ayrı tutulur; düşük güvenli satırlar kullanıcı onayı bekler.
+- İlk kapsam: Enpara, Halkbank, VakıfBank, Garanti BBVA, Akbank ve TEB için fişlenmiş ekstre örnekleriyle ayrı ayrıştırıcı ve mutabakat testleri; ardından diğer bankalar.
+- Sunum: Harcamalar ekranında “Ekstreden gelenler” bölümü ve Asistan'da “Bu ay param en çok nereye gitti?”, “Geçen aya göre ne arttı?” ve “Hangi giderler tekrar ediyor?” soruları.
+
 ### Günlük harcama üst sınırı
 
 - Amaç: Kullanıcının aylık harcama hedefine ulaşabilmesi için bugünden ay sonuna kadar günde en fazla ne kadar harcayabileceğini göstermek.

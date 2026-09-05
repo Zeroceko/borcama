@@ -4,6 +4,20 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Finansal tablon hakkında Borcama'ya sor — v1.46.0
+
+- Siz istediniz: Bütçe, yeni kredi, yapılandırma ve borç kapatma gibi konularda kendi finansal durumuna göre anlaşılır yanıt almak.
+- Biz yaptık: Borcama Asistanı'na serbest soru-cevap ekledik; asistan kayıtlı gelir, gider, borç ve ödeme özetini açıklarken ham ekstreyi, kart numarasını ve işlem açıklamalarını modele göndermiyor.
+- Faydası: Ücretsiz planda günde 10, Pro'da 50 soruyla finansal tablonun ne söylediğini anlayabilir ve ilgili işleme doğrudan geçebilirsin.
+- Aksiyon: `https://borcama.com/summary`
+
+### Borcama'nın vereceği cevaplar ilk bakışta daha net — v1.46.0
+
+- Siz istediniz: Borcama'nın vaadini siteye gelen kişinin ayrıntıları okumadan anlayabilmesi.
+- Biz yaptık: Ana sayfanın ilk ekranında aylık ödeme yükü, bütçe açığı ve borç önceliği olmak üzere üç somut sonucu görünür hale getirdik; kalıcı Ücretsiz plan mesajını netleştirdik.
+- Faydası: Hesap açmadan önce Borcama'nın kendi finansal tablonda hangi soruları cevaplayacağını görebilirsin.
+- Aksiyon: `https://borcama.com/`
+
 ### Hesaplamadan finansal tablonun tamamına geç — v1.45.0
 
 - Siz istediniz: Mevduat getirisini hesapladıktan sonra bu birikimin borçlar, gelir ve harcamalarla birlikte ne ifade ettiğini görmek.
@@ -128,3 +142,10 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 ## Borç Planı karar görünümü · 1.42.7
 
 - Borç Planı artık önce bu ay kapatılması gereken açığı ve yaşam harcaması üst sınırını gösteriyor; hesap ayrıntıları ve alternatif senaryolar ihtiyaç olduğunda açılıyor.
+
+## Borcama Asistanı · yayımlanacak sürüm
+
+- Siz istediniz: Kendi finansal tablonuzu anlamak ve doğru işlemi nereden yapacağınızı kolayca bulmak.
+- Biz yaptık: Bugün ekranına aylık durumu, açığın nedenini, ilk adımı ve yanlış kayıt düzeltme yolunu kendi kayıtlarınızdan açıklayan Borcama Asistanı'nı ekledik.
+- Faydası: Uzun ekranları tek tek okumadan kısa bir açıklama alır, kaydı değiştirmeden doğru ekrana geçersiniz.
+- Aksiyon: `https://borcama.com/summary`
