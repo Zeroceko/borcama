@@ -16,9 +16,8 @@ const CSS = `
 @media(max-width:650px){.la-links>a:nth-child(-n+2){display:none}}
 `;
 
-export default function LandingAlt() {
-  const varyantOnizleme = import.meta.env.DEV && new URLSearchParams(window.location.search).get("landing_preview") === "variant";
-  const heroCta = varyantOnizleme ? "Ücretsiz başla, ilk planını gör" : "Ücretsiz hesabını oluştur";
+export default function LandingAlt({ experiment = {} }) {
+  const heroCta = experiment.experiment_variant === "variant" ? "Ücretsiz başla, ilk planını gör" : "Ücretsiz hesabını oluştur";
   return <div className="la"><style>{CSS}</style>
     <header className="la-shell la-nav"><a className="la-logo" href="/" aria-label="Borcama ana sayfa"><LandingLogo sizes="(max-width:650px) 122px, 152px" /></a><nav className="la-links"><a href="/araclar">Hesaplama Araçları</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="la-btn" href="/register?plan=free">Hemen Başla! <ArrowRight size={14}/></a></nav></header>
     <main>

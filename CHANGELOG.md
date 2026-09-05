@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.44.0] - 2026-09-05
+
+### Eklendi
+
+- Google Ads PMax ziyaretçileri için mevcut CTA ile “Ücretsiz başla, ilk planını gör” CTA'sını kalıcı ve gizlilik odaklı `%50/%50` atamayla karşılaştıran LANDING-001 deneyi başlatıldı; kayıt, doğrulama ve ilk borç/ekstre sonuçları yönetimden ayrı izlenebiliyor.
+
 ## [1.43.0] - 2026-09-05
 
 ### Eklendi

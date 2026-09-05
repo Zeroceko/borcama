@@ -1,5 +1,6 @@
 import { supabase, supabaseHazir } from "./supabaseClient.js";
 import { edinimKaynaginiOlustur } from "./acquisition.js";
+import { aktifLandingDeneyiOku } from "./landingExperiment.js";
 export { edinimKaynaginiOlustur } from "./acquisition.js";
 
 const OTURUM_ANAHTARI = "borcama:funnel-session";
@@ -39,11 +40,12 @@ export function funnelKaynakBilgisi() {
   return kaynakBilgisi();
 }
 
-export async function funnelEtkinligiKaydet(eventName) {
+export async function funnelEtkinligiKaydet(eventName, experiment = null) {
   if (!supabaseHazir || !IZINLI_ETKINLIKLER.has(eventName)) return false;
   const sessionId = oturumKimligi();
   if (!sessionId) return false;
   const kaynak = kaynakBilgisi();
+  const deney = experiment || aktifLandingDeneyiOku();
   try {
     const { data, error } = await supabase.functions.invoke("analytics-event", {
       body: {
@@ -52,6 +54,8 @@ export async function funnelEtkinligiKaydet(eventName) {
         session_token: sessionStorage.getItem(OTURUM_TOKEN_ANAHTARI) || "",
         path: window.location.pathname,
         ...kaynak,
+        experiment_id: deney.experiment_id || "",
+        experiment_variant: deney.experiment_variant || "",
       },
     });
     if (error) return false;

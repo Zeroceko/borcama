@@ -1,4 +1,4 @@
-import React, { lazy, useEffect } from "react";
+import React, { lazy, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from './errorMonitoring.js';
 import LandingAlt from "./LandingAlt.jsx";
@@ -7,7 +7,8 @@ import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import { proNiyetiniOku } from "./proIntent.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
-import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
+import { funnelEtkinligiKaydet, funnelKaynakBilgisi } from "./funnelAnalytics.js";
+import { landingDeneyiAta } from "./landingExperiment.js";
 import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import { noindexYoluMu } from "./seoIndexing.js";
 import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
@@ -57,7 +58,7 @@ function Kok() {
   if (crmAlani && yol === "/") yol = "/backoffice";
   else if (crmAlani && yol.startsWith("/user/")) yol = `/backoffice${yol}`;
   useEffect(() => {
-    if (yol === "/" || yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
+    if (yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
     const indekslenmemeli = noindexYoluMu(yol, crmAlani);
     let meta = document.querySelector('meta[name="robots"]');
@@ -146,7 +147,7 @@ function Kok() {
     "/assets",
     "/settings",
   ];
-  if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingAlt />;
+  if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingAlt experiment={landingDeneyiAta(funnelKaynakBilgisi())} />;
   if (!uygulamaYollari.includes(yol)) return <LandingAlt />;
   if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />;
   return <KimlikliKok />;
@@ -346,6 +347,11 @@ function YapilandirmaEksik() {
 
 function AnaSayfa() {
   const session = useSession();
+  const [landingDeneyi] = useState(() => landingDeneyiAta(funnelKaynakBilgisi()));
+
+  useEffect(() => {
+    if (session === null) funnelEtkinligiKaydet("landing_visit", landingDeneyi);
+  }, [session, landingDeneyi]);
 
   useEffect(() => {
     if (session) {
@@ -359,7 +365,7 @@ function AnaSayfa() {
     return <Yukleniyor />;
   }
 
-  return session ? <App /> : <LandingAlt />;
+  return session ? <App /> : <LandingAlt experiment={landingDeneyi} />;
 }
 
 function KimlikliKok() {

@@ -83,6 +83,9 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "SESSION_TOKEN_REQUIRED" }), { status: 401, headers });
 
   const plan = edinimMetni(body?.plan, 30, true);
+  const experimentId = edinimMetni(body?.experiment_id, 30, true);
+  const experimentVariant = edinimMetni(body?.experiment_variant, 20, true);
+  const guvenliDeney = experimentId === "landing-001" && ["control", "variant"].includes(experimentVariant);
   const { error } = await admin.rpc("record_analytics_event", {
     p_session_id: sessionId,
     p_event_name: eventName,
@@ -94,6 +97,8 @@ Deno.serve(async (req) => {
     p_term: edinimMetni(body?.term, 120),
     p_paid_click: Boolean(metin(body?.click_id, 160)),
     p_plan: ["free", "pro"].includes(plan) ? plan : "",
+    p_experiment_id: guvenliDeney ? experimentId : "",
+    p_experiment_variant: guvenliDeney ? experimentVariant : "",
   });
   if (error) {
     const sinirAsildi = String(error.message || "").includes("ANALYTICS_RATE_LIMITED");
