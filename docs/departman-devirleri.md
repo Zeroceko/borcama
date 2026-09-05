@@ -7,7 +7,7 @@ Sentry production issue takibi tarayıcıdan bağımsızdır: salt okunur Intern
 - Google Ads canlı hesabında `Borcama - Hesap Kaydı` hedefinin Kaydolma kategorisinde birincil ve bir kez sayılan dönüşüm olduğu doğrulandı; kampanyanın ilk optimizasyon hedefi olarak korundu.
 - `Borcama - Pro Abonelik` hedefi teklif optimizasyonundan çıkarılıp ikincil gözlem hedefine alındı; satış sonucu `Tüm dönüşümler` içinde izlenmeye devam edecek fakat kampanya teklifini yönlendirmeyecek.
 - Panelde son 7 gün için 184 gösterim, 7 tıklama, ₺240,74 maliyet ve 0 dönüşüm görüldü. Hesap Kaydı etiketi hiç veri almadığı için hatalı yapılandırılmış uyarısı sürüyor; canlı kod olayı yalnız ölçüm izni vermiş ve e-postasını doğrulamış yeni hesapta tekilleştirilmiş olarak gönderiyor.
-- Reklam bütçesi, hedefleme ve kampanya durumu değiştirilmedi; sonraki doğrulama ilk gerçek izinli/doğrulanmış reklam kaydının Ads tanılamasına ulaşmasıdır.
+- Yönetim Kurulu Başkanı hafta sonu edinim sprinti için fiili günlük ₺300 tavanı onayladı; kampanyanın ortalama günlük bütçesi ₺60'tan ₺150'ye çıkarıldı ve panelde Kaydolma işlemleri hedefiyle kaydedildiği doğrulandı. Hedefleme ve kampanya durumu değiştirilmedi; sonraki doğrulama ilk gerçek izinli/doğrulanmış reklam kaydının Ads tanılamasına ulaşmasıdır.
 
 ## Yönetim modeli
 
