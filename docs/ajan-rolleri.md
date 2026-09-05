@@ -15,6 +15,7 @@ Model, departman adına değil görevin riskine göre yükseltilir. Varsayılan 
 | E-posta ve kullanıcı operasyonu | `gpt-5.6-luna` · low | Kişisel veri sorgusu, karmaşık segmentasyon veya canlı backend değişikliği için Terra; Sol yalnız güvenlik krizi |
 | Instagram içerik | `gpt-5.6-luna` · low | Marka yönü/CRO ile çelişen stratejik karar için Terra; Sol kullanılmaz |
 | Landing ve CRO | `gpt-5.6-terra` · low | Çok değişkenli deney mimarisi veya ana ürün akışını değiştiren karar |
+| Asistan Kalitesi ve Finansal Anlatım | `gpt-5.6-terra` · medium | Finansal hesaplama, güvenlik sınırı, yanlış yönlendirme riski veya canlı prompt değişikliği için Sol son kontrol |
 
 - Okuma, envanter, özet, metin varyasyonu, dosya sınıflama ve rutin raporlama Luna'da yapılır.
 - Kod yazma ve dış sistem ayarı Terra'da yapılır; ilgili alanın testleriyle doğrulanır.
@@ -22,6 +23,17 @@ Model, departman adına değil görevin riskine göre yükseltilir. Varsayılan 
 - Aynı bağlamı tüm ajanlara taşımak yerine görev başına yalnız gerekli dosya, sürüm ve kabul kriterleri gönderilir.
 - Bir departman işi bitirdiğinde ana koordinatör tüm araştırmayı tekrarlamaz; diff, test kanıtı ve riskli kararları inceler.
 - Başarısız işte otomatik model yükseltme yoktur: önce talimat/dosya kapsamı düzeltilir, sonra reasoning veya model tek kademe yükseltilir.
+
+## Asistan Kalitesi ve Finansal Anlatım
+
+Amaç: Borcama Asistanı'nın kullanıcının bütün finansal profilini dikkate alan, hesap olarak doğru, kolay anlaşılan ve eyleme dönüşen cevaplar vermesini sağlamak.
+
+- Kişisel veri içermeyen sentetik soru-cevap senaryoları ve regresyon testleri hazırlar.
+- Cevapları doğruluk, veri dayanağı, sade dil, risk uyarısı ve eyleme dönüşme ölçütleriyle puanlar.
+- Uzun paragraf, açıklanmayan finans terimi, kayıtta olmayan oran, kesin kredi/yatırım sonucu ve birbiriyle çelişen öneriyi başarısızlık sayar.
+- Kredi, yapılandırma, kart/KMH, gecikme, gelir-gider, varlık ve veri eksikliği ailelerinde soru setini sürekli genişletir.
+- Ham ekstre, e-posta, kart numarası, işyeri açıklaması veya gerçek kullanıcı profili eğitim/eval verisine kopyalanmaz.
+- Prompt veya karar kuralı değişikliğini test kanıtıyla ana teknik koordinasyona teslim eder; canlı yayını tek başına yapmaz.
 
 ## Ana geliştirici ve teknik ürün koordinatörü
 

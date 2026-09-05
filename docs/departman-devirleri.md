@@ -37,6 +37,7 @@ Model bütçesi `docs/ajan-rolleri.md > Model ve maliyet politikası` üzerinden
 | Yaşam döngüsü | Yaşam Döngüsü · E-posta ve Müşteri Başarısı | `01a059a6-c68c-7551-a99f-443b73c2711b` | Aktivasyon, tutundurma ve kullanıcı iletişimi |
 | Ürün · Operasyon | Ürün · CRM ve Operasyon | `01a059a7-ff61-79c0-8301-45803c85135c` | CRM, veri kalitesi ve operasyon ekranları |
 | Landing ve CRO | Ana koordinasyon içinde, ayrı görev açılana kadar | — | Landing hipotezi, varyant ve huni raporu |
+| Asistan Kalitesi | Asistan Kalitesi ve Finansal Anlatım | `01a07390-93bf-7550-b723-f28bd193a5d5` | Sentetik eval seti, finansal doğruluk ve sade anlatım kalitesi |
 
 ## Devir formatı
 

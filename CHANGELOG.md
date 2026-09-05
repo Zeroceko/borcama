@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.1] - 2026-09-06
+
+### Değiştirildi
+
+- Borcama Asistanı cevapları finansal terimleri günlük dille açıklayan, kısa cevap ve 2–3 okunabilir maddeden oluşan sabit bir yapıya geçirildi.
+
 ## [1.47.0] - 2026-09-06
 
 ### Değiştirildi
