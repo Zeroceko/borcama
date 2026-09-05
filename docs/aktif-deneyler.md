@@ -12,10 +12,11 @@
 ## Sıradaki deney
 
 - Kod: `LANDING-001`
-- Durum: Ölçüm altyapısı v1.37.0 ile hazırlanıyor; deney trafiği henüz başlamadı
+- Durum: Aşama 1 kontrol hunisi yerelde hazır; varyant trafiği, CTA/metin değişikliği ve deney exposure kapalı
 - Hipotez: Ekstrenin cihazda işlendiğini ve borç planının somut faydasını ilk ekranda anlatmak, kayıt tamamlama oranını artırır.
 - Kontrol: `v1.37.0` ile canlıya alınacak sade, güven ve plan odaklı welcome sayfası
 - Varyant: Tek ana hipoteze göre ayrıca hazırlanacak; kontrol ile aynı anda canlı ölçüme alınacak
 - Birincil metrik: Tamamlanan kayıt / landing ziyareti
 - Koruma metrikleri: E-posta doğrulama, ilk borç veya ekstre kaydı, sayfa performansı ve hata oranı
-- Sonraki karar: A/B atama, olay tekilleştirme ve trafik oranı CEO tarafından incelenip yönetilecek; köklü ürün değişikliği oluşmadıkça ayrıca Yönetim Kurulu Başkanı onayı beklenmeyecek.
+- Aşama 1 ölçümü: Yalnız `google / cpc / tr_pmax_borcama` ilk temasları için `landing_visit → register_view → sign_up → email_verified → first_debt_or_statement`; reklam tıklaması bu hunide ziyaret veya kayıt sayılmaz.
+- Sonraki karar: CEO, yeterli kontrol verisinden sonra A/B atama ve trafik oranını ayrıca inceler; köklü ürün değişikliği oluşmadıkça ayrıca Yönetim Kurulu Başkanı onayı beklenmeyecek.

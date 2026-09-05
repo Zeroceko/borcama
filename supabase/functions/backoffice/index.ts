@@ -152,12 +152,13 @@ async function kullaniciKampanyaGecmisi(
 
 async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
   const since = new Date(Date.now() - 90 * 86400000).toISOString();
-  const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }] = await Promise.all([
+  const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }, { data: pmax, error: pmaxError }] = await Promise.all([
     admin.rpc("admin_funnel_daily", { p_since: since }),
     admin.rpc("admin_funnel_sources", { p_since: since }),
+    admin.rpc("admin_pmax_control_funnel", { p_since: since }),
   ]);
-  if (dailyError || sourceError) return { available: false, daily: [], sources: [] };
-  return { available: true, daily: daily || [], sources: sources || [] };
+  if (dailyError || sourceError || pmaxError) return { available: false, daily: [], sources: [], pmax: null };
+  return { available: true, daily: daily || [], sources: sources || [], pmax: pmax?.[0] || null };
 }
 
 async function referralOverview(

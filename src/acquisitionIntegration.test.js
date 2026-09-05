@@ -52,3 +52,17 @@ test("ham reklam tıklama kimliği yeni analytics satırına yazılmaz", async (
   assert.doesNotMatch(edge, /click_id: metin/);
   assert.match(migration, /'', coalesce\(p_paid_click, false\), p_plan/);
 });
+
+test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu sayar", async () => {
+  const [migration, backoffice, analytics] = await Promise.all([
+    oku("../supabase/migrations/20260905110000_pmax_control_funnel.sql"),
+    oku("../supabase/functions/backoffice/index.ts"),
+    oku("./Analytics.jsx"),
+  ]);
+  assert.match(migration, /admin_pmax_control_funnel/);
+  assert.match(migration, /ae\.source = 'google' and ae\.medium = 'cpc' and ae\.campaign = 'tr_pmax_borcama'/);
+  assert.match(migration, /first_debt_or_statement/);
+  assert.doesNotMatch(migration, /experiment_assignment|experiment_variant|experiment_id/);
+  assert.match(backoffice, /admin_pmax_control_funnel/);
+  assert.match(analytics, /PMax kontrol hunisi/);
+});
