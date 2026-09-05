@@ -60,15 +60,17 @@ Deno.serve(async (req) => {
   if (!quota?.allowed)
     return new Response(JSON.stringify({ error: "DAILY_LIMIT", quota }), { status: 429, headers });
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-3.7-flash";
-  const gemini = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemInstruction }] },
-      contents: [{ role: "user", parts: [{ text: `SORU:\n${question}\n\nBORCAMA_HESAP_OZETI:\n${JSON.stringify(context)}` }] }],
-      generationConfig: {
-        temperature: 0.15,
-        maxOutputTokens: 360,
+  let gemini: Response;
+  try {
+    gemini = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ role: "user", parts: [{ text: `SORU:\n${question}\n\nBORCAMA_HESAP_OZETI:\n${JSON.stringify(context)}` }] }],
+        generationConfig: {
+          thinkingConfig: { thinkingLevel: "LOW" },
+          maxOutputTokens: 1000,
         responseMimeType: "application/json",
         responseSchema: {
           type: "OBJECT",
@@ -79,16 +81,25 @@ Deno.serve(async (req) => {
           },
           required: ["title", "answer", "route", "actionLabel", "needsMoreInfo", "disclaimer"],
         },
-      },
-    }),
-  });
-  if (!gemini.ok) return new Response(JSON.stringify({ error: "MODEL_UNAVAILABLE", quota }), { status: 502, headers });
+        },
+      }),
+    });
+  } catch {
+    await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
+    return new Response(JSON.stringify({ error: "MODEL_UNAVAILABLE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
+  }
+  if (!gemini.ok) {
+    await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
+    return new Response(JSON.stringify({ error: "MODEL_UNAVAILABLE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
+  }
   const payload = await gemini.json();
   const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
   let answer;
   try { answer = JSON.parse(text); } catch { answer = null; }
-  if (!answer?.answer || !routeIds.has(answer.route))
-    return new Response(JSON.stringify({ error: "INVALID_MODEL_RESPONSE", quota }), { status: 502, headers });
+  if (!answer?.answer || !routeIds.has(answer.route)) {
+    await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
+    return new Response(JSON.stringify({ error: "INVALID_MODEL_RESPONSE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
+  }
 
   return new Response(JSON.stringify({
     title: String(answer.title || "Borcama yanıtı").slice(0, 100),

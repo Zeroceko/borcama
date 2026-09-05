@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.46.1] - 2026-09-06
+
+### Düzeltildi
+
+- Gemini 3.7 Flash isteklerinin güncel API parametreleriyle yanıt vermesi sağlandı; model hatasıyla sonuçlanmayan sorular artık kullanıcının günlük soru hakkından düşmüyor.
+
 ## [1.46.0] - 2026-09-06
 
 ### Değiştirildi
