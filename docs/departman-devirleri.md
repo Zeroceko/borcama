@@ -1,5 +1,7 @@
 # Borcama departmanları ve devir panosu
 
+Sentry production issue takibi tarayıcıdan bağımsızdır: salt okunur Internal Integration token'ı macOS Keychain'de `borcama-sentry-token` adıyla saklanır; `scripts/check-sentry-issues.mjs --commit` son 24 saatteki çözülmemiş production issue değişikliklerini kişisel veri yazmadan kontrol eder. Token depoya, çıktıya veya departman notlarına yazılmaz.
+
 ## Yönetim modeli
 
 Yönetim Kurulu Başkanı son stratejik kararı verir. CEO ve ana teknik ürün koordinatörü ekip çıktılarını birleştirir, teknik kaliteyi denetler ve gerekli onayları Başkan'dan alır. Sonuç ekipleri CEO toplantısından görev beklemez; `docs/sirket-isletim-sistemi.md` içindeki hedef ve yetki matrisine göre kendi haftalık işini seçer, uygular ve raporlar.
@@ -171,6 +173,35 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Yapılan değişiklik: Heartbeat prompt’una günlük en fazla 3, son 14 gün (tercihen 72 saat) UI-tarih doğrulamalı özgün yorum; bağlam uygunsa en fazla 2 doğal Borcama fayda açıklaması ve 24/48 saat ölçüm kuralı eklendi.
 - Sonraki aksiyon: Tekrar/spam/DM/garanti yok; platform doğrulaması veya güvenlik uyarısında durulacak.
 
+### 2026-09-03 · Instagram 100 takipçi hedefi
+
+- Başlangıç takipçisi: 7; hedef: 100 (hedef açığı 93).
+- Otomasyon raporlarına günlük net artış, profil ziyareti, tıklama ve doğrulanmış+aktive katkı alanları eklendi; organik rutin dışında ücretli aksiyon yok.
+
+### 2026-09-03 · Instagram 18:30 büyüme raporu
+
+- Başlangıç takipçisi: 7; güncel takipçi için bu çalışmada yeni UI doğrulaması alınamadı; hedef açığı en son doğrulamada 93.
+- Uygulanan işler: Bio CTA `Ücretsiz başla` olarak güncellendi; içerik üretimi kalite eşiği nedeniyle yayınlanmadı.
+- Ölçüm: Bugün için doğrulanmış profil ziyareti, erişim, tıklama veya kayıt/aktivasyon katkısı yok; yeni karar yarın güncel profil doğrulaması ve 24 saat pilot ölçümü sonrası verilecek.
+
+### 2026-09-04 · Instagram somut içerik teslimi
+
+- Baz alınan sürüm: canlı `v1.37.0`.
+- Yapılan çalışma: Asgari ödeme sonrası görünürlük problemi için 3 slayt carousel ve Story metni hazırlandı; stok/yapay insan kullanılmadı, QA uygulandı.
+- Durum: Taslak teslim edildi, Meta’da yayınlanmadı; yayın bağlantısı ve performans verisi yok.
+
+### 2026-09-04 · Instagram normal plan devamı
+
+- Başkan kararıyla GIF/maskot üretimi durduruldu; eski dosyalar rafa kaldırıldı, yeni animatik yapılmadı.
+- 4 Eylül normal plan gönderisi Meta profilinde yayınlandı: https://www.instagram.com/borcama/p/Dc3H3pyEWlV/ .
+- Profil UI doğrulaması: 7 takipçi; bu kontrolde erişim/tıklama/kayıt/aktivasyon metriği yok. Organik hedef sonuçlanmış sayılmadı.
+
+### 2026-09-05 · Instagram carousel/Story hazırlığı
+
+- 7 Eylül carousel’inin 1080×1350 dosya sırası, metin-konu eşleşmesi ve temsili veri kuralı yeniden doğrulandı; caption CTA’sının yayın öncesi `Ücretsiz başla` standardına alınması not edildi.
+- Bugün için çakışmasız 3 kartlı anket Story paketi hazırlandı: `social-media/buyume-sprint/2026-09-05/story-paketi.md`.
+- Story yayınlanmadı; önerilen zaman 7 Eylül carousel’inden 2–3 saat önce. Ölçüm hipotezi ve veri yoksa raporlama kuralı kaydedildi.
+
 ### 2026-09-03 · SEO yüksek niyetli borç kapatma sayfası
 
 - Baz alınan Borcama sürümü: canlı `v1.37.0`; çalışma alanında başka departmanların tamamlanmamış değişiklikleri korunmuştur.
@@ -179,3 +210,22 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: `npm test` 83/83 başarılı; `npm run build` başarılı ve 20 SEO sayfası üretildi. Üretilen HTML'de doğru canonical, iki açıklama bölümü ve `/rehber/borc-kapatma-plani-nasil-hazirlanir` bağlantısı doğrulandı; `git diff --check` geçti. Search Console URL denetiminde sayfanın hiç taranmadığı, yönlendiren sayfa algılanmadığı ve dizinde olmadığı görüldü; 3 Eylül 12:18 canlı testi URL'nin Google tarafından kullanılabilir ve dizine eklenebilir olduğunu, iki geçerli breadcrumb öğesi bulunduğunu doğruladı.
 - Başka departmanı etkileyen karar: Değişiklik canlıya alınmadan dizine ekleme isteği gönderilmemeli. Organik başarı bugünden sonraki dış kullanıcılarla ölçülmeli; Search Console tıklaması CRM'deki `organic` kanalının yeni doğrulanmış ve aktive kullanıcılarıyla aynı tarih aralığında karşılaştırılmalıdır.
 - Kullanıcı onayı veya sonraki aksiyon: Güvenli rutin sürümde bu yamayı canlıya al; ardından tek URL için Search Console dizine ekleme isteğini kullanıcı onayıyla gönder. CRM yönetim oturumu bu kontrolde açık olmadığı için organik doğrulama/aktivasyon eşleşmesi ölçülemedi; CEO raporunda ölçüm açığı olarak gösterilmelidir.
+
+### 2026-09-03 · Ürün · CRM ve Operasyon · Ürün Sağlığı özeti
+
+- Baz alınan Borcama sürümü: `v1.40.3`.
+- Yapılan değişiklik: CEO görünümüne dönem seçilebilir (bugün/7 gün/30 gün/özel), Europe/Istanbul saat diliminde çalışan Ürün Sağlığı özeti eklendi. 200 doğrulanmış kullanıcı hedefi; yeni kayıt, doğrulama, ilk borç/ekstre, gözlemlenen tam aktivasyon, anlamlı aktif tekil kullanıcı, D7/D30, aktif deneme ve ödeme referanslı aktif Pro ayrı sunuluyor; önceki eşit dönem farkı ve kanal bazında kayıt/doğrulama/tam aktivasyon görünür.
+- Veri sınırları: Tam aktivasyon yalnız anonim `activity_logs` olaylarıyla (borç/ekstre + gelir + gider/ödeme) gözlemlenir; eski/izlenemeyen hesaplar, kanalı bilinmeyen hesaplar ve test/yönetici sınıflaması ayrı tutulur. İlk ücretli dönüşüm tarihi, kanal maliyeti/edinme maliyeti, kritik akış hatası ve dönemsel açık destek için güvenilir kaynak olmadığı açıkça “hesaplanamıyor” gösterilir; sıfır üretilmez. Kişisel e-posta veya finansal ayrıntı yeni özete taşınmadı.
+- Değişen dosyalar: `src/CeoDashboard.jsx`, `supabase/functions/backoffice/index.ts`, `src/growthFunnelIntegration.test.js`, `CHANGELOG.md`.
+- Test ve doğrulama: `npm test` 91/91, `npm run release:check`, `npm run build` ve `git diff --check` başarılı.
+- Sonraki aksiyon: CEO rutin yayın kararını vermeli; bu devirde kullanıcı verisi değiştirilmedi ve canlıya çıkılmadı.
+
+### 2026-09-05 · SEO borç kapatma tarama sinyali
+
+- Baz alınan Borcama sürümü: canlı `v1.42.7`; yüksek niyetli borç kapatma sayfasının önceki SEO iyileştirmesi `v1.39.0` ile yayımlanmıştır.
+- Yapılan değişiklik: `/araclar/borc-kapatma-hesaplayici` için site haritasındaki geride kalmış `lastmod` değeri, içeriğin gerçek yayın tarihi olan `2026-09-03` olarak güncellendi. Yeni URL, içerik veya ürün vaadi eklenmedi.
+- URL ve kanıt: Canlı `https://borcama.com/araclar/borc-kapatma-hesaplayici` sayfasında başlık, hesaplama açıklaması, çalışan sonuç tablosu ve `/rehber/borc-kapatma-plani-nasil-hazirlanir` iç bağlantısı doğrulandı. Yerel `public/sitemap.xml` hedef URL'yi içeriyor ve doğru değişiklik tarihini bildiriyor.
+- Test ve doğrulama: `npm test` 108/108 başarılı; `npm run build` 20 SEO sayfasını üretti; `npm run release:check` ve `git diff --check` geçti.
+- Search Console sonucu: 5 Eylül 11:44 canlı testi URL'nin Google tarafından kullanılabilir ve dizine eklenebilir olduğunu, iki geçerli breadcrumb öğesi bulunduğunu doğruladı. Google Dizini görünümü URL'yi henüz bilinmiyor, taranmamış ve yönlendiren site haritası/sayfa algılanmamış olarak gösterdi.
+- Tamamlanan dış aksiyon: Yönetim Kurulu Başkanı'nın işlem anındaki onayıyla yalnız bu URL için dizine ekleme isteği gönderildi; Google isteği kabul ederek URL'yi öncelikli tarama sırasına ekledi.
+- Sonraki adım: Site haritası tarih düzeltmesini rutin SEO yayınına dahil et; URL'yi tekrar göndermeden sonraki SEO kontrolünde tarama/dizin durumunu ve `organic` doğrulanmış+aktive kullanıcı katkısını ölç.

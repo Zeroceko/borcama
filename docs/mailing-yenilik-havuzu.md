@@ -62,6 +62,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gönderilmeye hazır adaylar
 
+### Ödemelerini daha az menüyle yönet — v1.42.8
+
+- Siz istediniz: Aynı ödeme durumlarını farklı menülerde tekrar tekrar aramamak.
+- Biz yaptık: Bekleyen ödemeleri doğrudan gösterip tamamlananları ve geri alınabilir işlem geçmişini aynı sayfada kompakt bölümlere taşıdık; gecikmiş ödemeleri de Bugün ekranında öne aldık.
+- Faydası: Ödemenin durumunu görmek veya yanlış kaydı geri almak için uzun menüler arasında dolaşmazsın.
+- Aksiyon: `https://borcama.com/payments?utm_source=resend&utm_medium=email&utm_campaign=odemeler_sadelesti&utm_content=ana_cta`
+
 ### Ekstre eklemek artık daha anlaşılır — v1.33.0
 
 - Siz istediniz: Ekstre eklerken dosyanın nasıl işlendiğini bilmek ve manuel giriş seçeneğine kolay ulaşmak.

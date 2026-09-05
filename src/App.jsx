@@ -3200,7 +3200,6 @@ export default function BorcTakip() {
               ["cards", "Kartlar"],
               ["loans", "Krediler"],
               ["od", "Ek Hesap"],
-              ["others", "Gecikenler"],
               ["plan", "Borç Planı"],
             ].map(([k, ad]) => {
               const aktif =
@@ -5253,8 +5252,14 @@ function Ozet({
       <section className="bt-bugun-odemeler" aria-labelledby="bugun-odemeler-baslik">
         <div className="bt-bugun-bolum-head">
           <div>
-            <h2 id="bugun-odemeler-baslik">Ödeme takvimin</h2>
-            <p>En yakın üç ödeme; ayrıntılar Hareketler altında.</p>
+            <h2 id="bugun-odemeler-baslik">
+              {gecikmisler.length ? "Geciken ve yaklaşan ödemeler" : "Ödeme takvimin"}
+            </h2>
+            <p>
+              {gecikmisler.length
+                ? `${gecikmisler.length} gecikmiş ödeme önce gösteriliyor; ayrıntılar Hareketler altında.`
+                : "En yakın üç ödeme; ayrıntılar Hareketler altında."}
+            </p>
           </div>
           <button className="bt-link" type="button" onClick={() => setSekme("odemeler")}>
             Tüm ödemeler <ChevronRight size={14} />
@@ -5779,43 +5784,16 @@ function Odemeler({
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return (
     <div className="bt-stack">
-      <div className="bt-secici" aria-label="Ödeme kayıtları" style={{ width: "max-content" }}>
-        <button
-          type="button"
-          className={filtre === "bekleyen" ? "aktif" : ""}
-          onClick={() => filtreDegistir?.("bekleyen")}
-        >
-          Bekleyen
-        </button>
-        <button
-          type="button"
-          className={filtre === "odenen" ? "aktif" : ""}
-          onClick={() => filtreDegistir?.("odenen")}
-        >
-          Kısmen veya tamamen ödenenler
-        </button>
-        <button
-          type="button"
-          className={filtre === "gecmis" ? "aktif" : ""}
-          onClick={() => filtreDegistir?.("gecmis")}
-        >
-          İşlem geçmişi
-        </button>
-      </div>
-      {(filtre === "bekleyen" || filtre === "odenen") && (() => {
-        const aktifKayitlar = filtre === "bekleyen" ? bekleyen : odemeYapilan;
-        const aktifBaslik = filtre === "bekleyen" ? "Bekleyen ödemeler" : "Kısmen veya tamamen ödenenler";
-        const bosMetin = filtre === "bekleyen"
-          ? "Bekleyen ödeme yok."
-          : `${ayEtiketi(donem)} ödeme döneminde işlenmiş ödeme yok.`;
+      {(() => {
+        const aktifKayitlar = bekleyen;
         return (
-          <div className="bt-card bt-odeme-aktif-liste">
+          <div className={`bt-card bt-odeme-aktif-liste ${aktifKayitlar.length ? "" : "bt-odeme-tamam"}`}>
             <div className="bt-cardhead">
-              <div className="bt-h2">{aktifBaslik}</div>
-              <div className="bt-chip">{aktifKayitlar.length} kayıt</div>
+              <div className="bt-h2">{aktifKayitlar.length ? "Bekleyen ödemeler" : "Bu ayın zorunlu ödemeleri tamam"}</div>
+              {aktifKayitlar.length > 0 && <div className="bt-chip">{aktifKayitlar.length} kayıt</div>}
             </div>
             {aktifKayitlar.length === 0 ? (
-              <div className="bt-bos">{bosMetin}</div>
+              <div style={{ color: "var(--dim)", fontSize: 12 }}>Yeni bir ödeme oluştuğunda burada görünecek.</div>
             ) : (
               <div className="bt-stack" style={{ gap: 10, marginTop: 14 }}>
                 {aktifKayitlar.map((o, i) => (
@@ -5824,7 +5802,6 @@ function Odemeler({
                     o={o}
                     i={i}
                     gecikmis={
-                      filtre === "bekleyen" &&
                       kalanGun(o.tarih) < 0 &&
                       !(o.kartOdemesi && (o.minimumTamam || o.yapilandirmaIleKapandi))
                     }
@@ -5844,8 +5821,6 @@ function Odemeler({
           </div>
         );
       })()}
-      {filtre !== "gecmis" && (
-        <>
       <div className="bt-card" data-tour="odemeler">
         <div className="bt-cardhead">
           <div>
@@ -5919,17 +5894,37 @@ function Odemeler({
           </div>
         </div>
       )}
-        </>
+      {odemeYapilan.length > 0 && (
+        <details className="bt-card bt-plan-detay">
+          <summary>Bu ay ödenenler · {odemeYapilan.length}</summary>
+          <div className="bt-stack" style={{ gap: 10, padding: "0 12px 12px" }}>
+            {odemeYapilan.map((o, i) => (
+              <OdemeSatiri
+                key={o.id}
+                o={o}
+                i={i}
+                gecikmis={false}
+                odendiIsaretle={odendiIsaretle}
+                kartOdemesiAc={(odeme) => {
+                  setKismiOdemeTutari("");
+                  setKartOdemePenceresi(odeme);
+                }}
+                krediOdemesiAc={(odeme) => {
+                  setKismiOdemeTutari("");
+                  setKrediOdemePenceresi(odeme);
+                }}
+              />
+            ))}
+          </div>
+        </details>
       )}
-      {filtre === "gecmis" && (
-        <div className="bt-card">
-          <div className="bt-h2">İşlem geçmişi</div>
+      {islemler.length > 0 && (
+        <details className="bt-card bt-plan-detay">
+          <summary>İşlem geçmişi ve geri alma</summary>
+          <div style={{ padding: "0 12px 12px" }}>
           <div className="bt-islem-aciklama">
             Son 30 borç ve ödeme değişikliği. Yanlış bir işlemi buradan geri alabilirsin.
           </div>
-          {islemler.length === 0 ? (
-            <div className="bt-bos">Henüz işlem geçmişi yok.</div>
-          ) : (
             <div className="bt-islem-listesi">
               {islemler.map((islem) => (
                 <div className="bt-islem-satiri" key={islem.id}>
@@ -5951,10 +5946,10 @@ function Odemeler({
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        </details>
       )}
-      {filtre === "bekleyen" && donem === ayAnahtari() && (
+      {donem === ayAnahtari() && (
         <div className="bt-card">
           <div className="bt-h2">Gelecek ayın bilinen ödemeleri</div>
           {gelecekOdemeler.length === 0 ? (

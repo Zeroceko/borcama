@@ -306,8 +306,12 @@ Deno.serve(async (req) => {
       const user = data.user;
       if (!user?.email || !user.email_confirmed_at) { skipped += 1; continue; }
       const email = user.email.trim().toLowerCase();
+      const trialStartedAt = entitlement.trial_started_at ? new Date(entitlement.trial_started_at).getTime() : NaN;
+      const minutesSinceTrialStart = Number.isFinite(trialStartedAt) ? (now.getTime() - trialStartedAt) / 60000 : NaN;
       const days = Math.max(1, Math.ceil((new Date(entitlement.trial_ends_at).getTime() - now.getTime()) / 86400000));
-      if (!entitlement.trial_started_email_sent_at) {
+      // Cron gecikse bile başlangıç mesajı kaybolmasın; 48 saatten sonra ise
+      // kullanıcıya başlangıç ve hatırlatma mesajlarını arka arkaya göndermeyelim.
+      if (!entitlement.trial_started_email_sent_at && Number.isFinite(minutesSinceTrialStart) && minutesSinceTrialStart >= 5 && minutesSinceTrialStart < 48 * 60) {
         const result = await takipliGonder({
           admin, campaign: startedCampaign, userId: user.id, email,
           destination: "/summary", html: (url) => denemeBasladiHtml(days, url),
@@ -317,8 +321,8 @@ Deno.serve(async (req) => {
           if (result.sent) started += 1;
         }
       }
-      if (!entitlement.trial_reminder_email_sent_at && entitlement.trial_started_at && Date.now() - new Date(entitlement.trial_started_at).getTime() >= 48 * 3600000) {
-        const { data: activity } = await admin.from("activity_logs").select("id").eq("user_id", user.id).limit(1);
+      if (!entitlement.trial_reminder_email_sent_at && Number.isFinite(trialStartedAt) && now.getTime() - trialStartedAt >= 48 * 3600000) {
+        const { data: activity } = await admin.from("activity_logs").select("id").eq("user_id", user.id).gte("created_at", new Date(trialStartedAt).toISOString()).limit(1);
         if (!(activity || []).length) {
           const result = await takipliGonder({ admin, campaign: reminderCampaign, userId: user.id, email, destination: "/summary?source=trial-first-plan-reminder", html: denemeIlkPlanHatirlatmaHtml });
           if (result.sent || result.duplicate) {

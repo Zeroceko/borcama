@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.42.8] - 2026-09-05
+
+### Düzeltildi
+
+- Pro deneme başlangıç e-postası doğrulamadan en az beş dakika sonra ve hatırlatma eşiğinden önce güvenle gönderiliyor; 48 saatlik hatırlatma yalnız deneme başladıktan sonraki kullanımı dikkate alıyor.
+
+### Değiştirildi
+
+- Borçlar altındaki tekrar eden Gecikenler sekmesi kaldırıldı; gecikmiş ödemeler varsa Bugün ekranının altındaki ödeme takviminde öncelikli gösteriliyor.
+- Ödemeler ekranındaki tekrar eden durum menüsü kaldırıldı; ay özeti ve bekleyenler doğrudan, tamamlananlar ile geri alınabilir işlem geçmişi aynı sayfada kompakt bölümler halinde sunuluyor.
+
 ## [1.42.7] - 2026-09-05
 
 ### Değiştirildi
