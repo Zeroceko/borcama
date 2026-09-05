@@ -8,6 +8,7 @@ Bu kayıt yalnız `borcama-web` production (borcama.com, www.borcama.com ve crm.
 |---|---:|---:|---:|---|
 | 2026-09-03 · ilk kontrol | Erişilemedi | Erişilemedi | Erişilemedi | Sentry yönetim API anahtarı veya Issues ekranı oturumu bu çalışma alanında yok. Public DSN yalnız teslim içindir; sorun listesi için kullanılmaz. |
 | 2026-09-05 · otomatik takip | 1 | 0 | 1 yeni kayıt | Salt-okunur token Keychain'den okunuyor; olay değişiklikleri kişisel veri yazılmadan checkpoint ile tekilleştiriliyor. |
+| 2026-09-05 13:15 TSİ · otomatik takip | 1 | 0 | 0 doğrulanmış kritik | Son 24 saatte üç çözülmemiş production issue var. Yeni `BORCAMA-WEB-5` bir hata olayıyla açıldı; `BORCAMA-WEB-2` iki yeni olayla arttı. Olay ayrıntıları gizlilik filtresi nedeniyle bu kayda alınmadı. |
 
 ## Kontroller
 
@@ -24,3 +25,10 @@ Bu kayıt yalnız `borcama-web` production (borcama.com, www.borcama.com ve crm.
 - `scripts/check-sentry-issues.mjs --commit` son 24 saatteki production issue değişikliklerini kontrol eder ve yalnız kimlik, kısa başlık, olay/kullanıcı sayısı, son görülme ile bağlantıyı raporlar.
 - API tokenı macOS Keychain'de tutulur; depoya, komut çıktısına veya bu belgeye yazılmaz.
 - Issue ayrıntısı için mevcut tokenın event stack kapsamı yoktur; hata mesajı ve finansal içerik göndermeyen gizlilik filtresi korunur.
+
+### 2026-09-05 13:15 TSİ · Kısa production kontrolü
+
+- Kapsam: son 24 saat, `borcama-web`, yalnız production ve çözülmemiş issue'lar; setup-test ile `BORCAMA-WEB-1` hariç tutuldu.
+- Açık issue sayısı: 3. Yeni kayıt: `BORCAMA-WEB-5` (error, 1 olay, ilk/son görülme 12:52 TSİ). Artış: `BORCAMA-WEB-2` (error, toplam 3 olay; bu kontrolde +2, son görülme 12:57 TSİ).
+- Kullanıcı kimliği iletilmediğinden API'deki `userCount` etkilenen kişi sayısı olarak yorumlanmadı. İki kaydın da gizliliği korunmuş genel TypeError başlığı dışında akış bağlamı yok.
+- Öncelik: P2 inceleme. Kayıt, giriş, borç, ödeme veya veri bütünlüğünü bozduğunu doğrulayacak kanıt olmadığından kritik olarak sınıflanmadı; rutin CEO raporuna eklenecek.
