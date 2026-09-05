@@ -152,14 +152,15 @@ async function kullaniciKampanyaGecmisi(
 
 async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
   const since = new Date(Date.now() - 90 * 86400000).toISOString();
-  const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }, { data: pmax, error: pmaxError }, { data: landingExperiment, error: landingExperimentError }] = await Promise.all([
+  const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }, { data: pmax, error: pmaxError }, { data: landingExperiment, error: landingExperimentError }, { data: depositTool, error: depositToolError }] = await Promise.all([
     admin.rpc("admin_funnel_daily", { p_since: since }),
     admin.rpc("admin_funnel_sources", { p_since: since }),
     admin.rpc("admin_pmax_control_funnel", { p_since: since }),
     admin.rpc("admin_landing_experiment_funnel", { p_since: since }),
+    admin.rpc("admin_deposit_tool_funnel", { p_since: since }),
   ]);
-  if (dailyError || sourceError || pmaxError || landingExperimentError) return { available: false, daily: [], sources: [], pmax: null, landing_experiment: [] };
-  return { available: true, daily: daily || [], sources: sources || [], pmax: pmax?.[0] || null, landing_experiment: landingExperiment || [] };
+  if (dailyError || sourceError || pmaxError || landingExperimentError || depositToolError) return { available: false, daily: [], sources: [], pmax: null, landing_experiment: [], deposit_tool: null };
+  return { available: true, daily: daily || [], sources: sources || [], pmax: pmax?.[0] || null, landing_experiment: landingExperiment || [], deposit_tool: depositTool?.[0] || null };
 }
 
 async function referralOverview(

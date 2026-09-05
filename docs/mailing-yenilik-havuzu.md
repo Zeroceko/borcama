@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Hesaplamadan finansal tablonun tamamına geç — v1.45.0
+
+- Siz istediniz: Mevduat getirisini hesapladıktan sonra bu birikimin borçlar, gelir ve harcamalarla birlikte ne ifade ettiğini görmek.
+- Biz yaptık: Mevduat hesaplama sonucunu Borcama'nın borç, gelir, gider ve varlık tablosuna bağlayan sade bir geçiş ekledik; ana sayfayı da bütün finansal tabloyu ilk bakışta anlatacak şekilde yeniledik.
+- Faydası: Tek bir faiz sonucunda kalmak yerine ücretsiz hesabında birikimlerini ve aylık yükünü birlikte takip etmeye başlayabilirsin.
+- Aksiyon: `https://borcama.com/araclar/mevduat-faizi-hesaplama`
+
 ### Kredin doğru ayda başlasın — v1.42.4
 
 - Siz istediniz: İlk taksiti gelecek ay başlayacak kredinin bu ay ödenecek gibi görünmemesi.

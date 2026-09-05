@@ -180,7 +180,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
     : null;
   const ilkProPlani = proNiyetiniOku();
   const sonrakiSayfa = kayitModu
-    ? "/summary"
+    ? sorguYonlendirmesi || "/summary"
     : sorguYonlendirmesi || (ilkProPlani ? `/upgrade?plan=${ilkProPlani}` : redirectTo);
   const [yontem, setYontem] = useState("parola");
   const [eposta, setEposta] = useState("");

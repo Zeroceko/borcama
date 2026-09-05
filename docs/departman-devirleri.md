@@ -235,3 +235,11 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Search Console sonucu: 5 Eylül 11:44 canlı testi URL'nin Google tarafından kullanılabilir ve dizine eklenebilir olduğunu, iki geçerli breadcrumb öğesi bulunduğunu doğruladı. Google Dizini görünümü URL'yi henüz bilinmiyor, taranmamış ve yönlendiren site haritası/sayfa algılanmamış olarak gösterdi.
 - Tamamlanan dış aksiyon: Yönetim Kurulu Başkanı'nın işlem anındaki onayıyla yalnız bu URL için dizine ekleme isteği gönderildi; Google isteği kabul ederek URL'yi öncelikli tarama sırasına ekledi.
 - Sonraki adım: Site haritası tarih düzeltmesini rutin SEO yayınına dahil et; URL'yi tekrar göndermeden sonraki SEO kontrolünde tarama/dizin durumunu ve `organic` doğrulanmış+aktive kullanıcı katkısını ölç.
+### 2026-09-05 · SEO + Landing/CRO + Ürün · Mevduat trafiği dönüşüm köprüsü
+
+- Baz alınan Borcama sürümü: canlı `v1.44.0`; kapsamlı iyileştirme `v1.45.0` için hazırlandı.
+- Yapılan değişiklik: Mevduat hesaplayıcısında sonuçtan hemen sonra gelen reklam alanı kaldırıldı; hesaplanan tutarı kaydetmeden borç, gelir, gider ve varlık tablosuna geçiş eklendi. Ana landing yalnız borç yerine finansal tablonun dört parçasını ilk ekranda anlatıyor; mevduat bağlamıyla gelen yeni kullanıcı kayıt sonrası Varlıklar ekranına yönleniyor.
+- Ölçüm ve gizlilik: `deposit_result_view` ve `deposit_product_click` olayları yalnız anonim oturum, sayfa ve edinim bilgisini taşır; ana para, faiz, stopaj, getiri veya e-posta gönderilmez. Analytics'te ziyaret → sonuç → ürün geçişi → kayıt → doğrulama → ilk varlık/borç hunisi toplulaştırılır.
+- Kaynak doğruluğu: Google, Bing ve Yandex yönlendirmeleri alan adı yerine organik arama kanalı olarak normalize edilir; ilk temas sonraki iç bağlantıyla ezilmez.
+- Dosyalar ve yayın sırası: `supabase/migrations/20260905180000_deposit_product_bridge.sql` → `analytics-event` → `backoffice` → frontend. `src/SeoPages.jsx`, `src/LandingAlt.jsx`, `src/Auth.jsx`, analytics/acquisition dosyaları, prerender ve süreç dokümanları birlikte değişti.
+- Doğrulama: 116/116 test, production build ve `git diff --check` başarılı; SEO çıktısı 20 sayfayı yeniden üretti.

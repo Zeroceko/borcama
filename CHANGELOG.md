@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.45.0] - 2026-09-05
+
+### Eklendi
+
+- Mevduat faizi hesaplayıcısı, sonucu borç, gelir, harcama ve varlık tablosuna bağlayan gizlilik odaklı bir ürün geçişiyle yenilendi; bu yolculuğun kayıt ve ilk finansal kayıt sonucu yönetimden tutar toplamadan izlenebiliyor.
+
+### Değiştirildi
+
+- Ana sayfa yalnız borç takibini değil, borç, gelir, harcama ve varlıkları tek tabloda birleştiren Borcama değerini ilk ekranda anlatacak biçimde yeniden kurgulandı; mevduat aracından gelenler bağlamını kaybetmeden varlık eklemeye yönlendiriliyor.
+- Arama motoru yönlendirmeleri edinim raporunda alan adı yerine organik Google, Bing veya Yandex kanalı olarak sınıflandırılıyor.
+
 ## [1.44.0] - 2026-09-05
 
 ### Eklendi

@@ -70,7 +70,7 @@ test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu say
   assert.doesNotMatch(migration, /ua\.first_touch_at/);
 });
 
-test("LANDING-001 PMax ziyaretçisini kalıcı varyanta atar ve hero CTA dışında sayfayı değiştirmez", async () => {
+test("LANDING-001 PMax ziyaretçisini kalıcı varyanta atar ve hero CTA metnini değiştirir", async () => {
   const [landing, experiment, client, edge, migration, backoffice, analytics] = await Promise.all([
     oku("./LandingAlt.jsx"),
     oku("./landingExperiment.js"),
@@ -85,11 +85,37 @@ test("LANDING-001 PMax ziyaretçisini kalıcı varyanta atar ve hero CTA dışı
   assert.match(experiment, /borcama:landing-001-variant/);
   assert.match(experiment, /source\.source === "google"[\s\S]+source\.medium === "cpc"[\s\S]+tr_pmax_borcama/);
   assert.match(landing, /Ücretsiz başla, ilk planını gör/);
-  assert.match(landing, /href="\/register\?plan=free">\{heroCta\}/);
+  assert.match(landing, /href=\{heroCtaHref\}>\{heroCta\}/);
   assert.match(client, /experiment_id: deney\.experiment_id/);
   assert.match(edge, /p_experiment_variant/);
   assert.match(migration, /admin_landing_experiment_funnel/);
   assert.match(migration, /experiment_variant in \('control', 'variant'\)/);
   assert.match(backoffice, /admin_landing_experiment_funnel/);
   assert.match(analytics, /LANDING-001 · CTA deneyi/);
+});
+
+test("mevduat aracı sonuçtan ürüne güvenli ve ölçülebilir bir köprü kurar", async () => {
+  const [seo, client, edge, migration, backoffice, analytics, auth, prerender] = await Promise.all([
+    oku("./SeoPages.jsx"),
+    oku("./funnelAnalytics.js"),
+    oku("../supabase/functions/analytics-event/index.ts"),
+    oku("../supabase/migrations/20260905180000_deposit_product_bridge.sql"),
+    oku("../supabase/functions/backoffice/index.ts"),
+    oku("./Analytics.jsx"),
+    oku("./Auth.jsx"),
+    oku("../scripts/prerender-seo.mjs"),
+  ]);
+  assert.match(seo, /deposit_result_view/);
+  assert.match(seo, /deposit_product_click/);
+  assert.match(seo, /redirect=%2Fassets/);
+  assert.match(client, /deposit_result_view/);
+  assert.match(client, /kayitSirasi/);
+  assert.match(edge, /deposit_product_click/);
+  assert.match(migration, /admin_deposit_tool_funnel/);
+  assert.match(migration, /al\.event_type = 'asset_added'/);
+  assert.doesNotMatch(migration, /(?:activity_logs|kv_store)\.(?:metadata|value)|select\([^)]*email/);
+  assert.match(backoffice, /admin_deposit_tool_funnel/);
+  assert.match(analytics, /Mevduat aracı → Borcama hunisi/);
+  assert.match(auth, /kayitModu[\s\S]+sorguYonlendirmesi \|\| "\/summary"/);
+  assert.match(prerender, /Tek hesaplamadan bütün finansal tabloya/);
 });

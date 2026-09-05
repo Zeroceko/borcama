@@ -6,7 +6,12 @@ const izinliOriginler = new Set([
   ...Array.from({ length: 20 }, (_, i) => `http://127.0.0.1:${5173 + i}`),
   ...Array.from({ length: 20 }, (_, i) => `http://localhost:${5173 + i}`),
 ]);
-const izinliEtkinlikler = new Set(["landing_visit", "register_view"]);
+const izinliEtkinlikler = new Set([
+  "landing_visit",
+  "register_view",
+  "deposit_result_view",
+  "deposit_product_click",
+]);
 const guvenliEdinimKarakterleri = /[^\p{L}\p{N}._/ -]+/gu;
 
 function cors(origin: string | null) {

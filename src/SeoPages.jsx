@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
+  BarChart3,
   BookOpen,
   CalendarDays,
   Calculator,
@@ -11,6 +12,7 @@ import {
   Trash2,
   WalletCards,
 } from "lucide-react";
+import { funnelEtkinligiKaydet } from "./funnelAnalytics.js";
 import {
   borcKapatmaHesapla,
   borcPlaniHesapla,
@@ -302,11 +304,11 @@ function AracCard({ slug, icon: Icon, title, text }) {
   return <a className="seo-tool-card" href={`/araclar/${slug}`}><span className="seo-icon"><Icon/></span><h2>{title}</h2><p>{text}</p><span className="seo-card-link">Aracı aç <ArrowRight size={15}/></span></a>;
 }
 
-function ToolLayout({ title, metaTitle, lead, path, schema, children, afterContent, faq = [], showSources = false }) {
+function ToolLayout({ title, metaTitle, lead, path, schema, children, afterContent, faq = [], showSources = false, showAd = true, showCta = true }) {
   useSeo({ title: metaTitle || title, description: lead, path, schema });
   const bolumler = React.Children.toArray(children);
   const guides = TOOL_GUIDES[path] || [];
-  return <Layout><main><Breadcrumb path={path} title={title}/><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}<AdSlot/></div></div>{afterContent}{guides.length > 0 && <section className="seo-related-guides" aria-label="İlgili rehberler"><h2>Hesabını daha iyi anla</h2>{guides.map(([href, label]) => <a className="seo-related-guide" href={href} key={href}><BookOpen/><span><b>Adım adım rehber</b><strong>{label}</strong></span><ArrowRight/></a>)}</section>}{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}<Cta/></section></main></Layout>;
+  return <Layout><main><Breadcrumb path={path} title={title}/><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}{showAd && <AdSlot/>}</div></div>{afterContent}{guides.length > 0 && <section className="seo-related-guides" aria-label="İlgili rehberler"><h2>Hesabını daha iyi anla</h2>{guides.map(([href, label]) => <a className="seo-related-guide" href={href} key={href}><BookOpen/><span><b>Adım adım rehber</b><strong>{label}</strong></span><ArrowRight/></a>)}</section>}{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}{showCta && <Cta/>}</section></main></Layout>;
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
@@ -345,9 +347,17 @@ function MevduatFaizi() {
   const [vadeGunu, setVadeGunu] = useState("32");
   const [stopaj, setStopaj] = useState("15");
   const sonuc = useMemo(() => mevduatFaiziHesapla({ anaPara, yillikFaiz, vadeGunu, stopaj }), [anaPara, yillikFaiz, vadeGunu, stopaj]);
+  useEffect(() => {
+    if (sonuc.hesaplandi) funnelEtkinligiKaydet("deposit_result_view");
+  }, [sonuc.hesaplandi]);
   const schema = useMemo(() => toolSchema("Mevduat Faizi Hesaplama", "/araclar/mevduat-faizi-hesaplama"), []);
   const explanation = <section className="seo-explainer"><h2>Mevduat faizi nasıl hesaplanır?</h2><p>Brüt faiz; ana para, bankanın verdiği yıllık faiz oranı ve vade günü kullanılarak hesaplanır. Net getiri için brüt faizden stopaj tutarı çıkarılır.</p><div className="seo-formula"><b>Brüt faiz</b><span>Ana para × yıllık faiz × vade günü ÷ 365</span></div><p>Vade sonu toplam, ana paran ile stopaj sonrası net faiz kazancının toplamıdır. Banka kampanyaları ve oranlar değişebildiği için hesaplayıcıya her zaman kendi teklifindeki rakamları gir.</p></section>;
-  return <ToolLayout title="Mevduat faizi hesaplama" metaTitle="Mevduat Faizi Hesaplama 2026 | Net Getiri" lead="Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini, net getirisini ve vade sonu toplamını hesapla." path="/araclar/mevduat-faizi-hesaplama" schema={schema} showSources={false} afterContent={explanation} faq={[["Hangi faiz oranını girmeliyim?","Bankanın mevduat teklifi veya sözleşmesinde yazan yıllık brüt faiz oranını gir."],["32 günlük mevduat nasıl hesaplanır?","Vade süresini 32 gün seç; araç yıllık brüt oranı 32 güne oranlayıp stopaj sonrası net getiriyi gösterir."],["Stopaj oranını nereden bulurum?","Oran vade ve mevduat türüne göre değişebileceği için bankanın ürün detayında bildirilen güncel oranı kullan."]]}><div className="seo-panel"><h2>Mevduat bilgilerini gir</h2><NumberField label="Yatıracağın ana para" value={anaPara} onChange={setAnaPara}/><NumberField label="Yıllık brüt faiz oranı" value={yillikFaiz} onChange={setYillikFaiz} suffix="%" step="0.01" hint="Bankanın sana sunduğu yıllık oranı gir."/><NumberField label="Vade süresi" value={vadeGunu} onChange={setVadeGunu} suffix="Gün" step="1"/><div className="seo-term-shortcuts" aria-label="Sık kullanılan vadeler">{[7,32,46,92].map((gun) => <button type="button" className={Number(vadeGunu) === gun ? "active" : ""} onClick={() => setVadeGunu(String(gun))} key={gun}>{gun} gün</button>)}</div><NumberField label="Stopaj oranı" value={stopaj} onChange={setStopaj} suffix="%" step="0.01" hint="Bankanın bu mevduat için bildirdiği güncel oranı gir."/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ NET GETİRİ</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.netFaiz}/></div><Summary items={[["Brüt faiz", <Money value={sonuc.brutFaiz}/>],["Stopaj", <Money value={sonuc.stopajTutari}/>],["Vade sonu toplam", <Money value={sonuc.vadeSonuTutar}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Hesaplama 365 gün üzerinden yaklaşık sonuç üretir. Kesin getiri ve stopaj için bankanın teklifini esas al."/></div></ToolLayout>;
+  return <ToolLayout title="Mevduat faizi hesaplama" metaTitle="Mevduat Faizi Hesaplama 2026 | Net Getiri" lead="Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini, net getirisini ve vade sonu toplamını hesapla." path="/araclar/mevduat-faizi-hesaplama" schema={schema} showSources={false} showAd={false} showCta={false} afterContent={explanation} faq={[["Hangi faiz oranını girmeliyim?","Bankanın mevduat teklifi veya sözleşmesinde yazan yıllık brüt faiz oranını gir."],["32 günlük mevduat nasıl hesaplanır?","Vade süresini 32 gün seç; araç yıllık brüt oranı 32 güne oranlayıp stopaj sonrası net getiriyi gösterir."],["Stopaj oranını nereden bulurum?","Oran vade ve mevduat türüne göre değişebileceği için bankanın ürün detayında bildirilen güncel oranı kullan."]]}><div className="seo-panel"><h2>Mevduat bilgilerini gir</h2><NumberField label="Yatıracağın ana para" value={anaPara} onChange={setAnaPara}/><NumberField label="Yıllık brüt faiz oranı" value={yillikFaiz} onChange={setYillikFaiz} suffix="%" step="0.01" hint="Bankanın sana sunduğu yıllık oranı gir."/><NumberField label="Vade süresi" value={vadeGunu} onChange={setVadeGunu} suffix="Gün" step="1"/><div className="seo-term-shortcuts" aria-label="Sık kullanılan vadeler">{[7,32,46,92].map((gun) => <button type="button" className={Number(vadeGunu) === gun ? "active" : ""} onClick={() => setVadeGunu(String(gun))} key={gun}>{gun} gün</button>)}</div><NumberField label="Stopaj oranı" value={stopaj} onChange={setStopaj} suffix="%" step="0.01" hint="Bankanın bu mevduat için bildirdiği güncel oranı gir."/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ NET GETİRİ</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.netFaiz}/></div><Summary items={[["Brüt faiz", <Money value={sonuc.brutFaiz}/>],["Stopaj", <Money value={sonuc.stopajTutari}/>],["Vade sonu toplam", <Money value={sonuc.vadeSonuTutar}/>]]}/></> : <Warning reason="eksik"/>}<Disclaimer text="Hesaplama 365 gün üzerinden yaklaşık sonuç üretir. Kesin getiri ve stopaj için bankanın teklifini esas al."/></div><MevduatUrunKoprusu vadeSonuTutar={sonuc.vadeSonuTutar}/></ToolLayout>;
+}
+
+function MevduatUrunKoprusu({ vadeSonuTutar }) {
+  const tikla = () => funnelEtkinligiKaydet("deposit_product_click");
+  return <section className="seo-product-bridge" aria-labelledby="mevduat-sonraki-adim"><span className="seo-product-bridge-kicker">HESAP BİTTİ. PEKİ TABLON?</span><h2 id="mevduat-sonraki-adim">Bu getiri, finansal tablonun yalnızca bir parçası.</h2><p>Mevduatını borçların, aylık gelir-gider dengen ve diğer varlıklarınla yan yana gör. Borcama sana tek bir oran değil, bu ay ne yapabileceğini gösterir.</p><div className="seo-product-snapshot"><div><span>Bu hesapta vade sonu</span><strong><Money value={vadeSonuTutar}/></strong></div><div><span>Borcama'da ekleyeceklerin</span><strong>Borç + gelir + gider + varlık</strong></div></div><ul><li><BarChart3 size={17}/> Borç ve varlıklarını aynı yerde takip et</li><li><WalletCards size={17}/> Bu ayki zorunlu ödemelerini kaçırma</li><li><CircleDollarSign size={17}/> Gelir ve harcamandan sonra kalan alanı gör</li></ul><div className="seo-product-actions"><a className="seo-btn" href="/register?plan=free&redirect=%2Fassets" onClick={tikla}>Ücretsiz finansal tablonu oluştur <ArrowRight size={15}/></a><a href="/?from=mevduat" onClick={tikla}>Borcama nasıl çalışır?</a></div><small>Kart bilgisi gerekmez. Ücretsiz paket hep açık. Bu hesapta girdiğin tutarlar kaydedilmez.</small></section>;
 }
 
 function KrediOdemePlani() {

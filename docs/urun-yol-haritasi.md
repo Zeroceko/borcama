@@ -36,6 +36,7 @@ Yönetim Kurulu Başkanı “roadmap'e bakalım” dediğinde yalnızca aktif i�
 ### P2 — Kontrollü büyüme
 
 - Tek deneyli Landing A/B altyapısı
+- Organik hesaplama aracı ziyaretçisini sonuçtan kalıcı Ücretsiz ürüne taşıyan ve ilk varlık/borç kaydına kadar ölçen dönüşüm köprüsü
 - Google Ads, SEO, e-posta ve Instagram mesajlarının canlı ürün sürümüyle eşleştirilmesi
 - Referans sisteminin uygun kullanıcılar için görünür ve kötüye kullanıma dayanıklı tutulması
 

@@ -35,6 +35,7 @@ const guideByTool = {
   "brut-net-maas-hesaplama": [["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş rehberi"]],
   "kidem-tazminati-hesaplama": [["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı rehberi"]],
   "mevduat-faizi-hesaplama": [
+    ["/?from=mevduat", "Borcama'da borç, gelir, gider ve varlıklarını birlikte gör"],
     ["/rehber/mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat faizi net getiri rehberi"],
     ["/rehber/32-gunluk-mevduat-faizi-nasil-hesaplanir", "32 günlük mevduat faizi rehberi"],
     ["/rehber/100-bin-tl-mevduat-getirisi-nasil-hesaplanir", "100 bin TL mevduat getirisi rehberi"],
@@ -48,6 +49,7 @@ const staticSections = {
   "/araclar/mevduat-faizi-hesaplama": [
     ["Mevduat faizi nasıl hesaplanır?", "Brüt faiz; ana para, bankanın verdiği yıllık faiz oranı ve vade günü kullanılarak hesaplanır. Net getiri için brüt faizden stopaj tutarı çıkarılır."],
     ["32 günlük mevduat getirisi", "Vade süresini 32 gün seçerek bankanın teklifindeki yıllık brüt oran ve stopajla tahmini net kazancı görebilirsin."],
+    ["Tek hesaplamadan bütün finansal tabloya", "Mevduat getirini borçların, gelirlerin, harcamaların ve diğer varlıklarınla aynı yerde takip ederek bu ayki durumunu daha kolay görebilirsin. Borcama'nın Ücretsiz paketi kalıcıdır ve kart bilgisi istemez."],
   ],
 };
 const pages = [

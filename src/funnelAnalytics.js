@@ -6,7 +6,13 @@ export { edinimKaynaginiOlustur } from "./acquisition.js";
 const OTURUM_ANAHTARI = "borcama:funnel-session";
 const KAYNAK_ANAHTARI = "borcama:funnel-source";
 const OTURUM_TOKEN_ANAHTARI = "borcama:funnel-session-token";
-const IZINLI_ETKINLIKLER = new Set(["landing_visit", "register_view"]);
+const IZINLI_ETKINLIKLER = new Set([
+  "landing_visit",
+  "register_view",
+  "deposit_result_view",
+  "deposit_product_click",
+]);
+let kayitSirasi = Promise.resolve(false);
 
 function oturumKimligi() {
   if (typeof window === "undefined") return "";
@@ -40,29 +46,33 @@ export function funnelKaynakBilgisi() {
   return kaynakBilgisi();
 }
 
-export async function funnelEtkinligiKaydet(eventName, experiment = null) {
+export function funnelEtkinligiKaydet(eventName, experiment = null) {
   if (!supabaseHazir || !IZINLI_ETKINLIKLER.has(eventName)) return false;
-  const sessionId = oturumKimligi();
-  if (!sessionId) return false;
-  const kaynak = kaynakBilgisi();
-  const deney = experiment || aktifLandingDeneyiOku();
-  try {
-    const { data, error } = await supabase.functions.invoke("analytics-event", {
-      body: {
-        event_name: eventName,
-        session_id: sessionId,
-        session_token: sessionStorage.getItem(OTURUM_TOKEN_ANAHTARI) || "",
-        path: window.location.pathname,
-        ...kaynak,
-        experiment_id: deney.experiment_id || "",
-        experiment_variant: deney.experiment_variant || "",
-      },
-    });
-    if (error) return false;
-    if (data?.session_token)
-      sessionStorage.setItem(OTURUM_TOKEN_ANAHTARI, String(data.session_token));
-    return true;
-  } catch {
-    return false;
-  }
+  const kaydet = async () => {
+    const sessionId = oturumKimligi();
+    if (!sessionId) return false;
+    const kaynak = kaynakBilgisi();
+    const deney = experiment || aktifLandingDeneyiOku();
+    try {
+      const { data, error } = await supabase.functions.invoke("analytics-event", {
+        body: {
+          event_name: eventName,
+          session_id: sessionId,
+          session_token: sessionStorage.getItem(OTURUM_TOKEN_ANAHTARI) || "",
+          path: window.location.pathname,
+          ...kaynak,
+          experiment_id: deney.experiment_id || "",
+          experiment_variant: deney.experiment_variant || "",
+        },
+      });
+      if (error) return false;
+      if (data?.session_token)
+        sessionStorage.setItem(OTURUM_TOKEN_ANAHTARI, String(data.session_token));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  kayitSirasi = kayitSirasi.catch(() => false).then(kaydet);
+  return kayitSirasi;
 }

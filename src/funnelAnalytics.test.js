@@ -37,4 +37,10 @@ describe("edinim kaynağı", () => {
     assert.equal(edinimKaynaginiOlustur({ search: "?plan=enterprise" }).plan, "");
     assert.equal(edinimKaynaginiOlustur({ search: "?plan=PRO" }).plan, "pro");
   });
+
+  it("Google arama yönlendirmesini organik kanal olarak normalize eder", () => {
+    const sonuc = edinimKaynaginiOlustur({ referrer: "www.google.com" });
+    assert.equal(sonuc.source, "google");
+    assert.equal(sonuc.medium, "organic");
+  });
 });
