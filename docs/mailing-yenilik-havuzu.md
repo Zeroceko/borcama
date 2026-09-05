@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Asistan sorudan önce finansal tablonun tamamını incelesin — v1.47.0
+
+- Siz istediniz: Borcama Asistanı'nın tek bir borca bakmak yerine finansal durumun tamamını anlayarak yanıt vermesi.
+- Biz yaptık: Kartlar, krediler, KMH, yapılandırmalar, ödemeler, sabit gelir/gider, son altı aylık harcama eğilimi ve varlıklar ham belge aktarılmadan tek analiz profilinde birleştiriliyor.
+- Faydası: Soruna verilen cevap aylık ödeme gücün, borç maliyetlerin ve veri eksiklerinle çelişmeden hazırlanıyor.
+- Aksiyon: `https://borcama.com/summary`
+
 ### Finansal tablon hakkında Borcama'ya sor — v1.46.0
 
 - Siz istediniz: Bütçe, yeni kredi, yapılandırma ve borç kapatma gibi konularda kendi finansal durumuna göre anlaşılır yanıt almak.

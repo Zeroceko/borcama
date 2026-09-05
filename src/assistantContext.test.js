@@ -9,7 +9,8 @@ test("asistan bağlamı yalnız normalize edilmiş finansal özet üretir", () =
     kalemler: [{ tur: "kart", bakiye: 12000 }, { tur: "kredi", bakiye: 50000 }],
     veri: {
       cards: [{ banka: "Banka", ad: "Kart", toplamEkstreBorcu: 12000, kartNo: "SECRET" }],
-      loans: [], overdrafts: [], incomes: [{ tutar: 70000 }],
+      loans: [{ faiz: 3.49, kalanBorc: 50000 }], overdrafts: [], incomes: [{ tutar: 70000, tekrar: "Her ay" }],
+      assets: [{ kategori: "nakit", guncelDeger: 10000 }],
       expenses: [
         { tarih: "2026-09-01", kategori: "Market", tutar: 3000, aciklama: "Özel işyeri" },
         { tarih: "2026-09-02", kategori: "Market", tutar: 2000 },
@@ -20,5 +21,10 @@ test("asistan bağlamı yalnız normalize edilmiş finansal özet üretir", () =
   assert.deepEqual(sonuc.giderKategorileri, [{ kategori: "Market", tutar: 5000 }]);
   assert.equal(JSON.stringify(sonuc).includes("SECRET"), false);
   assert.equal(JSON.stringify(sonuc).includes("Özel işyeri"), false);
+  assert.equal(sonuc.ozet.toplamVarlik, 10000);
+  assert.equal(sonuc.ozet.netFinansalDurum, -52000);
+  assert.equal(sonuc.ozet.borcOdemeYukuYuzde, 27.1);
+  assert.equal(sonuc.finansalProfil.pahaliBorcVar, true);
+  assert.equal(sonuc.donemTrendi.length, 6);
   assert.ok(ASISTAN_KONU_AILELERI.length >= 20);
 });

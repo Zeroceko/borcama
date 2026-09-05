@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.0] - 2026-09-06
+
+### Değiştirildi
+
+- Borcama Asistanı her sorudan önce kart, kredi, KMH, yapılandırma, ödeme, gelir, sabit gider, harcama eğilimi ve varlıkları ham finansal belge aktarmadan tek bir normalize finansal profilde birlikte analiz ediyor.
+
 ## [1.46.1] - 2026-09-06
 
 ### Düzeltildi

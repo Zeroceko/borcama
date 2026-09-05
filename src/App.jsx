@@ -4173,7 +4173,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
     }
   };
   const gosterilenYanit = secim === "model" ? {
-    baslik: modelYaniti?.title || (modelDurumu.yukleniyor ? "Kayıtlarını değerlendiriyorum" : "Yanıt oluşturulamadı"),
+    baslik: modelYaniti?.title || (modelDurumu.yukleniyor ? "Tüm finansal tablonu analiz ediyorum" : "Yanıt oluşturulamadı"),
     metin: modelYaniti?.answer || modelDurumu.hata || "Sorunu finansal kayıtlarınla karşılaştırıyorum.",
     aksiyon: modelYaniti?.actionLabel || "İlgili ekranı aç",
   } : secim === "bilinmiyor" ? {
