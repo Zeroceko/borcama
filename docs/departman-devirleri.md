@@ -2,6 +2,13 @@
 
 Sentry production issue takibi tarayıcıdan bağımsızdır: salt okunur Internal Integration token'ı macOS Keychain'de `borcama-sentry-token` adıyla saklanır; `scripts/check-sentry-issues.mjs --commit` son 24 saatteki çözülmemiş production issue değişikliklerini kişisel veri yazmadan kontrol eder. Token depoya, çıktıya veya departman notlarına yazılmaz.
 
+### 2026-09-05 · Ücretli edinim · Dönüşüm hedefi önceliği
+
+- Google Ads canlı hesabında `Borcama - Hesap Kaydı` hedefinin Kaydolma kategorisinde birincil ve bir kez sayılan dönüşüm olduğu doğrulandı; kampanyanın ilk optimizasyon hedefi olarak korundu.
+- `Borcama - Pro Abonelik` hedefi teklif optimizasyonundan çıkarılıp ikincil gözlem hedefine alındı; satış sonucu `Tüm dönüşümler` içinde izlenmeye devam edecek fakat kampanya teklifini yönlendirmeyecek.
+- Panelde son 7 gün için 184 gösterim, 7 tıklama, ₺240,74 maliyet ve 0 dönüşüm görüldü. Hesap Kaydı etiketi hiç veri almadığı için hatalı yapılandırılmış uyarısı sürüyor; canlı kod olayı yalnız ölçüm izni vermiş ve e-postasını doğrulamış yeni hesapta tekilleştirilmiş olarak gönderiyor.
+- Reklam bütçesi, hedefleme ve kampanya durumu değiştirilmedi; sonraki doğrulama ilk gerçek izinli/doğrulanmış reklam kaydının Ads tanılamasına ulaşmasıdır.
+
 ## Yönetim modeli
 
 Yönetim Kurulu Başkanı son stratejik kararı verir. CEO ve ana teknik ürün koordinatörü ekip çıktılarını birleştirir, teknik kaliteyi denetler ve gerekli onayları Başkan'dan alır. Sonuç ekipleri CEO toplantısından görev beklemez; `docs/sirket-isletim-sistemi.md` içindeki hedef ve yetki matrisine göre kendi haftalık işini seçer, uygular ve raporlar.
