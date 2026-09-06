@@ -9,6 +9,7 @@ import {
   asistanSurumKapisiniDegerlendir,
   deterministikYanitiKontrolEt,
 } from "../evals/financial-assistant/rubric.js";
+import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
 
 const kok = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -100,4 +101,11 @@ test("kritik finansal doğruluk zayıfsa yüksek genel puan sürümü geçiremez
   const sonuc = asistanSurumKapisiniDegerlendir(sonuclar);
   assert.equal(sonuc.gecti, false);
   assert.deepEqual(sonuc.basarisizVakalar, [sonuclar[0].vakaId]);
+});
+
+test("model satır atlamasa da yanıt okunabilir maddelere ayrılır", () => {
+  const sonuc = asistanYanitiniSunumaDonustur("Kısa cevap: Önce pahalı borcu azalt. • 10.000 TL'yi KMH borcuna yatır. • Yeni harcama yapma. Senden gereken: Ödeme planını aç.");
+  assert.equal(sonuc.kisaCevap, "Önce pahalı borcu azalt.");
+  assert.deepEqual(sonuc.maddeler, ["10.000 TL'yi KMH borcuna yatır.", "Yeni harcama yapma."]);
+  assert.equal(sonuc.sonrakiAdim, "Ödeme planını aç.");
 });

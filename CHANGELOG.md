@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.3] - 2026-09-06
+
+### Değiştirildi
+
+- Borcama Asistanı yanıtları kısa cevap, ayrı eylem maddeleri ve vurgulanan kritik tutarlarla daha kolay taranabilir bir görünüme kavuştu.
+
 ## [1.47.2] - 2026-09-06
 
 ### Düzeltildi
