@@ -58,3 +58,11 @@ Google Ads otomatik etiketleme açık tutulur. Manuel UTM gereken reklamlarda ş
 - Ads otomatik etiketleme açıktır; en az bir `google / cpc` oturumu GA4'e ulaşmıştır.
 - GA4 gelişmiş ölçümde URL sorgu parametresi redaksiyonu ayrıca etkinleştirilmeli; özel Borcama `page_view` temizliği otomatik olayların tamamını kapsadığı varsayılmamalıdır.
 - Bağlantı kurulduğunda doğrudan Ads dönüşümü ile GA4 içe aktarması aynı hedef için birlikte birincil yapılmamalı; her sonuçta tek kanonik birincil dönüşüm seçilmelidir.
+
+## 6 Eylül 2026 canlı kampanya ayarı
+
+- `Campaign #1` günlük bütçesi Yönetim Kurulu tarafından onaylanan azami `₺120` seviyesine indirildi.
+- Kampanya optimizasyonu hesap varsayılanı olan birincil `Kaydolma işlemleri` hedefine ve `Dönüşüm sayısını en üst düzeye çıkarma` teklif stratejisine bağlıdır.
+- Nihai URL genişletmesi kapatıldı; reklam trafiği hesaplayıcı ve rehber sayfalarına otomatik dağıtılmak yerine öğe grubunun tanımlı landing sayfasına gider.
+- `Borcama - Hesap Kaydı` etkinlik etiketi canlı koddaki `AW-18403194146/sVgPCI2w0eUcEKLqqcdE` ile birebir eşleşir; Google Ads tanılama durumu ilk yeni doğrulanmış kayıt sinyalinden sonra yeniden kontrol edilecektir.
+- Mali Hizmetler Doğrulaması kısıtı tek yatay görseli reddediyor; metin öğeleri uygun ve kampanya sınırlı da olsa gösterim almaya devam ediyor.
