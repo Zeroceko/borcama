@@ -10,6 +10,7 @@ Bu kayıt yalnız `borcama-web` production (borcama.com, www.borcama.com ve crm.
 | 2026-09-05 · otomatik takip | 1 | 0 | 1 yeni kayıt | Salt-okunur token Keychain'den okunuyor; olay değişiklikleri kişisel veri yazılmadan checkpoint ile tekilleştiriliyor. |
 | 2026-09-05 13:15 TSİ · otomatik takip | 1 | 0 | 0 doğrulanmış kritik | Son 24 saatte üç çözülmemiş production issue var. Yeni `BORCAMA-WEB-5` bir hata olayıyla açıldı; `BORCAMA-WEB-2` iki yeni olayla arttı. Olay ayrıntıları gizlilik filtresi nedeniyle bu kayda alınmadı. |
 | 2026-09-06 12:06 TSİ · otomatik takip | 0 | 1 | 0 doğrulanmış kritik | Son 24 saat sorgusunda açık issue sayısı üçten ikiye düştü; kalanlar `BORCAMA-WEB-2` ve `BORCAMA-WEB-5`. İnce istemci önceki üçüncü kaydın kimliğini saklamadığından çözülen kaydın kimliği bu kayda eklenemedi. |
+| 2026-09-06 14:29 TSİ · otomatik takip | 0 | 2 | 0 | Son 24 saat production sorgusunda açık çözülmemiş issue kalmadı; önce açık olan `BORCAMA-WEB-2` ve `BORCAMA-WEB-5` artık görünmüyor. |
 
 ## Kontroller
 
@@ -39,3 +40,9 @@ Bu kayıt yalnız `borcama-web` production (borcama.com, www.borcama.com ve crm.
 - Kapsam: son 24 saat, `borcama-web`, yalnız production ve çözülmemiş issue'lar; setup-test ile `BORCAMA-WEB-1` hariç tutuldu.
 - Açık issue sayısı: 2. Önceki kontroldeki üç kayıttan biri artık sorguda çözülmemiş görünmüyor; kalan kimlikler `BORCAMA-WEB-2` ve `BORCAMA-WEB-5`.
 - İnce istemcinin checkpoint'i yalnız güncel açık kayıtları tuttuğu için çözülen üçüncü kaydın kimliği geçmişten geri getirilemedi. Kayıt/giriş/borç/ödeme veya veri bütünlüğü etkisini doğrulayan kanıt yok; açık kritik yok.
+
+### 2026-09-06 14:29 TSİ · Kısa production kontrolü
+
+- Kapsam: son 24 saat, `borcama-web`, yalnız production ve çözülmemiş issue'lar; setup-test ile `BORCAMA-WEB-1` hariç tutuldu.
+- Açık issue sayısı: 0. Önceki kontrolde açık olan `BORCAMA-WEB-2` ve `BORCAMA-WEB-5` artık sorguda çözülmemiş görünmüyor.
+- Yeni veya artan kayıt yok; açık kritik yok. Kullanıcı ve finansal veri okunmadı ya da değiştirilmedi.
