@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   googleDonusumuRaporlanabilirMi,
+  googleKayitDonusumuGonderilebilirMi,
   googleKayitDonusumuRaporlanabilirMi,
   googleOlcumUrliniTemizle,
 } from "./googleAds.js";
@@ -16,6 +17,12 @@ test("Google ölçüm URL'sinde yalnız kampanya parametreleri kalır", () => {
     sonuc,
     "https://www.borcama.com/auth?utm_source=google&utm_medium=cpc&gclid=abc123&plan=annual",
   );
+});
+
+test("doğrulanmış kayıt dönüşümü izin reddedilse de hazır etiketten çerezsiz gönderilebilir", () => {
+  assert.equal(googleKayitDonusumuGonderilebilirMi({ transactionId: "registration-1" }, true), true);
+  assert.equal(googleKayitDonusumuGonderilebilirMi({ transactionId: "registration-1" }, false), false);
+  assert.equal(googleKayitDonusumuGonderilebilirMi({}, true), false);
 });
 
 test("doğrulama ve oturum parametreleri kampanya bilgisi yoksa tamamen temizlenir", () => {

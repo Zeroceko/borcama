@@ -78,6 +78,10 @@ export function googleKayitDonusumuRaporlanabilirMi(user) {
   );
 }
 
+export function googleKayitDonusumuGonderilebilirMi(payload, tagHazir = etiketHazir) {
+  return Boolean(tagHazir && payload?.transactionId);
+}
+
 function depodanOku(anahtar) {
   try { return localStorage.getItem(anahtar); } catch { return null; }
 }
@@ -186,7 +190,10 @@ function adsDonusumuGonder({ sendTo, value, currency, transactionId, tamamlaninc
 }
 
 function kayitDonusumunuGonder(payload = jsonOku(BEKLEYEN_KAYIT_ANAHTARI)) {
-  if (!payload?.transactionId || !izinVerildiMi()) return Promise.resolve(false);
+  // Gelişmiş Consent Mode'da reddedilmiş izin, Google etiketini durdurmaz.
+  // Etiket consent durumuna göre çerezsiz dönüşüm sinyali yollar; kullanıcı/e-posta
+  // veya finansal veri bu çağrıya hiçbir zaman eklenmez.
+  if (!googleKayitDonusumuGonderilebilirMi(payload)) return Promise.resolve(false);
   const gonderildiAnahtari = `${GONDERILEN_KAYIT_ON_EKI}${payload.transactionId}`;
   if (depodanOku(gonderildiAnahtari) === "1") {
     depodanSil(BEKLEYEN_KAYIT_ANAHTARI);

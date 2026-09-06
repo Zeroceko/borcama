@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.5] - 2026-09-06
+
+### Düzeltildi
+
+- Google Ads kayıt dönüşümü, ölçüm izni reddedildiğinde kişisel veri veya çerez kullanmadan Consent Mode modelleme sinyali olarak gönderilecek biçimde düzeltildi.
+
 ## [1.47.4] - 2026-09-06
 
 ### Değiştirildi

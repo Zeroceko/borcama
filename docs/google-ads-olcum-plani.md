@@ -17,7 +17,7 @@ Bu belge Borcama'nın reklam hunisindeki olayların ne zaman, nereye ve hangi ve
 
 ## Veri ve izin kuralları
 
-- Google etiketi yalnız kullanıcı ölçüm izni verdiğinde yüklenir; `ad_user_data` ve `ad_personalization` daima reddedilir.
+- Google etiketi gelişmiş Consent Mode ile her sayfada yüklenir; ölçüm izni verilmediğinde doğrulanmış kayıt dönüşümü yalnız çerezsiz modelleme sinyali olarak gönderilir. `ad_user_data` ve `ad_personalization` daima reddedilir; e-posta, kullanıcı kimliği ve finansal veri gönderilmez.
 - Enhanced Conversions kullanılmaz; e-posta veya başka bir kullanıcı verisi hash'lenmiş olsa dahi Google'a gönderilmez.
 - Google Signals ve reklam kişiselleştirme sinyalleri kapalıdır; Ads veri redaksiyonu açıktır.
 - İzinli URL parametreleri: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `gclid`, `gbraid`, `wbraid`, `plan`.
