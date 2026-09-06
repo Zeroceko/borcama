@@ -614,8 +614,8 @@ const CSS = `
 .bt-modalbaslik{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.bt-modalbaslik .bt-h2{margin:0}
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
-.bt-assistant-trigger{position:fixed;right:0;top:50%;z-index:40;display:inline-flex;align-items:center;gap:8px;padding:14px 17px 14px 14px;border:1px solid ${INK};border-right:0;border-radius:18px 0 0 18px;background:${INK};color:${CREAM};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:0 10px 26px #14160f2e;cursor:pointer;transform:translateY(-50%);transition:padding .18s ease,box-shadow .18s ease}.bt-assistant-trigger svg{color:${LIME}}.bt-assistant-trigger:hover{padding-right:21px;box-shadow:0 12px 30px #14160f3a}.bt-assistant-trigger:focus-visible{outline:3px solid ${LIME};outline-offset:3px}
-.bt-assistant-modal{max-width:560px;max-height:calc(100dvh - 40px);overflow-y:auto}.bt-assistant-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center}.bt-assistant-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-head h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:20px}.bt-assistant-head p{margin:3px 0 0;color:var(--dim);font-size:11.5px}.bt-assistant-close{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-assistant-prompts{display:flex;gap:7px;flex-wrap:wrap;margin:19px 0 12px}.bt-assistant-prompts button{padding:8px 10px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2);color:var(--text);font:750 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-assistant-prompts button.aktif{background:${LIME};color:${INK};border-color:${INK}}.bt-assistant-answer{padding:17px;border:1px solid var(--line-soft);border-radius:15px;background:color-mix(in srgb,${LIME} 11%,var(--panel));font-size:13px;line-height:1.58}.bt-assistant-answer>strong{display:block;margin-bottom:10px;font-size:15px}.bt-assistant-answer p{margin:0;color:var(--dim);white-space:pre-line}.bt-assistant-summary{padding:12px 13px;border-left:4px solid ${LIME};border-radius:0 11px 11px 0;background:var(--panel);color:var(--text)!important;font-weight:720;line-height:1.5}.bt-assistant-list{display:grid;gap:8px;margin:11px 0 0;padding:0;list-style:none}.bt-assistant-list li{position:relative;padding:10px 12px 10px 36px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel);color:var(--dim);line-height:1.48}.bt-assistant-list li::before{content:'✓';position:absolute;left:12px;top:10px;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:${LIME};color:${INK};font-size:10px;font-weight:900}.bt-assistant-emphasis{color:var(--text);font-weight:850}.bt-assistant-next{margin-top:10px;padding:10px 12px;border-radius:11px;background:${INK};color:${CREAM};line-height:1.45}.bt-assistant-next b{color:${LIME}}.bt-assistant-answer small{display:block;margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:10px;line-height:1.45}.bt-assistant-action{margin-top:13px}.bt-assistant-action .bt-btn{justify-content:center}
+.bt-nav-ana .bt-assistant-nav{background:${INK};color:${CREAM};border-color:${INK}}.bt-nav-ana .bt-assistant-nav svg{color:${LIME}}.bt-nav-ana .bt-assistant-nav:hover{transform:translateY(-1px);box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-beta{display:inline-flex;align-items:center;margin-left:5px;padding:2px 5px;border:1px solid currentColor;border-radius:999px;color:${LIME};font:850 8px 'Space Grotesk',sans-serif;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
+.bt-assistant-modal{max-width:560px;max-height:calc(100dvh - 40px);overflow-y:auto}.bt-assistant-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center}.bt-assistant-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-head h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:20px}.bt-assistant-head p{margin:3px 0 0;color:var(--dim);font-size:11.5px}.bt-assistant-head .bt-assistant-beta{color:var(--dim);font-family:'Space Grotesk',sans-serif}.bt-assistant-close{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-assistant-prompts{display:flex;gap:7px;flex-wrap:wrap;margin:19px 0 12px}.bt-assistant-prompts button{padding:8px 10px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2);color:var(--text);font:750 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-assistant-prompts button.aktif{background:${LIME};color:${INK};border-color:${INK}}.bt-assistant-answer{padding:17px;border:1px solid var(--line-soft);border-radius:15px;background:color-mix(in srgb,${LIME} 11%,var(--panel));font-size:13px;line-height:1.58}.bt-assistant-answer>strong{display:block;margin-bottom:10px;font-size:15px}.bt-assistant-answer p{margin:0;color:var(--dim);white-space:pre-line}.bt-assistant-summary{padding:12px 13px;border-left:4px solid ${LIME};border-radius:0 11px 11px 0;background:var(--panel);color:var(--text)!important;font-weight:720;line-height:1.5}.bt-assistant-list{display:grid;gap:8px;margin:11px 0 0;padding:0;list-style:none}.bt-assistant-list li{position:relative;padding:10px 12px 10px 36px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel);color:var(--dim);line-height:1.48}.bt-assistant-list li::before{content:'✓';position:absolute;left:12px;top:10px;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:${LIME};color:${INK};font-size:10px;font-weight:900}.bt-assistant-emphasis{color:var(--text);font-weight:850}.bt-assistant-next{margin-top:10px;padding:10px 12px;border-radius:11px;background:${INK};color:${CREAM};line-height:1.45}.bt-assistant-next b{color:${LIME}}.bt-assistant-check{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding:9px 10px;border:1px solid color-mix(in srgb,${CORAL} 45%,var(--line-soft));border-radius:10px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--dim);font-size:10.5px;line-height:1.4}.bt-assistant-check svg{flex:0 0 auto;margin-top:1px;color:${CORAL}}.bt-assistant-answer small{display:block;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:10px;line-height:1.45}.bt-assistant-action{margin-top:13px}.bt-assistant-action .bt-btn{justify-content:center}
 .bt-assistant-custom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0}.bt-assistant-custom .bt-input{margin:0}.bt-assistant-custom .bt-btn{min-width:74px;justify-content:center}@media(max-width:520px){.bt-assistant-custom{grid-template-columns:1fr}.bt-assistant-custom .bt-btn{width:100%}}
 .bt-assistant-consent{margin:12px 0;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);font-size:11.5px;line-height:1.5;color:var(--dim)}.bt-assistant-consent strong{display:block;margin-bottom:5px;color:var(--text);font-size:13px}.bt-assistant-consent .bt-btn{margin-top:11px}.bt-assistant-quota{margin-top:8px;color:var(--faint);font-size:10.5px}.bt-assistant-loading{display:inline-flex;align-items:center;gap:7px}.bt-assistant-loading svg{animation:bt-spin .9s linear infinite}@keyframes bt-spin{to{transform:rotate(360deg)}}
 .bt-quick-add{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(70px,8vw,86px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${CORAL};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${LIME};cursor:pointer}
@@ -667,11 +667,12 @@ const CSS = `
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
-  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0;padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:1px solid var(--line-soft);box-shadow:0 -8px 24px #00000012;backdrop-filter:blur(12px)}
+  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:0;padding:8px max(6px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:1px solid var(--line-soft);box-shadow:0 -8px 24px #00000012;backdrop-filter:blur(12px)}
   .bt-nav-ana .bt-pill{display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:13px;padding:6px 2px;background:transparent;color:var(--dim);font-size:clamp(9px,2.7vw,10.5px);line-height:1.05;opacity:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .bt-nav-ana .bt-pill svg{width:19px;height:19px;flex:0 0 auto;stroke-width:2.2}
   .bt-nav-ana .bt-pill span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .bt-nav-ana .bt-pill.aktif{background:${LIME};color:${INK};box-shadow:inset 0 0 0 1.5px ${INK},2px 2px 0 ${CORAL}}
+  .bt-nav-ana .bt-assistant-nav{background:${INK};color:${CREAM};border-radius:13px}.bt-nav-ana .bt-assistant-nav span{font-size:9px}.bt-nav-ana .bt-assistant-nav:hover{transform:none;box-shadow:none}
   .bt-nav.bt-nav-alt{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 0 22px;padding:6px}.bt-nav-alt .bt-pill{width:auto;flex:0 0 auto;padding:7px 11px;font-size:11px}
   .bt-pill{width:100%;padding:9px 4px;font-size:11.5px;text-align:center}
   .bt-grid{grid-template-columns:1fr;gap:12px}
@@ -697,8 +698,6 @@ const CSS = `
   .bt-modal-arka{padding:10px;align-items:flex-start;overflow-y:auto}
   .bt-modal{padding:18px 16px;margin:12px 0;box-shadow:5px 5px 0 ${CORAL}}
   .bt-feedback-trigger{right:12px;bottom:76px;padding:10px 13px;font-size:11.5px}
-  .bt-assistant-trigger{left:50%;right:auto;top:auto;bottom:76px;min-height:44px;padding:10px 16px;border-right:1px solid ${INK};border-radius:999px;font-size:11.5px;transform:translateX(-50%);white-space:nowrap;box-shadow:0 8px 24px #14160f35}
-  .bt-assistant-trigger:hover{padding-right:16px}
   .bt-quick-add{right:12px;bottom:128px;width:46px;height:46px;padding:0;justify-content:center;border-radius:50%;box-shadow:3px 3px 0 ${LIME}}
   .bt-quick-add span{display:none}
   .bt-quick-menu{right:12px;bottom:184px;width:min(300px,calc(100vw - 24px));box-shadow:5px 5px 0 ${LIME}}
@@ -3202,6 +3201,15 @@ export default function BorcTakip() {
               <span>{ad}</span>
             </button>
           ))}
+          <button
+            className="bt-pill bt-assistant-nav"
+            type="button"
+            onClick={() => setAsistanPenceresi(true)}
+            aria-label="Borcama'ya sor"
+          >
+            <Sparkles aria-hidden="true" />
+            <span>Borcama'ya sor <em className="bt-assistant-beta">Beta</em></span>
+          </button>
         </nav>
 
         {anaSekme === "borclar" && (
@@ -3520,13 +3528,6 @@ export default function BorcTakip() {
         onClick={() => setGeriBildirimPenceresi(true)}
       >
         <MessageCircle size={16} /> Görüş bildir
-      </button>
-      <button
-        className="bt-assistant-trigger"
-        type="button"
-        onClick={() => setAsistanPenceresi(true)}
-      >
-        <Sparkles size={16} /> Borcama'ya sor
       </button>
       <BorcamaAsistani
         acik={asistanPenceresi}
@@ -4195,7 +4196,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       <section className="bt-modal bt-assistant-modal" role="dialog" aria-modal="true" aria-labelledby="bt-assistant-title">
         <div className="bt-assistant-head">
           <span className="bt-assistant-mark"><Sparkles size={20}/></span>
-          <div><h2 id="bt-assistant-title">Borcama Asistanı</h2><p>Kendi kayıtlarından kısa ve açıklanabilir yanıtlar.</p></div>
+          <div><h2 id="bt-assistant-title">Borcama Asistanı <em className="bt-assistant-beta">Beta</em></h2><p>Kendi kayıtlarından kısa ve açıklanabilir yanıtlar.</p></div>
           <button className="bt-assistant-close" type="button" aria-label="Asistanı kapat" onClick={kapat}><X size={17}/></button>
         </div>
         <div className="bt-assistant-prompts" role="group" aria-label="Hazır sorular">
@@ -4221,6 +4222,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
             {!!yanitSunumu.maddeler.length && <ul className="bt-assistant-list">{yanitSunumu.maddeler.map((madde, index) => <li key={index}>{vurgula(madde)}</li>)}</ul>}
             {yanitSunumu.sonrakiAdim && <div className="bt-assistant-next"><b>Senden gereken:</b> {vurgula(yanitSunumu.sonrakiAdim)}</div>}
           </> : <p>{gosterilenYanit.metin}</p>}
+          <div className="bt-assistant-check"><AlertTriangle size={14}/><span><b>Sonuçları kontrol edin.</b> Asistan hata yapabilir; özellikle faiz, vergi, tarih ve banka tekliflerini resmi belgenizle karşılaştırın.</span></div>
           <small>Borcama yalnızca kaydettiğin verileri açıklar; banka hesabına erişmez, kesin banka teklifi veya sonuç garantisi vermez ve onayın olmadan kayıt değiştirmez.</small>
           {modelDurumu.kota && <div className="bt-assistant-quota">Bugün {modelDurumu.kota.remaining} soru hakkın kaldı · {proAktif ? "Pro" : "Ücretsiz"}</div>}
         </div>

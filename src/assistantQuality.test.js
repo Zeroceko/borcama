@@ -109,3 +109,11 @@ test("model satır atlamasa da yanıt okunabilir maddelere ayrılır", () => {
   assert.deepEqual(sonuc.maddeler, ["10.000 TL'yi KMH borcuna yatır.", "Yeni harcama yapma."]);
   assert.equal(sonuc.sonrakiAdim, "Ödeme planını aç.");
 });
+
+test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", () => {
+  const kaynak = readFileSync(resolve(kok, "src/App.jsx"), "utf8");
+  assert.match(kaynak, /className="bt-pill bt-assistant-nav"/);
+  assert.doesNotMatch(kaynak, /className="bt-assistant-trigger"/);
+  assert.match(kaynak, /bt-assistant-beta">Beta/);
+  assert.match(kaynak, /Sonuçları kontrol edin/);
+});

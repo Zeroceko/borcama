@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.4] - 2026-09-06
+
+### Değiştirildi
+
+- “Borcama'ya sor” düğmesi sayfa içeriğini kapatan sabit konumdan kaldırılıp masaüstü ve mobil ana menüye taşındı; asistanın beta olduğu ve sonuçların kontrol edilmesi gerektiği daha görünür hale getirildi.
+
 ## [1.47.3] - 2026-09-06
 
 ### Değiştirildi
