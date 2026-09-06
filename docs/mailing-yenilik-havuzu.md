@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Ekstrendeki harcamaları kategori kategori gör — v1.49.0
+
+- Siz istediniz: Ekstre toplamını görmekle kalmayıp paranın hangi kalemlere harcandığını anlayabilmek.
+- Biz yaptık: Ekstre satırları cihazında okunup Market, Yeme-İçme, Ulaşım ve diğer kategorilere ayrılıyor; kaydetmeden önce her kalemi kontrol edip kategorisini değiştirebiliyorsun.
+- Faydası: Onayladığın kalemler Harcamalar'a tek tek ekleniyor ve aynı ekstre yeniden okutulduğunda mükerrerleşmiyor.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Asistan sorudan önce finansal tablonun tamamını incelesin — v1.47.0
 
 - Siz istediniz: Borcama Asistanı'nın tek bir borca bakmak yerine finansal durumun tamamını anlayarak yanıt vermesi.

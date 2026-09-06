@@ -68,14 +68,16 @@ async function pdfPages(file, progress) {
     standardFontDataUrl: `${PDF_ASSET_ROOT}/standard_fonts/`,
     wasmUrl: `${PDF_ASSET_ROOT}/wasm/`,
   }).promise;
-  const count = Math.min(pdfDocument.numPages, 2);
+  const renderCount = Math.min(pdfDocument.numPages, 2);
+  const textCount = Math.min(pdfDocument.numPages, 20);
   const pages = [];
   const pageTexts = [];
-  for (let pageNumber = 1; pageNumber <= count; pageNumber += 1) {
-    progress?.({ stage: "render", page: pageNumber, pages: count, progress: 0 });
+  for (let pageNumber = 1; pageNumber <= textCount; pageNumber += 1) {
+    progress?.({ stage: "render", page: pageNumber, pages: textCount, progress: 0 });
     const page = await pdfDocument.getPage(pageNumber);
     const textContent = await page.getTextContent();
     pageTexts.push(textContentToText(textContent));
+    if (pageNumber > renderCount) continue;
     const viewport = page.getViewport({ scale: 2.15 });
     const canvas = document.createElement("canvas");
     canvas.width = Math.ceil(viewport.width);
@@ -86,7 +88,11 @@ async function pdfPages(file, progress) {
     await page.render({ canvasContext: context, viewport }).promise;
     pages.push(await canvasBlob(canvas));
   }
-  return { pages, text: pageTexts.filter(Boolean).join("\n\n--- SAYFA ---\n\n") };
+  return {
+    pages,
+    pagesRead: textCount,
+    text: pageTexts.filter(Boolean).join("\n\n--- SAYFA ---\n\n"),
+  };
 }
 
 async function imagePages(file) {
@@ -108,7 +114,7 @@ export async function readStatementFile(file, progress) {
   // bulunduysa pahali ve cihaza gore degisebilen OCR adimini tamamen atla.
   if (embeddedText) {
     const embeddedResult = parseStatementText(embeddedText, {
-      pagesRead: pages.length,
+      pagesRead: prepared.pagesRead || pages.length,
       sourceType: "pdf",
     });
     if (hasStatementSummary(embeddedResult)) return embeddedResult;
@@ -147,7 +153,7 @@ export async function readStatementFile(file, progress) {
     // Metin katmani daha guvenilir oldugu icin once yer alir.
     const text = [embeddedText, ocrText].filter(Boolean).join("\n\n--- OCR ---\n\n");
     const parsed = parseStatementText(text, {
-      pagesRead: pages.length,
+      pagesRead: prepared.pagesRead || pages.length,
       sourceType: isPdf ? "pdf" : "image",
     });
     return parsed;

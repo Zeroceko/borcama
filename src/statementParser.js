@@ -1,3 +1,5 @@
+import { parseStatementTransactions } from "./statementTransactions.js";
+
 const BANK_PROFILES = [
   { bank: "Halkbank", brand: "Paraf", issuerTokens: ["halkbank"], brandTokens: ["paraf"] },
   { bank: "TEB", brand: "SHE", issuerTokens: ["turk ekonomi bankasi", "teb"], brandTokens: ["she kredi"] },
@@ -581,6 +583,11 @@ export function parseStatementText(text, options = {}) {
     periodPayments !== null ? 5 : 0,
   ];
 
+  const transactionResult = parseStatementTransactions(text, {
+    bank: profile.bank,
+    currentPurchases,
+  });
+
   return {
     bank: profile.bank,
     cardBrand: profile.brand,
@@ -609,6 +616,7 @@ export function parseStatementText(text, options = {}) {
     recoveredFields: [...recoveredFields],
     pagesRead: options.pagesRead || 1,
     sourceType: options.sourceType || "image",
+    ...transactionResult,
   };
 }
 

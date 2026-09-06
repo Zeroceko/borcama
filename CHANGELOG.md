@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.49.0] - 2026-09-06
+
+### Eklendi
+
+- Kredi kartı ekstresindeki harcamalar cihazda otomatik ayrıştırılıp kategorilere bölünebilir, ekstre toplamıyla karşılaştırılabilir ve kullanıcı onayından sonra mükerrer kayıt oluşturmadan Harcamalar'a aktarılabilir hale getirildi.
+
 ## [1.48.2] - 2026-09-06
 
 ### Düzeltildi

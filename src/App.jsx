@@ -516,6 +516,7 @@ const CSS = `
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
 .bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-privacy-first{display:grid;grid-template-columns:44px minmax(0,1fr);gap:13px;align-items:start;margin-bottom:14px;padding:15px 17px;border:1.5px solid color-mix(in srgb,${LIME} 78%,var(--line));border-radius:15px;background:color-mix(in srgb,${LIME} 16%,var(--panel))}.bt-privacy-first>span:first-child{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-privacy-first strong{display:block;color:var(--text);font-size:14px}.bt-privacy-first p{margin:5px 0 0;color:var(--dim);font-size:11.5px;line-height:1.5}.bt-privacy-first-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.bt-privacy-first-list span{padding:5px 8px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--text);font-size:9.5px;font-weight:800}.bt-upload-zone{display:grid;place-items:center;min-height:190px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-manual{display:flex;justify-content:center;margin-top:10px}.bt-upload-icon+strong{font-size:14px}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-auto-card-match{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:68px;padding:11px 13px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:13px;background:color-mix(in srgb,${LIME} 14%,var(--panel2))}.bt-auto-card-match>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-auto-card-match strong{display:block;color:var(--text);font-size:12px}.bt-auto-card-match small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-auto-card-match button{border:0;background:transparent;color:var(--text);font:750 10.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
+.bt-transaction-review>summary>span{display:grid;gap:2px}.bt-transaction-review>summary small{color:var(--dim);font-size:9.5px;font-weight:650}.bt-transaction-list{display:grid;gap:8px;padding:0 14px 14px}.bt-transaction-row{display:grid;grid-template-columns:auto minmax(150px,1fr) minmax(115px,150px) auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line-soft);border-radius:11px;background:var(--panel)}.bt-transaction-row.disarida{opacity:.48}.bt-transaction-row>input{width:17px;height:17px;accent-color:${LIME}}.bt-transaction-row>div{min-width:0}.bt-transaction-row>div strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px}.bt-transaction-row>div small{display:block;margin-top:2px;color:var(--dim);font-size:9px}.bt-transaction-row>.bt-input{min-height:34px;padding:7px 9px;font-size:10px}.bt-transaction-row>strong:last-child{font:850 11px 'Space Mono',monospace;white-space:nowrap}.bt-transaction-coverage{display:flex;gap:8px;flex-wrap:wrap;padding:9px 10px;border-radius:10px;background:color-mix(in srgb,${LIME} 14%,var(--panel2));font-size:9.5px}.bt-transaction-coverage.kontrol{background:color-mix(in srgb,${CORAL} 10%,var(--panel2))}.bt-transaction-note{margin:0;color:var(--dim);font-size:9.5px;line-height:1.45}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
 .bt-odeme-gecmisi summary::-webkit-details-marker{display:none}
@@ -708,7 +709,7 @@ const CSS = `
   .bt-alan{grid-template-rows:auto 44px}
   .bt-islem-satiri{align-items:flex-start;flex-direction:column}
   .bt-islem-satiri .bt-btn{width:100%;justify-content:center}
-  .bt-modal.bt-ekstre-yukle{width:100%;max-height:none;padding:18px 16px}.bt-extract-grid{grid-template-columns:1fr}.bt-extract-grid .genis,.bt-extract-grid .yarim,.bt-auto-card-match{grid-column:auto}.bt-auto-card-match{grid-template-columns:auto minmax(0,1fr)}.bt-auto-card-match button{grid-column:2;justify-self:start}.bt-extract-head{flex-direction:column}.bt-extract-details .bt-extract-grid{padding:0 12px 12px}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:0}
+  .bt-modal.bt-ekstre-yukle{width:100%;max-height:none;padding:18px 16px}.bt-extract-grid{grid-template-columns:1fr}.bt-extract-grid .genis,.bt-extract-grid .yarim,.bt-auto-card-match{grid-column:auto}.bt-auto-card-match{grid-template-columns:auto minmax(0,1fr)}.bt-auto-card-match button{grid-column:2;justify-self:start}.bt-extract-head{flex-direction:column}.bt-extract-details .bt-extract-grid{padding:0 12px 12px}.bt-transaction-row{grid-template-columns:auto minmax(0,1fr) auto}.bt-transaction-row>.bt-input{grid-column:2/-1}.bt-ekstre-yukle .bt-form-butonlar .bt-btn{width:100%}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:0}
   .bt-modal.bt-ekstre-arsiv{width:100%;max-height:none}.bt-ekstre-arsiv-satir{grid-template-columns:1fr}.bt-ekstre-arsiv-islemler{justify-content:stretch;align-items:stretch;flex-direction:column}.bt-ekstre-arsiv-islemler label{min-width:0}.bt-ekstre-arsiv-islemler .bt-btn{justify-content:center}
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -6533,6 +6534,15 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
     });
   }
 
+  function updateTransaction(key, patch) {
+    setResult((current) => ({
+      ...current,
+      transactions: (current.transactions || []).map((item) =>
+        item.key === key ? { ...item, ...patch } : item,
+      ),
+    }));
+  }
+
   async function handleFile(file) {
     setError("");
     setResult(null);
@@ -6610,7 +6620,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
               Ekstreni cihazında güvenle oku
             </div>
             <div style={{ color: "var(--dim)", fontSize: 12, lineHeight: 1.5 }}>
-              Borcama yalnızca onayladığın özet rakamları hesabına kaydeder.
+              Borcama yalnızca onayladığın özet rakamlarını ve harcama kalemlerini hesabına kaydeder.
             </div>
           </div>
           {result && (
@@ -6630,7 +6640,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
                 <strong>Dosyan Borcama'ya yüklenmez</strong>
                 <p>
                   PDF veya görsel bu tarayıcıda okunur. Belgenin kendisi, tam
-                  kart numarası ve harcama listesi sunucuda saklanmaz.
+                  kart numarası ve belgenin ham hali sunucuda saklanmaz.
                 </p>
                 <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
                   <span>Cihazında okunur</span>
@@ -6778,6 +6788,46 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
               </div>
             </details>
 
+            {!!result.transactions?.length && (
+              <details className="bt-extract-details bt-transaction-review" open>
+                <summary>
+                  <span>
+                    Harcama kalemlerini kontrol et
+                    <small>
+                      {result.transactions.filter((item) => item.selected).length} kalem · {para(
+                        result.transactions.filter((item) => item.selected)
+                          .reduce((sum, item) => sum + (+item.amount || 0), 0),
+                      )}
+                    </small>
+                  </span>
+                </summary>
+                <div className="bt-transaction-list">
+                  {result.transactions.map((item) => (
+                    <div className={`bt-transaction-row${item.selected ? "" : " disarida"}`} key={item.key}>
+                      <input type="checkbox" checked={item.selected}
+                        aria-label={`${item.description} kalemini dahil et`}
+                        onChange={(event) => updateTransaction(item.key, { selected: event.target.checked })} />
+                      <div><strong>{item.description}</strong><small>{tarihGoster(item.date)}</small></div>
+                      <select className="bt-input" value={item.category}
+                        aria-label={`${item.description} kategorisi`}
+                        onChange={(event) => updateTransaction(item.key, { category: event.target.value })}>
+                        {KATEGORILER.map((category) => <option key={category}>{category}</option>)}
+                      </select>
+                      <strong>{para(item.amount)}</strong>
+                    </div>
+                  ))}
+                  <div className={`bt-transaction-coverage${result.coverage !== null && Math.abs(result.coverage - 100) > 3 ? " kontrol" : ""}`}>
+                    <span>Bulunan: <strong>{para(result.detectedTotal)}</strong></span>
+                    {result.currentPurchases !== null && <span>Ekstre toplamı: <strong>{para(result.currentPurchases)}</strong></span>}
+                    {result.coverage !== null && <span>Eşleşme: <strong>%{result.coverage}</strong></span>}
+                  </div>
+                  {result.coverage !== null && Math.abs(result.coverage - 100) > 3 && (
+                    <p className="bt-transaction-note">Tüm satırlar güvenle eşleşmedi. Listeyi kontrol et; emin olmadığın kalemleri kapatabilirsin.</p>
+                  )}
+                </div>
+              </details>
+            )}
+
             {!!(result.warnings?.length || result.blockingErrors?.length) && (
               <div className="bt-extract-warnings" role={result.blockingErrors?.length ? "alert" : undefined}>
                 <AlertTriangle size={16} />
@@ -6790,7 +6840,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
 
             <div className="bt-privacy-note">
               <ShieldCheck size={15} />
-              <span>Belge bu cihazda okunur ve Borcama sunucusuna yüklenmez. Yalnızca onayladığın rakamlar kaydedilir.</span>
+              <span>Belge bu cihazda okunur ve Borcama sunucusuna yüklenmez. Yalnızca onayladığın özet ve harcama kalemleri kaydedilir.</span>
             </div>
 
             <div className="bt-form-butonlar">
@@ -7508,59 +7558,62 @@ function Borclar({
   }
 
   function belgedenEkstreKaydet(imported, cardId) {
-    const mevcut = veri.cards.find((kart) => kart.id === cardId);
-    if (!mevcut) {
-      const kart = {
-        id: uid(),
-        banka: imported.bank || "Diğer",
-        ad: imported.cardBrand || "Kredi kartı",
-        ekstreGecmisi: [],
+    const eskiKart = veri.cards.find((kart) => kart.id === cardId);
+    const temelKart = eskiKart || {
+      id: uid(), banka: imported.bank || "Diğer",
+      ad: imported.cardBrand || "Kredi kartı", ekstreGecmisi: [],
+    };
+    const ekstreVerisi = belgedenEkstreVerisi(imported, temelKart);
+    const mevcutDonem = temelKart.ekstreAyi || guncelEkstreAyi;
+    let kart;
+    if (!eskiKart || ekstreVerisi.ekstreAyi === mevcutDonem) {
+      kart = {
+        ...temelKart, ...ekstreVerisi,
+        ekstreGecmisi: (temelKart.ekstreGecmisi || []).filter((ekstre) => ekstre.ekstreAyi !== mevcutDonem),
       };
-      ekleGuncelle("cards", {
-        ...kart,
-        ...belgedenEkstreVerisi(imported, kart),
-      });
-      setEkstreYuklemePenceresi(false);
-      return;
-    }
-
-    const ekstreVerisi = belgedenEkstreVerisi(imported, mevcut);
-    const mevcutDonem = mevcut.ekstreAyi || guncelEkstreAyi;
-    if (ekstreVerisi.ekstreAyi === mevcutDonem) {
-      ekleGuncelle("cards", {
-        ...mevcut,
-        ...ekstreVerisi,
-        ekstreGecmisi: (mevcut.ekstreGecmisi || []).filter(
-          (ekstre) => ekstre.ekstreAyi !== mevcutDonem,
-        ),
-      });
-      setEkstreYuklemePenceresi(false);
-      return;
-    }
-    if (ekstreVerisi.ekstreAyi < mevcutDonem) {
-      ekleGuncelle("cards", {
-        ...mevcut,
+    } else if (ekstreVerisi.ekstreAyi < mevcutDonem) {
+      kart = {
+        ...temelKart,
         ekstreGecmisi: [
-          ...(mevcut.ekstreGecmisi || []).filter(
-            (ekstre) => ekstre.ekstreAyi !== ekstreVerisi.ekstreAyi,
-          ),
+          ...(temelKart.ekstreGecmisi || []).filter((ekstre) => ekstre.ekstreAyi !== ekstreVerisi.ekstreAyi),
           { ...ekstreVerisi, arsivlenmeTarihi: new Date().toISOString() },
         ],
-      });
-      setEkstreYuklemePenceresi(false);
-      return;
+      };
+    } else {
+      kart = {
+        ...temelKart, ...ekstreVerisi,
+        ekstreGecmisi: [
+          ...(temelKart.ekstreGecmisi || []).filter((ekstre) => ekstre.ekstreAyi !== mevcutDonem),
+          ekstreSnapshot(temelKart, mevcutDonem),
+        ],
+      };
     }
 
-    ekleGuncelle("cards", {
-      ...mevcut,
-      ...ekstreVerisi,
-      ekstreGecmisi: [
-        ...(mevcut.ekstreGecmisi || []).filter(
-          (ekstre) => ekstre.ekstreAyi !== mevcutDonem,
-        ),
-        ekstreSnapshot(mevcut, mevcutDonem),
-      ],
-    });
+    const kaynak = `${kart.banka} · ${kart.ad || "Kredi kartı"}`;
+    const mevcutAnahtarlar = new Set((veri.expenses || []).map((item) => item.ekstreAktarimAnahtari).filter(Boolean));
+    const aktarilanlar = (imported.transactions || [])
+      .filter((item) => item.selected)
+      .filter((item) => !mevcutAnahtarlar.has(`${kart.id}|${imported.statementPeriod}|${item.key}`))
+      .map((item) => ({
+        id: uid(), ad: item.description, aciklama: item.description,
+        kategori: item.category || "Diğer", tutar: +item.amount || 0,
+        tarih: item.date, tekrar: "Tek seferlik", taksitSayisi: 1,
+        kaynak, ekstreAyi: imported.statementPeriod,
+        ekstreAktarimAnahtari: `${kart.id}|${imported.statementPeriod}|${item.key}`,
+        ekstreAktarimi: true,
+      }));
+    const cards = eskiKart
+      ? veri.cards.map((item) => item.id === kart.id ? kart : item)
+      : [...veri.cards, kart];
+    const yeniVeri = { ...veri, cards, expenses: [...(veri.expenses || []), ...aktarilanlar] };
+    kaydet(islemEkle(yeniVeri, {
+      tur: eskiKart ? "guncelleme" : "ekleme",
+      baslik: kartGorunenAdi(kart),
+      detay: aktarilanlar.length
+        ? `Ekstre ve ${aktarilanlar.length} onaylı harcama kalemi kaydedildi`
+        : "Ekstre kaydedildi",
+      geriAl: null,
+    }));
     setEkstreYuklemePenceresi(false);
   }
 
