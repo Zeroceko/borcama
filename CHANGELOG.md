@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.7] - 2026-09-06
+
+### Değiştirildi
+
+- Pro kullanıcıların Borcama Asistanı günlük soru hakkı 10'dan 20'ye çıkarıldı.
+
 ## [1.47.6] - 2026-09-06
 
 ### Değiştirildi

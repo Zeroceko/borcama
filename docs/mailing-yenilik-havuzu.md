@@ -15,7 +15,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 - Siz istediniz: Bütçe, yeni kredi, yapılandırma ve borç kapatma gibi konularda kendi finansal durumuna göre anlaşılır yanıt almak.
 - Biz yaptık: Borcama Asistanı'na serbest soru-cevap ekledik; asistan kayıtlı gelir, gider, borç ve ödeme özetini açıklarken ham ekstreyi, kart numarasını ve işlem açıklamalarını modele göndermiyor.
-- Faydası: Ücretsiz planda günde 3, Pro'da 10 soruyla finansal tablonun ne söylediğini anlayabilir ve ilgili işleme doğrudan geçebilirsin.
+- Faydası: Ücretsiz planda günde 3, Pro'da 20 soruyla finansal tablonun ne söylediğini anlayabilir ve ilgili işleme doğrudan geçebilirsin.
 - Aksiyon: `https://borcama.com/summary`
 
 ### Borcama'nın vereceği cevaplar ilk bakışta daha net — v1.46.0
