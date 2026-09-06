@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.48.2] - 2026-09-06
+
+### Düzeltildi
+
+- Borcama Asistanı'nın koyu “Yapman gereken” kartındaki vurgulu metinlerin açık renkte ve okunabilir kalması sağlandı.
+
 ## [1.48.1] - 2026-09-06
 
 ### Değiştirildi

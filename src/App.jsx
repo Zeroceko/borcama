@@ -4186,9 +4186,9 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   const yanitSunumu = secim === "model" && modelYaniti?.answer
     ? asistanYanitiniSunumaDonustur(modelYaniti.answer)
     : null;
-  const vurgula = (metin) => String(metin || "").split(/((?:₺\s*)?\d[\d.]*(?:,\d+)?\s*(?:TL)?|%\s*\d+(?:[,.]\d+)?|\b(?:açık|risk|gecikmiş|önce)\b)/gi)
+  const vurgula = (metin, acikRenk = false) => String(metin || "").split(/((?:₺\s*)?\d[\d.]*(?:,\d+)?\s*(?:TL)?|%\s*\d+(?:[,.]\d+)?|\b(?:açık|risk|gecikmiş|önce)\b)/gi)
     .filter(Boolean).map((parca, index) => /^(?:₺|\d|%|açık$|risk$|gecikmiş$|önce$)/i.test(parca.trim())
-      ? <span className="bt-assistant-emphasis" key={index}>{parca}</span>
+      ? <span className="bt-assistant-emphasis" style={acikRenk ? { color: CREAM } : undefined} key={index}>{parca}</span>
       : parca);
 
   return (
@@ -4220,7 +4220,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           {yanitSunumu ? <>
             {yanitSunumu.kisaCevap && <p className="bt-assistant-summary">{vurgula(yanitSunumu.kisaCevap)}</p>}
             {!!yanitSunumu.maddeler.length && <ul className="bt-assistant-list">{yanitSunumu.maddeler.map((madde, index) => <li key={index}>{vurgula(madde)}</li>)}</ul>}
-            {yanitSunumu.sonrakiAdim && <div className="bt-assistant-next"><b>Yapman gereken:</b> {vurgula(yanitSunumu.sonrakiAdim)}</div>}
+            {yanitSunumu.sonrakiAdim && <div className="bt-assistant-next"><b>Yapman gereken:</b> {vurgula(yanitSunumu.sonrakiAdim, true)}</div>}
           </> : <p>{gosterilenYanit.metin}</p>}
           <div className="bt-assistant-check"><AlertTriangle size={14}/><span><b>Sonuçları kontrol edin.</b> Asistan hata yapabilir; özellikle faiz, vergi, tarih ve banka tekliflerini resmi belgenizle karşılaştırın.</span></div>
           <small>Borcama, sorularını kaydettiğin verileri yorumlayarak yanıtlar. Yatırım tavsiyesi vermez.</small>
