@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.48.1] - 2026-09-06
+
+### Değiştirildi
+
+- Borcama Asistanı'nın sonuç kontrolü uyarısı daha sakin bir görünüme getirildi ve veri kullanımı açıklaması daha anlaşılır biçimde sadeleştirildi.
+
 ## [1.48.0] - 2026-09-06
 
 ### Eklendi
