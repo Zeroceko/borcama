@@ -845,6 +845,16 @@ Deno.serve(async (req) => {
   const kullaniciKampanyalari = istenenKullaniciId
     ? await kullaniciKampanyaGecmisi(admin, istenenKullaniciId)
     : [];
+  let asistanKonusmalari: Array<Record<string, unknown>> = [];
+  if (istenenKullaniciId) {
+    const { data: konusmalar, error: konusmaHatasi } = await admin
+      .from("financial_assistant_conversations")
+      .select("id,question,answer_title,answer,route,action_label,needs_more_info,model,created_at")
+      .eq("user_id", istenenKullaniciId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (!konusmaHatasi) asistanKonusmalari = konusmalar || [];
+  }
   let aktiviteler: Array<Record<string, unknown>> = [];
   let aktiviteSorgusu = admin
     .from("activity_logs")
@@ -893,6 +903,7 @@ Deno.serve(async (req) => {
     summary: ozet,
     campaigns,
     user_campaigns: kullaniciKampanyalari,
+    assistant_conversations: asistanKonusmalari,
     analytics,
     financial: finansal,
     management: yonetim,

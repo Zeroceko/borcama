@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.48.0] - 2026-09-06
+
+### Eklendi
+
+- Kullanıcıların Borcama Asistanı'na sorduğu sorular ve aldıkları cevaplar, finansal analiz bağlamı kopyalanmadan yetkili CRM kullanıcı profilinde görüntülenebilir hale getirildi.
+
 ## [1.47.7] - 2026-09-06
 
 ### Değiştirildi

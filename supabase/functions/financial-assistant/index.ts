@@ -105,6 +105,17 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "INVALID_MODEL_RESPONSE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
   }
 
+  await admin.from("financial_assistant_conversations").insert({
+    user_id: authData.user.id,
+    question,
+    answer_title: String(answer.title || "Borcama yanıtı").slice(0, 100),
+    answer: String(answer.answer).slice(0, 1800),
+    route: answer.route,
+    action_label: String(answer.actionLabel || "İlgili ekranı aç").slice(0, 60),
+    needs_more_info: Boolean(answer.needsMoreInfo),
+    model,
+  });
+
   return new Response(JSON.stringify({
     title: String(answer.title || "Borcama yanıtı").slice(0, 100),
     answer: String(answer.answer).slice(0, 1800), route: answer.route,

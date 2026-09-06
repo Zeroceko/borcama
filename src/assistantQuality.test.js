@@ -122,3 +122,14 @@ test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", 
   assert.match(kaynak, /bt-assistant-beta">Beta/);
   assert.match(kaynak, /Sonuçları kontrol edin/);
 });
+
+test("başarılı asistan konuşması finansal bağlamı kopyalamadan CRM geçmişine yazılır", () => {
+  const asistan = readFileSync(resolve(kok, "supabase/functions/financial-assistant/index.ts"), "utf8");
+  const crm = readFileSync(resolve(kok, "supabase/functions/backoffice/index.ts"), "utf8");
+  const migration = readFileSync(resolve(kok, "supabase/migrations/20260906210000_financial_assistant_conversations.sql"), "utf8");
+  assert.match(asistan, /from\("financial_assistant_conversations"\)\.insert/);
+  assert.doesNotMatch(asistan, /financial_assistant_conversations[\s\S]{0,900}\bcontext\b/);
+  assert.match(crm, /assistant_conversations: asistanKonusmalari/);
+  assert.match(migration, /enable row level security/);
+  assert.match(migration, /revoke all .* from public, anon, authenticated/);
+});
