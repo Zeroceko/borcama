@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "release:check": "node scripts/check-release-notes.mjs",
+    "test:assistant": "node --test src/assistantContext.test.js src/assistantQuality.test.js",
     "test": "node --test src/*.test.js",
     "build": "vite build && node scripts/prerender-seo.mjs",
     "preview": "vite preview"
