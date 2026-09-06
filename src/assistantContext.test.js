@@ -22,9 +22,30 @@ test("asistan bağlamı yalnız normalize edilmiş finansal özet üretir", () =
   assert.equal(JSON.stringify(sonuc).includes("SECRET"), false);
   assert.equal(JSON.stringify(sonuc).includes("Özel işyeri"), false);
   assert.equal(sonuc.ozet.toplamVarlik, 10000);
+  assert.equal(sonuc.ozet.likitVarlik, 10000);
   assert.equal(sonuc.ozet.netFinansalDurum, -52000);
   assert.equal(sonuc.ozet.borcOdemeYukuYuzde, 27.1);
   assert.equal(sonuc.finansalProfil.pahaliBorcVar, true);
   assert.equal(sonuc.donemTrendi.length, 6);
   assert.ok(ASISTAN_KONU_AILELERI.length >= 20);
+});
+
+test("gayrimenkul ve araç hazır nakit gibi değerlendirilmez", () => {
+  const sonuc = asistanBaglamiOlustur({
+    tarih: new Date(2026, 8, 6), gelir: 50000, zorunluOdeme: 20000,
+    harcama: 10000, planAcigi: 0,
+    kalemler: [{ tur: "kredi", bakiye: 100000 }],
+    veri: {
+      cards: [], loans: [], overdrafts: [], incomes: [], expenses: [],
+      assets: [
+        { tur: "gayrimenkul", guncelDeger: 500000 },
+        { tur: "arac", guncelDeger: 300000 },
+        { tur: "mevduat", guncelDeger: 25000 },
+      ],
+    },
+  });
+
+  assert.equal(sonuc.ozet.toplamVarlik, 825000);
+  assert.equal(sonuc.ozet.likitVarlik, 25000);
+  assert.equal(sonuc.finansalProfil.likitVarlikBorcaYeterMi, false);
 });

@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.2] - 2026-09-06
+
+### Düzeltildi
+
+- Borcama Asistanı, borcu karşılayabilecek hazır kaynağı değerlendirirken ev ve araç gibi kolayca nakde çevrilemeyen varlıkları artık nakit birikim olarak saymıyor.
+
 ## [1.47.1] - 2026-09-06
 
 ### Değiştirildi

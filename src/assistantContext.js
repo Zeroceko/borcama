@@ -13,6 +13,15 @@ const varlikDegeri = (varlik) => sayi(
   varlik.guncelDeger ?? varlik.besToplamTutar ??
   (sayi(varlik.miktar) * sayi(varlik.fonBirimFiyati || varlik.hisseBirimFiyati || varlik.kriptoBirimFiyati)),
 );
+const LIKIT_VARLIK_TURLERI = new Set([
+  "mevduat", "usd", "eur", "gbp", "chf", "fon", "hisse", "hisse_abd",
+]);
+const likitVarlikMi = (varlik) => {
+  const tur = String(varlik?.tur || "").toLowerCase();
+  const kategori = String(varlik?.kategori || "").toLowerCase();
+  return LIKIT_VARLIK_TURLERI.has(tur) || tur.startsWith("kripto") ||
+    ["doviz", "emtia", "kripto", "fon", "hisse", "nakit"].includes(kategori);
+};
 
 export const ASISTAN_KONU_AILELERI = [
   "aylik_butce", "odeme_takvimi", "kart_borcu", "asgari_odeme", "gecikme",
@@ -51,6 +60,8 @@ export function asistanBaglamiOlustur({
   const sabitGelir = (veri?.incomes || []).filter((gelir) => gelir.tekrar !== "Tek seferlik")
     .reduce((toplam, gelir) => toplam + sayi(gelir.tutar), 0);
   const toplamVarlik = (veri?.assets || []).reduce((toplam, varlik) => toplam + varlikDegeri(varlik), 0);
+  const likitVarlik = (veri?.assets || []).filter(likitVarlikMi)
+    .reduce((toplam, varlik) => toplam + varlikDegeri(varlik), 0);
   const toplamBorc = kalemler.reduce((toplam, kalem) => toplam + sayi(kalem.bakiye), 0);
   const odemeKaydi = [
     ...Object.values(veri?.cardPaymentHistory || {}).flat(),
@@ -67,6 +78,7 @@ export function asistanBaglamiOlustur({
       aylikAcik: sayi(planAcigi),
       toplamBorc,
       toplamVarlik,
+      likitVarlik,
       netFinansalDurum: toplamVarlik - toplamBorc,
       sabitGelir,
       sabitGider,
@@ -139,7 +151,7 @@ export function asistanBaglamiOlustur({
     },
     finansalProfil: {
       aylikSonuc: sayi(planAcigi) > 0 ? "acik" : "dengeli",
-      likitVarlikBorcaYeterMi: toplamVarlik > 0 ? toplamVarlik >= toplamBorc : null,
+      likitVarlikBorcaYeterMi: likitVarlik > 0 ? likitVarlik >= toplamBorc : null,
       pahaliBorcVar: [
         ...(veri?.loans || []).map((kredi) => sayi(kredi.faiz)),
         ...(veri?.overdrafts || []).map((hesap) => sayi(hesap.faiz)),
