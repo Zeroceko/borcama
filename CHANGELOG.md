@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.47.6] - 2026-09-06
+
+### Değiştirildi
+
+- Borcama Asistanı yönlendirmeleri “Yapman gereken” diliyle sadeleştirildi; günlük soru hakkı Ücretsiz planda 3, Pro'da 10 olarak güncellendi ve kalan hak daha görünür bir sayaçta gösteriliyor.
+
 ## [1.47.5] - 2026-09-06
 
 ### Düzeltildi
