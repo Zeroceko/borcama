@@ -171,7 +171,7 @@ export function useSession() {
   return session;
 }
 
-export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
+export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, preview = false }) {
   const sorgu = new URLSearchParams(window.location.search);
   const hamYonlendirme = sorgu.get("redirect");
   const sorguYonlendirmesi = hamYonlendirme?.startsWith("/") &&
@@ -201,10 +201,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
   const [referansKodu, setReferansKodu] = useState(ilkReferansKodu);
   const [referansDurumu, setReferansDurumu] = useState(ilkReferansKodu ? "checking" : "idle");
   const [referansAcik, setReferansAcik] = useState(Boolean(ilkReferansKodu));
-  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+  const turnstileSiteKey = preview && import.meta.env.DEV ? "" : import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
-    if (kayitModu) funnelEtkinligiKaydet("register_view");
+    if (kayitModu && !preview) funnelEtkinligiKaydet("register_view");
   }, [kayitModu]);
 
   useEffect(() => {
@@ -436,7 +436,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
         </div>
         <div className="auth-sub">
           {kayitModu
-            ? "E-posta ve parolanı belirle. Pro özellikleri 30 gün boyunca ücretsiz açılır; kart bilgisi istemeyiz ve süre sonunda hesabın otomatik olarak Ücretsiz plana döner."
+            ? "Bir kartını, ekstreni veya nakit varlığını ekleyerek başla. Ücretsiz planın süresi dolmaz. İlk 30 gün Pro da dahil; kart gerekmez, süre sonunda Ücretsiz planla devam edersin."
             : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
         </div>
         {!kayitModu && (
@@ -551,8 +551,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
             </button>
           </form>
         ) : (
-          <form onSubmit={kayitModu ? parolaylaKayit : parolaylaGiris}>
+          <form onSubmit={preview && import.meta.env.DEV ? (event) => { event.preventDefault(); setHata("Bu bir önizleme; hesap oluşturulmadı."); } : kayitModu ? parolaylaKayit : parolaylaGiris}>
+            <label htmlFor="auth-email" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>E-posta</label>
             <input
+              id="auth-email"
+              autoComplete="email"
               className="auth-input"
               type="email"
               placeholder="ornek@eposta.com"
@@ -561,8 +564,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
               autoFocus
               required
             />
+            <label htmlFor="auth-password" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>Parola</label>
             <div className="auth-password">
               <input
+                id="auth-password"
+                autoComplete={kayitModu ? "new-password" : "current-password"}
                 className="auth-input"
                 type={parolaGorunur ? "text" : "password"}
                 placeholder={
@@ -586,7 +592,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false }) {
             </div>
             {kayitModu && (
               <>
+                <label htmlFor="auth-password-confirm" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>Parolanı tekrar yaz</label>
                 <input
+                  id="auth-password-confirm"
+                  autoComplete="new-password"
                   className="auth-input"
                   type={parolaGorunur ? "text" : "password"}
                   placeholder="Parolayı tekrar yaz"

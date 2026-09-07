@@ -4,6 +4,35 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.51.0] - 2026-09-08
+
+### Eklendi
+
+- Ziyaretçiler kayıt olmadan temsili bir hesabın aylık ödemelerini, ekstre kategorilerini ve asistan örneğini inceleyebilir hale getirildi.
+- Mevcut landing ile yeni sonuç odaklı landing'i anonim ve kalıcı `%50/%50` atamayla karşılaştıran LANDING-002 tam sayfa deneyi başlatıldı.
+
+### Değiştirildi
+
+- Ana sayfa aylık ödeme ve bütçe faydasını kısa ürün örnekleriyle anlatacak, kalıcı Ücretsiz başlangıcı tek kayıt yolunda sunacak biçimde yenilendi; eski CTA deneyinin yeni sayfaya veri ataması durduruldu.
+- Kayıt başlangıcı tek kart, ekstre veya nakit kaydıyla açıklanıyor; e-posta ve parola alanları kalıcı etiketler ve otomatik doldurma desteğiyle daha anlaşılır hale getirildi.
+- Yeni landing'in renkleri canlı Borcama paletine geri çekildi; yapay görünümlü eyebrow etiketleri kaldırıldı ve mobil başlık akışı korunarak sadeleştirildi.
+- Ücretsiz hesapta e-posta doğrulamasından sonra ilk 30 günlük Pro denemesinin hediye, otomatik ve kart bilgisi olmadan başladığı paket alanında vurgulandı; sonrasında Ücretsiz kalma veya Pro'ya geçme seçimi netleştirildi.
+- Landing'deki tekrarlayan güven şeridi kaldırıldı; banka şifresi, ekstre ve veri açıklamaları SSS/gizlilik bölümünde tek yerde bırakıldı.
+- Kayıt başlangıcı paneli arka plandan ayrıştırılarak kenarlık ve coral gölgeyle daha belirgin hale getirildi.
+- Kayıt başlangıcı bandı orta koyulukta Borcama yeşiline taşınarak mint zeminle kontrastı ve renk katmanları güçlendirildi.
+- Hero ile “Nasıl çalışır?” bölümü arasındaki renk kırılması yumuşak gradient geçişine dönüştürüldü.
+- “Nasıl çalışır?” bölümündeki tam genişlik renk bandı kaldırılarak sayfanın tek krem zemin üzerinde kesintisiz akması sağlandı.
+- Landing mesajları yeni ürün akışına geri alındı; tekrarlayan CTA'lar “İlk kaydını ekle”, “Hesabını oluştur” ve “Tablomu oluşturmaya başla” olarak ayrıştırıldı.
+- Landing vurgu renkleri Borcama'nın krem, mint, lime, coral ve peach paletine sabitlendi; referans dışı mavi vurgu kaldırıldı.
+- Landing arka plan ve kart renkleri mevcut ürün token'larına (#f4efe0, #d9e7e1, #eef2e5, #cdf564, #ff6f59) eşlendi.
+- Landing arka planındaki içerikten bağımsız coral daire kaldırılarak hero daha temiz ve okunur hale getirildi.
+- Ana landing hero mesajı “Paranı yönetmenin en yeni yolu” ve bütçe/ilerleme odaklı açıklamayla güncellendi.
+- Ana landing hero mesajı “Paranın nereye gittiğini bil. Akıllıca borçlan ve kontrolü ele al.” metnine çekildi.
+- Hero vurgu metni ürünün mevcut lime, koyu yeşil ve coral renk sistemine eşlendi; referans dışı zeytin tonu kaldırıldı.
+- Landing ve kayıtsız demo içindeki örnek tablolar, giriş yapan kullanıcının açık tema görünümüne yaklaştırılarak mint ana yüzey ve beyaz iç kartlarla daha okunur hale getirildi.
+- A/B testindeki iki landing'in üst menüsü `Nasıl çalışır?`, `Giriş yap` ve `Ücretsiz başla` bağlantılarında eşitlendi; hesaplama araçları footer'da bırakıldı.
+- Yeni landing'in arka plan geçişleri ve bölüm aralıkları daha akıcı hale getirildi; son kayıt butonunun hover gölgesi Borcama'nın coral rengine çevrildi.
+
 ## [1.50.1] - 2026-09-07
 
 ### Düzeltildi

@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Hesap açmadan Borcama'ya bir bak — v1.51.0
+
+- Siz istediniz: Kayıt olmadan önce Borcama'nın ne işe yaradığını görmek.
+- Biz yaptık: Örnek hesabın ödemeleri, ekstre kategorileri ve temsili asistan yanıtı arasında geçebileceğin bir inceleme ekranı hazırladık.
+- Faydası: Kendi bilgilerini girmeden ürünü tanır, bir kart veya ekstreyle nasıl başlayacağını görürsün.
+- Aksiyon: `https://borcama.com/demo`
+
 ### Nakit ve düzenli borç ödemelerini aynı tabloda gör — v1.50.0
 
 - Siz istediniz: Eldeki nakdi nereye kaydedeceğinizi bilmek ve kredi taksitlerini sabit giderlerle birlikte görmek.

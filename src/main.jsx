@@ -1,7 +1,8 @@
 import React, { lazy, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from './errorMonitoring.js';
-import LandingAlt from "./LandingAlt.jsx";
+import LandingControl from "./LandingAlt.jsx";
+import LandingVariant, { PublicExample } from "./LandingGrowth.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import { proNiyetiniOku } from "./proIntent.js";
@@ -102,6 +103,9 @@ function Kok() {
   if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
+  if (yol === "/demo") return <PublicExample />;
+  if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
+  if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
   if (import.meta.env.DEV && yol === "/backoffice-preview")
     return <Backoffice preview />;
   if (import.meta.env.DEV && yol.startsWith("/backoffice-preview/user/"))
@@ -149,8 +153,8 @@ function Kok() {
     "/assets",
     "/settings",
   ];
-  if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingAlt experiment={landingDeneyiAta(funnelKaynakBilgisi())} />;
-  if (!uygulamaYollari.includes(yol)) return <LandingAlt />;
+  if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingDeneyi experiment={landingDeneyiAta(funnelKaynakBilgisi())} />;
+  if (!uygulamaYollari.includes(yol)) return <LandingControl />;
   if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />;
   return <KimlikliKok />;
 }
@@ -367,7 +371,13 @@ function AnaSayfa() {
     return <Yukleniyor />;
   }
 
-  return session ? <App /> : <LandingAlt experiment={landingDeneyi} />;
+  return session ? <App /> : <LandingDeneyi experiment={landingDeneyi} />;
+}
+
+function LandingDeneyi({ experiment = {} }) {
+  return experiment.experiment_variant === "variant"
+    ? <LandingVariant />
+    : <LandingControl />;
 }
 
 function KimlikliKok() {

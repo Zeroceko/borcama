@@ -1,5 +1,9 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-09-08 · Landing ve CRO · LANDING-002 yerel hazırlık
+
+- Mevcut landing A, yeni sonuç odaklı landing B olacak biçimde tam sayfa deney yerelde hazırlandı. Yeni ziyaretçiler `%50/%50` ve kalıcı atanacak; kayıt, doğrulama ve ilk borç/ekstre adımları ayrı ölçülecek. İki kolun header bağlantıları eşitlendi, hesaplama araçları footer'a alındı ve B sayfasının arka plan/boşluk dengesi iyileştirildi. Veritabanı migration'ı ve analytics Edge Function desteği kodda hazırlandı; canlı yayın, migration veya fonksiyon deploy'u yapılmadı.
+
 Sentry production issue takibi tarayıcıdan bağımsızdır: salt okunur Internal Integration token'ı macOS Keychain'de `borcama-sentry-token` adıyla saklanır; `scripts/check-sentry-issues.mjs --commit` son 24 saatteki çözülmemiş production issue değişikliklerini kişisel veri yazmadan kontrol eder. Token depoya, çıktıya veya departman notlarına yazılmaz.
 
 ### 2026-09-05 · Ücretli edinim · Dönüşüm hedefi önceliği
@@ -52,6 +56,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Kullanıcı onayı veya sonraki aksiyon ihtiyacı
 
 ## Son devirler
+
+- 2026-09-07 · Ana teknik ürün koordinasyonu · Baz sürüm v1.50.1: Landing araştırması ve global ürün mekanizmaları, `docs/urun-ve-buyume-plani-2026-09.md` içinde 30 günlük dört pakete dönüştürüldü: A kayıt gerekçesi, B ilk fayda, C geri dönüş, D çalışan edinim yolunu büyütme. İlk sıra A0 ölçüm ve A1 yerel landing tasarımıdır. Yol haritasındaki yayımlanmış asistan/ekstre analizi durumları düzeltildi; LANDING-001 için büyük yenileme öncesi sürüm bazlı veri ayırma notu eklendi. Teslim yalnız plan ve dokümantasyondur; ürün kodu, deney trafiği, kampanya, fiyat, otomasyon ve canlı sürüm değişmedi. Mevcut 60 günlük hedefin tarihi sıfırlanmadı; güncel kullanıcı/bütçe verileri doğrulanmadan hedef temposu veya dış işlem kararı üretilmeyecek.
 
 - 2026-09-06 · Asistan Kalitesi ve Finansal Anlatım · Baz sürüm `v1.47.1`: Kredi, yapılandırma, kart/KMH, gecikme, ödeme, gelir-gider, varlık ve veri eksikliği için gerçek kullanıcı verisi içermeyen sekiz sentetik eval vakası; altı boyutlu ağırlıklı rubrik; ağır hata ve sürüm durdurma eşikleri; canlı prompt sözleşmesi, gizlilik, referans yanıt ve başarısız finansal yönlendirme regresyonları eklendi. Değişen dosyalar: `evals/financial-assistant/cases.js`, `evals/financial-assistant/rubric.js`, `src/assistantQuality.test.js`, `docs/asistan-kalite-degerlendirmesi.md`, `package.json` ve bu devir kaydı; `CHANGELOG.md` değiştirilmedi çünkü teslim yalnız test ve geliştirici sürecidir. `npm run test:assistant` 8/8, `npm test` 124/124, `npm run release:check`, production build ve `git diff --check` başarılıdır; canlı model çağrısı, gerçek kullanıcı verisi, dış sistem değişikliği veya yayın yapılmadı. Ürün ekibini etkileyen risk: `assistantContext.js` içindeki `likitVarlikBorcaYeterMi` alanı likit varlık yerine toplam varlığı karşılaştırıyor; konut gibi likit olmayan varlıkları hazır nakit saydırabilecek bu karar alanı ayrı ürün düzeltmesi ve test gerektirir. Sonraki adım: CEO bu diffi incelemeli; prompt/model değişikliğinden önce yalnız sentetik çıktılar rubrikle puanlanmalı ve her aile en az üç farklı ifade biçimine genişletilmelidir.
 

@@ -35,6 +35,7 @@
     }
   ],
   "headers": [
+    { "source": "/demo", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }] },
     {
       "source": "/borcama-logo.png",
       "headers": [
@@ -158,6 +159,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/demo", "destination": "/index.html" },
     { "source": "/login", "destination": "/index.html" },
     { "source": "/register", "destination": "/index.html" },
     { "source": "/davet/:path*", "destination": "/index.html" },

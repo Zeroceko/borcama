@@ -70,28 +70,35 @@ test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu say
   assert.doesNotMatch(migration, /ua\.first_touch_at/);
 });
 
-test("LANDING-001 PMax ziyaretçisini kalıcı varyanta atar ve hero CTA metnini değiştirir", async () => {
-  const [landing, experiment, client, edge, migration, backoffice, analytics] = await Promise.all([
-    oku("./LandingAlt.jsx"),
+test("LANDING-002 mevcut ve yeni tam sayfayı ayrı ölçer; LANDING-001 tarihsel kalır", async () => {
+  const [landing, experiment, main, client, edge, historicalMigration, migration, backoffice, analytics] = await Promise.all([
+    oku("./LandingGrowth.jsx"),
     oku("./landingExperiment.js"),
+    oku("./main.jsx"),
     oku("./funnelAnalytics.js"),
     oku("../supabase/functions/analytics-event/index.ts"),
     oku("../supabase/migrations/20260905123000_landing_experiment.sql"),
+    oku("../supabase/migrations/20260908100000_landing_002_full_page_experiment.sql"),
     oku("../supabase/functions/backoffice/index.ts"),
     oku("./Analytics.jsx"),
   ]);
-  assert.match(experiment, /import\.meta\.env\.DEV/);
-  assert.match(experiment, /landing_preview/);
-  assert.match(experiment, /borcama:landing-001-variant/);
-  assert.match(experiment, /source\.source === "google"[\s\S]+source\.medium === "cpc"[\s\S]+tr_pmax_borcama/);
-  assert.match(landing, /Ücretsiz başla, ilk planını gör/);
-  assert.match(landing, /href=\{heroCtaHref\}>\{heroCta\}/);
-  assert.match(client, /experiment_id: deney\.experiment_id/);
-  assert.match(edge, /p_experiment_variant/);
+  assert.match(experiment, /LANDING_DENEYI = "landing-002"/);
+  assert.match(experiment, /LANDING_DENEYI_AKTIF = true/);
+  assert.match(landing, /Örnek hesabı incele/);
+  assert.match(landing, /\/demo/);
+  assert.doesNotMatch(landing, /experiment_id|experiment_variant|landingDeneyiAta/);
+  assert.match(main, /LandingControl/);
+  assert.match(main, /LandingVariant/);
+  assert.match(main, /experiment\.experiment_variant === "variant"/);
+  assert.match(client, /aktifLandingDeneyiOku/);
+  assert.match(edge, /"landing-001", "landing-002"/);
+  assert.match(historicalMigration, /experiment_id = 'landing-001'/);
   assert.match(migration, /admin_landing_experiment_funnel/);
+  assert.match(migration, /experiment_id in \('', 'landing-001', 'landing-002'\)/);
+  assert.match(migration, /experiment_id = 'landing-002'/);
   assert.match(migration, /experiment_variant in \('control', 'variant'\)/);
   assert.match(backoffice, /admin_landing_experiment_funnel/);
-  assert.match(analytics, /LANDING-001 · CTA deneyi/);
+  assert.match(analytics, /LANDING-002 · Tam sayfa deneyi/);
 });
 
 test("mevduat aracı sonuçtan ürüne güvenli ve ölçülebilir bir köprü kurar", async () => {

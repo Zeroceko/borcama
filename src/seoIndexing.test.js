@@ -21,6 +21,7 @@ const kullaniciYollari = [
   "/settings",
   "/classic",
   "/landing-v2",
+  "/demo",
 ];
 
 test("kullanıcı ve yönetim ekranları noindex olarak sınıflandırılır", () => {

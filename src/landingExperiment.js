@@ -1,19 +1,18 @@
-export const LANDING_DENEYI = "landing-001";
-export const LANDING_DENEYI_ANAHTARI = "borcama:landing-001-variant";
+export const LANDING_DENEYI = "landing-002";
+// LANDING-001 was a CTA-only PMax test. LANDING-002 compares the complete
+// current landing (control) with the rebuilt page (variant) for all new visits.
+export const LANDING_DENEYI_AKTIF = true;
+export const LANDING_DENEYI_ANAHTARI = "borcama:landing-002-variant";
 
 const GECERLI_VARYANTLAR = new Set(["control", "variant"]);
 
-function pmaxIlkTemasiMi(source = {}) {
-  return source.source === "google" && source.medium === "cpc" && source.campaign === "tr_pmax_borcama";
-}
-
-export function landingDeneyiVaryantiBelirle({ source = {}, storedVariant = "", randomValue = Math.random() } = {}) {
+export function landingDeneyiVaryantiBelirle({ storedVariant = "", randomValue = Math.random() } = {}) {
   if (GECERLI_VARYANTLAR.has(storedVariant)) return storedVariant;
-  if (!pmaxIlkTemasiMi(source)) return "";
   return randomValue < 0.5 ? "control" : "variant";
 }
 
 export function aktifLandingDeneyiOku() {
+  if (!LANDING_DENEYI_AKTIF) return { experiment_id: "", experiment_variant: "" };
   if (typeof window === "undefined") return { experiment_id: "", experiment_variant: "" };
   let variant = "";
   try { variant = localStorage.getItem(LANDING_DENEYI_ANAHTARI) || ""; } catch { variant = ""; }
@@ -23,6 +22,7 @@ export function aktifLandingDeneyiOku() {
 }
 
 export function landingDeneyiAta(source = {}) {
+  if (!LANDING_DENEYI_AKTIF) return { experiment_id: "", experiment_variant: "" };
   if (typeof window === "undefined") return { experiment_id: "", experiment_variant: "" };
   if (import.meta.env.DEV) {
     const preview = new URLSearchParams(window.location.search).get("landing_preview");
