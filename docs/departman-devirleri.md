@@ -253,3 +253,15 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Kaynak doğruluğu: Google, Bing ve Yandex yönlendirmeleri alan adı yerine organik arama kanalı olarak normalize edilir; ilk temas sonraki iç bağlantıyla ezilmez.
 - Dosyalar ve yayın sırası: `supabase/migrations/20260905180000_deposit_product_bridge.sql` → `analytics-event` → `backoffice` → frontend. `src/SeoPages.jsx`, `src/LandingAlt.jsx`, `src/Auth.jsx`, analytics/acquisition dosyaları, prerender ve süreç dokümanları birlikte değişti.
 - Doğrulama: 116/116 test, production build ve `git diff --check` başarılı; SEO çıktısı 20 sayfayı yeniden üretti.
+
+### 2026-09-07 · SEO pazartesi büyüme kontrolü ve SSS tarama düzeltmesi
+
+- Baz alınan Borcama sürümü: canlı `v1.49.2`; Search Console performans verisi 5 Eylül 2026'ya, kapsam raporu 4 Eylül 2026'ya kadar günceldir.
+- Search Console sonucu: Son 7 günde 70 gösterim, 1 tıklama, `%1,4` TO ve `69,1` ortalama konum; son üç ayda 172 gösterim, 4 tıklama, `%2,3` TO ve `71,4` ortalama konum görüldü. Mevduat hesaplayıcısı son 7 günde 50 gösterim ve 1 tıklamayla görünürlüğün ana kaynağıdır. Site haritası 7 Eylül'de başarıyla okunmuş ve 23 sayfa keşfetmiştir.
+- İndeksleme sonucu: Dizindeki sayfa sayısı 7'den 8'e çıktı. `/araclar/borc-kapatma-hesaplayici` güncel URL denetiminde Google'da mevcut, indeksli, HTTPS ve breadcrumb açısından geçerli durumdadır; 5 Eylül'deki istek tekrarlanmadı. Kapsam raporundaki 14 yeni keşfedilmiş URL 5 Eylül'den beri tarama kuyruğundadır ve rapor gecikmeli olduğundan toplu doğrulama veya yeniden gönderim yapılmadı.
+- Seçilen üç fırsat: (1) Ana sayfa canonical'ıyla sunulan `/faq` için özgün taranabilir HTML üretmek, (2) mevduat sorgu kümesini yeni ürün köprüsünden sonra yeterli veri oluşana kadar izlemek, (3) yeni indekslenen borç kapatma sayfasında sorgu ve aktivasyon sinyali beklemek. Yalnız ilk fırsat bugün teknik olarak uygulanmıştır; veri oluşmadan yeni blog veya anahtar kelime varyantı üretilmemiştir.
+- Yapılan değişiklik: `/faq`, kendi başlık, açıklama, canonical, yapılandırılmış veri ve anlamlı ilk HTML içeriğiyle ön oluşturulur hale getirildi; Vercel yönlendirmesi bu dosyaya bağlandı. `1.49.3` yaması hazırlandı.
+- Değişen dosyalar: `scripts/prerender-seo.mjs`, `vercel.json`, `src/seoIndexing.test.js`, `package.json`, `package-lock.json`, `CHANGELOG.md`, SEO devam kaydı ve bu devir kaydı.
+- Test ve doğrulama: 136/136 test, production build, sürüm kontrolü, üretilen `dist/faq.html` başlık/canonical/içerik/yapılandırılmış veri kontrolü ve `git diff --check` başarılı.
+- Ölçüm açığı: CEO/CRM ekranı oturum gerektirdiği için organik kanaldan doğrulanmış ve aktive kullanıcı sayısı okunamadı; tıklama verisi kullanıcı sonucu gibi yorumlanmadı.
+- Sonraki adım: `1.49.3` rutin sürümünü canlıya alıp `/faq` HTML yanıtını doğrula. Perşembe kontrolünde mevduat sorgu kümesi ile borç kapatma sayfasının ilk görünümünü ölç; site haritasını veya URL'leri gereksiz yere yeniden gönderme.

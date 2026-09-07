@@ -51,3 +51,13 @@ test("ana landing tek ve sorgudan bağımsız canonical kullanır", async () => 
   const canonicalEtiketleri = html.match(/<link rel="canonical" href="[^"]+"\s*\/>/g) || [];
   assert.deepEqual(canonicalEtiketleri, ['<link rel="canonical" href="https://borcama.com/" />']);
 });
+
+test("SSS sayfası kendi ön oluşturulmuş HTML dosyasına yönlenir", async () => {
+  const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  const faqYenidenYazimi = vercel.rewrites.find((kural) => kural.source === "/faq");
+  assert.equal(faqYenidenYazimi?.destination, "/faq.html");
+
+  const prerender = await readFile(new URL("../scripts/prerender-seo.mjs", import.meta.url), "utf8");
+  assert.match(prerender, /path: "\/faq"/);
+  assert.match(prerender, /title: "Borcama Sık Sorulan Sorular"/);
+});

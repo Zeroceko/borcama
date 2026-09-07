@@ -157,7 +157,7 @@
     { "source": "/terms", "destination": "/index.html" },
     { "source": "/privacy", "destination": "/index.html" },
     { "source": "/refund-policy", "destination": "/index.html" },
-    { "source": "/faq", "destination": "/index.html" },
+    { "source": "/faq", "destination": "/faq.html" },
     { "source": "/araclar", "destination": "/araclar.html" },
     { "source": "/araclar/:path*", "destination": "/araclar/:path*.html" },
     { "source": "/rehber", "destination": "/rehber.html" },

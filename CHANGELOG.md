@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.49.3] - 2026-09-07
+
+### Düzeltildi
+
+- Sık Sorulan Sorular sayfasının Google'a ana sayfa yerine kendi başlığı, açıklaması, içeriği ve adresiyle sunulması sağlandı.
+
 ## [1.49.2] - 2026-09-07
 
 ### Düzeltildi

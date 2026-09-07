@@ -57,6 +57,18 @@ const pages = [
   ...tools.map(([slug, title, description]) => ({ path: `/araclar/${slug}`, title, description, sections: staticSections[`/araclar/${slug}`] || [], links: [...(guideByTool[slug] || []), ...toolLinks.filter(([path]) => path !== `/araclar/${slug}`)], type: "WebApplication" })),
   { path: "/rehber", title: "Borç ve Ödeme Rehberi", description: "Borç düzenleme, kredi kartı takibi ve borç kapatma planı hakkında sade ve uygulanabilir rehberler.", links: guideLinks, type: "CollectionPage" },
   ...guides.map(([slug, title, description]) => ({ path: `/rehber/${slug}`, title, description, links: guideLinks.filter(([path]) => path !== `/rehber/${slug}`), type: "Article" })),
+  {
+    path: "/faq",
+    title: "Borcama Sık Sorulan Sorular",
+    description: "Borcama'nın kullanımı, ücretsiz ve Pro paketleri, iptal, iade ve veri güvenliği hakkında sık sorulan soruların yanıtları.",
+    sections: [
+      ["Borcama ne yapar?", "Borçlarını, ödemelerini, gelir ve harcamalarını ve varlıklarını tek yerde takip etmene yardımcı olur."],
+      ["Banka hesaplarım otomatik bağlanır mı?", "Hayır. Bilgileri sen girersin; Borcama internet bankacılığı parolanı istemez."],
+      ["Ücretsiz paket ile Pro arasındaki fark nedir?", "Ücretsiz paket temel takibi ve aylık bir kişisel öneriyi içerir. Pro, daha ayrıntılı analiz ve senaryolar sunar."],
+    ],
+    links: [["/", "Borcama ana sayfa"], ["/araclar", "Hesaplama Araçları"], ["/rehber", "Borç ve Ödeme Rehberi"], ["/refund-policy", "İade Politikası"], ["/privacy", "Gizlilik ve KVKK"]],
+    type: "FAQPage",
+  },
 ];
 
 function escapeHtml(value) {
@@ -73,8 +85,8 @@ const baseHtml = await readFile(join(DIST, "index.html"), "utf8");
 for (const page of pages) {
   const canonical = `${SITE}${page.path}`;
   const fullTitle = `${page.title} | Borcama`;
-  const parentPath = page.path.startsWith("/araclar") ? "/araclar" : "/rehber";
-  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+  const parentPath = page.path.startsWith("/araclar") ? "/araclar" : page.path.startsWith("/rehber") ? "/rehber" : page.path;
+  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : parentPath === "/rehber" ? "Rehber" : page.title;
   const breadcrumbItems = [
     { "@type": "ListItem", position: 1, name: "Borcama", item: SITE },
     { "@type": "ListItem", position: 2, name: parentName, item: `${SITE}${parentPath}` },
