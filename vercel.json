@@ -125,7 +125,15 @@
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
+      "source": "/fixed-income",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
+    },
+    {
       "source": "/expenses",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
+    },
+    {
+      "source": "/fixed-expenses",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
@@ -171,7 +179,9 @@
     { "source": "/payments", "destination": "/index.html" },
     { "source": "/debt-plan", "destination": "/index.html" },
     { "source": "/income", "destination": "/index.html" },
+    { "source": "/fixed-income", "destination": "/index.html" },
     { "source": "/expenses", "destination": "/index.html" },
+    { "source": "/fixed-expenses", "destination": "/index.html" },
     { "source": "/assets", "destination": "/index.html" },
     { "source": "/settings", "destination": "/index.html" },
     { "source": "/backoffice", "destination": "/index.html" },

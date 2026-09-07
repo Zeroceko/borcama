@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.50.1] - 2026-09-07
+
+### Düzeltildi
+
+- Sabit Giderler ve Sabit Gelirler sayfalarının canlıda doğrudan açılması ve arama motorlarına kapalı kalması sağlandı.
+
 ## [1.50.0] - 2026-09-07
 
 ### Eklendi
