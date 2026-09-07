@@ -118,6 +118,9 @@ test("eski asistan yanıtlarındaki yönlendirme dili de okunmaya devam eder", (
 test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", () => {
   const kaynak = readFileSync(resolve(kok, "src/App.jsx"), "utf8");
   assert.match(kaynak, /className="bt-pill bt-assistant-nav"/);
+  assert.match(kaynak, /className="bt-assistant-header"/);
+  assert.match(kaynak, /\.bt-nav-ana \.bt-assistant-nav\{display:none\}/);
+  assert.match(kaynak, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(kaynak, /className="bt-assistant-trigger"/);
   assert.match(kaynak, /bt-assistant-beta">Beta/);
   assert.match(kaynak, /Sonuçları kontrol edin/);

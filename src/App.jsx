@@ -344,6 +344,7 @@ const CSS = `
 .bt-demo-plan button.aktif{background:${LIME};color:${INK};box-shadow:inset 0 0 0 1.5px ${INK}}
 .bt-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--dim)}
 .bt-settings-link{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--text);padding:7px 11px;font:700 11.5px 'Space Grotesk',sans-serif;box-shadow:0 3px 10px #14160f08;cursor:pointer}.bt-settings-link:hover,.bt-settings-link.aktif{background:${LIME};color:${INK};border-color:color-mix(in srgb,${INK} 55%,transparent)}
+.bt-assistant-header{display:none}
 .bt-upgrade-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${INK};border-radius:999px;background:${LIME};color:${INK};padding:7px 11px;font:800 11.5px 'Space Grotesk',sans-serif;box-shadow:3px 3px 0 ${CORAL};cursor:pointer}.bt-upgrade-link:hover{transform:translateY(-1px)}
 .bt-trial-son{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;margin:-14px 0 24px;padding:14px 16px;border:1px solid color-mix(in srgb,${CORAL} 62%,var(--line-soft));border-radius:17px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));box-shadow:0 8px 22px #14160f0a}.bt-trial-son-ikon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:${CORAL};color:${INK}}.bt-trial-son strong{display:block;font-size:13.5px}.bt-trial-son p{margin:3px 0 0;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-trial-son-actions{display:flex;align-items:center;gap:7px}.bt-trial-son-kapat{border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-trial-son .bt-btn{white-space:nowrap}
 .bt-themebtn{position:relative;width:54px;height:30px;border-radius:16px;border:1px solid var(--line-soft);background:var(--panel);box-shadow:0 3px 10px #14160f08;cursor:pointer;padding:0;flex:0 0 auto}
@@ -663,17 +664,18 @@ const CSS = `
   .bt-demo-plan>span{margin-right:auto}
   .bt-date{flex:1 0 100%}
   .bt-settings-link{padding:7px 9px}
+  .bt-assistant-header{display:inline-flex;align-items:center;gap:7px;margin-right:auto;padding:8px 11px;border:1px solid ${INK};border-radius:999px;background:${INK};color:${CREAM};font:800 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-assistant-header svg{color:${LIME}}.bt-assistant-header .bt-assistant-beta{font-size:7px}
   .bt-upgrade-link{padding:7px 9px}
   .bt-trial-son{grid-template-columns:auto minmax(0,1fr);margin:-8px 0 20px;padding:13px}.bt-trial-son-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;width:100%}.bt-trial-son .bt-btn{justify-content:center;min-height:42px}
   .bt-themelabel{width:auto;font-size:11px}
   .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
-  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:0;padding:8px max(6px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:1px solid var(--line-soft);box-shadow:0 -8px 24px #00000012;backdrop-filter:blur(12px)}
+  .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0;padding:8px max(6px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:1px solid var(--line-soft);box-shadow:0 -8px 24px #14160f12;backdrop-filter:blur(12px)}
   .bt-nav-ana .bt-pill{display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:13px;padding:6px 2px;background:transparent;color:var(--dim);font-size:clamp(9px,2.7vw,10.5px);line-height:1.05;opacity:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .bt-nav-ana .bt-pill svg{width:19px;height:19px;flex:0 0 auto;stroke-width:2.2}
   .bt-nav-ana .bt-pill span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .bt-nav-ana .bt-pill.aktif{background:${LIME};color:${INK};box-shadow:inset 0 0 0 1.5px ${INK},2px 2px 0 ${CORAL}}
-  .bt-nav-ana .bt-assistant-nav{background:${INK};color:${CREAM};border-radius:13px}.bt-nav-ana .bt-assistant-nav span{font-size:9px}.bt-nav-ana .bt-assistant-nav:hover{transform:none;box-shadow:none}
+  .bt-nav-ana .bt-assistant-nav{display:none}
   .bt-nav.bt-nav-alt{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 0 22px;padding:6px}.bt-nav-alt .bt-pill{width:auto;flex:0 0 auto;padding:7px 11px;font-size:11px}
   .bt-pill{width:100%;padding:9px 4px;font-size:11.5px;text-align:center}
   .bt-grid{grid-template-columns:1fr;gap:12px}
@@ -3148,6 +3150,16 @@ export default function BorcTakip() {
                 <span style={{ marginLeft: 8 }}>● kaydediliyor</span>
               )}
             </div>
+            <button
+              className="bt-assistant-header"
+              type="button"
+              onClick={() => setAsistanPenceresi(true)}
+              aria-label="Borcama'ya sor"
+            >
+              <Sparkles size={14} aria-hidden="true" />
+              <span>Borcama'ya sor</span>
+              <em className="bt-assistant-beta">Beta</em>
+            </button>
             {!reklamsiz.yukleniyor && !etkinPro && (
               <button
                 className="bt-upgrade-link"

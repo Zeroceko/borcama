@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.49.2] - 2026-09-07
+
+### Düzeltildi
+
+- “Borcama'ya sor” mobil alt navigasyondan çıkarılıp üst bölümde ayrı bir asistan aksiyonuna taşındı; alt navigasyon yeniden dört ana ürün bölümüne ayrıldı.
+
 ## [1.49.1] - 2026-09-07
 
 ### Değiştirildi
