@@ -80,6 +80,10 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
+import {
+  buAyDuzenliBorcToplami,
+  duzenliBorcOdemeleri,
+} from "./recurringObligations.js";
 import { getFinancialScenarioCopy } from "./financialScenarioCopy.js";
 import {
   getActivationState,
@@ -881,19 +885,21 @@ const VARLIK_TURLERI = [
   { id: "fon", kategori: "fon", ad: "Yatırım fonu", birim: "pay", otomatik: true, fon: true, kaynak: "TEFAS" },
   { id: "hisse", kategori: "hisse", ad: "Borsa İstanbul hissesi", birim: "adet", otomatik: true, hisse: true, piyasa: "BIST", kaynak: "Yahoo Finance" },
   { id: "hisse_abd", kategori: "hisse", ad: "ABD borsası hissesi", birim: "adet", otomatik: true, hisse: true, piyasa: "US", kaynak: "Yahoo Finance" },
-  { id: "mevduat", kategori: "diger", ad: "Nakit / mevduat", birim: "", otomatik: false },
+  { id: "nakit", kategori: "nakit", ad: "Nakit", birim: "", otomatik: false },
+  { id: "mevduat", kategori: "nakit", ad: "Vadeli / vadesiz mevduat", birim: "", otomatik: false },
   { id: "gayrimenkul", kategori: "diger", ad: "Gayrimenkul", birim: "", otomatik: false },
   { id: "arac", kategori: "diger", ad: "Araç", birim: "", otomatik: false },
   { id: "diger", kategori: "diger", ad: "Diğer (ekleyin)", birim: "", otomatik: false },
 ];
 const VARLIK_KATEGORILERI = [
+  { id: "nakit", ad: "Nakit", turler: ["nakit", "mevduat"] },
   { id: "doviz", ad: "Döviz", turler: ["usd", "eur", "gbp", "chf"] },
   { id: "emtia", ad: "Emtia", turler: ["gram_altin", "gram_altin_22", "ceyrek_altin", "yarim_altin", "tam_altin", "cumhuriyet_altini", "gram_gumus", "platin", "petrol", "bakir"] },
   { id: "kripto", ad: "Kripto", turler: [...KRIPTO_LISTESI.map((coin) => coin.coinId === "bitcoin" ? "bitcoin" : "kripto_" + coin.coinId), "kripto_diger"] },
   { id: "bes", ad: "Bireysel emeklilik", turler: ["bes"] },
   { id: "fon", ad: "Fonlar", turler: ["fon"] },
   { id: "hisse", ad: "Hisseler", turler: ["hisse", "hisse_abd"] },
-  { id: "diger", ad: "Diğer", turler: ["mevduat", "gayrimenkul", "arac", "diger"] },
+  { id: "diger", ad: "Diğer", turler: ["gayrimenkul", "arac", "diger"] },
 ];
 const varlikTuru = (id) =>
   VARLIK_TURLERI.find((tur) => tur.id === id) || VARLIK_TURLERI.at(-1);
@@ -1374,7 +1380,7 @@ function demoVerisiOlustur() {
     assets: [
       {
         id: "demo-mevduat",
-        kategori: "diger",
+        kategori: "nakit",
         tur: "mevduat",
         ad: "Acil durum birikimi",
         kurum: "Banka hesabı",
@@ -3443,6 +3449,11 @@ export default function BorcTakip() {
                 sil={sil}
                 buAyHarcama={buAyHarcama}
                 bankalar={bankalar}
+                kredilereGit={() => {
+                  setBorcKategori("loans");
+                  setSekme("borclar");
+                  setForm(null);
+                }}
                 sabit
               />
             )}
@@ -10299,7 +10310,7 @@ function Varliklar({
   const seciliTur = varlikTuru(f.tur || "usd");
   const formParaBirimi = seciliTur.fon ? "TRY" : paraBirimi(f.paraBirimi).id;
   const seciliKategori = varlikKategorisi(
-    f.kategori || seciliTur.kategori || "doviz",
+    seciliTur.kategori || f.kategori || "nakit",
   );
   const kategoriTurleri = seciliKategori.turler.map(varlikTuru);
   const seciliKriptoTryFiyati = seciliTur.kripto && seciliTur.coinId
@@ -10336,6 +10347,7 @@ function Varliklar({
   const [digerHata, setDigerHata] = useState("");
   const filtreler = [
     ["tumu", "Tümü"],
+    ["nakit", "Nakit"],
     ["doviz", "Döviz"],
     ["emtia", "Emtia"],
     ["kripto", "Kripto"],
@@ -10542,7 +10554,7 @@ function Varliklar({
   }
 
   function bosKategoriEkle() {
-    const kategori = varlikKategorisi(filtre === "tumu" ? "doviz" : filtre);
+    const kategori = varlikKategorisi(filtre === "tumu" ? "nakit" : filtre);
     const ilkTur = varlikTuru(kategori.turler[0]);
     setForm({
       liste: "assets",
@@ -10620,17 +10632,30 @@ function Varliklar({
               <RefreshCw size={14} /> Fiyatları yenile
             </button>
             {!acik && (
-              <button
-                className="bt-btn birincil"
-                onClick={() =>
-                  setForm({
-                    liste: "assets",
-                    veri: { kategori: "doviz", tur: "usd" },
-                  })
-                }
-              >
-                <Plus size={16} /> Varlık ekle
-              </button>
+              <>
+                <button
+                  className="bt-btn kucuk ikincil"
+                  onClick={() =>
+                    setForm({
+                      liste: "assets",
+                      veri: { kategori: "nakit", tur: "nakit", paraBirimi: "TRY" },
+                    })
+                  }
+                >
+                  <Wallet size={15} /> Nakit ekle
+                </button>
+                <button
+                  className="bt-btn birincil"
+                  onClick={() =>
+                    setForm({
+                      liste: "assets",
+                      veri: { kategori: "doviz", tur: "usd" },
+                    })
+                  }
+                >
+                  <Plus size={16} /> Varlık ekle
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -11003,7 +11028,7 @@ function Varliklar({
 
       {ozet.kalemler.length === 0 && !acik ? (
         <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
-          Henüz varlık eklemediniz. Dolar, altın, Bitcoin veya BES kaydınızı
+          Henüz varlık eklemediniz. Nakit, döviz, altın, Bitcoin veya BES kaydınızı
           ekleyerek başlayın.
           <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}><Plus size={15} /> Varlık ekle</button>
         </div>
@@ -11011,7 +11036,7 @@ function Varliklar({
         <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
           Bu kategoride henüz varlık kaydı yok.
           <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}>
-            <Plus size={15} /> {filtre === "hisse" ? "Hisse ekle" : filtre === "fon" ? "Fon ekle" : filtre === "kripto" ? "Kripto ekle" : "Varlık ekle"}
+            <Plus size={15} /> {filtre === "nakit" ? "Nakit ekle" : filtre === "hisse" ? "Hisse ekle" : filtre === "fon" ? "Fon ekle" : filtre === "kripto" ? "Kripto ekle" : "Varlık ekle"}
           </button>
         </div>
       ) : (
@@ -11414,6 +11439,7 @@ function Harcamalar({
   sil,
   buAyHarcama,
   bankalar,
+  kredilereGit,
   sabit = false,
 }) {
   const acik = form && form.liste === "expenses";
@@ -11470,6 +11496,14 @@ function Harcamalar({
   const sabitToplam = useMemo(
     () => sirali.reduce((toplam, h) => toplam + (+h.tutar || 0), 0),
     [sirali],
+  );
+  const otomatikBorcOdemeleri = useMemo(
+    () => (sabit ? duzenliBorcOdemeleri(veri.loans, bugun()) : []),
+    [veri.loans, sabit],
+  );
+  const buAyOtomatikBorcToplami = useMemo(
+    () => (sabit ? buAyDuzenliBorcToplami(veri.loans, bugun()) : 0),
+    [veri.loans, sabit],
   );
   const enBuyuk = Math.max(...Object.values(buAyHarcama.kategoriler), 1);
   const seciliKart = veri.cards.find(
@@ -11637,7 +11671,7 @@ function Harcamalar({
           )}
         </div>
         {acik && !f.id && harcamaFormu}
-        {!acik && sirali.length === 0 && (
+        {!acik && sirali.length === 0 && (!sabit || otomatikBorcOdemeleri.length === 0) && (
           <div className="bt-bos">
             {sabit
               ? "Henüz sabit gider yok. Kira, abonelik, aidat veya düzenli faturalarını ekleyebilirsin."
@@ -11646,13 +11680,59 @@ function Harcamalar({
         )}
       </div>
 
-      {sabit && sirali.length > 0 && (
+      {sabit && (sirali.length > 0 || otomatikBorcOdemeleri.length > 0) && (
         <div className="bt-card bt-sabit-gider-ozet">
           <div>
-            <span>Her ay kesin ödenecek</span>
-            <strong>{fmt(sabitToplam)}</strong>
+            <span>Bu ay düzenli ödeme yükü</span>
+            <strong>{fmt(sabitToplam + buAyOtomatikBorcToplami)}</strong>
           </div>
-          <p>Bu toplam her ayın harcama ve ödeme gücü hesabına otomatik eklenir.</p>
+          <p>
+            {fmt(sabitToplam)} senin eklediğin sabit giderler, {fmt(buAyOtomatikBorcToplami)} kredi ve yapılandırma taksitleri. Borç taksitleri bütçede yalnızca bir kez sayılır.
+          </p>
+        </div>
+      )}
+
+      {sabit && otomatikBorcOdemeleri.length > 0 && (
+        <div className="bt-card">
+          <div className="bt-cardhead">
+            <div>
+              <div className="bt-h2" style={{ margin: 0 }}>
+                <ReceiptText size={16} /> Borçlardan otomatik gelenler
+              </div>
+              <div className="bt-satir-meta" style={{ marginTop: 5 }}>
+                Kredi ve yapılandırma kayıtlarından gelir; burada yeniden eklemen gerekmez.
+              </div>
+            </div>
+            {kredilereGit && (
+              <button className="bt-btn kucuk ikincil" onClick={kredilereGit}>
+                Kredileri aç <ChevronRight size={14} />
+              </button>
+            )}
+          </div>
+          <div className="bt-stack" style={{ gap: 10 }}>
+            {otomatikBorcOdemeleri.map((odeme) => (
+              <div className="bt-satir" key={odeme.id}>
+                <div style={{ flex: 1, minWidth: 180 }}>
+                  <div className="bt-satir-ad">
+                    {odeme.banka} · {odeme.ad}
+                  </div>
+                  <div className="bt-satir-meta">
+                    {odeme.yapilandirma ? "Yapılandırma" : "Kredi taksiti"}
+                    {odeme.kalanTaksit > 0 && <> · {odeme.kalanTaksit} taksit kaldı</>}
+                    {!odeme.buAyOdenecek && odeme.ilkOdemeTarihi && (
+                      <> · {odeme.ilkOdemeTarihi.split("-").reverse().join(".")} tarihinde başlar</>
+                    )}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div className="bt-satir-tutar">{fmt(odeme.taksit)}</div>
+                  <div className="bt-satir-meta">
+                    {odeme.buAyOdenecek ? "Bu ay ödenecek" : "Henüz başlamadı"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -11718,7 +11798,7 @@ function Harcamalar({
         <div className="bt-card">
           <div className="bt-cardhead">
             <div className="bt-h2" style={{ margin: 0 }}>
-              {sabit ? "Her ay tekrarlanan giderler" : `İşlem tarihi: ${ayEtiketi(gorunenAy)}`}
+              {sabit ? "Senin eklediğin sabit giderler" : `İşlem tarihi: ${ayEtiketi(gorunenAy)}`}
             </div>
             {!sabit && <select
               className="bt-input"

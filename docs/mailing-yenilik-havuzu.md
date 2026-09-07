@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Nakit ve düzenli borç ödemelerini aynı tabloda gör — v1.50.0
+
+- Siz istediniz: Eldeki nakdi nereye kaydedeceğinizi bilmek ve kredi taksitlerini sabit giderlerle birlikte görmek.
+- Biz yaptık: Varlıklar'a ayrı Nakit alanı ekledik; kredi ve yapılandırma taksitlerini Sabit Giderler'e otomatik getirdik.
+- Faydası: Aylık düzenli ödeme yükünü tek yerde görürsün; borç taksitleri bütçede ikinci kez sayılmaz.
+- Aksiyon: `https://borcama.com/fixed-expenses`
+
 ### Ekstrendeki harcamaları kategori kategori gör — v1.49.0
 
 - Siz istediniz: Ekstre toplamını görmekle kalmayıp paranın hangi kalemlere harcandığını anlayabilmek.

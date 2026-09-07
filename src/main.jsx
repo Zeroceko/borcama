@@ -143,7 +143,9 @@ function Kok() {
     "/payments",
     "/debt-plan",
     "/income",
+    "/fixed-income",
     "/expenses",
+    "/fixed-expenses",
     "/assets",
     "/settings",
   ];

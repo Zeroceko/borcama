@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.50.0] - 2026-09-07
+
+### Eklendi
+
+- Nakit ve banka mevduatları Varlıklar'da ayrı bir kategori ve doğrudan ekleme aksiyonuyla kolayca kaydedilebilir hale getirildi.
+- Kredi ve kart yapılandırma taksitleri Sabit Giderler'de otomatik, başlangıç tarihi ve kalan taksit bilgisiyle, bütçeye ikinci kez eklenmeden gösterilmeye başlandı.
+
+### Düzeltildi
+
+- Sabit Giderler ve Sabit Gelirler adresleri doğrudan açıldığında ana sayfaya dönmek yerine ilgili kullanıcı ekranını açıyor.
+
 ## [1.49.3] - 2026-09-07
 
 ### Düzeltildi

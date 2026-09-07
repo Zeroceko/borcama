@@ -14,7 +14,7 @@ const varlikDegeri = (varlik) => sayi(
   (sayi(varlik.miktar) * sayi(varlik.fonBirimFiyati || varlik.hisseBirimFiyati || varlik.kriptoBirimFiyati)),
 );
 const LIKIT_VARLIK_TURLERI = new Set([
-  "mevduat", "usd", "eur", "gbp", "chf", "fon", "hisse", "hisse_abd",
+  "nakit", "mevduat", "usd", "eur", "gbp", "chf", "fon", "hisse", "hisse_abd",
 ]);
 const likitVarlikMi = (varlik) => {
   const tur = String(varlik?.tur || "").toLowerCase();
