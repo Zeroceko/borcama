@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.51.1] - 2026-09-08
+
+### Düzeltildi
+
+- Yeni landing hero başlığındaki lime vurgu, harfleri birbirine bindiren çok katmanlı gölge kaldırılarak ince koyu kontur ve tek coral gölgeyle daha okunur hale getirildi.
+
 ## [1.51.0] - 2026-09-08
 
 ### Eklendi

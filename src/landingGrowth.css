@@ -36,7 +36,7 @@
 .lg-pricing{padding-top:68px;padding-bottom:64px}
 @media(max-width:760px){.lg-hero{padding-top:22px;padding-bottom:38px}.lg-section{padding-block:46px}.lg-pricing{padding-top:50px;padding-bottom:46px}}
 .lg{background-color:var(--cream);background-image:linear-gradient(180deg,#f4efe0 0%,#f4efe0 18%,#e8eee4 42%,#f4efe0 66%,#eef2e5 84%,#f4efe0 100%);background-attachment:scroll}
-.lg h1 em{color:var(--lime);text-shadow:2px 3px 0 var(--green),4px 5px 0 #ff6f59}
+.lg h1 em{color:var(--lime);-webkit-text-stroke:1px var(--green);paint-order:stroke fill;text-shadow:2px 3px 0 #ff6f59}
 .lg-product{background:linear-gradient(145deg,#fffaf0 0%,#eef2e5 52%,#dce9e3 100%);color:var(--ink);border-color:#062d2033;box-shadow:9px 10px 0 #ff6f59}
 .lg-product-top,.lg-product-heading,.lg-product-muted,.lg-product-foot{color:#484c41}
 .lg-product-amount{color:var(--ink);text-shadow:2px 2px 0 var(--lime),4px 4px 0 #ff6f59}
