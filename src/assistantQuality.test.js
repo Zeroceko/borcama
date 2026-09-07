@@ -123,6 +123,14 @@ test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", 
   assert.match(kaynak, /Sonuçları kontrol edin/);
 });
 
+test("asistan penceresi serbest soruyu öne çıkarır ve hızlı incelemeleri FAQ gibi sunmaz", () => {
+  const kaynak = readFileSync(resolve(kok, "src/App.jsx"), "utf8");
+  assert.match(kaynak, /Ne öğrenmek istiyorsun\?/);
+  assert.match(kaynak, /aria-label="Hızlı finansal incelemeler"/);
+  assert.match(kaynak, /Aylık durumumu özetle/);
+  assert.doesNotMatch(kaynak, /aria-label="Hazır sorular"/);
+});
+
 test("başarılı asistan konuşması finansal bağlamı kopyalamadan CRM geçmişine yazılır", () => {
   const asistan = readFileSync(resolve(kok, "supabase/functions/financial-assistant/index.ts"), "utf8");
   const crm = readFileSync(resolve(kok, "supabase/functions/backoffice/index.ts"), "utf8");

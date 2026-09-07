@@ -616,8 +616,8 @@ const CSS = `
 .bt-feedback-trigger{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(14px,3vw,28px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${LIME};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${CORAL};cursor:pointer}
 .bt-feedback-trigger:hover{transform:translateY(-1px)}
 .bt-nav-ana .bt-assistant-nav{background:${INK};color:${CREAM};border-color:${INK}}.bt-nav-ana .bt-assistant-nav svg{color:${LIME}}.bt-nav-ana .bt-assistant-nav:hover{transform:translateY(-1px);box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-beta{display:inline-flex;align-items:center;margin-left:5px;padding:2px 5px;border:1px solid currentColor;border-radius:999px;color:${LIME};font:850 8px 'Space Grotesk',sans-serif;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
-.bt-assistant-modal{max-width:560px;max-height:calc(100dvh - 40px);overflow-y:auto}.bt-assistant-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center}.bt-assistant-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-head h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:20px}.bt-assistant-head p{margin:3px 0 0;color:var(--dim);font-size:11.5px}.bt-assistant-head .bt-assistant-beta{color:var(--dim);font-family:'Space Grotesk',sans-serif}.bt-assistant-close{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-assistant-prompts{display:flex;gap:7px;flex-wrap:wrap;margin:19px 0 12px}.bt-assistant-prompts button{padding:8px 10px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2);color:var(--text);font:750 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-assistant-prompts button.aktif{background:${LIME};color:${INK};border-color:${INK}}.bt-assistant-answer{padding:17px;border:1px solid var(--line-soft);border-radius:15px;background:color-mix(in srgb,${LIME} 11%,var(--panel));font-size:13px;line-height:1.58}.bt-assistant-answer>strong{display:block;margin-bottom:10px;font-size:15px}.bt-assistant-answer p{margin:0;color:var(--dim);white-space:pre-line}.bt-assistant-summary{padding:12px 13px;border-left:4px solid ${LIME};border-radius:0 11px 11px 0;background:var(--panel);color:var(--text)!important;font-weight:720;line-height:1.5}.bt-assistant-list{display:grid;gap:8px;margin:11px 0 0;padding:0;list-style:none}.bt-assistant-list li{position:relative;padding:10px 12px 10px 36px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel);color:var(--dim);line-height:1.48}.bt-assistant-list li::before{content:'✓';position:absolute;left:12px;top:10px;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:${LIME};color:${INK};font-size:10px;font-weight:900}.bt-assistant-emphasis{color:var(--text);font-weight:850}.bt-assistant-next{margin-top:10px;padding:10px 12px;border-radius:11px;background:${INK};color:${CREAM};line-height:1.45}.bt-assistant-next b{color:${LIME}}.bt-assistant-check{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel2);color:var(--dim);font-size:10.5px;line-height:1.4}.bt-assistant-check svg{flex:0 0 auto;margin-top:1px;color:var(--dim)}.bt-assistant-answer small{display:block;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:10px;line-height:1.45}.bt-assistant-action{margin-top:13px}.bt-assistant-action .bt-btn{justify-content:center}
-.bt-assistant-custom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0}.bt-assistant-custom .bt-input{margin:0}.bt-assistant-custom .bt-btn{min-width:74px;justify-content:center}@media(max-width:520px){.bt-assistant-custom{grid-template-columns:1fr}.bt-assistant-custom .bt-btn{width:100%}}
+.bt-assistant-modal{max-width:620px;max-height:calc(100dvh - 40px);overflow-y:auto;padding:26px}.bt-assistant-head{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line-soft)}.bt-assistant-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-assistant-head h2{margin:0;font-family:'Archivo Black',sans-serif;font-size:21px}.bt-assistant-head p{margin:4px 0 0;color:var(--dim);font-size:12px}.bt-assistant-head .bt-assistant-beta{color:var(--dim);font-family:'Space Grotesk',sans-serif}.bt-assistant-close{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-assistant-section-label{display:block;margin:0 0 8px;color:var(--dim);font-size:10px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.bt-assistant-composer{margin:18px 0 14px;padding:14px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel2)}.bt-assistant-custom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0}.bt-assistant-custom .bt-input{margin:0;background:var(--panel)}.bt-assistant-custom .bt-btn{min-width:82px;justify-content:center}.bt-assistant-composer>small{display:block;margin-top:8px;color:var(--faint);font-size:10.5px;line-height:1.4}.bt-assistant-shortcuts{margin:0 0 14px}.bt-assistant-prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bt-assistant-prompts button{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;min-width:0;padding:10px;border:1px solid var(--line-soft);border-radius:13px;background:var(--panel);color:var(--text);font-family:'Space Grotesk',sans-serif;text-align:left;cursor:pointer}.bt-assistant-prompts button:hover{border-color:color-mix(in srgb,${LIME} 70%,var(--line-soft));background:color-mix(in srgb,${LIME} 8%,var(--panel))}.bt-assistant-prompts button.aktif{border-color:${INK};box-shadow:inset 3px 0 0 ${LIME}}.bt-assistant-prompt-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:color-mix(in srgb,${LIME} 72%,var(--panel));color:${INK}}.bt-assistant-prompt-copy{min-width:0}.bt-assistant-prompt-copy strong{display:block;font-size:11px;line-height:1.25}.bt-assistant-prompt-copy small{display:block;margin-top:2px;color:var(--faint);font-size:9.5px;line-height:1.3}.bt-assistant-prompts button>svg{color:var(--faint)}.bt-assistant-answer{padding:18px;border:1px solid var(--line-soft);border-radius:17px;background:color-mix(in srgb,${LIME} 10%,var(--panel));font-size:13px;line-height:1.58}.bt-assistant-answer-label{display:block;margin-bottom:5px;color:var(--dim);font-size:9.5px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.bt-assistant-answer>strong{display:block;margin-bottom:10px;font-size:16px;line-height:1.3}.bt-assistant-answer p{margin:0;color:var(--dim);white-space:pre-line}.bt-assistant-summary{padding:12px 13px;border-left:4px solid ${LIME};border-radius:0 11px 11px 0;background:var(--panel);color:var(--text)!important;font-weight:720;line-height:1.5}.bt-assistant-list{display:grid;gap:8px;margin:11px 0 0;padding:0;list-style:none}.bt-assistant-list li{position:relative;padding:10px 12px 10px 36px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel);color:var(--dim);line-height:1.48}.bt-assistant-list li::before{content:'✓';position:absolute;left:12px;top:10px;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:${LIME};color:${INK};font-size:10px;font-weight:900}.bt-assistant-emphasis{color:var(--text);font-weight:850}.bt-assistant-next{margin-top:10px;padding:10px 12px;border-radius:11px;background:${INK};color:${CREAM};line-height:1.45}.bt-assistant-next b{color:${LIME}}.bt-assistant-check{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel2);color:var(--dim);font-size:10.5px;line-height:1.4}.bt-assistant-check svg{flex:0 0 auto;margin-top:1px;color:var(--dim)}.bt-assistant-answer>small{display:block;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:10px;line-height:1.45}.bt-assistant-answer-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px}.bt-assistant-action .bt-btn{justify-content:center}.bt-assistant-answer-footer .bt-assistant-quota{margin-top:0}
+@media(max-width:520px){.bt-assistant-modal{padding:18px 15px}.bt-assistant-head{grid-template-columns:40px minmax(0,1fr) auto;padding-bottom:14px}.bt-assistant-mark{width:40px;height:40px}.bt-assistant-head h2{font-size:18px}.bt-assistant-head p{font-size:10.5px}.bt-assistant-composer{margin-top:14px;padding:11px}.bt-assistant-custom{grid-template-columns:1fr}.bt-assistant-custom .bt-btn{width:100%}.bt-assistant-prompts{grid-template-columns:1fr}.bt-assistant-prompt-copy small{font-size:10px}.bt-assistant-answer-footer{align-items:stretch;flex-direction:column}.bt-assistant-action .bt-btn{width:100%}}
 .bt-assistant-consent{margin:12px 0;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);font-size:11.5px;line-height:1.5;color:var(--dim)}.bt-assistant-consent strong{display:block;margin-bottom:5px;color:var(--text);font-size:13px}.bt-assistant-consent .bt-btn{margin-top:11px}.bt-assistant-quota{display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;margin-top:10px;padding:7px 10px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--dim);font-size:11px;line-height:1}.bt-assistant-quota strong{color:var(--text);font-size:14px}.bt-assistant-quota-plan{padding:4px 7px;border-radius:999px;background:var(--lime);color:var(--ink);font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}.bt-assistant-loading{display:inline-flex;align-items:center;gap:7px}.bt-assistant-loading svg{animation:bt-spin .9s linear infinite}@keyframes bt-spin{to{transform:rotate(360deg)}}
 .bt-quick-add{position:fixed;right:clamp(14px,3vw,28px);bottom:clamp(70px,8vw,86px);z-index:40;display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border:2px solid ${INK};border-radius:999px;background:${CORAL};color:${INK};font:800 12.5px 'Space Grotesk',sans-serif;box-shadow:4px 4px 0 ${LIME};cursor:pointer}
 .bt-quick-add:hover{transform:translateY(-1px)}
@@ -4152,6 +4152,12 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
     },
   };
   const yanit = yanitlar[secim];
+  const hizliIncelemeler = [
+    { id: "durum", baslik: "Aylık durumumu özetle", aciklama: "Gelir ve ödeme dengem", ikon: BarChart3 },
+    { id: "ilk", baslik: "Önceliğimi göster", aciklama: "İlk odaklanacağım adım", ikon: CalendarCheck },
+    { id: "acik", baslik: "Açığın kaynağını bul", aciklama: "Bütçeyi zorlayan kalemler", ikon: ScanSearch },
+    { id: "duzelt", baslik: "Bir kaydı düzelt", aciklama: "Doğru ekrana hızla git", ikon: ReceiptText },
+  ];
   const soruSor = async (event) => {
     event.preventDefault();
     if (!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor) return;
@@ -4168,7 +4174,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       setModelDurumu({ yukleniyor: false, hata: "", kota: sonuc.quota || null });
     } catch (error) {
       const mesaj = error?.message === "DAILY_LIMIT"
-        ? `Bugünkü ${error.quota?.limit || (proAktif ? 50 : 10)} soru hakkını kullandın. Yarın yeniden sorabilirsin.`
+        ? `Bugünkü ${error.quota?.limit || (proAktif ? 20 : 3)} soru hakkını kullandın. Yarın yeniden sorabilirsin.`
         : error?.message === "DEMO_MODE"
           ? "Yapay zekâ yanıtları yalnız giriş yapılmış gerçek hesapta çalışır. Hazır cevapları bu önizlemede kullanabilirsin."
           : "Şu anda güvenilir bir yanıt oluşturamadım. Biraz sonra tekrar deneyebilirsin.";
@@ -4197,13 +4203,8 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       <section className="bt-modal bt-assistant-modal" role="dialog" aria-modal="true" aria-labelledby="bt-assistant-title">
         <div className="bt-assistant-head">
           <span className="bt-assistant-mark"><Sparkles size={20}/></span>
-          <div><h2 id="bt-assistant-title">Borcama Asistanı <em className="bt-assistant-beta">Beta</em></h2><p>Kendi kayıtlarından kısa ve açıklanabilir yanıtlar.</p></div>
+          <div><h2 id="bt-assistant-title">Borcama Asistanı <em className="bt-assistant-beta">Beta</em></h2><p>Finansal tablonu anlaşılır bir sonraki adıma dönüştürür.</p></div>
           <button className="bt-assistant-close" type="button" aria-label="Asistanı kapat" onClick={kapat}><X size={17}/></button>
-        </div>
-        <div className="bt-assistant-prompts" role="group" aria-label="Hazır sorular">
-          {[["durum","Bu ay ne durumdayım?"],["ilk","Önce ne yapmalıyım?"],["acik","Neden açık var?"],["duzelt","Yanlış kaydı nasıl düzeltirim?"]].map(([id, etiket]) => (
-            <button key={id} type="button" className={secim === id ? "aktif" : ""} onClick={() => setSecim(id)}>{etiket}</button>
-          ))}
         </div>
         {!yapayZekaIzni && (
           <div className="bt-assistant-consent">
@@ -4212,11 +4213,28 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
             <button className="bt-btn kucuk birincil" type="button" onClick={yapayZekaIzniVer}>Etkinleştir</button>
           </div>
         )}
-        <form className="bt-assistant-custom" onSubmit={soruSor}>
-          <input className="bt-input" value={soru} onChange={(e) => setSoru(e.target.value)} placeholder="Örn. Borcumu 6 ay yapılandırsam ne olur?" aria-label="Başka sorunuzu yazın" disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
-          <button className="bt-btn ikincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> Bakıyorum</span> : "Sor"}</button>
-        </form>
+        <div className="bt-assistant-composer">
+          <span className="bt-assistant-section-label">Ne öğrenmek istiyorsun?</span>
+          <form className="bt-assistant-custom" onSubmit={soruSor}>
+            <input className="bt-input" value={soru} onChange={(e) => setSoru(e.target.value)} placeholder="Örn. 10.000 TL ile önce hangi borcu kapatmalıyım?" aria-label="Sorunuzu yazın" disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
+            <button className="bt-btn birincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> Bakıyorum</span> : <>Sor <Send size={14}/></>}</button>
+          </form>
+          <small>Yanıt, Borcama'ya kaydettiğin güncel finansal tabloya göre hazırlanır.</small>
+        </div>
+        <div className="bt-assistant-shortcuts">
+          <span className="bt-assistant-section-label">Ya da kayıtlarında hızlıca incele</span>
+          <div className="bt-assistant-prompts" role="group" aria-label="Hızlı finansal incelemeler">
+            {hizliIncelemeler.map(({ id, baslik, aciklama, ikon: Ikon }) => (
+              <button key={id} type="button" className={secim === id ? "aktif" : ""} aria-pressed={secim === id} onClick={() => { setSecim(id); setModelYaniti(null); setModelDurumu({ yukleniyor: false, hata: "", kota: null }); }}>
+                <span className="bt-assistant-prompt-icon"><Ikon size={16}/></span>
+                <span className="bt-assistant-prompt-copy"><strong>{baslik}</strong><small>{aciklama}</small></span>
+                <ChevronRight size={14}/>
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="bt-assistant-answer" aria-live="polite">
+          <span className="bt-assistant-answer-label">{secim === "model" ? "Soruna özel yanıt" : "Kayıtlarına göre"}</span>
           <strong>{gosterilenYanit.baslik}</strong>
           {yanitSunumu ? <>
             {yanitSunumu.kisaCevap && <p className="bt-assistant-summary">{vurgula(yanitSunumu.kisaCevap)}</p>}
@@ -4225,9 +4243,11 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           </> : <p>{gosterilenYanit.metin}</p>}
           <div className="bt-assistant-check"><AlertTriangle size={14}/><span><b>Sonuçları kontrol edin.</b> Asistan hata yapabilir; özellikle faiz, vergi, tarih ve banka tekliflerini resmi belgenizle karşılaştırın.</span></div>
           <small>Borcama, sorularını kaydettiğin verileri yorumlayarak yanıtlar. Yatırım tavsiyesi vermez.</small>
-          {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{proAktif ? "Pro" : "Ücretsiz"}</span><strong>{modelDurumu.kota.remaining}</strong><span>bugünkü soru hakkın kaldı</span></div>}
+          <div className="bt-assistant-answer-footer">
+            <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>
+            {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{proAktif ? "Pro" : "Ücretsiz"}</span><strong>{modelDurumu.kota.remaining}</strong><span>bugünkü soru hakkın kaldı</span></div>}
+          </div>
         </div>
-        <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>
       </section>
     </div>
   );

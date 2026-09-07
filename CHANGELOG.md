@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.49.1] - 2026-09-07
+
+### Değiştirildi
+
+- Borcama Asistanı penceresinde serbest soru sorma ana aksiyon haline getirildi; hazır soru görünümü yerine finansal amaca göre seçilebilen kısa inceleme yolları ve yanıtla birleşen tek bir sonraki adım sunuldu.
+
 ## [1.49.0] - 2026-09-06
 
 ### Eklendi
