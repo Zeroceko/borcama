@@ -105,3 +105,59 @@ html.borcama-native .bt-nav-ana .bt-pill {
 html.borcama-native .bt-nav-ana .bt-pill:active {
   opacity: 0.55;
 }
+
+/* Apple HIG minimum dokunma alani 44x44pt. Kapat butonlari ve tutar
+   gizleme dugmesi 28-38px araligindaydi. Gorsel boyut korunur; yalniz
+   dokunulabilir alan gorunmez bir katmanla 44pt'ye genisletilir. */
+html.borcama-native .bt-assistant-close,
+html.borcama-native .bt-tutar-toggle {
+  position: relative;
+}
+
+html.borcama-native .bt-tour-kapat::after,
+html.borcama-native .bt-product-tour-kapat::after,
+html.borcama-native .bt-pro-modal-kapat::after,
+html.borcama-native .bt-assistant-close::after,
+html.borcama-native .bt-tutar-toggle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+/* Dokunma aninda iOS'un standart geri bildirimi. */
+html.borcama-native .bt-tour-kapat,
+html.borcama-native .bt-product-tour-kapat,
+html.borcama-native .bt-pro-modal-kapat,
+html.borcama-native .bt-assistant-close {
+  transition: opacity 0.12s ease;
+}
+
+html.borcama-native .bt-tour-kapat:active,
+html.borcama-native .bt-product-tour-kapat:active,
+html.borcama-native .bt-pro-modal-kapat:active,
+html.borcama-native .bt-assistant-close:active {
+  opacity: 0.55;
+}
+
+/* Ortak modal katmani 20px sabit bosluk kullaniyordu; centikli cihazlarda
+   pencerenin basligi status bar'in altinda kaliyordu. */
+html.borcama-native .bt-modal-arka {
+  padding-top: calc(20px + var(--guvenli-ust));
+  padding-bottom: calc(20px + var(--guvenli-alt));
+}
+
+html.borcama-native .bt-assistant-modal {
+  max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt));
+}
+
+/* Onay kutusundaki buton satir ici akiyor ve dar ekranda metnin uzerine
+   biniyordu; kendi satirina alinir. */
+html.borcama-native .bt-assistant-consent .bt-btn {
+  display: flex;
+  width: 100%;
+  margin-top: 12px;
+}
