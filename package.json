@@ -19,6 +19,7 @@
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/ios": "^8.5.1",
     "@paddle/paddle-js": "^1.6.4",
+    "@revenuecat/purchases-capacitor": "^13.5.0",
     "@revenuecat/purchases-js": "^1.51.0",
     "@sentry/react": "^10.73.0",
     "@supabase/supabase-js": "^2.110.2",

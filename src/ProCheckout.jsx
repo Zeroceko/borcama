@@ -6,7 +6,9 @@ import {
   revenueCatProKontrol,
   revenueCatProPaketleri,
   revenueCatProSatinAl,
+  revenueCatSatinAlimlariGeriYukle,
 } from "./revenuecat.js";
+import { nativeMi } from "./platform.js";
 import {
   proNiyetiniKaydet,
   proNiyetiniOku,
@@ -92,6 +94,28 @@ export default function ProCheckout() {
     }
   }
 
+  // App Store Guideline 3.1.1: satin alimlari geri yukleme yolu zorunludur.
+  async function satinAlimlariGeriYukle() {
+    setDurum({ yukleniyor: true, hata: "" });
+    try {
+      const sonuc = await revenueCatSatinAlimlariGeriYukle(session.user.id);
+      if (sonuc.active) {
+        proNiyetiniTemizle();
+        window.location.assign("/welcome");
+        return;
+      }
+      setDurum({
+        yukleniyor: false,
+        hata: "Bu Apple hesabında geri yüklenecek bir Borcama Pro aboneliği bulunamadı.",
+      });
+    } catch {
+      setDurum({
+        yukleniyor: false,
+        hata: "Satın alımlar geri yüklenemedi. Lütfen tekrar dene.",
+      });
+    }
+  }
+
   function ucretsizDevam() {
     proNiyetiniTemizle();
     window.location.assign("/summary");
@@ -103,9 +127,11 @@ export default function ProCheckout() {
       <div className="pc-shell">
         <header className="pc-head">
           <img className="pc-logo" src="/borcama-logo.png" alt="Borcama" />
-          <a className="pc-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-            <ChevronLeft size={15} /> Ana sayfa
-          </a>
+          {!nativeMi && (
+            <a className="pc-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
+              <ChevronLeft size={15} /> Ana sayfa
+            </a>
+          )}
         </header>
         <section className="pc-card">
           <div className="pc-copy">
@@ -138,6 +164,16 @@ export default function ProCheckout() {
               {durum.yukleniyor ? "Ödeme açılıyor…" : "Güvenli ödemeye geç →"}
             </button>
             <button className="pc-secondary" type="button" onClick={ucretsizDevam}>Uygulamaya dön</button>
+            {nativeMi && (
+              <button
+                className="pc-secondary"
+                type="button"
+                disabled={durum.yukleniyor}
+                onClick={satinAlimlariGeriYukle}
+              >
+                Satın alımları geri yükle
+              </button>
+            )}
             <p className="pc-note"><ShieldCheck size={15} /> Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır.</p>
             <div
               style={{
