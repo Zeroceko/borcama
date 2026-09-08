@@ -65,11 +65,33 @@ html.borcama-native .bt-wrap {
 }
 
 /* Sabit konumlu ogeler alt guvenli alani hesaba katmiyordu; ev cubugu
-   olan cihazlarda alt menunun uzerine biniyorlardi. */
+   olan cihazlarda alt menunun uzerine biniyorlardi. Degerler mobil
+   duzenindekilerle ayni, uzerine yalniz guvenli alan ekleniyor. */
+html.borcama-native .bt-feedback-trigger {
+  bottom: calc(76px + var(--guvenli-alt));
+}
+
 html.borcama-native .bt-quick-add {
-  bottom: calc(clamp(70px, 8vw, 86px) + var(--guvenli-alt));
+  bottom: calc(128px + var(--guvenli-alt));
 }
 
 html.borcama-native .bt-quick-menu {
-  bottom: calc(clamp(120px, 13vw, 142px) + var(--guvenli-alt));
+  bottom: calc(184px + var(--guvenli-alt));
+}
+
+/* Sayfada sabit bir baslik yok; kaydirinca icerik status bar ve Dynamic
+   Island'in altindan gecip okunamaz hale geliyordu. Native uygulamalarin
+   yaptigi gibi o serite bulanik bir ortu koyulur. */
+html.borcama-native body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--guvenli-ust);
+  z-index: 100;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
 }
