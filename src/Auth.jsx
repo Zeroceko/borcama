@@ -23,7 +23,7 @@ import {
 import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
-import { nativeMi } from "./platform.js";
+import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
@@ -320,7 +320,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         setHata("Çok fazla deneme yapıldı. Lütfen biraz bekleyin.");
       else if (["captcha_failed", "captcha_provider_disabled"].includes(kod))
         setHata(
-          "Güvenlik doğrulaması başarısız oldu. Sayfayı yenileyip tekrar deneyin.",
+          `Güvenlik doğrulaması başarısız oldu. ${yenilemeYonergesi} tekrar deneyin.`,
         );
       else if (kod === "email_not_confirmed")
         setHata(
@@ -707,7 +707,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                   checked={oturumuAcikTut}
                   onChange={(e) => setOturumuAcikTut(e.target.checked)}
                 />
-                <span>Bu tarayıcıda oturumu açık tut</span>
+                <span>Bu {ortamAdi}da oturumu açık tut</span>
               </label>
             )}
             {turnstileSiteKey && (

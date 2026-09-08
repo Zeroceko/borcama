@@ -174,7 +174,7 @@ export default function ProCheckout() {
                 Satın alımları geri yükle
               </button>
             )}
-            <p className="pc-note"><ShieldCheck size={15} /> Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır.</p>
+            <p className="pc-note"><ShieldCheck size={15} /> {nativeMi ? "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme App Store üzerinden tamamlanır." : "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır."}</p>
             <div
               style={{
                 marginTop: 12,

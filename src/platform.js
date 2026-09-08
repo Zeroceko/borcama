@@ -69,3 +69,16 @@ export function dokunusGeriBildirimi(siddet = "hafif") {
   const stil = siddet === "orta" ? ImpactStyle.Medium : ImpactStyle.Light;
   Haptics.impact({ style: stil }).catch(() => {});
 }
+
+// Web'e ozgu yonergeler native kabukta yanlistir: uygulamada "sayfa"
+// yenilenmez, "tarayici" yoktur. Metinler tek yerden uretilir.
+export const yenilemeYonergesi = nativeMi
+  ? "Uygulamayı yeniden başlatıp"
+  : "Sayfayı yenileyip";
+
+export const yenilemeYonergesiKucuk = nativeMi
+  ? "uygulamayı yeniden başlatın"
+  : "sayfayı yenileyin";
+
+export const ortamAdi = nativeMi ? "cihaz" : "tarayıcı";
+export const ortamSozcugu = `${ortamAdi}da`;

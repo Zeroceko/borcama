@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
-import { dokunusGeriBildirimi } from "./platform.js";
+import { dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
@@ -1999,7 +1999,7 @@ export default function BorcTakip() {
         }
       } catch (e) {
         setHata(
-          "Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin.",
+          `Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip ${yenilemeYonergesiKucuk}.`,
         );
       } finally {
         setYukleniyor(false);
@@ -2398,7 +2398,7 @@ export default function BorcTakip() {
     } catch (e) {
       setHata(
         e?.message === "VERI_CAKISMASI"
-          ? "Verileriniz başka bir cihazda değiştirilmiş. Kayıp yaşanmaması için sayfayı yenileyip tekrar deneyin."
+          ? `Verileriniz başka bir cihazda değiştirilmiş. Kayıp yaşanmaması için ${yenilemeYonergesi.toLocaleLowerCase("tr")} tekrar deneyin.`
           : "Kayıt sırasında bir sorun oluştu. Değişiklikler bu oturumda duruyor; bir sonraki işlemde tekrar denenecek.",
       );
     } finally {
@@ -5032,6 +5032,25 @@ function Ayarlar({
                     Vazgeç
                   </button>
                 </>
+              ) : nativeMi ? (
+                <>
+                  {/* App Store aboneligi yalniz Apple tarafindan yonetilir;
+                      Paddle iptal ve kart guncelleme yollari native'de
+                      gosterilmez (Guideline 3.1.1). */}
+                  {reklamsiz.proYonetimUrl && (
+                    <button
+                      className="bt-btn birincil"
+                      type="button"
+                      onClick={() => window.open(reklamsiz.proYonetimUrl, "_system")}
+                    >
+                      App Store'da aboneliği yönet
+                      <ArrowRight size={15} />
+                    </button>
+                  )}
+                  <button className="bt-btn hayalet" type="button" onClick={paketPenceresiniKapat}>
+                    Kapat
+                  </button>
+                </>
               ) : (
                 <>
                   {reklamsiz.proYenilenecek && (
@@ -6742,7 +6761,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
         );
       setError(
         isPdfCompatibilityError
-          ? "PDF bu tarayıcıda hazırlanamadı. Sayfayı yenileyip tekrar deneyin."
+          ? `PDF bu ${ortamSozcugu} hazırlanamadı. ${yenilemeYonergesi} tekrar deneyin.`
           : technicalMessage ||
               "Ekstre okunamadı. Lütfen başka bir dosya deneyin.",
       );
@@ -6818,7 +6837,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
               <div>
                 <strong>Dosyan Borcama'ya yüklenmez</strong>
                 <p>
-                  PDF veya görsel bu tarayıcıda okunur. Belgenin kendisi, tam
+                  PDF veya görsel bu {ortamSozcugu} okunur. Belgenin kendisi, tam
                   kart numarası ve belgenin ham hali sunucuda saklanmaz.
                 </p>
                 <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
@@ -7809,7 +7828,7 @@ function Borclar({
       return;
     }
     if (hata) {
-      setArsivMesaji("Ekstre taşınamadı. Sayfayı yenileyip tekrar deneyin.");
+      setArsivMesaji(`Ekstre taşınamadı. ${yenilemeYonergesi} tekrar deneyin.`);
       return;
     }
     setArsivMesaji("Ekstre doğru karta taşındı. İlgili ödeme kayıtları da kartla birlikte güncellendi.");
@@ -7824,7 +7843,7 @@ function Borclar({
     });
     setSilinecekYukleme(null);
     setArsivMesaji(hata
-      ? "Ekstre kaldırılamadı. Sayfayı yenileyip tekrar deneyin."
+      ? `Ekstre kaldırılamadı. ${yenilemeYonergesi} tekrar deneyin.`
       : finansalKaydiSil
         ? "Yükleme ve bağlı ekstre kaydı silindi."
         : "Yükleme bilgisi kaldırıldı; borç ve ödeme kaydı korunuyor.");
