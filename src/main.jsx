@@ -76,6 +76,12 @@ function Kok() {
   // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
   // uygulama dogrudan kimlik/uygulama akisiyla acilir.
   if (nativeMi) {
+    // Dev build'de Supabase ayari yoksa web ile ayni sekilde demo moduna
+    // duser; ekranlar gercek veri olmadan gezilebilir.
+    if (demoModu) {
+      if (!nativeYoluMu(yol)) window.history.replaceState({}, "", "/summary");
+      return <App />;
+    }
     if (!nativeYoluMu(yol)) {
       window.history.replaceState({}, "", "/summary");
       return <KimlikliKok />;
