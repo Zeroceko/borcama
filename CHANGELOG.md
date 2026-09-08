@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.51.3] - 2026-09-08
+
+### Düzeltildi
+
+- Landing A hero vurgusu daha kısa mesajla ve birbirinden ayrı, yüksek kontrastlı satır şeritleriyle sunuluyor.
+
 ## [1.51.2] - 2026-09-08
 
 ### Düzeltildi
