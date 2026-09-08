@@ -56,3 +56,20 @@ html.borcama-native .auth-back {
 html.borcama-native .auth-wrap:not(:has(> .auth-back)) {
   padding-top: calc(24px + var(--guvenli-ust));
 }
+
+/* Uygulama kabugu: ust guvenli alan. .bt-wrap alt boslukta zaten
+   env(safe-area-inset-bottom) kullaniyor fakat ustte kullanmiyordu;
+   bu yuzden baslik status bar ve Dynamic Island'in altinda kaliyordu. */
+html.borcama-native .bt-wrap {
+  padding-top: calc(20px + var(--guvenli-ust));
+}
+
+/* Sabit konumlu ogeler alt guvenli alani hesaba katmiyordu; ev cubugu
+   olan cihazlarda alt menunun uzerine biniyorlardi. */
+html.borcama-native .bt-quick-add {
+  bottom: calc(clamp(70px, 8vw, 86px) + var(--guvenli-alt));
+}
+
+html.borcama-native .bt-quick-menu {
+  bottom: calc(clamp(120px, 13vw, 142px) + var(--guvenli-alt));
+}
