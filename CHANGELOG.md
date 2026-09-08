@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.51.4] - 2026-09-08
+
+### Değiştirildi
+
+- Landing A hero mesajı “Paran nereye gidiyor? Akıllıca borçlan, kontrolü al.” olarak kısaltıldı, vurgu şeritleri inceltildi ve belirsiz ekstre rozeti kaldırıldı.
+
 ## [1.51.3] - 2026-09-08
 
 ### Düzeltildi
