@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
+import { dokunusGeriBildirimi } from "./platform.js";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
@@ -3213,7 +3214,10 @@ export default function BorcTakip() {
             <button
               key={k}
               className={"bt-pill " + (anaSekme === k ? "aktif" : "pasif")}
-              onClick={() => anaSekmeyeGit(k)}
+              onClick={() => {
+                dokunusGeriBildirimi();
+                anaSekmeyeGit(k);
+              }}
               aria-label={ad}
             >
               <Ikon aria-hidden="true" />
@@ -3223,7 +3227,10 @@ export default function BorcTakip() {
           <button
             className="bt-pill bt-assistant-nav"
             type="button"
-            onClick={() => setAsistanPenceresi(true)}
+            onClick={() => {
+              dokunusGeriBildirimi();
+              setAsistanPenceresi(true);
+            }}
             aria-label="Borcama'ya sor"
           >
             <Sparkles aria-hidden="true" />

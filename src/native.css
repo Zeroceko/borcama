@@ -95,3 +95,13 @@ html.borcama-native body::before {
   -webkit-backdrop-filter: blur(14px);
   pointer-events: none;
 }
+
+/* Alt menu: iOS'ta sekmeye dokunulunca hafif sonme olur. Olcek
+   degistirmez, yalniz sonukleşir. Borcama'nin yesil/coral kimligi korunur. */
+html.borcama-native .bt-nav-ana .bt-pill {
+  transition: opacity 0.12s ease;
+}
+
+html.borcama-native .bt-nav-ana .bt-pill:active {
+  opacity: 0.55;
+}

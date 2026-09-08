@@ -50,3 +50,22 @@ export function nativeGorunumuHazirla() {
     viewport.setAttribute("content", `${viewport.content}, viewport-fit=cover`);
   }
 }
+
+// Haptics yalniz native'de yuklenir; dinamik import sayesinde eklenti
+// tarayici paketine hic girmez.
+let hapticsModulu = null;
+if (nativeMi) {
+  import("@capacitor/haptics")
+    .then((m) => {
+      hapticsModulu = m;
+    })
+    .catch(() => {});
+}
+
+// Dokunma geri bildirimi. Tarayicida hicbir sey yapmaz.
+export function dokunusGeriBildirimi(siddet = "hafif") {
+  if (!nativeMi || !hapticsModulu) return;
+  const { Haptics, ImpactStyle } = hapticsModulu;
+  const stil = siddet === "orta" ? ImpactStyle.Medium : ImpactStyle.Light;
+  Haptics.impact({ style: stil }).catch(() => {});
+}
