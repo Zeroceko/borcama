@@ -1,0 +1,52 @@
+/* Native kabuga ozel duzeltmeler. Butun kurallar .borcama-native
+   sinifina bagli; bu sinif yalniz Capacitor icinde eklenir, dolayisiyla
+   tarayicida bu dosyanin hicbir etkisi yoktur. */
+
+html.borcama-native {
+  /* Cihaz guvenli alan degerleri; sabit konumlu ogeler icin kullanilir. */
+  --guvenli-ust: env(safe-area-inset-top, 0px);
+  --guvenli-alt: env(safe-area-inset-bottom, 0px);
+  --guvenli-sol: env(safe-area-inset-left, 0px);
+  --guvenli-sag: env(safe-area-inset-right, 0px);
+}
+
+html.borcama-native body {
+  /* iOS'ta lastik bandi kaydirmasini engeller. */
+  overscroll-behavior-y: none;
+  /* Metin secimi ve uzun basma menusu uygulama hissini bozuyor. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* iOS, 16px'ten kucuk yazi tipli bir alana odaklaninca sayfayi otomatik
+   buyutur ve duzen bozulur. Girdileri 16px'e sabitlemek bunu pinch-zoom
+   yetenegini kapatmadan onler; erisilebilirlik korunur. */
+html.borcama-native input,
+html.borcama-native select,
+html.borcama-native textarea {
+  font-size: 16px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+html.borcama-native [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Giris ekrani: "Ana sayfaya don" butonu mutlak konumlu ve .auth-wrap'e
+   gore hizalaniyor; centik alaninin altina indirilir. */
+html.borcama-native .auth-wrap {
+  padding-top: calc(78px + var(--guvenli-ust));
+}
+
+html.borcama-native .auth-back {
+  top: calc(24px + var(--guvenli-ust));
+}
+
+@media (max-width: 720px) {
+  html.borcama-native .auth-back {
+    top: calc(15px + var(--guvenli-ust));
+  }
+}

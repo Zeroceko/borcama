@@ -23,6 +23,7 @@ import {
 import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
+import { nativeMi } from "./platform.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
@@ -493,7 +494,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               placeholder="ornek@eposta.com"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
-              autoFocus
+              autoFocus={!nativeMi}
               required
             />
             {turnstileSiteKey && (
@@ -529,7 +530,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               placeholder="ornek@eposta.com"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
-              autoFocus
+              autoFocus={!nativeMi}
               required
             />
             {turnstileSiteKey && (
@@ -561,7 +562,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               placeholder="ornek@eposta.com"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
-              autoFocus
+              autoFocus={!nativeMi}
               required
             />
             <label htmlFor="auth-password" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>Parola</label>
@@ -919,7 +920,7 @@ export function ParolaYenileEkrani() {
                   placeholder="Yeni parola"
                   value={parola}
                   onChange={(e) => setParola(e.target.value)}
-                  autoFocus
+                  autoFocus={!nativeMi}
                   required
                   minLength={8}
                 />

@@ -14,6 +14,8 @@ import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import { noindexYoluMu } from "./seoIndexing.js";
 import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
+import "./native.css";
+import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -29,6 +31,7 @@ const KullaniciSozlesmesi = lazy(() => import("./Legal.jsx").then((module) => ({
 const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.GizlilikMetni })));
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
+nativeGorunumuHazirla();
 googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
@@ -70,6 +73,24 @@ function Kok() {
     }
     meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
+  // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
+  // uygulama dogrudan kimlik/uygulama akisiyla acilir.
+  if (nativeMi) {
+    if (!nativeYoluMu(yol)) {
+      window.history.replaceState({}, "", "/summary");
+      return <KimlikliKok />;
+    }
+    if (yol === "/login") return <GirisEkrani />;
+    if (yol === "/register") return <GirisEkrani kayitModu />;
+    if (yol === "/reset-password") return <ParolaYenileEkrani />;
+    if (yol === "/terms") return <KullaniciSozlesmesi />;
+    if (yol === "/privacy") return <GizlilikMetni />;
+    if (yol === "/refund-policy") return <IadePolitikasi />;
+    if (yol === "/faq") return <Faq />;
+    if (yol === "/welcome") return <KimlikliWelcome />;
+    if (yol === "/upgrade") return <ProCheckout />;
+    return <KimlikliKok />;
+  }
   if (yol.startsWith("/davet/"))
     return <HariciYonlendirme url={davetKayitYolu(davetKodunuYoldanOku(yol, window.location.search))} />;
   if (eskiYonetimYolu)
