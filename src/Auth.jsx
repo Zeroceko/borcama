@@ -425,9 +425,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
-      <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-        <ArrowLeft size={15} /> Ana sayfaya dön
-      </a>
+      {!nativeMi && (
+        <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
+          <ArrowLeft size={15} /> Ana sayfaya dön
+        </a>
+      )}
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">

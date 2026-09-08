@@ -50,3 +50,9 @@ html.borcama-native .auth-back {
     top: calc(15px + var(--guvenli-ust));
   }
 }
+
+/* Geri butonu gizlendiginde ust bosluk gereksiz kaliyor; yalniz butonun
+   bulunmadigi ekranlarda daraltilir. */
+html.borcama-native .auth-wrap:not(:has(> .auth-back)) {
+  padding-top: calc(24px + var(--guvenli-ust));
+}
