@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.51.2] - 2026-09-08
+
+### Düzeltildi
+
+- LANDING-002 deneyinin A versiyonundaki eski hero mesajı güncellendi ve vurgu metni Borcama renkleriyle daha rahat okunur hale getirildi.
+
 ## [1.51.1] - 2026-09-08
 
 ### Düzeltildi
