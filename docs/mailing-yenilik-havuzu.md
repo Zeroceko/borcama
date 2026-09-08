@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Hesabın ve verilerin üzerinde kontrol sende — v1.52.0
+
+- Siz istediniz: Borcama hesabınızı destek ekibine yazmadan kendiniz silebilmek.
+- Biz yaptık: Ayarlar'a, yanlışlıkla çalışmaması için yazılı onay isteyen kalıcı hesap silme akışı ekledik.
+- Faydası: Hesabınızı ve Borcama'daki kişisel kayıtlarınızı doğrudan kaldırabilir; aktif ücretli aboneliğiniz varsa gelecekteki tahsilat durdurulmadan silme tamamlanmaz.
+- Aksiyon: `https://borcama.com/settings`
+
 ### Hesap açmadan Borcama'ya bir bak — v1.51.0
 
 - Siz istediniz: Kayıt olmadan önce Borcama'nın ne işe yaradığını görmek.

@@ -143,7 +143,8 @@ export function KullaniciSozlesmesi({ embedded = false }) {
       </p>
       <h2>8. Hesabın kapatılması</h2>
       <p>
-        Hesabınızın ve ilişkili verilerinizin silinmesini destek kanalı
+        Hesabınızı ve ilişkili Borcama verilerinizi Ayarlar bölümündeki
+        “Hesabımı sil” seçeneğiyle kalıcı olarak silebilir veya destek kanalı
         üzerinden talep edebilirsiniz. Hukuka aykırı kullanım veya güvenlik
         riski halinde erişim geçici olarak durdurulabilir ya da hesap
         kapatılabilir.

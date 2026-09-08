@@ -106,6 +106,13 @@ import {
 } from "./paymentSummary.js";
 import { summarizeComparableAssets } from "./assetSummary.js";
 import {
+  HESAP_SILME_ONAYI,
+  borcamaHesabiniSil,
+  borcamaYerelVerileriniTemizle,
+  hesapSilmeHataMesaji,
+  hesapSilmeOnayiGecerli,
+} from "./accountDeletion.js";
+import {
   applyCardRestructuring,
   calculateRestructuringInstallment,
   cardRestructuredAmount,
@@ -649,7 +656,7 @@ const CSS = `
 @media(max-width:760px){.bt-tour-arka{place-items:start center;padding:10px}.bt-tour{min-height:0;grid-template-columns:1fr;border-radius:20px;box-shadow:6px 6px 0 ${CORAL}}.bt-tour-main{padding:23px 18px 20px}.bt-tour-progress{margin-bottom:24px}.bt-tour h2{font-size:clamp(28px,9vw,38px)}.bt-tour-aciklama{font-size:14px}.bt-tour-visual{min-height:220px;padding:28px 22px;border-left:0;border-top:3px solid ${INK}}.bt-tour-demo{max-width:420px}.bt-tour-actions{flex-wrap:wrap}.bt-tour-atla{width:100%;order:3;margin:4px 0 0;text-align:center}.bt-tour-actions .bt-btn{flex:1}.bt-tour-kapat{top:12px;right:12px}}
 .bt-product-tour{position:fixed;inset:0;z-index:140;pointer-events:none}.bt-product-tour-golge{position:fixed;z-index:0;background:#0f110ab8;pointer-events:auto}.bt-product-tour-hedef{position:fixed;z-index:1;border:3px solid ${LIME};border-radius:22px;box-shadow:0 0 0 4px #14160f,0 0 0 9px #cdf56455;pointer-events:none;animation:bt-tour-nabiz 1.7s ease-in-out infinite}.bt-product-tour-panel{position:fixed;z-index:3;max-height:calc(100vh - 36px);overflow-y:auto;padding:23px;background:var(--panel);color:var(--text);border:3px solid ${INK};border-radius:20px;box-shadow:7px 7px 0 ${CORAL};pointer-events:auto}.bt-product-tour-kapat{position:absolute;top:13px;right:13px;width:34px;height:34px;display:grid;place-items:center;border:2px solid ${INK};border-radius:50%;background:var(--panel2);color:var(--text);cursor:pointer}.bt-product-tour-progress{display:flex;gap:5px;margin:0 42px 18px 0}.bt-product-tour-progress span{height:6px;flex:1;border:1.5px solid ${INK};border-radius:999px;background:var(--panel2)}.bt-product-tour-progress span.aktif{background:${LIME}}.bt-product-tour-sayac{display:flex;align-items:center;gap:6px;margin-bottom:10px;color:var(--dim);font-size:10.5px;font-weight:800;letter-spacing:.02em}.bt-product-tour-sayac svg{color:${CORAL}}.bt-product-tour-panel h2{margin:0;padding-right:20px;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,29px);line-height:1.08;letter-spacing:-.025em}.bt-product-tour-panel>p{margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-product-tour-ipucu{display:flex;align-items:flex-start;gap:8px;margin-top:15px;padding:10px 11px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel2);font-size:11.5px;line-height:1.4;font-weight:700}.bt-product-tour-ipucu svg{flex:0 0 auto;margin-top:1px;color:#5d7a2e}.bt-product-tour-actions{display:flex;align-items:center;gap:7px;margin-top:18px}.bt-product-tour-actions .bt-btn{white-space:nowrap}.bt-product-tour-atla{margin-right:auto;border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}@keyframes bt-tour-nabiz{50%{box-shadow:0 0 0 4px #14160f,0 0 0 13px #cdf56422}}
 @media(max-width:700px){.bt-product-tour-golge{background:#0f110ac2}.bt-product-tour-hedef{border-radius:17px}.bt-product-tour-panel{max-height:min(48vh,390px);padding:18px 16px;border-radius:17px;box-shadow:5px 5px 0 ${CORAL}}.bt-product-tour-panel h2{font-size:21px}.bt-product-tour-panel>p{font-size:12px;line-height:1.45}.bt-product-tour-ipucu{margin-top:11px;padding:8px 9px}.bt-product-tour-actions{margin-top:13px;flex-wrap:wrap}.bt-product-tour-atla{order:3;width:100%;margin:2px 0 0;text-align:center}.bt-product-tour-actions .bt-btn{flex:1;justify-content:center}.bt-product-tour-progress{margin-bottom:13px}}
-.bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:1px solid var(--line-soft);border-radius:18px;padding:20px;box-shadow:0 8px 24px #14160f08}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line-soft)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line-soft);border-radius:999px;padding:4px 7px;white-space:nowrap}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}}
+.bt-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bt-settings-card{background:var(--panel);border:1px solid var(--line-soft);border-radius:18px;padding:20px;box-shadow:0 8px 24px #14160f08}.bt-settings-card.wide{grid-column:1/-1}.bt-settings-title{display:flex;align-items:center;gap:9px;font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:16px}.bt-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line-soft)}.bt-setting-row:first-of-type{border-top:0}.bt-setting-row strong{display:block;font-size:13px}.bt-setting-row small{display:block;color:var(--dim);font-size:11px;margin-top:3px;overflow-wrap:anywhere}.bt-yakinda{font-size:10px;font-weight:800;color:var(--dim);border:1px solid var(--line-soft);border-radius:999px;padding:4px 7px;white-space:nowrap}.bt-btn.bt-danger{border-color:color-mix(in srgb,${CORAL} 70%,var(--line));background:color-mix(in srgb,${CORAL} 12%,var(--panel));color:var(--text)}.bt-btn.bt-danger:hover:not(:disabled){background:${CORAL};color:${INK}}.bt-account-delete-modal{max-width:520px}.bt-account-delete-warning{display:grid;gap:8px;margin:16px 0;padding:14px;border:1px solid color-mix(in srgb,${CORAL} 55%,var(--line-soft));border-radius:14px;background:color-mix(in srgb,${CORAL} 10%,var(--panel));font-size:12px;line-height:1.5;color:var(--dim)}.bt-account-delete-warning strong{color:var(--text);font-size:13px}.bt-account-delete-list{margin:0;padding-left:18px}.bt-account-delete-list li+li{margin-top:5px}.bt-account-delete-confirm{display:grid;gap:7px;margin-top:16px}.bt-account-delete-confirm label{font-size:11px;font-weight:800;color:var(--text)}.bt-account-delete-confirm code{font-family:'JetBrains Mono',monospace;background:var(--panel2);padding:2px 5px;border-radius:5px}.bt-account-delete-confirm .bt-input{margin:0;text-transform:uppercase}@media(max-width:700px){.bt-settings-grid{grid-template-columns:1fr}.bt-settings-card.wide{grid-column:auto}.bt-setting-row{align-items:flex-start;flex-direction:column}.bt-setting-row>.bt-btn{width:100%;justify-content:center}.bt-account-delete-modal{width:100%}}
 .bt-premium-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.62fr);gap:22px;align-items:center;background:var(--panel);color:var(--text);border:1px solid var(--line-soft);border-radius:20px;padding:22px 24px;box-shadow:0 10px 28px #14160f0a;overflow:hidden}.bt-premium-copy{display:flex;min-width:0;flex-direction:column;justify-content:center;align-items:flex-start}.bt-premium-card h2{max-width:680px;margin:10px 0 7px;font-family:'Archivo Black',sans-serif;font-size:clamp(22px,2.6vw,29px);line-height:1.08;letter-spacing:-.025em;color:var(--text);text-shadow:none}.bt-premium-card p{margin:0;color:var(--dim);font-size:12px;line-height:1.5;max-width:620px}.bt-premium-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:14px}.bt-premium-meta span{display:inline-flex;align-items:center;min-height:29px;padding:5px 9px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2);color:var(--dim);font-size:10.5px;font-weight:800}.bt-premium-meta span.vurgu{border-color:color-mix(in srgb,${LIME} 70%,var(--line-soft));background:color-mix(in srgb,${LIME} 22%,var(--panel));color:#4d681b}.bt-premium-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;gap:8px;padding:14px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel2)}.bt-premium-actions .bt-btn{text-decoration:none;justify-content:center;white-space:nowrap}.bt-premium-actions>a.bt-btn,.bt-premium-actions>.bt-btn:first-of-type{min-height:42px}.bt-premium-help{grid-column:1/-1;margin:3px 2px 0!important;text-align:left;font-size:10px!important;color:var(--faint)!important}.bt-premium-help a{color:#5d7a2e;font-weight:800}.bt-pro-choice{grid-column:1/-1;display:grid;gap:8px;min-width:245px}.bt-pro-toggle{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel)}.bt-pro-toggle button{min-height:36px;border:0;border-radius:999px;background:transparent;color:var(--dim);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.bt-pro-toggle button.aktif{background:${LIME};color:${INK}}.bt-premium-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:999px;padding:5px 9px;background:color-mix(in srgb,${LIME} 20%,var(--panel));color:#4d681b;font-size:10px;font-weight:800}.bt-premium-card .bt-btn.ikincil{color:var(--text);border-color:var(--line-soft)}.bt-premium-card .bt-btn.ikincil:hover{background:var(--panel)}@media(max-width:900px){.bt-premium-card{grid-template-columns:1fr;gap:16px}.bt-premium-card h2{max-width:620px}.bt-premium-actions{grid-template-columns:1fr 1fr}}@media(max-width:600px){.bt-premium-card{grid-column:auto;padding:18px 16px}.bt-premium-card h2{margin-top:9px;font-size:23px}.bt-premium-actions{grid-template-columns:1fr;padding:11px}.bt-premium-actions .bt-btn,.bt-pro-choice{width:100%}.bt-premium-help{grid-column:auto}.bt-premium-meta{margin-top:12px}}
 .bt-referral-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.7fr);gap:22px;padding:24px;border:1px solid color-mix(in srgb,${LIME} 75%,var(--line-soft));border-radius:20px;background:linear-gradient(125deg,color-mix(in srgb,${LIME} 23%,var(--panel)),color-mix(in srgb,${CORAL} 9%,var(--panel)));overflow:hidden}.bt-referral-copy h2{margin:8px 0 7px;font:clamp(22px,3vw,30px)/1.08 'Archivo Black',sans-serif;letter-spacing:-.025em}.bt-referral-copy p{max-width:650px;margin:0;color:var(--dim);font-size:12px;line-height:1.55}.bt-referral-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.bt-referral-stats span{padding:6px 9px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);font-size:10.5px;font-weight:800}.bt-referral-panel{align-self:center;padding:15px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel)}.bt-referral-code{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:10px 13px;border:1px dashed var(--line);border-radius:12px;background:var(--panel2)}.bt-referral-code strong{font:700 14px 'JetBrains Mono',monospace;letter-spacing:.05em}.bt-referral-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.bt-referral-message{margin-top:8px;color:#5d7a2e;font-size:10.5px;font-weight:700}.bt-referral-error{color:#a53a2a}.bt-referral-campaign{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;padding:13px 15px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:17px;background:linear-gradient(105deg,color-mix(in srgb,${LIME} 19%,var(--panel)),color-mix(in srgb,${CORAL} 7%,var(--panel)));box-shadow:0 8px 22px #14160f09}.bt-referral-campaign-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${INK};color:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-referral-campaign strong{display:block;color:var(--text);font-size:13.5px}.bt-referral-campaign small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-referral-campaign .bt-btn{min-height:38px;padding:9px 13px;white-space:nowrap;text-decoration:none}@media(max-width:760px){.bt-referral-card{grid-template-columns:1fr;padding:18px 16px}.bt-referral-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.bt-referral-actions .bt-btn{width:auto;min-height:38px;padding:9px 11px;font-size:11px}.bt-referral-campaign{grid-template-columns:38px minmax(0,1fr);gap:11px}.bt-referral-campaign-ikon{width:38px;height:38px}.bt-referral-campaign .bt-btn{grid-column:2;justify-self:start}.bt-referral-campaign small{font-size:10px}}
 .bt-pro-modal-arka{overscroll-behavior:contain}.bt-pro-modal{width:min(760px,100%);max-width:none;padding:0;overflow:hidden;background:${INK};color:${CREAM};box-shadow:10px 10px 0 ${CORAL}}.bt-pro-modal-head{position:relative;padding:28px 30px 24px;border-bottom:1.5px solid #45483d;background:radial-gradient(circle at 88% 0%,#cdf56430 0 18%,transparent 19%),${INK}}.bt-pro-modal-head .bt-premium-badge{margin-bottom:13px}.bt-pro-modal-head h2{max-width:560px;margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(26px,5vw,40px);line-height:1.04;color:${CREAM}}.bt-pro-modal-head h2 span{color:${LIME};text-shadow:3px 3px 0 ${CORAL}}.bt-pro-modal-head p{max-width:590px;margin:12px 0 0;color:#bfc1b4;font-size:13px;line-height:1.55}.bt-pro-modal-kapat{position:absolute;right:20px;top:20px;width:38px;height:38px;display:grid;place-items:center;border:1.5px solid #77796d;border-radius:50%;background:#292c20;color:${CREAM};cursor:pointer}.bt-pro-modal-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.78fr);gap:24px;padding:26px 30px 30px}.bt-pro-faydalar{display:grid;gap:10px}.bt-pro-fayda{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start;padding:11px;border:1px solid #45483d;border-radius:13px;background:#1d2017}.bt-pro-fayda svg{width:32px;height:32px;padding:7px;border:1.5px solid ${INK};border-radius:9px;background:${LIME};color:${INK}}.bt-pro-fayda strong{display:block;font-size:12.5px}.bt-pro-fayda small{display:block;margin-top:3px;color:#a9ab9e;font-size:10.5px;line-height:1.4}.bt-pro-satin-al{align-self:start;display:grid;gap:10px;padding:14px;border:1.5px solid #5b5e51;border-radius:16px;background:#24271e}.bt-pro-planlar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bt-pro-plan{padding:11px 9px;border:1.5px solid #5b5e51;border-radius:12px;background:transparent;color:${CREAM};font:inherit;text-align:left;cursor:pointer}.bt-pro-plan.aktif{border-color:${LIME};background:#cdf56418;box-shadow:inset 0 0 0 1px ${LIME}}.bt-pro-plan span{display:block;color:#a9ab9e;font-size:10px;font-weight:700}.bt-pro-plan strong{display:block;margin-top:4px;color:${CREAM};font-size:13px}.bt-pro-satin-al .bt-btn{width:100%;justify-content:center;min-height:44px}.bt-pro-guvence{display:flex;align-items:flex-start;gap:7px;color:#9fa294;font-size:9.5px;line-height:1.4}.bt-pro-guvence svg{flex:0 0 auto;margin-top:1px;color:${LIME}}.bt-pro-hata{padding:9px;border:1px solid ${CORAL};border-radius:10px;color:#ffc0b7;font-size:10px;line-height:1.4}@media(max-width:700px){.bt-pro-modal-arka{padding:8px}.bt-pro-modal{margin:8px 0;box-shadow:5px 5px 0 ${CORAL}}.bt-pro-modal-head{padding:23px 18px 19px}.bt-pro-modal-head h2{padding-right:38px;font-size:28px}.bt-pro-modal-head p{font-size:12px}.bt-pro-modal-kapat{right:14px;top:14px}.bt-pro-modal-body{grid-template-columns:1fr;gap:17px;padding:18px}.bt-pro-faydalar{gap:7px}.bt-pro-fayda{padding:9px}.bt-pro-satin-al{position:sticky;bottom:0}}
@@ -2207,6 +2214,18 @@ export default function BorcTakip() {
     await paddleKartGuncellemeEkraniAc(sonuc.transactionId, onCompleted);
   }
 
+  async function hesabiSil(onay) {
+    const sonuc = await borcamaHesabiniSil({
+      supabase,
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+      onay,
+    });
+    borcamaYerelVerileriniTemizle();
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    window.location.replace("/?account_deleted=1");
+    return sonuc;
+  }
+
   async function proSatinAl(plan = "monthly") {
     if (!revenueCatHazir) {
       setProSatinAlma({
@@ -3503,6 +3522,7 @@ export default function BorcTakip() {
                 parolaAc={() => setParolaPenceresi(true)}
                 rehberAc={() => rehberAdiminaGit(0)}
                 cikisYap={cikisYap}
+                hesabiSil={hesabiSil}
               />
             )}
           </>
@@ -4506,6 +4526,7 @@ function Ayarlar({
   parolaAc,
   rehberAc,
   cikisYap,
+  hesabiSil,
 }) {
   const [proPlan, setProPlan] = useState("monthly");
   const [ucretsizOnayi, setUcretsizOnayi] = useState(false);
@@ -4514,17 +4535,20 @@ function Ayarlar({
   const [iptalDurumu, setIptalDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const [kartDurumu, setKartDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const [olcumIzni, setOlcumIzni] = useState(() => googleAdsOlcumTercihi() === true);
+  const [hesapSilmeAcik, setHesapSilmeAcik] = useState(false);
+  const [hesapSilmeMetni, setHesapSilmeMetni] = useState("");
+  const [hesapSilmeDurumu, setHesapSilmeDurumu] = useState({ yukleniyor: false, hata: "" });
   const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
   useEffect(() => {
-    if (!paketYonetimiAcik) return undefined;
+    if (!paketYonetimiAcik && !hesapSilmeAcik) return undefined;
     const onceki = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = onceki;
     };
-  }, [paketYonetimiAcik]);
+  }, [paketYonetimiAcik, hesapSilmeAcik]);
   const paketPenceresiniKapat = () => {
     if (iptalDurumu.yukleniyor) return;
     setPaketYonetimiAcik(false);
@@ -4568,6 +4592,24 @@ function Ayarlar({
             ? "Hesabına ait etkin abonelik bulunamadı."
             : "Kart güncelleme ekranı açılamadı. Lütfen tekrar dene.";
       setKartDurumu({ yukleniyor: false, hata: metin, tamam: false });
+    }
+  };
+  const hesapSilmePenceresiniKapat = () => {
+    if (hesapSilmeDurumu.yukleniyor) return;
+    setHesapSilmeAcik(false);
+    setHesapSilmeMetni("");
+    setHesapSilmeDurumu({ yukleniyor: false, hata: "" });
+  };
+  const hesabiKaliciSil = async () => {
+    if (!hesapSilmeOnayiGecerli(hesapSilmeMetni)) return;
+    setHesapSilmeDurumu({ yukleniyor: true, hata: "" });
+    try {
+      await hesabiSil(hesapSilmeMetni);
+    } catch (error) {
+      setHesapSilmeDurumu({
+        yukleniyor: false,
+        hata: hesapSilmeHataMesaji(error?.message),
+      });
     }
   };
   return (
@@ -4861,9 +4903,15 @@ function Ayarlar({
           <div className="bt-setting-row">
             <div>
               <strong>Hesabı ve verileri sil</strong>
-              <small>Tüm Borcama verilerini kalıcı olarak kaldır.</small>
+              <small>Hesabını ve Borcama'daki kişisel kayıtlarını kalıcı olarak kaldır.</small>
             </div>
-            <span className="bt-yakinda">Yakında</span>
+            <button
+              className="bt-btn kucuk bt-danger"
+              type="button"
+              onClick={() => setHesapSilmeAcik(true)}
+            >
+              <Trash2 size={14} /> Hesabımı sil
+            </button>
           </div>
         </section>
       </div>
@@ -5010,6 +5058,87 @@ function Ayarlar({
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {hesapSilmeAcik && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) hesapSilmePenceresiniKapat();
+          }}
+        >
+          <div
+            className="bt-modal bt-account-delete-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="hesap-silme-baslik"
+            aria-describedby="hesap-silme-aciklama"
+          >
+            <div className="bt-modalbaslik">
+              <div id="hesap-silme-baslik" className="bt-h2">Hesabını kalıcı olarak sil</div>
+              <button
+                className="bt-btn ikon hayalet"
+                type="button"
+                aria-label="Pencereyi kapat"
+                disabled={hesapSilmeDurumu.yukleniyor}
+                onClick={hesapSilmePenceresiniKapat}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div id="hesap-silme-aciklama" className="bt-account-delete-warning">
+              <strong>Bu işlem geri alınamaz.</strong>
+              <ul className="bt-account-delete-list">
+                <li>Borç, ekstre, gelir, gider, ödeme, varlık ve asistan kayıtların silinir.</li>
+                <li>Aktif ücretli aboneliğin varsa gelecekteki tahsilat durdurulur.</li>
+                <li>Silme tamamlandığında oturumun kapatılır.</li>
+              </ul>
+            </div>
+            <div className="bt-account-delete-confirm">
+              <label htmlFor="hesap-silme-onayi">
+                Devam etmek için <code>{HESAP_SILME_ONAYI}</code> yaz
+              </label>
+              <input
+                id="hesap-silme-onayi"
+                className="bt-input"
+                value={hesapSilmeMetni}
+                onChange={(event) => {
+                  setHesapSilmeMetni(event.target.value);
+                  if (hesapSilmeDurumu.hata)
+                    setHesapSilmeDurumu({ yukleniyor: false, hata: "" });
+                }}
+                placeholder={HESAP_SILME_ONAYI}
+                autoComplete="off"
+                autoFocus
+                disabled={hesapSilmeDurumu.yukleniyor}
+              />
+            </div>
+            {hesapSilmeDurumu.hata && (
+              <div className="bt-bildirim hata" style={{ marginTop: 14 }}>
+                {hesapSilmeDurumu.hata}
+              </div>
+            )}
+            <div className="bt-form-butonlar" style={{ marginTop: 18 }}>
+              <button
+                className="bt-btn birincil"
+                type="button"
+                style={{ background: "var(--coral)" }}
+                disabled={!hesapSilmeOnayiGecerli(hesapSilmeMetni) || hesapSilmeDurumu.yukleniyor}
+                onClick={hesabiKaliciSil}
+              >
+                {hesapSilmeDurumu.yukleniyor ? "Hesap siliniyor…" : "Hesabımı kalıcı olarak sil"}
+              </button>
+              <button
+                className="bt-btn ikincil"
+                type="button"
+                disabled={hesapSilmeDurumu.yukleniyor}
+                onClick={hesapSilmePenceresiniKapat}
+              >
+                Vazgeç
+              </button>
             </div>
           </div>
         </div>

@@ -8,6 +8,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
 
+## [1.52.0] - 2026-09-08
+
+### Eklendi
+
+- Kullanıcılar Ayarlar'dan metinli güvenlik onayıyla hesaplarını ve Borcama'daki kişisel kayıtlarını kalıcı olarak silebilir; aktif ücretli abonelik güvenle durdurulmadan silme işlemi başlamaz.
+
 ## [1.51.4] - 2026-09-08
 
 ### Değiştirildi
