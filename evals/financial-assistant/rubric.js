@@ -1,3 +1,5 @@
+import { validateFinancialAssistantResponse } from "../../supabase/functions/_shared/financialAssistantValidation.js";
+
 export const ASISTAN_KALITE_RUBRIGI = [
   { id: "finansal_dogruluk", ad: "Finansal doğruluk", agirlik: 30, kritik: true },
   { id: "profil_tutarliligi", ad: "Bütün finansal profille tutarlılık", agirlik: 20, kritik: true },
@@ -56,6 +58,16 @@ export function deterministikYanitiKontrolEt(vaka, yanit) {
   }
   for (const kalip of agirHataKaliplari) {
     if (kalip.test(tumMetin)) agirHatalar.push(`agir_hata_kalibi:${kalip.source}`);
+  }
+  const sunucuKontrolu = validateFinancialAssistantResponse({
+    response: yanit,
+    context: vaka.baglam,
+    question: vaka.soru,
+  });
+  for (const hata of sunucuKontrolu.errors) {
+    if (hata === "unsafe_certainty_or_action" || hata.startsWith("ungrounded_percentage:")) {
+      agirHatalar.push(`sunucu_guvenlik_kapisi:${hata}`);
+    }
   }
 
   return {

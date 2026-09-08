@@ -7,6 +7,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Düzeltildi
 
 - Borcama Asistanı düzenli gelir ve giderleri dönem eğiliminde aynı kuralla değerlendiriyor; eksik borç alanlarını gerçek sıfırdan ve farklı varlık türlerini genel kategorilerden ayırıyor.
+- Borcama Asistanı model yanıtlarını göstermeden önce kısa yanıt düzeni, kelime sınırı, kayıt dışı faiz oranı ve kesin kredi sonucu iddiaları açısından sunucuda doğruluyor.
 
 ## [1.53.0] - 2026-09-18
 

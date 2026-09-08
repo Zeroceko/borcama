@@ -1,4 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  FINANCIAL_ASSISTANT_ROUTE_IDS,
+  validateFinancialAssistantResponse,
+} from "../_shared/financialAssistantValidation.js";
 
 const allowedOrigins = new Set([
   "https://borcama.com", "https://www.borcama.com",
@@ -16,7 +20,6 @@ function cors(origin: string | null) {
   };
 }
 
-const routeIds = new Set(["ozet", "borclar", "odemeler", "harcamalar", "sabit-giderler", "sabit-gelirler", "plan", "ayarlar", "none"]);
 const systemInstruction = `Sen Borcama'nın Türkçe finansal açıklama asistanısın.
 Yalnız verilen BORCAMA_HESAP_OZETI içindeki sayıları ve genel finans matematiğini kullan.
 Her sorudan önce BORCAMA_HESAP_OZETI'nin tamamını birlikte değerlendir: aylık nakit akışı, borç maliyetleri, zorunlu ödemeler, son altı aylık eğilim, gider dağılımı, sabit gelir/gider, varlıklar, yapılandırmalar, ödeme geçmişi ve veri eksiklerini kontrol et.
@@ -81,7 +84,7 @@ Deno.serve(async (req) => {
           type: "OBJECT",
           properties: {
             title: { type: "STRING" }, answer: { type: "STRING" },
-            route: { type: "STRING", enum: [...routeIds] }, actionLabel: { type: "STRING" },
+            route: { type: "STRING", enum: [...FINANCIAL_ASSISTANT_ROUTE_IDS] }, actionLabel: { type: "STRING" },
             needsMoreInfo: { type: "BOOLEAN" }, disclaimer: { type: "STRING" },
           },
           required: ["title", "answer", "route", "actionLabel", "needsMoreInfo", "disclaimer"],
@@ -101,7 +104,8 @@ Deno.serve(async (req) => {
   const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
   let answer;
   try { answer = JSON.parse(text); } catch { answer = null; }
-  if (!answer?.answer || !routeIds.has(answer.route)) {
+  const validation = validateFinancialAssistantResponse({ response: answer, context, question });
+  if (!validation.valid) {
     await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
     return new Response(JSON.stringify({ error: "INVALID_MODEL_RESPONSE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
   }

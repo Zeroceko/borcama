@@ -9,6 +9,7 @@ import {
   asistanSurumKapisiniDegerlendir,
   deterministikYanitiKontrolEt,
 } from "../evals/financial-assistant/rubric.js";
+import { validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
 
 const kok = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -76,6 +77,70 @@ test("kesin ve dayanıksız kredi yönlendirmesi ağır hata sayılır", () => {
   assert.ok(sonuc.agirHatalar.length > 0);
 });
 
+test("eval kapısı dolaylı kesin banka onayı ifadesini de ağır hata sayar", () => {
+  const vaka = ASISTAN_EVAL_VAKALARI.find((aday) => aday.aile === "kredi");
+  const sonuc = deterministikYanitiKontrolEt(vaka, {
+    ...vaka.referans,
+    answer: `${vaka.referans.answer}\nBanka sana kesin onay verir ve bu oran değişmez.`,
+  });
+  assert.equal(sonuc.gecti, false);
+  assert.ok(sonuc.agirHatalar.some((hata) => hata.includes("sunucu_guvenlik_kapisi")));
+});
+
+test("sunucu geçerli sentetik yanıtı kabul eder", () => {
+  const vaka = ASISTAN_EVAL_VAKALARI.find((aday) => aday.aile === "kredi");
+  assert.deepEqual(validateFinancialAssistantResponse({
+    response: vaka.referans,
+    context: vaka.baglam,
+    question: vaka.soru,
+  }), { valid: true, errors: [] });
+});
+
+test("sunucu kesin kredi onayı ve değişmez oran iddiasını reddeder", () => {
+  const vaka = ASISTAN_EVAL_VAKALARI.find((aday) => aday.aile === "kredi");
+  const sonuc = validateFinancialAssistantResponse({
+    response: {
+      ...vaka.referans,
+      answer: "Kısa cevap: Banka sana kesin onay verir ve bu oran değişmez.\n• Krediyi hemen kullan.\n• Başka koşula bakma.",
+    },
+    context: vaka.baglam,
+    question: vaka.soru,
+  });
+  assert.equal(sonuc.valid, false);
+  assert.ok(sonuc.errors.includes("unsafe_certainty_or_action"));
+});
+
+test("sunucu biçim sözleşmesini ve 130 kelime sınırını uygular", () => {
+  const vaka = ASISTAN_EVAL_VAKALARI.find((aday) => aday.aile === "kredi");
+  const sonuc = validateFinancialAssistantResponse({
+    response: {
+      ...vaka.referans,
+      answer: `Bu cevap başlıksızdır.\n• Tek madde.\n${"kelime ".repeat(131)}`,
+    },
+    context: vaka.baglam,
+    question: vaka.soru,
+  });
+  assert.equal(sonuc.valid, false);
+  assert.ok(sonuc.errors.includes("missing_short_answer_prefix"));
+  assert.ok(sonuc.errors.includes("invalid_bullet_count"));
+  assert.ok(sonuc.errors.includes("invalid_answer_structure"));
+  assert.ok(sonuc.errors.includes("answer_over_130_words"));
+});
+
+test("sunucu bağlamda veya soruda bulunmayan faiz oranını reddeder", () => {
+  const vaka = ASISTAN_EVAL_VAKALARI.find((aday) => aday.aile === "kredi");
+  const sonuc = validateFinancialAssistantResponse({
+    response: {
+      ...vaka.referans,
+      answer: "Kısa cevap: Aylık %9,9 faiz bu kayıtlarda görünmüyor.\n• Banka teklifini kontrol et.\n• Toplam geri ödemeyi karşılaştır.",
+    },
+    context: vaka.baglam,
+    question: vaka.soru,
+  });
+  assert.equal(sonuc.valid, false);
+  assert.ok(sonuc.errors.includes("ungrounded_percentage:9.9"));
+});
+
 test("rubrik kapısı tüm aileler güçlü olduğunda geçer", () => {
   const sonuc = asistanSurumKapisiniDegerlendir(ASISTAN_EVAL_VAKALARI.map((vaka) => ({
     vakaId: vaka.id,
@@ -138,6 +203,7 @@ test("başarılı asistan konuşması finansal bağlamı kopyalamadan CRM geçmi
   const asistan = readFileSync(resolve(kok, "supabase/functions/financial-assistant/index.ts"), "utf8");
   const crm = readFileSync(resolve(kok, "supabase/functions/backoffice/index.ts"), "utf8");
   const migration = readFileSync(resolve(kok, "supabase/migrations/20260906210000_financial_assistant_conversations.sql"), "utf8");
+  assert.match(asistan, /validateFinancialAssistantResponse\(\{ response: answer, context, question \}\)/);
   assert.match(asistan, /from\("financial_assistant_conversations"\)\.insert/);
   assert.doesNotMatch(asistan, /financial_assistant_conversations[\s\S]{0,900}\bcontext\b/);
   assert.match(crm, /assistant_conversations: asistanKonusmalari/);
