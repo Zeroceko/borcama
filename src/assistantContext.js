@@ -3,6 +3,17 @@ const sayi = (deger) => {
   return Number.isFinite(sonuc) ? Math.max(sonuc, 0) : 0;
 };
 
+const opsiyonelSayi = (deger) => {
+  if (deger === null || deger === undefined || (typeof deger === "string" && !deger.trim())) return null;
+  const sonuc = Number(deger);
+  return Number.isFinite(sonuc) ? Math.max(sonuc, 0) : null;
+};
+
+const opsiyonelTamSayi = (deger) => {
+  const sonuc = opsiyonelSayi(deger);
+  return sonuc === null ? null : Math.floor(sonuc);
+};
+
 const ay = (tarih) => String(tarih || "").slice(0, 7);
 const ayKaydir = (ayDegeri, fark) => {
   const [yil, ayNo] = String(ayDegeri).split("-").map(Number);
@@ -13,6 +24,12 @@ const varlikDegeri = (varlik) => sayi(
   varlik.guncelDeger ?? varlik.besToplamTutar ??
   (sayi(varlik.miktar) * sayi(varlik.fonBirimFiyati || varlik.hisseBirimFiyati || varlik.kriptoBirimFiyati)),
 );
+const varlikDegeriBiliniyorMu = (varlik) => {
+  if (opsiyonelSayi(varlik.guncelDeger ?? varlik.besToplamTutar) !== null) return true;
+  const miktar = opsiyonelSayi(varlik.miktar);
+  const birimFiyat = opsiyonelSayi(varlik.fonBirimFiyati || varlik.hisseBirimFiyati || varlik.kriptoBirimFiyati);
+  return miktar !== null && birimFiyat !== null;
+};
 const LIKIT_VARLIK_TURLERI = new Set([
   "nakit", "mevduat", "usd", "eur", "gbp", "chf", "fon", "hisse", "hisse_abd",
 ]);
@@ -39,28 +56,43 @@ export function asistanBaglamiOlustur({
   kalemler = [],
   tarih = new Date(),
 }) {
+  const kartlar = veri?.cards || [];
+  const krediler = veri?.loans || [];
+  const ekHesaplar = veri?.overdrafts || [];
+  const gelirler = veri?.incomes || [];
+  const giderler = veri?.expenses || [];
+  const varliklar = veri?.assets || [];
   const buAy = `${tarih.getFullYear()}-${String(tarih.getMonth() + 1).padStart(2, "0")}`;
   const kategoriler = {};
-  (veri?.expenses || []).filter((gider) => ay(gider.tarih) === buAy).forEach((gider) => {
+  giderler.filter((gider) => gider.tekrar === "Her ay" || ay(gider.tarih) === buAy).forEach((gider) => {
     const kategori = String(gider.kategori || "Diğer").slice(0, 40);
     kategoriler[kategori] = sayi(kategoriler[kategori]) + sayi(gider.tutar);
   });
+  const duzenliGiderler = giderler.filter((gider) => gider.tekrar === "Her ay");
+  const duzenliGelirler = gelirler.filter((gelir) => gelir.tekrar !== "Tek seferlik");
   const sonAltiAy = Array.from({ length: 6 }, (_, index) => ayKaydir(buAy, -index)).map((donem) => {
-    const giderler = (veri?.expenses || []).filter((gider) => ay(gider.tarih) === donem);
-    const gelirler = (veri?.incomes || []).filter((gelir) => gelir.tekrar === "Her ay" || ay(gelir.tarih) === donem);
+    const donemselGiderler = giderler.filter((gider) => gider.tekrar !== "Her ay" && ay(gider.tarih) === donem);
+    const donemselGelirler = gelirler.filter((gelir) => gelir.tekrar === "Tek seferlik" && ay(gelir.tarih) === donem);
+    const duzenliGiderToplami = duzenliGiderler.reduce((toplam, gider) => toplam + sayi(gider.tutar), 0);
+    const duzenliGelirToplami = duzenliGelirler.reduce((toplam, gelir) => toplam + sayi(gelir.tutar), 0);
+    const donemselGiderToplami = donemselGiderler.reduce((toplam, gider) => toplam + sayi(gider.tutar), 0);
+    const donemselGelirToplami = donemselGelirler.reduce((toplam, gelir) => toplam + sayi(gelir.tutar), 0);
     return {
       donem,
-      gider: giderler.reduce((toplam, gider) => toplam + sayi(gider.tutar), 0),
-      gelir: gelirler.reduce((toplam, gelir) => toplam + sayi(gelir.tutar), 0),
-      giderKaydi: giderler.length,
+      gider: duzenliGiderToplami + donemselGiderToplami,
+      gelir: duzenliGelirToplami + donemselGelirToplami,
+      duzenliGider: duzenliGiderToplami,
+      duzenliGelir: duzenliGelirToplami,
+      donemselGider: donemselGiderToplami,
+      donemselGelir: donemselGelirToplami,
+      giderKaydi: duzenliGiderler.length + donemselGiderler.length,
+      gelirKaydi: duzenliGelirler.length + donemselGelirler.length,
     };
   });
-  const sabitGider = (veri?.expenses || []).filter((gider) => gider.tekrar === "Her ay")
-    .reduce((toplam, gider) => toplam + sayi(gider.tutar), 0);
-  const sabitGelir = (veri?.incomes || []).filter((gelir) => gelir.tekrar !== "Tek seferlik")
-    .reduce((toplam, gelir) => toplam + sayi(gelir.tutar), 0);
-  const toplamVarlik = (veri?.assets || []).reduce((toplam, varlik) => toplam + varlikDegeri(varlik), 0);
-  const likitVarlik = (veri?.assets || []).filter(likitVarlikMi)
+  const sabitGider = duzenliGiderler.reduce((toplam, gider) => toplam + sayi(gider.tutar), 0);
+  const sabitGelir = duzenliGelirler.reduce((toplam, gelir) => toplam + sayi(gelir.tutar), 0);
+  const toplamVarlik = varliklar.reduce((toplam, varlik) => toplam + varlikDegeri(varlik), 0);
+  const likitVarlik = varliklar.filter(likitVarlikMi)
     .reduce((toplam, varlik) => toplam + varlikDegeri(varlik), 0);
   const toplamBorc = kalemler.reduce((toplam, kalem) => toplam + sayi(kalem.bakiye), 0);
   const odemeKaydi = [
@@ -68,6 +100,26 @@ export function asistanBaglamiOlustur({
     ...Object.values(veri?.loanPaymentHistory || {}).flat(),
     ...(veri?.overdrafts || []).flatMap((hesap) => hesap.odemeGecmisi || []),
   ].filter(Boolean);
+  const krediFaizleri = krediler.map((kredi) => opsiyonelSayi(kredi.faiz)).filter((oran) => oran !== null);
+  const ekHesapFaizleri = ekHesaplar.map((hesap) => opsiyonelSayi(hesap.faiz)).filter((oran) => oran !== null);
+  const kartFaizleri = kartlar.map((kart) => opsiyonelSayi(kart.faiz ?? kart.aylikFaiz)).filter((oran) => oran !== null);
+  const bilinenFaizler = [...krediFaizleri, ...ekHesapFaizleri, ...kartFaizleri];
+  const veriEksikleri = new Set([
+    !gelirler.length && "gelir",
+    !giderler.length && "gider",
+    !kalemler.length && "borc",
+    !varliklar.length && "varlik",
+    kalemler.some((kalem) => opsiyonelSayi(kalem.bakiye) === null) && "borc_bakiyesi",
+    krediler.some((kredi) => opsiyonelSayi(kredi.kalanBorc) === null) && "kredi_kalan_borcu",
+    krediler.some((kredi) => opsiyonelSayi(kredi.taksit) === null) && "kredi_taksiti",
+    krediler.some((kredi) => opsiyonelSayi(kredi.faiz) === null) && "kredi_faizi",
+    kartlar.some((kart) => opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc) === null) && "kart_ekstre_borcu",
+    kartlar.some((kart) => opsiyonelSayi(kart.asgariOdeme) === null) && "kart_asgari_odemesi",
+    kartlar.some((kart) => opsiyonelSayi(kart.faiz ?? kart.aylikFaiz) === null) && "kart_faizi",
+    ekHesaplar.some((hesap) => opsiyonelSayi(hesap.kullanilan) === null) && "ek_hesap_kullanimi",
+    ekHesaplar.some((hesap) => opsiyonelSayi(hesap.faiz) === null) && "ek_hesap_faizi",
+    varliklar.some((varlik) => !varlikDegeriBiliniyorMu(varlik)) && "varlik_degeri",
+  ].filter(Boolean));
 
   return {
     donem: buAy,
@@ -89,57 +141,60 @@ export function asistanBaglamiOlustur({
       sonuc[tur] = sayi(sonuc[tur]) + sayi(kalem.bakiye);
       return sonuc;
     }, { kart: 0, kredi: 0, ek: 0, diger: 0 }),
-    krediler: (veri?.loans || []).slice(0, 30).map((kredi) => ({
+    krediler: krediler.slice(0, 30).map((kredi) => ({
       banka: String(kredi.banka || "Banka").slice(0, 40),
       tur: String(kredi.ad || "Kredi").slice(0, 50),
-      kalanBorc: sayi(kredi.kalanBorc),
-      aylikTaksit: sayi(kredi.taksit),
-      kalanTaksit: Math.floor(sayi(kredi.kalanTaksit)),
-      aylikFaizYuzde: sayi(kredi.faiz),
-      ilkOdemeTarihi: String(kredi.ilkOdemeTarihi || kredi.ilkTaksitTarihi || "").slice(0, 10),
+      kalanBorc: opsiyonelSayi(kredi.kalanBorc),
+      aylikTaksit: opsiyonelSayi(kredi.taksit),
+      kalanTaksit: opsiyonelTamSayi(kredi.kalanTaksit),
+      aylikFaizYuzde: opsiyonelSayi(kredi.faiz),
+      ilkOdemeTarihi: String(kredi.ilkOdemeTarihi || kredi.ilkTaksitTarihi || "").slice(0, 10) || null,
       yapilandirma: kredi.kaynak === "card_restructuring" ? {
-        yapilandirilanTutar: sayi(kredi.yapilandirilanTutar),
-        toplamGeriOdeme: sayi(kredi.toplamGeriOdeme),
-        aylikNominalFaizYuzde: sayi(kredi.aylikNominalFaiz),
-        kkdfYuzde: sayi(kredi.kkdfOrani),
-        bsmvYuzde: sayi(kredi.bsmvOrani),
+        yapilandirilanTutar: opsiyonelSayi(kredi.yapilandirilanTutar),
+        toplamGeriOdeme: opsiyonelSayi(kredi.toplamGeriOdeme),
+        aylikNominalFaizYuzde: opsiyonelSayi(kredi.aylikNominalFaiz),
+        kkdfYuzde: opsiyonelSayi(kredi.kkdfOrani),
+        bsmvYuzde: opsiyonelSayi(kredi.bsmvOrani),
         bankaPlaniEsas: Boolean(kredi.bankaPlaniEsas),
       } : null,
     })),
-    kartlar: (veri?.cards || []).slice(0, 30).map((kart) => {
+    kartlar: kartlar.slice(0, 30).map((kart) => {
       const kayitlar = Array.isArray(kart.yapilandirmaKayitlari) ? kart.yapilandirmaKayitlari : [];
       const yapilandirma = kayitlar[kayitlar.length - 1];
       return {
         banka: String(kart.banka || "Banka").slice(0, 40),
         urun: String(kart.ad || "Kredi kartı").slice(0, 50),
-        ekstreBorcu: sayi(kart.toplamEkstreBorcu ?? kart.borc),
-        asgariOdeme: sayi(kart.asgariOdeme),
-        yapilanOdeme: sayi(kart.yapilanOdeme),
-        aylikFaizYuzde: sayi(kart.faiz ?? kart.aylikFaiz),
-        sonOdemeGunu: Math.floor(sayi(kart.sonOdemeGunu)),
+        ekstreBorcu: opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc),
+        asgariOdeme: opsiyonelSayi(kart.asgariOdeme),
+        yapilanOdeme: opsiyonelSayi(kart.yapilanOdeme),
+        aylikFaizYuzde: opsiyonelSayi(kart.faiz ?? kart.aylikFaiz),
+        sonOdemeGunu: opsiyonelTamSayi(kart.sonOdemeGunu),
         yapilandirma: yapilandirma ? {
-          yapilandirilanTutar: sayi(yapilandirma.yapilandirilanTutar ?? yapilandirma.tutar),
-          taksitSayisi: Math.floor(sayi(yapilandirma.taksitSayisi)),
-          aylikTaksit: sayi(yapilandirma.aylikTaksit),
-          toplamGeriOdeme: sayi(yapilandirma.toplamGeriOdeme),
-          aylikNominalFaizYuzde: sayi(yapilandirma.aylikNominalFaiz),
-          kkdfYuzde: sayi(yapilandirma.kkdfOrani),
-          bsmvYuzde: sayi(yapilandirma.bsmvOrani),
+          yapilandirilanTutar: opsiyonelSayi(yapilandirma.yapilandirilanTutar ?? yapilandirma.tutar),
+          taksitSayisi: opsiyonelTamSayi(yapilandirma.taksitSayisi),
+          aylikTaksit: opsiyonelSayi(yapilandirma.aylikTaksit),
+          toplamGeriOdeme: opsiyonelSayi(yapilandirma.toplamGeriOdeme),
+          aylikNominalFaizYuzde: opsiyonelSayi(yapilandirma.aylikNominalFaiz),
+          kkdfYuzde: opsiyonelSayi(yapilandirma.kkdfOrani),
+          bsmvYuzde: opsiyonelSayi(yapilandirma.bsmvOrani),
         } : null,
       };
     }),
-    ekHesaplar: (veri?.overdrafts || []).slice(0, 30).map((hesap) => ({
+    ekHesaplar: ekHesaplar.slice(0, 30).map((hesap) => ({
       banka: String(hesap.banka || "Banka").slice(0, 40),
-      kullanilan: sayi(hesap.kullanilan),
-      yapilanOdeme: sayi(hesap.yapilanOdeme),
-      aylikFaizYuzde: sayi(hesap.faiz),
+      kullanilan: opsiyonelSayi(hesap.kullanilan),
+      yapilanOdeme: opsiyonelSayi(hesap.yapilanOdeme),
+      aylikFaizYuzde: opsiyonelSayi(hesap.faiz),
     })),
     giderKategorileri: Object.entries(kategoriler)
       .sort((a, b) => b[1] - a[1]).slice(0, 20)
       .map(([kategori, tutar]) => ({ kategori, tutar })),
     donemTrendi: sonAltiAy,
-    varlikDagilimi: (veri?.assets || []).reduce((sonuc, varlik) => {
-      const tur = String(varlik.kategori || varlik.tur || "diger").slice(0, 30);
+    donemTrendiYontemi: duzenliGelirler.length || duzenliGiderler.length
+      ? "Kayitli duzenli tutarlar her aya eklenmis tahmindir; yalniz tarihli kalemler o ayin gercek kaydidir."
+      : "Yalniz tarihli kayitlardan hesaplanmistir.",
+    varlikDagilimi: varliklar.reduce((sonuc, varlik) => {
+      const tur = String(varlik.tur || varlik.kategori || "diger").slice(0, 30);
       sonuc[tur] = sayi(sonuc[tur]) + varlikDegeri(varlik);
       return sonuc;
     }, {}),
@@ -151,26 +206,17 @@ export function asistanBaglamiOlustur({
     },
     finansalProfil: {
       aylikSonuc: sayi(planAcigi) > 0 ? "acik" : "dengeli",
-      likitVarlikBorcaYeterMi: likitVarlik > 0 ? likitVarlik >= toplamBorc : null,
-      pahaliBorcVar: [
-        ...(veri?.loans || []).map((kredi) => sayi(kredi.faiz)),
-        ...(veri?.overdrafts || []).map((hesap) => sayi(hesap.faiz)),
-        ...(veri?.cards || []).map((kart) => sayi(kart.faiz ?? kart.aylikFaiz)),
-      ].some((oran) => oran >= 3),
-      veriEksikleri: [
-        !(veri?.incomes || []).length && "gelir",
-        !(veri?.expenses || []).length && "gider",
-        !kalemler.length && "borc",
-        !(veri?.assets || []).length && "varlik",
-      ].filter(Boolean),
+      likitVarlikBorcaYeterMi: varliklar.length && toplamBorc > 0 ? likitVarlik >= toplamBorc : null,
+      pahaliBorcVar: bilinenFaizler.length ? bilinenFaizler.some((oran) => oran >= 3) : null,
+      veriEksikleri: [...veriEksikleri],
     },
     veriKapsami: {
-      kartSayisi: (veri?.cards || []).length,
-      krediSayisi: (veri?.loans || []).length,
-      ekHesapSayisi: (veri?.overdrafts || []).length,
-      buAyGiderKaydi: (veri?.expenses || []).filter((gider) => ay(gider.tarih) === buAy).length,
-      gelirKaydi: (veri?.incomes || []).length,
-      varlikKaydi: (veri?.assets || []).length,
+      kartSayisi: kartlar.length,
+      krediSayisi: krediler.length,
+      ekHesapSayisi: ekHesaplar.length,
+      buAyGiderKaydi: giderler.filter((gider) => gider.tekrar === "Her ay" || ay(gider.tarih) === buAy).length,
+      gelirKaydi: gelirler.length,
+      varlikKaydi: varliklar.length,
       odemeKaydi: odemeKaydi.length,
     },
   };
