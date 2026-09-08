@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.52.0] - 2026-09-08
+
+### Eklendi
+
+- Kullanıcılar Ayarlar'dan metinli güvenlik onayıyla hesaplarını ve Borcama'daki kişisel kayıtlarını kalıcı olarak silebilir; aktif ücretli abonelik güvenle durdurulmadan silme işlemi başlamaz.
+
 ## [1.51.4] - 2026-09-08
 
 ### Değiştirildi
