@@ -14,6 +14,7 @@ Bu kayıt yalnız `borcama-web` production (borcama.com, www.borcama.com ve crm.
 | 2026-09-07 09:30 TSİ · otomatik takip | 1 | 0 | 0 doğrulanmış kritik | `BORCAMA-WEB-2` yeniden açıldı: gizliliği korunmuş TypeError, 1 olay, ilk/son görülme 08:59 TSİ. Etkilenen akış token kapsamıyla belirlenemedi; P2 inceleme. |
 | 2026-09-08 09:58 TSİ · otomatik takip | 0 | 1 | 0 | `BORCAMA-WEB-2` son 24 saat production sorgusundan düştü; açık çözülmemiş issue kalmadı. |
 | 2026-09-08 17:07 TSİ · otomatik takip | 1 | 0 | 0 doğrulanmış kritik | `BORCAMA-WEB-2` yeniden açıldı: gizliliği korunmuş TypeError, 1 olay, ilk/son görülme 16:28 TSİ. Etkilenen akış token kapsamıyla belirlenemedi; P2 inceleme. |
+| 2026-09-09 17:42 TSİ · otomatik takip | 0 | 1 | 0 | `BORCAMA-WEB-2` son 24 saat production sorgusundan düştü; açık çözülmemiş issue kalmadı. |
 
 ## Kontroller
 
@@ -67,3 +68,9 @@ Bu kayıt yalnız `borcama-web` production (borcama.com, www.borcama.com ve crm.
 - Kapsam: son 24 saat, `borcama-web`, yalnız production ve çözülmemiş issue'lar; setup-test ile `BORCAMA-WEB-1` hariç tutuldu.
 - Açık issue sayısı: 1. `BORCAMA-WEB-2` gizliliği korunmuş TypeError ile yeniden göründü (1 olay; ilk ve son görülme 16:28 TSİ).
 - Akış etkisi ve gerçek kullanıcı sayısı token kapsamı dışında. Kayıt/giriş/borç/ödeme veya veri bütünlüğü etkisini doğrulayan kanıt olmadığından kritik olarak sınıflanmadı; P2 inceleme sırasına alındı.
+
+### 2026-09-09 17:42 TSİ · Kısa production kontrolü
+
+- Kapsam: son 24 saat, `borcama-web`, yalnız production ve çözülmemiş issue'lar; setup-test ile `BORCAMA-WEB-1` hariç tutuldu.
+- Açık issue sayısı: 0. Önceki P2 kaydı `BORCAMA-WEB-2` artık sorguda çözülmemiş görünmüyor.
+- Yeni veya artan kayıt ve açık kritik yok. Kullanıcı ve finansal veri okunmadı ya da değiştirilmedi.
