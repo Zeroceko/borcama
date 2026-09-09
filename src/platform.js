@@ -49,6 +49,22 @@ export function nativeGorunumuHazirla() {
   if (viewport && !viewport.content.includes("viewport-fit")) {
     viewport.setAttribute("content", `${viewport.content}, viewport-fit=cover`);
   }
+
+  // Capacitor webview'inda target="_blank" baglantilar hicbir sey yapmaz;
+  // kullanici dokunur, ekran degismez. Uygulama ici yollar normal gezinmeye,
+  // dis adresler ve mailto sistem tarayicisina yonlendirilir.
+  document.addEventListener("click", (olay) => {
+    const baglanti = olay.target?.closest?.('a[target="_blank"]');
+    if (!baglanti) return;
+    const href = baglanti.getAttribute("href");
+    if (!href) return;
+    olay.preventDefault();
+    if (href.startsWith("/") || href.startsWith(window.location.origin)) {
+      window.location.assign(href);
+      return;
+    }
+    window.open(href, "_system");
+  });
 }
 
 // Haptics yalniz native'de yuklenir; dinamik import sayesinde eklenti

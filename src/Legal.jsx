@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
+import { nativeMi } from "./platform.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -136,10 +137,22 @@ export function KullaniciSozlesmesi({ embedded = false }) {
         ödemenin iade edildiği anlamına gelmez.
       </p>
       <p>
-        Ödeme, faturalandırma ve abonelik yönetimi yetkili satıcı ve ödeme
-        sağlayıcısı Paddle üzerinden yürütülür. Ayrıntılı cayma, iptal ve iade
-        koşulları için <a href="/refund-policy">Borcama İade Politikası</a>
-        geçerlidir; tüketicilerin emredici mevzuattan doğan hakları saklıdır.
+        {nativeMi ? (
+          <>
+            Ödeme, faturalandırma ve abonelik yönetimi App Store üzerinden Apple
+            tarafından yürütülür. Abonelik ücreti Apple hesabınızdan tahsil
+            edilir. Aboneliğinizi iOS'ta Ayarlar → Apple Hesabı → Abonelikler
+            bölümünden yönetebilir veya iptal edebilirsiniz.{" "}
+          </>
+        ) : (
+          <>
+            Ödeme, faturalandırma ve abonelik yönetimi yetkili satıcı ve ödeme
+            sağlayıcısı Paddle üzerinden yürütülür.{" "}
+          </>
+        )}
+        Ayrıntılı cayma, iptal ve iade koşulları için{" "}
+        <a href="/refund-policy">Borcama İade Politikası</a> geçerlidir;
+        tüketicilerin emredici mevzuattan doğan hakları saklıdır.
       </p>
       <h2>8. Hesabın kapatılması</h2>
       <p>
@@ -177,7 +190,10 @@ export function IadePolitikasi({ embedded = false }) {
       <p>
         Bu politika, Borcama Pro aylık ve yıllık aboneliklerinin iptal, cayma
         ve iade koşullarını açıklar. Borcama Pro dijital bir abonelik
-        hizmetidir. Ödemelerde yetkili satıcı ve ödeme sağlayıcısı Paddle'dır.
+        hizmetidir.{" "}
+        {nativeMi
+          ? "iOS uygulamasından yapılan satın alımlarda yetkili satıcı Apple'dır."
+          : "Ödemelerde yetkili satıcı ve ödeme sağlayıcısı Paddle'dır."}
       </p>
 
       <h2>1. Aboneliğin yenilenmesi</h2>
@@ -190,12 +206,25 @@ export function IadePolitikasi({ embedded = false }) {
 
       <h2>2. Aboneliğin iptali</h2>
       <p>
-        Aboneliğinizi istediğiniz zaman Paddle tarafından gönderilen satın alma
-        makbuzundaki “Manage subscription / Aboneliği yönet” bağlantısından
-        veya Borcama Ayarlar ekranındaki “Aboneliği yönet” seçeneğinden iptal
-        edebilirsiniz. İptal, normal şartlarda mevcut faturalandırma döneminin
-        sonunda geçerli olur; sonraki yenileme ücreti alınmaz ve o tarihe kadar
-        Pro özelliklerini kullanmaya devam edebilirsiniz.
+        {nativeMi ? (
+          <>
+            Aboneliğinizi iOS cihazınızda Ayarlar → Apple Hesabı → Abonelikler
+            bölümünden veya uygulama içindeki “App Store'da aboneliği yönet”
+            bağlantısından iptal edebilirsiniz. Yenilemenin durması için
+            iptalin, mevcut dönemin bitiminden en az 24 saat önce yapılması
+            gerekir.{" "}
+          </>
+        ) : (
+          <>
+            Aboneliğinizi istediğiniz zaman Paddle tarafından gönderilen satın
+            alma makbuzundaki “Manage subscription / Aboneliği yönet”
+            bağlantısından veya Borcama Ayarlar ekranındaki “Aboneliği yönet”
+            seçeneğinden iptal edebilirsiniz.{" "}
+          </>
+        )}
+        İptal, normal şartlarda mevcut faturalandırma döneminin sonunda geçerli
+        olur; sonraki yenileme ücreti alınmaz ve o tarihe kadar Pro
+        özelliklerini kullanmaya devam edebilirsiniz.
       </p>
       <p>
         Aboneliği iptal etmek, daha önce alınmış bir ücret için otomatik olarak
@@ -204,56 +233,95 @@ export function IadePolitikasi({ embedded = false }) {
       </p>
 
       <h2>3. Türkiye'deki tüketiciler için cayma ve iade</h2>
-      <p>
-        Paddle'ın yürürlükteki alıcı iade politikasına göre Türkiye'deki
-        tüketiciler, kapsamına giren dijital içerik ve hizmet işlemlerinde işlem
-        tarihinden itibaren 14 gün içinde cayma ve tam iade talebinde
-        bulunabilir. Uygulanabilir emredici tüketici mevzuatının sağladığı daha
-        geniş haklar varsa bu haklar önceliklidir.
-      </p>
-      <p>
-        Türkiye dışındaki işlemlerde, alıcının bulunduğu ülkedeki zorunlu
-        tüketici hakları ve Paddle'ın o işlem tarihinde geçerli iade politikası
-        uygulanır.
-      </p>
+      {nativeMi ? (
+        <p>
+          App Store üzerinden yapılan satın alımlarda iade talepleri Apple'a
+          iletilir ve Apple'ın iade politikası uygulanır. Borcama, App Store
+          işlemleri için doğrudan iade yapamaz. Türkiye'deki tüketicilerin
+          emredici mevzuattan doğan cayma ve iade hakları saklıdır; bu hakların
+          sağladığı korumalar önceliklidir.
+        </p>
+      ) : (
+        <>
+          <p>
+            Paddle'ın yürürlükteki alıcı iade politikasına göre Türkiye'deki
+            tüketiciler, kapsamına giren dijital içerik ve hizmet işlemlerinde
+            işlem tarihinden itibaren 14 gün içinde cayma ve tam iade talebinde
+            bulunabilir. Uygulanabilir emredici tüketici mevzuatının sağladığı
+            daha geniş haklar varsa bu haklar önceliklidir.
+          </p>
+          <p>
+            Türkiye dışındaki işlemlerde, alıcının bulunduğu ülkedeki zorunlu
+            tüketici hakları ve Paddle'ın o işlem tarihinde geçerli iade
+            politikası uygulanır.
+          </p>
+        </>
+      )}
 
       <h2>4. İade talebi nasıl yapılır?</h2>
       <ul>
-        <li>
-          Paddle satın alma onay e-postasındaki “View receipt / Makbuzu
-          görüntüle” veya “Manage subscription / Aboneliği yönet” bağlantısını
-          kullanabilirsiniz.
-        </li>
-        <li>
-          <a href="https://paddle.net" target="_blank" rel="noreferrer">
-            Paddle alıcı destek merkezi
-          </a>{" "}
-          üzerinden “Request refund / İade talep et” seçeneğini
-          kullanabilirsiniz.
-        </li>
+        {nativeMi ? (
+          <>
+            <li>
+              <a
+                href="https://reportaproblem.apple.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                reportaproblem.apple.com
+              </a>{" "}
+              adresinden Apple hesabınızla giriş yapıp ilgili işlem için iade
+              talebinde bulunabilirsiniz.
+            </li>
+            <li>
+              Apple'ın gönderdiği satın alma makbuzundaki “Report a Problem /
+              Sorun bildir” bağlantısını kullanabilirsiniz.
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              Paddle satın alma onay e-postasındaki “View receipt / Makbuzu
+              görüntüle” veya “Manage subscription / Aboneliği yönet”
+              bağlantısını kullanabilirsiniz.
+            </li>
+            <li>
+              <a href="https://paddle.net" target="_blank" rel="noreferrer">
+                Paddle alıcı destek merkezi
+              </a>{" "}
+              üzerinden “Request refund / İade talep et” seçeneğini
+              kullanabilirsiniz.
+            </li>
+          </>
+        )}
         <li>
           İşlem e-postanız ve mümkünse makbuz numaranızla{" "}
           <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresinden
-          Borcama'ya ulaşabilirsiniz. Talebin ödeme sağlayıcısına iletilmesine
-          yardımcı oluruz.
+          Borcama'ya ulaşabilirsiniz.{" "}
+          {nativeMi
+            ? "Talebinizi Apple'a iletme sürecinde yardımcı oluruz; iade kararı Apple'a aittir."
+            : "Talebin ödeme sağlayıcısına iletilmesine yardımcı oluruz."}
         </li>
       </ul>
 
       <h2>5. İadenin sonuçlandırılması</h2>
       <p>
         Uygun bulunan iadeler, mümkün olduğunda ödemenin yapıldığı yönteme
-        gönderilir. Paddle politikasına göre onaylanan iade 14 gün içinde
-        işleme alınır; tutarın hesabınıza yansıma süresi bankanıza veya kart
-        kuruluşunuza göre değişebilir. İade tamamlandığında ilgili Borcama Pro
-        erişimi sona erebilir.
+        gönderilir.{" "}
+        {nativeMi
+          ? "App Store işlemlerinde iadenin onaylanması ve işleme alınması Apple'ın süreçlerine tabidir"
+          : "Paddle politikasına göre onaylanan iade 14 gün içinde işleme alınır"}
+        ; tutarın hesabınıza yansıma süresi bankanıza veya kart kuruluşunuza
+        göre değişebilir. İade tamamlandığında ilgili Borcama Pro erişimi sona
+        erebilir.
       </p>
 
       <h2>6. Teknik sorunlar ve kötüye kullanım</h2>
       <p>
         Satın alınan Pro özelliklerine erişimi engelleyen kalıcı bir teknik
         sorun yaşarsanız önce Borcama desteğine bildirin. Sorun giderilemezse
-        iade talebiniz uygulanabilir tüketici mevzuatı ve Paddle politikası
-        kapsamında değerlendirilir. Dolandırıcılık, iade hakkının kötüye
+        iade talebiniz uygulanabilir tüketici mevzuatı ve{" "}
+        {nativeMi ? "Apple" : "Paddle"} politikası kapsamında değerlendirilir. Dolandırıcılık, iade hakkının kötüye
         kullanılması veya manipülatif işlem şüphesi bulunan talepler
         reddedilebilir ya da incelemeye alınabilir.
       </p>
@@ -261,17 +329,37 @@ export function IadePolitikasi({ embedded = false }) {
       <h2>7. Politika ve zorunlu haklar</h2>
       <p>
         Bu metin tüketicilerin kanundan doğan vazgeçilemez haklarını sınırlamaz.
-        Paddle'ın işlem tarihinde yürürlükte olan alıcı koşulları veya zorunlu
-        mevzuat daha yüksek koruma sağlıyorsa daha yüksek koruma uygulanır.
-        Paddle'ın güncel resmî politikasına{" "}
-        <a
-          href="https://www.paddle.com/legal/refund-policy"
-          target="_blank"
-          rel="noreferrer"
-        >
-          buradan
-        </a>{" "}
-        ulaşabilirsiniz.
+        {nativeMi ? (
+          <>
+            {" "}
+            Apple'ın işlem tarihinde yürürlükte olan medya hizmetleri şartları
+            veya zorunlu mevzuat daha yüksek koruma sağlıyorsa daha yüksek
+            koruma uygulanır. Apple'ın güncel resmî şartlarına{" "}
+            <a
+              href="https://www.apple.com/legal/internet-services/itunes/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              buradan
+            </a>{" "}
+            ulaşabilirsiniz.
+          </>
+        ) : (
+          <>
+            {" "}
+            Paddle'ın işlem tarihinde yürürlükte olan alıcı koşulları veya
+            zorunlu mevzuat daha yüksek koruma sağlıyorsa daha yüksek koruma
+            uygulanır. Paddle'ın güncel resmî politikasına{" "}
+            <a
+              href="https://www.paddle.com/legal/refund-policy"
+              target="_blank"
+              rel="noreferrer"
+            >
+              buradan
+            </a>{" "}
+            ulaşabilirsiniz.
+          </>
+        )}
       </p>
 
       <div className="legal-callout">

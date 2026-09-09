@@ -161,3 +161,14 @@ html.borcama-native .bt-assistant-consent .bt-btn {
   width: 100%;
   margin-top: 12px;
 }
+
+/* Yasal metinler ve Pro ekrani .bt-wrap kullanmiyor; kendi kapsayicilarina
+   da ust guvenli alan gerekiyor. Aksi halde bu sayfalarin ust navigasyonu
+   status bar'in arkasinda kaliyor ve geri donus yolu gorunmez oluyor. */
+html.borcama-native .legal {
+  padding-top: calc(16px + var(--guvenli-ust));
+}
+
+html.borcama-native .pc-page {
+  padding-top: calc(18px + var(--guvenli-ust));
+}
