@@ -9,6 +9,7 @@ test("Borcama'ya Sor kampanyasi konu, guvenlik ve olcum bilgilerini birlikte tas
   const marketing = read("./Marketing.jsx");
   const app = read("./App.jsx");
   const main = read("./main.jsx");
+  const emailTemplate = read("../supabase/functions/_shared/borcama-email.ts");
   const backoffice = read("../supabase/functions/backoffice/index.ts");
   const migration = read("../supabase/migrations/20260910233000_assistant_announcement_campaign.sql");
 
@@ -18,6 +19,8 @@ test("Borcama'ya Sor kampanyasi konu, guvenlik ve olcum bilgilerini birlikte tas
   assert.match(preview, /Ham ekstre, kart numarası ve işlem açıklamaları modele gönderilmez/);
   assert.match(preview, /utm_campaign=siz_istediniz_3/);
   assert.match(preview, /summary\?assistant=1&amp;utm_source=resend/);
+  assert.equal((preview.match(/summary\?assistant=1&amp;utm_source=resend/g) || []).length, 2);
+  assert.match(emailTemplate, /<a href="\$\{url\}"[^>]*>.*Borcama'ya sor/s);
   assert.match(app, /searchParams\.get\("assistant"\) !== "1"/);
   assert.match(app, /setAsistanPenceresi\(true\)/);
   assert.match(main, /sorgu\.get\("assistant"\) === "1"/);

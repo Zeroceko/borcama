@@ -118,7 +118,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gönderilmeye hazır adaylar
 
-### Borcama'ya Sor · v1.52.1
+### Borcama'ya Sor · v1.52.2
 
 - Konu: `Siz istediniz, biz yaptık - 3 -`
 - Önizleme: `Finansal tablonu kısa ve anlaşılır yanıtlarla yorumla; sıradaki adımını gör.`

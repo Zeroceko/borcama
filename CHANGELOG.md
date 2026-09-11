@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.52.2] - 2026-09-11
+
+### Düzeltildi
+
+- Borcama'ya Sor duyuru e-postasındaki büyük tanıtım rozeti de ana düğme gibi doğrudan asistan ekranına bağlandı.
+
 ## [1.52.1] - 2026-09-11
 
 ### Eklendi
