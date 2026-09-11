@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.52.1] - 2026-09-11
+
+### Eklendi
+
+- Borcama'ya Sor'u tanıtan üçüncü “Siz istediniz, biz yaptık” e-postası, yalnız doğrulanmış ve iletişime uygun üyelere iki aşamalı onayla gönderilebilecek kampanya olarak hazırlandı.
+
+### Değiştirildi
+
+- Borcama'ya Sor duyuru e-postasındaki ana bağlantı, oturumu açık kullanıcılarda asistanı doğrudan açacak; oturumu kapalı kullanıcılarda ise girişten sonra aynı hedefi koruyacak biçimde düzenlendi.
+
 ## [1.52.0] - 2026-09-08
 
 ### Eklendi

@@ -118,6 +118,17 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gönderilmeye hazır adaylar
 
+### Borcama'ya Sor · v1.52.1
+
+- Konu: `Siz istediniz, biz yaptık - 3 -`
+- Önizleme: `Finansal tablonu kısa ve anlaşılır yanıtlarla yorumla; sıradaki adımını gör.`
+- Siz istediniz: Borçlar, ödemeler, gelirler ve harcamalar arasında kaybolmadan bu ay ne yapmanız gerektiğini anlamak.
+- Biz yaptık: Borcama'ya Sor, kullanıcı izin verdiğinde finansal tablonun özetini yorumlayıp kısa bir cevap ve sonraki adımı gösteriyor.
+- Faydasi: Kullanıcı “Bu ay ne durumdayım?”, “Önce ne yapmalıyım?” ve “Neden açık var?” gibi soruları kendi kayıtları üzerinden inceleyebiliyor.
+- Aksiyon: `https://borcama.com/summary?assistant=1&utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_3&utm_content=ana_cta` (oturum açıksa Borcama'ya Sor'u doğrudan açar; değilse girişten sonra aynı hedefe döner.)
+- Hedef kitle: E-posta adresi doğrulanmış, iletişimden çıkmamış, bounce veya şikâyet kaydı bulunmayan ve kampanyayı daha önce almamış üyeler.
+- Durum: Gönderim altyapısı hazır; test teslimatı ve nihai toplu gönderim onayı bekleniyor.
+
 ### Ödemelerini daha az menüyle yönet — v1.42.8
 
 - Siz istediniz: Aynı ödeme durumlarını farklı menülerde tekrar tekrar aramamak.

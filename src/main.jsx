@@ -389,10 +389,10 @@ function KimlikliKok() {
 
   if (!session) {
     const sorgu = new URLSearchParams(window.location.search);
-    const feedbackYolu = sorgu.get("feedback") === "1"
+    const uygulamaIciHedef = sorgu.get("feedback") === "1" || sorgu.get("assistant") === "1"
       ? `${window.location.pathname}${window.location.search}`
       : "/summary";
-    return <GirisEkrani redirectTo={feedbackYolu} />;
+    return <GirisEkrani redirectTo={uygulamaIciHedef} />;
   }
 
   const bekleyenPlan = proNiyetiniOku();

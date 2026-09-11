@@ -10,6 +10,7 @@ const CSS = `
 `;
 
 const FALLBACK=[
+ {slug:"features-assistant-v1-52",name:"Siz istediniz, biz yaptık · 3",subject:"Siz istediniz, biz yaptık - 3 -",description:"Borcama'ya Sor'un finansal tabloyu açıklayan kısa yanıtlarını tanıtır.",audience_type:"Doğrulanmış uygun üyeler",kind:"manual",status:"active",preview:"/borcama-asistan-email-preview.html",action:"send_assistant_announcement",countKey:"assistant_announcement_unannounced"},
  {slug:"features-v1-33",name:"Siz istediniz, biz yaptık · 1 Eylül 2026",subject:"Siz istediniz, biz yaptık: Borcama'daki önemli yenilikler",description:"Ekstre yönetimi, taksit dağılımı, sade ekranlar ve borç kapatma planındaki gözle görülür yenilikler.",audience_type:"Doğrulanmış uygun üyeler",kind:"manual",status:"active",preview:"/borcama-v1-33-email-preview.html",action:"send_release_133_announcement",countKey:"release_133_unannounced"},
  {slug:"features-2026-08",name:"Yeni özellikler",subject:"Siz istediniz, biz yaptık: Borcama'da yenilikler",description:"Ekstre ve ödeme planı yükleme yeniliklerini anlatır.",audience_type:"Doğrulanmış tüm üyeler",kind:"manual",preview:"/borcama-new-features-email-preview.html",action:"send_features_announcement",countKey:"features_unannounced"},
  {slug:"trial-invite-2026-08",name:"1 ay ücretsiz Pro",subject:"Borcama Pro'yu 1 Ay Ücretsiz Denemeye Başla",description:"Aktif deneme hakkı bulunan üyelere gider.",audience_type:"Aktif deneme hakkı bulunan üyeler",kind:"manual",preview:"/borcama-trial-email-preview.html",action:"send_trial_announcement",countKey:"trial_unannounced"},

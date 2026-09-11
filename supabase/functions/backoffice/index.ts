@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { denemeDavetHtml, konuGuvenli, surum133DuyuruHtml, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
+import { borcamaAsistaniDuyuruHtml, denemeDavetHtml, konuGuvenli, surum133DuyuruHtml, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
 import { borcToplamlariniHesapla, guvenliSayi, gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const izinliOriginler = new Set([
@@ -260,6 +260,45 @@ async function surum133Hedefleri(
     .filter((u) => !iletisimdenCikmis(u) && !teslimatiEngellenen.has(u.id) && !dahaOnceGonderilen.has(u.id))
     .map((u) => ({ user_id: u.id, email: String(u.email).trim().toLowerCase() }));
   return { campaign, hedefler };
+}
+
+async function borcamaAsistaniHedefleri(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: KampanyaKullanicisi[],
+) {
+  const campaign = await kampanyaGetir(admin, "features-assistant-v1-52");
+  if (campaign.status !== "active") throw new Error("CAMPAIGN_NOT_ACTIVE");
+  const [{ data: mevcutlar, error: mevcutHatasi }, { data: engellenenler, error: engelHatasi }] = await Promise.all([
+    admin.from("marketing_deliveries").select("user_id,status").eq("campaign_id", campaign.id),
+    admin.from("marketing_deliveries").select("user_id,status").in("status", ["bounced", "complained"]),
+  ]);
+  if (mevcutHatasi || engelHatasi) throw new Error("DELIVERIES_UNAVAILABLE");
+  const dahaOnceGonderilen = new Set((mevcutlar || []).filter((x) => x.user_id && x.status !== "failed").map((x) => x.user_id));
+  const teslimatiEngellenen = new Set((engellenenler || []).filter((x) => x.user_id).map((x) => x.user_id));
+  const hedefler = kullanicilar
+    .filter((u) => u.email && u.email_confirmed_at)
+    .filter((u) => !iletisimdenCikmis(u) && !teslimatiEngellenen.has(u.id) && !dahaOnceGonderilen.has(u.id))
+    .map((u) => ({ user_id: u.id, email: String(u.email).trim().toLowerCase() }));
+  return { campaign, hedefler };
+}
+
+async function borcamaAsistaniDuyurusuGonder(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: KampanyaKullanicisi[],
+) {
+  const { campaign, hedefler } = await borcamaAsistaniHedefleri(admin, kullanicilar);
+  let gonderilen = 0;
+  for (const hedef of hedefler) {
+    const sent = await takipliKampanyaGonder(
+      admin,
+      campaign,
+      hedef,
+      (url) => borcamaAsistaniDuyuruHtml(url),
+      "/summary?assistant=1&utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_3&utm_content=ana_cta",
+    );
+    if (sent) gonderilen += 1;
+  }
+  return gonderilen;
 }
 
 async function surum133DuyurusuGonder(
@@ -642,6 +681,16 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
       }
     }
+    if (action === "send_assistant_announcement") {
+      try {
+        const kullanicilar = await tumKullanicilariGetir(admin);
+        const sent = await borcamaAsistaniDuyurusuGonder(admin, kullanicilar);
+        return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
+        return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
+      }
+    }
     if (["approve_referral", "reject_referral"].includes(action)) {
       const referralId = String(body?.referralId || "");
       if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(referralId))
@@ -793,11 +842,17 @@ Deno.serve(async (req) => {
     trial_unannounced: satirlar.filter((x) => x.trial_active && !x.trial_announcement_sent_at).length,
     features_unannounced: satirlar.filter((x) => !x.features_announcement_sent_at && x.email_confirmed_at).length,
     release_133_unannounced: 0,
+    assistant_announcement_unannounced: 0,
   };
 
   try {
     const { hedefler } = await surum133Hedefleri(admin, kullanicilar);
     ozet.release_133_unannounced = hedefler.length;
+  } catch { /* Kampanya canlı değilse gönderim sayısı sıfır kalır. */ }
+
+  try {
+    const { hedefler } = await borcamaAsistaniHedefleri(admin, kullanicilar);
+    ozet.assistant_announcement_unannounced = hedefler.length;
   } catch { /* Kampanya canlı değilse gönderim sayısı sıfır kalır. */ }
 
   const istenenKullaniciId = new URL(req.url).searchParams.get("userId");

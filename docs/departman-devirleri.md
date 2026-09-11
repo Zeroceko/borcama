@@ -271,3 +271,12 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: 136/136 test, production build, sürüm kontrolü, üretilen `dist/faq.html` başlık/canonical/içerik/yapılandırılmış veri kontrolü ve `git diff --check` başarılı. Canlı `/faq` yanıtı `200`, `faq.html`, doğru başlık, açıklama, canonical, FAQPage verisi ve ilk içerikle doğrulandı.
 - Ölçüm açığı: CEO/CRM ekranı oturum gerektirdiği için organik kanaldan doğrulanmış ve aktive kullanıcı sayısı okunamadı; tıklama verisi kullanıcı sonucu gibi yorumlanmadı.
 - Sonraki adım: Perşembe kontrolünde mevduat sorgu kümesi ile borç kapatma sayfasının ilk görünümünü ve `/faq` yeniden tarama durumunu ölç; site haritasını veya URL'leri gereksiz yere yeniden gönderme.
+
+### 2026-09-11 · Borcama'ya Sor toplu e-posta canlı hazırlığı
+
+- Baz alınan Borcama sürümü: `v1.52.1`; Borcama Asistanı v1.46–v1.49 yetenekleriyle canlıdır.
+- Yapılan değişiklik: `Siz istediniz, biz yaptık - 3 -` konulu, üç gerçek kullanıcı sorusu ve tek `Borcama'ya sor` CTA'sı taşıyan kampanya; Marketing ekranı, takipli gönderim altyapısı, UTM ve statik önizlemeyle yerelde hazırlandı. CTA, oturum açıksa asistanı doğrudan açacak; oturum kapalıysa girişten sonra aynı hedefe dönecek biçimde bağlandı.
+- Hedef ve korumalar: Yalnız e-postası doğrulanmış, iletişimden çıkmamış, bounce/şikâyet kaydı olmayan ve bu kampanyayı daha önce almamış üyeler tekilleştirilir; ham ekstre, kart numarası ve işlem açıklamalarının modele gönderilmediği açıklanır.
+- Test ve doğrulama: Yeni kampanya testi ve tüm test paketi `152/152` başarılı; production build ve `git diff --check` başarılı; masaüstü önizleme gerçek DOM ve ekran görüntüsüyle kontrol edildi.
+- Canlı durum: Kampanya migration'ı, Backoffice gönderim şablonu ve `v1.52.1` web sürümü canlıya alındı. E-posta gönderilmedi, yönetici test teslimatı yapılmadı ve CTA tıklanmadı.
+- Sonraki kapı: Yönetici test adresine teslimat ve CTA doğrulaması ayrı onayla yapılmalı; ardından Marketing ekranında güncel uygun alıcı sayısıyla Yönetim Kurulu Başkanı'nın nihai toplu gönderim onayı alınmalı.

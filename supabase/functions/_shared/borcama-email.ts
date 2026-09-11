@@ -139,6 +139,24 @@ ${duyuruKarti("05", "Daha sade bir Borcama kullan", "Bugün ve Borçlar ekranlar
 <p style="margin:16px 0 0;color:#85877d;font-size:12px;line-height:1.55;text-align:center">Hesabındaki kayıtları yalnızca sen görebilirsin.</p>`);
 }
 
+export function borcamaAsistaniDuyuruHtml(url: string) {
+  return cerceve(`<div style="display:none;max-height:0;overflow:hidden;color:transparent">Finansal tablonu kısa ve anlaşılır yanıtlarla yorumla; sıradaki adımını gör.</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 26px;background:#ff6c5c;border-radius:24px;overflow:hidden;box-shadow:8px 8px 0 #cdf564"><tr><td style="padding:34px 30px">
+<div style="font-size:38px;line-height:1.06;letter-spacing:-1.4px;font-weight:900;color:#14160f">Siz istediniz.<br><span style="color:#fff">Biz yaptık.</span></div>
+<div style="margin:28px 0 0;padding:19px 22px;border:2px solid #fff;border-radius:999px;background:#14160f;color:#fff;text-align:center;font-size:27px;line-height:1;font-weight:900;box-shadow:6px 6px 0 #cdf564;white-space:nowrap"><span style="color:#cdf564;font-size:33px;vertical-align:-4px">✦</span>&nbsp; Borcama'ya sor &nbsp;<span style="display:inline-block;padding:5px 8px;border:1px solid #cdf564;border-radius:999px;color:#cdf564;font-size:10px;line-height:1;vertical-align:5px">BETA</span></div>
+<p style="color:#3c251f;font-size:16px;line-height:1.55;margin:17px 0 0">Borcama'ya artık kendi finansal tablon hakkında soru sorabilirsin.</p>
+</td></tr></table>
+<h1 style="font-size:32px;line-height:1.12;letter-spacing:-1px;margin:0 0 12px">Tablona bak. Aklındakini sor.</h1>
+<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">Kartların, kredilerin, gelirlerin, giderlerin ve ödeme planın birlikte değerlendirilir; cevap, kayıtlarını değiştirmeden sana kısa bir açıklama ve sonraki adımı gösterir.</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+${duyuruKarti("01", "Bu ay ne durumdayım?", "Aylık planında açık mı fazla mı olduğunu ve hesabın hangi kayıtlara dayandığını gör.", "#effbd8", "#b9ea4f")}
+${duyuruKarti("02", "Önce ne yapmalıyım?", "Yaklaşan ödemelerini ve borç yükünü birlikte değerlendirip bakacağın ilk adımı bul.", "#e6f4f1", "#9fd7ce")}
+${duyuruKarti("03", "Neden açık var?", "Gelir, zorunlu ödemeler ve yaşam harcamalarının aylık planını nasıl etkilediğini anla.", "#fff0ec", "#ff8a78")}
+</table>
+<div style="padding:2px 7px 7px">${buton(url, "Borcama'ya sor")}</div>
+<div style="margin-top:24px;padding:18px 20px;border-radius:18px;background:#f4efe0;color:#55584c;font-size:13px;line-height:1.6"><strong style="color:#14160f">Kontrol sende.</strong> Asistan yalnız sen izin verdiğinde kayıtlarından oluşturulan finansal özeti yorumlar. Ham ekstre, kart numarası ve işlem açıklamaları modele gönderilmez. Sonuçları kontrol et; Borcama yatırım tavsiyesi vermez.</div>`);
+}
+
 export function denemeDavetHtml(kalanGun: number, url: string) {
   return denemeBasladiHtml(kalanGun, url);
 }

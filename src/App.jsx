@@ -2022,6 +2022,14 @@ export default function BorcTakip() {
   }, []);
 
   useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("assistant") !== "1") return;
+    setAsistanPenceresi(true);
+    url.searchParams.delete("assistant");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }, []);
+
+  useEffect(() => {
     if (yukleniyor || rehberKontrolEdildi) return;
     setRehberKontrolEdildi(true);
     const zorla = new URLSearchParams(window.location.search).get("rehber") === "1";
