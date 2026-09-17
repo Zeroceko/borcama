@@ -124,6 +124,7 @@ import { davetDurumunuGetir } from "./referrals.js";
 import { asistanBaglamiOlustur } from "./assistantContext.js";
 import { finansalAsistanaSor } from "./financialAssistant.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
+import { appendAssistantExchange, MAX_ASSISTANT_EXCHANGES } from "../supabase/functions/_shared/financialAssistantConversation.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -3583,6 +3584,7 @@ export default function BorcTakip() {
         <MessageCircle size={16} /> Görüş bildir
       </button>
       <BorcamaAsistani
+        key={kullaniciEposta || "demo"}
         acik={asistanPenceresi}
         kapat={() => setAsistanPenceresi(false)}
         gelir={buAyGelir.toplam}
@@ -4148,15 +4150,18 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   const [secim, setSecim] = useState("durum");
   const [soru, setSoru] = useState("");
   const [modelYaniti, setModelYaniti] = useState(null);
+  const [konusmaGecmisi, setKonusmaGecmisi] = useState([]);
+  const [yanitlananSoru, setYanitlananSoru] = useState("");
   const [modelDurumu, setModelDurumu] = useState({ yukleniyor: false, hata: "", kota: null });
-  useEffect(() => {
-    if (!acik) {
-      setSecim("durum");
-      setSoru("");
-      setModelYaniti(null);
-      setModelDurumu({ yukleniyor: false, hata: "", kota: null });
-    }
-  }, [acik]);
+  const yeniKonusma = () => {
+    if (modelDurumu.yukleniyor) return;
+    setKonusmaGecmisi([]);
+    setYanitlananSoru("");
+    setSecim("durum");
+    setSoru("");
+    setModelYaniti(null);
+    setModelDurumu({ yukleniyor: false, hata: "", kota: modelDurumu.kota });
+  };
   if (!acik) return null;
 
   const aylikKalan = gelir - zorunluOdeme - harcama;
@@ -4212,8 +4217,8 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   ];
   const soruSor = async (event) => {
     event.preventDefault();
-    if (!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor) return;
-    const metin = soru.toLocaleLowerCase("tr-TR");
+    if (!yapayZekaIzni || soru.trim().length < (konusmaGecmisi.length ? 1 : 3) || modelDurumu.yukleniyor) return;
+    const metin = soru.trim().slice(0, 500);
     setSecim("model");
     setModelYaniti(null);
     setModelDurumu({ yukleniyor: true, hata: "", kota: null });
@@ -4221,8 +4226,11 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       const context = asistanBaglamiOlustur({
         veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
       });
-      const sonuc = await finansalAsistanaSor({ question: metin, context });
+      const sonuc = await finansalAsistanaSor({ question: metin, context, history: konusmaGecmisi });
       setModelYaniti(sonuc);
+      setKonusmaGecmisi((gecmis) => appendAssistantExchange(gecmis, { question: metin, answer: sonuc.answer }));
+      setYanitlananSoru(metin);
+      setSoru("");
       setModelDurumu({ yukleniyor: false, hata: "", kota: sonuc.quota || null });
     } catch (error) {
       const mesaj = error?.message === "DAILY_LIMIT"
@@ -4261,23 +4269,24 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
         {!yapayZekaIzni && (
           <div className="bt-assistant-consent">
             <strong>Kişisel finansal soru-cevabı etkinleştir</strong>
-            Borcama; ham ekstreni, kart numaranı ve işlem açıklamalarını göndermez. Yalnız hesaplanmış borç, gelir, gider ve ödeme özetin Gemini'nin ücretli API hizmetine gönderilerek soruna özel yanıt hazırlanır.
+            Kayıtlarından ham ekstre, kart numarası ve işlem açıklaması gönderilmez. Soru metnin, bu konuşmadaki son 5 soru/yanıt ve hesaplanmış finansal özetin Gemini'nin ücretli API hizmetine iletilir. Soru alanına kart numarası veya ham belge yapıştırma.
             <button className="bt-btn kucuk birincil" type="button" onClick={yapayZekaIzniVer}>Etkinleştir</button>
           </div>
         )}
         <div className="bt-assistant-composer">
           <span className="bt-assistant-section-label">Ne öğrenmek istiyorsun?</span>
           <form className="bt-assistant-custom" onSubmit={soruSor}>
-            <input className="bt-input" value={soru} onChange={(e) => setSoru(e.target.value)} placeholder="Örn. 10.000 TL ile önce hangi borcu kapatmalıyım?" aria-label="Sorunuzu yazın" disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
-            <button className="bt-btn birincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < 3 || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> Bakıyorum</span> : <>Sor <Send size={14}/></>}</button>
+            <input className="bt-input" value={soru} maxLength={500} onChange={(e) => setSoru(e.target.value)} placeholder={konusmaGecmisi.length ? "Yanıtla veya devam sorunu yaz…" : "Örn. 10.000 TL ile önce hangi borcu kapatmalıyım?"} aria-label="Sorunuzu yazın" disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
+            <button className="bt-btn birincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < (konusmaGecmisi.length ? 1 : 3) || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> Bakıyorum</span> : <>Sor <Send size={14}/></>}</button>
           </form>
-          <small>Yanıt, Borcama'ya kaydettiğin güncel finansal tabloya göre hazırlanır.</small>
+          <small>Güncel kayıtların ve bu konuşmadaki son {MAX_ASSISTANT_EXCHANGES} soru/yanıt birlikte değerlendirilir. Sayfa yenilendiğinde konuşma bağlamı sıfırlanır.</small>
+          {!!konusmaGecmisi.length && <button className="bt-btn kucuk ikincil" type="button" onClick={yeniKonusma} disabled={modelDurumu.yukleniyor} style={{ marginTop: 10 }}>Yeni konuşma</button>}
         </div>
         <div className="bt-assistant-shortcuts">
           <span className="bt-assistant-section-label">Ya da kayıtlarında hızlıca incele</span>
           <div className="bt-assistant-prompts" role="group" aria-label="Hızlı finansal incelemeler">
             {hizliIncelemeler.map(({ id, baslik, aciklama, ikon: Ikon }) => (
-              <button key={id} type="button" className={secim === id ? "aktif" : ""} aria-pressed={secim === id} onClick={() => { setSecim(id); setModelYaniti(null); setModelDurumu({ yukleniyor: false, hata: "", kota: null }); }}>
+              <button key={id} type="button" disabled={modelDurumu.yukleniyor} className={secim === id ? "aktif" : ""} aria-pressed={secim === id} onClick={() => { setSecim(id); setModelDurumu({ yukleniyor: false, hata: "", kota: modelDurumu.kota }); }}>
                 <span className="bt-assistant-prompt-icon"><Ikon size={16}/></span>
                 <span className="bt-assistant-prompt-copy"><strong>{baslik}</strong><small>{aciklama}</small></span>
                 <ChevronRight size={14}/>
@@ -4285,8 +4294,16 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
             ))}
           </div>
         </div>
+        {!!konusmaGecmisi.length && <details style={{ marginBottom: 14 }}>
+          <summary style={{ cursor: "pointer", fontSize: 12 }}>Bu konuşmadaki soru ve yanıtlar ({konusmaGecmisi.length})</summary>
+          {konusmaGecmisi.map((tur, index) => <div key={index} style={{ padding: "12px 0", borderBottom: "1px solid var(--line-soft)", fontSize: 12, lineHeight: 1.5 }}>
+            <strong>Sen: {tur.question}</strong>
+            <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", color: "var(--dim)" }}>{tur.answer}</p>
+          </div>)}
+        </details>}
         <div className="bt-assistant-answer" aria-live="polite">
           <span className="bt-assistant-answer-label">{secim === "model" ? "Soruna özel yanıt" : "Kayıtlarına göre"}</span>
+          {secim === "model" && modelYaniti && <p style={{ marginBottom: 10 }}>Sorun: {yanitlananSoru}</p>}
           <strong>{gosterilenYanit.baslik}</strong>
           {yanitSunumu ? <>
             {yanitSunumu.kisaCevap && <p className="bt-assistant-summary">{vurgula(yanitSunumu.kisaCevap)}</p>}

@@ -1,4 +1,5 @@
 import { demoModu, supabase } from "./supabaseClient.js";
+import { normalizeAssistantHistory } from "../supabase/functions/_shared/financialAssistantConversation.js";
 
 const tl = (value) => new Intl.NumberFormat("tr-TR", {
   style: "currency", currency: "TRY", maximumFractionDigits: 0,
@@ -44,7 +45,8 @@ function demoYaniti(question, context) {
   };
 }
 
-export async function finansalAsistanaSor({ question, context }) {
+export async function finansalAsistanaSor({ question, context, history = [] }) {
+  const safeHistory = normalizeAssistantHistory(history);
   if (demoModu) return demoYaniti(question, context);
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -52,7 +54,7 @@ export async function finansalAsistanaSor({ question, context }) {
   const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/financial-assistant`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ question, context }),
+    body: JSON.stringify({ question, context, history: safeHistory }),
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {

@@ -1,4 +1,6 @@
 import { ASISTAN_EVAL_VAKALARI } from "../evals/financial-assistant/cases.js";
+import { ASISTAN_KONUSMA_EVAL_VAKALARI } from "../evals/financial-assistant/conversationCases.js";
+import { buildFinancialAssistantContents } from "../supabase/functions/_shared/financialAssistantConversation.js";
 import { deterministikYanitiKontrolEt } from "../evals/financial-assistant/rubric.js";
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../supabase/functions/_shared/financialAssistantPrompt.js";
 import {
@@ -17,16 +19,13 @@ const model = process.env.GEMINI_MODEL || "gemini-3.7-flash";
 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 const results = [];
 
-for (const testCase of ASISTAN_EVAL_VAKALARI) {
+for (const testCase of [...ASISTAN_EVAL_VAKALARI, ...ASISTAN_KONUSMA_EVAL_VAKALARI]) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION }] },
-      contents: [{
-        role: "user",
-        parts: [{ text: `SORU:\n${testCase.soru}\n\nBORCAMA_HESAP_OZETI:\n${JSON.stringify(testCase.baglam)}` }],
-      }],
+      contents: buildFinancialAssistantContents({ question: testCase.soru, context: testCase.baglam, history: testCase.history || [] }),
       generationConfig: {
         thinkingConfig: { thinkingLevel: "LOW" },
         maxOutputTokens: 1000,
@@ -63,6 +62,7 @@ for (const testCase of ASISTAN_EVAL_VAKALARI) {
     response: answer,
     context: testCase.baglam,
     question: testCase.soru,
+    history: testCase.history || [],
   });
   const evalCheck = deterministikYanitiKontrolEt(testCase, answer);
   const errors = [...runtimeCheck.errors, ...evalCheck.sorunlar, ...evalCheck.agirHatalar];

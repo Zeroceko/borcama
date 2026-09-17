@@ -63,6 +63,7 @@ export function deterministikYanitiKontrolEt(vaka, yanit) {
     response: yanit,
     context: vaka.baglam,
     question: vaka.soru,
+    history: vaka.history || [],
   });
   for (const hata of sunucuKontrolu.errors) {
     if (hata === "unsafe_certainty_or_action" || hata.startsWith("ungrounded_percentage:")) {

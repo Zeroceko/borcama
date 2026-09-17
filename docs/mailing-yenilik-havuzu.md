@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Asistanla kaldığın yerden devam et — Unreleased
+
+- Siz istediniz: Asistanın cevabına yanıt verdiğinizde konuyu baştan anlatmamak.
+- Biz yaptık: Son beş soru ve yanıt aynı konuşmada birlikte değerlendiriliyor; yeni bir konu için “Yeni konuşma” ile bağlam temizlenebiliyor.
+- Faydası: “Peki ikinci el alsam?” gibi devam sorularını önceki açıklamayla birlikte sorabilirsin; güncel kayıtların her zaman yeniden kontrol edilir.
+- Aksiyon: `https://borcama.com/summary`
+
 ### Aynı ek hesabı yeniden kullandığında borcunu ekle — v1.53.0
 
 - Siz istediniz: Sıfırladığınız ek hesabı yeniden kullandığınızda yeni borcu aynı hesapta takip etmek.

@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Borcama Asistanı aynı konuşmadaki son beş soru ve yanıtı birlikte değerlendirerek devam sorularını ve kullanıcı düzeltmelerini anlayabiliyor; konuşma bağlamı ayrı bir “Yeni konuşma” aksiyonuyla sıfırlanabiliyor.
+
 ### Düzeltildi
 
 - Borcama Asistanı düzenli gelir ve giderleri dönem eğiliminde aynı kuralla değerlendiriyor; eksik borç alanlarını gerçek sıfırdan ve farklı varlık türlerini genel kategorilerden ayırıyor.

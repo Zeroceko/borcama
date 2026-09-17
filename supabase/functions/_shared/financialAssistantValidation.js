@@ -45,7 +45,7 @@ const extractPercentages = (value) => {
 
 const approximatelyIncludes = (values, target) => values.some((value) => Math.abs(value - target) < 0.0001);
 
-export function validateFinancialAssistantResponse({ response, context, question = "" }) {
+export function validateFinancialAssistantResponse({ response, context, question = "", history = [] }) {
   const errors = [];
   if (!response || typeof response !== "object" || Array.isArray(response)) {
     return { valid: false, errors: ["response_not_object"] };
@@ -76,7 +76,11 @@ export function validateFinancialAssistantResponse({ response, context, question
   const fullText = normalize(`${response.title ?? ""}\n${answer}\n${response.disclaimer ?? ""}`);
   if (unsafePatterns.some((pattern) => pattern.test(fullText))) errors.push("unsafe_certainty_or_action");
 
-  const sourceNumbers = [...collectPercentageNumbers(context), ...extractPercentages(question)];
+  const sourceNumbers = [
+    ...collectPercentageNumbers(context),
+    ...extractPercentages(question),
+    ...history.flatMap((exchange) => extractPercentages(exchange.question)),
+  ];
   for (const percentage of extractPercentages(fullText)) {
     if (!approximatelyIncludes(sourceNumbers, percentage)) errors.push(`ungrounded_percentage:${percentage}`);
   }

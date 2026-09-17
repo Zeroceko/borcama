@@ -4,6 +4,7 @@ import {
   validateFinancialAssistantResponse,
 } from "../_shared/financialAssistantValidation.js";
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../_shared/financialAssistantPrompt.js";
+import { buildFinancialAssistantContents, normalizeAssistantHistory } from "../_shared/financialAssistantConversation.js";
 
 const allowedOrigins = new Set([
   "https://borcama.com", "https://www.borcama.com",
@@ -39,7 +40,11 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => null);
   const question = String(body?.question || "").trim().slice(0, 500);
   const context = body?.context;
-  if (question.length < 3 || !context || JSON.stringify(context).length > 30000)
+  let history;
+  try { history = normalizeAssistantHistory(body?.history); } catch {
+    return new Response(JSON.stringify({ error: "INVALID_HISTORY" }), { status: 422, headers });
+  }
+  if (question.length < (history.length ? 1 : 3) || !context || JSON.stringify(context).length > 30000)
     return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
 
   const apiKey = Deno.env.get("GEMINI_API_KEY");
@@ -58,7 +63,7 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION }] },
-        contents: [{ role: "user", parts: [{ text: `SORU:\n${question}\n\nBORCAMA_HESAP_OZETI:\n${JSON.stringify(context)}` }] }],
+        contents: buildFinancialAssistantContents({ question, context, history }),
         generationConfig: {
           thinkingConfig: { thinkingLevel: "LOW" },
           maxOutputTokens: 1000,
@@ -87,7 +92,7 @@ Deno.serve(async (req) => {
   const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
   let answer;
   try { answer = JSON.parse(text); } catch { answer = null; }
-  const validation = validateFinancialAssistantResponse({ response: answer, context, question });
+  const validation = validateFinancialAssistantResponse({ response: answer, context, question, history });
   if (!validation.valid) {
     await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
     return new Response(JSON.stringify({ error: "INVALID_MODEL_RESPONSE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
