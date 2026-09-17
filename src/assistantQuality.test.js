@@ -42,7 +42,7 @@ test("eval vakaları yalnız sentetik ve normalize edilmiş finansal özet taş�
 });
 
 test("canlı asistan talimatı sade dil, bütün profil ve sabit kısa yanıt yapısını korur", () => {
-  const kaynak = readFileSync(resolve(kok, "supabase/functions/financial-assistant/index.ts"), "utf8");
+  const kaynak = readFileSync(resolve(kok, "supabase/functions/_shared/financialAssistantPrompt.js"), "utf8");
   assert.match(kaynak, /BORCAMA_HESAP_OZETI'nin tamamını birlikte değerlendir/);
   assert.match(kaynak, /toplam finansal profil ve kullanıcının aylık ödeme gücüyle çelişki kontrolü/);
   assert.match(kaynak, /finansal okuryazarlığı olmayan birinin ilk okumada anlayacağı günlük Türkçeyle/);
@@ -51,6 +51,14 @@ test("canlı asistan talimatı sade dil, bütün profil ve sabit kısa yanıt ya
   assert.match(kaynak, /en fazla 130 kelime/);
   assert.match(kaynak, /kullanıcının girmediği sayıyı kesinmiş gibi sunma/);
   assert.match(kaynak, /Kullanıcı adına kayıt oluşturma veya değiştirme/);
+});
+
+test("canlı sentetik eval ortak promptu kullanır ve maliyet onayı olmadan çalışmaz", () => {
+  const kaynak = readFileSync(resolve(kok, "scripts/run-financial-assistant-eval.mjs"), "utf8");
+  assert.match(kaynak, /ASSISTANT_EVAL_LIVE_CONFIRMED !== "true"/);
+  assert.match(kaynak, /FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION/);
+  assert.match(kaynak, /ASISTAN_EVAL_VAKALARI/);
+  assert.doesNotMatch(kaynak, /supabase\.auth|financial_assistant_conversations/);
 });
 
 test("sekiz referans yanıt deterministik regresyon kapılarından geçer", () => {

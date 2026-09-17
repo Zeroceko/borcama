@@ -4,15 +4,16 @@
 
 Bu kalite kapısı, Borcama Asistanı'nın finansal olarak doğru, kullanıcının bütün finansal profiliyle tutarlı, sade Türkçeli ve eyleme dönük yanıt vermesini ölçer. İlk set kredi, yapılandırma, kart/KMH, gecikme, ödeme, gelir-gider, varlık ve veri eksikliği ailelerini kapsar.
 
-Bu çalışma canlı model çağrısı, kullanıcı verisi işlemi veya yayın yapmaz. Eval dosyalarına gerçek kullanıcı profili, e-posta, ham ekstre, kart numarası, işyeri açıklaması ya da destek konuşması kopyalanmaz. Yeni vakalar sıfırdan sentetik üretilir ve `sentetik: true` işareti taşır.
+Varsayılan testler canlı model çağrısı, kullanıcı verisi işlemi veya yayın yapmaz. Eval dosyalarına gerçek kullanıcı profili, e-posta, ham ekstre, kart numarası, işyeri açıklaması ya da destek konuşması kopyalanmaz. Yeni vakalar sıfırdan sentetik üretilir ve `sentetik: true` işareti taşır. İsteğe bağlı canlı eval yalnız aynı sentetik vakaları doğrudan modele gönderir; ürün kullanıcısı, kota ve CRM konuşma kaydı oluşturmaz.
 
 ## Mimari
 
 1. `evals/financial-assistant/cases.js`, yalnız normalize edilmiş hesap özeti biçimindeki sentetik soruları, beklenen kavramları, yasak sonuçları ve iyi yanıt çıpalarını tutar.
 2. `evals/financial-assistant/rubric.js`, cevap sözleşmesini deterministik olarak denetler ve anlam değerlendirmesi için ağırlıklı rubriği uygular.
-3. `src/assistantQuality.test.js`, aile kapsamını, veri minimizasyonunu, canlı prompt sözleşmesini, referans cevapları ve sürüm eşiklerini her test çalışmasında korur.
-4. Bir model veya prompt adayı önce tüm sentetik vakalarda çalıştırılır. Çıktı, deterministik kapıdan geçtikten sonra finansal bağlamı görmeden puan veremeyeceği için vaka bağlamıyla birlikte insan incelemesine girer.
-5. Sonuçlar aile bazında ve toplu değerlendirilir. Kapı geçilmeden prompt, model veya karar kuralı canlıya alınmaz; yayın kararı ana teknik koordinasyondadır.
+3. `src/assistantQuality.test.js`, aile kapsamını, veri minimizasyonunu, ortak canlı prompt sözleşmesini, referans cevapları ve sürüm eşiklerini her test çalışmasında korur.
+4. `scripts/run-financial-assistant-eval.mjs`, Edge Function ile aynı promptu ve yanıt doğrulayıcısını kullanarak gerçek model çıktısını yalnız sentetik vakalarda sınar.
+5. Bir model veya prompt adayı önce tüm sentetik vakalarda çalıştırılır. Çıktı, deterministik kapıdan geçtikten sonra finansal bağlamı görmeden puan verilemeyeceği için vaka bağlamıyla birlikte insan incelemesine girer.
+6. Sonuçlar aile bazında ve toplu değerlendirilir. Kapı geçilmeden prompt, model veya karar kuralı canlıya alınmaz; yayın kararı ana teknik koordinasyondadır.
 
 Anahtar kelime kontrolleri finansal anlamı tek başına kanıtlamaz. Bunlar biçim ve bilinen tehlikeli regresyonları hızlı yakalar; nihai finansal doğruluk puanı ayrı incelemeden gelir.
 
@@ -69,6 +70,8 @@ Kapı başarısızsa ilk işlem modeli büyütmek değil, başarısız vakayı v
 ## Çalıştırma ve genişletme
 
 - Yalnız Asistan regresyonları: `npm run test:assistant`
+- Gerçek modelle yalnız sentetik eval: `ASSISTANT_EVAL_LIVE_CONFIRMED=true GEMINI_API_KEY=... npm run test:assistant:live`
+- Canlı eval ücretli sekiz model çağrısı yapar; açık `ASSISTANT_EVAL_LIVE_CONFIRMED=true` olmadan çalışmaz. Bu komutu normal CI veya varsayılan test zincirine ekleme.
 - Tüm ürün testleri: `npm test`
 - Yeni vaka eklerken mevcut sekiz ailenin kapsamını azaltma; olumlu ve olumsuz sınır örneklerini birlikte büyüt.
 - Model/prompt sürümü, tarih, vaka kimliği, deterministik sonuç, altı rubrik puanı ve inceleyen kişi/ajan kaydedilir. Soru metni yalnız sentetik vaka kimliğiyle ilişkilendirilir.
