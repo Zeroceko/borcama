@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.52.3] - 2026-09-18
+
 ### Değiştirildi
 
 - CEO görünümü, büyüme ve ürün sağlığını yalnız doğrulanmış kullanıcı, dönem aktivasyonu, haftalık aktif kullanıcı ve aktif Pro ile özetleyip ayrıntıları isteğe bağlı hale getirdi.
