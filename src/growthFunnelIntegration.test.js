@@ -35,7 +35,10 @@ test("ürün sağlığı özeti dönem, tam aktivasyon ve ölçülemeyen kaynakl
   assert.match(backoffice, /test_admin_classification: \{ available: false/);
   const saglik = backoffice.match(/async function urunSagligiIstatistikleri[\s\S]*?\n}\n\nDeno\.serve/)?.[0] || "";
   assert.doesNotMatch(saglik, /select\([^)]*(?:metadata|value|email)/);
-  assert.match(dashboard, /Ürün sağlığı \/ yönetim özeti/);
-  assert.match(dashboard, /Kanal bilinmiyor/);
-  assert.match(dashboard, /Hesaplanamıyor/);
+  assert.match(dashboard, /OdakliUrunSagligi/);
+  assert.match(dashboard, /Borcama'nın nabzı/);
+  assert.match(dashboard, /Dönem aktivasyonu/);
+  assert.match(dashboard, /Haftalık aktif/);
+  assert.match(dashboard, /Aktif Pro/);
+  assert.match(dashboard, /Operasyon ayrıntılarını aç/);
 });
