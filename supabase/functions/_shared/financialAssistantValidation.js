@@ -46,6 +46,22 @@ const extractPercentages = (value) => {
 
 const approximatelyIncludes = (values, target) => values.some((value) => Math.abs(value - target) < 0.0001);
 
+// Only explicit payment allocations count; assets and income are not payment budgets.
+export function getKmhPaymentConstraint(context, question) {
+  const text = normalize(question);
+  const allocation = text.match(/(?<![\d.,])(\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)\s*(bin(?:\s*(?:tl|lira))?|tl|lira|₺)\s*(?:ayırabiliyorum|ayırıyorum|ayırdım|ödeyebilirim)/);
+  if (!allocation || !Array.isArray(context?.ekHesaplar) || !context.ekHesaplar.length) return null;
+  const balances = context.ekHesaplar.map((account) => {
+    if (!Number.isFinite(account.kullanilan) || !Number.isFinite(account.yapilanOdeme)) return null;
+    return Math.max(0, account.kullanilan - account.yapilanOdeme);
+  });
+  if (balances.some((balance) => balance === null)) return null;
+  const budget = Number(allocation[1].replaceAll(".", "").replace(",", ".")) * (allocation[2].startsWith("bin") ? 1000 : 1);
+  const debt = balances.reduce((sum, balance) => sum + balance, 0);
+  if (!Number.isFinite(budget) || budget < 0 || debt <= 0) return null;
+  return { budget, debt, minimumRemaining: Math.max(0, debt - budget) };
+}
+
 export function validateFinancialAssistantResponse({ response, context, question = "", history = [] }) {
   const errors = [];
   if (!response || typeof response !== "object" || Array.isArray(response)) {
@@ -76,6 +92,18 @@ export function validateFinancialAssistantResponse({ response, context, question
 
   const fullText = normalize(`${response.title ?? ""}\n${answer}\n${response.disclaimer ?? ""}`);
   if (unsafePatterns.some((pattern) => pattern.test(fullText))) errors.push("unsafe_certainty_or_action");
+
+  const constraint = getKmhPaymentConstraint(context, question);
+  if (constraint?.minimumRemaining > 0) {
+    // Fail closed even for an ambiguous conditional closure claim: the known allocation
+    // cannot discharge all KMH debt. Partial-payment wording remains permitted.
+    const sentences = fullText.split(/\n|(?<!\d)[.!?]|[.!?](?!\d)/);
+    if (sentences.some((sentence) => /kmh|ek hesap/.test(sentence)
+      && /kapat|kapan|sıfırla|sıfırlan/.test(sentence)
+      && !/kapatamaz|kapanmaz|kapanmay|kapatmay|kapatma değil|tam kapama değil/.test(sentence))) {
+      errors.push("insufficient_kmh_payment_for_closure");
+    }
+  }
 
   const sourceNumbers = [
     ...collectPercentageNumbers(context),

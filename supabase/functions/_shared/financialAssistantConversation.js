@@ -1,3 +1,5 @@
+import { getKmhPaymentConstraint } from "./financialAssistantValidation.js";
+
 export const MAX_ASSISTANT_EXCHANGES = 5;
 
 export function normalizeAssistantHistory(history = []) {
@@ -20,11 +22,13 @@ export function appendAssistantExchange(history, exchange) {
 
 export function buildFinancialAssistantContents({ question, context, history = [] }) {
   const exchanges = normalizeAssistantHistory(history);
+  const constraint = getKmhPaymentConstraint(context, question);
+  const paymentCheck = constraint ? `\n\nSUNUCU_ODEME_KONTROLU:\n${JSON.stringify(constraint)}\nBu tahsis KMH'ye bütünüyle ödense bile minimumRemaining kadar anapara kalır; faiz/masraf dahil değildir. minimumRemaining pozitifse kapatma değil kısmi azaltma anlat.` : "";
   return [
     ...exchanges.flatMap((exchange) => [
       { role: "user", parts: [{ text: exchange.question }] },
       { role: "model", parts: [{ text: exchange.answer }] },
     ]),
-    { role: "user", parts: [{ text: `SORU:\n${question}\n\nBORCAMA_HESAP_OZETI:\n${JSON.stringify(context)}` }] },
+    { role: "user", parts: [{ text: `SORU:\n${question}\n\nBORCAMA_HESAP_OZETI:\n${JSON.stringify(context)}${paymentCheck}` }] },
   ];
 }

@@ -4,12 +4,13 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { ASISTAN_EVAL_AILELERI, ASISTAN_EVAL_VAKALARI } from "../evals/financial-assistant/cases.js";
+import { ASISTAN_KONUSMA_EVAL_VAKALARI } from "../evals/financial-assistant/conversationCases.js";
 import {
   ASISTAN_KALITE_RUBRIGI,
   asistanSurumKapisiniDegerlendir,
   deterministikYanitiKontrolEt,
 } from "../evals/financial-assistant/rubric.js";
-import { validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
+import { getKmhPaymentConstraint, validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../supabase/functions/_shared/financialAssistantPrompt.js";
 
@@ -25,6 +26,30 @@ const tumAnahtarlar = (deger, sonuc = []) => {
 };
 
 const tamPuan = () => Object.fromEntries(ASISTAN_KALITE_RUBRIGI.map((boyut) => [boyut.id, 4]));
+
+test("borç kavramı Türkçe yumuşamayı tanır fakat borçsuz metni geçirmez", () => {
+  const c = ASISTAN_KONUSMA_EVAL_VAKALARI[0];
+  const answer = c.referans.answer.replaceAll("Borç", "Borcu").replaceAll("borç", "borcu");
+  assert.equal(deterministikYanitiKontrolEt(c, { ...c.referans, answer }).gecti, true);
+  const absent = c.referans.answer.replace(/borç/gi, "ödeme");
+  assert.ok(deterministikYanitiKontrolEt(c, { ...c.referans, answer: absent }).sorunlar.includes("eksik_kavram:4"));
+});
+
+test("yetersiz KMH ödeme bütçesi tam kapanma gibi sunulamaz", () => {
+  const c = ASISTAN_EVAL_VAKALARI.find((v) => v.id === "kart-kmh-oncelik");
+  const validate = (sentence, question = c.soru) => validateFinancialAssistantResponse({
+    response: { ...c.referans, answer: `Kısa cevap: ${sentence}\n• Kart asgarisi ödenmiş.\n• KMH maliyeti aylık %4,8.` },
+    context: c.baglam, question,
+  });
+  assert.ok(validate("5.000 TL ile KMH borcunu kapat.").errors.includes("insufficient_kmh_payment_for_closure"));
+  assert.equal(validate("5.000 TL ile KMH borcunu azalt; 7.000 TL anapara kalır.").valid, true);
+  assert.equal(validate("KMH borcu bu bütçeyle kapanmaz; 7.000 TL anapara kalır.").valid, true);
+  assert.equal(validate("KMH borcunu kapat.", "Borçlara 12 bin ayırabiliyorum.").valid, true);
+  assert.ok(validate("KMH borcunu 5.000 TL ile kapat.").errors.includes("insufficient_kmh_payment_for_closure"));
+  for (const [amount, budget] of [["5.000 TL",5000],["5.000,50 TL",5000.5],["5 bin TL",5000],["5,5 bin",5500]]) {
+    assert.equal(getKmhPaymentConstraint(c.baglam, `${amount} ayırabiliyorum`).budget, budget);
+  }
+});
 
 test("sunucu kesin kredi veya yapılandırma işlem talimatını reddeder", () => {
   const c = ASISTAN_EVAL_VAKALARI[1];

@@ -40,3 +40,9 @@ Kullanıcının düzeltme ve yeniden deneme onayıyla iki tur daha çalıştır�
 - İnsan incelemesinde kalan risk: kart/KMH yanıtı ilk satırda 5.000 TL ile KMH borcunu **azaltma** derken son satırda 12.000 TL KMH için **kapatma** diyor. Bu ifade tam kapanma gibi okunabilir; deterministik geçiş tek başına bu anlam hatasını yakalamadı.
 - Son yerel doğrulama: 157/157 ürün testi, 31/31 asistan testi, production build, release check ve diff check başarılı. Bunlar canlı modelin kalan anlam riskini kapatmaz.
 - Her iki turun sonunda geçici canlı fonksiyon ve özel token başarıyla silindi. Üretim asistanı ve web sürümü yayımlanmadı; kalite kapısı açık kaldı.
+
+## Kısmi ödeme güvenlik düzeltmesi
+
+Yeni turda 10 ücretli sentetik çağrı çalıştırıldı. KMH cevabı artık 12.000 TL borca 5.000 TL ödeme sonrası faiz/masraf hariç 7.000 TL anapara kaldığını açıkça ayırıyor. Sunucu, kullanıcının açık ödeme tahsisini toplam KMH bakiyesiyle karşılaştırıp modele hesap kontrolü veriyor; yetersiz ödeme ile tam kapanma iddiasını reddediyor. Türkçe binlik/ondalık tutar ayrıştırması ve tutar noktasından kaynaklanan kontrol atlatması Sol incelemesi ardından regresyon testleriyle düzeltildi.
+
+Bu turda deterministik kapı 6/10 geçti: gelir-gider ve iki konuşma vakasında ifade eşleşmesi, eksik veri vakasında yanlış rota kaldı. Bunlar başarı gibi raporlanmadı. Eksik veri ve kullanım amacı talimatı yeniden netleştirildi. Son aday henüz üretime yayımlanmadı. Test fonksiyonu ve token başarıyla silindi. Yerel 158/158 ürün testi ve 32/32 asistan testi başarılı.
