@@ -110,8 +110,25 @@ test("eksik finansal alanlar gerçek sıfırdan ayrılır", () => {
   assert.equal(sonuc.finansalProfil.pahaliBorcVar, null);
   assert.ok(sonuc.finansalProfil.veriEksikleri.includes("kredi_taksiti"));
   assert.ok(sonuc.finansalProfil.veriEksikleri.includes("kredi_faizi"));
-  assert.ok(sonuc.finansalProfil.veriEksikleri.includes("kart_asgari_odemesi"));
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_asgari_odemesi"), false);
   assert.ok(sonuc.finansalProfil.veriEksikleri.includes("ek_hesap_faizi"));
+});
+
+test("borcu kalmayan kartta boş asgari, aktif kartların asgarisini eksik göstermez", () => {
+  const sonuc = asistanBaglamiOlustur({
+    tarih: new Date(2026, 8, 18), gelir: 0, zorunluOdeme: 0,
+    harcama: 0, planAcigi: 0, kalemler: [],
+    veri: { cards: [
+      { toplamEkstreBorcu: 0, asgariOdeme: "", yapilanOdeme: 0 },
+      { toplamEkstreBorcu: 5000, asgari: "", yapilanOdeme: 5000 },
+      { toplamEkstreBorcu: 9000, asgari: 3000, yapilanOdeme: 3000 },
+    ], loans: [], overdrafts: [], incomes: [], expenses: [], assets: [] },
+  });
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_asgari_odemesi"), false);
+  assert.equal(sonuc.kartlar[1].kalanBorc, 0);
+  assert.equal(sonuc.kartlar[2].asgariOdeme, 3000);
+  assert.equal(sonuc.kartlar[2].yapilanOdeme, 3000);
+  assert.equal(sonuc.kartlar[2].kalanBorc, 6000);
 });
 
 test("varlık dağılımı genel kategori yerine gerçek varlık türünü korur", () => {

@@ -50,3 +50,7 @@ Bu turda deterministik kapı 6/10 geçti: gelir-gider ve iki konuşma vakasında
 ## Nihai aday ve insan incelemesi
 
 Bir sonraki 10 ücretli sentetik çağrıda 10/10 yanıt çalışma zamanı doğrulamasından geçti. Önceki sözcük kontrolü 9/10 geçti; tek kalan yanlış-negatif, doğru "borcunuzu" çekiminin "borç" ile eşleşmemesiydi. Türkçe çekim eşleşmesi olumlu ve olumsuz regresyonla düzeltildi; finansal eşik gevşetilmedi. Son yanıtlar `docs/asistan-eval-son-yanitlar-2026-09-18.md` içinde birebir saklandı. Altı boyutlu insan finansal incelemesinde ağır hata bulunmadı; genel puan 93/100, her vaka en az 75/100, her aile en az 80/100, kritik boyutlar en az 3/4. Sol son kontrolü GO verdi. Geçici fonksiyon ve özel token başarıyla silindi. Bu sonuç yalnız sentetik vaka setinin kalitesini gösterir, gerçek dünyada hatasız yanıt garantisi değildir.
+
+## Kimlikli gerçek hesapta tek soru
+
+Kullanıcı onayıyla canlı üründe bir soru gönderildi. Yanıt, kısmi KMH ödemesinin borcu kapatmadığını ve kalan anaparayı doğru hesapladı; model, asgarisi kayıtlı ve ödenmiş aktif kartların asgari tutarlarını yanlış biçimde belirsiz diye anlattı. Bu bölüm gerçek hesap tutarı, banka adı, yanıt metni veya kimlik bilgisi içermez. Kök neden, kartın asgari tutarının uygulamada `asgari`, asistan bağlamında ise yalnız `asgariOdeme` alanından okunmasıydı. Aktif/kapanmış kart ayrımı ve asgari alan eşlemesi düzeltildi; regresyon testleri eklendi. İkinci bir gerçek hesap sorusu gönderilmedi.

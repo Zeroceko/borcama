@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.1] - 2026-09-18
+
+### Düzeltildi
+
+- Asistan, kartlarda kayıtlı asgari ödemeyi ve kalan borcu doğru alanlardan okuyor; kapanmış kartlardaki boş alanı eksik saymıyor ve bilinen asgarileri belirsiz diye sunan yanıtı göstermiyor.
+
 ## [1.54.0] - 2026-09-18
 
 ### Eklendi

@@ -62,6 +62,19 @@ export function getKmhPaymentConstraint(context, question) {
   return { budget, debt, minimumRemaining: Math.max(0, debt - budget) };
 }
 
+export function getCardMinimumState(context) {
+  const active = (Array.isArray(context?.kartlar) ? context.kartlar : [])
+    .filter((card) => Number.isFinite(card.kalanBorc ?? card.ekstreBorcu)
+      && (card.kalanBorc ?? card.ekstreBorcu) > 0);
+  const known = active.filter((card) => Number.isFinite(card.asgariOdeme) && Number.isFinite(card.yapilanOdeme));
+  return {
+    activeCards: active.length,
+    knownMinimums: known.length,
+    unknownMinimums: active.length - known.length,
+    unpaidMinimum: known.reduce((sum, card) => sum + Math.max(0, card.asgariOdeme - card.yapilanOdeme), 0),
+  };
+}
+
 export function validateFinancialAssistantResponse({ response, context, question = "", history = [] }) {
   const errors = [];
   if (!response || typeof response !== "object" || Array.isArray(response)) {
@@ -103,6 +116,12 @@ export function validateFinancialAssistantResponse({ response, context, question
       && !/kapatamaz|kapanmaz|kapanmay|kapatmay|kapatma değil|tam kapama değil/.test(sentence))) {
       errors.push("insufficient_kmh_payment_for_closure");
     }
+  }
+
+  const minimumState = getCardMinimumState(context);
+  if (minimumState.activeCards > 0 && minimumState.unknownMinimums === 0
+    && /kart(?:lar[ıi]n|lar[ıi])?\s+asgari(?:\s+ödeme)?\s+tutar(?:lar[ıi])?[^.!?\n]{0,60}(?:bilinmiyor|netleşmemiş|kayıtlı değil)/i.test(fullText)) {
+    errors.push("known_card_minimum_claimed_unknown");
   }
 
   const sourceNumbers = [

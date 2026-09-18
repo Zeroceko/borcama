@@ -1,3 +1,5 @@
+import { cardRestructurableBalance } from "./cardRestructuring.js";
+
 const sayi = (deger) => {
   const sonuc = Number(deger);
   return Number.isFinite(sonuc) ? Math.max(sonuc, 0) : 0;
@@ -114,7 +116,8 @@ export function asistanBaglamiOlustur({
     krediler.some((kredi) => opsiyonelSayi(kredi.taksit) === null) && "kredi_taksiti",
     krediler.some((kredi) => opsiyonelSayi(kredi.faiz) === null) && "kredi_faizi",
     kartlar.some((kart) => opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc) === null) && "kart_ekstre_borcu",
-    kartlar.some((kart) => opsiyonelSayi(kart.asgariOdeme) === null) && "kart_asgari_odemesi",
+    kartlar.some((kart) => cardRestructurableBalance(kart) > 0
+      && opsiyonelSayi(kart.asgariOdeme ?? kart.asgari) === null) && "kart_asgari_odemesi",
     kartlar.some((kart) => opsiyonelSayi(kart.faiz ?? kart.aylikFaiz) === null) && "kart_faizi",
     ekHesaplar.some((hesap) => opsiyonelSayi(hesap.kullanilan) === null) && "ek_hesap_kullanimi",
     ekHesaplar.some((hesap) => opsiyonelSayi(hesap.faiz) === null) && "ek_hesap_faizi",
@@ -165,7 +168,8 @@ export function asistanBaglamiOlustur({
         banka: String(kart.banka || "Banka").slice(0, 40),
         urun: String(kart.ad || "Kredi kartı").slice(0, 50),
         ekstreBorcu: opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc),
-        asgariOdeme: opsiyonelSayi(kart.asgariOdeme),
+        kalanBorc: cardRestructurableBalance(kart),
+        asgariOdeme: opsiyonelSayi(kart.asgariOdeme ?? kart.asgari),
         yapilanOdeme: opsiyonelSayi(kart.yapilanOdeme),
         aylikFaizYuzde: opsiyonelSayi(kart.faiz ?? kart.aylikFaiz),
         sonOdemeGunu: opsiyonelTamSayi(kart.sonOdemeGunu),

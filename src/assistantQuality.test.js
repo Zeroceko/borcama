@@ -10,7 +10,7 @@ import {
   asistanSurumKapisiniDegerlendir,
   deterministikYanitiKontrolEt,
 } from "../evals/financial-assistant/rubric.js";
-import { getKmhPaymentConstraint, validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
+import { getCardMinimumState, getKmhPaymentConstraint, validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../supabase/functions/_shared/financialAssistantPrompt.js";
 
@@ -49,6 +49,21 @@ test("yetersiz KMH ödeme bütçesi tam kapanma gibi sunulamaz", () => {
   for (const [amount, budget] of [["5.000 TL",5000],["5.000,50 TL",5000.5],["5 bin TL",5000],["5,5 bin",5500]]) {
     assert.equal(getKmhPaymentConstraint(c.baglam, `${amount} ayırabiliyorum`).budget, budget);
   }
+});
+
+test("kayıtlı ve ödenmiş aktif kart asgarileri belirsiz diye gösterilemez", () => {
+  const c = ASISTAN_EVAL_VAKALARI.find((v) => v.id === "kart-kmh-oncelik");
+  const context = { ...c.baglam, kartlar: [
+    { ekstreBorcu: 5000, kalanBorc: 0, asgariOdeme: null, yapilanOdeme: 5000 },
+    { ekstreBorcu: 9000, asgariOdeme: 3000, yapilanOdeme: 3000 },
+    { ekstreBorcu: 4000, asgariOdeme: 1000, yapilanOdeme: 1000 },
+  ] };
+  assert.deepEqual(getCardMinimumState(context), { activeCards: 2, knownMinimums: 2, unknownMinimums: 0, unpaidMinimum: 0 });
+  const response = { ...c.referans, answer: "Kısa cevap: Kart asgari tutarları sistemde netleşmemişken KMH'yi değerlendir.\n• İki kartın borcu var.\n• Önce aylık açığı kontrol et." };
+  assert.ok(validateFinancialAssistantResponse({ response, context, question: c.soru }).errors.includes("known_card_minimum_claimed_unknown"));
+  const unknownContext = { ...context, kartlar: [...context.kartlar, { ekstreBorcu: 2000, asgariOdeme: null, yapilanOdeme: 0 }] };
+  assert.equal(getCardMinimumState(unknownContext).unknownMinimums, 1);
+  assert.equal(validateFinancialAssistantResponse({ response, context: unknownContext, question: c.soru }).errors.includes("known_card_minimum_claimed_unknown"), false);
 });
 
 test("sunucu kesin kredi veya yapılandırma işlem talimatını reddeder", () => {
