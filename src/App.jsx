@@ -95,6 +95,7 @@ import {
   statementPeriodsForExpense,
 } from "./statementPeriod.js";
 import {
+  ekHesapBorcuEkle,
   ekHesapOdemesiKaldir,
   ekHesapOdemesiUygula,
 } from "./overdraftPayments.js";
@@ -7238,6 +7239,8 @@ function Borclar({
   const ekstreFormu = yeniEkstreModu || ekstreDuzenleModu;
   const ekHesapOdemeModu =
     kategori === "od" && acik && (form.odemeGir || form.odemeDuzenle);
+  const ekHesapBorcModu = kategori === "od" && acik && form.yeniBorc;
+  const [ekHesapBorcHatasi, setEkHesapBorcHatasi] = useState("");
   const [f, setF] = useState({});
   const yerindeFormHedefi = acik && form.veri?.id
     ? `borc-form-${form.veri.id}`
@@ -7325,7 +7328,10 @@ function Borclar({
   const gecikmisSayisi = otomatikGecikenler.length - devredenSayisi;
   useEffect(() => {
     if (!acik) return;
-    if (form.odemeGir || form.odemeDuzenle) {
+    setEkHesapBorcHatasi("");
+    if (form.yeniBorc) {
+      setF({ yeniBorcTutari: "" });
+    } else if (form.odemeGir || form.odemeDuzenle) {
       const hesap = ekHesapHesabi(form.veri || {});
       setF({
         odemeTutari: form.odemeDuzenle
@@ -7453,7 +7459,9 @@ function Borclar({
       { k: "faiz", e: "Aylık faiz / gecikme oranı (%)", t: "number" },
     ],
   };
-  const alanlar = ekHesapOdemeModu
+  const alanlar = ekHesapBorcModu
+    ? [{ k: "yeniBorcTutari", e: "Yeniden kullandığın ek tutar (₺)", t: "number", z: true }]
+    : ekHesapOdemeModu
     ? [
         { k: "odemeTutari", e: "Ödeme tutarı (₺)", t: "number", z: true },
         {
@@ -7605,6 +7613,12 @@ function Borclar({
 
   function gonder() {
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
+    if (ekHesapBorcModu) {
+      const sonuc = ekHesapBorcuEkle(form.veri, { tutar: f.yeniBorcTutari, yeniId: uid() });
+      if (!sonuc.tamam) { setEkHesapBorcHatasi(sonuc.hata); return; }
+      ekleGuncelle("overdrafts", sonuc.hesap);
+      return;
+    }
     if (ekHesapOdemeModu) {
       const eski = form.veri;
       const sonuc = ekHesapOdemesiUygula(eski, {
@@ -8048,6 +8062,17 @@ function Borclar({
           {acik && (
             <YerindeForm hedef={yerindeFormHedefi}>
               <div className="bt-form" id={yeniKayitHedefi || undefined}>
+              {ekHesapBorcModu && (
+                <div className="bt-ipucu" style={{ marginBottom: 14 }}>
+                  <Lightbulb size={16} />
+                  <div>
+                    <b>{form.veri.banka} için yeni borç ekle.</b> Yalnız yeniden kullandığın ek tutarı gir; önceki ödemelerin korunacak.
+                    <br />Güncel kalan borç: <b>{fmt(ekHesapHesabi(form.veri).kalan)}</b>
+                    {Number(f.yeniBorcTutari) > 0 && <> · Ekleme sonrası: <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari))}</b></>}
+                  </div>
+                </div>
+              )}
+              {ekHesapBorcHatasi && ekHesapBorcModu && <p role="alert">{ekHesapBorcHatasi}</p>}
               {yeniEkstreModu && (
                 <div className="bt-ipucu" style={{ marginBottom: 14 }}>
                   <Lightbulb size={16} />
@@ -8179,7 +8204,9 @@ function Borclar({
               <div className="bt-form-butonlar">
                 <button className="bt-btn birincil" onClick={gonder}>
                   <Check size={14} />{" "}
-                  {ekHesapOdemeModu
+                  {ekHesapBorcModu
+                    ? "Yeni borcu ekle"
+                    : ekHesapOdemeModu
                     ? form.odemeDuzenle
                       ? "Ödemeyi güncelle"
                       : form.kapat
@@ -9519,6 +9546,12 @@ function BorclarSatiri({
                 </button>
               </div>
             </details>
+          )}
+          {kategori === "od" && (
+            <button className="bt-btn kucuk ikincil"
+              onClick={() => setForm({ liste: "overdrafts", veri: k, yeniBorc: true })}>
+              <Plus size={13} /> Yeni borç ekle
+            </button>
           )}
           {kategori === "od" && ekHesapDetay?.kalan > 0 && (
             <button

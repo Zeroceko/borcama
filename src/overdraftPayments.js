@@ -1,5 +1,25 @@
 const para = (deger) => Math.max(Number(deger) || 0, 0);
 
+export function ekHesapBorcuEkle(hesap, { tutar, yeniId, tarih = new Date() }) {
+  const yeniTutar = Math.round(Number(tutar) * 100) / 100;
+  if (!Number.isFinite(yeniTutar) || yeniTutar <= 0)
+    return { tamam: false, hata: "Sıfırdan büyük bir yeni kullanım tutarı girin." };
+  const kullanilan = para(hesap?.kullanilan);
+  const yapilanOdeme = Math.min(para(hesap?.yapilanOdeme), kullanilan);
+  const kalan = Math.round((kullanilan - yapilanOdeme + yeniTutar) * 100) / 100;
+  if (para(hesap?.limit) > 0 && kalan > para(hesap.limit))
+    return { tamam: false, hata: "Yeni kullanım güncel ek hesap limitini aşıyor. Önce limit bilgisini kontrol edin." };
+  const kayitTarihi = new Date(tarih);
+  if (Number.isNaN(kayitTarihi.getTime()))
+    return { tamam: false, hata: "Geçerli bir kullanım tarihi girin." };
+  return { tamam: true, hesap: {
+    ...hesap,
+    kullanilan: Math.round((kullanilan + yeniTutar) * 100) / 100,
+    yapilanOdeme,
+    borcGecmisi: [...(hesap?.borcGecmisi || []), { id: yeniId, tutar: yeniTutar, tarih: kayitTarihi.toISOString() }],
+  } };
+}
+
 export const ekHesapOdemeGecmisiToplami = (gecmis = []) =>
   gecmis.reduce((toplam, odeme) => toplam + para(odeme?.tutar), 0);
 

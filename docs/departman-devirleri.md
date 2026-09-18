@@ -1,5 +1,9 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-09-18 · Ürün · Ek hesabın yeniden kullanılması
+
+- Kullanıcı onayıyla v1.53.0 yayın paketi hazırlandı: aynı ek hesaba yeni kullanım tutarı ekleniyor, geçmiş ödemeler korunuyor, limit kalan borca uygulanıyor. Migration veya Edge Function değişikliği yok. Temiz paket 149/149 test, release check, build ve diff check geçti; yerel demo kapatma → yeniden 3.000 TL kullanım akışı DOM üzerinde doğrulandı ve Sol finansal son incelemesi GO verdi. Asistan kalite paketi NO-GO olduğu için bu yayından hariç tutuldu. Gerçek kullanıcı finansal kaydı test amacıyla değiştirilmedi; e-posta gönderilmedi.
+
 ### 2026-09-08 · Landing ve CRO · LANDING-002 yerel hazırlık
 
 - Mevcut landing A, yeni sonuç odaklı landing B olacak biçimde tam sayfa deney yerelde hazırlandı. Yeni ziyaretçiler `%50/%50` ve kalıcı atanacak; kayıt, doğrulama ve ilk borç/ekstre adımları ayrı ölçülecek. İki kolun header bağlantıları eşitlendi, hesaplama araçları footer'a alındı ve B sayfasının arka plan/boşluk dengesi iyileştirildi. Veritabanı migration'ı ve analytics Edge Function desteği kodda hazırlandı; canlı yayın, migration veya fonksiyon deploy'u yapılmadı.

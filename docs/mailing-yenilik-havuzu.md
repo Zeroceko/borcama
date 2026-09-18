@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Aynı ek hesabı yeniden kullandığında borcunu ekle — v1.53.0
+
+- Siz istediniz: Sıfırladığınız ek hesabı yeniden kullandığınızda yeni borcu aynı hesapta takip etmek.
+- Biz yaptık: Ek hesap satırına “Yeni borç ekle” seçeneği ekledik; yalnız yeniden kullanılan ek tutar kaydediliyor.
+- Faydası: Önceki ödemeleriniz silinmeden güncel kalan borcu ve limitinizi takip edersiniz.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Hesabın ve verilerin üzerinde kontrol sende — v1.52.0
 
 - Siz istediniz: Borcama hesabınızı destek ekibine yazmadan kendiniz silebilmek.

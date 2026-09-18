@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.53.0] - 2026-09-18
+
+### Eklendi
+
+- Ek hesap sıfırlandıktan sonra aynı hesaba yeniden kullanılan tutar “Yeni borç ekle” ile eklenebiliyor; önceki ödemeler korunuyor ve güncel bakiye limit üzerinden kontrol ediliyor.
+
 ## [1.52.3] - 2026-09-18
 
 ### Değiştirildi
