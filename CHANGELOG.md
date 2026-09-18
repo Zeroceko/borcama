@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.2] - 2026-09-18
+
 ### Değiştirildi
 
 - Ana sayfanın iki deney kolu aynı ücretsiz başlangıç ve otomatik 30 günlük Pro hediyesini anlatıyor; borçlanmayı teşvik eden ifade kaldırıldı, kayıt hedefleri eşitlendi ve yeni LANDING-003 ölçümünde eski deney verileri ayrı tutuldu.
