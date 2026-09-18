@@ -10,9 +10,9 @@
 
 ## Aktif olmaya hazır deney
 
-- Kod: `LANDING-002`
+- Kod: `LANDING-003`
 - Durum: Yerelde hazır; site, veritabanı migration'ı ve Edge Function birlikte yayımlanmadan canlı deney başlamış sayılmaz.
-- Hipotez: Aylık ödeme, ekstre kategorileri ve ilk kayıt adımını somut örneklerle gösteren yeni sayfa kayıt tamamlama oranını artırır.
+- Hipotez: Aynı teklif, ana mesaj ve kayıt hedefi korunurken aylık ödeme, ekstre kategorileri ve ilk kayıt adımını somut örneklerle gösteren yeni sayfa sunumu kayıt tamamlama oranını artırır. Bu, yalnız yerleşimi değil örneklerin sunumunu da karşılaştıran tam sayfa deneyidir; tek bir tasarım öğesine nedensel sonuç atfedilmez.
 - Kontrol A: Canlıdaki mevcut landing.
 - Varyant B: Yeni sonuç odaklı landing ve kayıtsız temsili demo.
 - Ortak navigasyon: Üst menüde `Nasıl çalışır?`, `Giriş yap` ve `Ücretsiz başla`; hesaplama araçları footer'da.
@@ -20,11 +20,17 @@
 - Yerel önizleme: A için `/?landing_preview=control`, B için `/?landing_preview=variant`.
 - Birincil metrik: Tamamlanan kayıt / landing ziyareti.
 - Koruma metrikleri: E-posta doğrulama, ilk borç veya ekstre kaydı, sayfa performansı ve hata oranı.
-- Raporlama: Kaynak ve cihaz ayrımı korunur; `landing_visit → register_view → sign_up → email_verified → first_debt_or_statement` zinciri iki kol için ayrı gösterilir.
-- Karar: Kayıt artarken doğrulama ve ilk finansal kayıt kalitesi bozuluyorsa B kazanmaz.
+- Raporlama: `landing_visit → register_view → sign_up → email_verified → first_debt_or_statement` zinciri iki kol için ayrı gösterilir. Olaylarda edinim bilgisi korunur; mevcut deney özeti kaynak/cihaz kırılımı sunmadığından bu kırılımlar ayrıca incelenmeden kanal bazlı kazanan ilan edilmez.
+- Karar: Kol başına en az 200 ziyaret ve 20 tamamlanan kayıt oluşmadan sonuç yalnız erken sinyal sayılır; kayıt artarken doğrulama ve ilk finansal kayıt kalitesi bozuluyorsa B kazanmaz.
 
 ## Tarihsel deney
 
+- Kod: `LANDING-002`
+- Durum: Canlıda hâlâ LANDING-002 bulunur; LANDING-003 birlikte yayımlandığında tarihsel deney olacaktır. Teklif, ana mesaj ve logo sunumu eşit olmadığı için verisi LANDING-003 ile birleştirilmez ve tek başına tasarım kazananı ilan etmekte kullanılmaz.
+- Sonuç: Tasarım etkisini diğer değişkenlerden ayırmadığı için yorumlanabilir bir kazanan üretmedi.
+
+## Daha eski tarihsel deney
+
 - Kod: `LANDING-001`
-- Durum: CTA ile sınırlı eski deney kapatıldı; verisi tarihsel olarak korunur ve LANDING-002 ile birleştirilmez.
+- Durum: CTA ile sınırlı eski deney kapatıldı; verisi tarihsel olarak korunur ve sonraki deneylerle birleştirilmez.
 - Sonuç: Yeterli örneklem oluşmadığı için kazanan ilan edilmedi.

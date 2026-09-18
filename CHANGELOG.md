@@ -4,6 +4,15 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Ana sayfanın iki deney kolu aynı ücretsiz başlangıç ve otomatik 30 günlük Pro hediyesini anlatıyor; borçlanmayı teşvik eden ifade kaldırıldı, kayıt hedefleri eşitlendi ve yeni LANDING-003 ölçümünde eski deney verileri ayrı tutuldu.
+- Her landing içindeki varlık ve harcama tutarları tutarlı örneklere bağlandı; küçük açıklama metinleri büyütüldü ve hero vurgusu yüksek kontrastlı satır şeritleriyle okunabilir hale getirildi.
+
+### Güvenlik
+
+- Landing gizlilik açıklaması, ham ekstre dosyasının cihazda işlendiğini ve kullanıcının onayladığı kayıtların hesabına kaydedildiğini açıkça ayırıyor.
+
 ## [1.54.1] - 2026-09-18
 
 ### Düzeltildi

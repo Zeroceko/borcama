@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
   const plan = edinimMetni(body?.plan, 30, true);
   const experimentId = edinimMetni(body?.experiment_id, 30, true);
   const experimentVariant = edinimMetni(body?.experiment_variant, 20, true);
-  const guvenliDeney = new Set(["landing-001", "landing-002"]).has(experimentId)
+  const guvenliDeney = new Set(["landing-001", "landing-002", "landing-003"]).has(experimentId)
     && ["control", "variant"].includes(experimentVariant);
   const { error } = await admin.rpc("record_analytics_event", {
     p_session_id: sessionId,
