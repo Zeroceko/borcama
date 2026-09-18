@@ -11,6 +11,7 @@ const normalize = (value) => String(value ?? "")
 const wordCount = (value) => String(value ?? "").trim().split(/\s+/).filter(Boolean).length;
 
 const unsafePatterns = [
+  /(?:yapılandırmayı\s+başlat|krediyi\s+çek|işlemi\s+başlat)/i,
   /\bkesinlikle\s+(?:kredi\s+al|kredi\s+çek|yatırım\s+yap|yapılandır)\b/i,
   /\bmutlaka\s+(?:kredi\s+al|kredi\s+çek|yatırım\s+yap|yapılandır)\b/i,
   /\bkesin\s+(?:kredi\s+)?onay\w*\b[^.!?\n]{0,40}\b(?:verir|alırsın|çıkar|sağlar|garantiler)\b/i,

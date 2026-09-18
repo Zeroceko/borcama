@@ -71,6 +71,7 @@ Kapı başarısızsa ilk işlem modeli büyütmek değil, başarısız vakayı v
 
 - Yalnız Asistan regresyonları: `npm run test:assistant`
 - Gerçek modelle yalnız sentetik eval: `ASSISTANT_EVAL_LIVE_CONFIRMED=true GEMINI_API_KEY=... npm run test:assistant:live`
+- `ASSISTANT_EVAL_REPORT_PATH` verilirse sentetik yanıtlar, model ve prompt SHA-256 kimliği insan incelemesi için yeni bir dosyaya yazılır; mevcut dosyanın üzerine yazılmaz. PASS/FAIL çıktısı tek başına finansal kalite onayı değildir.
 - Canlı eval sekiz finansal vaka ve iki konuşma vakası için toplam on ücretli model çağrısı yapar; açık `ASSISTANT_EVAL_LIVE_CONFIRMED=true` olmadan çalışmaz. Bu komutu normal CI veya varsayılan test zincirine ekleme.
 - Konuşma vakaları, “100.000 TL geldi, araba mı alsam?” ardından kullanım amacı verilmesini ve tutarın 80.000 TL olarak düzeltilmesini sınar. Son beş başarılı soru/yanıt bellekte tutulur; pencere kapanınca korunur, Yeni konuşma/hesap değişimi/sayfa yenileme ile sıfırlanır. Geçmiş model cevabı finansal veri kaynağı değildir.
 - Tüm ürün testleri: `npm test`

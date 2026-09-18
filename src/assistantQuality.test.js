@@ -11,6 +11,7 @@ import {
 } from "../evals/financial-assistant/rubric.js";
 import { validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
+import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../supabase/functions/_shared/financialAssistantPrompt.js";
 
 const kok = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -24,6 +25,23 @@ const tumAnahtarlar = (deger, sonuc = []) => {
 };
 
 const tamPuan = () => Object.fromEntries(ASISTAN_KALITE_RUBRIGI.map((boyut) => [boyut.id, 4]));
+
+test("sunucu kesin kredi veya yapılandırma işlem talimatını reddeder", () => {
+  const c = ASISTAN_EVAL_VAKALARI[1];
+  const response = { ...c.referans, answer: c.referans.answer + "\nYapman gereken: Yapılandırmayı başlat." };
+  const result = validateFinancialAssistantResponse({ response, context: c.baglam, question: c.soru });
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes("unsafe_certainty_or_action"));
+});
+
+test("canlı eval regresyonları maliyet, gecikme ve büyük alımda eksik bilgi sınırını korur", () => {
+  const prompt = FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION;
+  assert.ok(prompt.includes("Nominal faiz, vergiler ve ücretler dahil toplam maliyet değildir"));
+  assert.ok(prompt.includes("Vade, aylık taksit veya toplam geri ödeme bilinmiyorsa needsMoreInfo=true"));
+  assert.ok(prompt.includes("Bütçede açık varken elinde para varmış gibi"));
+  assert.ok(prompt.includes("tüm borcu hemen kapatıp kalanını harcama talimatı verme"));
+  assert.ok(prompt.includes("route alanını yanıtın karar türüne göre seç"));
+});
 
 test("sentetik asistan eval seti sekiz zorunlu finansal aileyi kapsar", () => {
   assert.equal(new Set(ASISTAN_EVAL_VAKALARI.map((vaka) => vaka.id)).size, ASISTAN_EVAL_VAKALARI.length);

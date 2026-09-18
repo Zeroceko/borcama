@@ -1,4 +1,6 @@
 import { ASISTAN_EVAL_VAKALARI } from "../evals/financial-assistant/cases.js";
+import { writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { ASISTAN_KONUSMA_EVAL_VAKALARI } from "../evals/financial-assistant/conversationCases.js";
 import { buildFinancialAssistantContents } from "../supabase/functions/_shared/financialAssistantConversation.js";
 import { deterministikYanitiKontrolEt } from "../evals/financial-assistant/rubric.js";
@@ -67,10 +69,20 @@ for (const testCase of [...ASISTAN_EVAL_VAKALARI, ...ASISTAN_KONUSMA_EVAL_VAKALA
   const evalCheck = deterministikYanitiKontrolEt(testCase, answer);
   const errors = [...runtimeCheck.errors, ...evalCheck.sorunlar, ...evalCheck.agirHatalar];
   const passed = runtimeCheck.valid && evalCheck.gecti;
-  results.push({ id: testCase.id, passed, errors: [...new Set(errors)] });
+  results.push({ id: testCase.id, passed, errors: [...new Set(errors)], answer });
   process.stdout.write(`${passed ? "PASS" : "FAIL"} ${testCase.id}${errors.length ? `: ${[...new Set(errors)].join(", ")}` : ""}\n`);
 }
 
 const passedCount = results.filter((result) => result.passed).length;
+if (process.env.ASSISTANT_EVAL_REPORT_PATH) {
+  await writeFile(process.env.ASSISTANT_EVAL_REPORT_PATH, JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    model,
+    promptSha256: createHash("sha256").update(FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION).digest("hex"),
+    syntheticOnly: true,
+    humanReviewRequired: true,
+    results,
+  }, null, 2), { flag: "wx", mode: 0o600 });
+}
 process.stdout.write(`\n${passedCount}/${results.length} sentetik model yanıtı deterministik kapıdan geçti (${model}).\n`);
 if (passedCount !== results.length) process.exitCode = 1;
