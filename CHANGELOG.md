@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.0] - 2026-09-18
+
 ### Eklendi
 
 - Borcama Asistanı aynı konuşmadaki son beş soru ve yanıtı birlikte değerlendirerek devam sorularını ve kullanıcı düzeltmelerini anlayabiliyor; konuşma bağlamı ayrı bir “Yeni konuşma” aksiyonuyla sıfırlanabiliyor.

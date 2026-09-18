@@ -4,7 +4,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Asistanla kaldığın yerden devam et — Unreleased
+### Asistanla kaldığın yerden devam et — v1.54.0
 
 - Siz istediniz: Asistanın cevabına yanıt verdiğinizde konuyu baştan anlatmamak.
 - Biz yaptık: Son beş soru ve yanıt aynı konuşmada birlikte değerlendiriliyor; yeni bir konu için “Yeni konuşma” ile bağlam temizlenebiliyor.
