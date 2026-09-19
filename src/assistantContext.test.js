@@ -147,3 +147,29 @@ test("varlık dağılımı genel kategori yerine gerçek varlık türünü korur
 
   assert.deepEqual(sonuc.varlikDagilimi, { mevduat: 25000, gayrimenkul: 500000, arac: 300000 });
 });
+
+test("kart ve KMH faizini çözülmüş borç kalemlerinden asistana taşır", () => {
+  const sonuc = asistanBaglamiOlustur({
+    tarih: new Date(2026, 8, 6), gelir: 50000, zorunluOdeme: 10000,
+    harcama: 20000, planAcigi: 0,
+    kalemler: [
+      { id: "kart-k1", tur: "kart", bakiye: 48782, faiz: 3.75, faizTahmini: true },
+      { id: "ek-e1", tur: "ek", bakiye: 50000, faiz: 4.25, faizTahmini: true },
+    ],
+    veri: {
+      cards: [{ id: "k1", banka: "VakıfBank", toplamEkstreBorcu: 48782, yapilanOdeme: 0 }],
+      loans: [],
+      overdrafts: [{ id: "e1", banka: "Garanti", kullanilan: 50000, yapilanOdeme: 0 }],
+      incomes: [{ tutar: 50000, tekrar: "Her ay" }], expenses: [], assets: [],
+    },
+  });
+
+  assert.equal(sonuc.kartlar[0].aylikFaizYuzde, 3.75);
+  assert.equal(sonuc.kartlar[0].faizTahmini, true);
+  assert.equal(sonuc.kartlar[0].faizKaynak, "TCMB azami oranı");
+  assert.equal(sonuc.ekHesaplar[0].aylikFaizYuzde, 4.25);
+  assert.equal(sonuc.ekHesaplar[0].faizKaynak, "ürün referans oranı");
+  assert.equal(sonuc.finansalProfil.pahaliBorcVar, true);
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_faizi"), false);
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("ek_hesap_faizi"), false);
+});

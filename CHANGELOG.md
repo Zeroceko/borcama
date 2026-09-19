@@ -29,6 +29,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- Borcama Asistanı, kart ve KMH faizlerinde Borç Planı'nın çözdüğü TCMB/ürün referans oranlarını artık bağlama taşıyor; kullanıcı alanı boş olduğunda bu oranları eksikmiş gibi raporlamıyor.
 - Asistan, ödeme bütçesi KMH borcunun tamamını karşılamadığında kalan anaparayı hesaplıyor ve tam kapatma iddiası içeren yanıtı kullanıcıya göstermiyor.
 - Borcama Asistanı eksik banka maliyeti, gecikme ve büyük alım değerlendirmelerinde koşullu açıklama yapıyor; ödeme gücü bilinmeden kesin para dağıtımı önermiyor.
 - Borcama Asistanı düzenli gelir ve giderleri dönem eğiliminde aynı kuralla değerlendiriyor; eksik borç alanlarını gerçek sıfırdan ve farklı varlık türlerini genel kategorilerden ayırıyor.
