@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.5] - 2026-09-19
+
+### Değiştirildi
+
+- Borcama Asistanı faiz sorularında kesin toplam bilinmese bile kart ve ek hesapların vergiler dahil aylık tahminini ve ödeme planı bilinen kredilerin kalan finansman maliyetini rakamla yanıtlıyor.
+
 ## [1.54.4] - 2026-09-19
 
 ### Düzeltildi

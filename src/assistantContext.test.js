@@ -178,4 +178,32 @@ test("kart ve KMH faizini çözülmüş borç kalemlerinden asistana taşır", (
   assert.equal(sonuc.finansalProfil.pahaliBorcVar, true);
   assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_faizi"), false);
   assert.equal(sonuc.finansalProfil.veriEksikleri.includes("ek_hesap_faizi"), false);
+  assert.equal(sonuc.faizMaliyetOzeti.kartAylikFaizVergiHaricTahmin, 1829.33);
+  assert.equal(sonuc.faizMaliyetOzeti.ekHesapAylikFaizVergiHaricTahmin, 2125);
+  assert.equal(sonuc.faizMaliyetOzeti.kartVeEkHesapAylikFaizVergiDahilTahmin, 5140.62);
+});
+
+test("faiz sorusu için kredi planı ve değişken borç maliyetini ayrı hesaplar", () => {
+  const sonuc = asistanBaglamiOlustur({
+    tarih: new Date(2026, 8, 19), gelir: 100000, zorunluOdeme: 20000,
+    harcama: 30000, planAcigi: 0,
+    kalemler: [
+      { id: "kart-k1", tur: "kart", bakiye: 10000, faiz: 3.25, faizTahmini: true },
+      { id: "ek-e1", tur: "ek", bakiye: 5000, faiz: 4.25, faizTahmini: true },
+      { id: "kredi-l1", tur: "kredi", bakiye: 90000, faiz: 2.99 },
+    ],
+    veri: {
+      cards: [{ id: "k1", toplamEkstreBorcu: 10000, yapilanOdeme: 0 }],
+      overdrafts: [{ id: "e1", kullanilan: 5000, yapilanOdeme: 0 }],
+      loans: [{ id: "l1", kalanBorc: 90000, taksit: 10000, kalanTaksit: 10, faiz: 2.99 }],
+      incomes: [], expenses: [], assets: [],
+    },
+  });
+
+  assert.equal(sonuc.faizMaliyetOzeti.kartVeEkHesapAylikFaizVergiHaricTahmin, 537.5);
+  assert.equal(sonuc.faizMaliyetOzeti.kartVeEkHesapAylikFaizVergiDahilTahmin, 698.75);
+  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKredilerKalanOdemeToplami, 100000);
+  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKredilerKalanFinansmanMaliyeti, 10000);
+  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKrediSayisi, 1);
+  assert.equal(sonuc.faizMaliyetOzeti.aktifKrediSayisi, 1);
 });

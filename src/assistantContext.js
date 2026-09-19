@@ -4,6 +4,7 @@ const sayi = (deger) => {
   const sonuc = Number(deger);
   return Number.isFinite(sonuc) ? Math.max(sonuc, 0) : 0;
 };
+const paraYuvarla = (deger) => Math.round((sayi(deger) + Number.EPSILON) * 100) / 100;
 
 const opsiyonelSayi = (deger) => {
   if (deger === null || deger === undefined || (typeof deger === "string" && !deger.trim())) return null;
@@ -142,6 +143,28 @@ export function asistanBaglamiOlustur({
     ...krediFaizBilgileri, ...ekHesapFaizBilgileri, ...kartFaizBilgileri,
     ...digerBorclar.map(({ faiz }) => faiz),
   ].filter(Boolean).map(({ oran }) => oran);
+  const kartAylikFaizTahmini = kartlar.reduce((toplam, kart, index) => {
+    const faiz = kartFaizBilgileri[index];
+    if (!aktifKartMi(kart) || !faiz) return toplam;
+    return toplam + (cardRestructurableBalance(kart) * faiz.oran) / 100;
+  }, 0);
+  const ekHesapAylikFaizTahmini = ekHesaplar.reduce((toplam, hesap, index) => {
+    const faiz = ekHesapFaizBilgileri[index];
+    if (!aktifEkHesapMi(hesap) || !faiz) return toplam;
+    return toplam + (ekHesapKalanBorc(hesap) * faiz.oran) / 100;
+  }, 0);
+  const krediPlanMaliyetleri = krediler.map((kredi) => {
+    const kalanBorc = opsiyonelSayi(kredi.kalanBorc);
+    const aylikTaksit = opsiyonelSayi(kredi.taksit);
+    const kalanTaksit = opsiyonelTamSayi(kredi.kalanTaksit);
+    if (!aktifKrediMi(kredi) || kalanBorc === null || aylikTaksit === null || kalanTaksit === null) return null;
+    const kalanOdemeToplami = aylikTaksit * kalanTaksit;
+    return {
+      kalanOdemeToplami,
+      kalanFinansmanMaliyeti: Math.max(kalanOdemeToplami - kalanBorc, 0),
+    };
+  }).filter(Boolean);
+  const degiskenBorcAylikFaizi = kartAylikFaizTahmini + ekHesapAylikFaizTahmini;
   const veriEksikleri = new Set([
     !gelirler.length && "gelir",
     !giderler.length && "gider",
@@ -258,6 +281,18 @@ export function asistanBaglamiOlustur({
       buAyKayit: odemeKaydi.filter((odeme) => ay(odeme.tarih) === buAy).length,
       buAyOdenen: odemeKaydi.filter((odeme) => ay(odeme.tarih) === buAy)
         .reduce((toplam, odeme) => toplam + sayi(odeme.tutar), 0),
+    },
+    faizMaliyetOzeti: {
+      kartAylikFaizVergiHaricTahmin: paraYuvarla(kartAylikFaizTahmini),
+      ekHesapAylikFaizVergiHaricTahmin: paraYuvarla(ekHesapAylikFaizTahmini),
+      kartVeEkHesapAylikFaizVergiHaricTahmin: paraYuvarla(degiskenBorcAylikFaizi),
+      kartVeEkHesapAylikFaizVergiDahilTahmin: paraYuvarla(degiskenBorcAylikFaizi * 1.3),
+      vergiVarsayimi: "Faiz tutarına toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir.",
+      planiBilinenKredilerKalanOdemeToplami: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanOdemeToplami, 0)),
+      planiBilinenKredilerKalanFinansmanMaliyeti: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanFinansmanMaliyeti, 0)),
+      planiBilinenKrediSayisi: krediPlanMaliyetleri.length,
+      aktifKrediSayisi: krediler.filter(aktifKrediMi).length,
+      yontem: "Kart ve ek hesap için bir aylık tahmin; kredi için kalan taksit toplamı eksi kalan anapara.",
     },
     finansalProfil: {
       aylikSonuc: sayi(planAcigi) > 0 ? "acik" : "dengeli",
