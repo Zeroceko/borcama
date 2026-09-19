@@ -108,10 +108,14 @@ test("eksik finansal alanlar gerçek sıfırdan ayrılır", () => {
   assert.equal(sonuc.ekHesaplar[0].kullanilan, 0);
   assert.equal(sonuc.ekHesaplar[0].aylikFaizYuzde, null);
   assert.equal(sonuc.finansalProfil.pahaliBorcVar, null);
-  assert.ok(sonuc.finansalProfil.veriEksikleri.includes("kredi_taksiti"));
-  assert.ok(sonuc.finansalProfil.veriEksikleri.includes("kredi_faizi"));
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kredi_taksiti"), false);
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kredi_faizi"), false);
   assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_asgari_odemesi"), false);
-  assert.ok(sonuc.finansalProfil.veriEksikleri.includes("ek_hesap_faizi"));
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_faizi"), false);
+  assert.equal(sonuc.finansalProfil.veriEksikleri.includes("ek_hesap_faizi"), false);
+  assert.equal(sonuc.krediler[0].aktifBorc, false);
+  assert.equal(sonuc.kartlar[0].aktifBorc, false);
+  assert.equal(sonuc.ekHesaplar[0].aktifBorc, false);
 });
 
 test("borcu kalmayan kartta boş asgari, aktif kartların asgarisini eksik göstermez", () => {
@@ -169,6 +173,8 @@ test("kart ve KMH faizini çözülmüş borç kalemlerinden asistana taşır", (
   assert.equal(sonuc.kartlar[0].faizKaynak, "TCMB azami oranı");
   assert.equal(sonuc.ekHesaplar[0].aylikFaizYuzde, 4.25);
   assert.equal(sonuc.ekHesaplar[0].faizKaynak, "ürün referans oranı");
+  assert.equal(sonuc.kartlar[0].aktifBorc, true);
+  assert.equal(sonuc.ekHesaplar[0].aktifBorc, true);
   assert.equal(sonuc.finansalProfil.pahaliBorcVar, true);
   assert.equal(sonuc.finansalProfil.veriEksikleri.includes("kart_faizi"), false);
   assert.equal(sonuc.finansalProfil.veriEksikleri.includes("ek_hesap_faizi"), false);

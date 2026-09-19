@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.4] - 2026-09-19
+
+### Düzeltildi
+
+- Borcama Asistanı, kapanmış veya sıfırlanmış eski borçlardaki boş faiz alanlarını aktif kart ve ek hesapların faizi eksikmiş gibi raporlamıyor.
+
 ## [1.54.3] - 2026-09-19
 
 ### Düzeltildi

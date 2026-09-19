@@ -97,6 +97,10 @@ export function asistanBaglamiOlustur({
   const likitVarlik = varliklar.filter(likitVarlikMi)
     .reduce((toplam, varlik) => toplam + varlikDegeri(varlik), 0);
   const toplamBorc = kalemler.reduce((toplam, kalem) => toplam + sayi(kalem.bakiye), 0);
+  const aktifKrediMi = (kredi) => sayi(kredi.kalanBorc) > 0;
+  const aktifKartMi = (kart) => cardRestructurableBalance(kart) > 0;
+  const ekHesapKalanBorc = (hesap) => Math.max(sayi(hesap.kullanilan) - sayi(hesap.yapilanOdeme), 0);
+  const aktifEkHesapMi = (hesap) => ekHesapKalanBorc(hesap) > 0;
   const odemeKaydi = [
     ...Object.values(veri?.cardPaymentHistory || {}).flat(),
     ...Object.values(veri?.loanPaymentHistory || {}).flat(),
@@ -144,15 +148,15 @@ export function asistanBaglamiOlustur({
     !kalemler.length && "borc",
     !varliklar.length && "varlik",
     kalemler.some((kalem) => opsiyonelSayi(kalem.bakiye) === null) && "borc_bakiyesi",
-    krediler.some((kredi) => opsiyonelSayi(kredi.kalanBorc) === null) && "kredi_kalan_borcu",
-    krediler.some((kredi) => opsiyonelSayi(kredi.taksit) === null) && "kredi_taksiti",
-    krediFaizBilgileri.some((faiz) => !faiz) && "kredi_faizi",
-    kartlar.some((kart) => opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc) === null) && "kart_ekstre_borcu",
-    kartlar.some((kart) => cardRestructurableBalance(kart) > 0
+    krediler.some((kredi) => aktifKrediMi(kredi) && opsiyonelSayi(kredi.kalanBorc) === null) && "kredi_kalan_borcu",
+    krediler.some((kredi) => aktifKrediMi(kredi) && opsiyonelSayi(kredi.taksit) === null) && "kredi_taksiti",
+    krediFaizBilgileri.some((faiz, index) => aktifKrediMi(krediler[index]) && !faiz) && "kredi_faizi",
+    kartlar.some((kart) => aktifKartMi(kart) && opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc) === null) && "kart_ekstre_borcu",
+    kartlar.some((kart) => aktifKartMi(kart)
       && opsiyonelSayi(kart.asgariOdeme ?? kart.asgari) === null) && "kart_asgari_odemesi",
-    kartFaizBilgileri.some((faiz) => !faiz) && "kart_faizi",
-    ekHesaplar.some((hesap) => opsiyonelSayi(hesap.kullanilan) === null) && "ek_hesap_kullanimi",
-    ekHesapFaizBilgileri.some((faiz) => !faiz) && "ek_hesap_faizi",
+    kartFaizBilgileri.some((faiz, index) => aktifKartMi(kartlar[index]) && !faiz) && "kart_faizi",
+    ekHesaplar.some((hesap) => aktifEkHesapMi(hesap) && opsiyonelSayi(hesap.kullanilan) === null) && "ek_hesap_kullanimi",
+    ekHesapFaizBilgileri.some((faiz, index) => aktifEkHesapMi(ekHesaplar[index]) && !faiz) && "ek_hesap_faizi",
     varliklar.some((varlik) => !varlikDegeriBiliniyorMu(varlik)) && "varlik_degeri",
   ].filter(Boolean));
 
@@ -184,6 +188,7 @@ export function asistanBaglamiOlustur({
       kalanTaksit: opsiyonelTamSayi(kredi.kalanTaksit),
       aylikFaizYuzde: krediFaizBilgileri[index]?.oran ?? null,
       faizKaynak: krediFaizBilgileri[index]?.kaynak ?? null,
+      aktifBorc: aktifKrediMi(kredi),
       ilkOdemeTarihi: String(kredi.ilkOdemeTarihi || kredi.ilkTaksitTarihi || "").slice(0, 10) || null,
       yapilandirma: kredi.kaynak === "card_restructuring" ? {
         yapilandirilanTutar: opsiyonelSayi(kredi.yapilandirilanTutar),
@@ -207,6 +212,7 @@ export function asistanBaglamiOlustur({
         aylikFaizYuzde: kartFaizBilgileri[index]?.oran ?? null,
         faizTahmini: kartFaizBilgileri[index]?.tahmini ?? null,
         faizKaynak: kartFaizBilgileri[index]?.kaynak ?? null,
+        aktifBorc: aktifKartMi(kart),
         sonOdemeGunu: opsiyonelTamSayi(kart.sonOdemeGunu),
         yapilandirma: yapilandirma ? {
           yapilandirilanTutar: opsiyonelSayi(yapilandirma.yapilandirilanTutar ?? yapilandirma.tutar),
@@ -226,6 +232,7 @@ export function asistanBaglamiOlustur({
       aylikFaizYuzde: ekHesapFaizBilgileri[index]?.oran ?? null,
       faizTahmini: ekHesapFaizBilgileri[index]?.tahmini ?? null,
       faizKaynak: ekHesapFaizBilgileri[index]?.kaynak ?? null,
+      aktifBorc: aktifEkHesapMi(hesap),
     })),
     digerBorclar: digerBorclar.slice(0, 30).map(({ borc, faiz }) => ({
       banka: String(borc.banka || "").slice(0, 40),
