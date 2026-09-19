@@ -5,6 +5,7 @@ import {
 } from "../_shared/financialAssistantValidation.js";
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../_shared/financialAssistantPrompt.js";
 import { buildFinancialAssistantContents, normalizeAssistantHistory } from "../_shared/financialAssistantConversation.js";
+import { buildFinancialAssistantFallback } from "../_shared/financialAssistantFallback.js";
 
 const allowedOrigins = new Set([
   "https://borcama.com", "https://www.borcama.com",
@@ -56,7 +57,9 @@ Deno.serve(async (req) => {
   if (!quota?.allowed)
     return new Response(JSON.stringify({ error: "DAILY_LIMIT", quota }), { status: 429, headers });
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-3.7-flash";
-  let gemini: Response;
+  const fallback = buildFinancialAssistantFallback({ context, question });
+  let gemini: Response | null = null;
+  let answer = null;
   try {
     gemini = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
@@ -81,18 +84,23 @@ Deno.serve(async (req) => {
       }),
     });
   } catch {
+    answer = fallback;
+  }
+  if (gemini && !gemini.ok) answer = fallback;
+  if (!gemini && !answer) {
     await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
     return new Response(JSON.stringify({ error: "MODEL_UNAVAILABLE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
   }
-  if (!gemini.ok) {
-    await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
-    return new Response(JSON.stringify({ error: "MODEL_UNAVAILABLE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });
+  if (gemini?.ok) {
+    const payload = await gemini.json();
+    const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
+    try { answer = JSON.parse(text); } catch { answer = null; }
   }
-  const payload = await gemini.json();
-  const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
-  let answer;
-  try { answer = JSON.parse(text); } catch { answer = null; }
-  const validation = validateFinancialAssistantResponse({ response: answer, context, question, history });
+  let validation = validateFinancialAssistantResponse({ response: answer, context, question, history });
+  if (!validation.valid && fallback) {
+    answer = fallback;
+    validation = validateFinancialAssistantResponse({ response: answer, context, question, history });
+  }
   if (!validation.valid) {
     await admin.rpc("refund_financial_assistant_question", { p_user_id: authData.user.id });
     return new Response(JSON.stringify({ error: "INVALID_MODEL_RESPONSE", quota: { ...quota, remaining: quota.remaining + 1 } }), { status: 502, headers });

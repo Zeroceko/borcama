@@ -287,6 +287,7 @@ export function asistanBaglamiOlustur({
       ekHesapAylikFaizVergiHaricTahmin: paraYuvarla(ekHesapAylikFaizTahmini),
       kartVeEkHesapAylikFaizVergiHaricTahmin: paraYuvarla(degiskenBorcAylikFaizi),
       kartVeEkHesapAylikFaizVergiDahilTahmin: paraYuvarla(degiskenBorcAylikFaizi * 1.3),
+      vergiToplamYuzde: 30,
       vergiVarsayimi: "Faiz tutarına toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir.",
       planiBilinenKredilerKalanOdemeToplami: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanOdemeToplami, 0)),
       planiBilinenKredilerKalanFinansmanMaliyeti: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanFinansmanMaliyeti, 0)),

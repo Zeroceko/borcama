@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.6] - 2026-09-19
+
+### Düzeltildi
+
+- Faiz sorusunda model yanıtı üretilemez veya kalite kontrolünden geçmezse Asistan, uygulamanın hesapladığı kart/KMH aylık tahmini ve bilinen kredi maliyetini güvenli yedek yanıt olarak gösteriyor.
+
 ## [1.54.5] - 2026-09-19
 
 ### Değiştirildi
