@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.7] - 2026-09-20
+
+### Değiştirildi
+
+- LANDING-003'ün iki kolu da tekrar eden açıklamalardan arındırıldı; hero, temel faydalar, güven bilgisi, fiyat kararı ve son kayıt çağrısı daha kısa bir akışta birleştirildi.
+- Landing fayda kartları mobilde kompakt satırlara dönüştürüldü; hero vurgusu ile son kayıt çağrısındaki sıkışık aralıklar açıldı.
+
 ## [1.54.6] - 2026-09-19
 
 ### Düzeltildi

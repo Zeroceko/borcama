@@ -8,10 +8,10 @@
 - Google Ads ve organik trafik ayrı raporlanır.
 - Yeterli örneklem oluşmadan kazanan seçilmez.
 
-## Aktif olmaya hazır deney
+## Aktif deney
 
 - Kod: `LANDING-003`
-- Durum: Yerelde hazır; site, veritabanı migration'ı ve Edge Function birlikte yayımlanmadan canlı deney başlamış sayılmaz.
+- Durum: `v1.54.7` ile canlı; iki landing kolu da eşit teklif, sadeleştirilmiş içerik ve mobil aralık düzeniyle yayımlandı.
 - Hipotez: Aynı teklif, ana mesaj ve kayıt hedefi korunurken aylık ödeme, ekstre kategorileri ve ilk kayıt adımını somut örneklerle gösteren yeni sayfa sunumu kayıt tamamlama oranını artırır. Bu, yalnız yerleşimi değil örneklerin sunumunu da karşılaştıran tam sayfa deneyidir; tek bir tasarım öğesine nedensel sonuç atfedilmez.
 - Kontrol A: Canlıdaki mevcut landing.
 - Varyant B: Yeni sonuç odaklı landing ve kayıtsız temsili demo.
@@ -26,7 +26,7 @@
 ## Tarihsel deney
 
 - Kod: `LANDING-002`
-- Durum: Canlıda hâlâ LANDING-002 bulunur; LANDING-003 birlikte yayımlandığında tarihsel deney olacaktır. Teklif, ana mesaj ve logo sunumu eşit olmadığı için verisi LANDING-003 ile birleştirilmez ve tek başına tasarım kazananı ilan etmekte kullanılmaz.
+- Durum: LANDING-003 yayınıyla tarihsel deney oldu. Teklif, ana mesaj ve logo sunumu eşit olmadığı için verisi LANDING-003 ile birleştirilmez ve tek başına tasarım kazananı ilan etmekte kullanılmaz.
 - Sonuç: Tasarım etkisini diğer değişkenlerden ayırmadığı için yorumlanabilir bir kazanan üretmedi.
 
 ## Daha eski tarihsel deney
