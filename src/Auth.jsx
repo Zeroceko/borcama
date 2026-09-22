@@ -33,6 +33,13 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
     onStatus('loading');
     let widget;
     let active = true;
+    let watchdog = window.setTimeout(() => {
+      if (active) onStatus('error');
+    }, 8000);
+    const kontrolTamamlandi = (status) => {
+      window.clearTimeout(watchdog);
+      if (active) onStatus(status);
+    };
     const render = () => {
       if (!active || !ref.current || !window.turnstile) return;
       ref.current.replaceChildren();
@@ -48,7 +55,7 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
         callback: (token) => {
           if (!active) return;
           onToken(token);
-          onStatus('ready');
+          kontrolTamamlandi('ready');
         },
         'before-interactive-callback': () => active && onStatus('interactive'),
         'expired-callback': () => {
@@ -59,18 +66,18 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
         'error-callback': () => {
           if (!active) return;
           onToken('');
-          onStatus('error');
+          kontrolTamamlandi('error');
         },
         'timeout-callback': () => {
           if (!active) return;
           onToken('');
-          onStatus('timeout');
+          kontrolTamamlandi('timeout');
         },
       });
     };
     if (window.turnstile) render();
     else window.addEventListener('turnstile-ready', render, { once: true });
-    return () => { active = false; window.removeEventListener('turnstile-ready', render); if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
+    return () => { active = false; window.clearTimeout(watchdog); window.removeEventListener('turnstile-ready', render); if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
   }, [siteKey, widgetKey, onToken, onStatus]);
   return <div ref={ref} style={{ marginBottom: 12 }} />;
 }

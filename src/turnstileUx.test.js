@@ -14,6 +14,7 @@ test("Turnstile normal ziyaretçide gizli kalır ve riske göre etkileşim ister
 
 test("Turnstile hata ve zaman aşımında sessizce kilitlenmez", async () => {
   const auth = await authKaynagi();
+  assert.match(auth, /setTimeout\(\(\) => \{[\s\S]+onStatus\('error'\)[\s\S]+8000/);
   assert.match(auth, /'error-callback'/);
   assert.match(auth, /'timeout-callback'/);
   assert.match(auth, /Güvenlik kontrolü tamamlanamadı/);
