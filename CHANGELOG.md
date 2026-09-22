@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.55.0] - 2026-09-22
+
+### Eklendi
+
+- Kullanıcılar bankadan indirdikleri kredi ödeme planı PDF'sini cihazlarında okuyup banka, kalan anapara, taksit, faiz ve ödeme tarihlerini kontrol ettikten sonra yeni veya mevcut kredilerine aktarabilir.
+
+### Güvenlik
+
+- Kredi ödeme planının ham PDF'i sunucuya yüklenmeden tarayıcıda işleniyor; kullanıcı onayı olmadan finansal kayıt oluşturulmuyor.
+
 ## [1.54.9] - 2026-09-22
 
 ### Düzeltildi

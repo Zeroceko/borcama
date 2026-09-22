@@ -1,5 +1,9 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-09-22 · Ürün ve Mühendislik · Kredi ödeme planı PDF aktarımı
+
+- Baz sürüm `v1.54.9`: Krediler ekranına bankadan indirilen ödeme planı PDF'ini cihazda okuyup kullanıcı kontrolünden sonra yeni veya mevcut krediye aktaran akış eklendi. VakıfBank ve QNB örneklerinde banka, kredi türü, kalan anapara, taksit, kalan taksit sayısı, akdi faiz ve sonraki ödeme tarihi doğrulandı; diğer tanınan bankalar için güvenli genel okuma ve düzenlenebilir önizleme sağlandı. Ham PDF, ad-soyad ve hesap numarası kaydedilmiyor; taranmış/görüntü PDF otomatik kaydedilmeyip kullanıcıdan bankanın metin içeren asıl PDF'i isteniyor. Değişen alanlar `src/App.jsx`, `src/loanPlanImport.js`, `src/loanPlanParser.js`, ortak PDF worker yükleme yolu, regresyon testleri ve sürüm dokümanlarıdır. `release:check`, 182/182 otomatik test, production build ve diff kontrolü başarılıdır; gerçek iki banka PDF'iyle tarayıcı önizlemesi doğrulanmıştır. Gerçek kullanıcı hesabına kayıt yazılmadı; yayın sürümü `v1.55.0`dır.
+
 ### 2026-09-18 · Ürün · Ek hesabın yeniden kullanılması
 
 - Kullanıcı onayıyla v1.53.0 yayın paketi hazırlandı: aynı ek hesaba yeni kullanım tutarı ekleniyor, geçmiş ödemeler korunuyor, limit kalan borca uygulanıyor. Migration veya Edge Function değişikliği yok. Temiz paket 149/149 test, release check, build ve diff check geçti; yerel demo kapatma → yeniden 3.000 TL kullanım akışı DOM üzerinde doğrulandı ve Sol finansal son incelemesi GO verdi. Asistan kalite paketi NO-GO olduğu için bu yayından hariç tutuldu. Gerçek kullanıcı finansal kaydı test amacıyla değiştirilmedi; e-posta gönderilmedi.

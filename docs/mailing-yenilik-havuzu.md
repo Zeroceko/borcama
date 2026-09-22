@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Kredi ödeme planını tek tek yazma — v1.55.0
+
+- Siz istediniz: Bankanın verdiği ödeme planındaki taksit ve faiz bilgilerini tek tek girmemek.
+- Biz yaptık: Kredi ödeme planı PDF'ini cihazında okuyup banka, kalan anapara, taksit, faiz ve ödeme tarihlerini kontrol ederek yeni veya mevcut kredine aktarabileceğin bir akış ekledik.
+- Faydası: Planındaki çok sayıdaki taksiti elle kopyalamadan kredini doğru kalan tutar ve ödeme günüyle takip etmeye başlayabilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Asistanla kaldığın yerden devam et — v1.54.0
 
 - Siz istediniz: Asistanın cevabına yanıt verdiğinizde konuyu baştan anlatmamak.

@@ -62,6 +62,8 @@ import {
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
+import { readLoanPlanFile } from "./loanPlanImport.js";
+import { validateLoanPlanResult } from "./loanPlanParser.js";
 import {
   matchStatementToCard,
   savedCardLast4,
@@ -529,7 +531,7 @@ const CSS = `
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-soft);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
-.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-privacy-first{display:grid;grid-template-columns:44px minmax(0,1fr);gap:13px;align-items:start;margin-bottom:14px;padding:15px 17px;border:1.5px solid color-mix(in srgb,${LIME} 78%,var(--line));border-radius:15px;background:color-mix(in srgb,${LIME} 16%,var(--panel))}.bt-privacy-first>span:first-child{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-privacy-first strong{display:block;color:var(--text);font-size:14px}.bt-privacy-first p{margin:5px 0 0;color:var(--dim);font-size:11.5px;line-height:1.5}.bt-privacy-first-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.bt-privacy-first-list span{padding:5px 8px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--text);font-size:9.5px;font-weight:800}.bt-upload-zone{display:grid;place-items:center;min-height:190px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-manual{display:flex;justify-content:center;margin-top:10px}.bt-upload-icon+strong{font-size:14px}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-auto-card-match{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:68px;padding:11px 13px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:13px;background:color-mix(in srgb,${LIME} 14%,var(--panel2))}.bt-auto-card-match>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-auto-card-match strong{display:block;color:var(--text);font-size:12px}.bt-auto-card-match small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-auto-card-match button{border:0;background:transparent;color:var(--text);font:750 10.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
+.bt-ekstre-yukle{width:min(1040px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto}.bt-privacy-first{display:grid;grid-template-columns:44px minmax(0,1fr);gap:13px;align-items:start;margin-bottom:14px;padding:15px 17px;border:1.5px solid color-mix(in srgb,${LIME} 78%,var(--line));border-radius:15px;background:color-mix(in srgb,${LIME} 16%,var(--panel))}.bt-privacy-first>span:first-child{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-privacy-first strong{display:block;color:var(--text);font-size:14px}.bt-privacy-first p{margin:5px 0 0;color:var(--dim);font-size:11.5px;line-height:1.5}.bt-privacy-first-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.bt-privacy-first-list span{padding:5px 8px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);color:var(--text);font-size:9.5px;font-weight:800}.bt-upload-zone{display:grid;place-items:center;min-height:190px;padding:24px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);text-align:center;cursor:pointer}.bt-upload-zone:hover{background:color-mix(in srgb,${LIME} 18%,var(--panel2))}.bt-upload-zone input{position:absolute;opacity:0;pointer-events:none}.bt-upload-icon{width:54px;height:54px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--line);border-radius:15px;background:${LIME};box-shadow:3px 3px 0 ${CORAL}}.bt-upload-manual{display:flex;justify-content:center;margin-top:10px}.bt-upload-icon+strong{font-size:14px}.bt-upload-progress{height:10px;margin:14px 0 7px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel2)}.bt-upload-progress>div{height:100%;background:${LIME};transition:width .2s}.bt-extract-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.bt-confidence{flex:0 0 auto;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:${LIME};color:${INK};font-size:10.5px;font-weight:900}.bt-confidence.hata{background:${CORAL};color:${INK}}.bt-extract-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bt-extract-grid label{display:grid;align-content:start;gap:7px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-extract-grid .genis,.bt-extract-grid .yarim{grid-column:span 2}.bt-auto-card-match{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:68px;padding:11px 13px;border:1px solid color-mix(in srgb,${LIME} 70%,var(--line-soft));border-radius:13px;background:color-mix(in srgb,${LIME} 14%,var(--panel2))}.bt-auto-card-match>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:${LIME};color:${INK}}.bt-auto-card-match strong{display:block;color:var(--text);font-size:12px}.bt-auto-card-match small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px;line-height:1.35}.bt-auto-card-match button{border:0;background:transparent;color:var(--text);font:750 10.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-extract-details{margin-top:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel2)}.bt-extract-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;list-style:none;cursor:pointer;color:var(--text);font-size:11.5px;font-weight:850}.bt-extract-details>summary::-webkit-details-marker{display:none}.bt-extract-details>summary::after{content:'+';display:grid;place-items:center;width:25px;height:25px;border:1.5px solid var(--line);border-radius:50%;font-size:17px;line-height:1}.bt-extract-details[open]>summary::after{content:'−'}.bt-extract-details .bt-extract-grid{padding:0 14px 14px}.bt-loan-plan-preview{display:grid;gap:7px;padding:0 14px 14px}.bt-loan-plan-preview>div{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}.bt-loan-plan-preview span,.bt-loan-plan-preview strong{font-size:11px}.bt-loan-plan-preview small{color:var(--dim);font-size:10px}.bt-loan-plan-preview p{margin:3px 0 0;color:var(--dim);font-size:10px}.bt-extract-warning{display:flex;gap:8px;padding:10px 12px;margin-top:12px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:11px;line-height:1.45}.bt-extract-warnings{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;margin-top:13px;padding:11px 13px;border:1.5px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text)}.bt-extract-warnings svg{margin-top:2px}.bt-extract-warnings p{margin:0;font-size:10.5px;line-height:1.45}.bt-extract-warnings p+p{margin-top:4px}.bt-privacy-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-ekstre-yukle .bt-form-butonlar .hayalet{margin-left:auto}
 .bt-transaction-review>summary>span{display:grid;gap:2px}.bt-transaction-review>summary small{color:var(--dim);font-size:9.5px;font-weight:650}.bt-transaction-list{display:grid;gap:8px;padding:0 14px 14px}.bt-transaction-row{display:grid;grid-template-columns:auto minmax(150px,1fr) minmax(115px,150px) auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line-soft);border-radius:11px;background:var(--panel)}.bt-transaction-row.disarida{opacity:.48}.bt-transaction-row>input{width:17px;height:17px;accent-color:${LIME}}.bt-transaction-row>div{min-width:0}.bt-transaction-row>div strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px}.bt-transaction-row>div small{display:block;margin-top:2px;color:var(--dim);font-size:9px}.bt-transaction-row>.bt-input{min-height:34px;padding:7px 9px;font-size:10px}.bt-transaction-row>strong:last-child{font:850 11px 'Space Mono',monospace;white-space:nowrap}.bt-transaction-coverage{display:flex;gap:8px;flex-wrap:wrap;padding:9px 10px;border-radius:10px;background:color-mix(in srgb,${LIME} 14%,var(--panel2));font-size:9.5px}.bt-transaction-coverage.kontrol{background:color-mix(in srgb,${CORAL} 10%,var(--panel2))}.bt-transaction-note{margin:0;color:var(--dim);font-size:9.5px;line-height:1.45}
 .bt-odeme-gecmisi{flex:0 0 100%;width:100%;border-top:1.5px solid var(--line);padding-top:10px;margin-top:4px}
 .bt-odeme-gecmisi summary{cursor:pointer;color:${CORAL};font-size:11.5px;font-weight:800;list-style:none;display:flex;align-items:center;gap:6px}
@@ -7079,6 +7081,178 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
   );
 }
 
+function LoanPlanImportModal({ loans, onClose, onUse }) {
+  const [result, setResult] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [selectedLoan, setSelectedLoan] = useState("__new__");
+
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, []);
+
+  function update(key, value) {
+    setResult((current) => {
+      const next = { ...current, [key]: value };
+      return { ...next, blockingErrors: validateLoanPlanResult(next) };
+    });
+  }
+
+  async function handleFile(file) {
+    setError("");
+    setResult(null);
+    setBusy(true);
+    setProgress({ stage: "prepare", progress: 0, page: 1, pages: 1 });
+    try {
+      const parsed = await readLoanPlanFile(file, setProgress);
+      setResult(parsed);
+      const matchingLoan = loans.find((loan) =>
+        parsed.bank && loan.banka === parsed.bank &&
+        normalizeLoanPlanTextForMatch(loan.ad) === normalizeLoanPlanTextForMatch(parsed.productName),
+      );
+      setSelectedLoan(matchingLoan?.id || "__new__");
+    } catch (caught) {
+      const technicalMessage = String(caught?.message || "");
+      setError(
+        /getOrInsertComputed|Promise\.withResolvers|pdf\.worker/i.test(technicalMessage)
+          ? "PDF bu tarayıcıda hazırlanamadı. Sayfayı yenileyip tekrar deneyin."
+          : technicalMessage || "Ödeme planı okunamadı. Bankadan indirilen orijinal PDF'i deneyin.",
+      );
+      setProgress(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const totalProgress = progress
+    ? Math.min(100, Math.round((((progress.page || 1) - 1 + (progress.progress || 0)) / Math.max(progress.pages || 1, 1)) * 100))
+    : 0;
+  const canUse = result && !result.blockingErrors?.length && selectedLoan;
+
+  return (
+    <div className="bt-modal-arka" role="presentation" onMouseDown={(event) => {
+      if (!busy && event.target === event.currentTarget) onClose();
+    }}>
+      <div className="bt-modal bt-ekstre-yukle" role="dialog" aria-modal="true" aria-labelledby="kredi-plani-yukle-baslik">
+        <div className="bt-extract-head">
+          <div>
+            <div id="kredi-plani-yukle-baslik" className="bt-h2" style={{ margin: "4px 0 6px" }}>
+              Kredi ödeme planını cihazında oku
+            </div>
+            <div style={{ color: "var(--dim)", fontSize: 12, lineHeight: 1.5 }}>
+              Bankayı ve kalan ödeme planını çıkarır; sen onaylamadan hiçbir kayıt oluşturmaz.
+            </div>
+          </div>
+          {result && (
+            <div className={`bt-confidence${result.blockingErrors?.length ? " hata" : ""}`}>
+              {result.blockingErrors?.length ? "Kontrol gerekli" : `Alan eşleşmesi %${result.confidence}`}
+            </div>
+          )}
+        </div>
+
+        {!result && (
+          <>
+            <div className="bt-privacy-first" role="note">
+              <span><ShieldCheck size={22} /></span>
+              <div>
+                <strong>PDF Borcama'ya yüklenmez</strong>
+                <p>Belge bu tarayıcıda okunur. Ham PDF, hesap numarası ve kişisel bilgiler sunucuda saklanmaz.</p>
+                <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
+                  <span>Cihazında okunur</span><span>Ham belge saklanmaz</span><span>Kaydetmeden önce sen onaylarsın</span>
+                </div>
+              </div>
+            </div>
+            <label className="bt-upload-zone">
+              <input type="file" accept="application/pdf" disabled={busy} onChange={(event) => handleFile(event.target.files?.[0])} />
+              <span className="bt-upload-icon"><Upload size={24} /></span>
+              <strong>{busy ? "Ödeme planı okunuyor" : "Cihazından ödeme planı PDF'i seç"}</strong>
+              <span style={{ marginTop: 6, color: "var(--dim)", fontSize: 11.5 }}>
+                En fazla 12 MB. Bankadan indirilen, metin içeren PDF kullan.
+              </span>
+            </label>
+          </>
+        )}
+
+        {(busy || progress) && !result && (
+          <div>
+            <div className="bt-upload-progress" aria-label={`Yüzde ${totalProgress}`}>
+              <div style={{ width: `${Math.max(totalProgress, busy ? 4 : 0)}%` }} />
+            </div>
+            <div style={{ color: "var(--dim)", fontSize: 10.5 }}>
+              {progress?.stage === "read" ? `PDF okunuyor (${progress.page}/${progress.pages})` : "Dosya hazırlanıyor"}
+            </div>
+          </div>
+        )}
+
+        {error && <div className="bt-extract-warning"><AlertTriangle size={16} /><span>{error}</span></div>}
+
+        {result && (
+          <>
+            <div className="bt-extract-grid">
+              <label className="genis">
+                Nereye kaydedilecek?
+                <select className="bt-input" value={selectedLoan} onChange={(event) => setSelectedLoan(event.target.value)}>
+                  <option value="__new__">Yeni kredi oluştur</option>
+                  {loans.map((loan) => <option key={loan.id} value={loan.id}>{loan.banka} · {loan.ad || "Kredi"}</option>)}
+                </select>
+              </label>
+              <label>Banka<input className="bt-input" value={result.bank || ""} onChange={(event) => update("bank", event.target.value)} /></label>
+              <label>Kredi türü<input className="bt-input" value={result.productName || ""} onChange={(event) => update("productName", event.target.value)} /></label>
+              <label>Kalan anapara (₺)<input className="bt-input" type="number" step="0.01" value={result.remainingPrincipal ?? ""} onChange={(event) => update("remainingPrincipal", event.target.value)} /></label>
+              <label>Aylık taksit (₺)<input className="bt-input" type="number" step="0.01" value={result.installment ?? ""} onChange={(event) => update("installment", event.target.value)} /></label>
+              <label>Kalan taksit<input className="bt-input" type="number" value={result.remainingInstallments ?? ""} onChange={(event) => update("remainingInstallments", event.target.value)} /></label>
+              <label>Aylık faiz (%)<input className="bt-input" type="number" step="0.01" value={result.monthlyInterestRate ?? ""} onChange={(event) => update("monthlyInterestRate", event.target.value)} /></label>
+              <label>Sonraki taksit tarihi<input className="bt-input" type="date" value={result.firstPaymentDate || ""} onChange={(event) => update("firstPaymentDate", event.target.value)} /></label>
+              <label>İlk kredi tutarı (₺)<input className="bt-input" type="number" step="0.01" value={result.originalPrincipal ?? ""} onChange={(event) => update("originalPrincipal", event.target.value)} /></label>
+            </div>
+
+            <details className="bt-extract-details">
+              <summary>Okunan ödeme satırlarını incele ({result.schedule.length})</summary>
+              <div className="bt-loan-plan-preview">
+                {result.schedule.slice(0, 5).map((row) => (
+                  <div key={`${row.number}-${row.dueDate}`}>
+                    <span>{row.number}. taksit · {row.dueDate ? row.dueDate.split("-").reverse().join(".") : "Tarih okunamadı"}</span>
+                    <strong>{fmt(row.installment)}</strong>
+                    <small>Kalan anapara {fmt(row.remainingPrincipal)}</small>
+                  </div>
+                ))}
+                {result.schedule.length > 5 && <p>Toplam {result.schedule.length} satır okundu. İlk 5 satır gösteriliyor.</p>}
+              </div>
+            </details>
+
+            {!!(result.warnings?.length || result.blockingErrors?.length) && (
+              <div className="bt-extract-warnings" role={result.blockingErrors?.length ? "alert" : undefined}>
+                <AlertTriangle size={16} /><div>
+                  {result.warnings?.map((warning) => <p key={warning}>{warning}</p>)}
+                  {result.blockingErrors?.map((warning) => <p key={warning}><strong>{warning}</strong></p>)}
+                </div>
+              </div>
+            )}
+            <div className="bt-privacy-note"><ShieldCheck size={15} /><span>Gelecek taksitler ödeme yapılmış gibi işaretlenmez; yalnız plan olarak kaydedilir.</span></div>
+            <div className="bt-form-butonlar">
+              <button className="bt-btn birincil" type="button" disabled={!canUse} onClick={() => onUse(result, selectedLoan)}>
+                <Check size={14} /> Planı onayla ve kaydet
+              </button>
+              <button className="bt-btn ikincil" type="button" onClick={() => { setResult(null); setProgress(null); setError(""); }}>
+                Başka PDF seç
+              </button>
+              <button className="bt-btn hayalet" type="button" onClick={onClose}><X size={14} /> Vazgeç</button>
+            </div>
+          </>
+        )}
+        {!busy && !result && <button className="bt-btn hayalet" type="button" onClick={onClose} style={{ marginTop: 10 }}><X size={14} /> Vazgeç</button>}
+      </div>
+    </div>
+  );
+}
+
+function normalizeLoanPlanTextForMatch(value = "") {
+  return String(value).toLocaleLowerCase("tr-TR").replace(/\s+/g, " ").trim();
+}
+
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
 function Borclar({
   veri,
@@ -7113,6 +7287,7 @@ function Borclar({
   const [baslangicSecimiAcik, setBaslangicSecimiAcik] = useState(false);
   const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
+  const [krediPlaniYuklemePenceresi, setKrediPlaniYuklemePenceresi] = useState(false);
   const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
   const [silinecekYukleme, setSilinecekYukleme] = useState(null);
   const [arsivMesaji, setArsivMesaji] = useState("");
@@ -7828,6 +8003,52 @@ function Borclar({
     setEkstreYuklemePenceresi(false);
   }
 
+  function belgedenKrediPlaniKaydet(imported, loanId) {
+    const mevcut = veri.loans.find((loan) => loan.id === loanId);
+    const plan = {
+      ...(mevcut || {}),
+      id: mevcut?.id || uid(),
+      banka: imported.bank,
+      ad: imported.productName || mevcut?.ad || "Kredi",
+      anaPara: +imported.originalPrincipal || mevcut?.anaPara || "",
+      kalanBorc: +imported.remainingPrincipal || 0,
+      taksit: +imported.installment || 0,
+      kalanTaksit: +imported.remainingInstallments || 0,
+      faiz: +imported.monthlyInterestRate || "",
+      toplamGeriOdeme: +imported.totalRepayment || mevcut?.toplamGeriOdeme || "",
+      ilkOdemeTarihi: imported.firstPaymentDate,
+      odemeGunu: imported.firstPaymentDate ? Number(imported.firstPaymentDate.slice(-2)) : mevcut?.odemeGunu,
+      odemePlani: (imported.schedule || []).map((row) => ({
+        sira: row.number,
+        tarih: row.dueDate,
+        taksit: row.installment,
+        anapara: row.principal,
+        faiz: row.interest,
+        vergi: row.taxes,
+        sigorta: row.insurance,
+        kalanAnapara: row.remainingPrincipal,
+      })),
+      odemePlaniBelgeOzeti: {
+        banka: imported.bank,
+        kaynak: imported.sourceType,
+        sayfaSayisi: imported.pagesRead,
+        satirSayisi: imported.schedule?.length || 0,
+        guven: imported.confidence,
+        yuklenmeTarihi: new Date().toISOString(),
+      },
+    };
+    const loans = mevcut
+      ? veri.loans.map((loan) => loan.id === mevcut.id ? plan : loan)
+      : [...veri.loans, plan];
+    kaydet(islemEkle({ ...veri, loans }, {
+      tur: mevcut ? "guncelleme" : "ekleme",
+      baslik: `${plan.banka} · ${plan.ad}`,
+      detay: mevcut ? "Kredi ödeme planından güncellendi" : "Kredi ödeme planından eklendi",
+      geriAl: null,
+    }));
+    setKrediPlaniYuklemePenceresi(false);
+  }
+
   function ekstreyiTasi(yukleme, hedefKartId) {
     setArsivMesaji("");
     const hata = ekstreArsivIslemi({
@@ -8009,18 +8230,21 @@ function Borclar({
           ) : (
             <div className="bt-strip">
               <div className="bt-strip-count">{sayacHesapla()}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 <div className="bt-strip-total bt-mono">
                   {fmt(toplamHesapla())}
                 </div>
                 {!acik && !saltOkunurGorunum && kategori !== "others" && (
-                  <button
-                    className="bt-btn kucuk ikincil"
-                    onClick={() => setForm({ liste: meta.liste, veri: {} })}
-                  >
-                    <Plus size={14} />{" "}
-                    {kategori === "loans" ? "Yeni kredi ekle" : "Yeni ek hesap ekle"}
-                  </button>
+                  <>
+                    {kategori === "loans" && (
+                      <button className="bt-btn kucuk birincil" type="button" onClick={() => setKrediPlaniYuklemePenceresi(true)}>
+                        <Upload size={14} /> Ödeme planı yükle
+                      </button>
+                    )}
+                    <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}>
+                      <Plus size={14} /> {kategori === "loans" ? "Yeni kredi ekle" : "Yeni ek hesap ekle"}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
@@ -8478,6 +8702,14 @@ function Borclar({
           onClose={() => setEkstreYuklemePenceresi(false)}
           onUse={belgedenEkstreKaydet}
           onManual={manuelEkstreAkisiniAc}
+        />
+      )}
+
+      {krediPlaniYuklemePenceresi && (
+        <LoanPlanImportModal
+          loans={veri.loans}
+          onClose={() => setKrediPlaniYuklemePenceresi(false)}
+          onUse={belgedenKrediPlaniKaydet}
         />
       )}
 
