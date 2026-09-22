@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateRemainingLoanPlan } from "./loanPlanSummary.js";
+import { calculateRemainingLoanPlan, summarizeLoanRecord } from "./loanPlanSummary.js";
 
 test("yüklenen ödeme planında anapara, kalan toplam ve finansman maliyetini ayırır", () => {
   const result = calculateRemainingLoanPlan({
@@ -17,6 +17,9 @@ test("yüklenen ödeme planında anapara, kalan toplam ve finansman maliyetini a
     remainingPrincipal: 75000,
     remainingPaymentTotal: 90000,
     remainingFinancingCost: 15000,
+    financingCostIsKnown: true,
+    scheduledTotal: 90000,
+    paidSinceBaseline: 0,
     completedSinceBaseline: 0,
     remainingInstallments: 0,
   });
@@ -42,13 +45,33 @@ test("tamamlanan ve kısmi ödemeleri kalan plan toplamından düşer", () => {
 
 test("ödeme planı olmayan kredide taksit çarpımını güvenli yedek olarak kullanır", () => {
   const result = calculateRemainingLoanPlan({
-    fallbackPrincipal: 90000,
+    fallbackTotal: 100000,
     installment: 10000,
     remainingInstallments: 10,
   });
 
   assert.equal(result.remainingPaymentTotal, 100000);
-  assert.equal(result.remainingFinancingCost, 10000);
+  assert.equal(result.remainingPrincipal, null);
+  assert.equal(result.remainingFinancingCost, null);
+  assert.equal(result.financingCostIsKnown, false);
+});
+
+test("eski kredi kaydındaki kalan borcu anapara sanmadan ödemeleri düşer", () => {
+  const result = summarizeLoanRecord({
+    id: "vakif-canli",
+    kalanBorc: 2172834.2,
+    taksit: 60356.09,
+    kalanTaksit: 36,
+  }, {
+    "2026-08": { "vakif-canli": { taksit: 60356.09 } },
+    "2026-09": { "vakif-canli": { taksit: 60356.09 } },
+  });
+
+  assert.equal(Math.round(result.remainingPaymentTotal * 100) / 100, 2052122.02);
+  assert.equal(result.remainingInstallments, 34);
+  assert.equal(result.remainingPrincipal, null);
+  assert.equal(result.remainingFinancingCost, null);
+  assert.equal(result.financingCostIsKnown, false);
 });
 
 test("plan yüklenmeden önceki ödeme geçmişini ikinci kez düşmez", () => {

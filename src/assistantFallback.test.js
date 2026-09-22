@@ -11,6 +11,7 @@ test("faiz sorusu model başarısız olsa bile hesaplanan alt toplamlarla yanıt
       vergiToplamYuzde: 30,
       planiBilinenKredilerKalanFinansmanMaliyeti: 11369,
       planiBilinenKrediSayisi: 2,
+      finansmanMaliyetiBilinenKrediSayisi: 2,
       aktifKrediSayisi: 4,
     },
   };
@@ -21,6 +22,25 @@ test("faiz sorusu model başarısız olsa bile hesaplanan alt toplamlarla yanıt
   assert.match(response.answer, /2\/4 aktif kredinin/);
   assert.equal(response.needsMoreInfo, true);
   assert.deepEqual(validateFinancialAssistantResponse({ response, context, question: "faizim ne kadar?" }).errors, []);
+});
+
+test("anapara dağılımı bilinmeyen kredide sıfır finansman maliyeti uydurmaz", () => {
+  const response = buildFinancialAssistantFallback({
+    context: {
+      faizMaliyetOzeti: {
+        kartVeEkHesapAylikFaizVergiHaricTahmin: 0,
+        kartVeEkHesapAylikFaizVergiDahilTahmin: 0,
+        planiBilinenKredilerKalanFinansmanMaliyeti: 0,
+        planiBilinenKrediSayisi: 1,
+        finansmanMaliyetiBilinenKrediSayisi: 0,
+        aktifKrediSayisi: 1,
+      },
+    },
+    question: "Kredide ne kadar faiz kaldı?",
+  });
+
+  assert.match(response.answer, /0 TL varsayılmadı/);
+  assert.doesNotMatch(response.answer, /kalan finansman maliyeti 0 TL/);
 });
 
 test("faiz dışındaki soruya deterministik yedek yanıt üretilmez", () => {

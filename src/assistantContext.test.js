@@ -202,8 +202,9 @@ test("faiz sorusu için kredi planı ve değişken borç maliyetini ayrı hesapl
 
   assert.equal(sonuc.faizMaliyetOzeti.kartVeEkHesapAylikFaizVergiHaricTahmin, 537.5);
   assert.equal(sonuc.faizMaliyetOzeti.kartVeEkHesapAylikFaizVergiDahilTahmin, 698.75);
-  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKredilerKalanOdemeToplami, 100000);
-  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKredilerKalanFinansmanMaliyeti, 10000);
+  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKredilerKalanOdemeToplami, 90000);
+  assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKredilerKalanFinansmanMaliyeti, 0);
   assert.equal(sonuc.faizMaliyetOzeti.planiBilinenKrediSayisi, 1);
+  assert.equal(sonuc.faizMaliyetOzeti.finansmanMaliyetiBilinenKrediSayisi, 0);
   assert.equal(sonuc.faizMaliyetOzeti.aktifKrediSayisi, 1);
 });

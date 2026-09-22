@@ -312,3 +312,11 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Test ve doğrulama: Yeni kampanya testi ve tüm test paketi `152/152` başarılı; production build ve `git diff --check` başarılı; masaüstü önizleme gerçek DOM ve ekran görüntüsüyle kontrol edildi.
 - Canlı durum: Kampanya migration'ı, Backoffice gönderim şablonu ve `v1.52.2` web sürümü canlıya alındı. E-posta gönderilmedi, yönetici test teslimatı yapılmadı ve CTA tıklanmadı.
 - Sonraki kapı: Yönetici test adresine teslimat ve CTA doğrulaması ayrı onayla yapılmalı; ardından Marketing ekranında güncel uygun alıcı sayısıyla Yönetim Kurulu Başkanı'nın nihai toplu gönderim onayı alınmalı.
+### 2026-09-22 · Ürün · Kredi kalan ödeme kartı düzeltmesi
+
+- Baz alınan sürüm: canlı `v1.55.1`; düzeltme `v1.55.2` yayın paketine alındı.
+- Yapılan değişiklik: Kredi kayıtlarında `kalanBorc` alanı yeniden anapara olarak yorumlanmıyor; bu alan kalan toplam ödeme olarak ödeme geçmişiyle ilerletiliyor. Kalan anapara ve finansman maliyeti yalnız ayrıntılı ödeme planından güvenilir biçimde hesaplanabildiğinde ayrı gösteriliyor.
+- Arayüz: Kredi satırı kalan toplam ödeme, aylık taksit, kalan taksit ve ödeme gününü ayrı kartlarda gösteriyor; bu ay ödenen kredinin adı ve tutarı üzeri çizili hale gelmiyor. Üst toplam açıkça `Kalan toplam ödeme` etiketi taşıyor.
+- Asistan etkisi: Ödeme planı olmayan kredilerde bilinmeyen finansman maliyeti `₺0` diye aktarılmıyor; bağlam maliyetin bilinip bilinmediğini ayrıca taşıyor.
+- Doğrulama: Eski canlı Vakıf kredi örneğindeki tutarsız alanlar ve eski tek tık ödeme kayıtları regresyon testine alındı; iki ödeme sonrası kalan toplam `₺2.052.122,02`, kalan taksit 34 ve finansman maliyeti bilinmiyor sonucu doğrulandı. `release:check`, 188/188 otomatik test, production build ve `git diff --check` başarılı; yerel masaüstü kredi görünümü gerçek DOM ve ekran görüntüsüyle kontrol edildi.
+- Yayın: `v1.55.2` rutin PATCH yayını olarak hazırlanıp ana dala gönderildi; canlı kredi ekranında sürüm ve yeni etiketler doğrulanmalıdır.

@@ -171,13 +171,15 @@ export function asistanBaglamiOlustur({
       completedInstallments: tamamlananTaksit,
       baselinePaidTotal: kredi.odemePlaniBelgeOzeti?.odemeGecmisiBaslangicToplami,
       baselineCompletedInstallments: kredi.odemePlaniBelgeOzeti?.tamamlananTaksitBaslangici,
-      fallbackPrincipal: kalanBorc,
+      fallbackTotal: kalanBorc,
+      fallbackPrincipal: kredi.kalanAnapara,
       installment: aylikTaksit,
       remainingInstallments: kalanTaksit,
     });
     return {
       kalanOdemeToplami: plan.remainingPaymentTotal,
       kalanFinansmanMaliyeti: plan.remainingFinancingCost,
+      finansmanMaliyetiBiliniyor: plan.financingCostIsKnown,
     };
   }).filter(Boolean);
   const degiskenBorcAylikFaizi = kartAylikFaizTahmini + ekHesapAylikFaizTahmini;
@@ -308,8 +310,9 @@ export function asistanBaglamiOlustur({
       planiBilinenKredilerKalanOdemeToplami: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanOdemeToplami, 0)),
       planiBilinenKredilerKalanFinansmanMaliyeti: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanFinansmanMaliyeti, 0)),
       planiBilinenKrediSayisi: krediPlanMaliyetleri.length,
+      finansmanMaliyetiBilinenKrediSayisi: krediPlanMaliyetleri.filter((plan) => plan.finansmanMaliyetiBiliniyor).length,
       aktifKrediSayisi: krediler.filter(aktifKrediMi).length,
-      yontem: "Kart ve ek hesap için bir aylık tahmin; kredi için kalan taksit toplamı eksi kalan anapara.",
+      yontem: "Kart ve ek hesap için bir aylık tahmin; ayrıntılı ödeme planı olan kredilerde kalan taksit toplamı eksi kalan anapara.",
     },
     finansalProfil: {
       aylikSonuc: sayi(planAcigi) > 0 ? "acik" : "dengeli",

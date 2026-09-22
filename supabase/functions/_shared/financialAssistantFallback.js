@@ -10,23 +10,26 @@ export function buildFinancialAssistantFallback({ context, question }) {
   if (!Number.isFinite(monthlyWithTax) || !Number.isFinite(monthlyWithoutTax)) return null;
 
   const knownLoanCost = Number(summary?.planiBilinenKredilerKalanFinansmanMaliyeti) || 0;
-  const knownLoanCount = Number(summary?.planiBilinenKrediSayisi) || 0;
+  const knownLoanCostCount = Number(summary?.finansmanMaliyetiBilinenKrediSayisi) || 0;
   const activeLoanCount = Number(summary?.aktifKrediSayisi) || 0;
   const loanCoverage = activeLoanCount > 0
-    ? `${knownLoanCount}/${activeLoanCount} aktif kredinin ödeme planı bu hesaba dahil.`
+    ? `${knownLoanCostCount}/${activeLoanCount} aktif kredinin anapara-faiz dağılımı bu hesaba dahil.`
     : "Aktif kredi kaydı bulunmadığı için kredi maliyeti eklenmedi.";
+  const loanCostLine = knownLoanCostCount > 0
+    ? `• Ayrıntılı ödeme planı bulunan kredilerde kalan finansman maliyeti ${money(knownLoanCost)} TL. ${loanCoverage}`
+    : `• Kredi kayıtlarında toplam kalan ödeme izleniyor; anapara-faiz dağılımı olmayan kayıtlarda finansman maliyeti 0 TL varsayılmadı. ${loanCoverage}`;
 
   return {
     title: "Faiz yükünün hesaplanabilen kısmı",
     answer: [
       `Kısa cevap: Kart ve ek hesapların için vergiler dahil bir aylık tahmini faiz yükü ${money(monthlyWithTax)} TL.`,
       `• Vergiler hariç aylık kart ve ek hesap faizi ${money(monthlyWithoutTax)} TL; referans oran kullanılan kalemler banka tahakkukuyla değişebilir.`,
-      `• Ödeme planı bilinen kredilerde kalan finansman maliyeti ${money(knownLoanCost)} TL. ${loanCoverage}`,
+      loanCostLine,
       "Yapman gereken: Bu iki rakam farklı dönemleri anlattığı için tek toplam gibi toplama; banka ekstreleri geldikçe karşılaştır.",
     ].join("\n"),
     route: "borclar",
     actionLabel: "Borç detaylarını incele",
-    needsMoreInfo: knownLoanCount < activeLoanCount,
+    needsMoreInfo: knownLoanCostCount < activeLoanCount,
     disclaimer: "Kart ve KMH tutarı bir aylık tahmindir; kredi tutarı kayıtlı kalan ödeme planına dayanır.",
   };
 }

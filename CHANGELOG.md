@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.55.2] - 2026-09-22
+
+### Düzeltildi
+
+- Kredi kartlarında kalan toplam ödeme, aylık taksit, kalan taksit ve ödeme günü ayrı alanlarda gösteriliyor; ödeme planı olmayan kredilerde kalan borç artık anapara sanılmıyor ve bilinmeyen faiz/masraf sıfır diye sunulmuyor.
+
 ## [1.55.1] - 2026-09-22
 
 ### Düzeltildi

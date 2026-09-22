@@ -64,7 +64,7 @@ import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
 import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
-import { calculateRemainingLoanPlan } from "./loanPlanSummary.js";
+import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
 import {
   matchStatementToCard,
   savedCardLast4,
@@ -529,6 +529,7 @@ const CSS = `
 .bt-satir-tutar{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--text);font-weight:700}
 .bt-kart-tutar>.bt-satirD-tur{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;margin:3px 0 0 auto;padding:0;border:0;background:transparent;font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-kart-tutar>.bt-satirD-tur:disabled{cursor:default}.bt-kart-odeme-gecmisi-acik{grid-area:editor;margin-top:0}.bt-odeme-gecmisi-baslik{display:grid;gap:3px;margin-bottom:10px}.bt-odeme-gecmisi-baslik strong{font-size:13px}.bt-odeme-gecmisi-baslik span{color:var(--dim);font-size:10.5px}.bt-sabit-gider-ozet{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:22px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 20%,var(--panel)),var(--panel))}.bt-sabit-gider-ozet span{display:block;color:var(--dim);font-size:10.5px;font-weight:750}.bt-sabit-gider-ozet strong{display:block;margin-top:5px;font:800 24px 'JetBrains Mono',monospace}.bt-sabit-gider-ozet p{margin:0;color:var(--dim);font-size:12px;line-height:1.5}
 .bt-satir-alt{font-size:11.5px;color:${CORAL};font-weight:700;margin-top:3px}
+.bt-kredi-satiri{align-items:flex-start}.bt-kredi-bilgi{flex:1 1 620px!important}.bt-kredi-baslik{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-kredi-durum{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,${LIME} 24%,var(--panel));color:#506a24;font-size:9.5px;font-weight:850}.bt-kredi-metrikler{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:7px;margin-top:10px}.bt-kredi-metrik{padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}.bt-kredi-metrik span{display:block;color:var(--dim);font-size:9.5px;font-weight:700}.bt-kredi-metrik strong{display:block;margin-top:3px;color:var(--text);font-size:11.5px}.bt-kredi-ayrim{margin-top:8px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-kredi-islemler{flex:1 0 100%;justify-content:flex-start!important}.bt-kredi-satiri.bt-kredi-bu-ay-odendi{opacity:1}.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-ad,.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-tutar{text-decoration:none}
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-soft);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
@@ -549,7 +550,7 @@ const CSS = `
 
 .bt-strip{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--line-soft);margin-bottom:22px}
 .bt-strip-count{font-size:13px;font-weight:600;color:var(--dim)}
-.bt-strip-total{font-family:'Archivo Black',sans-serif;font-size:clamp(19px,4vw,24px);color:var(--text)}
+.bt-strip-total-block{display:grid;justify-items:end;gap:2px}.bt-strip-total-label{color:var(--dim);font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.bt-strip-total{font-family:'Archivo Black',sans-serif;font-size:clamp(19px,4vw,24px);color:var(--text)}
 .bt-kart-ust{display:grid;grid-template-columns:minmax(270px,.9fr) minmax(390px,1.1fr);align-items:stretch;gap:14px;margin-bottom:22px}.bt-kart-ust-ozet{position:relative;display:grid;align-content:space-between;gap:15px;min-width:0;min-height:138px;padding:17px 18px;overflow:hidden;border:1px solid color-mix(in srgb,${LIME} 58%,var(--line-soft));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 25%,var(--panel)),color-mix(in srgb,#b9d9d0 35%,var(--panel)));box-shadow:0 10px 25px #14160f0a}.bt-kart-ust-ozet:after{content:"";position:absolute;right:-22px;top:-28px;width:86px;height:86px;border-radius:50%;background:color-mix(in srgb,${CORAL} 82%,transparent);opacity:.78}.bt-kart-ust-baslik{position:relative;z-index:1;display:flex;align-items:center;gap:10px}.bt-kart-ust-ikon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:${LIME};color:${INK};box-shadow:2px 2px 0 color-mix(in srgb,${CORAL} 76%,transparent)}.bt-kart-ust-baslik>div{display:grid;justify-items:start;gap:4px}.bt-kart-ust-baslik strong{color:var(--text);font-size:15px}.bt-kart-ust-baslik span{display:inline-flex;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--panel) 72%,transparent);color:var(--dim);font-size:10px;font-weight:700}.bt-kart-borc{position:relative;z-index:1;text-align:left}.bt-kart-borc span{display:block;margin-bottom:5px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-kart-borc strong{display:block;color:var(--text);font:800 clamp(23px,3.2vw,29px) 'Archivo Black',sans-serif}.bt-kart-ust-islemler{display:grid;grid-template-rows:auto 1fr auto;align-content:stretch;gap:12px;padding:17px 18px;border:1px solid color-mix(in srgb,${CORAL} 24%,var(--line-soft));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,${CORAL} 7%,var(--panel)),var(--panel));box-shadow:0 10px 25px #14160f08}.bt-kart-islem-baslik{display:grid;gap:2px}.bt-kart-islem-baslik strong{color:var(--text);font-size:14px}.bt-kart-islem-baslik span{color:var(--dim);font-size:10.5px}.bt-kart-ust-ana,.bt-kart-ust-araclar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;width:100%}.bt-kart-ust-ana .bt-btn{width:100%;min-height:39px;justify-content:center}.bt-kart-ust-araclar{padding-top:9px;border-top:1px solid var(--line-soft)}.bt-kart-ust-araclar .bt-btn{width:100%;justify-content:center;padding:7px 10px;border:1px solid var(--line-soft);background:color-mix(in srgb,var(--panel2) 72%,transparent);font-size:11px;color:var(--dim)}.bt-kart-ust-araclar .bt-btn:hover{color:var(--text);background:var(--panel2)}
 .bt-kart-ust-ana.tek{grid-template-columns:1fr}.bt-kart-ekle{margin-top:10px;position:relative;z-index:1}.bt-kart-bos-metin{max-width:235px;font-size:12px!important;line-height:1.45}.bt-arac-bos{display:grid;justify-items:start;gap:8px;padding:24px;border:1px dashed var(--line-soft);border-radius:16px;background:var(--panel2)}.bt-arac-bos h3{margin:0;color:var(--text);font:800 19px/1.2 'Space Grotesk',sans-serif}.bt-arac-bos p{margin:0;color:var(--dim);font-size:12.5px;line-height:1.5}.bt-arac-bos-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
 .bt-odeme-ozet{padding:16px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);margin-bottom:20px}
@@ -703,6 +704,7 @@ const CSS = `
   .bt-ozet-kisa{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-ozet-kisa>div{padding:13px 8px}.bt-ozet-kisa>div:first-child{padding-left:0}.bt-ozet-kisa>div:nth-child(3){grid-column:1/-1;padding-left:0;border-left:0;border-top:1px solid color-mix(in srgb,var(--line) 20%,transparent)}.bt-ozet-kisa strong{font-size:15px}.bt-ozet-kisa span{font-size:11px;line-height:1.25}.bt-ozet-durum{align-items:flex-start;flex-direction:column;gap:4px}
   .bt-chip{width:100%;justify-content:space-between;padding:8px 11px}
   .bt-satir,.bt-satirD{padding:13px 12px;gap:10px}
+  .bt-kredi-metrikler{grid-template-columns:1fr 1fr}.bt-kredi-metrik{padding:8px 9px}
   .bt-harcama-inline-edit{margin:0;padding:15px 12px;border-left-width:4px}.bt-harcama-inline-edit-baslik{align-items:flex-start;flex-direction:column;gap:4px}
   .bt-satir.bt-kredi-karti{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"rozet bilgi" "tutar tutar" "islemler islemler" "editor editor";column-gap:11px}.bt-kredi-karti>.bt-kart-tutar{text-align:left!important;min-width:0}.bt-kart-tutar>.bt-satirD-tur{margin-left:0;justify-content:flex-start}.bt-kredi-karti>.bt-kart-islemler{display:grid!important;grid-template-columns:1fr 1fr auto;width:100%;gap:7px!important}.bt-kredi-karti>.bt-kart-islemler .bt-btn{justify-content:center;min-width:0;padding-inline:9px}.bt-kredi-karti>.bt-kart-islemler .bt-satir-menu{min-width:0}.bt-sabit-gider-ozet{grid-template-columns:1fr;gap:8px}
   .bt-cardhead{align-items:flex-start}
@@ -7715,7 +7717,7 @@ function Borclar({
           t +
           (krediArsivGorunumu || krediGelecekGorunumu
             ? +k.taksit || 0
-            : +k.kalanBorc || 0),
+            : summarizeLoanRecord(k, veri.loanPaymentHistory).remainingPaymentTotal),
         0,
       );
     if (kategori === "od")
@@ -7761,18 +7763,10 @@ function Borclar({
     ) {
       baslik = "Kredilerde ödeme ilerlemesi";
       veri.loans.forEach((k) => {
-        const krediOdemeleri = Object.values(veri.loanPaymentHistory || {})
-          .map((ay) => ay?.[k.id])
-          .filter(Boolean);
-        const kayitliOdeme = krediOdemeleri.reduce(
-          (t, odeme) => t + (+(odeme.tutar ?? odeme.taksit) || 0),
-          0,
-        );
-        const krediToplami = Math.max(+k.kalanBorc || 0, 0);
-        const odenenTutar = Math.min(kayitliOdeme, krediToplami);
-        toplam += krediToplami;
-        odenen += odenenTutar;
-        kalan += Math.max(krediToplami - odenenTutar, 0);
+        const ozet = summarizeLoanRecord(k, veri.loanPaymentHistory);
+        toplam += ozet.scheduledTotal;
+        odenen += ozet.paidSinceBaseline;
+        kalan += ozet.remainingPaymentTotal;
       });
     } else if (kategori === "od") {
       baslik = "Ek hesap / KMH ödeme ilerlemesi";
@@ -8016,16 +8010,17 @@ function Borclar({
     const mevcutOdemeler = mevcut
       ? Object.values(veri.loanPaymentHistory || {}).map((ayKayitlari) => ayKayitlari?.[mevcut.id]).filter(Boolean)
       : [];
-    const odemeGecmisiBaslangicToplami = mevcutOdemeler.reduce((toplam, odeme) => toplam + Math.max(+(odeme?.tutar || 0), 0), 0);
+    const odemeGecmisiBaslangicToplami = mevcutOdemeler.reduce((toplam, odeme) => toplam + loanPaymentAmount(odeme), 0);
     const tamamlananTaksitBaslangici = mevcutOdemeler.reduce((toplam, odeme) =>
-      toplam + (+(odeme?.tutar || 0) + 0.01 >= (+imported.installment || 0) && (+imported.installment || 0) > 0 ? 1 : 0), 0);
+      toplam + (loanPaymentAmount(odeme) + 0.01 >= (+imported.installment || 0) && (+imported.installment || 0) > 0 ? 1 : 0), 0);
     const plan = {
       ...(mevcut || {}),
       id: mevcut?.id || uid(),
       banka: imported.bank,
       ad: imported.productName || mevcut?.ad || "Kredi",
       anaPara: +imported.originalPrincipal || mevcut?.anaPara || "",
-      kalanBorc: +imported.remainingPrincipal || 0,
+      kalanBorc: +imported.remainingPaymentTotal || 0,
+      kalanAnapara: +imported.remainingPrincipal || "",
       taksit: +imported.installment || 0,
       kalanTaksit: +imported.remainingInstallments || 0,
       faiz: +imported.monthlyInterestRate || "",
@@ -8250,8 +8245,13 @@ function Borclar({
             <div className="bt-strip">
               <div className="bt-strip-count">{sayacHesapla()}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                <div className="bt-strip-total bt-mono">
-                  {fmt(toplamHesapla())}
+                <div className="bt-strip-total-block">
+                  <span className="bt-strip-total-label">
+                    {kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu ? "Kalan toplam ödeme" : "Toplam"}
+                  </span>
+                  <div className="bt-strip-total bt-mono">
+                    {fmt(toplamHesapla())}
+                  </div>
                 </div>
                 {!acik && !saltOkunurGorunum && kategori !== "others" && (
                   <>
@@ -9518,20 +9518,12 @@ function BorclarSatiri({
     tutarEtiketi = null,
     kartDetay = null,
     ekHesapDetay = null,
-    odemeNesnesi = null;
+    odemeNesnesi = null,
+    krediPlanOzeti = null;
   const krediOdemeAnahtari =
     kategori === "loans" ? loanPaymentKey(k, ayAnahtari()) : null;
   const buAyKrediOdendi =
     krediOdemeAnahtari !== null && !!paid?.[krediOdemeAnahtari];
-  const krediOdemeKayitlari = kategori === "loans"
-    ? Object.values(krediOdemeGecmisi || {}).map((ayKayitlari) => ayKayitlari?.[k.id]).filter(Boolean)
-    : [];
-  const tamamlananKrediTaksiti = krediOdemeKayitlari.reduce((toplam, odeme) =>
-    toplam + (+(odeme?.tutar || 0) + 0.01 >= (+k.taksit || 0) && (+k.taksit || 0) > 0 ? 1 : 0), 0);
-  const tamamlananKrediTaksitiBaslangici = Math.max(+(k.odemePlaniBelgeOzeti?.tamamlananTaksitBaslangici || 0), 0);
-  const gorunenKalanTaksit = kategori === "loans" && +k.kalanTaksit > 0
-    ? Math.max(+k.kalanTaksit - Math.max(tamamlananKrediTaksiti - tamamlananKrediTaksitiBaslangici, 0), 0)
-    : 0;
 
   if (kategori === "cards") {
     const hesap = kartHesabi(k);
@@ -9616,18 +9608,8 @@ function BorclarSatiri({
       };
     }
   } else if (kategori === "loans") {
-    const planOzeti = calculateRemainingLoanPlan({
-      schedule: k.odemePlani || [],
-      startInstallmentNumber: k.odemePlaniBelgeOzeti?.sonrakiTaksitNo,
-      payments: krediOdemeKayitlari,
-      completedInstallments: tamamlananKrediTaksiti,
-      baselinePaidTotal: k.odemePlaniBelgeOzeti?.odemeGecmisiBaslangicToplami,
-      baselineCompletedInstallments: tamamlananKrediTaksitiBaslangici,
-      fallbackPrincipal: k.kalanBorc,
-      installment: k.taksit,
-      remainingInstallments: k.kalanTaksit,
-    });
-    tutar = arsiv ? +k.taksit || 0 : planOzeti.remainingPrincipal;
+    krediPlanOzeti = summarizeLoanRecord(k, krediOdemeGecmisi);
+    tutar = arsiv ? +k.taksit || 0 : krediPlanOzeti.remainingPaymentTotal;
     altMeta = k._gelecek
       ? ayEtiketi(k._donem) +
         " · planlanan taksit · ayın " +
@@ -9647,14 +9629,16 @@ function BorclarSatiri({
           " · her ayın " +
           k.odemeGunu +
           ". günü" +
-          (+k.kalanTaksit > 0 ? " · " + gorunenKalanTaksit + " taksit kaldı" : "") +
+          (+k.kalanTaksit > 0 ? " · " + krediPlanOzeti.remainingInstallments + " taksit kaldı" : "") +
           (buAyKrediOdendi ? " · bu ayki taksit ödendi" : "");
     if (k.ilkOdemeTarihi) altMeta += " · ilk taksit " + k.ilkOdemeTarihi.split("-").reverse().join(".");
-    if (!arsiv && !k._gelecek && planOzeti.remainingPaymentTotal > 0) {
-      tutarEtiketi = "Kalan anapara";
-      altYazi = "Plana göre kalan toplam " + fmt(planOzeti.remainingPaymentTotal) + " · faiz ve masraf " + fmt(planOzeti.remainingFinancingCost);
+    if (!arsiv && !k._gelecek && krediPlanOzeti.remainingPaymentTotal > 0) {
+      tutarEtiketi = "Toplam kalan ödeme";
+      altYazi = krediPlanOzeti.financingCostIsKnown
+        ? "Kalan anapara " + fmt(krediPlanOzeti.remainingPrincipal) + " · faiz, vergi ve masraf " + fmt(krediPlanOzeti.remainingFinancingCost)
+        : null;
     }
-    if (!arsiv && !k._gelecek && (+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun())) {
+    if (!arsiv && !k._gelecek && krediPlanOzeti.remainingPaymentTotal > 0 && loanIsDueInMonth(k, bugun())) {
       const odemeKaydi = krediOdemeGecmisi?.[ayAnahtari()]?.[k.id];
       const yapilanOdeme = Math.max(+(odemeKaydi?.tutar || 0), 0);
       odemeNesnesi = {
@@ -9662,7 +9646,7 @@ function BorclarSatiri({
         ad: k.banka + (k.ad ? " · " + k.ad : ""),
         anahtar: krediOdemeAnahtari,
         tutar: Math.max((+k.taksit || 0) - yapilanOdeme, 0),
-        kalanKrediBorcu: +k.kalanBorc || 0,
+        kalanKrediBorcu: krediPlanOzeti.remainingPaymentTotal,
       };
     }
   } else if (kategori === "od") {
@@ -9697,7 +9681,7 @@ function BorclarSatiri({
     : [];
 
   return (
-    <div className={`bt-satir${kategori === "cards" ? " bt-kredi-karti" : ""}${kategori === "loans" && buAyKrediOdendi ? " bt-odendi" : ""}`}>
+    <div className={`bt-satir${kategori === "cards" ? " bt-kredi-karti" : ""}${kategori === "loans" ? " bt-kredi-satiri" : ""}${kategori === "loans" && buAyKrediOdendi ? " bt-kredi-bu-ay-odendi" : ""}`}>
       <BankaRozeti
         banka={k.banka}
         bg={meta.rozetBg}
@@ -9705,10 +9689,10 @@ function BorclarSatiri({
         className={kategori === "cards" ? "bt-kart-rozet" : undefined}
       />
       <div
-        className={kategori === "cards" ? "bt-kart-bilgi" : undefined}
+        className={kategori === "cards" ? "bt-kart-bilgi" : kategori === "loans" ? "bt-kredi-bilgi" : undefined}
         style={{ flex: 1, minWidth: 150 }}
       >
-        <div className="bt-satir-ad">
+        <div className={`bt-satir-ad${kategori === "loans" ? " bt-kredi-baslik" : ""}`}>
           {baslik}
           {kategori === "cards" ? (
             <span style={{ color: "var(--dim)", fontWeight: 500 }}>
@@ -9720,8 +9704,17 @@ function BorclarSatiri({
               {" "}· {ekAd}
             </span>
           ) : null}
+          {kategori === "loans" && buAyKrediOdendi && !arsiv && <span className="bt-kredi-durum">Bu ay ödendi</span>}
         </div>
-        <div className="bt-satir-meta">{altMeta}</div>
+        {kategori === "loans" && !arsiv && !k._gelecek ? (
+          <div className="bt-kredi-metrikler" aria-label="Kredi ödeme özeti">
+            <div className="bt-kredi-metrik"><span>Kalan toplam ödeme</span><strong>{fmt(krediPlanOzeti?.remainingPaymentTotal)}</strong></div>
+            <div className="bt-kredi-metrik"><span>Aylık taksit</span><strong>{fmt(k.taksit)}</strong></div>
+            <div className="bt-kredi-metrik"><span>Kalan taksit</span><strong>{krediPlanOzeti?.remainingInstallments ?? 0} taksit</strong></div>
+            <div className="bt-kredi-metrik"><span>Ödeme günü</span><strong>{k.odemeGunu ? `Ayın ${k.odemeGunu}. günü` : "Belirtilmedi"}</strong></div>
+          </div>
+        ) : <div className="bt-satir-meta">{altMeta}</div>}
+        {kategori === "loans" && !arsiv && !k._gelecek && altYazi && <div className="bt-kredi-ayrim">{altYazi}</div>}
         {barGoster && (
           <div className="bt-bar">
             <div
@@ -9739,7 +9732,7 @@ function BorclarSatiri({
           />
         )}
       </div>
-      <div
+      {!(kategori === "loans" && !arsiv && !k._gelecek) && <div
         className={kategori === "cards" ? "bt-kart-tutar" : undefined}
         style={{ textAlign: "right" }}
       >
@@ -9758,10 +9751,10 @@ function BorclarSatiri({
           </button>
         )}
         {altYazi && <div className="bt-satir-alt">{altYazi}</div>}
-      </div>
+      </div>}
       {!arsiv && (
         <div
-          className={kategori === "cards" ? "bt-kart-islemler" : undefined}
+          className={kategori === "cards" ? "bt-kart-islemler" : kategori === "loans" ? "bt-kredi-islemler" : undefined}
           style={{
             display: "flex",
             gap: 4,
