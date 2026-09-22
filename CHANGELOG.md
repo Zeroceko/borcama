@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.55.1] - 2026-09-22
+
 ### Düzeltildi
 
 - Kredi ödeme planı aktarımı, kalan anaparayı gelecek taksitlerin toplamından ve kalan faiz/masraf yükünden ayırıyor; kredi satırı ödeme geçmişi ilerledikçe bu üç tutarı plana göre güncelliyor.
