@@ -39,6 +39,16 @@ export function calculateRemainingLoanPlan({
     : positive(fallbackTotal) || positive(installment) * positive(remainingInstallments);
   const remainingPaymentTotal = Math.max(scheduledTotal - paidTotal, 0);
   const financingCostIsKnown = remainingPrincipal !== null && remainingPaymentTotal + 0.01 >= remainingPrincipal;
+  const installmentAmount = positive(installment);
+  const installmentEquivalent = installmentAmount > 0 && remainingPaymentTotal > 0
+    ? remainingPaymentTotal / installmentAmount
+    : 0;
+  const nearestInstallment = Math.round(installmentEquivalent);
+  const inferredInstallments = installmentEquivalent > 0
+    ? (Math.abs(installmentEquivalent - nearestInstallment) <= 0.02
+        ? Math.max(nearestInstallment, 1)
+        : Math.ceil(installmentEquivalent))
+    : 0;
 
   return {
     remainingPrincipal,
@@ -50,7 +60,9 @@ export function calculateRemainingLoanPlan({
     scheduledTotal,
     paidSinceBaseline: paidTotal,
     completedSinceBaseline,
-    remainingInstallments: Math.max(positive(remainingInstallments) - completedSinceBaseline, 0),
+    remainingInstallments: rows.length
+      ? Math.max(rows.length - completedSinceBaseline, 0)
+      : inferredInstallments || Math.max(positive(remainingInstallments) - completedSinceBaseline, 0),
   };
 }
 

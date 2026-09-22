@@ -21,7 +21,7 @@ test("yüklenen ödeme planında anapara, kalan toplam ve finansman maliyetini a
     scheduledTotal: 90000,
     paidSinceBaseline: 0,
     completedSinceBaseline: 0,
-    remainingInstallments: 0,
+    remainingInstallments: 3,
   });
 });
 
@@ -72,6 +72,19 @@ test("eski kredi kaydındaki kalan borcu anapara sanmadan ödemeleri düşer", (
   assert.equal(result.remainingPrincipal, null);
   assert.equal(result.remainingFinancingCost, null);
   assert.equal(result.financingCostIsKnown, false);
+});
+
+test("kalan para bir taksitken eski sayaç sıfır olsa bile bir taksit gösterir", () => {
+  const result = calculateRemainingLoanPlan({
+    fallbackTotal: 25405.11,
+    installment: 8468.38,
+    remainingInstallments: 2,
+    payments: [{ tutar: 8468.38 }, { taksit: 8468.38 }],
+    completedInstallments: 2,
+  });
+
+  assert.equal(Math.round(result.remainingPaymentTotal * 100) / 100, 8468.35);
+  assert.equal(result.remainingInstallments, 1);
 });
 
 test("plan yüklenmeden önceki ödeme geçmişini ikinci kez düşmez", () => {

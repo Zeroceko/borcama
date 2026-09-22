@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.55.3] - 2026-09-22
+
+### Düzeltildi
+
+- Eski kredi kayıtlarında kalan ödeme tutarı bir taksit gösterirken kalan taksit sayısının sıfıra düşmesi engellendi.
+
 ## [1.55.2] - 2026-09-22
 
 ### Düzeltildi
