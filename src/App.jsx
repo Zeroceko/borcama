@@ -6475,7 +6475,7 @@ function Odemeler({
             </div>
             <div className="bt-kart-odeme-ozet">
               <div>
-                <span>Bu ay kalan taksit</span>
+                <span>{krediOdemePenceresi.donemEtiketi || "Bu ay"} kalan taksit</span>
                 <strong>{fmt(krediOdemePenceresi.tutar)}</strong>
               </div>
               <div>
@@ -6496,7 +6496,7 @@ function Odemeler({
                   setKrediOdemePenceresi(null);
                 }}
               >
-                <span><strong>Bu taksiti ödedim</strong><small>Aylık taksit hedefini tamamlar.</small></span>
+                <span><strong>{krediOdemePenceresi.donemEtiketi || "Bu ay"} taksitini ödedim</strong><small>Seçili dönemin taksit hedefini tamamlar.</small></span>
                 <b>{fmt(krediOdemePenceresi.tutar)}</b>
               </button>
               <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
@@ -9522,6 +9522,7 @@ function BorclarSatiri({
     krediPlanOzeti = null;
   const krediOdemeAnahtari =
     kategori === "loans" ? loanPaymentKey(k, ayAnahtari()) : null;
+  const krediOdemeDonemi = kategori === "loans" ? (k._donem || ayAnahtari()) : null;
   const buAyKrediOdendi =
     krediOdemeAnahtari !== null && !!paid?.[krediOdemeAnahtari];
 
@@ -9638,15 +9639,17 @@ function BorclarSatiri({
         ? "Kalan anapara " + fmt(krediPlanOzeti.remainingPrincipal) + " · faiz, vergi ve masraf " + fmt(krediPlanOzeti.remainingFinancingCost)
         : null;
     }
-    if (!arsiv && !k._gelecek && krediPlanOzeti.remainingPaymentTotal > 0 && loanIsDueInMonth(k, bugun())) {
-      const odemeKaydi = krediOdemeGecmisi?.[ayAnahtari()]?.[k.id];
-      const yapilanOdeme = Math.max(+(odemeKaydi?.tutar || 0), 0);
+    if ((!arsiv || k._gelecek) && krediPlanOzeti.remainingPaymentTotal > 0) {
+      const odemeKaydi = krediOdemeGecmisi?.[krediOdemeDonemi]?.[k.id];
+      const yapilanOdeme = loanPaymentAmount(odemeKaydi);
       odemeNesnesi = {
         tur: "kredi",
         ad: k.banka + (k.ad ? " · " + k.ad : ""),
         anahtar: krediOdemeAnahtari,
         tutar: Math.max((+k.taksit || 0) - yapilanOdeme, 0),
         kalanKrediBorcu: krediPlanOzeti.remainingPaymentTotal,
+        donem: krediOdemeDonemi,
+        donemEtiketi: ayEtiketi(krediOdemeDonemi),
       };
     }
   } else if (kategori === "od") {
@@ -9704,7 +9707,7 @@ function BorclarSatiri({
               {" "}· {ekAd}
             </span>
           ) : null}
-          {kategori === "loans" && buAyKrediOdendi && !arsiv && <span className="bt-kredi-durum">Bu ay ödendi</span>}
+          {kategori === "loans" && buAyKrediOdendi && (!arsiv || k._gelecek) && <span className="bt-kredi-durum">{k._gelecek ? `${ayEtiketi(krediOdemeDonemi)} ödendi` : "Bu ay ödendi"}</span>}
         </div>
         {kategori === "loans" && !arsiv && !k._gelecek ? (
           <div className="bt-kredi-metrikler" aria-label="Kredi ödeme özeti">
@@ -9752,7 +9755,7 @@ function BorclarSatiri({
         )}
         {altYazi && <div className="bt-satir-alt">{altYazi}</div>}
       </div>}
-      {!arsiv && (
+      {(!arsiv || (kategori === "loans" && k._gelecek)) && (
         <div
           className={kategori === "cards" ? "bt-kart-islemler" : kategori === "loans" ? "bt-kredi-islemler" : undefined}
           style={{
@@ -9865,7 +9868,7 @@ function BorclarSatiri({
               <Wallet size={13} /> Ödeme gir
             </button>
           )}
-          {kategori !== "cards" && (
+          {!arsiv && kategori !== "cards" && (
             <button
               className="bt-btn hayalet"
               onClick={() => setForm({ liste: meta.liste, veri: k })}
@@ -9873,7 +9876,7 @@ function BorclarSatiri({
               <Pencil size={15} />
             </button>
           )}
-          {kategori !== "cards" && (
+          {!arsiv && kategori !== "cards" && (
             <button
               className="bt-btn hayalet tehlike"
               onClick={() => sil(meta.liste, k.id)}

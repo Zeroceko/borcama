@@ -320,3 +320,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 - Asistan etkisi: Ödeme planı olmayan kredilerde bilinmeyen finansman maliyeti `₺0` diye aktarılmıyor; bağlam maliyetin bilinip bilinmediğini ayrıca taşıyor.
 - Doğrulama: Eski canlı Vakıf kredi örneğindeki tutarsız alanlar ve eski tek tık ödeme kayıtları regresyon testine alındı; iki ödeme sonrası kalan toplam `₺2.052.122,02`, kalan taksit 34 ve finansman maliyeti bilinmiyor sonucu doğrulandı. `release:check`, 188/188 otomatik test, production build ve `git diff --check` başarılı; yerel masaüstü kredi görünümü gerçek DOM ve ekran görüntüsüyle kontrol edildi.
 - Yayın: `v1.55.2` ile yeni kredi kartı canlıda doğrulandı; gerçek QNB kaydında kalan para bir taksitken sayacın sıfır görünmesi yakalanıp ödeme tutarından güvenli taksit türeten `v1.55.3` yamasına alındı.
+
+### 2026-09-22 · Ürün · Kredi erken ve gelecek dönem ödemesi
+
+- Kullanıcı geri bildirimiyle ilk ödeme tarihi sonraki ay olan kredilerde kaybolan `Ödeme gir` aksiyonu açıldı. Gelecek ay görünümündeki kredi satırı da seçili dönemin anahtarıyla ödeme kabul ediyor; geçmiş dönemler salt okunur kalıyor ve gelecek görünümünde düzenleme/silme aksiyonları açılmıyor.
+- Yayın adayı: `v1.55.4`.

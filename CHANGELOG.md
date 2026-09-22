@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.55.4] - 2026-09-22
+
+### Değiştirildi
+
+- Kullanıcılar ilk taksit tarihi gelmemiş kredilere ve seçtikleri gelecek ayın taksitine şimdiden ödeme kaydedebilir; ödeme seçilen aya yazılır.
+
 ## [1.55.3] - 2026-09-22
 
 ### Düzeltildi
