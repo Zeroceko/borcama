@@ -23,6 +23,9 @@ Taksit No Taksit Tutarı Taksit Tarihi Tahsil Tarihi Taksit Anapara Taksit Faiz 
   assert.equal(result.installment, 31000);
   assert.equal(result.monthlyInterestRate, 3.09);
   assert.equal(result.firstPaymentDate, "2026-10-11");
+  assert.equal(result.nextInstallmentNumber, 4);
+  assert.equal(result.remainingPaymentTotal, 31000);
+  assert.equal(result.remainingFinancingCost, 1000);
   assert.equal(result.schedule[0].principal, 22000);
   assert.equal(result.schedule[0].interest, 6000);
   assert.deepEqual(result.blockingErrors, []);
@@ -50,6 +53,9 @@ Ticaret unvanı: QNB Bank A.Ş.
   assert.equal(result.remainingInstallments, 1);
   assert.equal(result.installment, 28000);
   assert.equal(result.monthlyInterestRate, 2.99);
+  assert.equal(result.nextInstallmentNumber, 3);
+  assert.equal(result.remainingPaymentTotal, 28000);
+  assert.equal(result.remainingFinancingCost, 1000);
   assert.deepEqual(result.blockingErrors, []);
 });
 

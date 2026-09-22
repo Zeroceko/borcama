@@ -259,6 +259,10 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     : 0;
   const installment = next?.installment ?? median(schedule.map((row) => row.installment));
   const totalRepayment = schedule.reduce((sum, row) => sum + (row.installment || 0), 0);
+  const remainingPaymentTotal = remainingRows.reduce((sum, row) => sum + (row.installment || 0), 0);
+  const remainingFinancingCost = remainingPaymentTotal && remainingPrincipal !== null
+    ? Math.max(remainingPaymentTotal - remainingPrincipal, 0)
+    : null;
   const parsedTerm = parseTerm(text);
   const term = parsedTerm && (!schedule.length || parsedTerm <= schedule.length + 12)
     ? parsedTerm
@@ -281,9 +285,12 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     term,
     remainingInstallments: remainingRows.length,
     monthlyInterestRate,
+    nextInstallmentNumber: next?.number || null,
     firstPaymentDate: next?.dueDate || schedule[0]?.dueDate || "",
     paymentDay: next?.dueDate ? Number(next.dueDate.slice(-2)) : null,
     totalRepayment: totalRepayment || null,
+    remainingPaymentTotal: remainingPaymentTotal || null,
+    remainingFinancingCost,
     schedule,
     pagesRead,
     sourceType,

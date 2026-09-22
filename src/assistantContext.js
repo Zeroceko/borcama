@@ -1,4 +1,5 @@
 import { cardRestructurableBalance } from "./cardRestructuring.js";
+import { calculateRemainingLoanPlan } from "./loanPlanSummary.js";
 
 const sayi = (deger) => {
   const sonuc = Number(deger);
@@ -158,10 +159,25 @@ export function asistanBaglamiOlustur({
     const aylikTaksit = opsiyonelSayi(kredi.taksit);
     const kalanTaksit = opsiyonelTamSayi(kredi.kalanTaksit);
     if (!aktifKrediMi(kredi) || kalanBorc === null || aylikTaksit === null || kalanTaksit === null) return null;
-    const kalanOdemeToplami = aylikTaksit * kalanTaksit;
+    const odemeler = Object.values(veri?.loanPaymentHistory || {})
+      .map((ayKayitlari) => ayKayitlari?.[kredi.id])
+      .filter(Boolean);
+    const tamamlananTaksit = odemeler.reduce((toplam, odeme) =>
+      toplam + (sayi(odeme.tutar) + 0.01 >= aylikTaksit && aylikTaksit > 0 ? 1 : 0), 0);
+    const plan = calculateRemainingLoanPlan({
+      schedule: kredi.odemePlani || [],
+      startInstallmentNumber: kredi.odemePlaniBelgeOzeti?.sonrakiTaksitNo,
+      payments: odemeler,
+      completedInstallments: tamamlananTaksit,
+      baselinePaidTotal: kredi.odemePlaniBelgeOzeti?.odemeGecmisiBaslangicToplami,
+      baselineCompletedInstallments: kredi.odemePlaniBelgeOzeti?.tamamlananTaksitBaslangici,
+      fallbackPrincipal: kalanBorc,
+      installment: aylikTaksit,
+      remainingInstallments: kalanTaksit,
+    });
     return {
-      kalanOdemeToplami,
-      kalanFinansmanMaliyeti: Math.max(kalanOdemeToplami - kalanBorc, 0),
+      kalanOdemeToplami: plan.remainingPaymentTotal,
+      kalanFinansmanMaliyeti: plan.remainingFinancingCost,
     };
   }).filter(Boolean);
   const degiskenBorcAylikFaizi = kartAylikFaizTahmini + ekHesapAylikFaizTahmini;
