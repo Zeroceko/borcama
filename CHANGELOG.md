@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.8] - 2026-09-22
+
 ### Değiştirildi
 
 - Kayıt, giriş ve parola yenilemedeki güvenlik kontrolü normal ziyaretçide arka planda çalışıp yalnız riskli durumda görünür hale getirildi; hata veya zaman aşımında kullanıcıya açık bir yeniden deneme yolu sunuldu.
