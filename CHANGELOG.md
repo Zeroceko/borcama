@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.54.9] - 2026-09-22
+
 ### Düzeltildi
 
 - Güvenlik betiği tarayıcıda yüklenemezse kayıt düğmesinin açıklamasız biçimde pasif kalması engellendi; sekiz saniye içinde kontrol tamamlanmazsa yeniden deneme uyarısı gösteriliyor.
