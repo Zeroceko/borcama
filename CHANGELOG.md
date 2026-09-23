@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.1] - 2026-09-23
+
+### Değiştirildi
+
+- Finansal Sözlük; kredi, kart, borç hukuku, bütçe ve birikim başlıklarında 77 özgün kavrama genişletildi.
+
 ## [1.56.0] - 2026-09-23
 
 ### Eklendi

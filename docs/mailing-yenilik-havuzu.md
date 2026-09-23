@@ -4,10 +4,10 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Banka dilini sade Türkçeyle anla — v1.56.0
+### Banka dilini sade Türkçeyle anla — v1.56.0–v1.56.1
 
 - Siz istediniz: Ekstrede, kredi planında veya banka bildiriminde geçen finansal terimlerin ne anlama geldiğini kolayca öğrenmek.
-- Biz yaptık: Faiz, temerrüt, tasfiye, kalan anapara, toplam geri ödeme ve bütçe kavramlarını kısa tanım, basit örnek ve ilgili terimlerle açıklayan ücretsiz Finansal Sözlük hazırladık.
+- Biz yaptık: Faiz, temerrüt, tasfiye, kalan anapara, kredi notu, icra takibi, enflasyon ve bütçe gibi 77 kavramı kısa tanım, basit örnek ve ilgili terimlerle açıklayan ücretsiz Finansal Sözlük hazırladık.
 - Faydası: Anlamadığın terimi ayrı ayrı aramak yerine Borcama içinde okuyabilir, ilgili hesaplama aracına doğrudan geçebilirsin.
 - Aksiyon: `https://borcama.com/finansal-sozluk`
 
