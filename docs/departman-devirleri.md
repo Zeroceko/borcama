@@ -2,6 +2,7 @@
 
 ### 2026-09-23 · Büyüme ve Mühendislik · Finansal Sözlük organik edinim yüzeyi
 
+- `v1.56.2` sözlüğü 100 özgün terime çıkarıyor. Ana sayfa kategori ağırlıklı listeden Türkçe A-Z dizinine geçirildi; dolu harfler ilgili alfabetik gruba gider, boş harfler pasif görünür, kategori çipleri filtre olarak çalışır ve mobilde yatay taşma üretmez. Yeni kümede borç transferi, kredi maliyeti, yıllık maliyet oranı, ödeme planı, sanal kart, bloke bakiye, vadeli/vadesiz hesap, portföy, yatırım fonu, kur riski ve finansal okuryazarlık bulunur. 195/195 otomatik test, release kontrolü, production build, diff kontrolü, kategori filtresi ve Türkçe `Ö` harf hedefi etkileşim testi başarılıdır; build 122 statik SEO sayfası ve 124 URL'lik sitemap üretir.
 - `v1.56.0` ile `/finansal-sozluk` altında doğru Türkçe terimi kullanan, ASCII ve kalıcı slug yapılı 24 terim yayınlandı; `v1.56.1` kredi, kart, borç hukuku, bütçe ve birikim kümelerini 77 özgün terime genişletiyor. Her terim tanım, açıklama, örnek, Borcama bağlamı ve ilgili terimlerle bağlı; her rota kendine ait statik HTML, başlık, açıklama, canonical, Article + DefinedTerm ve Breadcrumb şemasına sahip. Sitemap sözlük verisinden derleme sırasında üretiliyor; 194/194 otomatik test, release kontrolü, production build, diff kontrolü ve yeni detay sayfasının görsel kontrolü başarılıdır. Sonraki dış adım canlı URL doğrulaması ve açık kullanıcı onayından sonra Search Console sitemap bildirimidir.
 
 ### 2026-09-22 · Ürün ve Mühendislik · Kalan kredi ödeme yükünün ayrıştırılması

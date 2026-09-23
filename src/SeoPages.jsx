@@ -475,8 +475,15 @@ function Faq({ items }) {
 
 function FinansalSozlukAna() {
   const [arama, setArama] = useState("");
+  const [kategori, setKategori] = useState("Tümü");
   const sorgu = arama.trim().toLocaleLowerCase("tr-TR");
-  const terimler = FINANSAL_SOZLUK.filter((terim) => !sorgu || `${terim.title} ${terim.definition} ${terim.category}`.toLocaleLowerCase("tr-TR").includes(sorgu));
+  const alfabe = [..."ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"];
+  const harf = (terim) => terim.title.slice(0, 1).toLocaleUpperCase("tr-TR");
+  const terimler = FINANSAL_SOZLUK
+    .filter((terim) => kategori === "Tümü" || terim.category === kategori)
+    .filter((terim) => !sorgu || `${terim.title} ${terim.definition} ${terim.category}`.toLocaleLowerCase("tr-TR").includes(sorgu))
+    .sort((a, b) => a.title.localeCompare(b.title, "tr-TR"));
+  const doluHarfler = new Set(terimler.map(harf));
   const schema = useMemo(() => ({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -490,7 +497,7 @@ function FinansalSozlukAna() {
     },
   }), []);
   useSeo({ title: "Finansal Sözlük", description: "Faiz, temerrüt, kredi kartı ekstresi, kalan anapara, nakit akışı ve borç yönetimi terimlerini sade örneklerle öğrenin.", path: "/finansal-sozluk", schema });
-  return <Layout><main><Breadcrumb path="/finansal-sozluk" title="Finansal Sözlük"/><Hero title="Finansal Sözlük" lead="Bankanın söylediğini gündelik dile çevir. Borç, faiz, kredi kartı ve bütçe terimlerini kısa örneklerle anla."/><section className="seo-section seo-shell"><label className="seo-glossary-search"><span>Sözlükte ara</span><input type="search" value={arama} onChange={(event) => setArama(event.target.value)} placeholder="Örn. temerrüt, faiz, kalan anapara"/></label><nav className="seo-glossary-categories" aria-label="Sözlük kategorileri">{FINANSAL_SOZLUK_KATEGORILERI.map((category) => <a key={category} href={`#${slugifyCategory(category)}`}>{category}</a>)}</nav>{terimler.length ? FINANSAL_SOZLUK_KATEGORILERI.map((category) => { const grup = terimler.filter((terim) => terim.category === category); return grup.length ? <section className="seo-glossary-group" id={slugifyCategory(category)} key={category}><h2>{category}</h2><div className="seo-glossary-grid">{grup.map((terim) => <a href={`/finansal-sozluk/${terim.slug}`} key={terim.slug}><span>{terim.title.slice(0, 1)}</span><div><h3>{terim.title}</h3><p>{terim.definition}</p><b>Tanımı oku <ArrowRight size={14}/></b></div></a>)}</div></section> : null; }) : <p className="seo-glossary-empty">Bu aramayla eşleşen terim bulunamadı.</p>}<Cta/></section></main></Layout>;
+  return <Layout><main><Breadcrumb path="/finansal-sozluk" title="Finansal Sözlük"/><Hero title="Finansal Sözlük" lead="Bankanın söylediğini gündelik dile çevir. Borç, faiz, kredi kartı ve bütçe terimlerini kısa örneklerle anla."/><section className="seo-section seo-shell"><label className="seo-glossary-search"><span>Sözlükte ara</span><input type="search" value={arama} onChange={(event) => setArama(event.target.value)} placeholder="Örn. temerrüt, faiz, kalan anapara"/></label><nav className="seo-glossary-alphabet" aria-label="Terimlerin ilk harfine göre dizini">{alfabe.map((item) => doluHarfler.has(item) ? <a key={item} href={`#harf-${item.toLocaleLowerCase("tr-TR")}`}>{item}</a> : <span aria-disabled="true" key={item}>{item}</span>)}</nav><div className="seo-glossary-categories" aria-label="Sözlük kategorileri"><button className={kategori === "Tümü" ? "active" : ""} type="button" onClick={() => setKategori("Tümü")}>Tümü</button>{FINANSAL_SOZLUK_KATEGORILERI.map((category) => <button className={kategori === category ? "active" : ""} type="button" key={category} onClick={() => setKategori(category)}>{category}</button>)}</div><p className="seo-glossary-count"><strong>{terimler.length}</strong> terim gösteriliyor</p>{terimler.length ? alfabe.map((item) => { const grup = terimler.filter((terim) => harf(terim) === item); return grup.length ? <section className="seo-glossary-group" id={`harf-${item.toLocaleLowerCase("tr-TR")}`} key={item}><h2>{item}</h2><div className="seo-glossary-grid">{grup.map((terim) => <a href={`/finansal-sozluk/${terim.slug}`} key={terim.slug}><span>{item}</span><div><small>{terim.category}</small><h3>{terim.title}</h3><p>{terim.definition}</p><b>Tanımı oku <ArrowRight size={14}/></b></div></a>)}</div></section> : null; }) : <p className="seo-glossary-empty">Bu aramayla eşleşen terim bulunamadı.</p>}<Cta/></section></main></Layout>;
 }
 
 function FinansalSozlukDetay({ terim }) {

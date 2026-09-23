@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.2] - 2026-09-23
+
+### Değiştirildi
+
+- Finansal Sözlük 100 terime çıkarıldı; Türkçe A-Z dizini, çalışan kategori filtreleri ve alfabetik terim grupları eklendi.
+
 ## [1.56.1] - 2026-09-23
 
 ### Değiştirildi

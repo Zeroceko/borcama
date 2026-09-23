@@ -10,7 +10,7 @@ test("finansal sözlük slugları kalıcı, ASCII ve benzersizdir", () => {
 });
 
 test("her sözlük terimi özgün açıklama, örnek ve çalışan ilgili terimler içerir", () => {
-  assert.ok(FINANSAL_SOZLUK.length >= 20);
+  assert.ok(FINANSAL_SOZLUK.length >= 100);
   for (const terim of FINANSAL_SOZLUK) {
     assert.ok(terim.definition.length >= 55, `${terim.slug}: definition`);
     assert.ok(terim.detail.length >= 140, `${terim.slug}: detail`);
@@ -19,6 +19,13 @@ test("her sözlük terimi özgün açıklama, örnek ve çalışan ilgili teriml
     assert.ok(terim.related.length >= 3, `${terim.slug}: related`);
     for (const related of terim.related) assert.ok(finansalSozlukTerimi(related), `${terim.slug} -> ${related}`);
   }
+});
+
+test("sözlük Türkçe A-Z dizini ve kategori filtresi sunar", async () => {
+  const page = await readFile(new URL("./SeoPages.jsx", import.meta.url), "utf8");
+  assert.match(page, /ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ/);
+  assert.match(page, /seo-glossary-alphabet/);
+  assert.match(page, /setKategori/);
 });
 
 test("sözlük tek veri kaynağından prerender ve sitemap üretimine bağlanır", async () => {
