@@ -10,7 +10,7 @@ test("finansal sözlük slugları kalıcı, ASCII ve benzersizdir", () => {
 });
 
 test("her sözlük terimi özgün açıklama, örnek ve çalışan ilgili terimler içerir", () => {
-  assert.ok(FINANSAL_SOZLUK.length >= 100);
+  assert.equal(FINANSAL_SOZLUK.length, 200);
   for (const terim of FINANSAL_SOZLUK) {
     assert.ok(terim.definition.length >= 55, `${terim.slug}: definition`);
     assert.ok(terim.detail.length >= 140, `${terim.slug}: detail`);

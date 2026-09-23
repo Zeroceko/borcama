@@ -1,6 +1,8 @@
+import { EK_FINANSAL_SOZLUK } from "./financialGlossaryExtra.js";
+
 export const FINANSAL_SOZLUK_GUNCELLEME_TARIHI = "2026-09-23";
 
-export const FINANSAL_SOZLUK = [
+const TEMEL_FINANSAL_SOZLUK = [
   {
     slug: "faiz",
     title: "Faiz",
@@ -1020,6 +1022,8 @@ export const FINANSAL_SOZLUK = [
     related: ["kredi-maliyeti", "butce-acigi", "risk"],
   },
 ];
+
+export const FINANSAL_SOZLUK = [...TEMEL_FINANSAL_SOZLUK, ...EK_FINANSAL_SOZLUK];
 
 export const FINANSAL_SOZLUK_KATEGORILERI = [...new Set(FINANSAL_SOZLUK.map((terim) => terim.category))];
 

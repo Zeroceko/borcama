@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Finansal Sözlük 200 terime çıkarıldı; tasfiye kavramları ile kredi kartı borcu, KMH borcu, borç kapatma kredisi, yapılandırma faizi ve ödenmeyen borç gibi yüksek niyetli aramalar için ayrı, bağlantılı açıklama sayfaları eklendi.
+
 ## [1.56.5] - 2026-09-23
 
 ### Düzeltildi
