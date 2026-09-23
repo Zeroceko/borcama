@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseStatementTransactions } from "./statementTransactions.js";
+import {
+  formatStatementTransactionDate,
+  parseStatementTransactions,
+} from "./statementTransactions.js";
 
 test("Enpara harcamalarini ayirir; odeme ve faizleri disarida birakir", () => {
   const result = parseStatementTransactions(`
@@ -15,6 +18,12 @@ test("Enpara harcamalarini ayirir; odeme ve faizleri disarida birakir", () => {
   assert.equal(result.detectedTotal, 1058.87);
   assert.equal(result.coverage, 100);
   assert.deepEqual(result.transactions.map((item) => item.category), ["Diğer", "Eğlence", "Market"]);
+  assert.deepEqual(result.transactions.map((item) => formatStatementTransactionDate(item.date)), ["02.02.2026", "03.07.2026", "06.07.2026"]);
+});
+
+test("ekstre işlem tarihi eksikse önizleme çökmek yerine açıklama gösterir", () => {
+  assert.equal(formatStatementTransactionDate(""), "Tarih okunamadı");
+  assert.equal(formatStatementTransactionDate("2026-07-03"), "03.07.2026");
 });
 
 test("TEB TL-on-ekli satirlari ve kategorileri okur", () => {

@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.3] - 2026-09-23
+
+### Değiştirildi
+
+- Mevcut kartlardaki “Yeni ekstre” işlemi, seçili kartı koruyarak cihazda okutma veya manuel giriş yöntemini seçtiriyor.
+
+### Düzeltildi
+
+- Enpara ekstrelerinde harcama kalemleri bulunduğunda önizleme ekranını kapatan tarih ve tutar gösterimi hataları giderildi; geçersiz işlem tarihleri ekranı düşürmeden açıklanıyor.
+
 ## [1.56.2] - 2026-09-23
 
 ### Değiştirildi

@@ -1,5 +1,9 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-09-23 · Ürün ve Mühendislik · Enpara ekstre önizleme ve mevcut kart akışı
+
+- `v1.56.3`, işlem satırı bulunan Enpara PDF'lerinde önizlemeyi düşüren tanımsız tarih ve para biçimlendirme çağrılarını güvenli ortak biçimleyicilere taşıyor. Gerçek Enpara PDF'i cihazdan okutma akışında kullanılarak özet alanlarının ve harcama listesinin hata ekranına düşmeden açıldığı doğrulandı; belge veya kayıt sunucuya kaydedilmedi. Mevcut karttaki “Yeni ekstre” artık doğrudan manuel forma atlamak yerine “Cihazında okut / Manuel ekle” seçimini açıyor ve iki yöntemde de seçili kart bağlamını koruyor. İlgili testler, tam test paketi, release kontrolü, production build ve diff kontrolü tamamlanarak patch sürümü yayınlandı.
+
 ### 2026-09-23 · Büyüme ve Mühendislik · Finansal Sözlük organik edinim yüzeyi
 
 - `v1.56.2` sözlüğü 100 özgün terime çıkarıyor. Ana sayfa kategori ağırlıklı listeden Türkçe A-Z dizinine geçirildi; dolu harfler ilgili alfabetik gruba gider, boş harfler pasif görünür, kategori çipleri filtre olarak çalışır ve mobilde yatay taşma üretmez. Yeni kümede borç transferi, kredi maliyeti, yıllık maliyet oranı, ödeme planı, sanal kart, bloke bakiye, vadeli/vadesiz hesap, portföy, yatırım fonu, kur riski ve finansal okuryazarlık bulunur. 195/195 otomatik test, release kontrolü, production build, diff kontrolü, kategori filtresi ve Türkçe `Ö` harf hedefi etkileşim testi başarılıdır; build 122 statik SEO sayfası ve 124 URL'lik sitemap üretir.

@@ -62,6 +62,7 @@ import {
 } from "lucide-react";
 import { readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
+import { formatStatementTransactionDate } from "./statementTransactions.js";
 import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
@@ -6664,12 +6665,12 @@ function BorcUzerindenOdemeModal({
   );
 }
 
-function StatementImportModal({ cards, onClose, onUse, onManual }) {
+function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onManual }) {
   const [result, setResult] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [selectedCard, setSelectedCard] = useState("");
+  const [selectedCard, setSelectedCard] = useState(initialCardId);
   const [automaticCardMatch, setAutomaticCardMatch] = useState(null);
 
   useEffect(() => {
@@ -6757,7 +6758,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
       setResult(parsed);
       const match = matchStatementToCard(cards, parsed);
       setAutomaticCardMatch(match);
-      setSelectedCard(match?.card?.id || "__new__");
+      setSelectedCard(match?.card?.id || initialCardId || "__new__");
       setProgress({ stage: "done", progress: 1, page: parsed.pagesRead, pages: parsed.pagesRead });
     } catch (caught) {
       const technicalMessage = String(caught?.message || "");
@@ -6998,7 +6999,7 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
                   <span>
                     Harcama kalemlerini kontrol et
                     <small>
-                      {result.transactions.filter((item) => item.selected).length} kalem · {para(
+                      {result.transactions.filter((item) => item.selected).length} kalem · {fmt(
                         result.transactions.filter((item) => item.selected)
                           .reduce((sum, item) => sum + (+item.amount || 0), 0),
                       )}
@@ -7011,18 +7012,18 @@ function StatementImportModal({ cards, onClose, onUse, onManual }) {
                       <input type="checkbox" checked={item.selected}
                         aria-label={`${item.description} kalemini dahil et`}
                         onChange={(event) => updateTransaction(item.key, { selected: event.target.checked })} />
-                      <div><strong>{item.description}</strong><small>{tarihGoster(item.date)}</small></div>
+                      <div><strong>{item.description}</strong><small>{formatStatementTransactionDate(item.date)}</small></div>
                       <select className="bt-input" value={item.category}
                         aria-label={`${item.description} kategorisi`}
                         onChange={(event) => updateTransaction(item.key, { category: event.target.value })}>
                         {KATEGORILER.map((category) => <option key={category}>{category}</option>)}
                       </select>
-                      <strong>{para(item.amount)}</strong>
+                      <strong>{fmt(item.amount)}</strong>
                     </div>
                   ))}
                   <div className={`bt-transaction-coverage${result.coverage !== null && Math.abs(result.coverage - 100) > 3 ? " kontrol" : ""}`}>
-                    <span>Bulunan: <strong>{para(result.detectedTotal)}</strong></span>
-                    {result.currentPurchases !== null && <span>Ekstre toplamı: <strong>{para(result.currentPurchases)}</strong></span>}
+                    <span>Bulunan: <strong>{fmt(result.detectedTotal)}</strong></span>
+                    {result.currentPurchases !== null && <span>Ekstre toplamı: <strong>{fmt(result.currentPurchases)}</strong></span>}
                     {result.coverage !== null && <span>Eşleşme: <strong>%{result.coverage}</strong></span>}
                   </div>
                   {result.coverage !== null && Math.abs(result.coverage - 100) > 3 && (
@@ -7295,6 +7296,7 @@ function Borclar({
   const [odemePenceresi, setOdemePenceresi] = useState(null);
   const [yapilandirmaPenceresi, setYapilandirmaPenceresi] = useState(null);
   const [baslangicSecimiAcik, setBaslangicSecimiAcik] = useState(false);
+  const [ekstreAkisKarti, setEkstreAkisKarti] = useState(null);
   const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
   const [krediPlaniYuklemePenceresi, setKrediPlaniYuklemePenceresi] = useState(false);
@@ -7311,6 +7313,7 @@ function Borclar({
   );
   useEffect(() => {
     if (ekstreYuklemeIstegi <= 0) return;
+    setEkstreAkisKarti(null);
     setBaslangicSecimiAcik(true);
     ekstreYuklemeIsteginiTuket?.();
   }, [ekstreYuklemeIstegi, ekstreYuklemeIsteginiTuket]);
@@ -7323,11 +7326,25 @@ function Borclar({
   function manuelEkstreAkisiniAc() {
     setBaslangicSecimiAcik(false);
     setEkstreYuklemePenceresi(false);
+    if (ekstreAkisKarti) {
+      setManuelEkstreSecimiAcik(false);
+      setForm({ liste: "cards", veri: ekstreAkisKarti, yeniEkstre: true });
+      setEkstreAkisKarti(null);
+      return;
+    }
     if (veri.cards.length > 0) {
       setManuelEkstreSecimiAcik(true);
       return;
     }
     setForm({ liste: "cards", veri: {} });
+  }
+  function genelEkstreAkisiniAc() {
+    setEkstreAkisKarti(null);
+    setBaslangicSecimiAcik(true);
+  }
+  function ekstreYontemSeciminiKapat() {
+    setBaslangicSecimiAcik(false);
+    setEkstreAkisKarti(null);
   }
   const meta = KATEGORI_META[kategori] || KATEGORI_META.cards;
   const guncelEkstreAyi = useMemo(() => {
@@ -8003,6 +8020,7 @@ function Borclar({
       geriAl: null,
     }));
     setEkstreYuklemePenceresi(false);
+    setEkstreAkisKarti(null);
   }
 
   function belgedenKrediPlaniKaydet(imported, loanId) {
@@ -8169,7 +8187,7 @@ function Borclar({
             setKategori("cards");
             setForm({ liste: "cards", veri: {} });
           }}
-          onEkstreYukle={() => setBaslangicSecimiAcik(true)}
+          onEkstreYukle={genelEkstreAkisiniAc}
         />
       ) : (
         <div className="bt-card" data-tour="borclar">
@@ -8212,7 +8230,7 @@ function Borclar({
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
-                      onClick={() => setBaslangicSecimiAcik(true)}
+                      onClick={genelEkstreAkisiniAc}
                     >
                       <Plus size={14} /> Ekstre ekle
                     </button>
@@ -8561,6 +8579,10 @@ function Borclar({
                   kartOdemesiDegistir={kartOdemesiDegistir}
                   krediOdemesiAc={(odeme) => setOdemePenceresi(odeme)}
                   kartYapilandirmaAc={(kart) => setYapilandirmaPenceresi(kart)}
+                  yeniEkstreAc={(kart) => {
+                    setEkstreAkisKarti(kart);
+                    setBaslangicSecimiAcik(true);
+                  }}
                   arsiv={saltOkunurGorunum}
                 />
               ))}
@@ -8582,7 +8604,7 @@ function Borclar({
                     {aktivasyonGorevleri.debt?.tamam ? (
                       <span className="bt-adim-tamam"><Check size={13} /> Tamam</span>
                     ) : (
-                      <button className="bt-btn kucuk birincil" type="button" onClick={() => setBaslangicSecimiAcik(true)}>
+                      <button className="bt-btn kucuk birincil" type="button" onClick={genelEkstreAkisiniAc}>
                         Ekle <ChevronRight size={14} />
                       </button>
                     )}
@@ -8648,7 +8670,7 @@ function Borclar({
           className="bt-modal-arka"
           role="presentation"
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setBaslangicSecimiAcik(false);
+            if (e.target === e.currentTarget) ekstreYontemSeciminiKapat();
           }}
         >
           <div
@@ -8670,7 +8692,7 @@ function Borclar({
                 className="bt-btn hayalet kucuk"
                 type="button"
                 aria-label="Kapat"
-                onClick={() => setBaslangicSecimiAcik(false)}
+                onClick={ekstreYontemSeciminiKapat}
               >
                 <X size={18} />
               </button>
@@ -8707,7 +8729,7 @@ function Borclar({
             <button
               className="bt-btn hayalet bt-baslangic-sonra"
               type="button"
-              onClick={() => setBaslangicSecimiAcik(false)}
+              onClick={ekstreYontemSeciminiKapat}
             >
               Daha sonra
             </button>
@@ -8718,7 +8740,11 @@ function Borclar({
       {ekstreYuklemePenceresi && (
         <StatementImportModal
           cards={veri.cards}
-          onClose={() => setEkstreYuklemePenceresi(false)}
+          initialCardId={ekstreAkisKarti?.id || ""}
+          onClose={() => {
+            setEkstreYuklemePenceresi(false);
+            setEkstreAkisKarti(null);
+          }}
           onUse={belgedenEkstreKaydet}
           onManual={manuelEkstreAkisiniAc}
         />
@@ -8846,7 +8872,7 @@ function Borclar({
                     type="button"
                     onClick={() => {
                       setEkstreArsiviAcik(false);
-                      setBaslangicSecimiAcik(true);
+                      genelEkstreAkisiniAc();
                     }}
                   >
                     <Plus size={14} /> Ekstre ekle
@@ -9503,6 +9529,7 @@ function BorclarSatiri({
   kartOdemesiDegistir,
   krediOdemesiAc,
   kartYapilandirmaAc,
+  yeniEkstreAc,
   arsiv = false,
 }) {
   const [kartGecmisiAcik, setKartGecmisiAcik] = useState(false);
@@ -9778,9 +9805,7 @@ function BorclarSatiri({
             <button
               className="bt-btn kucuk ikincil"
               title="Yeni dönem ekstresi gir"
-              onClick={() =>
-                setForm({ liste: "cards", veri: k, yeniEkstre: true })
-              }
+              onClick={() => yeniEkstreAc?.(k)}
             >
               <Plus size={13} /> Yeni ekstre
             </button>

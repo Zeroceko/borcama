@@ -50,6 +50,12 @@ function isoDate(raw) {
   return `${named[3]}-${MONTHS[named[2]]}-${String(named[1]).padStart(2, "0")}`;
 }
 
+export function formatStatementTransactionDate(value = "") {
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return "Tarih okunamadı";
+  return `${match[3]}.${match[2]}.${match[1]}`;
+}
+
 export function categorizeStatementTransaction(description = "") {
   const normalized = normalizeStatementText(description);
   for (const [category, tokens] of CATEGORY_RULES)
