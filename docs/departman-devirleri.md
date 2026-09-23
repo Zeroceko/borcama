@@ -1,5 +1,9 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-09-23 · Ürün ve Mühendislik · Ekstre kaydetme akışı
+
+- `v1.56.4`, ekstre önizlemesindeki kaydet düğmesinin sessiz kalmasına neden olan eksik `kaydet` ve `islemEkle` prop aktarımını gideriyor. Gerçek Enpara PDF'i yerel demo akışında okunup kaydedildi; kart sayısı ve ekstre arşivi değişikliği görünür biçimde doğrulandı. 196/196 test, production build ve diff kontrolü başarılı.
+
 ### 2026-09-23 · Ürün ve Mühendislik · Enpara ekstre önizleme ve mevcut kart akışı
 
 - `v1.56.3`, işlem satırı bulunan Enpara PDF'lerinde önizlemeyi düşüren tanımsız tarih ve para biçimlendirme çağrılarını güvenli ortak biçimleyicilere taşıyor. Gerçek Enpara PDF'i cihazdan okutma akışında kullanılarak özet alanlarının ve harcama listesinin hata ekranına düşmeden açıldığı doğrulandı; belge veya kayıt sunucuya kaydedilmedi. Mevcut karttaki “Yeni ekstre” artık doğrudan manuel forma atlamak yerine “Cihazında okut / Manuel ekle” seçimini açıyor ve iki yöntemde de seçili kart bağlamını koruyor. İlgili testler, tam test paketi, release kontrolü, production build ve diff kontrolü tamamlanarak patch sürümü yayınlandı.

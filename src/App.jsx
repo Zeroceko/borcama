@@ -3395,6 +3395,8 @@ export default function BorcTakip() {
             {sekme === "borclar" && (
               <Borclar
                 veri={veri}
+                kaydet={kaydet}
+                islemEkle={islemEkle}
                 form={form}
                 setForm={setForm}
                 ekleGuncelle={ekleGuncelle}
@@ -7267,6 +7269,8 @@ function normalizeLoanPlanTextForMatch(value = "") {
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
 function Borclar({
   veri,
+  kaydet,
+  islemEkle,
   form,
   setForm,
   ekleGuncelle,
