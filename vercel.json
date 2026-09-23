@@ -172,6 +172,8 @@
     { "source": "/araclar/:path*", "destination": "/araclar/:path*.html" },
     { "source": "/rehber", "destination": "/rehber.html" },
     { "source": "/rehber/:path*", "destination": "/rehber/:path*.html" },
+    { "source": "/finansal-sozluk", "destination": "/finansal-sozluk.html" },
+    { "source": "/finansal-sozluk/:path*", "destination": "/finansal-sozluk/:path*.html" },
     { "source": "/upgrade", "destination": "/index.html" },
     { "source": "/welcome", "destination": "/index.html" },
     { "source": "/classic", "destination": "/index.html" },

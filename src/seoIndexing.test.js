@@ -33,8 +33,15 @@ test("kullanıcı ve yönetim ekranları noindex olarak sınıflandırılır", (
 });
 
 test("halka açık SEO sayfaları indekslenebilir kalır", () => {
-  for (const yol of ["/", "/araclar", "/rehber", "/faq", "/privacy"])
+  for (const yol of ["/", "/araclar", "/rehber", "/finansal-sozluk", "/finansal-sozluk/temerrut", "/faq", "/privacy"])
     assert.equal(noindexYoluMu(yol), false, yol);
+});
+
+test("finansal sözlük sayfaları ön oluşturulmuş HTML dosyalarına yönlenir", async () => {
+  const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  const yenidenYazimlar = new Map(vercel.rewrites.map((kural) => [kural.source, kural.destination]));
+  assert.equal(yenidenYazimlar.get("/finansal-sozluk"), "/finansal-sozluk.html");
+  assert.equal(yenidenYazimlar.get("/finansal-sozluk/:path*"), "/finansal-sozluk/:path*.html");
 });
 
 test("Vercel kullanıcı ekranlarında X-Robots-Tag gönderir", async () => {

@@ -34,7 +34,7 @@ googleAdsBaslat();
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
 
 function seoYoluMu(yol) {
-  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
+  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/") || yol === "/finansal-sozluk" || yol.startsWith("/finansal-sozluk/");
 }
 
 function yonetimYetkisiVar(session) {

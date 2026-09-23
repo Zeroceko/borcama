@@ -23,6 +23,11 @@ import {
   mevduatFaiziHesapla,
   nettenBruteMaas2026,
 } from "./seoTools.js";
+import {
+  FINANSAL_SOZLUK,
+  FINANSAL_SOZLUK_KATEGORILERI,
+  finansalSozlukTerimi,
+} from "./financialGlossary.js";
 import "./SeoPages.css";
 
 const SITE = "https://borcama.com";
@@ -217,7 +222,7 @@ const REHBER_UYARILARI = {
 };
 
 export function seoYoluMu(yol) {
-  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
+  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/") || yol === "/finansal-sozluk" || yol.startsWith("/finansal-sozluk/");
 }
 
 export default function SeoSayfasi({ yol }) {
@@ -230,6 +235,11 @@ export default function SeoSayfasi({ yol }) {
   if (yol === "/araclar/kredi-odeme-plani-hesaplama") return <KrediOdemePlani />;
   if (yol === "/araclar/brut-net-maas-hesaplama") return <MaasHesaplama />;
   if (yol === "/araclar/kidem-tazminati-hesaplama") return <KidemTazminati />;
+  if (yol === "/finansal-sozluk") return <FinansalSozlukAna />;
+  if (yol.startsWith("/finansal-sozluk/")) {
+    const terim = finansalSozlukTerimi(yol.replace("/finansal-sozluk/", ""));
+    return terim ? <FinansalSozlukDetay terim={terim} /> : <FinansalSozlukAna />;
+  }
   if (yol === "/rehber") return <RehberAna />;
   const slug = yol.replace("/rehber/", "");
   const rehber = REHBERLER.find((item) => item.slug === slug);
@@ -253,7 +263,7 @@ function useSeo({ title, description, path, schema }) {
     setMeta("og:title", title, true);
     setMeta("og:description", description, true);
     setMeta("og:url", `${SITE}${path}`, true);
-    setMeta("og:type", path.startsWith("/rehber/") ? "article" : "website", true);
+    setMeta("og:type", path.startsWith("/rehber/") || path.startsWith("/finansal-sozluk/") ? "article" : "website", true);
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement("link");
@@ -266,8 +276,7 @@ function useSeo({ title, description, path, schema }) {
     const script = document.createElement("script");
     script.id = "borcama-seo-schema";
     script.type = "application/ld+json";
-    const parentPath = path.startsWith("/araclar") ? "/araclar" : "/rehber";
-    const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+    const { path: parentPath, name: parentName } = seoParent(path);
     const breadcrumbItems = [
       { "@type": "ListItem", position: 1, name: "Borcama", item: SITE },
       { "@type": "ListItem", position: 2, name: parentName, item: `${SITE}${parentPath}` },
@@ -281,7 +290,7 @@ function useSeo({ title, description, path, schema }) {
 }
 
 function Layout({ children }) {
-  return <div className="seo"><header className="seo-nav seo-shell"><a className="seo-logo" href="/" aria-label="Borcama ana sayfa"><img src="/borcama-logo.png" alt="Borcama" /></a><nav><a href="/araclar">Hesaplama Araçları</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="seo-btn small" href="/register?plan=free">Ücretsiz Başla <ArrowRight size={14}/></a></nav></header>{children}<footer className="seo-footer"><div className="seo-shell"><div><a className="seo-footer-logo" href="/"><img src="/borcama-logo.png" alt="Borcama"/></a><p>Kişisel borç, ödeme ve varlık takip aracı.</p></div><div className="seo-footer-links"><a href="/araclar">Ücretsiz Araçlar</a><a href="/rehber">Rehber</a><a href="/privacy">Gizlilik ve KVKK</a><a href="/faq">SSS</a></div></div></footer></div>;
+  return <div className="seo"><header className="seo-nav seo-shell"><a className="seo-logo" href="/" aria-label="Borcama ana sayfa"><img src="/borcama-logo.png" alt="Borcama" /></a><nav><a href="/araclar">Hesaplama Araçları</a><a href="/finansal-sozluk">Finansal Sözlük</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="seo-btn small" href="/register?plan=free">Ücretsiz Başla <ArrowRight size={14}/></a></nav></header>{children}<footer className="seo-footer"><div className="seo-shell"><div><a className="seo-footer-logo" href="/"><img src="/borcama-logo.png" alt="Borcama"/></a><p>Kişisel borç, ödeme ve varlık takip aracı.</p></div><div className="seo-footer-links"><a href="/araclar">Ücretsiz Araçlar</a><a href="/finansal-sozluk">Finansal Sözlük</a><a href="/rehber">Rehber</a><a href="/privacy">Gizlilik ve KVKK</a><a href="/faq">SSS</a></div></div></footer></div>;
 }
 
 function Hero({ title, lead }) {
@@ -289,9 +298,14 @@ function Hero({ title, lead }) {
 }
 
 function Breadcrumb({ path, title }) {
-  const parentPath = path.startsWith("/araclar") ? "/araclar" : "/rehber";
-  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+  const { path: parentPath, name: parentName } = seoParent(path);
   return <nav className="seo-breadcrumb seo-shell" aria-label="Sayfa yolu"><a href="/">Borcama</a><span>/</span>{path === parentPath ? <strong>{parentName}</strong> : <><a href={parentPath}>{parentName}</a><span>/</span><strong>{title}</strong></>}</nav>;
+}
+
+function seoParent(path) {
+  if (path.startsWith("/araclar")) return { path: "/araclar", name: "Hesaplama Araçları" };
+  if (path.startsWith("/finansal-sozluk")) return { path: "/finansal-sozluk", name: "Finansal Sözlük" };
+  return { path: "/rehber", name: "Rehber" };
 }
 
 function AraclarAna() {
@@ -457,6 +471,49 @@ function AdSlot() {
 
 function Faq({ items }) {
   return <section className="seo-faq"><h2>Hesaplama hakkında</h2>{items.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</section>;
+}
+
+function FinansalSozlukAna() {
+  const [arama, setArama] = useState("");
+  const sorgu = arama.trim().toLocaleLowerCase("tr-TR");
+  const terimler = FINANSAL_SOZLUK.filter((terim) => !sorgu || `${terim.title} ${terim.definition} ${terim.category}`.toLocaleLowerCase("tr-TR").includes(sorgu));
+  const schema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Borcama Finansal Sözlük",
+    description: "Borç, kredi kartı, faiz ve bütçe terimlerini sade örneklerle açıklayan finansal sözlük.",
+    url: `${SITE}/finansal-sozluk`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: FINANSAL_SOZLUK.length,
+      itemListElement: FINANSAL_SOZLUK.map((terim, index) => ({ "@type": "ListItem", position: index + 1, url: `${SITE}/finansal-sozluk/${terim.slug}`, name: terim.title })),
+    },
+  }), []);
+  useSeo({ title: "Finansal Sözlük", description: "Faiz, temerrüt, kredi kartı ekstresi, kalan anapara, nakit akışı ve borç yönetimi terimlerini sade örneklerle öğrenin.", path: "/finansal-sozluk", schema });
+  return <Layout><main><Breadcrumb path="/finansal-sozluk" title="Finansal Sözlük"/><Hero title="Finansal Sözlük" lead="Bankanın söylediğini gündelik dile çevir. Borç, faiz, kredi kartı ve bütçe terimlerini kısa örneklerle anla."/><section className="seo-section seo-shell"><label className="seo-glossary-search"><span>Sözlükte ara</span><input type="search" value={arama} onChange={(event) => setArama(event.target.value)} placeholder="Örn. temerrüt, faiz, kalan anapara"/></label><nav className="seo-glossary-categories" aria-label="Sözlük kategorileri">{FINANSAL_SOZLUK_KATEGORILERI.map((category) => <a key={category} href={`#${slugifyCategory(category)}`}>{category}</a>)}</nav>{terimler.length ? FINANSAL_SOZLUK_KATEGORILERI.map((category) => { const grup = terimler.filter((terim) => terim.category === category); return grup.length ? <section className="seo-glossary-group" id={slugifyCategory(category)} key={category}><h2>{category}</h2><div className="seo-glossary-grid">{grup.map((terim) => <a href={`/finansal-sozluk/${terim.slug}`} key={terim.slug}><span>{terim.title.slice(0, 1)}</span><div><h3>{terim.title}</h3><p>{terim.definition}</p><b>Tanımı oku <ArrowRight size={14}/></b></div></a>)}</div></section> : null; }) : <p className="seo-glossary-empty">Bu aramayla eşleşen terim bulunamadı.</p>}<Cta/></section></main></Layout>;
+}
+
+function FinansalSozlukDetay({ terim }) {
+  const path = `/finansal-sozluk/${terim.slug}`;
+  const related = terim.related.map(finansalSozlukTerimi).filter(Boolean);
+  const schema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${terim.title} nedir?`,
+    description: terim.definition,
+    mainEntityOfPage: `${SITE}${path}`,
+    author: { "@type": "Organization", name: "Borcama" },
+    publisher: { "@type": "Organization", name: "Borcama", logo: { "@type": "ImageObject", url: `${SITE}/borcama-logo.png` } },
+    datePublished: "2026-09-23",
+    dateModified: "2026-09-23",
+    mainEntity: { "@type": "DefinedTerm", name: terim.title, description: terim.definition, inDefinedTermSet: `${SITE}/finansal-sozluk` },
+  }), [path, terim]);
+  useSeo({ title: `${terim.title} Nedir?`, description: `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`, path, schema });
+  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.title} nedir?</h1><p className="seo-article-lead">{terim.definition}</p><div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section><section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
+}
+
+function slugifyCategory(category) {
+  return category.toLocaleLowerCase("tr-TR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("ı", "i").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 function RehberAna() {

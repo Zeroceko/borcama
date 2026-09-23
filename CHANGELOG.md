@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.0] - 2026-09-23
+
+### Eklendi
+
+- Ücretsiz Araçlar bağlantısının yanına; faiz, temerrüt, tasfiye, kredi kartı, kredi ve bütçe kavramlarını sade tanım, örnek ve ilgili terimlerle açıklayan taranabilir Finansal Sözlük eklendi.
+
 ## [1.55.4] - 2026-09-22
 
 ### Değiştirildi

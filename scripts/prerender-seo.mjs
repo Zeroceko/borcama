@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { FINANSAL_SOZLUK } from "../src/financialGlossary.js";
 
 const SITE = "https://borcama.com";
 const DIST = join(process.cwd(), "dist");
@@ -30,6 +31,7 @@ const guides = [
 
 const toolLinks = tools.map(([slug, title]) => [`/araclar/${slug}`, title]);
 const guideLinks = guides.map(([slug, title]) => [`/rehber/${slug}`, title]);
+const glossaryLinks = FINANSAL_SOZLUK.map((terim) => [`/finansal-sozluk/${terim.slug}`, terim.title]);
 const guideByTool = {
   "borc-kapatma-hesaplayici": [["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"]],
   "brut-net-maas-hesaplama": [["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş rehberi"]],
@@ -57,6 +59,16 @@ const pages = [
   ...tools.map(([slug, title, description]) => ({ path: `/araclar/${slug}`, title, description, sections: staticSections[`/araclar/${slug}`] || [], links: [...(guideByTool[slug] || []), ...toolLinks.filter(([path]) => path !== `/araclar/${slug}`)], type: "WebApplication" })),
   { path: "/rehber", title: "Borç ve Ödeme Rehberi", description: "Borç düzenleme, kredi kartı takibi ve borç kapatma planı hakkında sade ve uygulanabilir rehberler.", links: guideLinks, type: "CollectionPage" },
   ...guides.map(([slug, title, description]) => ({ path: `/rehber/${slug}`, title, description, links: guideLinks.filter(([path]) => path !== `/rehber/${slug}`), type: "Article" })),
+  { path: "/finansal-sozluk", title: "Finansal Sözlük", description: "Faiz, temerrüt, kredi kartı ekstresi, kalan anapara, nakit akışı ve borç yönetimi terimlerini sade örneklerle öğrenin.", links: glossaryLinks, type: "CollectionPage" },
+  ...FINANSAL_SOZLUK.map((terim) => ({
+    path: `/finansal-sozluk/${terim.slug}`,
+    title: `${terim.title} Nedir?`,
+    description: `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`,
+    sections: [["Kısaca nasıl çalışır?", terim.detail], ["Basit örnek", terim.example], ["Borcama'da ne anlama gelir?", terim.borcama]],
+    links: terim.related.map((slug) => FINANSAL_SOZLUK.find((item) => item.slug === slug)).filter(Boolean).map((item) => [`/finansal-sozluk/${item.slug}`, item.title]),
+    type: "Article",
+    term: terim,
+  })),
   {
     path: "/faq",
     title: "Borcama Sık Sorulan Sorular",
@@ -85,8 +97,8 @@ const baseHtml = await readFile(join(DIST, "index.html"), "utf8");
 for (const page of pages) {
   const canonical = `${SITE}${page.path}`;
   const fullTitle = `${page.title} | Borcama`;
-  const parentPath = page.path.startsWith("/araclar") ? "/araclar" : page.path.startsWith("/rehber") ? "/rehber" : page.path;
-  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : parentPath === "/rehber" ? "Rehber" : page.title;
+  const parentPath = page.path.startsWith("/araclar") ? "/araclar" : page.path.startsWith("/rehber") ? "/rehber" : page.path.startsWith("/finansal-sozluk") ? "/finansal-sozluk" : page.path;
+  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : parentPath === "/rehber" ? "Rehber" : parentPath === "/finansal-sozluk" ? "Finansal Sözlük" : page.title;
   const breadcrumbItems = [
     { "@type": "ListItem", position: 1, name: "Borcama", item: SITE },
     { "@type": "ListItem", position: 2, name: parentName, item: `${SITE}${parentPath}` },
@@ -104,6 +116,7 @@ for (const page of pages) {
         applicationCategory: page.type === "WebApplication" ? "FinanceApplication" : undefined,
         operatingSystem: page.type === "WebApplication" ? "Web" : undefined,
         offers: page.type === "WebApplication" ? { "@type": "Offer", price: "0", priceCurrency: "TRY" } : undefined,
+        mainEntity: page.term ? { "@type": "DefinedTerm", name: page.term.title, description: page.term.definition, inDefinedTermSet: `${SITE}/finansal-sozluk` } : undefined,
       },
       { "@type": "BreadcrumbList", itemListElement: breadcrumbItems },
     ],
@@ -118,5 +131,13 @@ for (const page of pages) {
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, html);
 }
+
+const glossarySitemap = [
+  `<url><loc>${SITE}/finansal-sozluk</loc><lastmod>2026-09-23</lastmod><priority>0.8</priority></url>`,
+  ...FINANSAL_SOZLUK.map((terim) => `<url><loc>${SITE}/finansal-sozluk/${terim.slug}</loc><lastmod>2026-09-23</lastmod><priority>0.7</priority></url>`),
+].map((row) => `  ${row}`).join("\n");
+const sitemapPath = join(DIST, "sitemap.xml");
+const sitemap = await readFile(sitemapPath, "utf8");
+await writeFile(sitemapPath, sitemap.replace("  <!-- FINANSAL_SOZLUK_URLS -->", glossarySitemap));
 
 console.log(`Prerendered ${pages.length} SEO pages.`);
