@@ -118,6 +118,7 @@ import {
 } from "./accountDeletion.js";
 import {
   applyCardRestructuring,
+  bindCardRestructuringsToStatement,
   calculateRestructuringInstallment,
   cardRestructuredAmount,
   cardRestructurableBalance,
@@ -7888,6 +7889,7 @@ function Borclar({
       ekleGuncelle("cards", {
         ...eski,
         ...ekstreVerisi,
+        yapilandirmaKayitlari: bindCardRestructuringsToStatement(eski, mevcutDonem),
         ekstreGecmisi: [
           ...(eski.ekstreGecmisi || []).filter(
             (e) => e.ekstreAyi !== mevcutDonem,
@@ -7991,6 +7993,7 @@ function Borclar({
     } else {
       kart = {
         ...temelKart, ...ekstreVerisi,
+        yapilandirmaKayitlari: bindCardRestructuringsToStatement(temelKart, mevcutDonem),
         ekstreGecmisi: [
           ...(temelKart.ekstreGecmisi || []).filter((ekstre) => ekstre.ekstreAyi !== mevcutDonem),
           ekstreSnapshot(temelKart, mevcutDonem),

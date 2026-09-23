@@ -1,5 +1,9 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-09-23 · Ürün ve Mühendislik · Kart yapılandırması dönem ayrımı
+
+- `v1.56.5`, eski kart yapılandırmalarının sonraki ekstrelerden tekrar düşülerek kalan borcu asgari ödeme seviyesine indirmesini engelliyor. Yapılandırmalar ekstre dönemine bağlandı; dönem alanı bulunmayan eski kayıtlar güncel ekstrenin yüklenme veya arşivlenme zamanına göre ayrıştırılıyor. Halkbank örneğindeki `₺52.110,52 - ₺46.404,49 = ₺5.706,03` hatası sentetik regresyonla kapsandı.
+
 ### 2026-09-23 · Ürün ve Mühendislik · Ekstre kaydetme akışı
 
 - `v1.56.4`, ekstre önizlemesindeki kaydet düğmesinin sessiz kalmasına neden olan eksik `kaydet` ve `islemEkle` prop aktarımını gideriyor. Gerçek Enpara PDF'i yerel demo akışında okunup kaydedildi; kart sayısı ve ekstre arşivi değişikliği görünür biçimde doğrulandı. 196/196 test, production build ve diff kontrolü başarılı.

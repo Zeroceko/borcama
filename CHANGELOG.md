@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.5] - 2026-09-23
+
+### Düzeltildi
+
+- Önceki ekstre döneminde yapılandırılmış kart borcu yeni ekstre borcundan yeniden düşülmüyor; kalan borç artık güncel ekstre toplamını ve bu döneme ait ödemeleri gösteriyor.
+
 ## [1.56.4] - 2026-09-23
 
 ### Düzeltildi
