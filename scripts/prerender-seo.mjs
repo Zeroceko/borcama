@@ -11,7 +11,7 @@ const tools = [
   ["borc-odeme-plani", "Borç Ödeme Planı Oluşturucu", "Birden fazla borcu faiz veya küçük bakiye önceliğiyle tek ödeme planında sırala."],
   ["aylik-odeme-takvimi", "Aylık Ödeme Takvimi", "Kredi kartı, kredi ve diğer ödemelerini tarihlerine göre sırala; aylık toplamını gör."],
   ["mevduat-faizi-hesaplama", "Mevduat Faizi Hesaplama 2026 | Net Getiri", "Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini, net getirisini ve vade sonu toplamını hesapla."],
-  ["kredi-odeme-plani-hesaplama", "Kredi Ödeme Planı Hesaplama", "Kredi tutarı, aylık faiz ve vadeye göre taksit, toplam faiz ve ödeme planını hesapla."],
+  ["kredi-odeme-plani-hesaplama", "Kredi Taksit ve Ödeme Planı Hesaplama", "Borcama kredi sunmaz veya aracılık yapmaz; mevcut kredi teklifindeki tutar, aylık faiz ve vadeyle tahmini ödeme planını hesaplar."],
   ["brut-net-maas-hesaplama", "Brütten Nete, Netten Brüte Maaş Hesaplama 2026", "2026 vergi ve çalışan kesintilerine göre brüt maaştan net maaşı veya net maaştan brüt maaşı hesapla."],
   ["kidem-tazminati-hesaplama", "Kıdem Tazminatı Hesaplama 2026", "2026 kıdem tazminatı tavanına göre maaş ve çalışma sürenle tahmini net kıdem tazminatını hesapla."],
 ];

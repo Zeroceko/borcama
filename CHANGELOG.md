@@ -6,7 +6,11 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
-- Google Ads arama kampanyası için yazı ve logo bindirmesi içermeyen, Borcama renkleriyle hazırlanmış kare ve yatay finans planlama görselleri eklendi.
+- Google Ads arama kampanyası için yazı, logo ve arayüz bindirmesi içermeyen, tek sahneli kare ve yatay finans planlama görselleri eklendi.
+
+### Değiştirildi
+
+- Kredi ödeme planı aracının kredi sunmadığı veya aracılık yapmadığı sayfanın ilk alanında açıklandı; araç yalnız kullanıcının mevcut banka teklifindeki bilgilerle hesaplama yaptığını belirtecek biçimde yeniden adlandırıldı.
 
 ## [1.56.6] - 2026-09-24
 
