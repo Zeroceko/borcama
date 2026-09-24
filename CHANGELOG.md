@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Google Ads arama kampanyası için yazı ve logo bindirmesi içermeyen, Borcama renkleriyle hazırlanmış kare ve yatay finans planlama görselleri eklendi.
+
 ## [1.56.6] - 2026-09-24
 
 ### Değiştirildi
