@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.7] - 2026-09-25
+
 ### Eklendi
 
 - Google Ads arama kampanyası için yazı, logo ve arayüz bindirmesi içermeyen, tek sahneli kare ve yatay finans planlama görselleri eklendi.
