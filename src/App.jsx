@@ -130,6 +130,10 @@ import { asistanBaglamiOlustur } from "./assistantContext.js";
 import { finansalAsistanaSor } from "./financialAssistant.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
 import { appendAssistantExchange, MAX_ASSISTANT_EXCHANGES } from "../supabase/functions/_shared/financialAssistantConversation.js";
+import {
+  harcamaKaynagiSecimDegeri,
+  harcamaKaynaklariniOlustur,
+} from "./expenseSources.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -595,6 +599,8 @@ const CSS = `
 .bt-input:focus{outline:none;border-color:var(--line);box-shadow:0 0 0 3px color-mix(in srgb,${LIME} 48%,transparent)}
 .bt-input::placeholder{color:var(--faint)}
 .bt-form-butonlar{display:flex;gap:8px;margin-top:14px}
+.bt-kaynak-ekle{grid-column:1/-1;display:grid;gap:11px;padding:13px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}
+.bt-kaynak-ekle-ust{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.bt-kaynak-ekle-ust>div{display:grid;gap:3px}.bt-kaynak-ekle-ust strong{font-size:12.5px;color:var(--text)}.bt-kaynak-ekle-ust small{font-size:10.5px;line-height:1.4;color:var(--dim)}.bt-kaynak-ekle-actions{display:flex;gap:7px;flex-wrap:wrap}.bt-kaynak-ekle-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:11px;border-top:1px solid var(--line-soft)}.bt-kaynak-ekle-form .bt-alan{grid-template-rows:auto 42px}.bt-kaynak-ekle-form .bt-input{height:42px}.bt-kaynak-ekle-form-actions{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-kaynak-ekle-hata{color:${CORAL};font-size:11px;font-weight:700}
 
 .bt-kat{display:flex;align-items:center;gap:12px;margin-bottom:9px}
 .bt-kat-ad{width:88px;font-size:13px;font-weight:600;flex-shrink:0}
@@ -714,6 +720,7 @@ const CSS = `
   .bt-form{padding:13px}
   .bt-form-butonlar{flex-wrap:wrap}
   .bt-form-butonlar .bt-btn{flex:1 1 120px;justify-content:center}
+  .bt-kaynak-ekle-form{grid-template-columns:1fr}.bt-kaynak-ekle-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.bt-kaynak-ekle-actions .bt-btn{justify-content:center;padding-inline:10px}.bt-kaynak-ekle-form-actions .bt-btn{flex:1 1 120px;justify-content:center}
   .bt-secici{max-width:100%;overflow-x:auto;justify-content:flex-start}
   .bt-secici button{white-space:nowrap;padding:7px 11px}
   .bt-kat{display:grid;grid-template-columns:minmax(70px,1fr) minmax(55px,1.5fr) auto;gap:8px}
@@ -2687,7 +2694,7 @@ export default function BorcTakip() {
     [veri, kalemler, yaklasan, buAyHarcama, netNakit],
   );
 
-  function ekleGuncelle(liste, kayit) {
+  function ekleGuncelle(liste, kayit, secenekler = {}) {
     const dizi = veri[liste];
     const oncekiKayit = dizi.find((x) => x.id === kayit.id) || null;
     const varMi = !!oncekiKayit;
@@ -2703,7 +2710,7 @@ export default function BorcTakip() {
       detay: varMi ? "Kayıt güncellendi" : "Yeni kayıt eklendi",
       geriAl: { tip: "liste", liste, id: kayit.id, oncekiKayit },
     }));
-    setForm(null);
+    if (!secenekler.formuKoru) setForm(null);
   }
   const sil = (liste, id) => {
     const oncekiKayit = veri[liste].find((x) => x.id === id);
@@ -3484,6 +3491,7 @@ export default function BorcTakip() {
                 veri={veri}
                 form={form}
                 setForm={setForm}
+                ekleGuncelle={ekleGuncelle}
                 harcamaKaydet={harcamaKaydet}
                 sil={sil}
                 buAyHarcama={buAyHarcama}
@@ -3501,6 +3509,7 @@ export default function BorcTakip() {
                 veri={veri}
                 form={form}
                 setForm={setForm}
+                ekleGuncelle={ekleGuncelle}
                 harcamaKaydet={harcamaKaydet}
                 sil={sil}
                 buAyHarcama={buAyHarcama}
@@ -11916,6 +11925,7 @@ function Harcamalar({
   veri,
   form,
   setForm,
+  ekleGuncelle,
   harcamaKaydet,
   sil,
   buAyHarcama,
@@ -11926,6 +11936,14 @@ function Harcamalar({
   const acik = form && form.liste === "expenses";
   const [f, setF] = useState({});
   const [gorunenAy, setGorunenAy] = useState(ayAnahtari());
+  const [kaynakEklemeTuru, setKaynakEklemeTuru] = useState("");
+  const [kaynakFormu, setKaynakFormu] = useState({
+    banka: "",
+    ad: "",
+    kesimGunu: "",
+    bakiye: "",
+  });
+  const [kaynakHatasi, setKaynakHatasi] = useState("");
   useEffect(() => {
     if (acik) {
       setF(
@@ -11987,12 +12005,87 @@ function Harcamalar({
     [veri.loans, sabit],
   );
   const enBuyuk = Math.max(...Object.values(buAyHarcama.kategoriler), 1);
-  const seciliKart = veri.cards.find(
-    (k) => k.banka + " · " + (k.ad || "Kredi kartı") === f.kaynak,
+  const harcamaKaynaklari = useMemo(
+    () => harcamaKaynaklariniOlustur(veri),
+    [veri.cards, veri.assets],
   );
+  const tumHarcamaKaynaklari = [
+    ...harcamaKaynaklari.kartlar,
+    ...harcamaKaynaklari.hesaplar,
+  ];
+  const seciliKart = f.kaynakId && f.kaynakTuru === "card"
+    ? veri.cards.find((kart) => kart.id === f.kaynakId)
+    : veri.cards.find(
+        (kart) => kart.banka + " · " + (kart.ad || "Kredi kartı") === f.kaynak,
+      );
   const seciliEkstreAyi = seciliKart
     ? statementPeriodForTransaction(f.tarih, seciliKart.kesimGunu)
     : "";
+
+  function kaynakEklemeAc(tur) {
+    setKaynakEklemeTuru(tur);
+    setKaynakFormu({ banka: "", ad: tur === "account" ? "Vadesiz hesap" : "", kesimGunu: "", bakiye: "" });
+    setKaynakHatasi("");
+  }
+
+  function hizliKaynakKaydet() {
+    const banka = kaynakFormu.banka.trim();
+    const ad = kaynakFormu.ad.trim();
+    if (!banka || !ad) {
+      setKaynakHatasi("Banka ve kaynak adı gerekli.");
+      return;
+    }
+    if (kaynakEklemeTuru === "card") {
+      const kesimGunu = Number(kaynakFormu.kesimGunu);
+      if (!Number.isInteger(kesimGunu) || kesimGunu < 1 || kesimGunu > 31) {
+        setKaynakHatasi("Ekstre kesim gününü 1–31 arasında girin.");
+        return;
+      }
+      const kart = {
+        id: uid(),
+        banka,
+        ad,
+        limit: 0,
+        kesimGunu,
+        sonOdemeGunu: "",
+        ekstreAyi: ayAnahtari(),
+        yeniDonemEkstreBorcu: 0,
+        oncekiAydanKalan: 0,
+        toplamEkstreBorcu: 0,
+        yapilanOdeme: 0,
+        ekstreGecmisi: [],
+      };
+      ekleGuncelle("cards", kart, { formuKoru: true });
+      setF((eski) => ({
+        ...eski,
+        kaynak: `${banka} · ${ad}`,
+        kaynakId: kart.id,
+        kaynakTuru: "card",
+      }));
+    } else {
+      const hesap = {
+        id: uid(),
+        kategori: "nakit",
+        tur: "mevduat",
+        kurum: banka,
+        ad,
+        paraBirimi: "TRY",
+        guncelDeger: Math.max(Number(kaynakFormu.bakiye) || 0, 0),
+        toplamMaliyet: null,
+        maliyetBiliniyor: false,
+        guncellenmeTarihi: new Date().toISOString(),
+      };
+      ekleGuncelle("assets", hesap, { formuKoru: true });
+      setF((eski) => ({
+        ...eski,
+        kaynak: `${banka} · ${ad}`,
+        kaynakId: hesap.id,
+        kaynakTuru: "account",
+      }));
+    }
+    setKaynakEklemeTuru("");
+    setKaynakHatasi("");
+  }
 
   function gonder() {
     if (!f.tutar || !f.tarih) return;
@@ -12037,34 +12130,133 @@ function Harcamalar({
           Ödeme kaynağı
           <select
             className="bt-input"
-            value={f.kaynak ?? ""}
-            onChange={(e) => setF({ ...f, kaynak: e.target.value })}
+            value={harcamaKaynagiSecimDegeri(f, harcamaKaynaklari)}
+            onChange={(e) => {
+              if (e.target.value === "cash") {
+                setF({ ...f, kaynak: "Nakit", kaynakId: undefined, kaynakTuru: undefined });
+                return;
+              }
+              const kaynak = tumHarcamaKaynaklari.find(
+                (secenek) => secenek.secimDegeri === e.target.value,
+              );
+              setF({
+                ...f,
+                kaynak: kaynak?.kayitEtiketi || "",
+                kaynakId: kaynak?.id,
+                kaynakTuru: kaynak?.tur,
+              });
+            }}
           >
             <option value="">Seçin…</option>
-            <option value="Nakit">Nakit</option>
+            <option value="cash">Nakit</option>
             <optgroup label="Kredi kartları">
-              {veri.cards.length > 0 ? (
-                veri.cards.map((k) => {
-                  const ad = k.banka + " · " + (k.ad || "Kredi kartı");
-                  return (
-                    <option key={k.id} value={ad}>
-                      {kartGorunenAdi(k)}
-                    </option>
-                  );
-                })
+              {harcamaKaynaklari.kartlar.length > 0 ? (
+                harcamaKaynaklari.kartlar.map((kaynak) => (
+                  <option key={kaynak.id} value={kaynak.secimDegeri}>
+                    {kaynak.gorunenEtiket}
+                  </option>
+                ))
               ) : (
                 <option disabled>Henüz kart yok</option>
               )}
             </optgroup>
             <optgroup label="Banka hesabı">
-              {bankalar.map((b) => (
-                <option key={b} value={b + " · Hesap"}>
-                  {b} · Hesap
-                </option>
-              ))}
+              {harcamaKaynaklari.hesaplar.length > 0 ? (
+                harcamaKaynaklari.hesaplar.map((kaynak) => (
+                  <option key={kaynak.id} value={kaynak.secimDegeri}>
+                    {kaynak.gorunenEtiket}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Henüz hesap yok</option>
+              )}
             </optgroup>
           </select>
         </label>
+        {(harcamaKaynaklari.kartlar.length === 0 || harcamaKaynaklari.hesaplar.length === 0) && (
+          <div className="bt-kaynak-ekle">
+            <div className="bt-kaynak-ekle-ust">
+              <div>
+                <strong>Ödeme kaynağın listede yok mu?</strong>
+                <small>Harcama formundan ayrılmadan ekle; yeni kaynak otomatik seçilir.</small>
+              </div>
+              <div className="bt-kaynak-ekle-actions">
+                {harcamaKaynaklari.kartlar.length === 0 && (
+                  <button className="bt-btn kucuk ikincil" type="button" onClick={() => kaynakEklemeAc("card")}>
+                    <Plus size={14} /> Kart ekle
+                  </button>
+                )}
+                {harcamaKaynaklari.hesaplar.length === 0 && (
+                  <button className="bt-btn kucuk ikincil" type="button" onClick={() => kaynakEklemeAc("account")}>
+                    <Plus size={14} /> Hesap ekle
+                  </button>
+                )}
+              </div>
+            </div>
+            {kaynakEklemeTuru && (
+              <div className="bt-kaynak-ekle-form">
+                <label className="bt-alan">
+                  <span>Banka *</span>
+                  <input
+                    className="bt-input"
+                    list="harcama-banka-listesi"
+                    autoFocus
+                    value={kaynakFormu.banka}
+                    placeholder="Banka adı"
+                    onChange={(e) => setKaynakFormu({ ...kaynakFormu, banka: e.target.value })}
+                  />
+                  <datalist id="harcama-banka-listesi">
+                    {bankalar.map((banka) => <option key={banka} value={banka} />)}
+                  </datalist>
+                </label>
+                <label className="bt-alan">
+                  <span>{kaynakEklemeTuru === "card" ? "Kart adı" : "Hesap adı"} *</span>
+                  <input
+                    className="bt-input"
+                    value={kaynakFormu.ad}
+                    placeholder={kaynakEklemeTuru === "card" ? "Bonus, World…" : "Maaş hesabı…"}
+                    onChange={(e) => setKaynakFormu({ ...kaynakFormu, ad: e.target.value })}
+                  />
+                </label>
+                {kaynakEklemeTuru === "card" ? (
+                  <label className="bt-alan">
+                    <span>Ekstre kesim günü *</span>
+                    <input
+                      className="bt-input"
+                      type="number"
+                      min="1"
+                      max="31"
+                      inputMode="numeric"
+                      value={kaynakFormu.kesimGunu}
+                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, kesimGunu: e.target.value })}
+                    />
+                  </label>
+                ) : (
+                  <label className="bt-alan">
+                    <span>Güncel bakiye (isteğe bağlı)</span>
+                    <input
+                      className="bt-input"
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={kaynakFormu.bakiye}
+                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, bakiye: e.target.value })}
+                    />
+                  </label>
+                )}
+                <div className="bt-kaynak-ekle-form-actions">
+                  <button className="bt-btn kucuk birincil" type="button" onClick={hizliKaynakKaydet}>
+                    <Check size={14} /> Kaydet ve seç
+                  </button>
+                  <button className="bt-btn kucuk ikincil" type="button" onClick={() => { setKaynakEklemeTuru(""); setKaynakHatasi(""); }}>
+                    Vazgeç
+                  </button>
+                  {kaynakHatasi && <span className="bt-kaynak-ekle-hata" role="alert">{kaynakHatasi}</span>}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         <label className="bt-alan">
           Kategori
           <select

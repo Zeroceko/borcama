@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Harcamanı eklerken kartını veya hesabını da ekle — v1.56.8
+
+- Siz istediniz: Harcama kaydederken ödeme kaynağınız henüz Borcama'da yoksa başka ekrana gitmeden ekleyebilmek.
+- Biz yaptık: Harcama formuna, kayıtlı kaynak olmadığında görünen “Kart ekle” ve “Hesap ekle” hızlı akışlarını ekledik.
+- Faydası: Yeni kart veya hesabınız kaydedilir ve aynı harcamada otomatik seçilir; girdiğiniz tutar ve açıklama kaybolmaz.
+- Aksiyon: `https://borcama.com/expenses`
+
 ### Banka dilini sade Türkçeyle anla — v1.56.0–v1.56.2
 
 - Siz istediniz: Ekstrede, kredi planında veya banka bildiriminde geçen finansal terimlerin ne anlama geldiğini kolayca öğrenmek.

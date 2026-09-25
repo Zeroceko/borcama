@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.8] - 2026-09-25
+
+### Eklendi
+
+- Harcama kaydında henüz kartı veya banka hesabı olmayan kullanıcılar, formdan ayrılmadan yeni kaynak ekleyip harcamada doğrudan seçebilir hale geldi.
+
+### Değiştirildi
+
+- Harcama kaynağı listesi tüm banka adlarını hesap gibi göstermek yerine yalnız kullanıcının kayıtlı kart ve mevduat hesaplarını gösteriyor; aynı adlı kartlar son dört hanesiyle ayırt ediliyor.
+
 ## [1.56.7] - 2026-09-25
 
 ### Eklendi
