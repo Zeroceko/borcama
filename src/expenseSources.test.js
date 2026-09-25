@@ -50,4 +50,6 @@ test("harcama kaynağı menüsü kart ve hesap ekleme aksiyonlarını modal olar
   assert.match(appSource, /<option value="action:add-account">＋ Hesap ekle<\/option>/);
   assert.match(appSource, /className="bt-modal bt-kaynak-modal"/);
   assert.match(appSource, /Kaynak kaydedildiğinde bu harcamada otomatik seçilir/);
+  assert.match(appSource, /<option value="">Banka seçin…<\/option>/);
+  assert.match(appSource, /<option value="__other__">Diğer banka…<\/option>/);
 });

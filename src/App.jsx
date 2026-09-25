@@ -11938,6 +11938,7 @@ function Harcamalar({
   const [kaynakEklemeTuru, setKaynakEklemeTuru] = useState("");
   const [kaynakFormu, setKaynakFormu] = useState({
     banka: "",
+    ozelBanka: "",
     ad: "",
     kesimGunu: "",
     sonOdemeGunu: "",
@@ -12034,6 +12035,7 @@ function Harcamalar({
     setKaynakEklemeTuru(tur);
     setKaynakFormu({
       banka: "",
+      ozelBanka: "",
       ad: tur === "account" ? "Vadesiz hesap" : "",
       kesimGunu: "",
       sonOdemeGunu: "",
@@ -12050,7 +12052,9 @@ function Harcamalar({
   }
 
   function hizliKaynakKaydet() {
-    const banka = kaynakFormu.banka.trim();
+    const banka = (kaynakFormu.banka === "__other__"
+      ? kaynakFormu.ozelBanka
+      : kaynakFormu.banka).trim();
     const ad = kaynakFormu.ad.trim();
     if (!banka || !ad) {
       setKaynakHatasi("Banka ve kaynak adı gerekli.");
@@ -12571,18 +12575,32 @@ function Harcamalar({
             <div className="bt-kaynak-modal-form">
               <label className="bt-alan">
                 <span>Banka *</span>
-                <input
+                <select
                   className="bt-input"
-                  list="harcama-banka-listesi"
                   autoFocus
                   value={kaynakFormu.banka}
-                  placeholder="Banka adı"
-                  onChange={(e) => setKaynakFormu({ ...kaynakFormu, banka: e.target.value })}
-                />
-                <datalist id="harcama-banka-listesi">
-                  {bankalar.map((banka) => <option key={banka} value={banka} />)}
-                </datalist>
+                  onChange={(e) => setKaynakFormu({
+                    ...kaynakFormu,
+                    banka: e.target.value,
+                    ...(e.target.value !== "__other__" ? { ozelBanka: "" } : {}),
+                  })}
+                >
+                  <option value="">Banka seçin…</option>
+                  {bankalar.map((banka) => <option key={banka} value={banka}>{banka}</option>)}
+                  <option value="__other__">Diğer banka…</option>
+                </select>
               </label>
+              {kaynakFormu.banka === "__other__" && (
+                <label className="bt-alan">
+                  <span>Banka adı *</span>
+                  <input
+                    className="bt-input"
+                    value={kaynakFormu.ozelBanka}
+                    placeholder="Banka veya kurum adı"
+                    onChange={(e) => setKaynakFormu({ ...kaynakFormu, ozelBanka: e.target.value })}
+                  />
+                </label>
+              )}
               <label className="bt-alan">
                 <span>{kaynakEklemeTuru === "card" ? "Kart adı" : "Hesap adı"} *</span>
                 <input
