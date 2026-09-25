@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.56.10] - 2026-09-25
+
 ### Değiştirildi
 
 - Harcama içinden kart veya hesap eklerken banka adı, yazım farklılıklarını önlemek için serbest metin yerine banka listesinden seçiliyor; listede olmayan kurumlar “Diğer banka” ile eklenebiliyor.
