@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Harcama kaynağına kart veya hesap ekleme seçenekleri dropdown içine taşındı; seçim yapıldığında ayrıntıların girildiği modal açılıyor ve kaydedilen kaynak harcamada otomatik seçiliyor.
+
 ## [1.56.8] - 2026-09-25
 
 ### Eklendi

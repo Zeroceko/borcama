@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   harcamaKaynagiSecimDegeri,
   harcamaKaynaklariniOlustur,
@@ -40,4 +41,13 @@ test("eski harcama kayıtları etiketleriyle doğru kaynağa bağlanır", () => 
     "card:c1",
   );
   assert.equal(harcamaKaynagiSecimDegeri({ kaynak: "Nakit" }, kaynaklar), "cash");
+});
+
+test("harcama kaynağı menüsü kart ve hesap ekleme aksiyonlarını modal olarak açar", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(appSource, /<option value="action:add-card">＋ Kart ekle<\/option>/);
+  assert.match(appSource, /<option value="action:add-account">＋ Hesap ekle<\/option>/);
+  assert.match(appSource, /className="bt-modal bt-kaynak-modal"/);
+  assert.match(appSource, /Kaynak kaydedildiğinde bu harcamada otomatik seçilir/);
 });
