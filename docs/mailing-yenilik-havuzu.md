@@ -4,7 +4,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Kredinin başlangıcını ve kalan planını birlikte gör
+### Kredinin başlangıcını ve kalan planını birlikte gör — v1.58.0
 
 - Siz istediniz: Kredi kaydında yalnız kalan ödemeyi değil, bankadan çekilen başlangıç tutarını ve bugüne kadarki ilerlemeyi de birlikte izlemek.
 - Biz yaptık: Manuel kredi formuna başlangıç kredi tutarı, aylık faiz, toplam ve ödenen taksit bilgilerini ekledik; kalan taksit ile ödeme gününü tutarlı biçimde otomatik hesapladık.
