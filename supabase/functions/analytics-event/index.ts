@@ -11,6 +11,8 @@ const izinliEtkinlikler = new Set([
   "register_view",
   "deposit_result_view",
   "deposit_product_click",
+  "debt_payoff_result_view",
+  "debt_payoff_product_click",
 ]);
 const guvenliEdinimKarakterleri = /[^\p{L}\p{N}._/ -]+/gu;
 

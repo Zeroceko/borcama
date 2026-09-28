@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Tahmini borç hesabından kendi planına geç — v1.57.0
+
+- Siz istediniz: Borcun ne zaman kapanacağını hesapladıktan sonra sonucu gerçek borç kayıtlarınla takip etmeye devam etmek.
+- Biz yaptık: Borç kapatma hesaplayıcısının sonucuna, hesaplanan tutarları bağlantıya veya ölçüme taşımadan doğrudan borç planı kurma geçişi ekledik.
+- Faydası: Ücretsiz hesabını açtıktan sonra kart, kredi ve ek hesaplarını tek tabloda takip etmeye başlayabilirsin.
+- Aksiyon: `https://borcama.com/araclar/borc-kapatma-hesaplayici`
+
 ### Harcamanı eklerken kartını veya hesabını da ekle — v1.56.8
 
 - Siz istediniz: Harcama kaydederken ödeme kaynağınız henüz Borcama'da yoksa başka ekrana gitmeden ekleyebilmek.

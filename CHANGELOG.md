@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.57.0] - 2026-09-28
+
+### Eklendi
+
+- Borç kapatma hesaplayıcısında tahmini sonucu görenler, hesaplanan tutarlar ölçüme taşınmadan doğrudan kendi borç planlarını oluşturmaya geçebiliyor; kayıt, doğrulama ve ilk borç/ekstre adımları ayrı izleniyor.
+
 ## [1.56.10] - 2026-09-25
 
 ### Değiştirildi

@@ -134,3 +134,26 @@ test("mevduat aracı sonuçtan ürüne güvenli ve ölçülebilir bir köprü ku
   assert.match(auth, /kayitModu[\s\S]+sorguYonlendirmesi \|\| "\/summary"/);
   assert.match(prerender, /Tek hesaplamadan bütün finansal tabloya/);
 });
+
+test("borç kapatma aracı sonuçtan ilk borç kaydına güvenli ve ölçülebilir bir köprü kurar", async () => {
+  const [seo, client, edge, migration, backoffice, analytics] = await Promise.all([
+    oku("./SeoPages.jsx"),
+    oku("./funnelAnalytics.js"),
+    oku("../supabase/functions/analytics-event/index.ts"),
+    oku("../supabase/migrations/20260928110000_debt_payoff_product_bridge.sql"),
+    oku("../supabase/functions/backoffice/index.ts"),
+    oku("./Analytics.jsx"),
+  ]);
+  assert.match(seo, /debt_payoff_result_view/);
+  assert.match(seo, /debt_payoff_product_click/);
+  assert.match(seo, /register\?plan=free&redirect=%2Fdebts/);
+  assert.match(seo, /girdiğin tutarlar kayıt bağlantısına veya ölçüme eklenmez/);
+  assert.doesNotMatch(seo, /redirect=%2Fdebts[^\"']*(?:borc|faiz|odeme)=/i);
+  assert.match(client, /debt_payoff_result_view/);
+  assert.match(edge, /debt_payoff_product_click/);
+  assert.match(migration, /admin_debt_payoff_tool_funnel/);
+  assert.match(migration, /al\.event_type in \('card_added','statement_added','loan_added','overdraft_added','other_debt_added'\)/);
+  assert.doesNotMatch(migration, /(?:activity_logs|kv_store)\.(?:metadata|value)|select\([^)]*email/);
+  assert.match(backoffice, /admin_debt_payoff_tool_funnel/);
+  assert.match(analytics, /Borç kapatma aracı → Borcama hunisi/);
+});
