@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Kredi eklerken toplam ve ödenen taksit sayısından kalan taksit ile kalan toplam ödeme otomatik hesaplanıyor; aylık faiz bankanın taksitini değiştirmeden saklanıyor ve kredi borçları kartında ayrıca gösteriliyor.
+
 ## [1.57.0] - 2026-09-28
 
 ### Eklendi

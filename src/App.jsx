@@ -66,6 +66,7 @@ import { formatStatementTransactionDate } from "./statementTransactions.js";
 import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
+import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
 import {
   matchStatementToCard,
   savedCardLast4,
@@ -535,7 +536,7 @@ const CSS = `
 .bt-satir-tutar{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--text);font-weight:700}
 .bt-kart-tutar>.bt-satirD-tur{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;margin:3px 0 0 auto;padding:0;border:0;background:transparent;font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-kart-tutar>.bt-satirD-tur:disabled{cursor:default}.bt-kart-odeme-gecmisi-acik{grid-area:editor;margin-top:0}.bt-odeme-gecmisi-baslik{display:grid;gap:3px;margin-bottom:10px}.bt-odeme-gecmisi-baslik strong{font-size:13px}.bt-odeme-gecmisi-baslik span{color:var(--dim);font-size:10.5px}.bt-sabit-gider-ozet{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:22px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 20%,var(--panel)),var(--panel))}.bt-sabit-gider-ozet span{display:block;color:var(--dim);font-size:10.5px;font-weight:750}.bt-sabit-gider-ozet strong{display:block;margin-top:5px;font:800 24px 'JetBrains Mono',monospace}.bt-sabit-gider-ozet p{margin:0;color:var(--dim);font-size:12px;line-height:1.5}
 .bt-satir-alt{font-size:11.5px;color:${CORAL};font-weight:700;margin-top:3px}
-.bt-kredi-satiri{align-items:flex-start}.bt-kredi-bilgi{flex:1 1 620px!important}.bt-kredi-baslik{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-kredi-durum{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,${LIME} 24%,var(--panel));color:#506a24;font-size:9.5px;font-weight:850}.bt-kredi-metrikler{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:7px;margin-top:10px}.bt-kredi-metrik{padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}.bt-kredi-metrik span{display:block;color:var(--dim);font-size:9.5px;font-weight:700}.bt-kredi-metrik strong{display:block;margin-top:3px;color:var(--text);font-size:11.5px}.bt-kredi-ayrim{margin-top:8px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-kredi-islemler{flex:1 0 100%;justify-content:flex-start!important}.bt-kredi-satiri.bt-kredi-bu-ay-odendi{opacity:1}.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-ad,.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-tutar{text-decoration:none}
+.bt-kredi-satiri{align-items:flex-start}.bt-kredi-bilgi{flex:1 1 620px!important}.bt-kredi-baslik{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-kredi-durum{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,${LIME} 24%,var(--panel));color:#506a24;font-size:9.5px;font-weight:850}.bt-kredi-metrikler{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-top:10px}.bt-kredi-metrik{padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}.bt-kredi-metrik span{display:block;color:var(--dim);font-size:9.5px;font-weight:700}.bt-kredi-metrik strong{display:block;margin-top:3px;color:var(--text);font-size:11.5px}.bt-kredi-ayrim{margin-top:8px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-kredi-islemler{flex:1 0 100%;justify-content:flex-start!important}.bt-kredi-satiri.bt-kredi-bu-ay-odendi{opacity:1}.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-ad,.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-tutar{text-decoration:none}
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-soft);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
@@ -7473,6 +7474,7 @@ function Borclar({
     kategori === "od" && acik && (form.odemeGir || form.odemeDuzenle);
   const ekHesapBorcModu = kategori === "od" && acik && form.yeniBorc;
   const [ekHesapBorcHatasi, setEkHesapBorcHatasi] = useState("");
+  const [krediGirisHatasi, setKrediGirisHatasi] = useState("");
   const [f, setF] = useState({});
   const yerindeFormHedefi = acik && form.veri?.id
     ? `borc-form-${form.veri.id}`
@@ -7561,6 +7563,7 @@ function Borclar({
   useEffect(() => {
     if (!acik) return;
     setEkHesapBorcHatasi("");
+    setKrediGirisHatasi("");
     if (form.yeniBorc) {
       setF({ yeniBorcTutari: "" });
     } else if (form.odemeGir || form.odemeDuzenle) {
@@ -7665,9 +7668,11 @@ function Borclar({
     loans: [
       { k: "banka", e: "Banka", t: "text", z: true },
       { k: "ad", e: "Kredi türü (ihtiyaç, taşıt…)", t: "text" },
-      { k: "kalanBorc", e: "Kalan toplam borç (₺)", t: "number", z: true },
-      { k: "taksit", e: "Aylık taksit (₺)", t: "number", z: true },
+      { k: "taksit", e: "Bankanın aylık taksiti (₺)", t: "number", z: true },
+      { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", z: !form?.veri?.id },
+      { k: "odenenTaksit", e: "Bugüne kadar ödenen taksit", t: "number", z: !form?.veri?.id },
       { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
+      { k: "kalanBorc", e: "Kalan toplam ödeme (₺)", t: "number" },
       { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
       { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form?.veri?.id },
       { k: "odemeGunu", e: "Aylık ödeme günü (tarih girilince otomatik)", t: "number", z: !f.ilkOdemeTarihi },
@@ -7737,6 +7742,7 @@ function Borclar({
           },
         ]
       : ALAN_TANIMLARI[kategori];
+  const krediIlerlemesi = kategori === "loans" ? krediTaksitIlerlemesi(f) : null;
 
   function toplamHesapla() {
     if (kategori === "cards")
@@ -7836,7 +7842,12 @@ function Borclar({
   })();
 
   function gonder() {
-    for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
+    for (const a of alanlar) {
+      if (a.z && !String(f[a.k] ?? "").trim()) {
+        if (kategori === "loans") setKrediGirisHatasi(`${a.e} alanını doldur.`);
+        return;
+      }
+    }
     if (ekHesapBorcModu) {
       const sonuc = ekHesapBorcuEkle(form.veri, { tutar: f.yeniBorcTutari, yeniId: uid() });
       if (!sonuc.tamam) { setEkHesapBorcHatasi(sonuc.hata); return; }
@@ -7911,7 +7922,16 @@ function Borclar({
       ekleGuncelle("cards", { ...form.veri, ...ekstreVerisi });
       return;
     }
-    ekleGuncelle(meta.liste, { id: f.id || uid(), ...f,
+    let kaydedilecek = f;
+    if (kategori === "loans") {
+      const sonuc = krediKaydiniHazirla(f);
+      if (!sonuc.tamam) {
+        setKrediGirisHatasi(sonuc.hata);
+        return;
+      }
+      kaydedilecek = sonuc.kredi;
+    }
+    ekleGuncelle(meta.liste, { id: f.id || uid(), ...kaydedilecek,
       ...(kategori === "loans" && f.ilkOdemeTarihi ? { odemeGunu: Number(f.ilkOdemeTarihi.slice(-2)) } : {}),
     });
   }
@@ -8439,13 +8459,51 @@ function Borclar({
                         type={a.t}
                         min={a.t === "number" ? 0 : undefined}
                         step={a.k === "faiz" ? "0.01" : undefined}
-                        value={f[a.k] ?? ""}
-                        onChange={(e) => setF({ ...f, [a.k]: e.target.value })}
+                        readOnly={
+                          kategori === "loans" &&
+                          krediIlerlemesi?.gecerli &&
+                          ["kalanTaksit", "kalanBorc"].includes(a.k)
+                        }
+                        value={
+                          kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
+                            ? krediIlerlemesi.kalanTaksit
+                            : kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanBorc"
+                              ? krediIlerlemesi.kalanToplamOdeme
+                              : f[a.k] ?? ""
+                        }
+                        onChange={(e) => {
+                          setKrediGirisHatasi("");
+                          setF({ ...f, [a.k]: e.target.value });
+                        }}
                       />
                     )}
                   </label>
                 ))}
               </div>
+              {kategori === "loans" && (
+                <div
+                  className="bt-ipucu"
+                  role={krediGirisHatasi || krediIlerlemesi?.hata ? "alert" : undefined}
+                  style={{
+                    marginTop: 14,
+                    borderColor: krediGirisHatasi || krediIlerlemesi?.hata ? CORAL : undefined,
+                  }}
+                >
+                  <Lightbulb size={16} />
+                  <div>
+                    {krediGirisHatasi || krediIlerlemesi?.hata ? (
+                      krediGirisHatasi || krediIlerlemesi.hata
+                    ) : krediIlerlemesi?.gecerli ? (
+                      <>
+                        <b>Otomatik plan:</b> {krediIlerlemesi.kalanTaksit} taksit kaldı · kalan toplam ödeme <b>{fmt(krediIlerlemesi.kalanToplamOdeme)}</b>.
+                      </>
+                    ) : (
+                      <>Toplam ve ödenen taksiti girersen kalan taksit ile toplam ödeme otomatik hesaplanır.</>
+                    )}
+                    <br />Aylık faiz, bankanın bildirdiği taksiti değiştirmez; maliyet ve borç önceliği için ayrıca saklanır.
+                  </div>
+                </div>
+              )}
               {kategori === "cards" &&
                 f.yeniDonemEkstreBorcu !== "" &&
                 f.yeniDonemEkstreBorcu !== undefined &&
@@ -9752,11 +9810,12 @@ function BorclarSatiri({
           {kategori === "loans" && buAyKrediOdendi && (!arsiv || k._gelecek) && <span className="bt-kredi-durum">{k._gelecek ? `${ayEtiketi(krediOdemeDonemi)} ödendi` : "Bu ay ödendi"}</span>}
         </div>
         {kategori === "loans" && !arsiv && !k._gelecek ? (
-          <div className="bt-kredi-metrikler" aria-label="Kredi ödeme özeti">
-            <div className="bt-kredi-metrik"><span>Kalan toplam ödeme</span><strong>{fmt(krediPlanOzeti?.remainingPaymentTotal)}</strong></div>
-            <div className="bt-kredi-metrik"><span>Aylık taksit</span><strong>{fmt(k.taksit)}</strong></div>
-            <div className="bt-kredi-metrik"><span>Kalan taksit</span><strong>{krediPlanOzeti?.remainingInstallments ?? 0} taksit</strong></div>
-            <div className="bt-kredi-metrik"><span>Ödeme günü</span><strong>{k.odemeGunu ? `Ayın ${k.odemeGunu}. günü` : "Belirtilmedi"}</strong></div>
+            <div className="bt-kredi-metrikler" aria-label="Kredi ödeme özeti">
+              <div className="bt-kredi-metrik"><span>Kalan toplam ödeme</span><strong>{fmt(krediPlanOzeti?.remainingPaymentTotal)}</strong></div>
+              <div className="bt-kredi-metrik"><span>Aylık taksit</span><strong>{fmt(k.taksit)}</strong></div>
+              <div className="bt-kredi-metrik"><span>Kalan taksit</span><strong>{krediPlanOzeti?.remainingInstallments ?? 0} taksit</strong></div>
+              <div className="bt-kredi-metrik"><span>Aylık faiz</span><strong>{+k.faiz > 0 ? `%${Number(k.faiz).toLocaleString("tr-TR", { maximumFractionDigits: 4 })}` : "Belirtilmedi"}</strong></div>
+              <div className="bt-kredi-metrik"><span>Ödeme günü</span><strong>{k.odemeGunu ? `Ayın ${k.odemeGunu}. günü` : "Belirtilmedi"}</strong></div>
           </div>
         ) : <div className="bt-satir-meta">{altMeta}</div>}
         {kategori === "loans" && !arsiv && !k._gelecek && altYazi && <div className="bt-kredi-ayrim">{altYazi}</div>}
