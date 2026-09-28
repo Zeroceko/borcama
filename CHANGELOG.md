@@ -8,6 +8,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Kredi eklerken toplam ve ödenen taksit sayısından kalan taksit ile kalan toplam ödeme otomatik hesaplanıyor; aylık faiz bankanın taksitini değiştirmeden saklanıyor ve kredi borçları kartında ayrıca gösteriliyor.
 - Kredi silme düğmesi artık kaydı doğrudan kaldırmıyor; banka, kredi türü ve kalan ödeme tutarını gösteren açık onay penceresinden sonra siliyor.
+- Borç, taksit, limit, ekstre ve ödeme tutarı alanları yazarken binlik ayırıcıyla Türk lirası biçiminde gösteriliyor; örneğin `4000000` girişi ekranda `4.000.000` oluyor.
 
 ## [1.57.0] - 2026-09-28
 

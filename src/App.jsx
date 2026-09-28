@@ -67,6 +67,7 @@ import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
 import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
+import { paraGirdisiniCoz, paraGirdisiniFormatla } from "./currencyInput.js";
 import {
   matchStatementToCard,
   savedCardLast4,
@@ -7657,7 +7658,7 @@ function Borclar({
     cards: [
       { k: "banka", e: "Banka", t: "text", z: true },
       { k: "ad", e: "Kart adı (Bonus, World…)", t: "text", z: true },
-      { k: "limit", e: "Toplam kart limiti (₺)", t: "number", z: true },
+      { k: "limit", e: "Toplam kart limiti (₺)", t: "number", z: true, para: true },
       { k: "kesimGunu", e: "Ekstre kesim günü", t: "number", z: true },
       {
         k: "sonOdemeGunu",
@@ -7669,39 +7670,40 @@ function Borclar({
     loans: [
       { k: "banka", e: "Banka", t: "text", z: true },
       { k: "ad", e: "Kredi türü (ihtiyaç, taşıt…)", t: "text" },
-      { k: "taksit", e: "Bankanın aylık taksiti (₺)", t: "number", z: true },
+      { k: "taksit", e: "Bankanın aylık taksiti (₺)", t: "number", z: true, para: true },
       { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", z: !form?.veri?.id },
       { k: "odenenTaksit", e: "Bugüne kadar ödenen taksit", t: "number", z: !form?.veri?.id },
       { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
-      { k: "kalanBorc", e: "Kalan toplam ödeme (₺)", t: "number" },
+      { k: "kalanBorc", e: "Kalan toplam ödeme (₺)", t: "number", para: true },
       { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
       { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form?.veri?.id },
       { k: "odemeGunu", e: "Aylık ödeme günü (tarih girilince otomatik)", t: "number", z: !f.ilkOdemeTarihi },
     ],
     od: [
       { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "limit", e: "Ek hesap limiti (₺)", t: "number" },
+      { k: "limit", e: "Ek hesap limiti (₺)", t: "number", para: true },
       {
         k: "kullanilan",
         e: "Kullanılan toplam tutar (₺)",
         t: "number",
         z: true,
+        para: true,
       },
-      { k: "yapilanOdeme", e: "Bugüne kadar yapılan ödeme (₺)", t: "number" },
+      { k: "yapilanOdeme", e: "Bugüne kadar yapılan ödeme (₺)", t: "number", para: true },
       { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
     ],
     others: [
       { k: "banka", e: "Alacaklı (banka / kurum / kişi)", t: "text", z: true },
       { k: "ad", e: "Açıklama (2023 kart borcu, icra…)", t: "text" },
-      { k: "tutar", e: "Güncel tutar (₺)", t: "number", z: true },
+      { k: "tutar", e: "Güncel tutar (₺)", t: "number", z: true, para: true },
       { k: "faiz", e: "Aylık faiz / gecikme oranı (%)", t: "number" },
     ],
   };
   const alanlar = ekHesapBorcModu
-    ? [{ k: "yeniBorcTutari", e: "Yeniden kullandığın ek tutar (₺)", t: "number", z: true }]
+    ? [{ k: "yeniBorcTutari", e: "Yeniden kullandığın ek tutar (₺)", t: "number", z: true, para: true }]
     : ekHesapOdemeModu
     ? [
-        { k: "odemeTutari", e: "Ödeme tutarı (₺)", t: "number", z: true },
+        { k: "odemeTutari", e: "Ödeme tutarı (₺)", t: "number", z: true, para: true },
         {
           k: "odemeTarihi",
           e: "Ödeme tarihi ve saati",
@@ -7719,11 +7721,13 @@ function Borclar({
                   e: "Bankanın bildirdiği toplam ekstre borcu (₺)",
                   t: "number",
                   z: true,
+                  para: true,
                 },
                 {
                   k: "asgari",
                   e: "Bankanın bildirdiği asgari ödeme (₺)",
                   t: "number",
+                  para: true,
                 },
               ]
             : []),
@@ -7732,8 +7736,9 @@ function Borclar({
             e: "Bu ekstre döneminde oluşan borç (₺)",
             t: "number",
             z: true,
+            para: true,
           },
-          { k: "oncekiAydanKalan", e: "Geçen aydan devreden (₺)", t: "number" },
+          { k: "oncekiAydanKalan", e: "Geçen aydan devreden (₺)", t: "number", para: true },
           { k: "kesimGunu", e: "Ekstre kesim günü", t: "number" },
           {
             k: "sonOdemeGunu",
@@ -8463,24 +8468,32 @@ function Borclar({
                     ) : (
                       <input
                         className="bt-input"
-                        type={a.t}
-                        min={a.t === "number" ? 0 : undefined}
+                        type={a.para ? "text" : a.t}
+                        inputMode={a.para ? "decimal" : undefined}
+                        min={!a.para && a.t === "number" ? 0 : undefined}
                         step={a.k === "faiz" ? "0.01" : undefined}
                         readOnly={
                           kategori === "loans" &&
                           krediIlerlemesi?.gecerli &&
                           ["kalanTaksit", "kalanBorc"].includes(a.k)
                         }
-                        value={
+                        value={a.para ? paraGirdisiniFormatla(
                           kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
                             ? krediIlerlemesi.kalanTaksit
                             : kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanBorc"
                               ? krediIlerlemesi.kalanToplamOdeme
                               : f[a.k] ?? ""
-                        }
+                        ) : (
+                          kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
+                            ? krediIlerlemesi.kalanTaksit
+                            : f[a.k] ?? ""
+                        )}
                         onChange={(e) => {
                           setKrediGirisHatasi("");
-                          setF({ ...f, [a.k]: e.target.value });
+                          setF({
+                            ...f,
+                            [a.k]: a.para ? paraGirdisiniCoz(e.target.value) : e.target.value,
+                          });
                         }}
                       />
                     )}
