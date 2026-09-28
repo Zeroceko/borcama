@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.57.2] - 2026-09-28
+
+### Düzeltildi
+
+- Yeni bir kredi ödeme planı yüklendiğinde aynı banka ve kredi türündeki önceki kredi artık otomatik seçilip üzerine yazılmıyor; her PDF varsayılan olarak ayrı kredi oluşturuyor ve mevcut kayıt yalnız kullanıcı açıkça seçerse güncelleniyor.
+
 ## [1.57.1] - 2026-09-28
 
 ### Düzeltildi
