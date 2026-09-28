@@ -7307,6 +7307,7 @@ function Borclar({
   const [yeniBanka, setYeniBanka] = useState("");
   const [bankaPenceresi, setBankaPenceresi] = useState(false);
   const [silinecekEkHesapOdemesi, setSilinecekEkHesapOdemesi] = useState(null);
+  const [silinecekBorc, setSilinecekBorc] = useState(null);
   const [odemePenceresi, setOdemePenceresi] = useState(null);
   const [yapilandirmaPenceresi, setYapilandirmaPenceresi] = useState(null);
   const [baslangicSecimiAcik, setBaslangicSecimiAcik] = useState(false);
@@ -7955,6 +7956,12 @@ function Borclar({
     const { kart, odeme } = silinecekEkHesapOdemesi;
     ekleGuncelle("overdrafts", ekHesapOdemesiKaldir(kart, odeme));
     setSilinecekEkHesapOdemesi(null);
+  }
+
+  function krediSilmeyiOnayla() {
+    if (!silinecekBorc) return;
+    sil(silinecekBorc.liste, silinecekBorc.kayit.id);
+    setSilinecekBorc(null);
   }
 
   function belgedenEkstreVerisi(imported, eski = {}) {
@@ -8642,6 +8649,7 @@ function Borclar({
                   meta={meta}
                   setForm={setForm}
                   sil={sil}
+                  silmeOnayiAc={(liste, kayit) => setSilinecekBorc({ liste, kayit })}
                   ekHesapOdemesiSil={ekHesapOdemesiSil}
                   paid={veri.paid}
                   krediOdemeGecmisi={veri.loanPaymentHistory}
@@ -9018,6 +9026,43 @@ function Borclar({
                 Hayır, finansal kaydı koru
               </button>
               <button className="bt-btn hayalet" type="button" onClick={() => setSilinecekYukleme(null)}>
+                Vazgeç
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {silinecekBorc && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSilinecekBorc(null);
+          }}
+        >
+          <div
+            className="bt-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-kredi-sil-baslik"
+            aria-describedby="bt-kredi-sil-aciklama"
+          >
+            <div className="bt-sil-ikon"><Trash2 size={20} /></div>
+            <div id="bt-kredi-sil-baslik" className="bt-h2" style={{ marginBottom: 8 }}>
+              Kredi kaydı silinsin mi?
+            </div>
+            <p id="bt-kredi-sil-aciklama" className="bt-ekstre-sil-aciklama">
+              <b>{silinecekBorc.kayit.banka || "Banka"}</b>
+              {silinecekBorc.kayit.ad ? ` · ${silinecekBorc.kayit.ad}` : ""} kaydı,
+              ödeme planı ve kalan <b>{fmt(summarizeLoanRecord(silinecekBorc.kayit, veri.loanPaymentHistory).remainingPaymentTotal)}</b> tutarı
+              borçlar ekranından kaldırılacak. Yanlışlıkla silersen son işlemlerden geri alabilirsin.
+            </p>
+            <div className="bt-ekstre-sil-secenekler">
+              <button className="bt-btn birincil bt-tehlike" type="button" onClick={krediSilmeyiOnayla}>
+                <Trash2 size={14} /> Evet, krediyi sil
+              </button>
+              <button className="bt-btn ikincil" type="button" autoFocus onClick={() => setSilinecekBorc(null)}>
                 Vazgeç
               </button>
             </div>
@@ -9592,6 +9637,7 @@ function BorclarSatiri({
   meta,
   setForm,
   sil,
+  silmeOnayiAc,
   ekHesapOdemesiSil,
   paid,
   krediOdemeGecmisi,
@@ -9978,7 +10024,12 @@ function BorclarSatiri({
           {!arsiv && kategori !== "cards" && (
             <button
               className="bt-btn hayalet tehlike"
-              onClick={() => sil(meta.liste, k.id)}
+              aria-label={kategori === "loans" ? "Kredi kaydını sil" : "Borç kaydını sil"}
+              onClick={() =>
+                kategori === "loans"
+                  ? silmeOnayiAc?.(meta.liste, k)
+                  : sil(meta.liste, k.id)
+              }
             >
               <Trash2 size={15} />
             </button>
