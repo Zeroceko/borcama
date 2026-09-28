@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Borç, ekstre, ödeme, yapılandırma, varlık, gelir, harcama ve ücretsiz hesaplama araçlarındaki para alanları yazarken Türkçe binlik ve ondalık ayırıcıyla gösteriliyor; dinamik TL çıktıları ortak `₺1.234,56` biçimine getirildi.
+
 ## [1.57.2] - 2026-09-28
 
 ### Düzeltildi

@@ -67,7 +67,12 @@ import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
 import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
-import { paraGirdisiniCoz, paraGirdisiniFormatla } from "./currencyInput.js";
+import {
+  paraBiriminiFormatla,
+  paraGirdisiniCoz,
+  paraGirdisiniFormatla,
+  turkLirasiFormatla,
+} from "./currencyInput.js";
 import {
   matchStatementToCard,
   savedCardLast4,
@@ -759,25 +764,21 @@ const CSS = `
 `;
 
 /* ---------------- Yardımcılar (iş mantığı — değişmedi) ---------------- */
-const TL = new Intl.NumberFormat("tr-TR", {
-  style: "currency",
-  currency: "TRY",
-  maximumFractionDigits: 0,
-});
-const TLk = new Intl.NumberFormat("tr-TR", {
-  style: "currency",
-  currency: "TRY",
-  maximumFractionDigits: 2,
-});
-const TL_BIRIM = new Intl.NumberFormat("tr-TR", {
-  style: "currency",
-  currency: "TRY",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 8,
-});
-const fmt = (n) => TLk.format(Number(n) || 0);
-const fmt0 = (n) => TL.format(Number(n) || 0);
-const fmtBirim = (n) => TL_BIRIM.format(Number(n) || 0);
+const fmt = (n) => turkLirasiFormatla(n);
+const fmt0 = (n) => turkLirasiFormatla(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const fmtBirim = (n) => turkLirasiFormatla(n, { minimumFractionDigits: 2, maximumFractionDigits: 8 });
+
+function ParaInput({ value, onValueChange, ...props }) {
+  return (
+    <input
+      {...props}
+      type="text"
+      inputMode="decimal"
+      value={paraGirdisiniFormatla(value)}
+      onChange={(event) => onValueChange?.(paraGirdisiniCoz(event.target.value), event)}
+    />
+  );
+}
 
 function sayisalAlanBilgisi(hedef) {
   if (!(hedef instanceof HTMLInputElement)) return null;
@@ -842,19 +843,11 @@ const PARA_BIRIMLERI = [
   { id: "USD", ad: "ABD doları ($)", fiyat: "usdTry" },
   { id: "EUR", ad: "Euro (€)", fiyat: "eurTry" },
 ];
-const PARA_FORMATLARI = Object.fromEntries(
-  PARA_BIRIMLERI.map((birim) => [
-    birim.id,
-    new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency: birim.id,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 8,
-    }),
-  ]),
-);
 const fmtPara = (n, id = "TRY") =>
-  (PARA_FORMATLARI[id] || PARA_FORMATLARI.TRY).format(Number(n) || 0);
+  paraBiriminiFormatla(n, PARA_BIRIMLERI.some((birim) => birim.id === id) ? id : "TRY", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 8,
+  });
 const paraBirimi = (id) =>
   PARA_BIRIMLERI.find((birim) => birim.id === id) || PARA_BIRIMLERI[0];
 const paraBirimiKuru = (kayit, fiyatlar = {}) => {
@@ -6421,12 +6414,11 @@ function Odemeler({
               <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
                 <span><strong>Kısmi ödeme yaptım</strong><small>Ödediğin gerçek tutarı yaz.</small></span>
                 <span />
-                <input
+                <ParaInput
                   className="bt-input"
-                  inputMode="decimal"
                   placeholder="Örn. 5.000"
                   value={kismiOdemeTutari}
-                  onChange={(e) => setKismiOdemeTutari(e.target.value)}
+                  onValueChange={setKismiOdemeTutari}
                   style={{ gridColumn: "1/-1", width: "100%" }}
                 />
                 <button
@@ -6516,12 +6508,11 @@ function Odemeler({
               <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
                 <span><strong>Farklı tutar ödedim</strong><small>Bankaya gönderdiğin gerçek tutarı yaz.</small></span>
                 <span />
-                <input
+                <ParaInput
                   className="bt-input"
-                  inputMode="decimal"
                   placeholder="Örn. 5.000"
                   value={kismiOdemeTutari}
-                  onChange={(e) => setKismiOdemeTutari(e.target.value)}
+                  onValueChange={setKismiOdemeTutari}
                   style={{ gridColumn: "1/-1", width: "100%" }}
                 />
                 <button
@@ -6642,12 +6633,11 @@ function BorcUzerindenOdemeModal({
               <small>Bankaya gönderdiğin gerçek tutarı yaz.</small>
             </span>
             <span />
-            <input
+            <ParaInput
               className="bt-input"
-              inputMode="decimal"
               placeholder="Örn. 5.000"
               value={kismiTutar}
-              onChange={(e) => setKismiTutar(e.target.value)}
+              onValueChange={setKismiTutar}
               style={{ gridColumn: "1/-1", width: "100%" }}
             />
             <button
@@ -6964,15 +6954,15 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
               </label>
               <label>
                 Kart limiti (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.creditLimit ?? ""} onChange={(e) => update("creditLimit", e.target.value)} />
+                <ParaInput className="bt-input" value={result.creditLimit ?? ""} onValueChange={(value) => update("creditLimit", value)} />
               </label>
               <label className="yarim">
                 Toplam ekstre borcu (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.statementTotal ?? ""} onChange={(e) => update("statementTotal", e.target.value)} />
+                <ParaInput className="bt-input" value={result.statementTotal ?? ""} onValueChange={(value) => update("statementTotal", value)} />
               </label>
               <label className="yarim">
                 Asgari ödeme (₺)
-                <input className="bt-input" type="number" step="0.01" value={result.minimumPayment ?? ""} onChange={(e) => update("minimumPayment", e.target.value)} />
+                <ParaInput className="bt-input" value={result.minimumPayment ?? ""} onValueChange={(value) => update("minimumPayment", value)} />
               </label>
             </div>
 
@@ -6981,27 +6971,27 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
               <div className="bt-extract-grid">
                 <label>
                   Önceki ekstre bakiyesi (₺)
-                  <input className="bt-input" type="number" step="0.01" value={result.previousBalance ?? ""} onChange={(e) => update("previousBalance", e.target.value)} />
+                  <ParaInput className="bt-input" value={result.previousBalance ?? ""} onValueChange={(value) => update("previousBalance", value)} />
                 </label>
                 <label>
                   Dönem içi ödemeler / iadeler (₺)
-                  <input className="bt-input" type="number" step="0.01" value={result.periodPayments ?? ""} onChange={(e) => update("periodPayments", e.target.value)} />
+                  <ParaInput className="bt-input" value={result.periodPayments ?? ""} onValueChange={(value) => update("periodPayments", value)} />
                 </label>
                 <label>
                   Yeni harcama ve taksitler (₺)
-                  <input className="bt-input" type="number" step="0.01" value={result.currentPurchases ?? ""} onChange={(e) => update("currentPurchases", e.target.value)} />
+                  <ParaInput className="bt-input" value={result.currentPurchases ?? ""} onValueChange={(value) => update("currentPurchases", value)} />
                 </label>
                 <label>
                   Faiz, vergi ve ücretler (₺)
-                  <input className="bt-input" type="number" step="0.01" value={result.fees ?? ""} onChange={(e) => update("fees", e.target.value)} />
+                  <ParaInput className="bt-input" value={result.fees ?? ""} onValueChange={(value) => update("fees", value)} />
                 </label>
                 <label>
                   Borcama'da devreden gösterilecek (₺)
-                  <input className="bt-input" type="number" step="0.01" value={result.carriedBalance ?? ""} onChange={(e) => update("carriedBalance", e.target.value)} />
+                  <ParaInput className="bt-input" value={result.carriedBalance ?? ""} onValueChange={(value) => update("carriedBalance", value)} />
                 </label>
                 <label>
                   Bu ekstre döneminde oluşan borç (₺)
-                  <input className="bt-input" type="number" step="0.01" value={result.currentPeriodDebt ?? ""} onChange={(e) => update("currentPeriodDebt", e.target.value)} />
+                  <ParaInput className="bt-input" value={result.currentPeriodDebt ?? ""} onValueChange={(value) => update("currentPeriodDebt", value)} />
                 </label>
               </div>
             </details>
@@ -7220,12 +7210,12 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
               </label>
               <label>Banka<input className="bt-input" value={result.bank || ""} onChange={(event) => update("bank", event.target.value)} /></label>
               <label>Kredi türü<input className="bt-input" value={result.productName || ""} onChange={(event) => update("productName", event.target.value)} /></label>
-              <label>Kalan anapara (₺)<input className="bt-input" type="number" step="0.01" value={result.remainingPrincipal ?? ""} onChange={(event) => update("remainingPrincipal", event.target.value)} /></label>
-              <label>Aylık taksit (₺)<input className="bt-input" type="number" step="0.01" value={result.installment ?? ""} onChange={(event) => update("installment", event.target.value)} /></label>
+              <label>Kalan anapara (₺)<ParaInput className="bt-input" value={result.remainingPrincipal ?? ""} onValueChange={(value) => update("remainingPrincipal", value)} /></label>
+              <label>Aylık taksit (₺)<ParaInput className="bt-input" value={result.installment ?? ""} onValueChange={(value) => update("installment", value)} /></label>
               <label>Kalan taksit<input className="bt-input" type="number" value={result.remainingInstallments ?? ""} onChange={(event) => update("remainingInstallments", event.target.value)} /></label>
               <label>Aylık faiz (%)<input className="bt-input" type="number" step="0.01" value={result.monthlyInterestRate ?? ""} onChange={(event) => update("monthlyInterestRate", event.target.value)} /></label>
               <label>Sonraki taksit tarihi<input className="bt-input" type="date" value={result.firstPaymentDate || ""} onChange={(event) => update("firstPaymentDate", event.target.value)} /></label>
-              <label>İlk kredi tutarı (₺)<input className="bt-input" type="number" step="0.01" value={result.originalPrincipal ?? ""} onChange={(event) => update("originalPrincipal", event.target.value)} /></label>
+              <label>İlk kredi tutarı (₺)<ParaInput className="bt-input" value={result.originalPrincipal ?? ""} onValueChange={(value) => update("originalPrincipal", value)} /></label>
             </div>
 
             <div className="bt-loan-plan-totals" aria-label="Kalan kredi ödeme özeti">
@@ -9626,11 +9616,11 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
       <div className="bt-modalbaslik"><div><div id="kart-yapilandirma-baslik" className="bt-h2">Kart borcumu yapılandırdım</div><p className="bt-baslangic-secim-aciklama">{kartGorunenAdi(kart)} için bankanın verdiği ödeme planını kaydet.</p></div><button className="bt-btn hayalet kucuk" type="button" aria-label="Kapat" onClick={onClose}><X size={18}/></button></div>
       <div className="bt-ipucu" style={{ marginBottom: 14 }}><Info size={16}/><div>Bankanın ödeme planı esastır. Kesin aylık taksiti girdiğinde Borcama tahmini faizle onu değiştirmez.</div></div>
       <div className="bt-alanlar">
-        <label className="bt-alan">Bankanın yapılandırdığı tutar (₺) *<input className="bt-input" type="number" min="0.01" step="0.01" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })}/><small>Borcama'da kayıtlı bakiye: {fmt(kalan)}. Bankanın tutarı güncel dönem borcunu da içerdiği için daha yüksek olabilir.</small></label>
-        <label className="bt-alan">Aylık taksit (₺)<input className="bt-input" type="number" min="0.01" step="0.01" value={f.installment} placeholder={hesaplananTaksit > 0 ? hesaplananTaksit.toFixed(2) : "Otomatik hesaplanır"} onChange={(e) => setF({ ...f, installment: e.target.value })}/><small>{f.installment ? "Bankanın verdiği kesin taksit kullanılır." : hesaplananTaksit > 0 ? `Faiz ve vergilerle tahmini: ${fmt(hesaplananTaksit)}` : "Faiz, vergi ve taksit sayısını girersen otomatik hesaplanır."}</small></label>
+        <label className="bt-alan">Bankanın yapılandırdığı tutar (₺) *<ParaInput className="bt-input" value={f.amount} onValueChange={(value) => setF({ ...f, amount: value })}/><small>Borcama'da kayıtlı bakiye: {fmt(kalan)}. Bankanın tutarı güncel dönem borcunu da içerdiği için daha yüksek olabilir.</small></label>
+        <label className="bt-alan">Aylık taksit (₺)<ParaInput className="bt-input" value={f.installment} placeholder={hesaplananTaksit > 0 ? paraGirdisiniFormatla(hesaplananTaksit.toFixed(2)) : "Otomatik hesaplanır"} onValueChange={(value) => setF({ ...f, installment: value })}/><small>{f.installment ? "Bankanın verdiği kesin taksit kullanılır." : hesaplananTaksit > 0 ? `Faiz ve vergilerle tahmini: ${fmt(hesaplananTaksit)}` : "Faiz, vergi ve taksit sayısını girersen otomatik hesaplanır."}</small></label>
         <label className="bt-alan">Taksit sayısı *<input className="bt-input" type="number" min="1" max="120" step="1" value={f.installmentCount} onChange={(e) => setF({ ...f, installmentCount: e.target.value })}/></label>
         <label className="bt-alan">İlk ödeme tarihi *<input className="bt-input" type="date" value={f.firstPaymentDate} onChange={(e) => setF({ ...f, firstPaymentDate: e.target.value })}/></label>
-        <label className="bt-alan">Toplam geri ödeme (₺) <input className="bt-input" type="number" min="0.01" step="0.01" value={f.totalRepayment} onChange={(e) => setF({ ...f, totalRepayment: e.target.value })}/><small>Boş bırakırsan kesin taksit × taksit sayısı kullanılır.</small></label>
+        <label className="bt-alan">Toplam geri ödeme (₺) <ParaInput className="bt-input" value={f.totalRepayment} onValueChange={(value) => setF({ ...f, totalRepayment: value })}/><small>Boş bırakırsan kesin taksit × taksit sayısı kullanılır.</small></label>
       </div>
       <details className="bt-yapilandirma-oranlar"><summary>Faiz ve vergi oranları <span>(isteğe bağlı)</span></summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">Nominal aylık faiz (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></div></details>
       {tutar > 0 && adet > 0 && <div className="bt-ipucu" style={{ marginTop: 14 }}><Check size={16}/><div><b>Kaydetmeden önce:</b> {fmt(tutar)} için {adet} taksitli plan oluşacak. Kayıtlı kart borcundan {fmt(Math.min(tutar, kalan))} düşecek. Toplam geri ödeme {fmt(toplam)}.{tutar > kalan && <> Kayıtlı bakiyenin üzerindeki {fmt(tutar - kalan)} de yapılandırma planına dahil.</>}</div></div>}
@@ -10065,14 +10055,11 @@ function BorclarSatiri({
                 <div key={odeme.id} className="bt-odeme-kaydi">
                   <div className="bt-odeme-tarih">{tarihSaatEtiketi(odeme.tarih)}</div>
                   {duzenleniyor ? (
-                    <input
+                    <ParaInput
                       className="bt-input"
-                      type="number"
-                      min="0.01"
-                      step="0.01"
                       autoFocus
                       value={duzenlenenKartOdemesi.tutar}
-                      onChange={(e) => setDuzenlenenKartOdemesi({ ...duzenlenenKartOdemesi, tutar: e.target.value })}
+                      onValueChange={(value) => setDuzenlenenKartOdemesi({ ...duzenlenenKartOdemesi, tutar: value })}
                     />
                   ) : (
                     <div className="bt-odeme-tutar">{fmt(odeme.tutar)}</div>
@@ -10872,13 +10859,11 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
           <div className="bt-h2">Ekstra ödeme simülasyonu</div>
           <label className="bt-alan" style={{ maxWidth: 240 }}>
             Elinize geçen ekstra tutar (₺)
-            <input
+            <ParaInput
               className="bt-input"
-              type="number"
-              min={0}
-              placeholder="örn. 5000"
+              placeholder="Örn. 5.000"
               value={ekstra}
-              onChange={(e) => setEkstra(e.target.value)}
+              onValueChange={setEkstra}
             />
           </label>
           {ekstraTutar > 0 && (
@@ -11499,14 +11484,11 @@ function Varliklar({
               <>
                 <label className="bt-alan">
                   <span>Toplam BES tutarı (₺) *</span>
-                  <input
+                  <ParaInput
                     className="bt-input"
-                    type="number"
-                    min="0"
-                    step="any"
                     required
                     value={f.besToplamTutar ?? (f.miktar && f.fonBirimFiyati ? +f.miktar * +f.fonBirimFiyati : "")}
-                    onChange={(e) => fSet({ besToplamTutar: e.target.value })}
+                    onValueChange={(value) => fSet({ besToplamTutar: value })}
                   />
                 </label>
                 <label className="bt-alan">
@@ -11534,26 +11516,20 @@ function Varliklar({
             ) : (
               <label className="bt-alan">
                 <span>Güncel toplam değer ({formParaBirimi}) *</span>
-                <input
+                <ParaInput
                   className="bt-input"
-                  type="number"
-                  min="0"
-                  step="any"
                   required
                   value={f.guncelDeger ?? ""}
-                  onChange={(e) => fSet({ guncelDeger: e.target.value })}
+                  onValueChange={(value) => fSet({ guncelDeger: value })}
                 />
               </label>
             )}
             <label className="bt-alan">
               <span>Toplam alış maliyeti ({formParaBirimi})</span>
-              <input
+              <ParaInput
                 className="bt-input"
-                type="number"
-                min="0"
-                step="any"
                 value={f.maliyetBiliniyor === true ? f.toplamMaliyet ?? "" : ""}
-                onChange={(e) => fSet({ toplamMaliyet: e.target.value })}
+                onValueChange={(value) => fSet({ toplamMaliyet: value })}
               />
             </label>
           </div>
@@ -11840,7 +11816,7 @@ function Varliklar({
               </label>
               <label className="bt-alan">
                 <span>Güncel değer ({paraBirimi(digerFormu.paraBirimi).id}) *</span>
-                <input className="bt-input" type="number" min="0" step="any" value={digerFormu.guncelDeger} onChange={(e) => setDigerFormu((eski) => ({ ...eski, guncelDeger: e.target.value }))} />
+                <ParaInput className="bt-input" value={digerFormu.guncelDeger} onValueChange={(value) => setDigerFormu((eski) => ({ ...eski, guncelDeger: value }))} />
               </label>
               <label className="bt-alan">
                 <span>Para birimi *</span>
@@ -11889,7 +11865,7 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
 
   const alanlar = [
     { k: "ad", e: "Kaynak adı (Maaş, Kira geliri…)", t: "text", z: true },
-    { k: "tutar", e: "Tutar (₺)", t: "number", z: true },
+    { k: "tutar", e: "Tutar (₺)", t: "number", z: true, para: true },
     {
       k: "tekrar",
       e: "Tekrar",
@@ -11947,6 +11923,12 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
                         </option>
                       ))}
                     </select>
+                  ) : a.para ? (
+                    <ParaInput
+                      className="bt-input"
+                      value={f[a.k] ?? ""}
+                      onValueChange={(value) => setF({ ...f, [a.k]: value })}
+                    />
                   ) : (
                     <input
                       className="bt-input"
@@ -12266,12 +12248,10 @@ function Harcamalar({
       <div className="bt-alanlar">
         <label className="bt-alan">
           Tutar (₺) *
-          <input
+          <ParaInput
             className="bt-input"
-            type="number"
-            min={0}
             value={f.tutar ?? ""}
-            onChange={(e) => setF({ ...f, tutar: e.target.value })}
+            onValueChange={(value) => setF({ ...f, tutar: value })}
           />
         </label>
         <label className="bt-alan">
@@ -12745,14 +12725,11 @@ function Harcamalar({
                   </label>
                   <label className="bt-alan">
                     <span>Toplam kart limiti (₺)</span>
-                    <input
+                    <ParaInput
                       className="bt-input"
-                      type="number"
-                      min="0"
-                      step="any"
                       value={kaynakFormu.limit}
                       placeholder="İsteğe bağlı"
-                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, limit: e.target.value })}
+                      onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, limit: value })}
                     />
                   </label>
                   <label className="bt-alan">
@@ -12784,14 +12761,11 @@ function Harcamalar({
               ) : (
                 <label className="bt-alan genis">
                   <span>Güncel bakiye (₺)</span>
-                  <input
+                  <ParaInput
                     className="bt-input"
-                    type="number"
-                    min="0"
-                    step="any"
                     value={kaynakFormu.bakiye}
                     placeholder="İsteğe bağlı"
-                    onChange={(e) => setKaynakFormu({ ...kaynakFormu, bakiye: e.target.value })}
+                    onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, bakiye: value })}
                   />
                 </label>
               )}

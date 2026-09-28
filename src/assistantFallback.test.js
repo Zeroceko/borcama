@@ -18,7 +18,7 @@ test("faiz sorusu model başarısız olsa bile hesaplanan alt toplamlarla yanıt
   const response = buildFinancialAssistantFallback({ context, question: "Son durumda ne kadar faiz ödeyeceğim?" });
 
   assert.match(response.answer, /5\.140,62 TL/);
-  assert.match(response.answer, /11\.369 TL/);
+  assert.match(response.answer, /11\.369,00 TL/);
   assert.match(response.answer, /2\/4 aktif kredinin/);
   assert.equal(response.needsMoreInfo, true);
   assert.deepEqual(validateFinancialAssistantResponse({ response, context, question: "faizim ne kadar?" }).errors, []);

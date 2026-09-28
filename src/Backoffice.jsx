@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Activity, ArrowDown, ArrowLeft, ArrowUp, ArrowUpDown, BarChart3, Clock3, Crown, Gift, LogIn, Mail, MessageSquare, ReceiptText, RefreshCw, Search, ShieldCheck, UserRound, Users } from "lucide-react";
 import { supabase } from "./supabaseClient.js";
+import { turkLirasiFormatla } from "./currencyInput.js";
 import { uygulamaYolu, yonetimYolu } from "./yonetimUrls.js";
 
 const CSS = `
@@ -13,7 +14,7 @@ const CSS = `
 @media(max-width:760px){.bo-user-hero,.bo-history-grid{grid-template-columns:1fr}.bo-user-facts{grid-template-columns:1fr}}
 `;
 const tarih=(v)=>v?new Intl.DateTimeFormat("tr-TR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v)):"—";
-const para=(v)=>new Intl.NumberFormat("tr-TR",{style:"currency",currency:"TRY",maximumFractionDigits:0}).format(v||0);
+const para=(v)=>turkLirasiFormatla(v);
 
 const ONIZLEME_VERISI={
  summary:{total:38,trial_active:7,active_30d:24,signed_in_7d:16,new_7d:5,activity_24h:12},

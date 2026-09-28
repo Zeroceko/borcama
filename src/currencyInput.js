@@ -1,5 +1,26 @@
 const sadeceRakam = (value) => String(value ?? "").replace(/\D/g, "");
 
+const PARA_FORMATLARI = new Map();
+
+export function paraBiriminiFormatla(value, currency = "TRY", options = {}) {
+  const minimumFractionDigits = options.minimumFractionDigits ?? 2;
+  const maximumFractionDigits = options.maximumFractionDigits ?? 2;
+  const anahtar = `${currency}:${minimumFractionDigits}:${maximumFractionDigits}`;
+  if (!PARA_FORMATLARI.has(anahtar)) {
+    PARA_FORMATLARI.set(anahtar, new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }));
+  }
+  return PARA_FORMATLARI.get(anahtar).format(Number(value) || 0);
+}
+
+export function turkLirasiFormatla(value, options) {
+  return paraBiriminiFormatla(value, "TRY", options);
+}
+
 export function paraGirdisiniCoz(value) {
   const metin = String(value ?? "").trim().replace(/\s/g, "");
   if (!metin) return "";
