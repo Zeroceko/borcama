@@ -224,6 +224,7 @@ export function asistanBaglamiOlustur({
     krediler: krediler.slice(0, 30).map((kredi, index) => ({
       banka: String(kredi.banka || "Banka").slice(0, 40),
       tur: String(kredi.ad || "Kredi").slice(0, 50),
+      krediTutari: opsiyonelSayi(kredi.anaPara),
       kalanBorc: opsiyonelSayi(kredi.kalanBorc),
       aylikTaksit: opsiyonelSayi(kredi.taksit),
       kalanTaksit: opsiyonelTamSayi(kredi.kalanTaksit),

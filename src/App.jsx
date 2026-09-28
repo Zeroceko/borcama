@@ -7656,15 +7656,15 @@ function Borclar({
     ],
     loans: [
       { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "ad", e: "Kredi türü (ihtiyaç, taşıt…)", t: "text" },
-      { k: "taksit", e: "Bankanın aylık taksiti (₺)", t: "number", z: true, para: true },
-      { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", z: !form?.veri?.id },
-      { k: "odenenTaksit", e: "Bugüne kadar ödenen taksit", t: "number", z: !form?.veri?.id },
-      { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
-      { k: "kalanBorc", e: "Kalan toplam ödeme (₺)", t: "number", para: true },
+      { k: "ad", e: "Kredi adı", t: "text", z: true },
+      { k: "anaPara", e: "Kredi tutarı (₺)", t: "number", z: !form?.veri?.id, para: true },
       { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
+      { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", z: !form?.veri?.id },
+      { k: "taksit", e: "Aylık taksit tutarı (₺)", t: "number", z: true, para: true },
+      { k: "odenenTaksit", e: "Ödenen taksit sayısı", t: "number", z: !form?.veri?.id },
+      { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
+      { k: "odemeGunu", e: "Ödeme günü", t: "number", p: "İlk taksit tarihinden hesaplanır" },
       { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form?.veri?.id },
-      { k: "odemeGunu", e: "Aylık ödeme günü (tarih girilince otomatik)", t: "number", z: !f.ilkOdemeTarihi },
     ],
     od: [
       { k: "banka", e: "Banka", t: "text", z: true },
@@ -8461,25 +8461,28 @@ function Borclar({
                         step={a.k === "faiz" ? "0.01" : undefined}
                         readOnly={
                           kategori === "loans" &&
-                          krediIlerlemesi?.gecerli &&
-                          ["kalanTaksit", "kalanBorc"].includes(a.k)
+                          ((krediIlerlemesi?.gecerli && a.k === "kalanTaksit") ||
+                            (a.k === "odemeGunu" && !!f.ilkOdemeTarihi))
                         }
+                        placeholder={a.p}
                         value={a.para ? paraGirdisiniFormatla(
-                          kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
-                            ? krediIlerlemesi.kalanTaksit
-                            : kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanBorc"
-                              ? krediIlerlemesi.kalanToplamOdeme
-                              : f[a.k] ?? ""
+                          f[a.k] ?? ""
                         ) : (
                           kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
                             ? krediIlerlemesi.kalanTaksit
-                            : f[a.k] ?? ""
+                            : kategori === "loans" && a.k === "odemeGunu" && f.ilkOdemeTarihi
+                              ? Number(f.ilkOdemeTarihi.slice(-2))
+                              : f[a.k] ?? ""
                         )}
                         onChange={(e) => {
                           setKrediGirisHatasi("");
+                          const deger = a.para ? paraGirdisiniCoz(e.target.value) : e.target.value;
                           setF({
                             ...f,
-                            [a.k]: a.para ? paraGirdisiniCoz(e.target.value) : e.target.value,
+                            [a.k]: deger,
+                            ...(kategori === "loans" && a.k === "ilkOdemeTarihi"
+                              ? { odemeGunu: deger ? Number(deger.slice(-2)) : "" }
+                              : {}),
                           });
                         }}
                       />
@@ -9857,6 +9860,7 @@ function BorclarSatiri({
         </div>
         {kategori === "loans" && !arsiv && !k._gelecek ? (
             <div className="bt-kredi-metrikler" aria-label="Kredi ödeme özeti">
+              {+k.anaPara > 0 && <div className="bt-kredi-metrik"><span>Kredi tutarı</span><strong>{fmt(k.anaPara)}</strong></div>}
               <div className="bt-kredi-metrik"><span>Kalan toplam ödeme</span><strong>{fmt(krediPlanOzeti?.remainingPaymentTotal)}</strong></div>
               <div className="bt-kredi-metrik"><span>Aylık taksit</span><strong>{fmt(k.taksit)}</strong></div>
               <div className="bt-kredi-metrik"><span>Kalan taksit</span><strong>{krediPlanOzeti?.remainingInstallments ?? 0} taksit</strong></div>

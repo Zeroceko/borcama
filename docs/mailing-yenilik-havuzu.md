@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Kredinin başlangıcını ve kalan planını birlikte gör
+
+- Siz istediniz: Kredi kaydında yalnız kalan ödemeyi değil, bankadan çekilen başlangıç tutarını ve bugüne kadarki ilerlemeyi de birlikte izlemek.
+- Biz yaptık: Manuel kredi formuna başlangıç kredi tutarı, aylık faiz, toplam ve ödenen taksit bilgilerini ekledik; kalan taksit ile ödeme gününü tutarlı biçimde otomatik hesapladık.
+- Faydası: Kredi anaparasını, aylık taksidini ve kalan ödeme planını birbirine karıştırmadan aynı kayıtta görebilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Tahmini borç hesabından kendi planına geç — v1.57.0
 
 - Siz istediniz: Borcun ne zaman kapanacağını hesapladıktan sonra sonucu gerçek borç kayıtlarınla takip etmeye devam etmek.

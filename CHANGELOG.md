@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Manuel kredi ekleme formu banka, kredi adı, başlangıç kredi tutarı, aylık faiz, toplam ve ödenen taksit, aylık taksit ile ilk ödeme tarihini birlikte alıyor; kalan taksit ve ödeme günü çelişkiyi önlemek için otomatik hesaplanıyor.
+
 ## [1.57.3] - 2026-09-28
 
 ### Değiştirildi

@@ -4,6 +4,7 @@ import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
 
 test("toplam ve ödenen taksitten kalan planı hesaplar", () => {
   const sonuc = krediKaydiniHazirla({
+    anaPara: "350000",
     taksit: "12500.50",
     toplamTaksit: "36",
     odenenTaksit: "11",
@@ -13,6 +14,7 @@ test("toplam ve ödenen taksitten kalan planı hesaplar", () => {
   assert.equal(sonuc.tamam, true);
   assert.equal(sonuc.kredi.kalanTaksit, 25);
   assert.equal(sonuc.kredi.kalanBorc, 312512.5);
+  assert.equal(sonuc.kredi.anaPara, "350000");
   assert.equal(sonuc.kredi.taksit, "12500.50");
   assert.equal(sonuc.kredi.faiz, "3.49");
 });
