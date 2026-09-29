@@ -4,6 +4,25 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- iOS'taki e-posta giriş ve parola yenileme bağlantıları Safari'de yarım kalmadan Borcama uygulamasındaki doğru ekrana dönebiliyor; internet kesildiğinde boş finansal ekran yerine kayıtların korunduğunu açıklayan bağlantı durumu gösteriliyor.
+- iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
+- iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
+- iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
+- Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
+- iOS uygulamasında kullanıcı onayıyla açılan ödeme hatırlatmaları, yaklaşan kart ve kredi ödemelerini bir gün önce saat 09.00'da tutar veya banka adı göstermeden cihazda bildiriyor; tamamlanan ödemeler yeniden planlanmıyor.
+
+### Değiştirildi
+
+- iOS uygulamasındaki varsayılan Capacitor simgesi, küçük boyutta okunabilen 1024 piksel opak Borcama App Store ikonu ile değiştirildi.
+- iOS uygulaması Google Analytics ve Google Ads etiketlerini yüklemiyor; App Store gizlilik beyanı hesap, finansal kayıt, abonelik, ürün kullanımı ve kişisel bilgi içermeyen çökme verisiyle sınırlandırıldı.
+- iOS sürümü web SemVer sürümünü izlerken build numarası yalnız yeni TestFlight veya App Store yüklemesinde artırılacak biçimde yayın sürecine bağlandı.
+
+### Güvenlik
+
+- Pro hakkı artık istemcinin gönderdiği bitiş tarihine göre açılamıyor; satın alma sunucudan RevenueCat ile doğrulanıyor, App Store abonelik olayları yetki başlığı ve HMAC imzası doğrulanan tekilleştirilmiş webhook üzerinden işleniyor.
+
 ## [1.58.0] - 2026-09-28
 
 ### Değiştirildi

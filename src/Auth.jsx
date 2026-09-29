@@ -23,6 +23,7 @@ import {
 import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js";
 import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
+import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
@@ -95,7 +96,7 @@ async function proDenemesiniVeBaslangicMailiniTetikle(session) {
     });
     if (!cevap.ok) throw new Error("TRIAL_BOOTSTRAP_FAILED");
     const sonuc = await cevap.json().catch(() => ({}));
-    if (sonuc.trialActive && sonuc.trialStartedAt) {
+    if (!nativeMi && sonuc.trialActive && sonuc.trialStartedAt) {
       void googleAnalyticsProDenemeBaslangici({
         userId,
         trialStartedAt: sonuc.trialStartedAt,
@@ -177,7 +178,7 @@ export function useSession() {
     const sessionAyarla = (yeniSession) => {
       setSession(yeniSession);
       if (yeniSession?.user) {
-        void googleAdsYeniKullaniciDonusumu(yeniSession.user);
+        if (!nativeMi) void googleAdsYeniKullaniciDonusumu(yeniSession.user);
         void proDenemesiniVeBaslangicMailiniTetikle(yeniSession);
       }
     };
@@ -387,7 +388,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         setHata("Çok fazla deneme yapıldı. Lütfen biraz bekleyin.");
       else if (["captcha_failed", "captcha_provider_disabled"].includes(kod))
         setHata(
-          "Güvenlik doğrulaması başarısız oldu. Sayfayı yenileyip tekrar deneyin.",
+          `Güvenlik doğrulaması başarısız oldu. ${yenilemeYonergesi} tekrar deneyin.`,
         );
       else if (kod === "email_not_confirmed")
         setHata(
@@ -492,9 +493,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
-      <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-        <ArrowLeft size={15} /> Ana sayfaya dön
-      </a>
+      {!nativeMi && (
+        <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
+          <ArrowLeft size={15} /> Ana sayfaya dön
+        </a>
+      )}
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">
@@ -561,7 +564,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               placeholder="ornek@eposta.com"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
-              autoFocus
+              autoFocus={!nativeMi}
               required
             />
             {captchaAlani(`reset-${sifirlamaModu}`)}
@@ -595,7 +598,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               placeholder="ornek@eposta.com"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
-              autoFocus
+              autoFocus={!nativeMi}
               required
             />
             {captchaAlani(`link-${yontem}-${kayitModu}`)}
@@ -625,7 +628,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               placeholder="ornek@eposta.com"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
-              autoFocus
+              autoFocus={!nativeMi}
               required
             />
             <label htmlFor="auth-password" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>Parola</label>
@@ -768,7 +771,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                   checked={oturumuAcikTut}
                   onChange={(e) => setOturumuAcikTut(e.target.checked)}
                 />
-                <span>Bu tarayıcıda oturumu açık tut</span>
+                <span>Bu {ortamAdi}da oturumu açık tut</span>
               </label>
             )}
             {captchaAlani(`password-${kayitModu}`)}
@@ -981,7 +984,7 @@ export function ParolaYenileEkrani() {
                   placeholder="Yeni parola"
                   value={parola}
                   onChange={(e) => setParola(e.target.value)}
-                  autoFocus
+                  autoFocus={!nativeMi}
                   required
                   minLength={8}
                 />

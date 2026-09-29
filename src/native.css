@@ -1,0 +1,174 @@
+/* Native kabuga ozel duzeltmeler. Butun kurallar .borcama-native
+   sinifina bagli; bu sinif yalniz Capacitor icinde eklenir, dolayisiyla
+   tarayicida bu dosyanin hicbir etkisi yoktur. */
+
+html.borcama-native {
+  /* Cihaz guvenli alan degerleri; sabit konumlu ogeler icin kullanilir. */
+  --guvenli-ust: env(safe-area-inset-top, 0px);
+  --guvenli-alt: env(safe-area-inset-bottom, 0px);
+  --guvenli-sol: env(safe-area-inset-left, 0px);
+  --guvenli-sag: env(safe-area-inset-right, 0px);
+}
+
+html.borcama-native body {
+  /* iOS'ta lastik bandi kaydirmasini engeller. */
+  overscroll-behavior-y: none;
+  /* Metin secimi ve uzun basma menusu uygulama hissini bozuyor. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* iOS, 16px'ten kucuk yazi tipli bir alana odaklaninca sayfayi otomatik
+   buyutur ve duzen bozulur. Girdileri 16px'e sabitlemek bunu pinch-zoom
+   yetenegini kapatmadan onler; erisilebilirlik korunur. */
+html.borcama-native input,
+html.borcama-native select,
+html.borcama-native textarea {
+  font-size: 16px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+html.borcama-native [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Giris ekrani: "Ana sayfaya don" butonu mutlak konumlu ve .auth-wrap'e
+   gore hizalaniyor; centik alaninin altina indirilir. */
+html.borcama-native .auth-wrap {
+  padding-top: calc(78px + var(--guvenli-ust));
+}
+
+html.borcama-native .auth-back {
+  top: calc(24px + var(--guvenli-ust));
+}
+
+@media (max-width: 720px) {
+  html.borcama-native .auth-back {
+    top: calc(15px + var(--guvenli-ust));
+  }
+}
+
+/* Geri butonu gizlendiginde ust bosluk gereksiz kaliyor; yalniz butonun
+   bulunmadigi ekranlarda daraltilir. */
+html.borcama-native .auth-wrap:not(:has(> .auth-back)) {
+  padding-top: calc(24px + var(--guvenli-ust));
+}
+
+/* Uygulama kabugu: ust guvenli alan. .bt-wrap alt boslukta zaten
+   env(safe-area-inset-bottom) kullaniyor fakat ustte kullanmiyordu;
+   bu yuzden baslik status bar ve Dynamic Island'in altinda kaliyordu. */
+html.borcama-native .bt-wrap {
+  padding-top: calc(20px + var(--guvenli-ust));
+}
+
+/* Sabit konumlu ogeler alt guvenli alani hesaba katmiyordu; ev cubugu
+   olan cihazlarda alt menunun uzerine biniyorlardi. Degerler mobil
+   duzenindekilerle ayni, uzerine yalniz guvenli alan ekleniyor. */
+html.borcama-native .bt-feedback-trigger {
+  bottom: calc(76px + var(--guvenli-alt));
+}
+
+html.borcama-native .bt-quick-add {
+  bottom: calc(128px + var(--guvenli-alt));
+}
+
+html.borcama-native .bt-quick-menu {
+  bottom: calc(184px + var(--guvenli-alt));
+}
+
+/* Sayfada sabit bir baslik yok; kaydirinca icerik status bar ve Dynamic
+   Island'in altindan gecip okunamaz hale geliyordu. Native uygulamalarin
+   yaptigi gibi o serite bulanik bir ortu koyulur. */
+html.borcama-native body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--guvenli-ust);
+  z-index: 100;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+/* Alt menu: iOS'ta sekmeye dokunulunca hafif sonme olur. Olcek
+   degistirmez, yalniz sonukleşir. Borcama'nin yesil/coral kimligi korunur. */
+html.borcama-native .bt-nav-ana .bt-pill {
+  transition: opacity 0.12s ease;
+}
+
+html.borcama-native .bt-nav-ana .bt-pill:active {
+  opacity: 0.55;
+}
+
+/* Apple HIG minimum dokunma alani 44x44pt. Kapat butonlari ve tutar
+   gizleme dugmesi 28-38px araligindaydi. Gorsel boyut korunur; yalniz
+   dokunulabilir alan gorunmez bir katmanla 44pt'ye genisletilir. */
+html.borcama-native .bt-assistant-close,
+html.borcama-native .bt-tutar-toggle {
+  position: relative;
+}
+
+html.borcama-native .bt-tour-kapat::after,
+html.borcama-native .bt-product-tour-kapat::after,
+html.borcama-native .bt-pro-modal-kapat::after,
+html.borcama-native .bt-assistant-close::after,
+html.borcama-native .bt-tutar-toggle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+/* Dokunma aninda iOS'un standart geri bildirimi. */
+html.borcama-native .bt-tour-kapat,
+html.borcama-native .bt-product-tour-kapat,
+html.borcama-native .bt-pro-modal-kapat,
+html.borcama-native .bt-assistant-close {
+  transition: opacity 0.12s ease;
+}
+
+html.borcama-native .bt-tour-kapat:active,
+html.borcama-native .bt-product-tour-kapat:active,
+html.borcama-native .bt-pro-modal-kapat:active,
+html.borcama-native .bt-assistant-close:active {
+  opacity: 0.55;
+}
+
+/* Ortak modal katmani 20px sabit bosluk kullaniyordu; centikli cihazlarda
+   pencerenin basligi status bar'in altinda kaliyordu. */
+html.borcama-native .bt-modal-arka {
+  padding-top: calc(20px + var(--guvenli-ust));
+  padding-bottom: calc(20px + var(--guvenli-alt));
+}
+
+html.borcama-native .bt-assistant-modal {
+  max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt));
+}
+
+/* Onay kutusundaki buton satir ici akiyor ve dar ekranda metnin uzerine
+   biniyordu; kendi satirina alinir. */
+html.borcama-native .bt-assistant-consent .bt-btn {
+  display: flex;
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* Yasal metinler ve Pro ekrani .bt-wrap kullanmiyor; kendi kapsayicilarina
+   da ust guvenli alan gerekiyor. Aksi halde bu sayfalarin ust navigasyonu
+   status bar'in arkasinda kaliyor ve geri donus yolu gorunmez oluyor. */
+html.borcama-native .legal {
+  padding-top: calc(16px + var(--guvenli-ust));
+}
+
+html.borcama-native .pc-page {
+  padding-top: calc(18px + var(--guvenli-ust));
+}

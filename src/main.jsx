@@ -14,6 +14,11 @@ import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import { noindexYoluMu } from "./seoIndexing.js";
 import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
+import "./native.css";
+import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import { nativeDerinBaglantilariBaslat } from "./nativeDeepLinks.js";
+import BiyometrikKilit from "./BiyometrikKilit.jsx";
+import NativeCevrimdisi from "./NativeCevrimdisi.jsx";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -29,7 +34,9 @@ const KullaniciSozlesmesi = lazy(() => import("./Legal.jsx").then((module) => ({
 const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.GizlilikMetni })));
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
-googleAdsBaslat();
+nativeGorunumuHazirla();
+void nativeDerinBaglantilariBaslat();
+if (!nativeMi) googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
 
@@ -70,6 +77,30 @@ function Kok() {
     }
     meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
+  // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
+  // uygulama dogrudan kimlik/uygulama akisiyla acilir.
+  if (nativeMi) {
+    // Dev build'de Supabase ayari yoksa web ile ayni sekilde demo moduna
+    // duser; ekranlar gercek veri olmadan gezilebilir.
+    if (demoModu) {
+      if (!nativeYoluMu(yol)) window.history.replaceState({}, "", "/summary");
+      return <App />;
+    }
+    if (!nativeYoluMu(yol)) {
+      window.history.replaceState({}, "", "/summary");
+      return <KimlikliKok />;
+    }
+    if (yol === "/login") return <GirisEkrani />;
+    if (yol === "/register") return <GirisEkrani kayitModu />;
+    if (yol === "/reset-password") return <ParolaYenileEkrani />;
+    if (yol === "/terms") return <KullaniciSozlesmesi />;
+    if (yol === "/privacy") return <GizlilikMetni />;
+    if (yol === "/refund-policy") return <IadePolitikasi />;
+    if (yol === "/faq") return <Faq />;
+    if (yol === "/welcome") return <KimlikliWelcome />;
+    if (yol === "/upgrade") return <ProCheckout />;
+    return <KimlikliKok />;
+  }
   if (yol.startsWith("/davet/"))
     return <HariciYonlendirme url={davetKayitYolu(davetKodunuYoldanOku(yol, window.location.search))} />;
   if (eskiYonetimYolu)
@@ -408,8 +439,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
-      <Kok />
-      <GoogleAdsConsent />
+      <BiyometrikKilit>
+        <NativeCevrimdisi>
+          <Kok />
+          {!nativeMi && <GoogleAdsConsent />}
+        </NativeCevrimdisi>
+      </BiyometrikKilit>
     </React.Suspense>
     </ErrorBoundary>
   </React.StrictMode>,

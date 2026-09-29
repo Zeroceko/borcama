@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "2SH6N4AK3P.com.borcama.app",
+        "paths": [
+          "/login",
+          "/register",
+          "/reset-password",
+          "/welcome",
+          "/summary"
+        ]
+      }
+    ]
+  }
+}

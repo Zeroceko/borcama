@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
+import { dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
+import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
@@ -87,6 +89,8 @@ import {
   googleAdsOlcumTercihi,
   googleAdsSatinAlmaDonusumu,
 } from "./googleAds.js";
+import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
+import { odemeHatirlaticilariniYenile } from "./odemeHatirlatmalari.js";
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
@@ -2009,7 +2013,7 @@ export default function BorcTakip() {
         }
       } catch (e) {
         setHata(
-          "Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin.",
+          `Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip ${yenilemeYonergesiKucuk}.`,
         );
       } finally {
         setYukleniyor(false);
@@ -2265,7 +2269,8 @@ export default function BorcTakip() {
       });
       if (sonuc.cancelled) return;
       if (!sonuc.active) throw new Error("Satın alma tamamlanamadı.");
-      await googleAdsSatinAlmaDonusumu(sonuc);
+      if (!nativeMi) await googleAdsSatinAlmaDonusumu(sonuc);
+      await revenueCatProHakkiniSenkronizeEt();
       setReklamsiz((eski) => ({
         ...eski,
         yukleniyor: false,
@@ -2277,23 +2282,6 @@ export default function BorcTakip() {
         trialAktif: false,
         hata: "",
       }));
-      const { data: oturum } = await supabase.auth.getSession();
-      if (oturum.session?.access_token) {
-        fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${oturum.session.access_token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              action: "activate_revenuecat_pro",
-              expiresAt: sonuc.expiresAt || null,
-            }),
-          },
-        ).catch(() => {});
-      }
       window.location.assign("/welcome");
     } catch (error) {
       setProSatinAlma({
@@ -2309,6 +2297,17 @@ export default function BorcTakip() {
   useEffect(() => {
     reklamsizKontrol();
   }, []);
+
+  useEffect(() => {
+    if (yukleniyor || !nativeMi || !veri.ayarlar?.odemeHatirlatmalari) return;
+    void odemeHatirlaticilariniYenile(veri, true).catch(() => {});
+  }, [
+    yukleniyor,
+    veri.ayarlar?.odemeHatirlatmalari,
+    veri.cards,
+    veri.loans,
+    veri.paid,
+  ]);
 
   useEffect(() => {
     if (reklamsiz.yukleniyor || !reklamsiz.trialAktif) {
@@ -2416,7 +2415,7 @@ export default function BorcTakip() {
     } catch (e) {
       setHata(
         e?.message === "VERI_CAKISMASI"
-          ? "Verileriniz başka bir cihazda değiştirilmiş. Kayıp yaşanmaması için sayfayı yenileyip tekrar deneyin."
+          ? `Verileriniz başka bir cihazda değiştirilmiş. Kayıp yaşanmaması için ${yenilemeYonergesi.toLocaleLowerCase("tr")} tekrar deneyin.`
           : "Kayıt sırasında bir sorun oluştu. Değişiklikler bu oturumda duruyor; bir sonraki işlemde tekrar denenecek.",
       );
     } finally {
@@ -3014,6 +3013,10 @@ export default function BorcTakip() {
   };
   const ayarKaydet = (a) =>
     kaydet({ ...veri, ayarlar: { ...veri.ayarlar, ...a } });
+  const odemeHatirlatmalariniDegistir = async (aktif) => {
+    await odemeHatirlaticilariniYenile(veri, aktif, aktif);
+    await ayarKaydet({ odemeHatirlatmalari: aktif });
+  };
   const bankaEkle = (ad) => {
     const temiz = ad.trim();
     if (!temiz) return "";
@@ -3251,7 +3254,10 @@ export default function BorcTakip() {
             <button
               key={k}
               className={"bt-pill " + (anaSekme === k ? "aktif" : "pasif")}
-              onClick={() => anaSekmeyeGit(k)}
+              onClick={() => {
+                dokunusGeriBildirimi();
+                anaSekmeyeGit(k);
+              }}
               aria-label={ad}
             >
               <Ikon aria-hidden="true" />
@@ -3261,7 +3267,10 @@ export default function BorcTakip() {
           <button
             className="bt-pill bt-assistant-nav"
             type="button"
-            onClick={() => setAsistanPenceresi(true)}
+            onClick={() => {
+              dokunusGeriBildirimi();
+              setAsistanPenceresi(true);
+            }}
             aria-label="Borcama'ya sor"
           >
             <Sparkles aria-hidden="true" />
@@ -3537,6 +3546,8 @@ export default function BorcTakip() {
                 temaDegistir={temaAnahtarlarSwitch}
                 parolaAc={() => setParolaPenceresi(true)}
                 rehberAc={() => rehberAdiminaGit(0)}
+                odemeHatirlatmalariAktif={!!veri.ayarlar?.odemeHatirlatmalari}
+                odemeHatirlatmalariniDegistir={odemeHatirlatmalariniDegistir}
                 cikisYap={cikisYap}
                 hesabiSil={hesabiSil}
               />
@@ -4557,6 +4568,8 @@ function Ayarlar({
   temaDegistir,
   parolaAc,
   rehberAc,
+  odemeHatirlatmalariAktif,
+  odemeHatirlatmalariniDegistir,
   cikisYap,
   hesabiSil,
 }) {
@@ -4570,6 +4583,7 @@ function Ayarlar({
   const [hesapSilmeAcik, setHesapSilmeAcik] = useState(false);
   const [hesapSilmeMetni, setHesapSilmeMetni] = useState("");
   const [hesapSilmeDurumu, setHesapSilmeDurumu] = useState({ yukleniyor: false, hata: "" });
+  const [bildirimDurumu, setBildirimDurumu] = useState({ yukleniyor: false, hata: "" });
   const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
@@ -4868,27 +4882,44 @@ function Ayarlar({
               <BookOpen size={14} /> Rehberi aç
             </button>
           </div>
+          <BiyometrikAyar />
         </section>
-        <section className="bt-settings-card">
+        {nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
             <Bell size={18} /> Bildirimler
           </div>
           <div className="bt-setting-row">
             <div>
               <strong>Ödeme hatırlatmaları</strong>
-              <small>Yaklaşan kredi ve kart ödemeleri.</small>
+              <small>Ödeme tarihinden bir gün önce 09.00'da; tutar ve banka adı göstermeden.</small>
             </div>
-            <span className="bt-yakinda">Yakında</span>
+            <button
+              className="bt-btn kucuk ikincil"
+              type="button"
+              role="switch"
+              aria-checked={odemeHatirlatmalariAktif}
+              disabled={bildirimDurumu.yukleniyor}
+              onClick={async () => {
+                setBildirimDurumu({ yukleniyor: true, hata: "" });
+                try {
+                  await odemeHatirlatmalariniDegistir(!odemeHatirlatmalariAktif);
+                  setBildirimDurumu({ yukleniyor: false, hata: "" });
+                } catch {
+                  setBildirimDurumu({
+                    yukleniyor: false,
+                    hata: "Bildirim izni verilmedi. iPhone Ayarları'ndan Borcama bildirimlerini açabilirsin.",
+                  });
+                }
+              }}
+            >
+              {bildirimDurumu.yukleniyor
+                ? "Güncelleniyor…"
+                : odemeHatirlatmalariAktif ? "Açık" : "Kapalı"}
+            </button>
           </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Ekstre hatırlatmaları</strong>
-              <small>Yeni dönem ekstresi giriş zamanı.</small>
-            </div>
-            <span className="bt-yakinda">Yakında</span>
-          </div>
-        </section>
-        <section className="bt-settings-card">
+          {bildirimDurumu.hata && <div className="bt-bildirim hata">{bildirimDurumu.hata}</div>}
+        </section>}
+        {!nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
             <ShieldCheck size={18} /> Gizlilik ve ölçüm
           </div>
@@ -4911,7 +4942,7 @@ function Ayarlar({
               {olcumIzni ? "Ölçümü kapat" : "Ölçüme izin ver"}
             </button>
           </div>
-        </section>
+        </section>}
         <section className="bt-settings-card wide">
           <div className="bt-settings-title">
             <Database size={18} /> Veri ve yönetim
@@ -5062,6 +5093,25 @@ function Ayarlar({
                     onClick={() => setIptalOnayi(false)}
                   >
                     Vazgeç
+                  </button>
+                </>
+              ) : nativeMi ? (
+                <>
+                  {/* App Store aboneligi yalniz Apple tarafindan yonetilir;
+                      Paddle iptal ve kart guncelleme yollari native'de
+                      gosterilmez (Guideline 3.1.1). */}
+                  {reklamsiz.proYonetimUrl && (
+                    <button
+                      className="bt-btn birincil"
+                      type="button"
+                      onClick={() => window.open(reklamsiz.proYonetimUrl, "_system")}
+                    >
+                      App Store'da aboneliği yönet
+                      <ArrowRight size={15} />
+                    </button>
+                  )}
+                  <button className="bt-btn hayalet" type="button" onClick={paketPenceresiniKapat}>
+                    Kapat
                   </button>
                 </>
               ) : (
@@ -6771,7 +6821,7 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
         );
       setError(
         isPdfCompatibilityError
-          ? "PDF bu tarayıcıda hazırlanamadı. Sayfayı yenileyip tekrar deneyin."
+          ? `PDF bu ${ortamSozcugu} hazırlanamadı. ${yenilemeYonergesi} tekrar deneyin.`
           : technicalMessage ||
               "Ekstre okunamadı. Lütfen başka bir dosya deneyin.",
       );
@@ -6847,7 +6897,7 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
               <div>
                 <strong>Dosyan Borcama'ya yüklenmez</strong>
                 <p>
-                  PDF veya görsel bu tarayıcıda okunur. Belgenin kendisi, tam
+                  PDF veya görsel bu {ortamSozcugu} okunur. Belgenin kendisi, tam
                   kart numarası ve belgenin ham hali sunucuda saklanmaz.
                 </p>
                 <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
@@ -8128,7 +8178,7 @@ function Borclar({
       return;
     }
     if (hata) {
-      setArsivMesaji("Ekstre taşınamadı. Sayfayı yenileyip tekrar deneyin.");
+      setArsivMesaji(`Ekstre taşınamadı. ${yenilemeYonergesi} tekrar deneyin.`);
       return;
     }
     setArsivMesaji("Ekstre doğru karta taşındı. İlgili ödeme kayıtları da kartla birlikte güncellendi.");
@@ -8143,7 +8193,7 @@ function Borclar({
     });
     setSilinecekYukleme(null);
     setArsivMesaji(hata
-      ? "Ekstre kaldırılamadı. Sayfayı yenileyip tekrar deneyin."
+      ? `Ekstre kaldırılamadı. ${yenilemeYonergesi} tekrar deneyin.`
       : finansalKaydiSil
         ? "Yükleme ve bağlı ekstre kaydı silindi."
         : "Yükleme bilgisi kaldırıldı; borç ve ödeme kaydı korunuyor.");

@@ -6,13 +6,16 @@ import {
   revenueCatProKontrol,
   revenueCatProPaketleri,
   revenueCatProSatinAl,
+  revenueCatSatinAlimlariGeriYukle,
 } from "./revenuecat.js";
+import { nativeMi } from "./platform.js";
 import {
   proNiyetiniKaydet,
   proNiyetiniOku,
   proNiyetiniTemizle,
 } from "./proIntent.js";
 import { googleAdsSatinAlmaDonusumu } from "./googleAds.js";
+import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap');
@@ -84,11 +87,35 @@ export default function ProCheckout() {
         return;
       }
       if (!sonuc.active) throw new Error("Satın alma doğrulanamadı");
-      await googleAdsSatinAlmaDonusumu(sonuc);
+      if (!nativeMi) await googleAdsSatinAlmaDonusumu(sonuc);
+      await revenueCatProHakkiniSenkronizeEt();
       proNiyetiniTemizle();
       window.location.assign("/welcome");
     } catch {
       setDurum({ yukleniyor: false, hata: "Ödeme ekranı açılamadı. Lütfen tekrar dene." });
+    }
+  }
+
+  // App Store Guideline 3.1.1: satin alimlari geri yukleme yolu zorunludur.
+  async function satinAlimlariGeriYukle() {
+    setDurum({ yukleniyor: true, hata: "" });
+    try {
+      const sonuc = await revenueCatSatinAlimlariGeriYukle(session.user.id);
+      if (sonuc.active) {
+        await revenueCatProHakkiniSenkronizeEt();
+        proNiyetiniTemizle();
+        window.location.assign("/welcome");
+        return;
+      }
+      setDurum({
+        yukleniyor: false,
+        hata: "Bu Apple hesabında geri yüklenecek bir Borcama Pro aboneliği bulunamadı.",
+      });
+    } catch {
+      setDurum({
+        yukleniyor: false,
+        hata: "Satın alımlar geri yüklenemedi. Lütfen tekrar dene.",
+      });
     }
   }
 
@@ -103,9 +130,11 @@ export default function ProCheckout() {
       <div className="pc-shell">
         <header className="pc-head">
           <img className="pc-logo" src="/borcama-logo.png" alt="Borcama" />
-          <a className="pc-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-            <ChevronLeft size={15} /> Ana sayfa
-          </a>
+          {!nativeMi && (
+            <a className="pc-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
+              <ChevronLeft size={15} /> Ana sayfa
+            </a>
+          )}
         </header>
         <section className="pc-card">
           <div className="pc-copy">
@@ -138,7 +167,17 @@ export default function ProCheckout() {
               {durum.yukleniyor ? "Ödeme açılıyor…" : "Güvenli ödemeye geç →"}
             </button>
             <button className="pc-secondary" type="button" onClick={ucretsizDevam}>Uygulamaya dön</button>
-            <p className="pc-note"><ShieldCheck size={15} /> Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır.</p>
+            {nativeMi && (
+              <button
+                className="pc-secondary"
+                type="button"
+                disabled={durum.yukleniyor}
+                onClick={satinAlimlariGeriYukle}
+              >
+                Satın alımları geri yükle
+              </button>
+            )}
+            <p className="pc-note"><ShieldCheck size={15} /> {nativeMi ? "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme App Store üzerinden tamamlanır." : "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır."}</p>
             <div
               style={{
                 marginTop: 12,

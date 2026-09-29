@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Borcama artık iPhone'unda — App Store ilk yayın adayı
+
+- Siz istediniz: Borç, ödeme ve bütçe kayıtlarını telefonda güvenli ve hızlı biçimde takip etmek.
+- Biz yaptık: Borcama'nın iOS uygulamasına aynı hesapla giriş, App Store üzerinden Pro, Face ID/Touch ID kilidi ve tutar ya da banka adı göstermeyen isteğe bağlı ödeme hatırlatmaları ekledik.
+- Faydası: Web ve iPhone'da aynı finansal tabloyu kullanabilir, Pro hakkını iki platformda birlikte sürdürebilirsin.
+- Aksiyon: App Store yayını tamamlandıktan sonra ürün sayfası bağlantısı eklenecek.
+
 ### Kredinin başlangıcını ve kalan planını birlikte gör — v1.58.0
 
 - Siz istediniz: Kredi kaydında yalnız kalan ödemeyi değil, bankadan çekilen başlangıç tutarını ve bugüne kadarki ilerlemeyi de birlikte izlemek.
