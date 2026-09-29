@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
+import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
@@ -4875,6 +4876,7 @@ function Ayarlar({
               <BookOpen size={14} /> Rehberi aç
             </button>
           </div>
+          <BiyometrikAyar />
         </section>
         <section className="bt-settings-card">
           <div className="bt-settings-title">

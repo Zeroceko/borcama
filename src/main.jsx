@@ -16,6 +16,7 @@ import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import BiyometrikKilit from "./BiyometrikKilit.jsx";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -435,8 +436,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
-      <Kok />
-      <GoogleAdsConsent />
+      <BiyometrikKilit>
+        <Kok />
+        <GoogleAdsConsent />
+      </BiyometrikKilit>
     </React.Suspense>
     </ErrorBoundary>
   </React.StrictMode>,
