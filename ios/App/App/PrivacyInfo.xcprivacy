@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  TASLAK - HENUZ XCODE HEDEFINE EKLENMEDI.
+
+	  NSPrivacyTracking ve NSPrivacyCollectedDataTypes, asil gelistiriciden
+	  gelecek veri envanteri ile doldurulacak (brief madde 5). Ozellikle:
+	    - Google Ads olcumu uygulamada da calisacak; bu "tracking" beyani ve
+	      muhtemelen ATT izin ekrani gerektirir. Once bu netlesmeli.
+	    - Finansal veri toplandigi icin beyan detayli olmali.
+	    - Ekstre okuma cihazda yapiliyor, ham PDF sunucuya gitmiyor; bu
+	      beyanda acikca belirtilmeli.
+
+	  App Store Connect'teki App Privacy formu ile bu dosya birebir tutarli
+	  olmali; tutarsizlik Apple tarafindan reddediliyor.
+	-->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+</dict>
+</plist>

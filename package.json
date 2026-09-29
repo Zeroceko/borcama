@@ -13,7 +13,8 @@
     "test:assistant:live": "node scripts/run-financial-assistant-eval.mjs",
     "test": "node --test src/*.test.js",
     "build": "vite build && node scripts/prerender-seo.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ios:version": "node scripts/sync-ios-version.mjs"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",
