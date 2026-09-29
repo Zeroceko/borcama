@@ -90,6 +90,7 @@ import {
   googleAdsSatinAlmaDonusumu,
 } from "./googleAds.js";
 import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
+import { odemeHatirlaticilariniYenile } from "./odemeHatirlatmalari.js";
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
@@ -2298,6 +2299,17 @@ export default function BorcTakip() {
   }, []);
 
   useEffect(() => {
+    if (yukleniyor || !nativeMi || !veri.ayarlar?.odemeHatirlatmalari) return;
+    void odemeHatirlaticilariniYenile(veri, true).catch(() => {});
+  }, [
+    yukleniyor,
+    veri.ayarlar?.odemeHatirlatmalari,
+    veri.cards,
+    veri.loans,
+    veri.paid,
+  ]);
+
+  useEffect(() => {
     if (reklamsiz.yukleniyor || !reklamsiz.trialAktif) {
       setTrialHatirlaticiAcik(false);
       return;
@@ -3001,6 +3013,10 @@ export default function BorcTakip() {
   };
   const ayarKaydet = (a) =>
     kaydet({ ...veri, ayarlar: { ...veri.ayarlar, ...a } });
+  const odemeHatirlatmalariniDegistir = async (aktif) => {
+    await odemeHatirlaticilariniYenile(veri, aktif, aktif);
+    await ayarKaydet({ odemeHatirlatmalari: aktif });
+  };
   const bankaEkle = (ad) => {
     const temiz = ad.trim();
     if (!temiz) return "";
@@ -3530,6 +3546,8 @@ export default function BorcTakip() {
                 temaDegistir={temaAnahtarlarSwitch}
                 parolaAc={() => setParolaPenceresi(true)}
                 rehberAc={() => rehberAdiminaGit(0)}
+                odemeHatirlatmalariAktif={!!veri.ayarlar?.odemeHatirlatmalari}
+                odemeHatirlatmalariniDegistir={odemeHatirlatmalariniDegistir}
                 cikisYap={cikisYap}
                 hesabiSil={hesabiSil}
               />
@@ -4550,6 +4568,8 @@ function Ayarlar({
   temaDegistir,
   parolaAc,
   rehberAc,
+  odemeHatirlatmalariAktif,
+  odemeHatirlatmalariniDegistir,
   cikisYap,
   hesabiSil,
 }) {
@@ -4563,6 +4583,7 @@ function Ayarlar({
   const [hesapSilmeAcik, setHesapSilmeAcik] = useState(false);
   const [hesapSilmeMetni, setHesapSilmeMetni] = useState("");
   const [hesapSilmeDurumu, setHesapSilmeDurumu] = useState({ yukleniyor: false, hata: "" });
+  const [bildirimDurumu, setBildirimDurumu] = useState({ yukleniyor: false, hata: "" });
   const denemeAktif = !!reklamsiz.trialAktif;
   const seciliPaket = proPaketler?.[proPlan];
   const seciliFiyat = seciliPaket?.formattedPrice;
@@ -4863,25 +4884,41 @@ function Ayarlar({
           </div>
           <BiyometrikAyar />
         </section>
-        <section className="bt-settings-card">
+        {nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
             <Bell size={18} /> Bildirimler
           </div>
           <div className="bt-setting-row">
             <div>
               <strong>Ödeme hatırlatmaları</strong>
-              <small>Yaklaşan kredi ve kart ödemeleri.</small>
+              <small>Ödeme tarihinden bir gün önce 09.00'da; tutar ve banka adı göstermeden.</small>
             </div>
-            <span className="bt-yakinda">Yakında</span>
+            <button
+              className="bt-btn kucuk ikincil"
+              type="button"
+              role="switch"
+              aria-checked={odemeHatirlatmalariAktif}
+              disabled={bildirimDurumu.yukleniyor}
+              onClick={async () => {
+                setBildirimDurumu({ yukleniyor: true, hata: "" });
+                try {
+                  await odemeHatirlatmalariniDegistir(!odemeHatirlatmalariAktif);
+                  setBildirimDurumu({ yukleniyor: false, hata: "" });
+                } catch {
+                  setBildirimDurumu({
+                    yukleniyor: false,
+                    hata: "Bildirim izni verilmedi. iPhone Ayarları'ndan Borcama bildirimlerini açabilirsin.",
+                  });
+                }
+              }}
+            >
+              {bildirimDurumu.yukleniyor
+                ? "Güncelleniyor…"
+                : odemeHatirlatmalariAktif ? "Açık" : "Kapalı"}
+            </button>
           </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Ekstre hatırlatmaları</strong>
-              <small>Yeni dönem ekstresi giriş zamanı.</small>
-            </div>
-            <span className="bt-yakinda">Yakında</span>
-          </div>
-        </section>
+          {bildirimDurumu.hata && <div className="bt-bildirim hata">{bildirimDurumu.hata}</div>}
+        </section>}
         {!nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
             <ShieldCheck size={18} /> Gizlilik ve ölçüm

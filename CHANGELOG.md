@@ -11,6 +11,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
 - iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
 - Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
+- iOS uygulamasında kullanıcı onayıyla açılan ödeme hatırlatmaları, yaklaşan kart ve kredi ödemelerini bir gün önce saat 09.00'da tutar veya banka adı göstermeden cihazda bildiriyor; tamamlanan ödemeler yeniden planlanmıyor.
 
 ### Değiştirildi
 
