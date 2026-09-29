@@ -89,6 +89,7 @@ import {
   googleAdsOlcumTercihi,
   googleAdsSatinAlmaDonusumu,
 } from "./googleAds.js";
+import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
@@ -2267,7 +2268,8 @@ export default function BorcTakip() {
       });
       if (sonuc.cancelled) return;
       if (!sonuc.active) throw new Error("Satın alma tamamlanamadı.");
-      await googleAdsSatinAlmaDonusumu(sonuc);
+      if (!nativeMi) await googleAdsSatinAlmaDonusumu(sonuc);
+      await revenueCatProHakkiniSenkronizeEt();
       setReklamsiz((eski) => ({
         ...eski,
         yukleniyor: false,
@@ -2279,23 +2281,6 @@ export default function BorcTakip() {
         trialAktif: false,
         hata: "",
       }));
-      const { data: oturum } = await supabase.auth.getSession();
-      if (oturum.session?.access_token) {
-        fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${oturum.session.access_token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              action: "activate_revenuecat_pro",
-              expiresAt: sonuc.expiresAt || null,
-            }),
-          },
-        ).catch(() => {});
-      }
       window.location.assign("/welcome");
     } catch (error) {
       setProSatinAlma({
@@ -4897,7 +4882,7 @@ function Ayarlar({
             <span className="bt-yakinda">Yakında</span>
           </div>
         </section>
-        <section className="bt-settings-card">
+        {!nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
             <ShieldCheck size={18} /> Gizlilik ve ölçüm
           </div>
@@ -4920,7 +4905,7 @@ function Ayarlar({
               {olcumIzni ? "Ölçümü kapat" : "Ölçüme izin ver"}
             </button>
           </div>
-        </section>
+        </section>}
         <section className="bt-settings-card wide">
           <div className="bt-settings-title">
             <Database size={18} /> Veri ve yönetim

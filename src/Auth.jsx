@@ -96,7 +96,7 @@ async function proDenemesiniVeBaslangicMailiniTetikle(session) {
     });
     if (!cevap.ok) throw new Error("TRIAL_BOOTSTRAP_FAILED");
     const sonuc = await cevap.json().catch(() => ({}));
-    if (sonuc.trialActive && sonuc.trialStartedAt) {
+    if (!nativeMi && sonuc.trialActive && sonuc.trialStartedAt) {
       void googleAnalyticsProDenemeBaslangici({
         userId,
         trialStartedAt: sonuc.trialStartedAt,
@@ -178,7 +178,7 @@ export function useSession() {
     const sessionAyarla = (yeniSession) => {
       setSession(yeniSession);
       if (yeniSession?.user) {
-        void googleAdsYeniKullaniciDonusumu(yeniSession.user);
+        if (!nativeMi) void googleAdsYeniKullaniciDonusumu(yeniSession.user);
         void proDenemesiniVeBaslangicMailiniTetikle(yeniSession);
       }
     };

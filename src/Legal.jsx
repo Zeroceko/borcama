@@ -236,10 +236,11 @@ export function IadePolitikasi({ embedded = false }) {
       {nativeMi ? (
         <p>
           App Store üzerinden yapılan satın alımlarda iade talepleri Apple'a
-          iletilir ve Apple'ın iade politikası uygulanır. Borcama, App Store
-          işlemleri için doğrudan iade yapamaz. Türkiye'deki tüketicilerin
-          emredici mevzuattan doğan cayma ve iade hakları saklıdır; bu hakların
-          sağladığı korumalar önceliklidir.
+          iletilir ve standart iade süreci Apple tarafından yürütülür. Borcama,
+          talebin doğru kanala iletilmesi ve hizmete erişimle ilgili teknik
+          sorunların çözülmesi için destek sağlar. Türkiye'deki tüketicilerin
+          emredici mevzuattan doğan cayma, ayıplı hizmet ve iade hakları
+          saklıdır; bu hakların sağladığı korumalar önceliklidir.
         </p>
       ) : (
         <>
@@ -299,7 +300,7 @@ export function IadePolitikasi({ embedded = false }) {
           <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresinden
           Borcama'ya ulaşabilirsiniz.{" "}
           {nativeMi
-            ? "Talebinizi Apple'a iletme sürecinde yardımcı oluruz; iade kararı Apple'a aittir."
+            ? "Talebinizi Apple'ın standart iade kanalına iletme sürecinde ve hizmete erişim sorunlarında yardımcı oluruz."
             : "Talebin ödeme sağlayıcısına iletilmesine yardımcı oluruz."}
         </li>
       </ul>

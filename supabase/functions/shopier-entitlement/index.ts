@@ -290,6 +290,54 @@ async function proHakTanimla(
   if (error) throw error;
 }
 
+async function revenueCatProDurumunuDogrula(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const secretKey = String(Deno.env.get("REVENUECAT_SECRET_API_KEY") || "").trim();
+  if (!secretKey) throw new Error("REVENUECAT_SECRET_NOT_CONFIGURED");
+  const cevap = await fetch(
+    `https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`,
+    { headers: { Authorization: `Bearer ${secretKey}`, Accept: "application/json" } },
+  );
+  if (!cevap.ok) throw new Error("REVENUECAT_CUSTOMER_UNAVAILABLE");
+  const json = await cevap.json();
+  const pro = json?.subscriber?.entitlements?.pro;
+  const urunId = String(pro?.product_identifier || "").trim();
+  const abonelik = urunId ? json?.subscriber?.subscriptions?.[urunId] : null;
+  const store = String(abonelik?.store || "").trim().toLowerCase();
+  const bitis = pro?.expires_date ? new Date(pro.expires_date) : null;
+  const guvenilirMagaza = ["app_store", "paddle", "stripe", "rc_billing"].includes(store);
+  const proAktif = guvenilirMagaza && bitis &&
+    Number.isFinite(bitis.getTime()) && bitis.getTime() > Date.now();
+  const kaynak = store === "app_store" ? "revenuecat_ios" : "revenuecat_web";
+  const simdi = new Date().toISOString();
+
+  const { data: mevcut } = await admin.from("user_entitlements")
+    .select("source").eq("user_id", userId).maybeSingle();
+  if (proAktif) {
+    const { error } = await admin.from("user_entitlements").upsert({
+      user_id: userId,
+      pro_expires_at: bitis.toISOString(),
+      pro_purchase_id: null,
+      source: kaynak,
+      revenuecat_event_at: simdi,
+      updated_at: simdi,
+    }, { onConflict: "user_id" });
+    if (error) throw new Error("ENTITLEMENT_UPDATE_FAILED");
+  } else if (["revenuecat", "revenuecat_ios", "revenuecat_web"].includes(String(mevcut?.source || ""))) {
+    const { error } = await admin.from("user_entitlements").update({
+      pro_expires_at: null,
+      pro_purchase_id: null,
+      source: String(mevcut?.source || "revenuecat"),
+      revenuecat_event_at: simdi,
+      updated_at: simdi,
+    }).eq("user_id", userId);
+    if (error) throw new Error("ENTITLEMENT_UPDATE_FAILED");
+  }
+  return { active: Boolean(proAktif), expiresAt: proAktif ? bitis.toISOString() : null };
+}
+
 Deno.serve(async (req) => {
   const headers = {
     ...cors(req.headers.get("origin")),
@@ -428,7 +476,7 @@ Deno.serve(async (req) => {
     });
 
   const kullaniciAksiyonu = String(postBody?.action || "");
-  if (["revoke_self_manual_pro", "activate_revenuecat_pro", "cancel_paddle_subscription", "create_paddle_payment_update"].includes(kullaniciAksiyonu)) {
+  if (["revoke_self_manual_pro", "sync_revenuecat_pro", "cancel_paddle_subscription", "create_paddle_payment_update"].includes(kullaniciAksiyonu)) {
     const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     if (!token)
       return new Response(JSON.stringify({ error: "UNAUTHORIZED" }), {
@@ -500,6 +548,18 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (kullaniciAksiyonu === "sync_revenuecat_pro") {
+      try {
+        const durum = await revenueCatProDurumunuDogrula(admin, user.id);
+        return new Response(JSON.stringify({ ok: true, ...durum }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "REVENUECAT_SYNC_FAILED";
+        const durum = kod === "REVENUECAT_SECRET_NOT_CONFIGURED" ? 503 :
+          kod === "REVENUECAT_CUSTOMER_UNAVAILABLE" ? 502 : 500;
+        return new Response(JSON.stringify({ error: kod }), { status: durum, headers });
+      }
+    }
+
     const simdi = new Date().toISOString();
     if (kullaniciAksiyonu === "revoke_self_manual_pro") {
       const { data: mevcut } = await admin
@@ -521,31 +581,6 @@ Deno.serve(async (req) => {
           updated_at: simdi,
         })
         .eq("user_id", user.id);
-      if (guncellemeHatasi)
-        return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), {
-          status: 500,
-          headers,
-        });
-    } else {
-      const bitisTarihi = postBody?.expiresAt
-        ? new Date(String(postBody.expiresAt))
-        : null;
-      if (bitisTarihi && !Number.isFinite(bitisTarihi.getTime()))
-        return new Response(JSON.stringify({ error: "INVALID_EXPIRATION" }), {
-          status: 422,
-          headers,
-        });
-      const expiresAt = bitisTarihi?.toISOString() || null;
-      const { error: guncellemeHatasi } = await admin.from("user_entitlements").upsert(
-        {
-          user_id: user.id,
-          pro_expires_at: expiresAt,
-          pro_purchase_id: null,
-          source: "revenuecat",
-          updated_at: simdi,
-        },
-        { onConflict: "user_id" },
-      );
       if (guncellemeHatasi)
         return new Response(JSON.stringify({ error: "ENTITLEMENT_UPDATE_FAILED" }), {
           status: 500,

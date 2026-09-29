@@ -16,7 +16,9 @@ import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import { nativeDerinBaglantilariBaslat } from "./nativeDeepLinks.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
+import NativeCevrimdisi from "./NativeCevrimdisi.jsx";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -33,7 +35,8 @@ const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ defau
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
 nativeGorunumuHazirla();
-googleAdsBaslat();
+void nativeDerinBaglantilariBaslat();
+if (!nativeMi) googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
 
@@ -437,8 +440,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
       <BiyometrikKilit>
-        <Kok />
-        <GoogleAdsConsent />
+        <NativeCevrimdisi>
+          <Kok />
+          {!nativeMi && <GoogleAdsConsent />}
+        </NativeCevrimdisi>
       </BiyometrikKilit>
     </React.Suspense>
     </ErrorBoundary>

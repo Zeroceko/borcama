@@ -1,6 +1,12 @@
 [auth]
 site_url = "https://borcama.com"
-additional_redirect_urls = ["https://borcama.com"]
+additional_redirect_urls = [
+  "https://borcama.com",
+  "https://borcama.com/login",
+  "https://borcama.com/welcome",
+  "https://borcama.com/summary",
+  "https://borcama.com/reset-password"
+]
 minimum_password_length = 8
 
 [auth.email]
@@ -27,6 +33,9 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.resend-webhook]
+verify_jwt = false
+
+[functions.revenuecat-webhook]
 verify_jwt = false
 
 [functions.referrals]
