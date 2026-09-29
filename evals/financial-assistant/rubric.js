@@ -1,3 +1,5 @@
+import { validateFinancialAssistantResponse } from "../../supabase/functions/_shared/financialAssistantValidation.js";
+
 export const ASISTAN_KALITE_RUBRIGI = [
   { id: "finansal_dogruluk", ad: "Finansal doğruluk", agirlik: 30, kritik: true },
   { id: "profil_tutarliligi", ad: "Bütün finansal profille tutarlılık", agirlik: 20, kritik: true },
@@ -25,6 +27,12 @@ const kelimeSayisi = (value) => String(value || "").trim().split(/\s+/).filter(B
 const maddeSayisi = (value) => String(value || "").split("\n")
   .filter((satir) => /^\s*•\s+\S/.test(satir)).length;
 
+// Turkish consonant softening: borç -> borcu/borcun/borcunu. This is a
+// vocabulary-presence check only, not a substitute for financial review.
+const kavramVar = (text, concept) => concept === "borç"
+  ? /\bbor(?:ç|c(?:u|un|unu|unuz|undan|unun)?)/u.test(text)
+  : text.includes(normalize(concept));
+
 const agirHataKaliplari = [
   /\bkesinlikle (kredi al|kredi çek|yatırım yap)\b/i,
   /\b(kredi|onay|sonuç) garantisi veriyorum\b/i,
@@ -49,13 +57,24 @@ export function deterministikYanitiKontrolEt(vaka, yanit) {
   if (maddeler < 2 || maddeler > 3) sorunlar.push("eylem_maddesi_2_veya_3_degil");
 
   for (const [index, secenekler] of vaka.beklenen.kavramlar.entries()) {
-    if (!secenekler.some((secenek) => cevap.includes(normalize(secenek)))) sorunlar.push(`eksik_kavram:${index + 1}`);
+    if (!secenekler.some((secenek) => kavramVar(cevap, secenek))) sorunlar.push(`eksik_kavram:${index + 1}`);
   }
   for (const ifade of vaka.beklenen.yasakIfadeler) {
     if (tumMetin.includes(normalize(ifade))) agirHatalar.push(`yasak_ifade:${ifade}`);
   }
   for (const kalip of agirHataKaliplari) {
     if (kalip.test(tumMetin)) agirHatalar.push(`agir_hata_kalibi:${kalip.source}`);
+  }
+  const sunucuKontrolu = validateFinancialAssistantResponse({
+    response: yanit,
+    context: vaka.baglam,
+    question: vaka.soru,
+    history: vaka.history || [],
+  });
+  for (const hata of sunucuKontrolu.errors) {
+    if (hata === "unsafe_certainty_or_action" || hata === "insufficient_kmh_payment_for_closure" || hata.startsWith("ungrounded_percentage:")) {
+      agirHatalar.push(`sunucu_guvenlik_kapisi:${hata}`);
+    } else sorunlar.push(`sunucu_dogrulama:${hata}`);
   }
 
   return {

@@ -1,8 +1,9 @@
-export const LANDING_DENEYI = "landing-002";
-// LANDING-001 was a CTA-only PMax test. LANDING-002 compares the complete
-// current landing (control) with the rebuilt page (variant) for all new visits.
+export const LANDING_DENEYI = "landing-003";
+// LANDING-001 was a CTA-only test and LANDING-002 mixed offer, copy and
+// presentation changes. LANDING-003 keeps the offer and core claims equal so
+// that the complete page presentation can be compared cleanly.
 export const LANDING_DENEYI_AKTIF = true;
-export const LANDING_DENEYI_ANAHTARI = "borcama:landing-002-variant";
+export const LANDING_DENEYI_ANAHTARI = "borcama:landing-003-variant";
 
 const GECERLI_VARYANTLAR = new Set(["control", "variant"]);
 

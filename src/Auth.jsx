@@ -27,26 +27,59 @@ import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
-function TurnstileWidget({ siteKey, onToken, widgetKey }) {
+function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
   const ref = useRef(null);
   useEffect(() => {
     onToken('');
+    onStatus('loading');
     let widget;
     let active = true;
+    let watchdog = window.setTimeout(() => {
+      if (active) onStatus('error');
+    }, 8000);
+    const kontrolTamamlandi = (status) => {
+      window.clearTimeout(watchdog);
+      if (active) onStatus(status);
+    };
     const render = () => {
       if (!active || !ref.current || !window.turnstile) return;
       ref.current.replaceChildren();
       widget = window.turnstile.render(ref.current, {
         sitekey: siteKey,
-        callback: (token) => active && onToken(token),
-        'expired-callback': () => active && onToken(''),
-        'error-callback': () => active && onToken(''),
+        appearance: 'interaction-only',
+        execution: 'render',
+        language: 'tr',
+        size: 'flexible',
+        retry: 'auto',
+        'refresh-expired': 'auto',
+        'refresh-timeout': 'auto',
+        callback: (token) => {
+          if (!active) return;
+          onToken(token);
+          kontrolTamamlandi('ready');
+        },
+        'before-interactive-callback': () => active && onStatus('interactive'),
+        'expired-callback': () => {
+          if (!active) return;
+          onToken('');
+          onStatus('loading');
+        },
+        'error-callback': () => {
+          if (!active) return;
+          onToken('');
+          kontrolTamamlandi('error');
+        },
+        'timeout-callback': () => {
+          if (!active) return;
+          onToken('');
+          kontrolTamamlandi('timeout');
+        },
       });
     };
     if (window.turnstile) render();
     else window.addEventListener('turnstile-ready', render, { once: true });
-    return () => { active = false; window.removeEventListener('turnstile-ready', render); if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
-  }, [siteKey, widgetKey, onToken]);
+    return () => { active = false; window.clearTimeout(watchdog); window.removeEventListener('turnstile-ready', render); if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
+  }, [siteKey, widgetKey, onToken, onStatus]);
   return <div ref={ref} style={{ marginBottom: 12 }} />;
 }
 
@@ -128,6 +161,7 @@ const CSS = `
 .auth-btn:disabled{opacity:.6; cursor:default}
 .auth-btn:hover:not(:disabled){filter:brightness(0.96)}
 .auth-error{background:#ff6f5922;border:2px solid #ff6f59;color:#a53a2a;font-size:13px;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.auth-captcha-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid #e2a44f;border-radius:12px;background:#fff6df;color:#6e4712;font-size:12px;line-height:1.4}.auth-captcha-status button{flex:0 0 auto;border:1px solid #14160f;border-radius:999px;background:#fff;padding:7px 10px;color:#14160f;font:700 11px 'Space Grotesk',sans-serif;cursor:pointer}
 .auth-sent{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:10px 0}
 .auth-sent svg{color:#5D7A2E}
 .auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
@@ -198,6 +232,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaAttempt, setCaptchaAttempt] = useState(0);
+  const [captchaDurumu, setCaptchaDurumu] = useState("loading");
   const ilkReferansKodu = kayitModu ? davetKodunuYoldanOku("", window.location.search) : "";
   const [referansKodu, setReferansKodu] = useState(ilkReferansKodu);
   const [referansDurumu, setReferansDurumu] = useState(ilkReferansKodu ? "checking" : "idle");
@@ -257,9 +292,42 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   function authIstegiYap(request) {
     return runAuthAttempt(request, () => {
       setCaptchaToken("");
+      setCaptchaDurumu("loading");
       setCaptchaAttempt((x) => x + 1);
       setGonderiliyor(false);
     });
+  }
+
+  function captchaAlani(widgetKey) {
+    if (!turnstileSiteKey) return null;
+    const tekrarGerekli = captchaDurumu === "error" || captchaDurumu === "timeout";
+    return (
+      <>
+        <TurnstileWidget
+          siteKey={turnstileSiteKey}
+          widgetKey={`${widgetKey}-${captchaAttempt}`}
+          onToken={setCaptchaToken}
+          onStatus={setCaptchaDurumu}
+        />
+        {tekrarGerekli && (
+          <div className="auth-captcha-status" role="alert">
+            <span>
+              Güvenlik kontrolü tamamlanamadı. İnternet bağlantını kontrol edip yeniden deneyebilirsin.
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setCaptchaToken("");
+                setCaptchaDurumu("loading");
+                setCaptchaAttempt((x) => x + 1);
+              }}
+            >
+              Yeniden dene
+            </button>
+          </div>
+        )}
+      </>
+    );
   }
 
   async function linkGonder(e) {
@@ -499,9 +567,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               autoFocus={!nativeMi}
               required
             />
-            {turnstileSiteKey && (
-              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`reset-${sifirlamaModu}-${captchaAttempt}`} onToken={setCaptchaToken} />
-            )}
+            {captchaAlani(`reset-${sifirlamaModu}`)}
             <button
               className="auth-btn"
               type="submit"
@@ -535,9 +601,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               autoFocus={!nativeMi}
               required
             />
-            {turnstileSiteKey && (
-              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`link-${yontem}-${kayitModu}-${captchaAttempt}`} onToken={setCaptchaToken} />
-            )}
+            {captchaAlani(`link-${yontem}-${kayitModu}`)}
             <button
               className="auth-btn"
               type="submit"
@@ -710,9 +774,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                 <span>Bu {ortamAdi}da oturumu açık tut</span>
               </label>
             )}
-            {turnstileSiteKey && (
-              <TurnstileWidget siteKey={turnstileSiteKey} widgetKey={`password-${kayitModu}-${captchaAttempt}`} onToken={setCaptchaToken} />
-            )}
+            {captchaAlani(`password-${kayitModu}`)}
             <button
               className="auth-btn"
               type="submit"

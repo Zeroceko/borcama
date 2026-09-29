@@ -58,9 +58,12 @@ function hasStatementSummary(result = {}) {
 }
 
 async function pdfPages(file, progress) {
-  const pdfjs = await import("pdfjs-dist");
-  const workerUrl = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
-  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl.default;
+  const [pdfjs, workerModule] = await Promise.all([
+    import("pdfjs-dist"),
+    import("./pdfWorkerUrl.js"),
+  ]);
+  const pdfWorkerUrl = workerModule.default;
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
   const pdfDocument = await pdfjs.getDocument({
     data: await file.arrayBuffer(),
     cMapUrl: `${PDF_ASSET_ROOT}/cmaps/`,

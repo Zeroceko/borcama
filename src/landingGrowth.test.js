@@ -12,5 +12,9 @@ test("kayıtsız örnek deneyim tek temsili senaryoyu gösterir ve hesap/AI iste
   assert.match(landing, /İlk 30 gün Pro özellikleri hediye/);
   assert.match(landing, /Süre bitince Ücretsiz planın devam eder/);
   assert.match(landing, /href = "\/register\?plan=free"/);
+  assert.match(landing, /Banka şifresi yok/);
+  assert.match(landing, /Gerisini tablonda gör/);
+  assert.doesNotMatch(landing, /lg-start/);
+  assert.doesNotMatch(landing, /lg-faq/);
   assert.doesNotMatch(landing, /supabase|useSession|fetch\(|gemini|funnelEtkinligiKaydet/i);
 });

@@ -23,6 +23,16 @@ import {
   mevduatFaiziHesapla,
   nettenBruteMaas2026,
 } from "./seoTools.js";
+import {
+  FINANSAL_SOZLUK,
+  FINANSAL_SOZLUK_KATEGORILERI,
+  finansalSozlukTerimi,
+} from "./financialGlossary.js";
+import {
+  paraGirdisiniCoz,
+  paraGirdisiniFormatla,
+  turkLirasiFormatla,
+} from "./currencyInput.js";
 import "./SeoPages.css";
 
 const SITE = "https://borcama.com";
@@ -217,7 +227,7 @@ const REHBER_UYARILARI = {
 };
 
 export function seoYoluMu(yol) {
-  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
+  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/") || yol === "/finansal-sozluk" || yol.startsWith("/finansal-sozluk/");
 }
 
 export default function SeoSayfasi({ yol }) {
@@ -230,6 +240,11 @@ export default function SeoSayfasi({ yol }) {
   if (yol === "/araclar/kredi-odeme-plani-hesaplama") return <KrediOdemePlani />;
   if (yol === "/araclar/brut-net-maas-hesaplama") return <MaasHesaplama />;
   if (yol === "/araclar/kidem-tazminati-hesaplama") return <KidemTazminati />;
+  if (yol === "/finansal-sozluk") return <FinansalSozlukAna />;
+  if (yol.startsWith("/finansal-sozluk/")) {
+    const terim = finansalSozlukTerimi(yol.replace("/finansal-sozluk/", ""));
+    return terim ? <FinansalSozlukDetay terim={terim} /> : <FinansalSozlukAna />;
+  }
   if (yol === "/rehber") return <RehberAna />;
   const slug = yol.replace("/rehber/", "");
   const rehber = REHBERLER.find((item) => item.slug === slug);
@@ -253,7 +268,7 @@ function useSeo({ title, description, path, schema }) {
     setMeta("og:title", title, true);
     setMeta("og:description", description, true);
     setMeta("og:url", `${SITE}${path}`, true);
-    setMeta("og:type", path.startsWith("/rehber/") ? "article" : "website", true);
+    setMeta("og:type", path.startsWith("/rehber/") || path.startsWith("/finansal-sozluk/") ? "article" : "website", true);
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement("link");
@@ -266,8 +281,7 @@ function useSeo({ title, description, path, schema }) {
     const script = document.createElement("script");
     script.id = "borcama-seo-schema";
     script.type = "application/ld+json";
-    const parentPath = path.startsWith("/araclar") ? "/araclar" : "/rehber";
-    const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+    const { path: parentPath, name: parentName } = seoParent(path);
     const breadcrumbItems = [
       { "@type": "ListItem", position: 1, name: "Borcama", item: SITE },
       { "@type": "ListItem", position: 2, name: parentName, item: `${SITE}${parentPath}` },
@@ -281,7 +295,7 @@ function useSeo({ title, description, path, schema }) {
 }
 
 function Layout({ children }) {
-  return <div className="seo"><header className="seo-nav seo-shell"><a className="seo-logo" href="/" aria-label="Borcama ana sayfa"><img src="/borcama-logo.png" alt="Borcama" /></a><nav><a href="/araclar">Hesaplama Araçları</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="seo-btn small" href="/register?plan=free">Ücretsiz Başla <ArrowRight size={14}/></a></nav></header>{children}<footer className="seo-footer"><div className="seo-shell"><div><a className="seo-footer-logo" href="/"><img src="/borcama-logo.png" alt="Borcama"/></a><p>Kişisel borç, ödeme ve varlık takip aracı.</p></div><div className="seo-footer-links"><a href="/araclar">Ücretsiz Araçlar</a><a href="/rehber">Rehber</a><a href="/privacy">Gizlilik ve KVKK</a><a href="/faq">SSS</a></div></div></footer></div>;
+  return <div className="seo"><header className="seo-nav seo-shell"><a className="seo-logo" href="/" aria-label="Borcama ana sayfa"><img src="/borcama-logo.png" alt="Borcama" /></a><nav><a href="/araclar">Hesaplama Araçları</a><a href="/finansal-sozluk">Finansal Sözlük</a><a href="/rehber">Rehber</a><a href="/login">Giriş yap</a><a className="seo-btn small" href="/register?plan=free">Ücretsiz Başla <ArrowRight size={14}/></a></nav></header>{children}<footer className="seo-footer"><div className="seo-shell"><div><a className="seo-footer-logo" href="/"><img src="/borcama-logo.png" alt="Borcama"/></a><p>Kişisel borç, ödeme ve varlık takip aracı.</p></div><div className="seo-footer-links"><a href="/araclar">Ücretsiz Araçlar</a><a href="/finansal-sozluk">Finansal Sözlük</a><a href="/rehber">Rehber</a><a href="/privacy">Gizlilik ve KVKK</a><a href="/faq">SSS</a></div></div></footer></div>;
 }
 
 function Hero({ title, lead }) {
@@ -289,9 +303,14 @@ function Hero({ title, lead }) {
 }
 
 function Breadcrumb({ path, title }) {
-  const parentPath = path.startsWith("/araclar") ? "/araclar" : "/rehber";
-  const parentName = parentPath === "/araclar" ? "Hesaplama Araçları" : "Rehber";
+  const { path: parentPath, name: parentName } = seoParent(path);
   return <nav className="seo-breadcrumb seo-shell" aria-label="Sayfa yolu"><a href="/">Borcama</a><span>/</span>{path === parentPath ? <strong>{parentName}</strong> : <><a href={parentPath}>{parentName}</a><span>/</span><strong>{title}</strong></>}</nav>;
+}
+
+function seoParent(path) {
+  if (path.startsWith("/araclar")) return { path: "/araclar", name: "Hesaplama Araçları" };
+  if (path.startsWith("/finansal-sozluk")) return { path: "/finansal-sozluk", name: "Finansal Sözlük" };
+  return { path: "/rehber", name: "Rehber" };
 }
 
 function AraclarAna() {
@@ -312,11 +331,16 @@ function ToolLayout({ title, metaTitle, lead, path, schema, children, afterConte
 }
 
 function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
-  return <label className="seo-field"><span>{label}</span><div><input type="number" inputMode="decimal" min={min} step={step} value={value} onChange={(event) => onChange(event.target.value)}/><b>{suffix}</b></div>{hint && <small>{hint}</small>}</label>;
+  const para = suffix === "TL";
+  return <label className="seo-field"><span>{label}</span><div><input type={para ? "text" : "number"} inputMode="decimal" min={para ? undefined : min} step={para ? undefined : step} value={para ? paraGirdisiniFormatla(value) : value} onChange={(event) => onChange(para ? paraGirdisiniCoz(event.target.value) : event.target.value)}/><b>{suffix}</b></div>{hint && <small>{hint}</small>}</label>;
 }
 
 function Money({ value }) {
-  return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(value) || 0);
+  return turkLirasiFormatla(value);
+}
+
+function InlineMoneyInput({ value, onChange, ...props }) {
+  return <input {...props} type="text" inputMode="decimal" value={paraGirdisiniFormatla(value)} onChange={(event) => onChange(paraGirdisiniCoz(event.target.value))}/>;
 }
 
 function Summary({ items }) {
@@ -328,9 +352,17 @@ function BorcKapatma() {
   const [faiz, setFaiz] = useState("3.75");
   const [odeme, setOdeme] = useState("12000");
   const sonuc = useMemo(() => borcKapatmaHesapla({ borc, aylikFaiz: faiz, aylikOdeme: odeme }), [borc, faiz, odeme]);
+  useEffect(() => {
+    if (sonuc.tamamlandi) funnelEtkinligiKaydet("debt_payoff_result_view");
+  }, [sonuc.tamamlandi]);
   const schema = useMemo(() => toolSchema("Borç Kapatma Hesaplayıcı", "/araclar/borc-kapatma-hesaplayici"), []);
   const explanation = <section className="seo-explainer"><h2>Borç kapatma süresi nasıl hesaplanır?</h2><p>Hesaplama, kalan borca her ay girdiğin faiz oranını uygular ve belirlediğin aylık ödemeyi bakiyeden düşer. Aylık ödeme ilk ayın faizini karşılamıyorsa borç bu varsayımla kapanmaz.</p><div className="seo-formula"><b>Her ay kalan borç</b><span>Önceki bakiye + tahmini faiz − aylık ödeme</span></div><p>Tahmini kapanış süresini ve toplam ödemeyi bir başlangıç planı olarak kullan. Yeni harcama, faiz oranı veya ayırabildiğin ödeme değiştiğinde hesabı güncel rakamlarla yeniden yap.</p></section>;
-  return <ToolLayout title="Borç kapatma hesaplayıcı" lead="Aylık ödeme tutarına ve girdiğin faiz oranına göre borcun tahmini kaç ayda biteceğini hesapla." path="/araclar/borc-kapatma-hesaplayici" schema={schema} afterContent={explanation} faq={[["Bu sonuç kesin midir?","Hayır. Yeni harcama, oran değişikliği, vergi ve masraflar sonucu değiştirebilir."],["Hangi faiz oranını girmeliyim?","Bankanın ekstrende veya sözleşmende bildirdiği aylık oranı kullan."]]}><div className="seo-panel"><h2>Bilgilerini gir</h2><NumberField label="Toplam borç" value={borc} onChange={setBorc}/><NumberField label="Aylık faiz oranı" value={faiz} onChange={setFaiz} suffix="%" step="0.01" hint="Bankanın uyguladığı gerçek aylık oranı gir."/><NumberField label="Her ay ayıracağın ödeme" value={odeme} onChange={setOdeme}/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ PLAN</span>{sonuc.tamamlandi ? <><Summary items={[["Kapanış süresi", `${sonuc.ay} ay`],["Toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Toplam ödeme", <Money value={sonuc.toplamOdeme}/>]]}/><Schedule rows={sonuc.takvim}/></> : <Warning reason={sonuc.neden}/>}<Disclaimer/></div></ToolLayout>;
+  return <ToolLayout title="Borç kapatma hesaplayıcı" lead="Aylık ödeme tutarına ve girdiğin faiz oranına göre borcun tahmini kaç ayda biteceğini hesapla." path="/araclar/borc-kapatma-hesaplayici" schema={schema} afterContent={explanation} faq={[["Bu sonuç kesin midir?","Hayır. Yeni harcama, oran değişikliği, vergi ve masraflar sonucu değiştirebilir."],["Hangi faiz oranını girmeliyim?","Bankanın ekstrende veya sözleşmende bildirdiği aylık oranı kullan."]]}><div className="seo-panel"><h2>Bilgilerini gir</h2><NumberField label="Toplam borç" value={borc} onChange={setBorc}/><NumberField label="Aylık faiz oranı" value={faiz} onChange={setFaiz} suffix="%" step="0.01" hint="Bankanın uyguladığı gerçek aylık oranı gir."/><NumberField label="Her ay ayıracağın ödeme" value={odeme} onChange={setOdeme}/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ PLAN</span>{sonuc.tamamlandi ? <><Summary items={[["Kapanış süresi", `${sonuc.ay} ay`],["Toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Toplam ödeme", <Money value={sonuc.toplamOdeme}/>]]}/><Schedule rows={sonuc.takvim}/></> : <Warning reason={sonuc.neden}/>}<Disclaimer/></div>{sonuc.tamamlandi && <BorcKapatmaUrunKoprusu/>}</ToolLayout>;
+}
+
+function BorcKapatmaUrunKoprusu() {
+  const tikla = () => funnelEtkinligiKaydet("debt_payoff_product_click");
+  return <section className="seo-product-bridge" aria-labelledby="borc-kapatma-sonraki-adim"><span className="seo-product-bridge-kicker">TAHMİNİ GÖRDÜN. ŞİMDİ GERÇEK PLANI KUR.</span><h2 id="borc-kapatma-sonraki-adim">Borçlarını kendi ödeme planına dönüştür.</h2><p>Kartlarını, kredilerini ve ek hesaplarını ekle; kalan borcu, ödeme günlerini ve aylık yükünü tek yerde takip et.</p><ul><li><WalletCards size={17}/> Bütün borçlarını tek tabloda gör</li><li><CalendarDays size={17}/> Ödeme günlerini ve zorunlu tutarları takip et</li><li><ListChecks size={17}/> İlk kapatacağın borcu kendi kayıtlarınla planla</li></ul><div className="seo-product-actions"><a className="seo-btn" href="/register?plan=free&redirect=%2Fdebts" onClick={tikla}>Ücretsiz borç planını oluştur <ArrowRight size={15}/></a></div><small>Kart bilgisi gerekmez. Ücretsiz paket hep açık. Hesaplayıcıya girdiğin tutarlar kayıt bağlantısına veya ölçüme eklenmez.</small></section>;
 }
 
 function AsgariOdeme() {
@@ -365,8 +397,8 @@ function KrediOdemePlani() {
   const [aylikFaiz, setAylikFaiz] = useState("3.49");
   const [vadeAy, setVadeAy] = useState("12");
   const sonuc = useMemo(() => krediOdemePlaniHesapla({ krediTutari, aylikFaiz, vadeAy }), [krediTutari, aylikFaiz, vadeAy]);
-  const schema = useMemo(() => toolSchema("Kredi Ödeme Planı Hesaplama", "/araclar/kredi-odeme-plani-hesaplama"), []);
-  return <ToolLayout title="Kredi ödeme planı hesaplama" lead="Kredi tutarı, bankanın aylık faiz oranı ve vadeye göre tahmini taksiti, toplam faizi ve aylık ödeme planını gör." path="/araclar/kredi-odeme-plani-hesaplama" schema={schema} showSources={false} faq={[["Aylık mı yıllık mı faiz girmeliyim?","Bankanın kredi teklifinde yazan aylık faiz oranını gir."],["Masraflar dahil mi?","Hayır. Tahsis ücreti, sigorta, vergi ve bankaya özgü diğer masraflar bu temel hesaplamaya dahil değildir."]]}><div className="seo-panel"><h2>Kredi bilgilerini gir</h2><NumberField label="Kullanacağın kredi tutarı" value={krediTutari} onChange={setKrediTutari}/><NumberField label="Aylık faiz oranı" value={aylikFaiz} onChange={setAylikFaiz} suffix="%" step="0.01" hint="Bankanın teklifinde yazan aylık oranı gir."/><NumberField label="Vade süresi" value={vadeAy} onChange={setVadeAy} suffix="Ay" step="1"/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ KREDİ PLANI</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.aylikTaksit}/></div><Summary items={[["Aylık taksit", <Money value={sonuc.aylikTaksit}/>],["Toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Toplam ödeme", <Money value={sonuc.toplamOdeme}/>]]}/><KrediSchedule rows={sonuc.takvim}/></> : <Warning reason="eksik"/>}<Disclaimer text="Bu sonuç yaklaşık planlama içindir. Vergi, tahsis ücreti, sigorta ve bankanın diğer masrafları dahil değildir."/></div></ToolLayout>;
+  const schema = useMemo(() => toolSchema("Kredi Taksit ve Ödeme Planı Hesaplama", "/araclar/kredi-odeme-plani-hesaplama"), []);
+  return <ToolLayout title="Kredi taksit ve ödeme planı hesaplama" lead="Borcama kredi sunmaz veya kredi aracılığı yapmaz. Bankandan aldığın mevcut teklifin tutarı, aylık faiz oranı ve vadesiyle tahmini taksiti, toplam faizi ve ödeme planını hesaplar." path="/araclar/kredi-odeme-plani-hesaplama" schema={schema} showSources={false} faq={[["Aylık mı yıllık mı faiz girmeliyim?","Bankanın kredi teklifinde yazan aylık faiz oranını gir."],["Masraflar dahil mi?","Hayır. Tahsis ücreti, sigorta, vergi ve bankaya özgü diğer masraflar bu temel hesaplamaya dahil değildir."],["Borcama kredi veriyor mu?","Hayır. Borcama kredi sunmaz, başvuru toplamaz veya kredi verenlerle aracılık yapmaz; yalnızca girdiğin mevcut teklif bilgileriyle hesaplama yapar."]]}><div className="seo-panel"><h2>Mevcut teklif bilgilerini gir</h2><p className="seo-inline-note">Bu araç bir kredi teklifi veya başvuru formu değildir; girdiğin bilgiler kaydedilmez.</p><NumberField label="Teklifteki kredi tutarı" value={krediTutari} onChange={setKrediTutari}/><NumberField label="Aylık faiz oranı" value={aylikFaiz} onChange={setAylikFaiz} suffix="%" step="0.01" hint="Bankanın mevcut teklifinde yazan aylık oranı gir."/><NumberField label="Vade süresi" value={vadeAy} onChange={setVadeAy} suffix="Ay" step="1"/></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ ÖDEME PLANI</span>{sonuc.hesaplandi ? <><div className="seo-big-money"><Money value={sonuc.aylikTaksit}/></div><Summary items={[["Aylık taksit", <Money value={sonuc.aylikTaksit}/>],["Toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Toplam ödeme", <Money value={sonuc.toplamOdeme}/>]]}/><KrediSchedule rows={sonuc.takvim}/></> : <Warning reason="eksik"/>}<Disclaimer text="Bu sonuç yaklaşık planlama içindir. Borcama kredi sunmaz veya aracılık yapmaz. Vergi, tahsis ücreti, sigorta ve bankanın diğer masrafları dahil değildir."/></div></ToolLayout>;
 }
 
 function MaasHesaplama() {
@@ -403,7 +435,7 @@ function BorcPlani() {
   const guncelle = (id, alan, deger) => setBorclar((liste) => liste.map((item) => item.id === id ? { ...item, [alan]: deger } : item));
   const ekle = () => setBorclar((liste) => [...liste, { id: crypto.randomUUID(), ad: "", kalan: "", faiz: "", asgari: "" }]);
   const schema = useMemo(() => toolSchema("Borç Ödeme Planı Oluşturucu", "/araclar/borc-odeme-plani"), []);
-  return <ToolLayout title="Borç ödeme planı oluşturucu" lead="Borçlarını, aylık maliyetlerini ve zorunlu ödemelerini ekle; faiz veya kartopu sırasıyla tahmini planını gör." path="/araclar/borc-odeme-plani" schema={schema} faq={[["Faiz yöntemi nedir?","Aylık oranı en yüksek borca ek ödeme ayırır."],["Kartopu yöntemi nedir?","Bakiyesi en küçük borca ek ödeme ayırarak erken tamamlanan kalemler oluşturur."]]}><div className="seo-panel seo-wide-form"><h2>Plan bilgileri</h2><NumberField label="Toplam aylık ödeme bütçesi" value={butce} onChange={setButce}/><span className="seo-strategy-label">Ödeme önceliği</span><div className="seo-toggle"><button className={strateji === "faiz" ? "active" : ""} onClick={() => setStrateji("faiz")}>En yüksek faiz</button><button className={strateji === "kar" ? "active" : ""} onClick={() => setStrateji("kar")}>En küçük bakiye</button></div><p className="seo-form-help">Her borç için güncel kalan tutarı, aylık faiz oranını ve zorunlu asgari ödemeyi gir.</p><div className="seo-plan-head"><span>Borç adı</span><span>Kalan borç</span><span>Aylık faiz</span><span>Asgari ödeme</span><span/></div><div className="seo-debts seo-plan-debts">{borclar.map((item) => <div className="seo-debt-row" key={item.id}><label className="seo-debt-field"><span>Borç adı</span><input aria-label="Borç adı" value={item.ad} onChange={(event) => guncelle(item.id,"ad",event.target.value)} placeholder="Örn. Kredi kartı"/></label><label className="seo-debt-field"><span>Kalan borç</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Borç"} kalan borç`} type="number" min="0" value={item.kalan} onChange={(event) => guncelle(item.id,"kalan",event.target.value)} placeholder="Örn. 70.000"/><b>TL</b></div></label><label className="seo-debt-field"><span>Aylık faiz</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Borç"} aylık faiz`} type="number" min="0" step="0.01" value={item.faiz} onChange={(event) => guncelle(item.id,"faiz",event.target.value)} placeholder="Örn. 3,75"/><b>%</b></div></label><label className="seo-debt-field"><span>Asgari ödeme</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Borç"} asgari ödeme`} type="number" min="0" value={item.asgari} onChange={(event) => guncelle(item.id,"asgari",event.target.value)} placeholder="Örn. 7.000"/><b>TL</b></div></label><button aria-label={`${item.ad || "Borç"} satırını sil`} title="Borcu sil" onClick={() => setBorclar((liste) => liste.filter((borc) => borc.id !== item.id))}><Trash2 size={16}/></button></div>)}</div><button className="seo-add" onClick={ekle}><Plus size={16}/> Yeni borç ekle</button></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ PLAN</span>{sonuc.tamamlandi ? <><Summary items={[["Kapanış süresi", `${sonuc.ay} ay`],["Tahmini toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Aylık bütçe", <Money value={butce}/>]]}/><Schedule rows={sonuc.takvim}/></> : <Warning reason={sonuc.neden} required={sonuc.gerekliAsgari}/>}<Disclaimer/></div></ToolLayout>;
+  return <ToolLayout title="Borç ödeme planı oluşturucu" lead="Borçlarını, aylık maliyetlerini ve zorunlu ödemelerini ekle; faiz veya kartopu sırasıyla tahmini planını gör." path="/araclar/borc-odeme-plani" schema={schema} faq={[["Faiz yöntemi nedir?","Aylık oranı en yüksek borca ek ödeme ayırır."],["Kartopu yöntemi nedir?","Bakiyesi en küçük borca ek ödeme ayırarak erken tamamlanan kalemler oluşturur."]]}><div className="seo-panel seo-wide-form"><h2>Plan bilgileri</h2><NumberField label="Toplam aylık ödeme bütçesi" value={butce} onChange={setButce}/><span className="seo-strategy-label">Ödeme önceliği</span><div className="seo-toggle"><button className={strateji === "faiz" ? "active" : ""} onClick={() => setStrateji("faiz")}>En yüksek faiz</button><button className={strateji === "kar" ? "active" : ""} onClick={() => setStrateji("kar")}>En küçük bakiye</button></div><p className="seo-form-help">Her borç için güncel kalan tutarı, aylık faiz oranını ve zorunlu asgari ödemeyi gir.</p><div className="seo-plan-head"><span>Borç adı</span><span>Kalan borç</span><span>Aylık faiz</span><span>Asgari ödeme</span><span/></div><div className="seo-debts seo-plan-debts">{borclar.map((item) => <div className="seo-debt-row" key={item.id}><label className="seo-debt-field"><span>Borç adı</span><input aria-label="Borç adı" value={item.ad} onChange={(event) => guncelle(item.id,"ad",event.target.value)} placeholder="Örn. Kredi kartı"/></label><label className="seo-debt-field"><span>Kalan borç</span><div className="seo-calendar-input"><InlineMoneyInput aria-label={`${item.ad || "Borç"} kalan borç`} value={item.kalan} onChange={(value) => guncelle(item.id,"kalan",value)} placeholder="Örn. 70.000"/><b>TL</b></div></label><label className="seo-debt-field"><span>Aylık faiz</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Borç"} aylık faiz`} type="number" min="0" step="0.01" value={item.faiz} onChange={(event) => guncelle(item.id,"faiz",event.target.value)} placeholder="Örn. 3,75"/><b>%</b></div></label><label className="seo-debt-field"><span>Asgari ödeme</span><div className="seo-calendar-input"><InlineMoneyInput aria-label={`${item.ad || "Borç"} asgari ödeme`} value={item.asgari} onChange={(value) => guncelle(item.id,"asgari",value)} placeholder="Örn. 7.000"/><b>TL</b></div></label><button aria-label={`${item.ad || "Borç"} satırını sil`} title="Borcu sil" onClick={() => setBorclar((liste) => liste.filter((borc) => borc.id !== item.id))}><Trash2 size={16}/></button></div>)}</div><button className="seo-add" onClick={ekle}><Plus size={16}/> Yeni borç ekle</button></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ PLAN</span>{sonuc.tamamlandi ? <><Summary items={[["Kapanış süresi", `${sonuc.ay} ay`],["Tahmini toplam faiz", <Money value={sonuc.toplamFaiz}/>],["Aylık bütçe", <Money value={butce}/>]]}/><Schedule rows={sonuc.takvim}/></> : <Warning reason={sonuc.neden} required={sonuc.gerekliAsgari}/>}<Disclaimer/></div></ToolLayout>;
 }
 
 function OdemeTakvimi() {
@@ -412,7 +444,7 @@ function OdemeTakvimi() {
   const sirali = odemeler.filter((item) => item.ad || item.gun || item.tutar).sort((a, b) => Number(a.gun) - Number(b.gun));
   const guncelle = (id, alan, deger) => setOdemeler((liste) => liste.map((item) => item.id === id ? { ...item, [alan]: deger } : item));
   const schema = useMemo(() => toolSchema("Aylık Ödeme Takvimi", "/araclar/aylik-odeme-takvimi"), []);
-  return <ToolLayout title="Aylık ödeme takvimi" lead="Bu ay ödeyeceğin kart, kredi ve diğer borçları günlerine göre sırala; toplam aylık yükünü gör." path="/araclar/aylik-odeme-takvimi" schema={schema} faq={[["Bilgilerim kaydediliyor mu?","Hayır. Yazdığın bilgiler yalnızca bu hesaplama sırasında kullanılır."],["Kalıcı takip nasıl yapılır?","Ücretsiz Borcama hesabında dönemleri ve gerçekleşen ödemeleri kaydedebilirsin."]]}><div className="seo-panel seo-wide-form"><h2>Bu ayın ödemeleri</h2><p className="seo-form-help">Her satıra ödemenin adını, ayın kaçıncı günü ödeneceğini ve bu ay ödeyeceğin tutarı yaz.</p><div className="seo-debt-head"><span>Ödeme adı</span><span>Son ödeme günü</span><span>Bu ay ödenecek tutar</span><span/></div><div className="seo-debts calendar">{odemeler.map((item) => <div className="seo-debt-row" key={item.id}><label className="seo-calendar-field"><span>Ödeme adı</span><input aria-label="Ödeme adı" value={item.ad} onChange={(event) => guncelle(item.id,"ad",event.target.value)} placeholder="Örn. Kredi kartı"/></label><label className="seo-calendar-field"><span>Son ödeme günü</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} son ödeme günü`} type="number" min="1" max="31" value={item.gun} onChange={(event) => guncelle(item.id,"gun",event.target.value)} placeholder="Örn. 10"/><b>Gün</b></div></label><label className="seo-calendar-field"><span>Bu ay ödenecek tutar</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} bu ay ödenecek tutarı`} type="number" min="0" value={item.tutar} onChange={(event) => guncelle(item.id,"tutar",event.target.value)} placeholder="Örn. 7.500"/><b>TL</b></div></label><button aria-label={`${item.ad || "Ödeme"} satırını sil`} title="Ödemeyi sil" onClick={() => setOdemeler((liste) => liste.filter((odeme) => odeme.id !== item.id))}><Trash2 size={16}/></button></div>)}</div><button className="seo-add" onClick={() => setOdemeler((liste) => [...liste,{id:crypto.randomUUID(),ad:"",gun:"",tutar:""}])}><Plus size={16}/> Yeni ödeme ekle</button></div><div className="seo-result"><span className="seo-result-kicker">AYLIK TOPLAM</span><div className="seo-big-money"><Money value={toplam}/></div>{sirali.length ? <div className="seo-calendar-list">{sirali.map((item) => <div key={item.id}><b>{item.gun || "—"}</b><span>{item.ad || "Adsız ödeme"}</span><strong><Money value={item.tutar}/></strong></div>)}</div> : <p className="seo-calendar-empty">Bir ödeme eklediğinde takvimin burada oluşacak.</p>}<Disclaimer text="Bu geçici plan kaydedilmez ve ödeme talimatı oluşturmaz."/></div></ToolLayout>;
+  return <ToolLayout title="Aylık ödeme takvimi" lead="Bu ay ödeyeceğin kart, kredi ve diğer borçları günlerine göre sırala; toplam aylık yükünü gör." path="/araclar/aylik-odeme-takvimi" schema={schema} faq={[["Bilgilerim kaydediliyor mu?","Hayır. Yazdığın bilgiler yalnızca bu hesaplama sırasında kullanılır."],["Kalıcı takip nasıl yapılır?","Ücretsiz Borcama hesabında dönemleri ve gerçekleşen ödemeleri kaydedebilirsin."]]}><div className="seo-panel seo-wide-form"><h2>Bu ayın ödemeleri</h2><p className="seo-form-help">Her satıra ödemenin adını, ayın kaçıncı günü ödeneceğini ve bu ay ödeyeceğin tutarı yaz.</p><div className="seo-debt-head"><span>Ödeme adı</span><span>Son ödeme günü</span><span>Bu ay ödenecek tutar</span><span/></div><div className="seo-debts calendar">{odemeler.map((item) => <div className="seo-debt-row" key={item.id}><label className="seo-calendar-field"><span>Ödeme adı</span><input aria-label="Ödeme adı" value={item.ad} onChange={(event) => guncelle(item.id,"ad",event.target.value)} placeholder="Örn. Kredi kartı"/></label><label className="seo-calendar-field"><span>Son ödeme günü</span><div className="seo-calendar-input"><input aria-label={`${item.ad || "Ödeme"} son ödeme günü`} type="number" min="1" max="31" value={item.gun} onChange={(event) => guncelle(item.id,"gun",event.target.value)} placeholder="Örn. 10"/><b>Gün</b></div></label><label className="seo-calendar-field"><span>Bu ay ödenecek tutar</span><div className="seo-calendar-input"><InlineMoneyInput aria-label={`${item.ad || "Ödeme"} bu ay ödenecek tutarı`} value={item.tutar} onChange={(value) => guncelle(item.id,"tutar",value)} placeholder="Örn. 7.500"/><b>TL</b></div></label><button aria-label={`${item.ad || "Ödeme"} satırını sil`} title="Ödemeyi sil" onClick={() => setOdemeler((liste) => liste.filter((odeme) => odeme.id !== item.id))}><Trash2 size={16}/></button></div>)}</div><button className="seo-add" onClick={() => setOdemeler((liste) => [...liste,{id:crypto.randomUUID(),ad:"",gun:"",tutar:""}])}><Plus size={16}/> Yeni ödeme ekle</button></div><div className="seo-result"><span className="seo-result-kicker">AYLIK TOPLAM</span><div className="seo-big-money"><Money value={toplam}/></div>{sirali.length ? <div className="seo-calendar-list">{sirali.map((item) => <div key={item.id}><b>{item.gun || "—"}</b><span>{item.ad || "Adsız ödeme"}</span><strong><Money value={item.tutar}/></strong></div>)}</div> : <p className="seo-calendar-empty">Bir ödeme eklediğinde takvimin burada oluşacak.</p>}<Disclaimer text="Bu geçici plan kaydedilmez ve ödeme talimatı oluşturmaz."/></div></ToolLayout>;
 }
 
 function Schedule({ rows }) {
@@ -430,7 +462,7 @@ function MaasYillikSchedule({ rows }) {
 }
 
 function Warning({ reason, required }) {
-  const text = reason === "butce-asgariden-dusuk" ? `Aylık bütçe, toplam zorunlu ödemeden düşük. En az ${new Intl.NumberFormat("tr-TR",{style:"currency",currency:"TRY",maximumFractionDigits:0}).format(required || 0)} gir.` : reason === "yetersiz-odeme" ? "Aylık ödeme ilk ayın tahmini faizini karşılamıyor; bu tutarla borç azalmayabilir." : "Hesaplama için sıfırdan büyük ve geçerli tutarlar gir.";
+  const text = reason === "butce-asgariden-dusuk" ? `Aylık bütçe, toplam zorunlu ödemeden düşük. En az ${turkLirasiFormatla(required)} gir.` : reason === "yetersiz-odeme" ? "Aylık ödeme ilk ayın tahmini faizini karşılamıyor; bu tutarla borç azalmayabilir." : "Hesaplama için sıfırdan büyük ve geçerli tutarlar gir.";
   return <div className="seo-warning">{text}</div>;
 }
 
@@ -457,6 +489,56 @@ function AdSlot() {
 
 function Faq({ items }) {
   return <section className="seo-faq"><h2>Hesaplama hakkında</h2>{items.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</section>;
+}
+
+function FinansalSozlukAna() {
+  const [arama, setArama] = useState("");
+  const [kategori, setKategori] = useState("Tümü");
+  const sorgu = arama.trim().toLocaleLowerCase("tr-TR");
+  const alfabe = [..."ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"];
+  const harf = (terim) => terim.title.slice(0, 1).toLocaleUpperCase("tr-TR");
+  const terimler = FINANSAL_SOZLUK
+    .filter((terim) => kategori === "Tümü" || terim.category === kategori)
+    .filter((terim) => !sorgu || `${terim.title} ${terim.definition} ${terim.category}`.toLocaleLowerCase("tr-TR").includes(sorgu))
+    .sort((a, b) => a.title.localeCompare(b.title, "tr-TR"));
+  const doluHarfler = new Set(terimler.map(harf));
+  const schema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Borcama Finansal Sözlük",
+    description: "Borç, kredi kartı, faiz ve bütçe terimlerini sade örneklerle açıklayan finansal sözlük.",
+    url: `${SITE}/finansal-sozluk`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: FINANSAL_SOZLUK.length,
+      itemListElement: FINANSAL_SOZLUK.map((terim, index) => ({ "@type": "ListItem", position: index + 1, url: `${SITE}/finansal-sozluk/${terim.slug}`, name: terim.title })),
+    },
+  }), []);
+  useSeo({ title: "Finansal Sözlük", description: "Faiz, temerrüt, kredi kartı ekstresi, kalan anapara, nakit akışı ve borç yönetimi terimlerini sade örneklerle öğrenin.", path: "/finansal-sozluk", schema });
+  return <Layout><main><Breadcrumb path="/finansal-sozluk" title="Finansal Sözlük"/><Hero title="Finansal Sözlük" lead="Bankanın söylediğini gündelik dile çevir. Borç, faiz, kredi kartı ve bütçe terimlerini kısa örneklerle anla."/><section className="seo-section seo-shell"><label className="seo-glossary-search"><span>Sözlükte ara</span><input type="search" value={arama} onChange={(event) => setArama(event.target.value)} placeholder="Örn. temerrüt, faiz, kalan anapara"/></label><nav className="seo-glossary-alphabet" aria-label="Terimlerin ilk harfine göre dizini">{alfabe.map((item) => doluHarfler.has(item) ? <a key={item} href={`#harf-${item.toLocaleLowerCase("tr-TR")}`}>{item}</a> : <span aria-disabled="true" key={item}>{item}</span>)}</nav><div className="seo-glossary-categories" aria-label="Sözlük kategorileri"><button className={kategori === "Tümü" ? "active" : ""} type="button" onClick={() => setKategori("Tümü")}>Tümü</button>{FINANSAL_SOZLUK_KATEGORILERI.map((category) => <button className={kategori === category ? "active" : ""} type="button" key={category} onClick={() => setKategori(category)}>{category}</button>)}</div><p className="seo-glossary-count"><strong>{terimler.length}</strong> terim gösteriliyor</p>{terimler.length ? alfabe.map((item) => { const grup = terimler.filter((terim) => harf(terim) === item); return grup.length ? <section className="seo-glossary-group" id={`harf-${item.toLocaleLowerCase("tr-TR")}`} key={item}><h2>{item}</h2><div className="seo-glossary-grid">{grup.map((terim) => <a href={`/finansal-sozluk/${terim.slug}`} key={terim.slug}><span>{item}</span><div><small>{terim.category}</small><h3>{terim.title}</h3><p>{terim.definition}</p><b>Tanımı oku <ArrowRight size={14}/></b></div></a>)}</div></section> : null; }) : <p className="seo-glossary-empty">Bu aramayla eşleşen terim bulunamadı.</p>}<Cta/></section></main></Layout>;
+}
+
+function FinansalSozlukDetay({ terim }) {
+  const path = `/finansal-sozluk/${terim.slug}`;
+  const related = terim.related.map(finansalSozlukTerimi).filter(Boolean);
+  const schema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${terim.title} nedir?`,
+    description: terim.definition,
+    mainEntityOfPage: `${SITE}${path}`,
+    author: { "@type": "Organization", name: "Borcama" },
+    publisher: { "@type": "Organization", name: "Borcama", logo: { "@type": "ImageObject", url: `${SITE}/borcama-logo.png` } },
+    datePublished: "2026-09-23",
+    dateModified: "2026-09-23",
+    mainEntity: { "@type": "DefinedTerm", name: terim.title, description: terim.definition, inDefinedTermSet: `${SITE}/finansal-sozluk` },
+  }), [path, terim]);
+  useSeo({ title: `${terim.title} Nedir?`, description: `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`, path, schema });
+  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.title} nedir?</h1><p className="seo-article-lead">{terim.definition}</p><div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section><section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
+}
+
+function slugifyCategory(category) {
+  return category.toLocaleLowerCase("tr-TR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("ı", "i").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 function RehberAna() {

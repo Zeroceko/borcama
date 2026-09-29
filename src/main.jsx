@@ -37,7 +37,7 @@ googleAdsBaslat();
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
 
 function seoYoluMu(yol) {
-  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/");
+  return yol === "/araclar" || yol.startsWith("/araclar/") || yol === "/rehber" || yol.startsWith("/rehber/") || yol === "/finansal-sozluk" || yol.startsWith("/finansal-sozluk/");
 }
 
 function yonetimYetkisiVar(session) {
@@ -416,10 +416,10 @@ function KimlikliKok() {
 
   if (!session) {
     const sorgu = new URLSearchParams(window.location.search);
-    const feedbackYolu = sorgu.get("feedback") === "1"
+    const uygulamaIciHedef = sorgu.get("feedback") === "1" || sorgu.get("assistant") === "1"
       ? `${window.location.pathname}${window.location.search}`
       : "/summary";
-    return <GirisEkrani redirectTo={feedbackYolu} />;
+    return <GirisEkrani redirectTo={uygulamaIciHedef} />;
   }
 
   const bekleyenPlan = proNiyetiniOku();

@@ -1,13 +1,54 @@
 const number = (value) => Math.max(Number(value) || 0, 0);
 
+function timestamp(value) {
+  const parsed = Date.parse(String(value || ""));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function currentStatementStartedAt(card = {}) {
+  const candidates = [
+    card.ekstreBelgeOzeti?.yuklenmeTarihi,
+    ...(Array.isArray(card.ekstreGecmisi)
+      ? card.ekstreGecmisi.map((statement) => statement?.arsivlenmeTarihi)
+      : []),
+  ]
+    .map(timestamp)
+    .filter((value) => value !== null);
+  return candidates.length ? Math.max(...candidates) : null;
+}
+
+function restructuringBelongsToCurrentStatement(card = {}, record = {}) {
+  const currentPeriod = String(card.ekstreAyi || "");
+  const recordPeriod = String(record.ekstreAyi || "");
+  if (recordPeriod) return !currentPeriod || recordPeriod === currentPeriod;
+
+  // Eski kayıtlarda dönem alanı yoktu. Yeni ekstre açıldıktan/yüklendikten önce
+  // oluşturulan yapılandırmayı güncel ekstre borcundan yeniden düşme.
+  const statementStartedAt = currentStatementStartedAt(card);
+  const createdAt = timestamp(record.olusturulmaTarihi);
+  if (statementStartedAt !== null && createdAt !== null) {
+    return createdAt >= statementStartedAt;
+  }
+  return true;
+}
+
 export function cardRestructuredAmount(card = {}) {
   return (Array.isArray(card.yapilandirmaKayitlari) ? card.yapilandirmaKayitlari : [])
+    .filter((record) => restructuringBelongsToCurrentStatement(card, record))
     .reduce((total, item) => total + number(item?.karttanDusulenTutar ?? item?.tutar), 0);
 }
 
 export function latestCardRestructuring(card = {}) {
-  const records = Array.isArray(card.yapilandirmaKayitlari) ? card.yapilandirmaKayitlari : [];
+  const records = (Array.isArray(card.yapilandirmaKayitlari) ? card.yapilandirmaKayitlari : [])
+    .filter((record) => restructuringBelongsToCurrentStatement(card, record));
   return records.length ? records[records.length - 1] : null;
+}
+
+export function bindCardRestructuringsToStatement(card = {}, statementPeriod = card.ekstreAyi) {
+  const period = String(statementPeriod || "");
+  const records = Array.isArray(card.yapilandirmaKayitlari) ? card.yapilandirmaKayitlari : [];
+  if (!period) return records;
+  return records.map((record) => record?.ekstreAyi ? record : { ...record, ekstreAyi: period });
 }
 
 export function cardOutstandingBeforeRestructuring(card = {}) {
@@ -81,6 +122,7 @@ export function applyCardRestructuring(data = {}, input = {}) {
     ilkOdemeTarihi: input.firstPaymentDate,
     aylikTaksit: installment,
     taksitSayisi: installmentCount,
+    ekstreAyi: card.ekstreAyi || null,
     bankaPlaniEsas: true,
     ...(monthlyInterest == null ? {} : { aylikNominalFaiz: monthlyInterest }),
     ...(kkdfRate == null ? {} : { kkdfOrani: kkdfRate }),

@@ -10,6 +10,252 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
 - Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
 
+## [1.58.0] - 2026-09-28
+
+### Değiştirildi
+
+- Manuel kredi ekleme formu banka, kredi adı, başlangıç kredi tutarı, aylık faiz, toplam ve ödenen taksit, aylık taksit ile ilk ödeme tarihini birlikte alıyor; kalan taksit ve ödeme günü çelişkiyi önlemek için otomatik hesaplanıyor.
+
+## [1.57.3] - 2026-09-28
+
+### Değiştirildi
+
+- Borç, ekstre, ödeme, yapılandırma, varlık, gelir, harcama ve ücretsiz hesaplama araçlarındaki para alanları yazarken Türkçe binlik ve ondalık ayırıcıyla gösteriliyor; dinamik TL çıktıları ortak `₺1.234,56` biçimine getirildi.
+
+## [1.57.2] - 2026-09-28
+
+### Düzeltildi
+
+- Yeni bir kredi ödeme planı yüklendiğinde aynı banka ve kredi türündeki önceki kredi artık otomatik seçilip üzerine yazılmıyor; her PDF varsayılan olarak ayrı kredi oluşturuyor ve mevcut kayıt yalnız kullanıcı açıkça seçerse güncelleniyor.
+
+## [1.57.1] - 2026-09-28
+
+### Düzeltildi
+
+- Kredi eklerken toplam ve ödenen taksit sayısından kalan taksit ile kalan toplam ödeme otomatik hesaplanıyor; aylık faiz bankanın taksitini değiştirmeden saklanıyor ve kredi borçları kartında ayrıca gösteriliyor.
+- Kredi silme düğmesi artık kaydı doğrudan kaldırmıyor; banka, kredi türü ve kalan ödeme tutarını gösteren açık onay penceresinden sonra siliyor.
+- Borç, taksit, limit, ekstre ve ödeme tutarı alanları yazarken binlik ayırıcıyla Türk lirası biçiminde gösteriliyor; örneğin `4000000` girişi ekranda `4.000.000` oluyor.
+
+## [1.57.0] - 2026-09-28
+
+### Eklendi
+
+- Borç kapatma hesaplayıcısında tahmini sonucu görenler, hesaplanan tutarlar ölçüme taşınmadan doğrudan kendi borç planlarını oluşturmaya geçebiliyor; kayıt, doğrulama ve ilk borç/ekstre adımları ayrı izleniyor.
+
+## [1.56.10] - 2026-09-25
+
+### Değiştirildi
+
+- Harcama içinden kart veya hesap eklerken banka adı, yazım farklılıklarını önlemek için serbest metin yerine banka listesinden seçiliyor; listede olmayan kurumlar “Diğer banka” ile eklenebiliyor.
+
+## [1.56.9] - 2026-09-25
+
+### Değiştirildi
+
+- Harcama kaynağına kart veya hesap ekleme seçenekleri dropdown içine taşındı; seçim yapıldığında ayrıntıların girildiği modal açılıyor ve kaydedilen kaynak harcamada otomatik seçiliyor.
+
+## [1.56.8] - 2026-09-25
+
+### Eklendi
+
+- Harcama kaydında henüz kartı veya banka hesabı olmayan kullanıcılar, formdan ayrılmadan yeni kaynak ekleyip harcamada doğrudan seçebilir hale geldi.
+
+### Değiştirildi
+
+- Harcama kaynağı listesi tüm banka adlarını hesap gibi göstermek yerine yalnız kullanıcının kayıtlı kart ve mevduat hesaplarını gösteriyor; aynı adlı kartlar son dört hanesiyle ayırt ediliyor.
+
+## [1.56.7] - 2026-09-25
+
+### Eklendi
+
+- Google Ads arama kampanyası için yazı, logo ve arayüz bindirmesi içermeyen, tek sahneli kare ve yatay finans planlama görselleri eklendi.
+
+### Değiştirildi
+
+- Kredi ödeme planı aracının kredi sunmadığı veya aracılık yapmadığı sayfanın ilk alanında açıklandı; araç yalnız kullanıcının mevcut banka teklifindeki bilgilerle hesaplama yaptığını belirtecek biçimde yeniden adlandırıldı.
+
+## [1.56.6] - 2026-09-24
+
+### Değiştirildi
+
+- Finansal Sözlük 200 terime çıkarıldı; tasfiye kavramları ile kredi kartı borcu, KMH borcu, borç kapatma kredisi, yapılandırma faizi ve ödenmeyen borç gibi yüksek niyetli aramalar için ayrı, bağlantılı açıklama sayfaları eklendi.
+- Sözlük ana sayfası ile 200 terim sayfası üretim sitemap'ine otomatik eklenerek arama motorlarının bu URL'leri keşfetmesi sağlandı.
+
+## [1.56.5] - 2026-09-23
+
+### Düzeltildi
+
+- Önceki ekstre döneminde yapılandırılmış kart borcu yeni ekstre borcundan yeniden düşülmüyor; kalan borç artık güncel ekstre toplamını ve bu döneme ait ödemeleri gösteriyor.
+
+## [1.56.4] - 2026-09-23
+
+### Düzeltildi
+
+- Ekstre önizlemesindeki “Ekstreyi kaydet” düğmesi, kayıt yardımcılarının bileşene aktarılmaması nedeniyle sessiz kalıyordu; kaydetme işlemi tekrar veri saklama akışına bağlandı.
+
+## [1.56.3] - 2026-09-23
+
+### Değiştirildi
+
+- Mevcut kartlardaki “Yeni ekstre” işlemi, seçili kartı koruyarak cihazda okutma veya manuel giriş yöntemini seçtiriyor.
+
+### Düzeltildi
+
+- Enpara ekstrelerinde harcama kalemleri bulunduğunda önizleme ekranını kapatan tarih ve tutar gösterimi hataları giderildi; geçersiz işlem tarihleri ekranı düşürmeden açıklanıyor.
+
+## [1.56.2] - 2026-09-23
+
+### Değiştirildi
+
+- Finansal Sözlük 100 terime çıkarıldı; Türkçe A-Z dizini, çalışan kategori filtreleri ve alfabetik terim grupları eklendi.
+
+## [1.56.1] - 2026-09-23
+
+### Değiştirildi
+
+- Finansal Sözlük; kredi, kart, borç hukuku, bütçe ve birikim başlıklarında 77 özgün kavrama genişletildi.
+
+## [1.56.0] - 2026-09-23
+
+### Eklendi
+
+- Ücretsiz Araçlar bağlantısının yanına; faiz, temerrüt, tasfiye, kredi kartı, kredi ve bütçe kavramlarını sade tanım, örnek ve ilgili terimlerle açıklayan taranabilir Finansal Sözlük eklendi.
+
+## [1.55.4] - 2026-09-22
+
+### Değiştirildi
+
+- Kullanıcılar ilk taksit tarihi gelmemiş kredilere ve seçtikleri gelecek ayın taksitine şimdiden ödeme kaydedebilir; ödeme seçilen aya yazılır.
+
+## [1.55.3] - 2026-09-22
+
+### Düzeltildi
+
+- Eski kredi kayıtlarında kalan ödeme tutarı bir taksit gösterirken kalan taksit sayısının sıfıra düşmesi engellendi.
+
+## [1.55.2] - 2026-09-22
+
+### Düzeltildi
+
+- Kredi kartlarında kalan toplam ödeme, aylık taksit, kalan taksit ve ödeme günü ayrı alanlarda gösteriliyor; ödeme planı olmayan kredilerde kalan borç artık anapara sanılmıyor ve bilinmeyen faiz/masraf sıfır diye sunulmuyor.
+
+## [1.55.1] - 2026-09-22
+
+### Düzeltildi
+
+- Kredi ödeme planı aktarımı, kalan anaparayı gelecek taksitlerin toplamından ve kalan faiz/masraf yükünden ayırıyor; kredi satırı ödeme geçmişi ilerledikçe bu üç tutarı plana göre güncelliyor.
+
+## [1.55.0] - 2026-09-22
+
+### Eklendi
+
+- Kullanıcılar bankadan indirdikleri kredi ödeme planı PDF'sini cihazlarında okuyup banka, kalan anapara, taksit, faiz ve ödeme tarihlerini kontrol ettikten sonra yeni veya mevcut kredilerine aktarabilir.
+
+### Güvenlik
+
+- Kredi ödeme planının ham PDF'i sunucuya yüklenmeden tarayıcıda işleniyor; kullanıcı onayı olmadan finansal kayıt oluşturulmuyor.
+
+## [1.54.9] - 2026-09-22
+
+### Düzeltildi
+
+- Güvenlik betiği tarayıcıda yüklenemezse kayıt düğmesinin açıklamasız biçimde pasif kalması engellendi; sekiz saniye içinde kontrol tamamlanmazsa yeniden deneme uyarısı gösteriliyor.
+
+## [1.54.8] - 2026-09-22
+
+### Değiştirildi
+
+- Kayıt, giriş ve parola yenilemedeki güvenlik kontrolü normal ziyaretçide arka planda çalışıp yalnız riskli durumda görünür hale getirildi; hata veya zaman aşımında kullanıcıya açık bir yeniden deneme yolu sunuldu.
+
+## [1.54.7] - 2026-09-20
+
+### Değiştirildi
+
+- LANDING-003'ün iki kolu da tekrar eden açıklamalardan arındırıldı; hero, temel faydalar, güven bilgisi, fiyat kararı ve son kayıt çağrısı daha kısa bir akışta birleştirildi.
+- Landing fayda kartları mobilde kompakt satırlara dönüştürüldü; hero vurgusu ile son kayıt çağrısındaki sıkışık aralıklar açıldı.
+
+## [1.54.6] - 2026-09-19
+
+### Düzeltildi
+
+- Faiz sorusunda model yanıtı üretilemez veya kalite kontrolünden geçmezse Asistan, uygulamanın hesapladığı kart/KMH aylık tahmini ve bilinen kredi maliyetini güvenli yedek yanıt olarak gösteriyor.
+
+## [1.54.5] - 2026-09-19
+
+### Değiştirildi
+
+- Borcama Asistanı faiz sorularında kesin toplam bilinmese bile kart ve ek hesapların vergiler dahil aylık tahminini ve ödeme planı bilinen kredilerin kalan finansman maliyetini rakamla yanıtlıyor.
+
+## [1.54.4] - 2026-09-19
+
+### Düzeltildi
+
+- Borcama Asistanı, kapanmış veya sıfırlanmış eski borçlardaki boş faiz alanlarını aktif kart ve ek hesapların faizi eksikmiş gibi raporlamıyor.
+
+## [1.54.3] - 2026-09-19
+
+### Düzeltildi
+
+- Borcama Asistanı, kart ve ek hesap faizlerinde Borç Planı'nın çözdüğü TCMB ve ürün referans oranlarını artık bağlama gerçekten taşıyor; kullanıcı alanı boş olduğunda bu oranları eksikmiş gibi raporlamıyor.
+
+## [1.54.2] - 2026-09-18
+
+### Değiştirildi
+
+- Ana sayfanın iki deney kolu aynı ücretsiz başlangıç ve otomatik 30 günlük Pro hediyesini anlatıyor; borçlanmayı teşvik eden ifade kaldırıldı, kayıt hedefleri eşitlendi ve yeni LANDING-003 ölçümünde eski deney verileri ayrı tutuldu.
+- Her landing içindeki varlık ve harcama tutarları tutarlı örneklere bağlandı; küçük açıklama metinleri büyütüldü ve hero vurgusu yüksek kontrastlı satır şeritleriyle okunabilir hale getirildi.
+
+### Güvenlik
+
+- Landing gizlilik açıklaması, ham ekstre dosyasının cihazda işlendiğini ve kullanıcının onayladığı kayıtların hesabına kaydedildiğini açıkça ayırıyor.
+
+## [1.54.1] - 2026-09-18
+
+### Düzeltildi
+
+- Asistan, kartlarda kayıtlı asgari ödemeyi ve kalan borcu doğru alanlardan okuyor; kapanmış kartlardaki boş alanı eksik saymıyor ve bilinen asgarileri belirsiz diye sunan yanıtı göstermiyor.
+
+## [1.54.0] - 2026-09-18
+
+### Eklendi
+
+- Borcama Asistanı aynı konuşmadaki son beş soru ve yanıtı birlikte değerlendirerek devam sorularını ve kullanıcı düzeltmelerini anlayabiliyor; konuşma bağlamı ayrı bir “Yeni konuşma” aksiyonuyla sıfırlanabiliyor.
+
+### Düzeltildi
+
+- Asistan, ödeme bütçesi KMH borcunun tamamını karşılamadığında kalan anaparayı hesaplıyor ve tam kapatma iddiası içeren yanıtı kullanıcıya göstermiyor.
+- Borcama Asistanı eksik banka maliyeti, gecikme ve büyük alım değerlendirmelerinde koşullu açıklama yapıyor; ödeme gücü bilinmeden kesin para dağıtımı önermiyor.
+- Borcama Asistanı düzenli gelir ve giderleri dönem eğiliminde aynı kuralla değerlendiriyor; eksik borç alanlarını gerçek sıfırdan ve farklı varlık türlerini genel kategorilerden ayırıyor.
+- Borcama Asistanı model yanıtlarını göstermeden önce kısa yanıt düzeni, kelime sınırı, kayıt dışı faiz oranı ve kesin kredi sonucu iddiaları açısından sunucuda doğruluyor.
+
+## [1.53.0] - 2026-09-18
+
+### Eklendi
+
+- Ek hesap sıfırlandıktan sonra aynı hesaba yeniden kullanılan tutar “Yeni borç ekle” ile eklenebiliyor; önceki ödemeler korunuyor ve güncel bakiye limit üzerinden kontrol ediliyor.
+
+## [1.52.3] - 2026-09-18
+
+### Değiştirildi
+
+- CEO görünümü, büyüme ve ürün sağlığını yalnız doğrulanmış kullanıcı, dönem aktivasyonu, haftalık aktif kullanıcı ve aktif Pro ile özetleyip ayrıntıları isteğe bağlı hale getirdi.
+
+## [1.52.2] - 2026-09-11
+
+### Düzeltildi
+
+- Borcama'ya Sor duyuru e-postasındaki büyük tanıtım rozeti de ana düğme gibi doğrudan asistan ekranına bağlandı.
+
+## [1.52.1] - 2026-09-11
+
+### Eklendi
+
+- Borcama'ya Sor'u tanıtan üçüncü “Siz istediniz, biz yaptık” e-postası, yalnız doğrulanmış ve iletişime uygun üyelere iki aşamalı onayla gönderilebilecek kampanya olarak hazırlandı.
+
+### Değiştirildi
+
+- Borcama'ya Sor duyuru e-postasındaki ana bağlantı, oturumu açık kullanıcılarda asistanı doğrudan açacak; oturumu kapalı kullanıcılarda ise girişten sonra aynı hedefi koruyacak biçimde düzenlendi.
+
 ## [1.52.0] - 2026-09-08
 
 ### Eklendi

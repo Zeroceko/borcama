@@ -4,6 +4,55 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Kredinin başlangıcını ve kalan planını birlikte gör — v1.58.0
+
+- Siz istediniz: Kredi kaydında yalnız kalan ödemeyi değil, bankadan çekilen başlangıç tutarını ve bugüne kadarki ilerlemeyi de birlikte izlemek.
+- Biz yaptık: Manuel kredi formuna başlangıç kredi tutarı, aylık faiz, toplam ve ödenen taksit bilgilerini ekledik; kalan taksit ile ödeme gününü tutarlı biçimde otomatik hesapladık.
+- Faydası: Kredi anaparasını, aylık taksidini ve kalan ödeme planını birbirine karıştırmadan aynı kayıtta görebilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
+### Tahmini borç hesabından kendi planına geç — v1.57.0
+
+- Siz istediniz: Borcun ne zaman kapanacağını hesapladıktan sonra sonucu gerçek borç kayıtlarınla takip etmeye devam etmek.
+- Biz yaptık: Borç kapatma hesaplayıcısının sonucuna, hesaplanan tutarları bağlantıya veya ölçüme taşımadan doğrudan borç planı kurma geçişi ekledik.
+- Faydası: Ücretsiz hesabını açtıktan sonra kart, kredi ve ek hesaplarını tek tabloda takip etmeye başlayabilirsin.
+- Aksiyon: `https://borcama.com/araclar/borc-kapatma-hesaplayici`
+
+### Harcamanı eklerken kartını veya hesabını da ekle — v1.56.8
+
+- Siz istediniz: Harcama kaydederken ödeme kaynağınız henüz Borcama'da yoksa başka ekrana gitmeden ekleyebilmek.
+- Biz yaptık: Harcama formuna, kayıtlı kaynak olmadığında görünen “Kart ekle” ve “Hesap ekle” hızlı akışlarını ekledik.
+- Faydası: Yeni kart veya hesabınız kaydedilir ve aynı harcamada otomatik seçilir; girdiğiniz tutar ve açıklama kaybolmaz.
+- Aksiyon: `https://borcama.com/expenses`
+
+### Banka dilini sade Türkçeyle anla — v1.56.0–v1.56.2
+
+- Siz istediniz: Ekstrede, kredi planında veya banka bildiriminde geçen finansal terimlerin ne anlama geldiğini kolayca öğrenmek.
+- Biz yaptık: Faiz, temerrüt, tasfiye, kalan anapara, kredi notu, icra takibi, enflasyon ve bütçe gibi 100 kavramı A-Z dizininde; kısa tanım, basit örnek ve ilgili terimlerle açıklayan ücretsiz Finansal Sözlük hazırladık.
+- Faydası: Anlamadığın terimi ayrı ayrı aramak yerine Borcama içinde okuyabilir, ilgili hesaplama aracına doğrudan geçebilirsin.
+- Aksiyon: `https://borcama.com/finansal-sozluk`
+
+### Kredi ödeme planını tek tek yazma — v1.55.0
+
+- Siz istediniz: Bankanın verdiği ödeme planındaki taksit ve faiz bilgilerini tek tek girmemek.
+- Biz yaptık: Kredi ödeme planı PDF'ini cihazında okuyup banka, kalan anapara, taksit, faiz ve ödeme tarihlerini kontrol ederek yeni veya mevcut kredine aktarabileceğin bir akış ekledik.
+- Faydası: Planındaki çok sayıdaki taksiti elle kopyalamadan kredini doğru kalan tutar ve ödeme günüyle takip etmeye başlayabilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
+### Asistanla kaldığın yerden devam et — v1.54.0
+
+- Siz istediniz: Asistanın cevabına yanıt verdiğinizde konuyu baştan anlatmamak.
+- Biz yaptık: Son beş soru ve yanıt aynı konuşmada birlikte değerlendiriliyor; yeni bir konu için “Yeni konuşma” ile bağlam temizlenebiliyor.
+- Faydası: “Peki ikinci el alsam?” gibi devam sorularını önceki açıklamayla birlikte sorabilirsin; güncel kayıtların her zaman yeniden kontrol edilir.
+- Aksiyon: `https://borcama.com/summary`
+
+### Aynı ek hesabı yeniden kullandığında borcunu ekle — v1.53.0
+
+- Siz istediniz: Sıfırladığınız ek hesabı yeniden kullandığınızda yeni borcu aynı hesapta takip etmek.
+- Biz yaptık: Ek hesap satırına “Yeni borç ekle” seçeneği ekledik; yalnız yeniden kullanılan ek tutar kaydediliyor.
+- Faydası: Önceki ödemeleriniz silinmeden güncel kalan borcu ve limitinizi takip edersiniz.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Hesabın ve verilerin üzerinde kontrol sende — v1.52.0
 
 - Siz istediniz: Borcama hesabınızı destek ekibine yazmadan kendiniz silebilmek.
@@ -117,6 +166,17 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Aksiyon: `https://borcama.com/settings?utm_source=resend&utm_medium=email&utm_campaign=arkadasini_davet_et&utm_content=davet_karti`
 
 ## Gönderilmeye hazır adaylar
+
+### Borcama'ya Sor · v1.52.2
+
+- Konu: `Siz istediniz, biz yaptık - 3 -`
+- Önizleme: `Finansal tablonu kısa ve anlaşılır yanıtlarla yorumla; sıradaki adımını gör.`
+- Siz istediniz: Borçlar, ödemeler, gelirler ve harcamalar arasında kaybolmadan bu ay ne yapmanız gerektiğini anlamak.
+- Biz yaptık: Borcama'ya Sor, kullanıcı izin verdiğinde finansal tablonun özetini yorumlayıp kısa bir cevap ve sonraki adımı gösteriyor.
+- Faydasi: Kullanıcı “Bu ay ne durumdayım?”, “Önce ne yapmalıyım?” ve “Neden açık var?” gibi soruları kendi kayıtları üzerinden inceleyebiliyor.
+- Aksiyon: `https://borcama.com/summary?assistant=1&utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_3&utm_content=ana_cta` (oturum açıksa Borcama'ya Sor'u doğrudan açar; değilse girişten sonra aynı hedefe döner.)
+- Hedef kitle: E-posta adresi doğrulanmış, iletişimden çıkmamış, bounce veya şikâyet kaydı bulunmayan ve kampanyayı daha önce almamış üyeler.
+- Durum: Gönderim altyapısı hazır; test teslimatı ve nihai toplu gönderim onayı bekleniyor.
 
 ### Ödemelerini daha az menüyle yönet — v1.42.8
 
