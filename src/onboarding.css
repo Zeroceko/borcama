@@ -1,0 +1,420 @@
+/* iOS onboarding. Yalniz native kabukta render edilir; tarayici surumune
+   hicbir etkisi yoktur. Referans frame 393x852 pt, teslim @3x. */
+
+/* Uygulamanin geri kalani fontlari Google Fonts'tan @import ile aliyor.
+   Onboarding acilista goruunen ilk ekran oldugu icin ag beklemesi istemiyoruz;
+   pakette zaten bulunan ve index.html'de preload edilen woff2 dosyalarini
+   kullaniyoruz. Turkce karakterler latin-ext dosyasindan gelir. */
+@font-face {
+  font-family: "OB Archivo";
+  src: url("/fonts/archivo-black-latin.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "OB Archivo";
+  src: url("/fonts/archivo-black-latin-ext.woff2") format("woff2");
+  font-display: swap;
+  unicode-range: U+0100-024F;
+}
+@font-face {
+  font-family: "OB Space";
+  src: url("/fonts/space-grotesk-latin.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "OB Space";
+  src: url("/fonts/space-grotesk-latin-ext.woff2") format("woff2");
+  font-display: swap;
+  unicode-range: U+0100-024F;
+}
+
+.ob {
+  --ink: #14160f;
+  --yesil: #07392b;
+  --lime: #cdf564;
+  --coral: #ff6f59;
+  --krem: #f4efe0;
+  --mint: #dce9e3;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--mint);
+  color: var(--ink);
+  font-family: "OB Space", system-ui, sans-serif;
+  /* Renk gecisi kaydirma sirasinda ekranin tamamini takip eder. */
+  transition: background 0.35s ease;
+  touch-action: pan-y;
+}
+
+.ob.adim-0 { background: var(--mint); }
+.ob.adim-1 { background: var(--coral); }
+.ob.adim-2 { background: var(--lime); }
+.ob.adim-3 { background: var(--krem); }
+
+.ob-ust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: calc(var(--guvenli-ust, 0px) + 18px) 24px 0;
+}
+
+.ob-logo {
+  display: block;
+  width: 150px;
+  height: auto;
+}
+
+/* Atla dokunma alani 44pt'nin altina dusmesin. */
+.ob-atla {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 700 17px "OB Space", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.ob-govde {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  min-height: 0;
+}
+
+.ob-alt {
+  padding: 0 24px calc(var(--guvenli-alt, 0px) + 20px);
+}
+
+.ob-sira {
+  font: 700 13px ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.08em;
+  color: #14160fa8;
+}
+
+.ob-baslik {
+  margin: 10px 0 0;
+  font-family: "OB Archivo", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(36px, 11vw, 48px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+.ob-aciklama {
+  margin: 16px 0 0;
+  max-width: 34ch;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #14160fcc;
+}
+
+.ob-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.ob-noktalar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ob-noktalar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #14160f38;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.ob-noktalar span.etkin {
+  width: 34px;
+  background: var(--ink);
+}
+
+.ob-ileri {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 5px 6px 0 var(--coral);
+  cursor: pointer;
+}
+
+.ob.adim-1 .ob-ileri { box-shadow: 5px 6px 0 var(--lime); }
+.ob.adim-2 .ob-ileri { box-shadow: 5px 6px 0 var(--coral); }
+
+/* --- 01: ustuste kartlar --- */
+.ob-kartlar {
+  position: relative;
+  width: min(100%, 320px);
+  aspect-ratio: 1 / 0.86;
+}
+
+.ob-kart {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--ink);
+  border-radius: 22px;
+}
+
+.ob-kart.arka {
+  background: #ffb3a4;
+  transform: rotate(-7deg) translate(6%, -7%);
+}
+
+.ob-kart.orta {
+  background: #fff;
+  transform: rotate(-3deg) translate(2%, -2%);
+}
+
+.ob-kart.on {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 22px;
+  background: var(--yesil);
+  color: #fff;
+  box-shadow: 7px 8px 0 var(--coral);
+  transform: translate(-3%, 7%);
+}
+
+.ob-cip {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  width: 26px;
+  height: 22px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(90deg, #ffffff88 0 2px, transparent 2px 4px);
+}
+
+.ob-kart.orta .ob-cip {
+  background: repeating-linear-gradient(0deg, #14160f 0 2px, transparent 2px 4px);
+}
+
+.ob-kart-etiket {
+  font-size: 13px;
+  color: #b9cfc4;
+}
+
+.ob-kart-tutar {
+  margin: 4px 0 6px;
+  font-family: "OB Archivo", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+  letter-spacing: -0.03em;
+}
+
+.ob-kart-alt {
+  font: 700 13px "OB Space", system-ui, sans-serif;
+  color: #cfe0d6;
+}
+
+/* --- 02 ve 03: beyaz panel --- */
+.ob-panel {
+  width: min(100%, 340px);
+  border: 2px solid var(--ink);
+  border-radius: 22px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.ob.adim-1 .ob-panel { box-shadow: 7px 8px 0 var(--yesil); }
+.ob.adim-2 .ob-panel { box-shadow: 7px 8px 0 var(--coral); }
+
+.ob-panel-ust {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #14160f1f;
+  font: 700 19px "OB Space", system-ui, sans-serif;
+}
+
+.ob-satir {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.ob-satir + .ob-satir { border-top: 1px solid #14160f14; }
+
+.ob-rozet {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--lime);
+  font: 700 14px ui-monospace, SFMono-Regular, monospace;
+}
+
+.ob-satir b {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Sag taraftaki bilgi tek satirda kalsin; tasarimda da boyle. */
+.ob-satir small {
+  margin-left: auto;
+  flex: 0 0 auto;
+  text-align: right;
+  white-space: nowrap;
+  font: 700 11.5px "OB Space", system-ui, sans-serif;
+  color: #14160f8f;
+}
+
+.ob-satir.duz b { font-weight: 400; font-size: 16px; }
+
+.ob-satir.duz strong {
+  margin-left: auto;
+  font: 700 16px ui-monospace, SFMono-Regular, monospace;
+}
+
+.ob-ozet {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 12px 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--yesil);
+  color: #fff;
+}
+
+.ob-ozet span {
+  display: block;
+  font-size: 12px;
+  color: #b9cfc4;
+}
+
+.ob-ozet strong {
+  display: block;
+  margin-top: 2px;
+  font: 700 21px ui-monospace, SFMono-Regular, monospace;
+  color: var(--lime);
+}
+
+/* --- 04: karar ekrani --- */
+.ob-karar {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 0 24px calc(var(--guvenli-alt, 0px) + 20px);
+}
+
+.ob-daire {
+  position: absolute;
+  top: calc(var(--guvenli-ust, 0px) + 74px);
+  right: -62px;
+  width: 232px;
+  height: 232px;
+  border-radius: 999px;
+  background: var(--coral);
+  pointer-events: none;
+}
+
+.ob-kose {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  background: var(--mint);
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  pointer-events: none;
+}
+
+.ob-karar-icerik {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.ob-tik {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  background: var(--lime);
+  box-shadow: 5px 6px 0 var(--coral);
+}
+
+.ob-karar .ob-baslik { margin-top: 24px; }
+.ob-karar .ob-baslik em { font-style: normal; color: var(--yesil); }
+
+.ob-guvence {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
+  font: 700 13px "OB Space", system-ui, sans-serif;
+  color: #14160fbb;
+}
+
+.ob-dugmeler {
+  position: relative;
+  display: grid;
+  gap: 12px;
+}
+
+.ob-dugme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 58px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: 700 18px "OB Space", system-ui, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ob-dugme.birincil {
+  background: var(--lime);
+  box-shadow: 5px 6px 0 var(--coral);
+}
+
+/* Kucuk ekranlarda gorsel kucultulur, metin tam kalir. */
+@media (max-height: 700px) {
+  .ob-govde { padding-block: 6px; }
+  .ob-kartlar { width: min(100%, 250px); }
+  .ob-panel { width: min(100%, 300px); }
+  .ob-baslik { font-size: clamp(31px, 9.5vw, 40px); }
+  .ob-aciklama { margin-top: 12px; font-size: 15px; }
+  .ob-pager { margin-top: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob, .ob-noktalar span { transition: none; }
+}

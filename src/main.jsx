@@ -18,6 +18,8 @@ import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
+import Onboarding from "./Onboarding.jsx";
+import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -48,6 +50,55 @@ function yonetimYetkisiVar(session) {
   );
 }
 
+// Onboarding bu yollari engellemez: parola yenileme ve yasal metinler
+// dogrudan acilabilmeli.
+const ONBOARDING_DISI_YOLLAR = new Set([
+  "/reset-password",
+  "/terms",
+  "/privacy",
+  "/refund-policy",
+  "/faq",
+]);
+
+// E-posta dogrulama ve magic link donusleri de engellenmez; bu adreslerde
+// Supabase oturumu kurar, araya tanitim akisi girmemeli.
+function dogrulamaBaglantisiMi() {
+  const hash = window.location.hash || "";
+  const arama = window.location.search || "";
+  return (
+    /access_token|refresh_token|type=recovery|type=signup|type=magiclink/.test(hash) ||
+    /[?&]code=/.test(arama)
+  );
+}
+
+function nativeEkran(yol) {
+  if (yol === "/login") return <GirisEkrani />;
+  if (yol === "/register") return <GirisEkrani kayitModu />;
+  if (yol === "/reset-password") return <ParolaYenileEkrani />;
+  if (yol === "/terms") return <KullaniciSozlesmesi />;
+  if (yol === "/privacy") return <GizlilikMetni />;
+  if (yol === "/refund-policy") return <IadePolitikasi />;
+  if (yol === "/faq") return <Faq />;
+  if (yol === "/welcome") return <KimlikliWelcome />;
+  if (yol === "/upgrade") return <ProCheckout />;
+  return <KimlikliKok />;
+}
+
+// Onboarding yalniz oturumu olmayan kullaniciya ve yalniz ilk kurulumda
+// gosterilir; tamamlandi bilgisi cihazda saklanir.
+function OnboardingKapisi({ children }) {
+  const session = useSession();
+  if (session === undefined) return <Yukleniyor />;
+  if (session || onboardingTamamlandiMi()) return children;
+  return <Onboarding />;
+}
+
+function NativeKapi({ yol }) {
+  const ekran = nativeEkran(yol);
+  if (ONBOARDING_DISI_YOLLAR.has(yol) || dogrulamaBaglantisiMi()) return ekran;
+  return <OnboardingKapisi>{ekran}</OnboardingKapisi>;
+}
+
 function Kok() {
   let yol = window.location.pathname.replace(/\/+$/, "") || "/";
   const alan = window.location.hostname.toLowerCase();
@@ -76,7 +127,8 @@ function Kok() {
     meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
   // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
-  // uygulama dogrudan kimlik/uygulama akisiyla acilir.
+  // uygulama dogrudan kimlik/uygulama akisiyla acilir. Oturumsuz ilk
+  // kurulumda once onboarding gosterilir.
   if (nativeMi) {
     // Dev build'de Supabase ayari yoksa web ile ayni sekilde demo moduna
     // duser; ekranlar gercek veri olmadan gezilebilir.
@@ -86,18 +138,9 @@ function Kok() {
     }
     if (!nativeYoluMu(yol)) {
       window.history.replaceState({}, "", "/summary");
-      return <KimlikliKok />;
+      return <NativeKapi yol="/summary" />;
     }
-    if (yol === "/login") return <GirisEkrani />;
-    if (yol === "/register") return <GirisEkrani kayitModu />;
-    if (yol === "/reset-password") return <ParolaYenileEkrani />;
-    if (yol === "/terms") return <KullaniciSozlesmesi />;
-    if (yol === "/privacy") return <GizlilikMetni />;
-    if (yol === "/refund-policy") return <IadePolitikasi />;
-    if (yol === "/faq") return <Faq />;
-    if (yol === "/welcome") return <KimlikliWelcome />;
-    if (yol === "/upgrade") return <ProCheckout />;
-    return <KimlikliKok />;
+    return <NativeKapi yol={yol} />;
   }
   if (yol.startsWith("/davet/"))
     return <HariciYonlendirme url={davetKayitYolu(davetKodunuYoldanOku(yol, window.location.search))} />;

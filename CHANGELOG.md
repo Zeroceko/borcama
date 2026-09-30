@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım yalnız oturumu olmayan kullanıcıya ve yalnız bir kez çıkıyor; atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
 - iOS uygulamasında bağlantı kesildiğinde boş finansal ekran yerine, bağlantının gerekli olduğunu ve kayıtların silinmediğini açıklayan bir durum ekranı gösteriliyor.
 - iOS uygulamasında ödeme günü hatırlatması açılabiliyor; kayıtlı ödemelerden bir gün önce saat 09:00'da bildirim geliyor, aynı güne denk gelen ödemeler tek bildirimde birleşiyor ve bildirimde tutar, banka veya borç türü gösterilmiyor. Hesaplama cihazda yapılıyor, sunucuya veri gitmiyor.
 - iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
