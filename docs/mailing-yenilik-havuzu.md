@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Borcama artık iPhone uygulamasıyla yanında
+
+- Siz istediniz: Borçlarınızı ve ödeme gününüzü telefonda, tarayıcı açmadan takip etmek.
+- Biz yaptık: Borcama'nın iPhone uygulamasını yayınladık; uygulama Face ID veya Touch ID ile kilitlenebiliyor, ödeme gününden bir gün önce hatırlatma gönderiyor ve ilk açılışta kısa bir tanıtımla kurulumu anlatıyor.
+- Faydası: Aynı hesapla giriş yaparsınız, kayıtlarınız tarayıcıyla birebir aynı kalır; Pro üyeliğinizi hangi taraftan aldıysanız diğer tarafta da geçerli olur.
+- Aksiyon: App Store bağlantısı yayın sonrası eklenecek.
+
 ### Kredinin başlangıcını ve kalan planını birlikte gör — v1.58.0
 
 - Siz istediniz: Kredi kaydında yalnız kalan ödemeyi değil, bankadan çekilen başlangıç tutarını ve bugüne kadarki ilerlemeyi de birlikte izlemek.
