@@ -1,3 +1,5 @@
+import { corsUygula } from "./_cors.js";
+
 const FON_KODU = /^[A-Z0-9]{2,8}$/;
 
 function kodlariOku(req) {
@@ -41,6 +43,7 @@ async function fonFiyati(kod) {
 }
 
 export default async function handler(req, res) {
+  if (corsUygula(req, res)) return;
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ error: "Yalnızca GET destekleniyor." });
