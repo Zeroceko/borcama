@@ -48,21 +48,33 @@ function revenueCatNativeSdk() {
 // StoreKit tarafinda appUserId Supabase kullanici kimligidir; web ile ayni
 // kimlik kullanildigi icin `pro` entitlement'i iki platform arasinda
 // kendiliginden tasinir.
+// Acilista hak kontrolu ve fiyat sorgusu ayni anda baslar. Hazirlik
+// serilestirilmezse ikisi yarisir: birincisi configure()'i beklerken ikincisi
+// isConfigured=true gorur, ama configuredUserId henuz atanmadigi icin
+// logIn()'i configure surerken cagirir ve RevenueCat koprusu sozu hic
+// cozmez; ekran "Fiyat yukleniyor..." ve "Kontrol ediliyor..." durumunda
+// kilitli kalir. Hazirligi tek bir paylasilan soze bagliyoruz.
+let nativeHazirlik = { userId: null, promise: null };
+
 async function nativePurchasesForUser(userId) {
   if (configurationError) throw new Error(configurationError);
   if (!userId) return null;
-  const { Purchases } = await revenueCatNativeSdk();
-  const { isConfigured } = await Purchases.isConfigured();
-  if (!isConfigured) {
-    await Purchases.configure({ apiKey, appUserID: userId });
-    configuredUserId = userId;
-    return Purchases;
+  if (nativeHazirlik.userId !== userId || !nativeHazirlik.promise) {
+    const promise = (async () => {
+      const { Purchases } = await revenueCatNativeSdk();
+      const { isConfigured } = await Purchases.isConfigured();
+      if (!isConfigured) await Purchases.configure({ apiKey, appUserID: userId });
+      else if (configuredUserId !== userId) await Purchases.logIn({ appUserID: userId });
+      configuredUserId = userId;
+      return Purchases;
+    })();
+    // Hata durumunda hazirlik tekrar denenebilsin.
+    promise.catch(() => {
+      if (nativeHazirlik.promise === promise) nativeHazirlik = { userId: null, promise: null };
+    });
+    nativeHazirlik = { userId, promise };
   }
-  if (configuredUserId !== userId) {
-    await Purchases.logIn({ appUserID: userId });
-    configuredUserId = userId;
-  }
-  return Purchases;
+  return nativeHazirlik.promise;
 }
 
 async function purchasesForUser(userId) {
