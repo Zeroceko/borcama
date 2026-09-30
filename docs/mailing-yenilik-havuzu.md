@@ -11,14 +11,14 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Faydası: Web ve iPhone'da aynı finansal tabloyu kullanabilir, Pro hakkını iki platformda birlikte sürdürebilirsin.
 - Aksiyon: App Store yayını tamamlandıktan sonra ürün sayfası bağlantısı eklenecek.
 
-### Daha fazla bankanın kredi planını tek tek yazmadan aktar — sıradaki sürüm
+### Daha fazla bankanın kredi planını tek tek yazmadan aktar — v1.59.0
 
 - Siz istediniz: Farklı bankaların ödeme planlarında kolonlar değişse de kredinin taksitini, kalan anaparasını ve faizini elle düzeltmeden aktarabilmek.
 - Biz yaptık: VakıfBank, Yapı Kredi, Fibabanka ve Enpara planlarını kendi tablo düzenleriyle okuyup tutar, taksit, faiz, vergi ve kalan anapara alanlarını birbirinden ayırdık.
 - Faydası: Bankanın PDF'indeki planı cihazında okuyup kontrol ederek daha az elle girişle ayrı kredi kaydı oluşturabilirsin.
 - Aksiyon: `https://borcama.com/debts`
 
-### Her kredinin bugünkü kapatma tutarını ve ilk borcunu gör — sıradaki sürüm
+### Her kredinin bugünkü kapatma tutarını ve ilk borcunu gör — v1.59.0
 
 - Siz istediniz: Toplam kalan taksitleri görmekle yetinmeyip bütün borçları bugün kapatmak için yaklaşık ne gerekeceğini ve hangi borcun önce geleceğini anlamak.
 - Biz yaptık: Bugün ekranına aylık tahmini faiz yükü ve Pro için ilk üç borç önceliği; Krediler ekranında her krediye, gelecekteki faizi kalan taksit toplamından ayıran “Bugün kapatırsam” tahmini eklendi. Faiz verisi bilinmeyen krediler ayrı biçimde üst sınır olarak işaretleniyor.

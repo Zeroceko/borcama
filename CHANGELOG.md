@@ -6,7 +6,6 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
-- Bugün ekranı değişken faizli borçların aylık faiz yükünü ve Pro kullanıcılar için ilk üç kapatma önceliğini gösteriyor; Krediler ekranındaki her kredi kartı ise kalan taksitlerdeki gelecekteki faizi dışarıda bırakan ayrı bir “Bugün kapatırsam” tahmini sunuyor.
 - iOS'taki e-posta giriş ve parola yenileme bağlantıları Safari'de yarım kalmadan Borcama uygulamasındaki doğru ekrana dönebiliyor; internet kesildiğinde boş finansal ekran yerine kayıtların korunduğunu açıklayan bağlantı durumu gösteriliyor.
 - iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
 - iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
@@ -28,6 +27,15 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
 - iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
+
+## [1.59.0] - 2026-09-30
+
+### Eklendi
+
+- Bugün ekranı değişken faizli borçların aylık faiz yükünü ve Pro kullanıcılar için ilk üç kapatma önceliğini gösteriyor; Krediler ekranındaki her kredi kartı ise kalan taksitlerdeki gelecekteki faizi dışarıda bırakan ayrı bir “Bugün kapatırsam” tahmini sunuyor.
+
+### Düzeltildi
+
 - Kredi ödeme planı aktarımı VakıfBank, Yapı Kredi, Fibabanka ve Enpara'nın farklı PDF satır düzenlerinde taksit, faiz, vergi ve kalan anaparayı doğru kolonlardan okuyor; belgede ayrı faiz alanı yoksa oranı ödeme satırlarından tahmini çıkarıp kullanıcıyı uyarıyor.
 
 ## [1.58.0] - 2026-09-28
