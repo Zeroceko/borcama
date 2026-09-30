@@ -6,11 +6,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasında bağlantı kesildiğinde boş finansal ekran yerine, bağlantının gerekli olduğunu ve kayıtların silinmediğini açıklayan bir durum ekranı gösteriliyor.
 - iOS uygulamasında ödeme günü hatırlatması açılabiliyor; kayıtlı ödemelerden bir gün önce saat 09:00'da bildirim geliyor, aynı güne denk gelen ödemeler tek bildirimde birleşiyor ve bildirimde tutar, banka veya borç türü gösterilmiyor. Hesaplama cihazda yapılıyor, sunucuya veri gitmiyor.
 - iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
 - iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
 - iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
 - Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
+
+### Değiştirildi
+
+- iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.
 
 ## [1.58.0] - 2026-09-28
 

@@ -17,6 +17,7 @@ import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
+import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -437,8 +438,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
       <BiyometrikKilit>
-        <Kok />
-        <GoogleAdsConsent />
+        <CevrimdisiPerde>
+          <Kok />
+          {/* Native'de Google etiketi yuklenmiyor; olcum izni sormak anlamsiz. */}
+          {!nativeMi && <GoogleAdsConsent />}
+        </CevrimdisiPerde>
       </BiyometrikKilit>
     </React.Suspense>
     </ErrorBoundary>

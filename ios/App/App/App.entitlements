@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Universal Links: magic link ve parola sifirlama baglantilari
+	     Safari yerine uygulamada acilsin. Calismasi icin
+	     https://borcama.com/.well-known/apple-app-site-association
+	     dosyasinin canlida 200 ve application/json donmesi gerekir. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:borcama.com</string>
+	</array>
+</dict>
+</plist>

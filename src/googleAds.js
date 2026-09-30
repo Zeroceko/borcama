@@ -1,4 +1,5 @@
 const GOOGLE_ADS_ID = "AW-18403194146";
+import { nativeMi } from "./platform.js";
 const GOOGLE_ANALYTICS_ID = "G-98HWSTTPDM";
 const KAYIT_DONUSUM_ETIKETI = "sVgPCI2w0eUcEKLqqcdE";
 const SATIN_ALMA_DONUSUM_ETIKETI = String(
@@ -144,6 +145,7 @@ function etkinlikGonder(eventName, params = {}) {
 }
 
 export function googleAnalyticsSayfaGoruntulemesi() {
+  if (nativeMi) return;
   if (typeof window === "undefined" || YONETIM_YOLLARI.has(window.location.pathname)) return false;
   sonSayfaYolu = guncelSayfaYolu();
   const temizKonum = googleOlcumUrliniTemizle(window.location.href, window.location.origin);
@@ -281,6 +283,9 @@ function proDenemeOlayiniGonder(payload = jsonOku(BEKLEYEN_DENEME_ANAHTARI)) {
 }
 
 export function googleAdsBaslat() {
+  // iOS gonderim kaydi: native kabukta Google etiketi yuklenmez. App Privacy
+  // beyani "native uygulamada hayir" dedigi icin davranis da oyle olmali.
+  if (nativeMi) return;
   if (baslatildi || typeof window === "undefined") return;
   baslatildi = true;
   // Tag Assistant ve sayfadaki diğer güvenli ölçüm entegrasyonları aynı kuyruğu kullanabilsin.
@@ -321,6 +326,7 @@ export function googleAdsOlcumIzniAyarla(izinVar) {
   return Promise.resolve(false);
 }
 export function googleAdsYeniKullaniciDonusumu(user) {
+  if (nativeMi) return;
   if (!googleKayitDonusumuRaporlanabilirMi(user)) return Promise.resolve(false);
   const metadata = user?.user_metadata || {};
   const eventId = String(metadata.borcama_registration_event_id || "").trim();
@@ -333,6 +339,7 @@ export function googleAdsYeniKullaniciDonusumu(user) {
   return kayitDonusumunuGonder(payload);
 }
 export function googleAdsSatinAlmaDonusumu(payload) {
+  if (nativeMi) return;
   if (!googleDonusumuRaporlanabilirMi(payload)) {
     depodanSil(BEKLEYEN_SATIN_ALMA_ANAHTARI);
     return Promise.resolve(false);
@@ -341,6 +348,7 @@ export function googleAdsSatinAlmaDonusumu(payload) {
   return satinAlmaDonusumunuGonder(payload);
 }
 export function googleAnalyticsProDenemeBaslangici(payload) {
+  if (nativeMi) return;
   if (!payload?.userId || !payload?.trialStartedAt) return Promise.resolve(false);
   const eventId = `${payload.userId}:${payload.trialStartedAt}`;
   const olay = { eventId, trialDays: payload.trialDaysRemaining || 30 };
