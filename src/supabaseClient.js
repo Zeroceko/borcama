@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { oturumDeposu } from "./oturumDeposu.js";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -25,4 +26,10 @@ const demoAuth = {
   signOut: async () => ({ error: null }),
 };
 
-export const supabase = supabaseHazir ? createClient(url, anonKey) : { auth: demoAuth };
+// Native'de oturum Keychain'de tutulur; web'de Supabase'in varsayilan
+// deposu aynen kullanilir.
+const istemciSecenekleri = oturumDeposu ? { auth: { storage: oturumDeposu } } : undefined;
+
+export const supabase = supabaseHazir
+  ? createClient(url, anonKey, istemciSecenekleri)
+  : { auth: demoAuth };
