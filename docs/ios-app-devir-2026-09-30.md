@@ -170,7 +170,6 @@ xcodebuild \
 ## İlgili dosyalar
 
 - `docs/ios-app-store-gonderim.md`
-- `docs/ios-app-store-kontrol-listesi.md`
 - `src/nativeDeepLinks.js`
 - `src/nativeNotifications.js`
 - `src/revenuecatSync.js`
