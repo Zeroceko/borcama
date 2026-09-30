@@ -66,7 +66,12 @@ async function nativePurchasesForUser(userId) {
       if (!isConfigured) await Purchases.configure({ apiKey, appUserID: userId });
       else if (configuredUserId !== userId) await Purchases.logIn({ appUserID: userId });
       configuredUserId = userId;
-      return Purchases;
+      // Capacitor eklenti nesnesi bir Proxy'dir ve her ozellik erisimine
+      // fonksiyon dondurur, `then` dahil. Async bir fonksiyondan dogrudan
+      // dondurulurse JavaScript onu thenable sanip Purchases.then(resolve,
+      // reject) cagirir; eklenti bunu native bir metot sanar, resolve hic
+      // calismaz ve soz sonsuza kadar askida kalir. Sarmalayarak donduruyoruz.
+      return { Purchases };
     })();
     // Hata durumunda hazirlik tekrar denenebilsin.
     promise.catch(() => {
@@ -153,8 +158,9 @@ function paketOzeti(rcPackage) {
 
 export async function revenueCatProPaketleri(userId) {
   if (nativeMi) {
-    const Purchases = await nativePurchasesForUser(userId);
-    if (!Purchases) return { unavailable: true };
+    const hazir = await nativePurchasesForUser(userId);
+    if (!hazir) return { unavailable: true };
+    const { Purchases } = hazir;
     const offerings = await Purchases.getOfferings();
     const offering = proOffering(offerings);
     if (!offering) throw new Error("Borcama Pro teklifi bulunamadı.");
@@ -181,8 +187,9 @@ export async function revenueCatProPaketleri(userId) {
 
 export async function revenueCatProKontrol(userId) {
   if (nativeMi) {
-    const Purchases = await nativePurchasesForUser(userId);
-    if (!Purchases) return { active: false, unavailable: true };
+    const hazir = await nativePurchasesForUser(userId);
+    if (!hazir) return { active: false, unavailable: true };
+    const { Purchases } = hazir;
     const { customerInfo } = await Purchases.getCustomerInfo();
     return proBilgisi(customerInfo);
   }
@@ -197,16 +204,18 @@ export async function revenueCatProKontrol(userId) {
 // Web tarafinda karsiligi yoktur; orada abonelik zaten hesaba baglidir.
 export async function revenueCatSatinAlimlariGeriYukle(userId) {
   if (!nativeMi) return { unavailable: true };
-  const Purchases = await nativePurchasesForUser(userId);
-  if (!Purchases) return { active: false, unavailable: true };
+  const hazir = await nativePurchasesForUser(userId);
+  if (!hazir) return { active: false, unavailable: true };
+  const { Purchases } = hazir;
   const { customerInfo } = await Purchases.restorePurchases();
   return { ...proBilgisi(customerInfo), restored: true };
 }
 
 export async function revenueCatProSatinAl({ userId, email, plan = "monthly" }) {
   if (nativeMi) {
-    const Purchases = await nativePurchasesForUser(userId);
-    if (!Purchases) return { unavailable: true };
+    const hazir = await nativePurchasesForUser(userId);
+    if (!hazir) return { unavailable: true };
+    const { Purchases } = hazir;
     try {
       const offerings = await Purchases.getOfferings();
       const offering = proOffering(offerings);

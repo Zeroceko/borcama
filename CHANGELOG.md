@@ -19,6 +19,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında Pro üyelik durumu ve abonelik fiyatları artık yükleniyor; ekran "Fiyat yükleniyor…" ve "Kontrol ediliyor…" durumunda takılı kalmıyor.
 - iOS uygulamasında Pro üyelik durumu, davet kodu, hesap silme ve Borcama'ya sor artık çalışıyor; native kabuğun sunucu isteklerini engelleyen kaynak kısıtı giderildi. Tarayıcı sürümü etkilenmedi.
 - iOS uygulamasında daha önce Pro planı seçmiş bir kullanıcı e-posta bağlantısıyla giriş yaptığında bağlantı uygulamaya dönüyor; önceden tarayıcıda açılıyordu. Seçilen plan korunuyor ve Pro ekranı açıldığında geri geliyor. Tarayıcı sürümündeki yönlendirme değişmedi.
 
