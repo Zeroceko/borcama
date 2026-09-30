@@ -45,9 +45,12 @@
   color: var(--ink);
   font-family: "OB Space", system-ui, sans-serif;
   /* Renk gecisi kaydirma sirasinda ekranin tamamini takip eder. */
-  transition: background 0.35s ease;
+  transition: background 0.35s ease, opacity 0.24s ease;
   touch-action: pan-y;
 }
+
+/* Giris veya kayit ekranina gecerken ekran soner. */
+.ob.cikiyor { opacity: 0; }
 
 .ob.adim-0 { background: var(--mint); }
 .ob.adim-1 { background: var(--coral); }

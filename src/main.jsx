@@ -18,7 +18,7 @@ import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
-import Onboarding from "./Onboarding.jsx";
+import Onboarding, { KARAR_ADIMI } from "./Onboarding.jsx";
 import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
 
 const App = lazy(() => import("./App.jsx"));
@@ -84,19 +84,23 @@ function nativeEkran(yol) {
   return <KimlikliKok />;
 }
 
-// Onboarding yalniz oturumu olmayan kullaniciya ve yalniz ilk kurulumda
-// gosterilir; tamamlandi bilgisi cihazda saklanir.
-function OnboardingKapisi({ children }) {
+// Oturumu olmayan kullanici once karsilama akisini gorur. Ilk kurulumda
+// tanitim ekranlariyla baslar; tanitimi gormus veya cikis yapmis kullaniciya
+// dogrudan "Ucretsiz basla / Giris yap" karar ekrani acilir. /login ve
+// /register bu kapidan gecmez; oralara karar ekranindan veya ekran icindeki
+// baglantilardan gelinir ve geri dugmesiyle karar ekranina donulur.
+function OnboardingKapisi({ children, yol }) {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
-  if (session || onboardingTamamlandiMi()) return children;
-  return <Onboarding />;
+  if (session) return children;
+  if (yol === "/login" || yol === "/register") return children;
+  return <Onboarding baslangic={onboardingTamamlandiMi() ? KARAR_ADIMI : 0} />;
 }
 
 function NativeKapi({ yol }) {
   const ekran = nativeEkran(yol);
   if (ONBOARDING_DISI_YOLLAR.has(yol) || dogrulamaBaglantisiMi()) return ekran;
-  return <OnboardingKapisi>{ekran}</OnboardingKapisi>;
+  return <OnboardingKapisi yol={yol}>{ekran}</OnboardingKapisi>;
 }
 
 function Kok() {

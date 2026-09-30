@@ -6,7 +6,9 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
-- iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım yalnız oturumu olmayan kullanıcıya ve yalnız bir kez çıkıyor; atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
+- iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
+- iOS uygulamasında oturumu olmayan kullanıcı artık doğrudan giriş formu yerine "Ücretsiz başla / Giriş yap" karşılama ekranını görüyor; tanıtımı daha önce görmüş ya da çıkış yapmış kullanıcıya da bu ekran açılıyor.
+- iOS uygulamasında giriş ve kayıt ekranlarına geri butonu eklendi; karşılama ekranına dönülebiliyor.
 - iOS uygulamasında bağlantı kesildiğinde boş finansal ekran yerine, bağlantının gerekli olduğunu ve kayıtların silinmediğini açıklayan bir durum ekranı gösteriliyor.
 - iOS uygulamasında ödeme günü hatırlatması açılabiliyor; kayıtlı ödemelerden bir gün önce saat 09:00'da bildirim geliyor, aynı güne denk gelen ödemeler tek bildirimde birleşiyor ve bildirimde tutar, banka veya borç türü gösterilmiyor. Hesaplama cihazda yapılıyor, sunucuya veri gitmiyor.
 - iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
@@ -20,6 +22,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında giriş ve kayıt ekranları artık sayfa olarak kaymıyor; ekran sabit kalıyor ve kart dikeyde ortalanıyor.
 - iOS uygulamasında Pro üyelik durumu ve abonelik fiyatları artık yükleniyor; ekran "Fiyat yükleniyor…" ve "Kontrol ediliyor…" durumunda takılı kalmıyor.
 - iOS uygulamasında Pro üyelik durumu, davet kodu, hesap silme ve Borcama'ya sor artık çalışıyor; native kabuğun sunucu isteklerini engelleyen kaynak kısıtı giderildi. Tarayıcı sürümü etkilenmedi.
 - iOS uygulamasında daha önce Pro planı seçmiş bir kullanıcı e-posta bağlantısıyla giriş yaptığında bağlantı uygulamaya dönüyor; önceden tarayıcıda açılıyordu. Seçilen plan korunuyor ve Pro ekranı açıldığında geri geliyor. Tarayıcı sürümündeki yönlendirme değişmedi.

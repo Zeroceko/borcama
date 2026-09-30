@@ -500,7 +500,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
-      {!nativeMi && (
+      {nativeMi ? (
+        // Native kabukta ana sayfa yok; geri dugmesi karsilama ekranina doner.
+        <a className="auth-back" href="/summary" onClick={proNiyetiniTemizle}>
+          <ArrowLeft size={15} /> Geri
+        </a>
+      ) : (
         <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
           <ArrowLeft size={15} /> Ana sayfaya dön
         </a>

@@ -95,15 +95,21 @@ function AylikPlan() {
 
 const GORSELLER = [BorcKartlari, KapatmaSirasi, AylikPlan];
 
-export default function Onboarding() {
-  const [adim, setAdim] = useState(0);
+// Tanitimi daha once gormus veya cikis yapmis kullaniciya dogrudan karar
+// ekrani acilir; uc tanitim ekrani tekrar gosterilmez.
+export const KARAR_ADIMI = ADIMLAR.length;
+
+export default function Onboarding({ baslangic = 0 }) {
+  const [adim, setAdim] = useState(baslangic);
+  const [cikiyor, setCikiyor] = useState(false);
   const dokunus = useRef(null);
 
   function bitir(hedef) {
     onboardingTamamla();
-    // Tam sayfa gecis: native kabukta ayni kaynakta kaldigi icin uygulama
-    // yeniden yuklenip hedef ekranla acilir.
-    window.location.assign(hedef);
+    setCikiyor(true);
+    // Once ekran soner, sonra gecis yapilir. Tam sayfa gecis: native kabukta
+    // ayni kaynakta kaldigi icin uygulama yeniden yuklenip hedefle acilir.
+    window.setTimeout(() => window.location.assign(hedef), 240);
   }
 
   function ileri() {
@@ -129,7 +135,9 @@ export default function Onboarding() {
     // Dikey kaydirmayi yatay gecis sanmamak icin esik.
     if (Math.abs(yatay) < 50 || Math.abs(yatay) <= Math.abs(dikey)) return;
     if (yatay < 0) ileri();
-    else geri();
+    // Karar ekranindan tanitim ekranlarina geri donulmez; kullanici akisi
+    // bitirmis sayilir.
+    else if (adim < ADIMLAR.length) geri();
   }
 
   const kararEkrani = adim === ADIMLAR.length;
@@ -138,7 +146,7 @@ export default function Onboarding() {
 
   return (
     <div
-      className={`ob adim-${adim}`}
+      className={`ob adim-${adim}${cikiyor ? " cikiyor" : ""}`}
       onTouchStart={dokunusBasla}
       onTouchEnd={dokunusBitti}
     >
