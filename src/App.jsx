@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
+import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
@@ -1922,11 +1923,12 @@ export default function BorcTakip() {
       const hisseAbdSonucu = hisseAbdYanit?.ok ? await hisseAbdYanit.json() : null;
       const hisseFiyatlari = { ...(hisseSonucu?.stocks || {}), ...(hisseAbdSonucu?.stocks || {}) };
       if (!sonuc?.prices) throw new Error("Fiyat verisi alınamadı");
+      const oncekiFiyatlar = piyasa.prices || {};
       const yeni = {
         prices: {
-          ...sonuc.prices,
-          funds: fonSonucu?.funds || piyasa.prices?.funds || {},
-          stocks: Object.keys(hisseFiyatlari).length ? hisseFiyatlari : piyasa.prices?.stocks || {},
+          ...piyasaFiyatlariniBirlestir(oncekiFiyatlar, sonuc.prices, !!sonuc.partial),
+          funds: kodBazliFiyatlariBirlestir(oncekiFiyatlar.funds, fonSonucu?.funds),
+          stocks: kodBazliFiyatlariBirlestir(oncekiFiyatlar.stocks, hisseFiyatlari),
         },
         updatedAt: sonuc.updatedAt || new Date().toISOString(),
         sources: [
@@ -11741,7 +11743,9 @@ function Varliklar({
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div className="bt-satir-tutar">
-                      {fmt(k.hesaplananDeger)}
+                      {/* Fiyati hic alinamamis otomatik varlikta 0 TL yaziyorduk;
+                          kullanici bunu "varligim degersiz" diye okuyor. */}
+                      {tur.otomatik && !birimFiyat ? "Fiyat alınamadı" : fmt(k.hesaplananDeger)}
                     </div>
                     {fark !== null && (
                       <div

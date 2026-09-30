@@ -22,6 +22,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- Varlıklar ekranında fiyat servisinin bir kaynağı geçici olarak yanıt vermediğinde diğer varlıkların son bilinen fiyatları korunuyor; eksik kaynak yüzünden tüm liste fiyatsız kalmıyor.
+- Varlıklar ekranında fiyatı hiç alınamamış otomatik varlık artık ₺0,00 yerine "Fiyat alınamadı" olarak gösteriliyor.
 - iOS uygulamasında Varlıklar ekranındaki döviz, altın, kripto, fon ve hisse fiyatları artık güncelleniyor; "Canlı fiyatlar alınamadı" uyarısı yerine güncel değerler geliyor. Tarayıcı sürümü etkilenmedi.
 - iOS uygulamasında giriş ve kayıt ekranları artık sayfa olarak kaymıyor; ekran sabit kalıyor ve kart dikeyde ortalanıyor.
 - iOS uygulamasında Pro üyelik durumu ve abonelik fiyatları artık yükleniyor; ekran "Fiyat yükleniyor…" ve "Kontrol ediliyor…" durumunda takılı kalmıyor.
