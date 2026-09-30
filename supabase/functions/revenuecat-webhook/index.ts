@@ -82,7 +82,11 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     { auth: { persistSession: false } },
   );
-  const sonKullaniciId = UUID.test(userId) ? userId : null;
+  let sonKullaniciId: string | null = null;
+  if (UUID.test(userId)) {
+    const { data: authKullanicisi } = await admin.auth.admin.getUserById(userId);
+    sonKullaniciId = authKullanicisi?.user?.id || null;
+  }
   const bitis = iso(olay.grace_period_expiration_at_ms || olay.expiration_at_ms);
   const islemId = String(olay.original_transaction_id || olay.transaction_id || "").trim() || null;
   const { data: mevcutOlay } = await admin.from("revenuecat_webhook_events")

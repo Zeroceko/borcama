@@ -20,6 +20,7 @@ test("AASA, Vercel header ve iOS entitlement ayni uygulamayi dogrular", async ()
     && x.headers.some((h) => h.key === "Content-Type" && h.value === "application/json")));
   assert.match(entitlement, /applinks:borcama\.com/);
   assert.match(proje, /CODE_SIGN_ENTITLEMENTS = App\/App\.entitlements/);
+  assert.match(proje, /DEVELOPMENT_TEAM = 2SH6N4AK3P/);
 });
 
 test("native kabuk Google etiketini yuklemez ve privacy manifest tracking kapali kalir", async () => {
@@ -52,6 +53,7 @@ test("RevenueCat hakki istemci tarihinden degil sunucu dogrulamasindan gelir", a
   assert.match(webhook, /REVENUECAT_WEBHOOK_AUTHORIZATION/);
   assert.match(webhook, /REVENUECAT_WEBHOOK_SIGNING_SECRET/);
   assert.match(webhook, /REVENUECAT_IOS_APP_ID/);
+  assert.match(webhook, /auth\.admin\.getUserById\(userId\)/);
   assert.match(webhook, /ortam === "PRODUCTION" && store === "APP_STORE"/);
   assert.ok(
     satinAlma.indexOf("await revenueCatProHakkiniSenkronizeEt()") <

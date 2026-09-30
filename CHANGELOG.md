@@ -23,6 +23,11 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Pro hakkı artık istemcinin gönderdiği bitiş tarihine göre açılamıyor; satın alma sunucudan RevenueCat ile doğrulanıyor, App Store abonelik olayları yetki başlığı ve HMAC imzası doğrulanan tekilleştirilmiş webhook üzerinden işleniyor.
 
+### Düzeltildi
+
+- RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
+- iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
+
 ## [1.58.0] - 2026-09-28
 
 ### Değiştirildi
