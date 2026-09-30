@@ -17,6 +17,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.
 
+### Düzeltildi
+
+- iOS uygulamasında daha önce Pro planı seçmiş bir kullanıcı e-posta bağlantısıyla giriş yaptığında bağlantı uygulamaya dönüyor; önceden tarayıcıda açılıyordu. Seçilen plan korunuyor ve Pro ekranı açıldığında geri geliyor. Tarayıcı sürümündeki yönlendirme değişmedi.
+
 ## [1.58.0] - 2026-09-28
 
 ### Değiştirildi

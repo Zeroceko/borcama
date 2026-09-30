@@ -214,9 +214,16 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     ? hamYonlendirme
     : null;
   const ilkProPlani = proNiyetiniOku();
+  // Native kabukta e-posta yonlendirmesi yalniz AASA'daki ve Supabase izin
+  // listesindeki yollara gidebilir; /upgrade?plan=... ikisinde de yok, o yuzden
+  // link uygulamaya donmez. Secilen plan zaten cihazda saklandigi icin Pro
+  // ekrani acildiginda geri okunuyor. Tarayici davranisi degismiyor.
+  const proYonlendirmesi = !nativeMi && ilkProPlani
+    ? `/upgrade?plan=${ilkProPlani}`
+    : null;
   const sonrakiSayfa = kayitModu
     ? sorguYonlendirmesi || "/summary"
-    : sorguYonlendirmesi || (ilkProPlani ? `/upgrade?plan=${ilkProPlani}` : redirectTo);
+    : sorguYonlendirmesi || proYonlendirmesi || redirectTo;
   const [yontem, setYontem] = useState("parola");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
