@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
+import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
+import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
@@ -4855,6 +4857,7 @@ function Ayarlar({
           </div>
         </section>
         <BiyometrikAyar />
+        <OdemeHatirlatmaAyari />
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <Palette size={18} /> Görünüm
@@ -5294,6 +5297,14 @@ function Ozet({
     setHaricTurler((eski) =>
       eski.includes(tur) ? eski.filter((x) => x !== tur) : [...eski, tur],
     );
+
+  // Odeme verisi degistikce hatirlatmalar yeniden kurulur. Ayar kapaliysa
+  // bildirimleriPlanla yalniz mevcut planlari temizler.
+  useEffect(() => {
+    if (!nativeMi) return;
+    yaklasaniKaydet(yaklasan);
+    bildirimleriPlanla(yaklasan);
+  }, [yaklasan]);
 
   const gecikmisler = yaklasan.filter(
     (o) => kalanGun(o.tarih) < 0 && !o.odendi && (+o.tutar || 0) > 0.01,
