@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
-import { dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
+import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
@@ -1898,19 +1898,19 @@ export default function BorcTakip() {
         ),
       ];
       const [piyasaYanit, fonYanit, hisseYanit, hisseAbdYanit] = await Promise.all([
-        fetch("/api/market-prices", { headers: { Accept: "application/json" } }),
+        fetch(apiAdresi("/api/market-prices"), { headers: { Accept: "application/json" } }),
         fonKodlari.length
-          ? fetch("/api/fund-prices?codes=" + encodeURIComponent(fonKodlari.join(",")), {
+          ? fetch(apiAdresi("/api/fund-prices?codes=" + encodeURIComponent(fonKodlari.join(","))), {
               headers: { Accept: "application/json" },
             })
           : Promise.resolve(null),
         hisseKodlari.length
-          ? fetch("/api/stock-prices?codes=" + encodeURIComponent(hisseKodlari.join(",")), {
+          ? fetch(apiAdresi("/api/stock-prices?codes=" + encodeURIComponent(hisseKodlari.join(","))), {
               headers: { Accept: "application/json" },
             })
           : Promise.resolve(null),
         hisseAbdKodlari.length
-          ? fetch("/api/stock-prices?market=US&codes=" + encodeURIComponent(hisseAbdKodlari.join(",")), {
+          ? fetch(apiAdresi("/api/stock-prices?market=US&codes=" + encodeURIComponent(hisseAbdKodlari.join(","))), {
               headers: { Accept: "application/json" },
             })
           : Promise.resolve(null),

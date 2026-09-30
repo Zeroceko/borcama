@@ -22,6 +22,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında Varlıklar ekranındaki döviz, altın, kripto, fon ve hisse fiyatları artık güncelleniyor; "Canlı fiyatlar alınamadı" uyarısı yerine güncel değerler geliyor. Tarayıcı sürümü etkilenmedi.
 - iOS uygulamasında giriş ve kayıt ekranları artık sayfa olarak kaymıyor; ekran sabit kalıyor ve kart dikeyde ortalanıyor.
 - iOS uygulamasında Pro üyelik durumu ve abonelik fiyatları artık yükleniyor; ekran "Fiyat yükleniyor…" ve "Kontrol ediliyor…" durumunda takılı kalmıyor.
 - iOS uygulamasında Pro üyelik durumu, davet kodu, hesap silme ve Borcama'ya sor artık çalışıyor; native kabuğun sunucu isteklerini engelleyen kaynak kısıtı giderildi. Tarayıcı sürümü etkilenmedi.

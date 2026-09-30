@@ -1,3 +1,5 @@
+import { corsUygula } from "./_cors.js";
+
 const ONDALIK = /^-?\d+(?:[.,]\d+)?$/;
 
 function sayi(deger) {
@@ -91,6 +93,7 @@ async function yahooEmtiaFiyatlari() {
 }
 
 export default async function handler(req, res) {
+  if (corsUygula(req, res)) return;
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ error: "Yalnızca GET destekleniyor." });
