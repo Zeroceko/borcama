@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ShieldCheck } from "lucide-react";
 import { nativeMi } from "./platform.js";
 import { biyometriKullanilabilir, kilidiAyarla, kilitAcikMi, kimlikDogrula } from "./biometrik.js";
 
@@ -84,7 +85,7 @@ export default function BiyometrikKilit({ children }) {
 // Ayarlar ekranindaki acma/kapama karti. Tarayicida ve biyometri
 // desteklemeyen cihazlarda hicbir sey render etmez.
 export function BiyometrikAyar() {
-  const [destek, setDestek] = useState({ kullanilabilir: false, tur: "" });
+  const [destek, setDestek] = useState({ kullanilabilir: false, ad: "" });
   const [acik, setAcik] = useState(() => kilitAcikMi());
   const [islemde, setIslemde] = useState(false);
 
@@ -101,7 +102,7 @@ export function BiyometrikAyar() {
 
   if (!nativeMi || !destek.kullanilabilir) return null;
 
-  const ad = destek.tur.toLowerCase().includes("face") ? "Face ID" : "Touch ID";
+  const ad = destek.ad;
 
   async function degistir() {
     setIslemde(true);
@@ -122,18 +123,23 @@ export function BiyometrikAyar() {
   }
 
   return (
-    <div className="bt-setting-row">
-      <div>
-        <strong>{ad} ile uygulama kilidi</strong>
-        <small>
-          {acik
-            ? `Borcama her açıldığında ${ad} sorulur.`
-            : `Açarsan Borcama her açıldığında ${ad} sorulur.`}
-        </small>
+    <section className="bt-settings-card">
+      <div className="bt-settings-title">
+        <ShieldCheck size={18} /> Güvenlik
       </div>
-      <button className="bt-btn kucuk ikincil" type="button" disabled={islemde} onClick={degistir}>
-        {acik ? "Kilidi kapat" : "Kilidi aç"}
-      </button>
-    </div>
+      <div className="bt-setting-row">
+        <div>
+          <strong>{ad} ile uygulama kilidi</strong>
+          <small>
+            {acik
+              ? `Borcama her açıldığında ve arka plandan her dönüşte ${ad} sorulur.`
+              : `Açarsan Borcama her açıldığında ${ad} sorulur.`}
+          </small>
+        </div>
+        <button className="bt-btn kucuk ikincil" type="button" disabled={islemde} onClick={degistir}>
+          {acik ? "Kilidi kapat" : "Kilidi aç"}
+        </button>
+      </div>
+    </section>
   );
 }

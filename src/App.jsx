@@ -4854,6 +4854,7 @@ function Ayarlar({
             </span>
           </div>
         </section>
+        <BiyometrikAyar />
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <Palette size={18} /> Görünüm
@@ -4876,7 +4877,6 @@ function Ayarlar({
               <BookOpen size={14} /> Rehberi aç
             </button>
           </div>
-          <BiyometrikAyar />
         </section>
         <section className="bt-settings-card">
           <div className="bt-settings-title">
