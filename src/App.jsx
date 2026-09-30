@@ -104,6 +104,7 @@ import {
   getActivationState,
   getMonthlyBalancePresentation,
 } from "./productActivation.js";
+import { buildTodayDebtPlan } from "./todayDebtPlan.js";
 import {
   expenseInstallmentAmountForPeriod,
   statementPeriodForTransaction,
@@ -425,6 +426,8 @@ const CSS = `
 .bt-chip.haric .lbl,.bt-chip.haric .amt{text-decoration:line-through}
 .bt-satir.bt-odendi{opacity:.68}.bt-satir.bt-odendi .bt-satir-ad,.bt-satir.bt-odendi .bt-satir-tutar{text-decoration:line-through;text-decoration-thickness:2px}.bt-satir.bt-odendi .bt-btn{opacity:1;text-decoration:none}
 .bt-borc-dagilim{position:relative;z-index:1;margin-top:8px}.bt-borc-dagilim>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:13px 15px;list-style:none;color:var(--summary-text);border:1px solid color-mix(in srgb,var(--line) 16%,transparent);border-radius:14px;background:color-mix(in srgb,var(--panel) 62%,var(--summary-bg));cursor:pointer}.bt-borc-dagilim>summary>span{display:flex;align-items:center;gap:11px}.bt-borc-dagilim>summary>span>span{display:grid;gap:2px}.bt-borc-dagilim>summary b{font-size:13px}.bt-borc-dagilim>summary small{color:var(--summary-muted);font-size:10.5px;font-weight:500}.bt-borc-dagilim>summary::-webkit-details-marker{display:none}.bt-borc-dagilim>summary::after{content:'+';display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--line-soft);border-radius:50%;background:var(--panel);font-size:18px}.bt-borc-dagilim[open]>summary::after{content:'−'}.bt-borc-dagilim-icerik{padding:14px 2px 2px}
+.bt-bugun-plan{display:grid;gap:17px;padding:clamp(18px,4vw,26px);border:1px solid color-mix(in srgb,${CORAL} 42%,var(--line-soft));border-radius:21px;background:linear-gradient(135deg,var(--panel),color-mix(in srgb,${CORAL} 6%,var(--panel)));box-shadow:0 10px 28px #14160f0a}.bt-bugun-plan-head{display:flex;align-items:end;justify-content:space-between;gap:16px}.bt-bugun-plan-head h2{margin:0;color:var(--text);font:800 clamp(21px,3vw,27px)/1.1 'Space Grotesk',sans-serif}.bt-bugun-plan-head p{margin:5px 0 0;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-bugun-plan-grid{display:grid;grid-template-columns:minmax(220px,.65fr) minmax(0,1.35fr);gap:12px}.bt-bugun-faiz{display:flex;flex-direction:column;justify-content:space-between;min-height:156px;padding:18px;border-radius:16px;background:${INK};color:#fff}.bt-bugun-faiz span{color:#c9d0c8;font-size:10.5px;font-weight:750}.bt-bugun-faiz strong{display:block;margin:10px 0 8px;color:${LIME};font:800 clamp(25px,4vw,35px)/1 'JetBrains Mono',monospace}.bt-bugun-faiz small{color:#aeb8b0;font-size:9.5px;line-height:1.45}.bt-bugun-sira{display:grid;gap:7px}.bt-bugun-sira-satir{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line-soft);border-radius:13px;background:var(--panel2)}.bt-bugun-sira-no{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:${LIME};color:${INK};font:800 10.5px 'JetBrains Mono',monospace}.bt-bugun-sira-satir strong{display:block;color:var(--text);font-size:12.5px;line-height:1.25}.bt-bugun-sira-satir small{display:block;margin-top:3px;color:var(--dim);font-size:9.5px;line-height:1.35}.bt-bugun-sira-tutar{color:var(--text);font:750 12px 'JetBrains Mono',monospace;white-space:nowrap}.bt-bugun-sira-devami{color:var(--dim);font-size:10px;text-align:right}.bt-bugun-plan-kilit,.bt-bugun-plan-bos{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;min-height:156px;padding:18px;border:1px dashed color-mix(in srgb,${LIME} 75%,var(--line-soft));border-radius:16px;background:color-mix(in srgb,${LIME} 9%,var(--panel2))}.bt-bugun-plan-kilit strong,.bt-bugun-plan-bos strong{display:block;color:var(--text);font-size:14px}.bt-bugun-plan-kilit span,.bt-bugun-plan-bos span{display:block;margin-top:5px;color:var(--dim);font-size:11px;line-height:1.45}
+@media(max-width:700px){.bt-bugun-plan-head{align-items:flex-start;flex-direction:column}.bt-bugun-plan-grid{grid-template-columns:1fr}.bt-bugun-faiz{min-height:0}.bt-bugun-plan-kilit,.bt-bugun-plan-bos{grid-template-columns:1fr;min-height:0}.bt-bugun-plan-kilit .bt-btn{justify-self:start}.bt-bugun-sira-satir{grid-template-columns:28px minmax(0,1fr)}.bt-bugun-sira-no{width:28px;height:28px}.bt-bugun-sira-tutar{grid-column:2}.bt-bugun-sira-devami{text-align:left}}
 
 .bt-metric{background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;padding:22px;box-shadow:0 7px 20px #14160f08}
 .bt-metric-lbl{font-size:12.5px;font-weight:600;color:var(--dim);margin-bottom:10px}
@@ -546,7 +549,7 @@ const CSS = `
 .bt-satir-tutar{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--text);font-weight:700}
 .bt-kart-tutar>.bt-satirD-tur{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;margin:3px 0 0 auto;padding:0;border:0;background:transparent;font:800 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.bt-kart-tutar>.bt-satirD-tur:disabled{cursor:default}.bt-kart-odeme-gecmisi-acik{grid-area:editor;margin-top:0}.bt-odeme-gecmisi-baslik{display:grid;gap:3px;margin-bottom:10px}.bt-odeme-gecmisi-baslik strong{font-size:13px}.bt-odeme-gecmisi-baslik span{color:var(--dim);font-size:10.5px}.bt-sabit-gider-ozet{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:22px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 20%,var(--panel)),var(--panel))}.bt-sabit-gider-ozet span{display:block;color:var(--dim);font-size:10.5px;font-weight:750}.bt-sabit-gider-ozet strong{display:block;margin-top:5px;font:800 24px 'JetBrains Mono',monospace}.bt-sabit-gider-ozet p{margin:0;color:var(--dim);font-size:12px;line-height:1.5}
 .bt-satir-alt{font-size:11.5px;color:${CORAL};font-weight:700;margin-top:3px}
-.bt-kredi-satiri{align-items:flex-start}.bt-kredi-bilgi{flex:1 1 620px!important}.bt-kredi-baslik{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-kredi-durum{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,${LIME} 24%,var(--panel));color:#506a24;font-size:9.5px;font-weight:850}.bt-kredi-metrikler{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-top:10px}.bt-kredi-metrik{padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}.bt-kredi-metrik span{display:block;color:var(--dim);font-size:9.5px;font-weight:700}.bt-kredi-metrik strong{display:block;margin-top:3px;color:var(--text);font-size:11.5px}.bt-kredi-ayrim{margin-top:8px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-kredi-islemler{flex:1 0 100%;justify-content:flex-start!important}.bt-kredi-satiri.bt-kredi-bu-ay-odendi{opacity:1}.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-ad,.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-tutar{text-decoration:none}
+.bt-kredi-satiri{align-items:flex-start}.bt-kredi-bilgi{flex:1 1 620px!important}.bt-kredi-baslik{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-kredi-durum{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,${LIME} 24%,var(--panel));color:#506a24;font-size:9.5px;font-weight:850}.bt-kredi-metrikler{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-top:10px}.bt-kredi-metrik{padding:9px 10px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}.bt-kredi-metrik span{display:block;color:var(--dim);font-size:9.5px;font-weight:700}.bt-kredi-metrik strong{display:block;margin-top:3px;color:var(--text);font-size:11.5px}.bt-kredi-metrik small{display:block;margin-top:3px;color:var(--dim);font-size:8.5px;line-height:1.3}.bt-kredi-kapatma{border-color:color-mix(in srgb,${LIME} 76%,var(--line-soft));background:color-mix(in srgb,${LIME} 15%,var(--panel))}.bt-kredi-kapatma strong{font-family:'JetBrains Mono',monospace;font-size:12.5px}.bt-kredi-ayrim{margin-top:8px;color:var(--dim);font-size:10.5px;line-height:1.45}.bt-kredi-islemler{flex:1 0 100%;justify-content:flex-start!important}.bt-kredi-satiri.bt-kredi-bu-ay-odendi{opacity:1}.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-ad,.bt-kredi-satiri.bt-kredi-bu-ay-odendi .bt-satir-tutar{text-decoration:none}
 .bt-bar{height:6px;border-radius:4px;background:var(--panel);border:1px solid var(--line-soft);overflow:hidden;margin-top:9px;max-width:220px}
 .bt-bar div{height:100%}
 .bt-satir-menu{position:relative}.bt-satir-menu>summary{list-style:none}.bt-satir-menu>summary::-webkit-details-marker{display:none}.bt-satir-menu-panel{position:absolute;z-index:12;right:0;bottom:calc(100% + 7px);display:grid;min-width:190px;padding:6px;background:var(--panel);border:2px solid var(--line);border-radius:12px;box-shadow:4px 4px 0 ${CORAL}}.bt-satir-menu-panel button{width:100%;justify-content:flex-start;border:0!important;box-shadow:none!important}.bt-satir-menu-panel button:hover{background:var(--panel2)}
@@ -5311,6 +5314,10 @@ function Ozet({
   const gosterilenToplam = parcalar
     .filter((p) => !haricTurler.includes(p.tur))
     .reduce((t, p) => t + p.tutar, 0);
+  const bugunBorcPlani = useMemo(
+    () => buildTodayDebtPlan({ data: veri, debtItems: kalemler }),
+    [veri, kalemler],
+  );
   const tutarGoster = (tutar) => (tutarlarGizli ? "₺ ••••••" : fmt0(tutar));
   const turDegistir = (tur) =>
     setHaricTurler((eski) =>
@@ -5550,6 +5557,68 @@ function Ozet({
           </div>
         </div>
       </div>
+
+      <section className="bt-bugun-plan" aria-labelledby="bugun-borc-plani-baslik">
+        <div className="bt-bugun-plan-head">
+          <div>
+            <h2 id="bugun-borc-plani-baslik">Borç kapatma sıran</h2>
+            <p>Değişken faizli borçların içinde en yüksek aylık maliyet önce gösterilir.</p>
+          </div>
+          <button className="bt-link" type="button" onClick={() => setSekme("plan")}>
+            Tüm borç planı <ChevronRight size={14} />
+          </button>
+        </div>
+        <div className="bt-bugun-plan-grid">
+          <div className="bt-bugun-faiz">
+            <span>Bu ay işleyecek tahmini faiz</span>
+            <strong>{tutarGoster(bugunBorcPlani.monthlyInterest)}</strong>
+            <small>
+              Kart, KMH ve diğer değişken faizli kayıtların bugünkü bakiyesine göre; vergi/fon ve kredi taksitlerindeki faiz dahil değildir.
+            </small>
+          </div>
+          {proAktif ? (
+            bugunBorcPlani.priorityItems.length ? (
+              <div className="bt-bugun-sira">
+                {bugunBorcPlani.priorityItems.slice(0, 3).map((item, index) => (
+                  <div className="bt-bugun-sira-satir" key={item.id}>
+                    <span className="bt-bugun-sira-no">{index + 1}</span>
+                    <span>
+                      <strong>{item.ad}</strong>
+                      <small>
+                        Aylık %{Number(item.faiz || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 })}
+                        {" · yaklaşık "}{tutarGoster(item.faizTutari)} faiz
+                      </small>
+                    </span>
+                    <span className="bt-bugun-sira-tutar">{tutarGoster(item.bakiye)}</span>
+                  </div>
+                ))}
+                {bugunBorcPlani.priorityItems.length > 3 && (
+                  <div className="bt-bugun-sira-devami">
+                    +{bugunBorcPlani.priorityItems.length - 3} borç daha plan ekranında
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bt-bugun-plan-bos">
+                <div>
+                  <strong>Sıralanacak değişken faizli borç yok.</strong>
+                  <span>Sabit taksitli kredilerini ödeme takviminde takip etmeye devam edebilirsin.</span>
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="bt-bugun-plan-kilit">
+              <div>
+                <strong>Kişisel kapatma sıranı aç</strong>
+                <span>Pro, kart ve KMH borçlarını aylık faiz oranı ile kalan bakiyeye göre sıralar.</span>
+              </div>
+              <button className="bt-btn birincil" type="button" onClick={proAc}>
+                Sırayı gör <Sparkles size={15} />
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       <section className="bt-referral-campaign" aria-label="Arkadaşını davet et kampanyası">
         <span className="bt-referral-campaign-ikon" aria-hidden="true"><Gift size={19}/></span>
@@ -9912,6 +9981,11 @@ function BorclarSatiri({
             <div className="bt-kredi-metrikler" aria-label="Kredi ödeme özeti">
               {+k.anaPara > 0 && <div className="bt-kredi-metrik"><span>Kredi tutarı</span><strong>{fmt(k.anaPara)}</strong></div>}
               <div className="bt-kredi-metrik"><span>Kalan toplam ödeme</span><strong>{fmt(krediPlanOzeti?.remainingPaymentTotal)}</strong></div>
+              <div className="bt-kredi-metrik bt-kredi-kapatma">
+                <span>Bugün kapatırsam</span>
+                <strong>{fmt(krediPlanOzeti?.financingCostIsKnown ? krediPlanOzeti.remainingPrincipal : krediPlanOzeti?.remainingPaymentTotal)}</strong>
+                <small>{krediPlanOzeti?.financingCostIsKnown ? "Yaklaşık anapara" : "Tahmini üst sınır"}</small>
+              </div>
               <div className="bt-kredi-metrik"><span>Aylık taksit</span><strong>{fmt(k.taksit)}</strong></div>
               <div className="bt-kredi-metrik"><span>Kalan taksit</span><strong>{krediPlanOzeti?.remainingInstallments ?? 0} taksit</strong></div>
               <div className="bt-kredi-metrik"><span>Aylık faiz</span><strong>{+k.faiz > 0 ? `%${Number(k.faiz).toLocaleString("tr-TR", { maximumFractionDigits: 4 })}` : "Belirtilmedi"}</strong></div>
