@@ -4,6 +4,11 @@ import { denemeBasladiHtml } from "../_shared/borcama-email.ts";
 const izinliOriginler = new Set([
   "https://borcama.com",
   "https://www.borcama.com",
+  // iOS native kabukta webview kaynagi capacitor://borcama.com olur.
+  // capacitor.config.ts iosScheme "https" istese de iOS bu semayi ayrilmis
+  // kabul edip capacitor'a geri duser; yalniz hostname uygulanir. Bu origin
+  // listede olmazsa uygulamanin kendi fonksiyon cagrilari CORS'ta engellenir.
+  "capacitor://borcama.com",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
   "http://127.0.0.1:5175",

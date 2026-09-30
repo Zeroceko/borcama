@@ -9,6 +9,11 @@ import { buildFinancialAssistantFallback } from "../_shared/financialAssistantFa
 
 const allowedOrigins = new Set([
   "https://borcama.com", "https://www.borcama.com",
+  // iOS native kabukta webview kaynagi capacitor://borcama.com olur.
+  // capacitor.config.ts iosScheme "https" istese de iOS bu semayi ayrilmis
+  // kabul edip capacitor'a geri duser; yalniz hostname uygulanir. Bu origin
+  // listede olmazsa uygulamanin kendi fonksiyon cagrilari CORS'ta engellenir.
+  "capacitor://borcama.com",
   ...Array.from({ length: 30 }, (_, i) => `http://127.0.0.1:${5173 + i}`),
   ...Array.from({ length: 30 }, (_, i) => `http://localhost:${5173 + i}`),
 ]);
