@@ -19,11 +19,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Pro ödeme ekranında abonelik adı ve süresi ayrı satırda gösteriliyor, yasal bağlantılara Gizlilik Politikası eklendi.
+- Pro ödeme ekranında abonelik adı ve süresi ayrı satırda gösteriliyor; Kullanıcı Sözleşmesi, Gizlilik Politikası ve İade Politikası bağlantıları tek cümlede toplandı.
 - iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.
 
 ### Düzeltildi
 
+- App Store aboneliği satın alındıktan sonra Pro erişimi açılmayabiliyordu; ödeme tamamlandığı halde "Pro'ya geç" ekranı gösteriliyordu. Satın alma kaydı artık uygulama ekran değiştirmeden önce yazılıyor ve geçerli bir abonelik hiçbir durumda kapalı sayılmıyor.
+- iOS uygulamasında Kullanım Şartları, Gizlilik Politikası, İade Politikası ve Sık Sorulan Sorular sayfalarından geldiğin ekrana dönülüyor; önceden yalnızca ana sayfaya dönülebiliyordu.
+- iOS uygulamasında giriş ve kayıt ekranında klavye açıkken başlık durum çubuğunun altında kalmıyor.
+- iOS uygulamasında sayfa sonundaki içerik yüzen "Görüş bildir" ve hızlı ekleme düğmelerinin altında kalmıyor.
+- Pro ekranında plan değiştirirken fiyat kısa süreliğine kaybolmuyor; üstteki "Pro'ya Geç" düğmesi durum yenilenirken kaybolup geri gelmiyor.
 - Varlıklar ekranında fiyat servisinin bir kaynağı geçici olarak yanıt vermediğinde diğer varlıkların son bilinen fiyatları korunuyor; eksik kaynak yüzünden tüm liste fiyatsız kalmıyor.
 - Varlıklar ekranında fiyatı hiç alınamamış otomatik varlık artık ₺0,00 yerine "Fiyat alınamadı" olarak gösteriliyor.
 - iOS uygulamasında Varlıklar ekranındaki döviz, altın, kripto, fon ve hisse fiyatları artık güncelleniyor; "Canlı fiyatlar alınamadı" uyarısı yerine güncel değerler geliyor. Tarayıcı sürümü etkilenmedi.

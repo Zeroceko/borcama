@@ -155,7 +155,7 @@ export default function ProCheckout() {
               <button className={plan === "annual" ? "active" : ""} onClick={() => planSec("annual")} type="button">Yıllık</button>
             </div>
             <div className="pc-price">
-              <strong>{paketler.yukleniyor ? "…" : fiyat || "—"}</strong>
+              <strong>{fiyat || (paketler.yukleniyor ? "…" : "—")}</strong>
               <span>{plan === "annual" ? "/ yıl" : "/ ay"}</span>
             </div>
             <p className="pc-plan-ad">
@@ -190,15 +190,16 @@ export default function ProCheckout() {
               Devam ederek{" "}
               <a href="/terms" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
                 Kullanıcı Sözleşmesi
+              </a>
+              ,{" "}
+              <a href="/privacy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
+                Gizlilik Politikası
               </a>{" "}
               ve{" "}
               <a href="/refund-policy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
                 İade Politikası
               </a>
-              'nı kabul edersin.{" "}
-              <a href="/privacy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
-                Gizlilik Politikası
-              </a>
+              'nı kabul edersin.
             </div>
           </div>
         </section>

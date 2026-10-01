@@ -65,7 +65,10 @@ html.borcama-native .auth-wrap {
   height: 100dvh;
   overflow: hidden;
   display: flex;
-  align-items: center;
+  /* align-items:center kullanilirsa karttan uzun icerik ustten tasiyor ve
+     klavye acilip alan daraldiginda baslik durum cubugunun altina giriyordu.
+     Kart margin:auto ile ortalanir; tasan durumda ust kenara yaslanir. */
+  align-items: flex-start;
   justify-content: center;
   padding-top: calc(58px + var(--guvenli-ust));
   padding-bottom: calc(12px + var(--guvenli-alt));
@@ -75,6 +78,7 @@ html.borcama-native .auth-card {
   width: 100%;
   max-width: 420px;
   max-height: 100%;
+  margin: auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -90,6 +94,10 @@ html.borcama-native .auth-sub { margin-bottom: 14px; }
    bu yuzden baslik status bar ve Dynamic Island'in altinda kaliyordu. */
 html.borcama-native .bt-wrap {
   padding-top: calc(20px + var(--guvenli-ust));
+  /* Yuzen "Gorus bildir" ve hizli ekleme dugmeleri sayfanin en altindaki
+     icerigin uzerine biniyordu ve sayfa sonunda kaydirarak kurtarilamiyordu.
+     Alt bosluk en yuksek yuzen dugmenin ustune cikarilir. */
+  padding-bottom: calc(200px + var(--guvenli-alt));
 }
 
 /* Sabit konumlu ogeler alt guvenli alani hesaba katmiyordu; ev cubugu

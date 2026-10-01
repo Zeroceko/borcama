@@ -1795,6 +1795,7 @@ export default function BorcTakip() {
   const [kullaniciEposta, setKullaniciEposta] = useState("");
   const [reklamsiz, setReklamsiz] = useState({
     yukleniyor: true,
+    kontrolEdildi: false,
     aktif: false,
     proAktif: demoModu,
     proBitis: null,
@@ -2090,7 +2091,13 @@ export default function BorcTakip() {
   }, []);
 
   async function reklamsizKontrol() {
-    setReklamsiz((eski) => ({ ...eski, yukleniyor: true, hata: "" }));
+    // Yalniz ilk sorguda "yukleniyor" isaretlenir. Her yenilemede isaretlenince
+    // ustteki "Pro'ya Gec" dugmesi kaybolup geri geliyor, ekran titriyordu.
+    setReklamsiz((eski) => ({
+      ...eski,
+      yukleniyor: !eski.kontrolEdildi,
+      hata: "",
+    }));
     try {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
@@ -2113,17 +2120,20 @@ export default function BorcTakip() {
       if (shopierSonucu.status === "rejected" && revenueCatSonucu.status === "rejected")
         throw new Error("Hak bilgisi alınamadı");
       const proEngelli = ["admin_revoked", "self_revoked"].includes(sonuc.source);
-      const ucretliProAktif = !proEngelli && (!!sonuc.proActive || !!rc.active);
+      // App Store aboneligi aktifken hicbir yerel bayrak Pro'yu kapatamaz:
+      // odeme yapmis kullanici hicbir kosulda erisimsiz kalmamali.
+      const ucretliProAktif = !!rc.active || (!proEngelli && !!sonuc.proActive);
       const trialAktif = !ucretliProAktif && !proEngelli && !!sonuc.trialActive;
       setReklamsiz({
         yukleniyor: false,
+        kontrolEdildi: true,
         aktif: !!sonuc.adFreeLifetime,
         proAktif: ucretliProAktif || trialAktif,
-        proBitis: !proEngelli
-          ? rc.active
-            ? rc.expiresAt
-            : sonuc.proExpiresAt || (trialAktif ? sonuc.trialEndsAt : null)
-          : null,
+        proBitis: rc.active
+          ? rc.expiresAt
+          : !proEngelli
+            ? sonuc.proExpiresAt || (trialAktif ? sonuc.trialEndsAt : null)
+            : null,
         proYonetimUrl: rc.managementURL || null,
         proKaynak: rc.active ? "revenuecat" : ucretliProAktif ? sonuc.source || null : trialAktif ? "trial" : sonuc.source || null,
         proYenilenecek: !!rc.willRenew,
@@ -2136,6 +2146,7 @@ export default function BorcTakip() {
     } catch {
       setReklamsiz({
         yukleniyor: false,
+        kontrolEdildi: true,
         aktif: false,
         proAktif: demoModu,
         proBitis: null,
@@ -2173,6 +2184,7 @@ export default function BorcTakip() {
       setReklamsiz((eski) => ({
         ...eski,
         yukleniyor: false,
+        kontrolEdildi: true,
         proAktif: false,
         proBitis: null,
         proYonetimUrl: null,
@@ -2188,6 +2200,7 @@ export default function BorcTakip() {
       setReklamsiz((eski) => ({
         ...eski,
         yukleniyor: false,
+        kontrolEdildi: true,
         hata: "Ücretsiz pakete geçiş tamamlanamadı. Lütfen tekrar deneyin.",
       }));
     }
@@ -2303,6 +2316,7 @@ export default function BorcTakip() {
       setReklamsiz((eski) => ({
         ...eski,
         yukleniyor: false,
+        kontrolEdildi: true,
         proAktif: true,
         proBitis: sonuc.expiresAt || null,
         proYonetimUrl: sonuc.managementURL || null,
@@ -2313,20 +2327,29 @@ export default function BorcTakip() {
       }));
       const { data: oturum } = await supabase.auth.getSession();
       if (oturum.session?.access_token) {
-        fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${oturum.session.access_token}`,
-              "Content-Type": "application/json",
+        // Bu istek beklenmeden sayfa degistiginde tarayici onu iptal ediyordu;
+        // hak kaydi onceki durumunda ("self_revoked" dahil) kalip satin alan
+        // kullanici Pro'suz kaliyordu. Once yaziyoruz, sonra geciyoruz.
+        try {
+          await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopier-entitlement`,
+            {
+              keepalive: true,
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${oturum.session.access_token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                action: "activate_revenuecat_pro",
+                expiresAt: sonuc.expiresAt || null,
+              }),
             },
-            body: JSON.stringify({
-              action: "activate_revenuecat_pro",
-              expiresAt: sonuc.expiresAt || null,
-            }),
-          },
-        ).catch(() => {});
+          );
+        } catch {
+          // Yazilamazsa da satin alma gecerli; RevenueCat hakki tek basina
+          // Pro'yu actigi icin kullanici erisimsiz kalmaz.
+        }
       }
       window.location.assign("/welcome");
     } catch (error) {
@@ -3238,7 +3261,7 @@ export default function BorcTakip() {
               <span>Borcama'ya sor</span>
               <em className="bt-assistant-beta">Beta</em>
             </button>
-            {!reklamsiz.yukleniyor && !etkinPro && (
+            {reklamsiz.kontrolEdildi && !etkinPro && (
               <button
                 className="bt-upgrade-link"
                 type="button"
