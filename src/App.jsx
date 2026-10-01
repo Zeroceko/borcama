@@ -7421,6 +7421,7 @@ function Borclar({
   const [ekstreAkisKarti, setEkstreAkisKarti] = useState(null);
   const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
+  const [krediEklemeSecimiAcik, setKrediEklemeSecimiAcik] = useState(false);
   const [krediPlaniYuklemePenceresi, setKrediPlaniYuklemePenceresi] = useState(false);
   const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
   const [silinecekYukleme, setSilinecekYukleme] = useState(null);
@@ -8425,16 +8426,19 @@ function Borclar({
                   </div>
                 </div>
                 {!acik && !saltOkunurGorunum && kategori !== "others" && (
-                  <>
-                    {kategori === "loans" && (
-                      <button className="bt-btn kucuk birincil" type="button" onClick={() => setKrediPlaniYuklemePenceresi(true)}>
-                        <Upload size={14} /> Ödeme planı yükle
-                      </button>
-                    )}
-                    <button className="bt-btn kucuk ikincil" onClick={() => setForm({ liste: meta.liste, veri: {} })}>
-                      <Plus size={14} /> {kategori === "loans" ? "Yeni kredi ekle" : "Yeni ek hesap ekle"}
-                    </button>
-                  </>
+                  <button
+                    className="bt-btn kucuk ikincil"
+                    type="button"
+                    onClick={() => {
+                      if (kategori === "loans") {
+                        setKrediEklemeSecimiAcik(true);
+                        return;
+                      }
+                      setForm({ liste: meta.liste, veri: {} });
+                    }}
+                  >
+                    <Plus size={14} /> {kategori === "loans" ? "Yeni kredi" : "Yeni ek hesap ekle"}
+                  </button>
                 )}
               </div>
             </div>
@@ -8951,6 +8955,79 @@ function Borclar({
           onUse={belgedenEkstreKaydet}
           onManual={manuelEkstreAkisiniAc}
         />
+      )}
+
+      {krediEklemeSecimiAcik && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setKrediEklemeSecimiAcik(false);
+          }}
+        >
+          <div
+            className="bt-modal bt-baslangic-secim"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-kredi-ekleme-secim-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-kredi-ekleme-secim-baslik" className="bt-h2">
+                  Krediyi nasıl eklemek istersin?
+                </div>
+                <p className="bt-baslangic-secim-aciklama">
+                  Bilgileri kendin girebilir veya bankanın ödeme planını cihazında okutabilirsin.
+                </p>
+              </div>
+              <button
+                className="bt-btn hayalet kucuk"
+                type="button"
+                aria-label="Kapat"
+                onClick={() => setKrediEklemeSecimiAcik(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="bt-baslangic-yontemler">
+              <button
+                className="bt-baslangic-yontem manuel"
+                type="button"
+                onClick={() => {
+                  setKrediEklemeSecimiAcik(false);
+                  setForm({ liste: "loans", veri: {} });
+                }}
+              >
+                <span><Pencil size={18} /></span>
+                <span>
+                  <strong>Manuel gir</strong>
+                  <small>Kredi, faiz ve taksit bilgilerini kendin yaz.</small>
+                </span>
+              </button>
+              <button
+                className="bt-baslangic-yontem"
+                type="button"
+                onClick={() => {
+                  setKrediEklemeSecimiAcik(false);
+                  setKrediPlaniYuklemePenceresi(true);
+                }}
+              >
+                <span><Upload size={19} /></span>
+                <span>
+                  <strong>Ödeme planı yükle</strong>
+                  <small>Bankanın PDF'ini cihazında okut ve bilgileri kontrol et.</small>
+                </span>
+              </button>
+            </div>
+            <button
+              className="bt-btn hayalet bt-baslangic-sonra"
+              type="button"
+              onClick={() => setKrediEklemeSecimiAcik(false)}
+            >
+              Vazgeç
+            </button>
+          </div>
+        </div>
       )}
 
       {krediPlaniYuklemePenceresi && (

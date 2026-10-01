@@ -28,6 +28,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
 - iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
 
+## [1.59.1] - 2026-10-01
+
+### Değiştirildi
+
+- Krediler ekranındaki ayrı “Ödeme planı yükle” ve “Yeni kredi ekle” düğmeleri tek “Yeni kredi” akışında birleştirildi; kullanıcı artık manuel giriş veya ödeme planı yükleme yöntemini açılan pencereden seçiyor.
+
 ## [1.59.0] - 2026-09-30
 
 ### Eklendi
