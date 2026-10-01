@@ -4,11 +4,16 @@
 export const NATIVE_SEMA = "borcama";
 export const NATIVE_DONUS_ADRESI = `${NATIVE_SEMA}://auth-callback`;
 
-// Supabase izinli adres listesi tam eslesme arar; donus adresine sorgu
-// eklemiyoruz. Hedef ekran, Supabase'in geri gonderdigi "type" alanindan
-// cozulur.
+// E-posta baglantilari once borcama.com'daki kopru sayfasina doner, oradan
+// uygulamaya aktarilir. Dogrudan borcama:// adresine donmek Safari'de
+// calisiyor fakat Chrome kullanici dokunusu olmadan ozel semaya gecisi
+// engelleyebiliyor ve masaustunde hicbir sey olmuyordu.
+// Supabase izinli adres listesi tam eslesme arar; adrese sorgu eklemiyoruz.
+// Hedef ekran, Supabase'in geri gonderdigi "type" alanindan cozulur.
+export const KOPRU_SAYFASI = "https://borcama.com/uygulamada-ac.html";
+
 export function nativeDonusAdresi() {
-  return NATIVE_DONUS_ADRESI;
+  return KOPRU_SAYFASI;
 }
 
 // Dogrulamadan sonra kullanici dogrudan uygulamaya girer. "/welcome" satin
