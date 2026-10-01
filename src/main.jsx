@@ -16,6 +16,7 @@ import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
 import Onboarding, { KARAR_ADIMI } from "./Onboarding.jsx";
@@ -36,6 +37,9 @@ const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ defau
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
 nativeGorunumuHazirla();
+// E-posta dogrulama ve parola yenileme baglantilari uygulamaya doner;
+// oturum burada kurulur ve kullanici giris yapmis olarak karsilanir.
+derinBaglantilariDinle();
 googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);

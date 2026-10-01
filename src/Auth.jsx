@@ -24,6 +24,7 @@ import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js
 import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
+import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
@@ -352,7 +353,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     const { error } = await authIstegiYap(() => supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
-        emailRedirectTo: window.location.origin + sonrakiSayfa,
+        emailRedirectTo: epostaDonusAdresi(sonrakiSayfa),
         captchaToken: captchaToken || undefined,
         shouldCreateUser: kayitModu,
         data: kayitModu ? {
@@ -435,7 +436,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     setGonderiliyor(true);
     setHata("");
     const { error } = await authIstegiYap(() => supabase.auth.resetPasswordForEmail(eposta.trim(), {
-      redirectTo: window.location.origin + "/reset-password",
+      redirectTo: epostaDonusAdresi("/reset-password"),
       captchaToken: captchaToken || undefined,
     }));
     if (error)
@@ -462,7 +463,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       email: eposta.trim(),
       password: parola,
       options: {
-        emailRedirectTo: window.location.origin + sonrakiSayfa,
+        emailRedirectTo: epostaDonusAdresi(sonrakiSayfa),
         captchaToken: captchaToken || undefined,
         data: {
           terms_version: "1.0",
