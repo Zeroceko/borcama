@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasında Pro satın alma kartında abonelik adı, süresi ve fiyatı ile Kullanım Şartları, Gizlilik Politikası ve İade Politikası bağlantıları gösteriliyor; aynı kartta "Satın alımları geri yükle" seçeneği yer alıyor.
 - iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
 - iOS uygulamasında oturumu olmayan kullanıcı artık doğrudan giriş formu yerine "Ücretsiz başla / Giriş yap" karşılama ekranını görüyor; tanıtımı daha önce görmüş ya da çıkış yapmış kullanıcıya da bu ekran açılıyor.
 - iOS uygulamasında giriş ve kayıt ekranlarına geri butonu eklendi; karşılama ekranına dönülebiliyor.
@@ -18,6 +19,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
+- Pro ödeme ekranında abonelik adı ve süresi ayrı satırda gösteriliyor, yasal bağlantılara Gizlilik Politikası eklendi.
 - iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.
 
 ### Düzeltildi
