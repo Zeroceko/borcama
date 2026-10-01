@@ -95,6 +95,7 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
+import { loanClosesAfterPayment, loanIsClosed } from "./loanCompletion.js";
 import {
   buAyDuzenliBorcToplami,
   duzenliBorcOdemeleri,
@@ -571,6 +572,8 @@ const CSS = `
 .bt-strip{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--line-soft);margin-bottom:22px}
 .bt-strip-count{font-size:13px;font-weight:600;color:var(--dim)}
 .bt-strip-total-block{display:grid;justify-items:end;gap:2px}.bt-strip-total-label{color:var(--dim);font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.bt-strip-total{font-family:'Archivo Black',sans-serif;font-size:clamp(19px,4vw,24px);color:var(--text)}
+.bt-kapatilan-krediler{display:grid;gap:12px;margin-top:28px;padding-top:22px;border-top:1px solid var(--line-soft)}.bt-kapatilan-krediler-baslik{display:flex;align-items:center;gap:10px}.bt-kapatilan-krediler-baslik>span{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:${LIME};color:${INK}}.bt-kapatilan-krediler-baslik strong{display:block;color:var(--text);font-size:15px}.bt-kapatilan-krediler-baslik small{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}.bt-kapatilan-kredi{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;padding:14px;border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:14px;background:color-mix(in srgb,${LIME} 9%,var(--panel2))}.bt-kapatilan-kredi strong{display:block;font-size:13.5px}.bt-kapatilan-kredi small{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-kapatilan-kredi-durum{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;background:${LIME};color:${INK};font-size:10px;font-weight:850;white-space:nowrap}
+.bt-kutlama-arka{background:radial-gradient(circle at 50% 38%,#cdf56436,transparent 34%),#0f110ad9}.bt-kutlama{position:relative;max-width:480px;overflow:hidden;text-align:center;padding:34px 30px 30px!important;background:linear-gradient(145deg,color-mix(in srgb,${LIME} 22%,var(--panel)),var(--panel) 62%);box-shadow:9px 9px 0 ${CORAL}!important}.bt-kutlama-ikon{position:relative;z-index:2;display:grid;place-items:center;width:78px;height:78px;margin:0 auto 18px;border:2px solid ${INK};border-radius:24px;background:${LIME};color:${INK};box-shadow:5px 5px 0 ${CORAL};transform:rotate(-3deg);animation:bt-kutlama-giris .48s cubic-bezier(.2,.85,.3,1.25)}.bt-kutlama h2{position:relative;z-index:2;margin:0;font-family:'Archivo Black',sans-serif;font-size:clamp(27px,6vw,40px);line-height:1.02;color:var(--text)}.bt-kutlama p{position:relative;z-index:2;margin:13px auto 0;max-width:360px;color:var(--dim);font-size:13.5px;line-height:1.55}.bt-kutlama p strong{color:var(--text)}.bt-kutlama-actions{position:relative;z-index:2;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:24px}.bt-konfeti{position:absolute;inset:0;pointer-events:none}.bt-konfeti i{position:absolute;width:10px;height:20px;border:2px solid ${INK};border-radius:3px;animation:bt-konfeti-dus 1.7s ease-out both}.bt-konfeti i:nth-child(1){left:8%;top:-24px;background:${CORAL};transform:rotate(18deg);animation-delay:.05s}.bt-konfeti i:nth-child(2){left:22%;top:-24px;background:${LIME};transform:rotate(-23deg);animation-delay:.22s}.bt-konfeti i:nth-child(3){left:42%;top:-24px;background:#8fd7d1;transform:rotate(31deg);animation-delay:.12s}.bt-konfeti i:nth-child(4){left:61%;top:-24px;background:#ffcf6e;transform:rotate(-15deg);animation-delay:.3s}.bt-konfeti i:nth-child(5){left:78%;top:-24px;background:${CORAL};transform:rotate(26deg);animation-delay:.16s}.bt-konfeti i:nth-child(6){left:91%;top:-24px;background:${LIME};transform:rotate(-28deg);animation-delay:.36s}@keyframes bt-kutlama-giris{from{opacity:0;transform:scale(.55) rotate(-12deg)}to{opacity:1;transform:scale(1) rotate(-3deg)}}@keyframes bt-konfeti-dus{0%{opacity:0;translate:0 -20px}15%{opacity:1}100%{opacity:0;translate:12px 420px;rotate:280deg}}
 .bt-kart-ust{display:grid;grid-template-columns:minmax(270px,.9fr) minmax(390px,1.1fr);align-items:stretch;gap:14px;margin-bottom:22px}.bt-kart-ust-ozet{position:relative;display:grid;align-content:space-between;gap:15px;min-width:0;min-height:138px;padding:17px 18px;overflow:hidden;border:1px solid color-mix(in srgb,${LIME} 58%,var(--line-soft));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 25%,var(--panel)),color-mix(in srgb,#b9d9d0 35%,var(--panel)));box-shadow:0 10px 25px #14160f0a}.bt-kart-ust-ozet:after{content:"";position:absolute;right:-22px;top:-28px;width:86px;height:86px;border-radius:50%;background:color-mix(in srgb,${CORAL} 82%,transparent);opacity:.78}.bt-kart-ust-baslik{position:relative;z-index:1;display:flex;align-items:center;gap:10px}.bt-kart-ust-ikon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:${LIME};color:${INK};box-shadow:2px 2px 0 color-mix(in srgb,${CORAL} 76%,transparent)}.bt-kart-ust-baslik>div{display:grid;justify-items:start;gap:4px}.bt-kart-ust-baslik strong{color:var(--text);font-size:15px}.bt-kart-ust-baslik span{display:inline-flex;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--panel) 72%,transparent);color:var(--dim);font-size:10px;font-weight:700}.bt-kart-borc{position:relative;z-index:1;text-align:left}.bt-kart-borc span{display:block;margin-bottom:5px;color:var(--dim);font-size:10.5px;font-weight:700}.bt-kart-borc strong{display:block;color:var(--text);font:800 clamp(23px,3.2vw,29px) 'Archivo Black',sans-serif}.bt-kart-ust-islemler{display:grid;grid-template-rows:auto 1fr auto;align-content:stretch;gap:12px;padding:17px 18px;border:1px solid color-mix(in srgb,${CORAL} 24%,var(--line-soft));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,${CORAL} 7%,var(--panel)),var(--panel));box-shadow:0 10px 25px #14160f08}.bt-kart-islem-baslik{display:grid;gap:2px}.bt-kart-islem-baslik strong{color:var(--text);font-size:14px}.bt-kart-islem-baslik span{color:var(--dim);font-size:10.5px}.bt-kart-ust-ana,.bt-kart-ust-araclar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;width:100%}.bt-kart-ust-ana .bt-btn{width:100%;min-height:39px;justify-content:center}.bt-kart-ust-araclar{padding-top:9px;border-top:1px solid var(--line-soft)}.bt-kart-ust-araclar .bt-btn{width:100%;justify-content:center;padding:7px 10px;border:1px solid var(--line-soft);background:color-mix(in srgb,var(--panel2) 72%,transparent);font-size:11px;color:var(--dim)}.bt-kart-ust-araclar .bt-btn:hover{color:var(--text);background:var(--panel2)}
 .bt-kart-ust-ana.tek{grid-template-columns:1fr}.bt-kart-ekle{margin-top:10px;position:relative;z-index:1}.bt-kart-bos-metin{max-width:235px;font-size:12px!important;line-height:1.45}.bt-arac-bos{display:grid;justify-items:start;gap:8px;padding:24px;border:1px dashed var(--line-soft);border-radius:16px;background:var(--panel2)}.bt-arac-bos h3{margin:0;color:var(--text);font:800 19px/1.2 'Space Grotesk',sans-serif}.bt-arac-bos p{margin:0;color:var(--dim);font-size:12.5px;line-height:1.5}.bt-arac-bos-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
 .bt-odeme-ozet{padding:16px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);margin-bottom:20px}
@@ -584,6 +587,7 @@ const CSS = `
 .bt-odeme-ozet-rakam{padding:10px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line-soft)}
 @media(max-width:760px){.bt-kart-ust{grid-template-columns:1fr;align-items:stretch;gap:12px}.bt-kart-ust-islemler{justify-items:stretch}}
 @media(max-width:600px){.bt-odeme-ozet-rakamlar{grid-template-columns:1fr}.bt-kart-ust-ozet{min-height:116px}.bt-kart-ust-ana{display:grid;grid-template-columns:1fr 1fr;width:100%}.bt-kart-ust-araclar{gap:2px}.bt-odeme-onizleme{padding:13px}.bt-odeme-onizleme-ust{grid-template-columns:34px minmax(0,1fr) auto}.bt-odeme-onizleme-ikon{width:34px;height:34px}.bt-odeme-onizleme-son span{display:none}.bt-odeme-onizleme-son strong{font-size:17px}}
+@media(max-width:600px){.bt-kapatilan-kredi{grid-template-columns:auto minmax(0,1fr)}.bt-kapatilan-kredi-durum{grid-column:2;justify-self:start}.bt-kutlama{padding:28px 20px 24px!important}}
 
 .bt-btn{display:inline-flex;align-items:center;gap:6px;border-radius:999px;cursor:pointer;font-weight:700;font-family:'Space Grotesk',sans-serif;
   padding:10px 18px;font-size:13px;border:1px solid transparent;transition:filter .15s,box-shadow .15s}
@@ -767,7 +771,7 @@ const CSS = `
 .bt-upload-zone{border-width:1px;border-color:var(--line-soft)}
 .bt-upload-icon,.bt-upload-progress,.bt-extract-details,.bt-extract-details>summary::after,.bt-confidence{border-width:1px;border-color:var(--line-soft)}
 .bt-feedback-trigger,.bt-quick-add{border-width:1px;box-shadow:0 8px 20px #14160f16}
-@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important}.bt-kutlama-ikon,.bt-konfeti i{animation:none!important}.bt-konfeti{display:none} }
 `;
 
 /* ---------------- Yardımcılar (iş mantığı — değişmedi) ---------------- */
@@ -1850,6 +1854,7 @@ export default function BorcTakip() {
   const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
   const [proPenceresiAcik, setProPenceresiAcik] = useState(false);
   const [trialHatirlaticiAcik, setTrialHatirlaticiAcik] = useState(false);
+  const [borcKutlamasi, setBorcKutlamasi] = useState(null);
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
   const [piyasa, setPiyasa] = useState(() => {
@@ -2970,9 +2975,16 @@ export default function BorcTakip() {
     const oncekiOdeme = oncekiAyGecmisi[krediId] || null;
     const oncekiPaid = !!veri.paid?.[anahtar];
     const taksit = Math.max(+kredi.taksit || 0, 0);
-    const kapandi = tur === "kapat";
     const oncekiTutar = Math.max(+(oncekiOdeme?.tutar ?? 0) || 0, 0);
     const toplamTutar = oncekiTutar + temizTutar;
+    const kapandi = loanClosesAfterPayment({
+      loan: kredi,
+      history: veri.loanPaymentHistory,
+      period: ay,
+      periodPaymentTotal: toplamTutar,
+      paymentType: tur,
+    });
+    const kapanisTarihi = kapandi ? new Date().toISOString() : null;
     const odemeKaydi = {
       krediId,
       banka: kredi.banka,
@@ -2986,7 +2998,9 @@ export default function BorcTakip() {
       odendiTarihi: new Date().toISOString(),
     };
     const loans = (veri.loans || []).map((x) =>
-      x.id === krediId && kapandi ? { ...x, kalanBorc: 0, kalanTaksit: 0 } : x,
+      x.id === krediId && kapandi
+        ? { ...x, kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: kapanisTarihi }
+        : x,
     );
     const yeniVeri = {
       ...veri,
@@ -2997,7 +3011,7 @@ export default function BorcTakip() {
         [ay]: { ...oncekiAyGecmisi, [krediId]: odemeKaydi },
       },
     };
-    return kaydet(islemEkle(yeniVeri, {
+    const kayitIslemi = kaydet(islemEkle(yeniVeri, {
       tur: "odeme",
       baslik: kredi.banka + (kredi.ad ? " · " + kredi.ad : ""),
       detay: kapandi
@@ -3013,6 +3027,13 @@ export default function BorcTakip() {
         oncekiPaid,
       },
     }));
+    if (kapandi) {
+      setBorcKutlamasi({
+        tur: "Kredi",
+        baslik: kredi.banka + (kredi.ad ? " · " + kredi.ad : ""),
+      });
+    }
+    return kayitIslemi;
   };
   const ayarKaydet = (a) =>
     kaydet({ ...veri, ayarlar: { ...veri.ayarlar, ...a } });
@@ -3444,6 +3465,7 @@ export default function BorcTakip() {
                   setSekme("harcamalar");
                   setForm({ liste: "expenses", veri: {} });
                 }}
+                borcKutla={setBorcKutlamasi}
               />
             )}
             {sekme === "odemeler" && (
@@ -3648,6 +3670,18 @@ export default function BorcTakip() {
         bitir={rehberiBitir}
         kartVar={(veri.cards || []).length > 0}
       />
+      {borcKutlamasi && (
+        <BorcKapatmaKutlamasi
+          kutlama={borcKutlamasi}
+          kapat={() => setBorcKutlamasi(null)}
+          kredilereGit={() => {
+            setSekme("borclar");
+            setBorcKategori(borcKutlamasi.tur === "Kredi" ? "loans" : "od");
+            setForm(null);
+            setBorcKutlamasi(null);
+          }}
+        />
+      )}
       {geriBildirimPenceresi && (
         <div
           className="bt-modal-arka"
@@ -7384,6 +7418,87 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
 }
 
 /* ---------------- Borçlar (kategori pilleriyle tek panel) ---------------- */
+function BorcKapatmaKutlamasi({ kutlama, kapat, kredilereGit }) {
+  useEffect(() => {
+    const oncekiOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") kapat();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = oncekiOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [kapat]);
+
+  return (
+    <div
+      className="bt-modal-arka bt-kutlama-arka"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) kapat();
+      }}
+    >
+      <section
+        className="bt-modal bt-kutlama"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bt-kutlama-baslik"
+      >
+        <div className="bt-konfeti" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, index) => <i key={index} />)}
+        </div>
+        <div className="bt-kutlama-ikon" aria-hidden="true">
+          <Gift size={38} />
+        </div>
+        <h2 id="bt-kutlama-baslik">Bir borç daha bitti!</h2>
+        <p>
+          <strong>{kutlama.baslik}</strong> için ödeme tamamlandı. {kutlama.tur === "Kredi"
+            ? "Kredi, sayfanın altındaki kapatılan kredilere taşındı."
+            : "Ek hesabın açık kalıyor; yeniden kullandığında aynı hesaba yeni borç ekleyebilirsin."}
+        </p>
+        <div className="bt-kutlama-actions">
+          <button className="bt-btn birincil" type="button" onClick={kredilereGit}>
+            <Check size={15} /> {kutlama.tur === "Kredi" ? "Kapatılan krediyi gör" : "Ek hesabı gör"}
+          </button>
+          <button className="bt-btn ikincil" type="button" onClick={kapat} autoFocus>
+            Tamam
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function KapatilanKrediSatiri({ kredi, index }) {
+  const kapanisEtiketi = kredi.kapatildiTarihi
+    ? new Date(kredi.kapatildiTarihi).toLocaleDateString("tr-TR")
+    : "Tamamlandı";
+  return (
+    <div className="bt-kapatilan-kredi">
+      <BankaRozeti
+        banka={kredi.banka}
+        bg={LIME}
+        rot={ROTASYONLAR[index % ROTASYONLAR.length]}
+        boyut={38}
+      />
+      <div>
+        <strong>
+          {kredi.banka}{kredi.ad ? ` · ${kredi.ad}` : ""}
+        </strong>
+        <small>
+          {kredi.taksit ? `Aylık taksit ${fmt(kredi.taksit)} · ` : ""}
+          {kapanisEtiketi}
+        </small>
+      </div>
+      <span className="bt-kapatilan-kredi-durum">
+        <Check size={12} /> Borç kapandı
+      </span>
+    </div>
+  );
+}
+
 function Borclar({
   veri,
   kaydet,
@@ -7408,6 +7523,7 @@ function Borclar({
   ekstreYuklemeIsteginiTuket,
   gelirEkle,
   hareketEkle,
+  borcKutla,
 }) {
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
@@ -7573,6 +7689,20 @@ function Borclar({
                 ];
               })
             : veri[meta.liste] || [];
+  const guncelKrediGorunumu =
+    kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu;
+  const kapatilanKrediler = guncelKrediGorunumu
+    ? (veri.loans || [])
+        .filter(loanIsClosed)
+        .sort((a, b) =>
+          String(b.kapatildiTarihi || "").localeCompare(
+            String(a.kapatildiTarihi || ""),
+          ),
+        )
+    : [];
+  const gorunenKayitlar = guncelKrediGorunumu
+    ? kayitlar.filter((kredi) => !loanIsClosed(kredi))
+    : kayitlar;
   const saltOkunurGorunum =
     arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
   const acik = form && form.liste === meta.liste;
@@ -7861,7 +7991,7 @@ function Borclar({
     if (kategori === "cards")
       return kayitlar.reduce((t, k) => t + kartHesabi(k).toplam, 0);
     if (kategori === "loans")
-      return kayitlar.reduce(
+      return gorunenKayitlar.reduce(
         (t, k) =>
           t +
           (krediArsivGorunumu || krediGelecekGorunumu
@@ -7879,7 +8009,7 @@ function Borclar({
     );
   }
   function sayacHesapla() {
-    const n = kayitlar.length;
+    const n = gorunenKayitlar.length;
     if (kategori === "cards") return n + " kredi kartı";
     if (kategori === "loans")
       return krediArsivGorunumu
@@ -7969,6 +8099,7 @@ function Borclar({
     }
     if (ekHesapOdemeModu) {
       const eski = form.veri;
+      const oncekiKalan = ekHesapHesabi(eski).kalan;
       const sonuc = ekHesapOdemesiUygula(eski, {
         tutar: f.odemeTutari,
         tarih: f.odemeTarihi,
@@ -7978,6 +8109,14 @@ function Borclar({
       });
       if (!sonuc.tamam) return;
       ekleGuncelle("overdrafts", sonuc.hesap);
+      if (oncekiKalan > 0 && ekHesapHesabi(sonuc.hesap).kalan <= 0) {
+        borcKutla?.({
+          tur: "Ek hesap",
+          baslik:
+            sonuc.hesap.banka +
+            (sonuc.hesap.ad ? " · " + sonuc.hesap.ad : ""),
+        });
+      }
       return;
     }
     const ekstreVerisi = ekstreFormu
@@ -8736,7 +8875,7 @@ function Borclar({
             </div>
           )}
 
-          {kayitlar.length === 0 &&
+          {gorunenKayitlar.length === 0 &&
           !acik &&
           !(kategori === "others" && otomatikGecikenler.length > 0) ? (
             kategori === "cards" && !arsivGorunumu ? null : (
@@ -8748,7 +8887,9 @@ function Borclar({
                     : krediGelecekGorunumu
                       ? ayEtiketi(seciliKrediAyi) + " döneminde planlanan kredi taksiti yok."
                       : kategori === "loans"
-                        ? "Henüz kredi kaydı yok. İlk kredini ekleyerek aylık taksitlerini takip edebilirsin."
+                        ? kapatilanKrediler.length > 0
+                          ? "Aktif kredi borcun kalmadı. Tamamlanan kredilerin aşağıda duruyor."
+                          : "Henüz kredi kaydı yok. İlk kredini ekleyerek aylık taksitlerini takip edebilirsin."
                         : kategori === "od"
                           ? "Henüz ek hesap / KMH kaydı yok."
                           : "Geciken kayıt yok. Kart ve kredi ödeme tarihleri geçtiğinde burada otomatik görünür."}
@@ -8756,7 +8897,7 @@ function Borclar({
             )
           ) : (
             <div className="bt-stack" style={{ gap: 12 }}>
-              {kategori === "others" && kayitlar.length > 0 && (
+              {kategori === "others" && gorunenKayitlar.length > 0 && (
                 <div>
                   <div className="bt-h2" style={{ marginBottom: 5 }}>
                     Diğer kayıtlı borçlar
@@ -8766,7 +8907,7 @@ function Borclar({
                   </div>
                 </div>
               )}
-              {kayitlar.map((k, i) => (
+              {gorunenKayitlar.map((k, i) => (
                 <BorclarSatiri
                   key={k.id}
                   k={k}
@@ -8794,6 +8935,30 @@ function Borclar({
                 />
               ))}
             </div>
+          )}
+
+          {guncelKrediGorunumu && kapatilanKrediler.length > 0 && (
+            <section
+              className="bt-kapatilan-krediler"
+              aria-labelledby="kapatilan-krediler-baslik"
+            >
+              <div className="bt-kapatilan-krediler-baslik">
+                <span aria-hidden="true"><Check size={18} /></span>
+                <div>
+                  <strong id="kapatilan-krediler-baslik">Kapatılan krediler</strong>
+                  <small>
+                    {kapatilanKrediler.length} tamamlanan kredi geçmişte tutuluyor.
+                  </small>
+                </div>
+              </div>
+              {kapatilanKrediler.map((kredi, index) => (
+                <KapatilanKrediSatiri
+                  key={kredi.id}
+                  kredi={kredi}
+                  index={index}
+                />
+              ))}
+            </section>
           )}
 
           {kategori === "cards" && !saltOkunurGorunum && !aktivasyon.tamam && (

@@ -4,6 +4,13 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Bir borç daha bittiğinde ilerlemeni gör — v1.60.0
+
+- Siz istediniz: Son taksiti ödenen borcun aktif listede kalmamasını ve bu ilerlemenin görünür olmasını.
+- Biz yaptık: Tamamlanan kredi için kutlama ekledik ve krediyi aktif listeden “Kapatılan krediler” geçmişine taşıdık; sıfırlanan ek hesap ise yeniden borç eklenebilmesi için hesabın üzerinde kalıyor.
+- Faydası: Açık borçlarla bitenleri karıştırmadan ilerlemeni görebilir, yeniden kullandığın ek hesabı baştan tanımlamadan takip edebilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
 ### Borcama artık iPhone'unda — App Store ilk yayın adayı
 
 - Siz istediniz: Borç, ödeme ve bütçe kayıtlarını telefonda güvenli ve hızlı biçimde takip etmek.
