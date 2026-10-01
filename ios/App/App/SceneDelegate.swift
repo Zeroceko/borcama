@@ -12,6 +12,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
+
+        // Uygulama kapaliyken bir baglantiyla acildiginda adres, sahne
+        // baglanirken connectionOptions icinde geliyor ve calisma anindaki
+        // openURLContexts yolu hic tetiklenmiyor; e-posta dogrulama baglantisi
+        // uygulamaya ulasmiyordu. Ayni yoldan yeniden veriyoruz. Capacitor'un
+        // App eklentisi olayi tuketilene kadar sakladigi icin web tarafi
+        // dinleyiciyi sonra kaydetse de aliyor.
+        if !connectionOptions.urlContexts.isEmpty {
+            SceneDelegateProxy.shared.scene(scene, openURLContexts: connectionOptions.urlContexts)
+        }
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
