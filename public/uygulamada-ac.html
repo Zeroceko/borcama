@@ -77,8 +77,10 @@
         var parca = window.location.hash || "";
         var sorgu = window.location.search || "";
         // Implicit akista anahtarlar adres parcasinda, PKCE akisinda kod
-        // sorguda gelir; ikisini de uygulamaya aktariyoruz.
-        var hedef = "borcama://auth-callback" + sorgu + parca;
+        // sorguda gelir. iOS ozel semaya gecerken adres parcasini dusurdugu
+        // icin yuku her iki durumda da sorgu dizesinde aktariyoruz.
+        var yuk = parca.replace(/^#/, "") || sorgu.replace(/^\?/, "");
+        var hedef = "borcama://auth-callback" + (yuk ? "?" + yuk : "");
         var uygulama = document.getElementById("uygulama");
         uygulama.setAttribute("href", hedef);
 
