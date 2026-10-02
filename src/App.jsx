@@ -7542,6 +7542,7 @@ function Borclar({
   const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
   const [silinecekYukleme, setSilinecekYukleme] = useState(null);
   const [arsivMesaji, setArsivMesaji] = useState("");
+  const gecmisKrediKutlamalari = useRef(new Set());
   const yuklenenEkstreler = useMemo(
     () => listUploadedStatements(veri.cards),
     [veri.cards],
@@ -7693,7 +7694,7 @@ function Borclar({
     kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu;
   const kapatilanKrediler = guncelKrediGorunumu
     ? (veri.loans || [])
-        .filter(loanIsClosed)
+        .filter((kredi) => loanIsClosed(kredi, veri.loanPaymentHistory))
         .sort((a, b) =>
           String(b.kapatildiTarihi || "").localeCompare(
             String(a.kapatildiTarihi || ""),
@@ -7701,7 +7702,7 @@ function Borclar({
         )
     : [];
   const gorunenKayitlar = guncelKrediGorunumu
-    ? kayitlar.filter((kredi) => !loanIsClosed(kredi))
+    ? kayitlar.filter((kredi) => !loanIsClosed(kredi, veri.loanPaymentHistory))
     : kayitlar;
   const saltOkunurGorunum =
     arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
@@ -7719,6 +7720,34 @@ function Borclar({
     ? `borc-form-${form.veri.id}`
     : null;
   const yeniKayitHedefi = acik && !form.veri?.id ? "borc-yeni-formu" : null;
+
+  useEffect(() => {
+    if (!guncelKrediGorunumu) return;
+    const yeniTaninmisKredi = kapatilanKrediler.find(
+      (kredi) =>
+        !loanIsClosed(kredi) &&
+        !gecmisKrediKutlamalari.current.has(kredi.id),
+    );
+    if (!yeniTaninmisKredi) return;
+
+    const anahtar = `borcama:kredi-kutlamasi:${yeniTaninmisKredi.id}`;
+    try {
+      if (localStorage.getItem(anahtar)) {
+        gecmisKrediKutlamalari.current.add(yeniTaninmisKredi.id);
+        return;
+      }
+      localStorage.setItem(anahtar, "1");
+    } catch {
+      // Depolama engelliyse aynı oturumda tekrar göstermemek yeterli.
+    }
+    gecmisKrediKutlamalari.current.add(yeniTaninmisKredi.id);
+    borcKutla?.({
+      tur: "Kredi",
+      baslik:
+        yeniTaninmisKredi.banka +
+        (yeniTaninmisKredi.ad ? ` · ${yeniTaninmisKredi.ad}` : ""),
+    });
+  }, [borcKutla, guncelKrediGorunumu, kapatilanKrediler]);
 
   useEffect(() => {
     if (!yerindeFormHedefi) return;

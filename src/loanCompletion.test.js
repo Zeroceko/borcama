@@ -62,3 +62,34 @@ test("eksik eski kredi kaydi kapatilan kredi sanilmaz", () => {
     true,
   );
 });
+
+test("son taksiti eski surumde kaydedilen kredi gecmisten kapanmis sayilir", () => {
+  const history = {
+    "2026-10": { "legacy-paid-loan": { tutar: 8468.38 } },
+  };
+  assert.equal(
+    loanIsClosed(
+      {
+        id: "legacy-paid-loan",
+        kalanBorc: 8468.38,
+        kalanTaksit: 1,
+        taksit: 8468.38,
+      },
+      history,
+    ),
+    true,
+  );
+});
+
+test("eksik taksit gecmisi krediyi erkenden kapatmaz", () => {
+  const history = {
+    "2026-09": { "still-open": { tutar: 1000 } },
+  };
+  assert.equal(
+    loanIsClosed(
+      { id: "still-open", kalanBorc: 3000, kalanTaksit: 3, taksit: 1000 },
+      history,
+    ),
+    false,
+  );
+});

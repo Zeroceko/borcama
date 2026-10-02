@@ -3,11 +3,20 @@ function positiveNumber(value) {
   return Number.isFinite(number) ? Math.max(number, 0) : 0;
 }
 
-export function loanIsClosed(loan) {
+export function loanIsClosed(loan, history = {}) {
   if (loan?.kapatildiTarihi) return true;
-  if (loan?.kalanBorc === "" || loan?.kalanBorc == null) return false;
-  const remainingDebt = Number(loan.kalanBorc);
-  return Number.isFinite(remainingDebt) && remainingDebt <= 0;
+  if (loan?.kalanBorc !== "" && loan?.kalanBorc != null) {
+    const remainingDebt = Number(loan.kalanBorc);
+    if (Number.isFinite(remainingDebt) && remainingDebt <= 0) return true;
+  }
+
+  const installment = positiveNumber(loan?.taksit);
+  const remainingInstallments = Math.floor(positiveNumber(loan?.kalanTaksit));
+  return (
+    installment > 0 &&
+    remainingInstallments > 0 &&
+    completedLoanInstallments(history, loan?.id, installment) >= remainingInstallments
+  );
 }
 
 export function completedLoanInstallments(
