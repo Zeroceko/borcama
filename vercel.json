@@ -164,6 +164,7 @@
   ],
   "rewrites": [
     { "source": "/demo", "destination": "/index.html" },
+    { "source": "/auth-callback", "destination": "/index.html" },
     { "source": "/login", "destination": "/index.html" },
     { "source": "/register", "destination": "/index.html" },
     { "source": "/davet/:path*", "destination": "/index.html" },
