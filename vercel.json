@@ -1,508 +1,199 @@
 {
   "crons": [
-    {
-      "path": "/api/lifecycle-emails",
-      "schedule": "15 7 * * *"
-    }
+    { "path": "/api/lifecycle-emails", "schedule": "15 7 * * *" }
   ],
   "redirects": [
     {
       "source": "/backoffice",
-      "has": [
-        {
-          "type": "host",
-          "value": "borcama.com"
-        }
-      ],
+      "has": [{ "type": "host", "value": "borcama.com" }],
       "destination": "https://crm.borcama.com",
       "permanent": true
     },
     {
       "source": "/backoffice/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "borcama.com"
-        }
-      ],
+      "has": [{ "type": "host", "value": "borcama.com" }],
       "destination": "https://crm.borcama.com/:path*",
       "permanent": true
     },
     {
       "source": "/ceo",
-      "has": [
-        {
-          "type": "host",
-          "value": "borcama.com"
-        }
-      ],
+      "has": [{ "type": "host", "value": "borcama.com" }],
       "destination": "https://crm.borcama.com/ceo",
       "permanent": true
     },
     {
       "source": "/marketing",
-      "has": [
-        {
-          "type": "host",
-          "value": "borcama.com"
-        }
-      ],
+      "has": [{ "type": "host", "value": "borcama.com" }],
       "destination": "https://crm.borcama.com/marketing",
       "permanent": true
     },
     {
       "source": "/analytics",
-      "has": [
-        {
-          "type": "host",
-          "value": "borcama.com"
-        }
-      ],
+      "has": [{ "type": "host", "value": "borcama.com" }],
       "destination": "https://crm.borcama.com/analytics",
       "permanent": true
     }
   ],
   "headers": [
-    {
-      "source": "/.well-known/apple-app-site-association",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json"
-        }
-      ]
-    },
-    {
-      "source": "/demo",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    },
+    { "source": "/.well-known/apple-app-site-association", "headers": [{ "key": "Content-Type", "value": "application/json" }] },
+    { "source": "/demo", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }] },
     {
       "source": "/borcama-logo.png",
       "headers": [
-        {
-          "key": "Cross-Origin-Resource-Policy",
-          "value": "cross-origin"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
+        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://cdn.paddle.com https://cdn.jsdelivr.net https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.paddle.com https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com; connect-src 'self' https://o4512024083562496.ingest.de.sentry.io https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://api.revenuecat.com https://e.revenue.cat https://*.paddle.com https://cdn.jsdelivr.net https://www.google-analytics.com https://region1.google-analytics.com https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com; frame-src https://challenges.cloudflare.com https://*.paddle.com https://pay.rev.cat; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
-        },
-        {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=63072000; includeSubDomains; preload"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), payment=(self \"https://*.paddle.com\"), usb=()"
-        },
-        {
-          "key": "Cross-Origin-Opener-Policy",
-          "value": "same-origin"
-        },
-        {
-          "key": "Cross-Origin-Resource-Policy",
-          "value": "same-site"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://cdn.paddle.com https://cdn.jsdelivr.net https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://*.paddle.com https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com; connect-src 'self' https://o4512024083562496.ingest.de.sentry.io https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://api.revenuecat.com https://e.revenue.cat https://*.paddle.com https://cdn.jsdelivr.net https://www.google-analytics.com https://region1.google-analytics.com https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com; frame-src https://challenges.cloudflare.com https://*.paddle.com https://pay.rev.cat; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(self \"https://*.paddle.com\"), usb=()" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Resource-Policy", "value": "same-site" },
+        { "key": "X-Frame-Options", "value": "DENY" }
       ]
     },
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "crm.borcama.com"
-        }
-      ],
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "has": [{ "type": "host", "value": "crm.borcama.com" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/backoffice",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/backoffice/:path*",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/ceo",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/marketing",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/analytics",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/login",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/register",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/davet/:path*",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/reset-password",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/upgrade",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/welcome",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/summary",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/debts",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/payments",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/debt-plan",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/income",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/fixed-income",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/expenses",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/fixed-expenses",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/assets",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/settings",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/classic",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/landing-v2",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     },
     {
       "source": "/user/:path*",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }]
     }
   ],
   "rewrites": [
-    {
-      "source": "/demo",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/login",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/register",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/davet/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/reset-password",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/terms",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/privacy",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/refund-policy",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/faq",
-      "destination": "/faq.html"
-    },
-    {
-      "source": "/araclar",
-      "destination": "/araclar.html"
-    },
-    {
-      "source": "/araclar/:path*",
-      "destination": "/araclar/:path*.html"
-    },
-    {
-      "source": "/rehber",
-      "destination": "/rehber.html"
-    },
-    {
-      "source": "/rehber/:path*",
-      "destination": "/rehber/:path*.html"
-    },
-    {
-      "source": "/finansal-sozluk",
-      "destination": "/finansal-sozluk.html"
-    },
-    {
-      "source": "/finansal-sozluk/:path*",
-      "destination": "/finansal-sozluk/:path*.html"
-    },
-    {
-      "source": "/upgrade",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/welcome",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/classic",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/landing-v2",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/summary",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/debts",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/payments",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/debt-plan",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/income",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/fixed-income",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/expenses",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/fixed-expenses",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/assets",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/settings",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/backoffice",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/backoffice/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/user/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/ceo",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/marketing",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/analytics",
-      "destination": "/index.html"
-    }
+    { "source": "/demo", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/davet/:path*", "destination": "/index.html" },
+    { "source": "/reset-password", "destination": "/index.html" },
+    { "source": "/terms", "destination": "/index.html" },
+    { "source": "/privacy", "destination": "/index.html" },
+    { "source": "/refund-policy", "destination": "/index.html" },
+    { "source": "/faq", "destination": "/faq.html" },
+    { "source": "/araclar", "destination": "/araclar.html" },
+    { "source": "/araclar/:path*", "destination": "/araclar/:path*.html" },
+    { "source": "/rehber", "destination": "/rehber.html" },
+    { "source": "/rehber/:path*", "destination": "/rehber/:path*.html" },
+    { "source": "/finansal-sozluk", "destination": "/finansal-sozluk.html" },
+    { "source": "/finansal-sozluk/:path*", "destination": "/finansal-sozluk/:path*.html" },
+    { "source": "/upgrade", "destination": "/index.html" },
+    { "source": "/welcome", "destination": "/index.html" },
+    { "source": "/classic", "destination": "/index.html" },
+    { "source": "/landing-v2", "destination": "/index.html" },
+    { "source": "/summary", "destination": "/index.html" },
+    { "source": "/debts", "destination": "/index.html" },
+    { "source": "/payments", "destination": "/index.html" },
+    { "source": "/debt-plan", "destination": "/index.html" },
+    { "source": "/income", "destination": "/index.html" },
+    { "source": "/fixed-income", "destination": "/index.html" },
+    { "source": "/expenses", "destination": "/index.html" },
+    { "source": "/fixed-expenses", "destination": "/index.html" },
+    { "source": "/assets", "destination": "/index.html" },
+    { "source": "/settings", "destination": "/index.html" },
+    { "source": "/backoffice", "destination": "/index.html" },
+    { "source": "/backoffice/:path*", "destination": "/index.html" },
+    { "source": "/user/:path*", "destination": "/index.html" },
+    { "source": "/ceo", "destination": "/index.html" }
+    ,{ "source": "/marketing", "destination": "/index.html" }
+    ,{ "source": "/analytics", "destination": "/index.html" }
   ]
 }
