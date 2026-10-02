@@ -19,15 +19,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // uygulamaya ulasmiyordu. Ayni yoldan yeniden veriyoruz. Capacitor'un
         // App eklentisi olayi tuketilene kadar sakladigi icin web tarafi
         // dinleyiciyi sonra kaydetse de aliyor.
-        if !connectionOptions.urlContexts.isEmpty {
-            SceneDelegateProxy.shared.scene(scene, openURLContexts: connectionOptions.urlContexts)
+        // Yeniden gonderim koprunun ve eklentilerin kurulmasini bekler: sahne
+        // baglanirken gonderilen bildirimi App eklentisi henuz dinlemiyor ve
+        // adres kayboluyor. Eklenti olayi tuketilene kadar sakladigi icin web
+        // tarafi dinleyiciyi sonra kaydetse de aliyor.
+        let urlContexts = connectionOptions.urlContexts
+        let webActivities = connectionOptions.userActivities.filter {
+            $0.activityType == NSUserActivityTypeBrowsingWeb
         }
-
-        // Universal link ile acildiginda adres userActivities icinde gelir;
-        // soguk acilista bu da yeniden verilmelidir.
-        for activity in connectionOptions.userActivities
-        where activity.activityType == NSUserActivityTypeBrowsingWeb {
-            SceneDelegateProxy.shared.scene(scene, continue: activity)
+        if !urlContexts.isEmpty || !webActivities.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if !urlContexts.isEmpty {
+                    SceneDelegateProxy.shared.scene(scene, openURLContexts: urlContexts)
+                }
+                for activity in webActivities {
+                    SceneDelegateProxy.shared.scene(scene, continue: activity)
+                }
+            }
         }
     }
 
