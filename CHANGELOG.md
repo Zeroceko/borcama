@@ -24,6 +24,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında e-posta bağlantısı doğrulanamazsa kullanıcı giriş formuna düşmüyor; bağlantının süresinin dolduğunu ya da daha önce kullanıldığını söyleyen ve yeni bağlantı istemeye yönlendiren bir ekran gösteriliyor.
 - iOS uygulamasında e-posta doğrulama ve parola yenileme bağlantıları doğrudan uygulamada açılıyor; ara sayfa ya da tarayıcı devreye girmiyor ve kullanıcı doğrulamadan sonra giriş yapmış olarak uygulamayla karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışıyor. Önceden bağlantı tarayıcıda açılıyor, tek kullanımlık anahtar orada harcanıyor ve uygulama "E-postanı kontrol et" ekranında kalıyordu.
 - App Store aboneliği satın alındıktan sonra Pro erişimi açılmayabiliyordu; ödeme tamamlandığı halde "Pro'ya geç" ekranı gösteriliyordu. Satın alma kaydı artık uygulama ekran değiştirmeden önce yazılıyor ve geçerli bir abonelik hiçbir durumda kapalı sayılmıyor.
 - iOS uygulamasında Kullanım Şartları, Gizlilik Politikası, İade Politikası ve Sık Sorulan Sorular sayfalarından geldiğin ekrana dönülüyor; önceden yalnızca ana sayfaya dönülebiliyordu.

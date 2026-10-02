@@ -8,15 +8,30 @@ import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
 // ekran uygulamanin kurulu olmadigi durumlar icindir: bilgisayar, Android ya
 // da uygulamayi silmis bir kullanici. Ayni tek kullanimlik anahtarla oturumu
 // tarayicida kurar ve kullaniciyi uygulamaya birakir.
+// Suresi dolmus baglanti gunluk bir durum; teknik mesaji kullaniciya
+// gostermiyoruz. Beklenmeyen durumlarda sebep de yaziliyor ki destek
+// tarafinda ne oldugu gorulebilsin.
+function hataMetni(sebep) {
+  const metin = String(sebep || "");
+  if (!metin || /expired|invalid|otp_expired/i.test(metin))
+    return "Bağlantının süresi dolmuş ya da daha önce kullanılmış. Yeni bir bağlantı iste.";
+  return `Bağlantı doğrulanamadı. (${metin})`;
+}
+
 export default function DogrulamaEkrani() {
   const [hata, setHata] = useState("");
 
   useEffect(() => {
     let iptal = false;
     (async () => {
+      const sorgu = new URLSearchParams(window.location.search);
+      if (sorgu.get("baglanti") === "gecersiz") {
+        if (!iptal) setHata(hataMetni(sorgu.get("sebep")));
+        return;
+      }
       const veri = derinBaglantiAyristir(window.location.href);
       if (!veri || veri.hata) {
-        if (!iptal) setHata("Bağlantı geçersiz ya da süresi dolmuş.");
+        if (!iptal) setHata(hataMetni(veri?.hata));
         return;
       }
       teslimZiyaretiniBildir(veri.teslimKimligi);
@@ -36,8 +51,8 @@ export default function DogrulamaEkrani() {
         } else {
           throw new Error("Bağlantıda doğrulama bilgisi yok.");
         }
-      } catch {
-        if (!iptal) setHata("Bağlantı geçersiz ya da süresi dolmuş.");
+      } catch (hata) {
+        if (!iptal) setHata(hataMetni(hata?.message));
         return;
       }
       if (!iptal) window.location.assign(veri.hedef);

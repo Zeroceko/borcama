@@ -7,6 +7,13 @@ import {
 } from "./derinBaglantiAdres.js";
 import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
 
+function baglantiHatasiniGoster(sebep) {
+  const adres = new URL("/auth-callback", window.location.origin);
+  adres.searchParams.set("baglanti", "gecersiz");
+  if (sebep) adres.searchParams.set("sebep", String(sebep).slice(0, 180));
+  window.location.assign(adres.pathname + adres.search);
+}
+
 // Native kabukta webview kaynagi capacitor://borcama.com oldugu icin e-posta
 // dogrulama baglantisi oraya donemiyor; Supabase izinli adres listesinde de
 // yer alamiyor. Bu yuzden baglanti uygulamanin kendi URL semasina doner, iOS
@@ -49,7 +56,7 @@ async function oturumKur(adres) {
   if (!veri) return;
   islendiYaz(adres);
   if (veri.hata) {
-    window.location.assign("/login?baglanti=gecersiz");
+    baglantiHatasiniGoster(veri.hata);
     return;
   }
   teslimZiyaretiniBildir(veri.teslimKimligi);
@@ -74,8 +81,10 @@ async function oturumKur(adres) {
     } else {
       return;
     }
-  } catch {
-    window.location.assign("/login?baglanti=gecersiz");
+  } catch (hata) {
+    // Kullaniciyi giris formuna atmak yerine ne oldugunu anlatan ekranda
+    // birakiyoruz; onceki davranis "tanitim akisi kayboldu" gibi gorunuyordu.
+    baglantiHatasiniGoster(hata?.message || "");
     return;
   }
   window.location.assign(veri.hedef);
