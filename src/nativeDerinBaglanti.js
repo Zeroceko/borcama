@@ -5,6 +5,7 @@ import {
   nativeDonusAdresi,
   uygulamaBaglantisiMi,
 } from "./derinBaglantiAdres.js";
+import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
 
 // Native kabukta webview kaynagi capacitor://borcama.com oldugu icin e-posta
 // dogrulama baglantisi oraya donemiyor; Supabase izinli adres listesinde de
@@ -51,6 +52,7 @@ async function oturumKur(adres) {
     window.location.assign("/login?baglanti=gecersiz");
     return;
   }
+  teslimZiyaretiniBildir(veri.teslimKimligi);
   try {
     if (veri.dogrulamaAnahtari) {
       // E-postadaki baglanti dogrudan uygulamada acildigi icin dogrulamayi da

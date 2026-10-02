@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient.js";
 import { derinBaglantiAyristir } from "./derinBaglantiAdres.js";
+import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
 
 // E-postadaki dogrulama baglantisi iOS'ta universal link oldugu icin uygulama
 // kuruluysa bu ekran hic gorunmez; baglanti dogrudan uygulamada acilir. Bu
@@ -18,6 +19,7 @@ export default function DogrulamaEkrani() {
         if (!iptal) setHata("Bağlantı geçersiz ya da süresi dolmuş.");
         return;
       }
+      teslimZiyaretiniBildir(veri.teslimKimligi);
       try {
         if (veri.dogrulamaAnahtari) {
           const { error } = await supabase.auth.verifyOtp({

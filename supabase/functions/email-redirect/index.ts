@@ -11,6 +11,9 @@ Deno.serve(async (req) => {
     : requested.startsWith(supabaseVerifyPrefix)
       ? requested
       : `${base}/summary`;
+  // Dogrulama baglantisi artik yonlendirme kullanmiyor; acilan ekran bu uc
+  // noktayi ping=1 ile cagirip ziyareti bildiriyor.
+  const ping = url.searchParams.get("ping") === "1";
   if (/^[0-9a-f-]{36}$/i.test(id)) {
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
     const { data } = await admin.from("marketing_deliveries").select("visit_count").eq("id", id).maybeSingle();
@@ -21,5 +24,13 @@ Deno.serve(async (req) => {
       }).eq("id", id);
     }
   }
+  if (ping)
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store",
+      },
+    });
   return Response.redirect(destination, 302);
 });

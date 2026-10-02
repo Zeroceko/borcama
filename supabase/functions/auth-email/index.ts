@@ -23,8 +23,14 @@ Deno.serve(async (req) => {
   if (!user?.email || !emailData) return new Response(JSON.stringify({ error: "INVALID_PAYLOAD" }), { status: 422 });
   const actionType = String(emailData.email_action_type || "magiclink");
   const supabaseUrl = String(Deno.env.get("SUPABASE_URL") || "").replace(/\/$/, "");
-  const redirectTo = String(emailData.redirect_to || "https://borcama.com/summary");
-  const confirmUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(emailData.token_hash)}&type=${encodeURIComponent(actionType)}&redirect_to=${encodeURIComponent(redirectTo)}`;
+  const siteUrl = String(Deno.env.get("PUBLIC_SITE_URL") || "https://borcama.com").replace(/\/$/, "");
+  // Baglanti dogrudan borcama.com/auth-callback adresine gider: iOS bunu
+  // universal link olarak tanir ve uygulama kuruluysa tarayici hic acilmadan
+  // uygulamada acilir. Supabase'in /verify adresine ya da takip
+  // yonlendirmesine ugrayan bir baglanti ara sunucu yonlendirmesi uretir ve
+  // iOS boyle bir adres icin uygulamayi acmaz. Dogrulamayi token_hash ile
+  // uygulama ya da tarayici kendisi yapar.
+  const confirmUrl = `${siteUrl}/auth-callback?token_hash=${encodeURIComponent(emailData.token_hash)}&type=${encodeURIComponent(actionType)}`;
   let subject = actionType === "signup" ? "Borcama hesabını doğrula" : actionType === "recovery" ? "Borcama parolanı yenile" : "Borcama'ya giriş bağlantın";
   const admin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
   let trackedUrl = confirmUrl;
@@ -39,7 +45,9 @@ Deno.serve(async (req) => {
         const { data } = await admin.from("marketing_deliveries").insert({ campaign_id: campaign.id, user_id: user.id, recipient_email: user.email, status: "queued" }).select("id").single();
         deliveryId = data?.id || "";
       }
-      if (deliveryId) trackedUrl = `${supabaseUrl}/functions/v1/email-redirect?id=${encodeURIComponent(deliveryId)}&to=${encodeURIComponent(confirmUrl)}`;
+      // Tiklama takibi yonlendirmeyle degil, acilan ekranin gonderdigi
+      // bildirimle yapilir; yonlendirme universal link'i bozuyordu.
+      if (deliveryId) trackedUrl = `${confirmUrl}&d=${encodeURIComponent(deliveryId)}`;
     }
   }
   const response = await fetch("https://api.resend.com/emails", {

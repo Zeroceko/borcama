@@ -68,6 +68,8 @@ export function derinBaglantiAyristir(adres) {
     // Universal link akisinda tek kullanimlik dogrulama anahtari gelir;
     // dogrulamayi uygulama yapar.
     dogrulamaAnahtari: oku("token_hash") || oku("token"),
+    // E-posta tiklama takibi: yonlendirme yerine ekranin bildirdigi kimlik.
+    teslimKimligi: oku("d"),
     erisimAnahtari: oku("access_token"),
     yenilemeAnahtari: oku("refresh_token"),
     kod: oku("code"),
