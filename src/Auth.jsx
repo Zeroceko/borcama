@@ -26,6 +26,53 @@ import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } fr
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
+const TURNSTILE_SCRIPT_ID = "borcama-turnstile-script";
+const TURNSTILE_RECOVERY_TIMEOUT_MS = 25000;
+let turnstileYuklemeSozu = null;
+
+function turnstileYukle() {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  if (turnstileYuklemeSozu) return turnstileYuklemeSozu;
+
+  turnstileYuklemeSozu = new Promise((resolve, reject) => {
+    let script = document.getElementById(TURNSTILE_SCRIPT_ID);
+    if (script?.dataset.turnstileFailed === "1") {
+      script.remove();
+      script = null;
+    }
+    const yeniScript = !script;
+    if (yeniScript) {
+      script = document.createElement("script");
+      script.id = TURNSTILE_SCRIPT_ID;
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+    }
+
+    const hazir = () => {
+      if (window.turnstile) resolve(window.turnstile);
+      else hata();
+    };
+    const hata = () => {
+      script.dataset.turnstileFailed = "1";
+      turnstileYuklemeSozu = null;
+      reject(new Error("TURNSTILE_SCRIPT_FAILED"));
+    };
+    script.addEventListener("load", hazir, { once: true });
+    script.addEventListener("error", hata, { once: true });
+    if (yeniScript) document.head.appendChild(script);
+    else if (window.turnstile) hazir();
+  });
+
+  return turnstileYuklemeSozu;
+}
+
+function turnstileYuklemesiniYenile() {
+  if (window.turnstile) return;
+  turnstileYuklemeSozu = null;
+  const script = document.getElementById(TURNSTILE_SCRIPT_ID);
+  if (script) script.dataset.turnstileFailed = "1";
+}
 
 function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
   const ref = useRef(null);
@@ -33,18 +80,23 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
     onToken('');
     onStatus('loading');
     let widget;
+    let turnstileApi;
     let active = true;
     let watchdog = window.setTimeout(() => {
-      if (active) onStatus('error');
-    }, 8000);
+      if (active) {
+        turnstileYuklemesiniYenile();
+        onStatus('error:watchdog');
+      }
+    }, TURNSTILE_RECOVERY_TIMEOUT_MS);
     const kontrolTamamlandi = (status) => {
       window.clearTimeout(watchdog);
       if (active) onStatus(status);
     };
-    const render = () => {
-      if (!active || !ref.current || !window.turnstile) return;
+    const render = (api) => {
+      if (!active || !ref.current) return;
+      turnstileApi = api;
       ref.current.replaceChildren();
-      widget = window.turnstile.render(ref.current, {
+      widget = api.render(ref.current, {
         sitekey: siteKey,
         appearance: 'interaction-only',
         execution: 'render',
@@ -58,27 +110,41 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
           onToken(token);
           kontrolTamamlandi('ready');
         },
-        'before-interactive-callback': () => active && onStatus('interactive'),
+        'before-interactive-callback': () => {
+          window.clearTimeout(watchdog);
+          if (active) onStatus('interactive');
+        },
         'expired-callback': () => {
           if (!active) return;
           onToken('');
           onStatus('loading');
         },
-        'error-callback': () => {
+        'error-callback': (errorCode) => {
           if (!active) return;
           onToken('');
-          kontrolTamamlandi('error');
+          kontrolTamamlandi(`error:${String(errorCode || "unknown")}`);
+          return true;
         },
         'timeout-callback': () => {
           if (!active) return;
           onToken('');
           kontrolTamamlandi('timeout');
         },
+        'unsupported-callback': () => {
+          if (!active) return;
+          onToken('');
+          kontrolTamamlandi('unsupported');
+        },
       });
     };
-    if (window.turnstile) render();
-    else window.addEventListener('turnstile-ready', render, { once: true });
-    return () => { active = false; window.clearTimeout(watchdog); window.removeEventListener('turnstile-ready', render); if (widget !== undefined && window.turnstile) window.turnstile.remove(widget); };
+    turnstileYukle()
+      .then(render)
+      .catch(() => kontrolTamamlandi('error:script'));
+    return () => {
+      active = false;
+      window.clearTimeout(watchdog);
+      if (widget !== undefined && turnstileApi) turnstileApi.remove(widget);
+    };
   }, [siteKey, widgetKey, onToken, onStatus]);
   return <div ref={ref} style={{ marginBottom: 12 }} />;
 }
@@ -276,19 +342,6 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     };
   }, [yasalMetin]);
 
-  useEffect(() => {
-    if (!turnstileSiteKey) return;
-    const script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => window.dispatchEvent(new Event("turnstile-ready"));
-    document.head.appendChild(script);
-    return () => {
-      script.remove();
-    };
-  }, [turnstileSiteKey]);
-
   function authIstegiYap(request) {
     return runAuthAttempt(request, () => {
       setCaptchaToken("");
@@ -300,7 +353,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
 
   function captchaAlani(widgetKey) {
     if (!turnstileSiteKey) return null;
-    const tekrarGerekli = captchaDurumu === "error" || captchaDurumu === "timeout";
+    const hataKodu = captchaDurumu.startsWith("error:")
+      ? captchaDurumu.slice("error:".length)
+      : "";
+    const tekrarGerekli = Boolean(hataKodu) || captchaDurumu === "timeout" || captchaDurumu === "unsupported";
+    const engellenmis = hataKodu === "200500" || hataKodu === "script";
+    const yapilandirmaHatasi = ["110100", "110110", "110200", "400020", "400021", "400070"].includes(hataKodu);
     return (
       <>
         <TurnstileWidget
@@ -312,11 +370,20 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         {tekrarGerekli && (
           <div className="auth-captcha-status" role="alert">
             <span>
-              Güvenlik kontrolü tamamlanamadı. İnternet bağlantını kontrol edip yeniden deneyebilirsin.
+              {yapilandirmaHatasi
+                ? "Güvenlik kontrolünün site ayarı doğrulanamadı. Lütfen zero@borcama.com adresine bildirin."
+                : engellenmis
+                  ? "Güvenlik kontrolü tarayıcı veya içerik engelleyici tarafından durduruldu. Bu site için engelleyiciyi kapatıp yeniden deneyin."
+                  : captchaDurumu === "unsupported"
+                    ? "Bu tarayıcı güvenlik kontrolünü desteklemiyor. Güncel bir tarayıcıyla yeniden deneyin."
+                    : "Güvenlik kontrolü tamamlanamadı. Bağlantını kontrol edip yeniden deneyebilirsin."}
             </span>
             <button
               type="button"
               onClick={() => {
+                if (["script", "watchdog"].includes(hataKodu)) {
+                  turnstileYuklemesiniYenile();
+                }
                 setCaptchaToken("");
                 setCaptchaDurumu("loading");
                 setCaptchaAttempt((x) => x + 1);

@@ -14,9 +14,13 @@ test("Turnstile normal ziyaretçide gizli kalır ve riske göre etkileşim ister
 
 test("Turnstile hata ve zaman aşımında sessizce kilitlenmez", async () => {
   const auth = await authKaynagi();
-  assert.match(auth, /setTimeout\(\(\) => \{[\s\S]+onStatus\('error'\)[\s\S]+8000/);
+  assert.match(auth, /TURNSTILE_RECOVERY_TIMEOUT_MS = 25000/);
+  assert.match(auth, /TURNSTILE_SCRIPT_ID = "borcama-turnstile-script"/);
+  assert.match(auth, /function turnstileYuklemesiniYenile\(\)/);
+  assert.match(auth, /turnstileYukle\(\)[\s\S]+\.catch\(\(\) => kontrolTamamlandi\('error:script'\)\)/);
   assert.match(auth, /'error-callback'/);
   assert.match(auth, /'timeout-callback'/);
-  assert.match(auth, /Güvenlik kontrolü tamamlanamadı/);
+  assert.match(auth, /'unsupported-callback'/);
+  assert.match(auth, /içerik engelleyici tarafından durduruldu/);
   assert.match(auth, /Yeniden dene/);
 });

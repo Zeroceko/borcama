@@ -28,6 +28,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
 - iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
 
+## [1.60.1] - 2026-10-02
+
+### Düzeltildi
+
+- CRM ve ana uygulama girişindeki güvenlik kontrolü, Cloudflare'ın otomatik toparlanması tamamlanmadan hata göstermiyor; script tek kez yükleniyor ve ağ, içerik engelleyici, tarayıcı desteği ile alan adı yapılandırma sorunları kullanıcıya ayrı yönlendirmelerle sunuluyor.
+
 ## [1.60.0] - 2026-10-01
 
 ### Eklendi
