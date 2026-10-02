@@ -36,7 +36,7 @@ import {
 import "./SeoPages.css";
 
 const SITE = "https://borcama.com";
-const BDDK_KAYNAK = "https://www.bddk.org.tr/Duyuru/EkGetir/2074?ekId=862";
+const BDDK_KAYNAK = "https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349";
 const TCMB_KAYNAK = "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Bankacilik%2BVerileri/Kredi_Karti_Islemlerinde_Uygulanacak_Azami_Faiz_Oranlari";
 const GIB_VERGI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2Fgelir-vergisi-tarifeleri%2Fgelir-vergisi-tarifesi-2026.pdf";
 const GIB_ASGARI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2FAsgariUcrettenYapilanKesintiler.pdf";
@@ -157,7 +157,7 @@ const REHBERLER = [
     description: "Kredi kartında asgari ödeme tutarı, kalan borç ve faiz etkisini sade bir örnekle anlayın.",
     intro: "Asgari tutarı ödemek, bankanın bildirdiği son ödeme yükümlülüğünü karşılamaya yardımcı olur; ancak dönem borcunun tamamı kapanmadığı için kalan tutar maliyet oluşturmaya devam edebilir.",
     sections: [
-      ["Asgari tutar nasıl belirlenir?", "BDDK'nın 26 Eylül 2024 tarihli kararında kart limiti 50 bin TL ve altındaki kartlar için dönem borcunun yüzde 20'si, bu sınırın üzerindeki kartlar için yüzde 40'ı esas alınır. Bankanın ekstrende bildirdiği tutar her zaman önceliklidir."],
+      ["Asgari tutar nasıl belirlenir?", "BDDK'nın 1 Ekim 2026 tarihli kararında kart limiti 100 bin TL ve altındaki kartlar için dönem borcunun yüzde 20'si, bu sınırın üzerindeki kartlar için yüzde 40'ı esas alınır. Bankanın ekstrende bildirdiği tutar her zaman önceliklidir."],
       ["Kalan borç neden önemlidir?", "Asgari ödeme sonrası kalan bakiye sonraki döneme devreder. Uygulanacak oran bankaya, borç türüne ve güncel düzenlemelere göre değişebilir."],
       ["Ek ödeme neyi değiştirir?", "Asgari tutarın üzerindeki her ödeme ana bakiyeyi daha hızlı azaltabilir. Bunun etkisini değerlendirirken yeni harcamaları ve bankanın uyguladığı gerçek oranı da hesaba kat."],
       ["Hangi rakama güvenmelisin?", "Hesaplayıcılar planlama için tahmin sunar. Kesin asgari ödeme, faiz ve vergi tutarları için bankanın ekstresini ve güncel sözleşmeni esas al."],
@@ -370,7 +370,7 @@ function AsgariOdeme() {
   const [borc, setBorc] = useState("25000");
   const sonuc = useMemo(() => krediKartiAsgariOdemeHesapla({ donemBorcu: borc, kartLimiti: limit }), [limit, borc]);
   const schema = useMemo(() => toolSchema("Kredi Kartı Asgari Ödeme Hesaplayıcı", "/araclar/kredi-karti-asgari-odeme-hesaplayici"), []);
-  return <ToolLayout title="Kredi kartı asgari ödeme hesaplayıcı" lead="Kart limitin ve dönem borcuna göre güncel BDDK oranıyla tahmini asgari ödeme tutarını gör." path="/araclar/kredi-karti-asgari-odeme-hesaplayici" schema={schema} showSources faq={[["Hangi oran kullanılıyor?","Kart limiti 50 bin TL ve altındaysa yüzde 20, üzerindeyse yüzde 40."],["Ekstredeki tutar farklıysa ne yapmalıyım?","Her zaman bankanın güncel ekstrende bildirdiği asgari tutarı esas al."]]}><div className="seo-panel"><h2>Kart bilgilerini gir</h2><NumberField label="Kart limiti" value={limit} onChange={setLimit}/><NumberField label="Dönem borcu" value={borc} onChange={setBorc}/><p className="seo-inline-note">26 Eylül 2024 tarihli BDDK kararındaki kart limiti eşiği kullanılır.</p></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ ASGARİ</span><div className="seo-big-money"><Money value={sonuc.tahminiAsgari}/></div><Summary items={[["Uygulanan oran", `%${Math.round(sonuc.oran * 100)}`],["Ödeme sonrası kalan", <Money value={sonuc.odemeSonrasiKalan}/>]]}/><Disclaimer text="Bu araç yasal orana göre tahmin üretir. Kesin tutar için bankanın ekstrende bildirdiği asgari ödemeyi esas al."/></div></ToolLayout>;
+  return <ToolLayout title="Kredi kartı asgari ödeme hesaplayıcı" lead="Kart limitin ve dönem borcuna göre güncel BDDK oranıyla tahmini asgari ödeme tutarını gör." path="/araclar/kredi-karti-asgari-odeme-hesaplayici" schema={schema} showSources faq={[["Hangi oran kullanılıyor?","Kart limiti 100 bin TL ve altındaysa yüzde 20, üzerindeyse yüzde 40."],["Ekstredeki tutar farklıysa ne yapmalıyım?","Her zaman bankanın güncel ekstrende bildirdiği asgari tutarı esas al."]]}><div className="seo-panel"><h2>Kart bilgilerini gir</h2><NumberField label="Kart limiti" value={limit} onChange={setLimit}/><NumberField label="Dönem borcu" value={borc} onChange={setBorc}/><p className="seo-inline-note">1 Ekim 2026 tarihli ve 11581 sayılı BDDK kararındaki kart limiti eşiği kullanılır.</p></div><div className="seo-result"><span className="seo-result-kicker">TAHMİNİ ASGARİ</span><div className="seo-big-money"><Money value={sonuc.tahminiAsgari}/></div><Summary items={[["Uygulanan oran", `%${Math.round(sonuc.oran * 100)}`],["Ödeme sonrası kalan", <Money value={sonuc.odemeSonrasiKalan}/>]]}/><Disclaimer text="Bu araç yasal orana göre tahmin üretir. Kesin tutar için bankanın ekstrende bildirdiği asgari ödemeyi esas al."/></div></ToolLayout>;
 }
 
 function MevduatFaizi() {
@@ -471,7 +471,7 @@ function Disclaimer({ text = "Sonuçlar yaklaşık planlama içindir; finansal t
 }
 
 function SourceNote() {
-  return <aside className="seo-sources"><b>Güncel kaynak notu</b><p>Asgari ödeme kuralı için <a href={BDDK_KAYNAK} target="_blank" rel="noreferrer">BDDK kararını</a>; kredi kartı azami faizleri için her ay güncellenen <a href={TCMB_KAYNAK} target="_blank" rel="noreferrer">TCMB tablosunu</a> esas alıyoruz. Son kontrol: 22 Ağustos 2026.</p></aside>;
+  return <aside className="seo-sources"><b>Güncel kaynak notu</b><p>Asgari ödeme kuralı için <a href={BDDK_KAYNAK} target="_blank" rel="noreferrer">BDDK kararını</a>; kredi kartı azami faizleri için her ay güncellenen <a href={TCMB_KAYNAK} target="_blank" rel="noreferrer">TCMB tablosunu</a> esas alıyoruz. Son kontrol: 2 Ekim 2026.</p></aside>;
 }
 
 function OfficialSources({ children }) {

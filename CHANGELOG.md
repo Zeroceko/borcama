@@ -32,6 +32,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
 - iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
 
+## [1.60.3] - 2026-10-02
+
+### Eklendi
+
+- Marketing merkezine, kredi kartı asgari ödeme sınırındaki 100.000 TL güncellemesini resmî BDDK kaynağıyla açıklayan ve yalnız uygun doğrulanmış üyelere tek sefer gönderilebilen bilgilendirme kampanyası eklendi.
+
+### Düzeltildi
+
+- Kredi kartı asgari ödeme tahmini, 1 Ekim 2026 tarihli BDDK kararına uygun olarak 100.000 TL ve altındaki kart limitlerinde yüzde 20, bu tutarın üzerindeki limitlerde yüzde 40 oranını kullanıyor.
+
 ## [1.60.2] - 2026-10-02
 
 ### Düzeltildi

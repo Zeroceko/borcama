@@ -147,6 +147,10 @@ import {
   harcamaKaynagiSecimDegeri,
   harcamaKaynaklariniOlustur,
 } from "./expenseSources.js";
+import {
+  KREDI_KARTI_ASGARI_LIMIT_ESIGI,
+  krediKartiAsgariOrani,
+} from "./creditCardMinimum.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -1168,7 +1172,7 @@ function kartHesabi(k) {
   const oran = tcmbKartAzamiFaizi(onceki);
   const faiz = (devreden * oran) / 100;
   const toplam = devreden;
-  const asgariOran = (+k.limit || 0) <= 50000 ? 20 : 40;
+  const asgariOran = krediKartiAsgariOrani(k.limit) * 100;
   return {
     onceki,
     oncekiDevreden,
@@ -1598,7 +1602,11 @@ function borcamaOnerileriniHesapla({
   (veri.cards || []).forEach((kart) => {
     const hesap = kartHesabi(kart);
     const limit = Math.max(+kart.limit || 0, 0);
-    if (limit <= 50000 || hesap.onceki <= 0 || hesap.onceki > 50000) return;
+    if (
+      limit <= KREDI_KARTI_ASGARI_LIMIT_ESIGI ||
+      hesap.onceki <= 0 ||
+      hesap.onceki > KREDI_KARTI_ASGARI_LIMIT_ESIGI
+    ) return;
     const mevcutMinimum = hesap.onceki * 0.4;
     const dusukLimitMinimumu = hesap.onceki * 0.2;
     const fark = Math.max(mevcutMinimum - dusukLimitMinimumu, 0);
@@ -1611,7 +1619,7 @@ function borcamaOnerileriniHesapla({
       etiket: "Aylık yük senaryosu",
       baslik: (kart.banka || "Kart") + " limitini gözden geçir",
       aciklama:
-        "Kart limitin 50.000 TL veya altına indirilebilirse yasal minimum oranı sonraki ekstrelerde yaklaşık %40'tan %20'ye düşebilir.",
+        "Kart limitin 100.000 TL veya altına indirilebilirse yasal minimum oranı sonraki ekstrelerde yaklaşık %40'tan %20'ye düşebilir.",
       etki:
         "Tahmini minimum " +
         fmt(mevcutMinimum) +
@@ -2538,7 +2546,7 @@ export default function BorcTakip() {
       if (anaBorc > 0) {
         const yeniModel =
           k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
-        const yasalOran = (+k.limit || 0) <= 50000 ? 0.2 : 0.4;
+        const yasalOran = krediKartiAsgariOrani(k.limit);
         const hedefTutar = yeniModel
           ? h.onceki * yasalOran
           : +k.asgari > 0
@@ -8820,7 +8828,7 @@ function Borclar({
                         {fmt(h.odeme)} sonrası <b>{fmt(h.devreden)} kalır</b>.
                         Tahmini aylık faiz {fmt(h.faiz)} (%{h.oran.toFixed(2)}).
                         Yasal minimum ödeme: <b>{fmt(h.asgari)}</b> (
-                        {(+f.limit || 0) <= 50000 ? "%20" : "%40"}, kart
+                        %{Math.round(krediKartiAsgariOrani(f.limit) * 100)}, kart
                         limitine göre).
                       </div>
                     </div>

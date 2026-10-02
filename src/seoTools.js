@@ -1,3 +1,7 @@
+import { krediKartiAsgariOrani } from "./creditCardMinimum.js";
+
+export { krediKartiAsgariOrani } from "./creditCardMinimum.js";
+
 const SAYI_UST_SINIR = 1_000_000_000;
 export const MAAS_2026 = {
   asgariBrut: 33_030,
@@ -12,10 +16,6 @@ function pozitifSayi(deger, varsayilan = 0) {
   const sayi = Number(deger);
   if (!Number.isFinite(sayi)) return varsayilan;
   return Math.min(Math.max(sayi, 0), SAYI_UST_SINIR);
-}
-
-export function krediKartiAsgariOrani(kartLimiti) {
-  return pozitifSayi(kartLimiti) <= 50_000 ? 0.2 : 0.4;
 }
 
 export function krediKartiAsgariOdemeHesapla({ donemBorcu, kartLimiti }) {

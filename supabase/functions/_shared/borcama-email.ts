@@ -15,7 +15,7 @@ const duyuruKarti = (sira: string, baslik: string, metin: string, zemin: string,
 </tr></table></td></tr>`;
 
 function cerceve(icerik: string, altMetin = "Bu e-posta Borcama hesabınla ilgili gönderildi.") {
-  return `<!doctype html><html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
+  return `<!doctype html><html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><style>@media(max-width:480px){.asgari-col{display:block!important;width:100%!important;padding:0 0 12px!important}}</style></head>
 <body style="margin:0;background:#f4efe0;color:#14160f;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="padding:28px 12px">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:auto;background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 12px 36px rgba(20,22,15,.08)">
 <tr><td style="height:10px;background:linear-gradient(90deg,#cdf564 0 42%,#ff6c5c 42% 72%,#bfe1dd 72%)"></td></tr><tr><td style="padding:34px 34px 30px">
@@ -155,6 +155,27 @@ ${duyuruKarti("03", "Neden açık var?", "Gelir, zorunlu ödemeler ve yaşam har
 </table>
 <div style="padding:2px 7px 7px">${buton(url, "Borcama'ya sor")}</div>
 <div style="margin-top:24px;padding:18px 20px;border-radius:18px;background:#f4efe0;color:#55584c;font-size:13px;line-height:1.6"><strong style="color:#14160f">Kontrol sende.</strong> Asistan yalnız sen izin verdiğinde kayıtlarından oluşturulan finansal özeti yorumlar. Ham ekstre, kart numarası ve işlem açıklamaları modele gönderilmez. Sonuçları kontrol et; Borcama yatırım tavsiyesi vermez.</div>`);
+}
+
+export function krediKartiAsgariGuncellemeHtml(url: string) {
+  const kaynak = "https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349";
+  return cerceve(`<div style="display:none;max-height:0;overflow:hidden;color:transparent">100.000 TL ve altındaki kart limitlerinde asgari ödeme oranı yüzde 20 olarak uygulanıyor.</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 26px;background:#073b2d;border-radius:24px;overflow:hidden;box-shadow:8px 8px 0 #ff6c5c"><tr><td style="padding:34px 30px">
+<div style="display:inline-block;padding:7px 10px;border-radius:999px;background:#cdf564;color:#14160f;font-size:11px;font-weight:900">YENİ DÜZENLEME</div>
+<div style="margin-top:18px;font-size:37px;line-height:1.06;letter-spacing:-1.4px;font-weight:900;color:#fff">Kredi kartı asgari ödeme <span style="color:#cdf564">kuralı değişti.</span></div>
+<p style="color:#fff;font-size:21px;line-height:1.35;font-weight:800;margin:18px 0 0">100.000 TL ve altındaki kart limitlerinde oran %20.</p>
+<p style="color:#dcebe5;font-size:14px;line-height:1.55;margin:13px 0 0">Dayanak: BDDK'nın 1 Ekim 2026 tarihli, 11581 sayılı kararı.</p>
+<a href="${kaynak}" style="display:inline-block;margin-top:15px;padding:10px 14px;border:1px solid #cdf564;border-radius:999px;color:#cdf564;text-decoration:none;font-size:13px;font-weight:800">Resmî kararı incele ↗</a>
+</td></tr></table>
+<h1 style="font-size:30px;line-height:1.12;letter-spacing:-1px;margin:0 0 16px">Yeni kural çok kısa:</h1>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
+<td class="asgari-col" width="50%" valign="top" style="padding:0 7px 0 0"><div style="padding:21px 17px;border:1px solid #b9df6a;border-radius:19px;background:#effbd8"><div style="font-size:13px;line-height:1.4;color:#4d5e34">Kart limiti</div><div style="margin-top:5px;font-size:20px;line-height:1.2;font-weight:900;color:#14160f">100.000 TL ve altı</div><div style="margin-top:13px;font-size:31px;font-weight:900;color:#315c43">%20</div></div></td>
+<td class="asgari-col" width="50%" valign="top" style="padding:0 0 0 7px"><div style="padding:21px 17px;border:1px solid #ffad9f;border-radius:19px;background:#fff0ec"><div style="font-size:13px;line-height:1.4;color:#6a514c">Kart limiti</div><div style="margin-top:5px;font-size:20px;line-height:1.2;font-weight:900;color:#14160f">100.000 TL üzeri</div><div style="margin-top:13px;font-size:31px;font-weight:900;color:#a74636">%40</div></div></td>
+</tr></table>
+<div style="margin-top:22px;padding:19px 20px;border-radius:18px;background:#e6f4f1;color:#465751;font-size:14px;line-height:1.6"><strong style="color:#14160f">Borcama'yı da güncelledik.</strong><br>Kart bilgilerine göre gösterilen tahmini asgari ödeme ve aylık zorunlu ödeme hesabı yeni 100.000 TL eşiğini kullanıyor.</div>
+${buton(url, "Kartlarımı kontrol et")}
+<div style="margin-top:22px;padding:16px 18px;border-radius:16px;background:#f4efe0;color:#626458;font-size:12px;line-height:1.6"><strong style="color:#14160f">Önemli:</strong> Borcama planlama amacıyla tahmin gösterir. Ödemen gereken kesin tutar için bankanın güncel ekstrendeki asgari ödeme bilgisini esas al.</div>
+<p style="margin:18px 0 0;color:#85877d;font-size:12px;line-height:1.55;text-align:center">Resmî kaynak: <a href="${kaynak}" style="color:#315c43;font-weight:700">BDDK'nın 11581 sayılı kararı</a></p>`);
 }
 
 export function denemeDavetHtml(kalanGun: number, url: string) {

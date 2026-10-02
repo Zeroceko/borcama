@@ -2,6 +2,20 @@
 
 Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki kayıtlar gönderim onayı değildir; kampanya oluşturulurken hedef kitle ve metin ayrıca kontrol edilir.
 
+## Kredi kartı asgari ödeme sınırı · 2 Ekim 2026
+
+- Yayın sürümü: `v1.60.3`
+- Durum: Gönderime hazır taslak; toplu gönderim yapılmadı.
+- Konu: `Kredi kartı asgari ödeme kuralı değişti`
+- Önizleme metni: `100.000 TL ve altındaki kart limitlerinde asgari ödeme oranı yüzde 20 olarak uygulanıyor.`
+- Mesaj: BDDK'nın 1 Ekim 2026 tarihli 11581 sayılı kararıyla kart limiti 100.000 TL ve altındaysa dönem borcunun yüzde 20'si, üzerindeyse yüzde 40'ı asgari ödeme olarak esas alınıyor.
+- Etkilenen grup açıklaması: Önceki 50.000 TL eşiğine göre doğrudan değişiklik, kart limiti 50.000 TL'nin üstünde ve 100.000 TL veya altında olan kullanıcıları etkiliyor.
+- Ana CTA: `Kartlarımı kontrol et`
+- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=asgari_odeme_2026_10&utm_content=ana_cta`
+- Resmî kaynak: `https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349`
+- Hedef kitle: E-posta adresi doğrulanmış, iletişimden çıkmamış, bounce veya şikâyet kaydı bulunmayan ve kampanyayı daha önce almamış üyeler.
+- Gönderim öncesi zorunlu kontrol: Hesaplama düzeltmesinin canlı sürümünü doğrula; Marketing ekranındaki gerçek alıcı sayısını kontrol et; yönetici test adresine test gönderimiyle mobil ve masaüstü görünümü, CTA, BDDK bağlantısı ve teslimat webhook'unu doğrula.
+
 ## Gelecek sürüm adayları
 
 ### Bir borç daha bittiğinde ilerlemeni gör — v1.60.0
