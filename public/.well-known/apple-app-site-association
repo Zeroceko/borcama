@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["2SH6N4AK3P.com.borcama.app"],
+        "components": [
+          {
+            "/": "/auth-callback",
+            "comment": "E-posta dogrulama ve parola yenileme baglantilari dogrudan uygulamada acilir."
+          },
+          {
+            "/": "/auth-callback?*",
+            "comment": "Ayni yol, sorgu dizesiyle."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -52,7 +52,15 @@ async function oturumKur(adres) {
     return;
   }
   try {
-    if (veri.erisimAnahtari && veri.yenilemeAnahtari) {
+    if (veri.dogrulamaAnahtari) {
+      // E-postadaki baglanti dogrudan uygulamada acildigi icin dogrulamayi da
+      // uygulama yapar; oturum aninda burada kurulur.
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: veri.dogrulamaAnahtari,
+        type: veri.tur || "signup",
+      });
+      if (error) throw error;
+    } else if (veri.erisimAnahtari && veri.yenilemeAnahtari) {
       const { error } = await supabase.auth.setSession({
         access_token: veri.erisimAnahtari,
         refresh_token: veri.yenilemeAnahtari,

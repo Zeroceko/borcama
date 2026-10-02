@@ -54,3 +54,17 @@ test("yalniz uygulamanin kendi semasi kabul edilir", () => {
 test("gecersiz adres cokme uretmez", () => {
   assert.equal(derinBaglantiAyristir("bu bir adres degil"), null);
 });
+
+test("universal link uygulamanin baglantisi sayilir", () => {
+  assert.equal(uygulamaBaglantisiMi("https://borcama.com/auth-callback?token_hash=abc&type=signup"), true);
+  assert.equal(uygulamaBaglantisiMi("https://www.borcama.com/auth-callback?token_hash=abc"), true);
+  assert.equal(uygulamaBaglantisiMi("https://borcama.com/summary"), false);
+  assert.equal(uygulamaBaglantisiMi("https://baska-site.example/auth-callback"), false);
+});
+
+test("universal linkten dogrulama anahtari ve hedef okunur", () => {
+  const veri = derinBaglantiAyristir("https://borcama.com/auth-callback?token_hash=abc123&type=recovery");
+  assert.equal(veri.dogrulamaAnahtari, "abc123");
+  assert.equal(veri.tur, "recovery");
+  assert.equal(veri.hedef, "/reset-password");
+});

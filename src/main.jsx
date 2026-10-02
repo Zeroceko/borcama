@@ -4,6 +4,7 @@ import { ErrorBoundary } from './errorMonitoring.js';
 import LandingControl from "./LandingAlt.jsx";
 import LandingVariant, { PublicExample } from "./LandingGrowth.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
+import DogrulamaEkrani from "./DogrulamaEkrani.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import { proNiyetiniOku } from "./proIntent.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
@@ -57,6 +58,7 @@ function yonetimYetkisiVar(session) {
 // Onboarding bu yollari engellemez: parola yenileme ve yasal metinler
 // dogrudan acilabilmeli.
 const ONBOARDING_DISI_YOLLAR = new Set([
+  "/auth-callback",
   "/reset-password",
   "/terms",
   "/privacy",
@@ -78,6 +80,7 @@ function dogrulamaBaglantisiMi() {
 function nativeEkran(yol) {
   if (yol === "/login") return <GirisEkrani />;
   if (yol === "/register") return <GirisEkrani kayitModu />;
+  if (yol === "/auth-callback") return <DogrulamaEkrani />;
   if (yol === "/reset-password") return <ParolaYenileEkrani />;
   if (yol === "/terms") return <KullaniciSozlesmesi />;
   if (yol === "/privacy") return <GizlilikMetni />;
@@ -174,6 +177,8 @@ function Kok() {
     ) : (
       <YapilandirmaEksik />
     );
+  if (yol === "/auth-callback")
+    return supabaseHazir ? <DogrulamaEkrani /> : <YapilandirmaEksik />;
   if (yol === "/reset-password")
     return supabaseHazir || demoModu ? <ParolaYenileEkrani /> : <YapilandirmaEksik />;
   if (yol === "/terms") return <KullaniciSozlesmesi />;

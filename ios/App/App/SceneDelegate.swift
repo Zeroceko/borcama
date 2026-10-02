@@ -22,6 +22,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if !connectionOptions.urlContexts.isEmpty {
             SceneDelegateProxy.shared.scene(scene, openURLContexts: connectionOptions.urlContexts)
         }
+
+        // Universal link ile acildiginda adres userActivities icinde gelir;
+        // soguk acilista bu da yeniden verilmelidir.
+        for activity in connectionOptions.userActivities
+        where activity.activityType == NSUserActivityTypeBrowsingWeb {
+            SceneDelegateProxy.shared.scene(scene, continue: activity)
+        }
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {

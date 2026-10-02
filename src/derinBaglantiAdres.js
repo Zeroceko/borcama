@@ -4,16 +4,20 @@
 export const NATIVE_SEMA = "borcama";
 export const NATIVE_DONUS_ADRESI = `${NATIVE_SEMA}://auth-callback`;
 
-// E-posta baglantilari once borcama.com'daki kopru sayfasina doner, oradan
-// uygulamaya aktarilir. Dogrudan borcama:// adresine donmek Safari'de
-// calisiyor fakat Chrome kullanici dokunusu olmadan ozel semaya gecisi
-// engelleyebiliyor ve masaustunde hicbir sey olmuyordu.
-// Supabase izinli adres listesi tam eslesme arar; adrese sorgu eklemiyoruz.
-// Hedef ekran, Supabase'in geri gonderdigi "type" alanindan cozulur.
-export const KOPRU_SAYFASI = "https://borcama.com/uygulamada-ac.html";
+// E-posta baglantilari dogrudan bu adrese gelir. iOS tarafinda bu bir
+// universal link'tir: uygulama kuruluysa tarayici hic acilmaz, ara sayfa
+// cikmaz, baglanti uygulamada acilir. Uygulama kurulu degilse ya da
+// bilgisayardan aciliyorsa ayni adres tarayicida calisir.
+//
+// Universal link yalnizca kullanicinin dokundugu baglanti icin calisir;
+// sunucu yonlendirmesiyle gelen adres icin iOS uygulamayi acmaz. Bu yuzden
+// e-postadaki baglanti Supabase'in /verify adresi degil, dogrudan burasidir
+// ve dogrulamayi token_hash ile uygulamanin kendisi yapar.
+export const DOGRULAMA_YOLU = "/auth-callback";
+export const DOGRULAMA_ADRESI = `https://borcama.com${DOGRULAMA_YOLU}`;
 
 export function nativeDonusAdresi() {
-  return KOPRU_SAYFASI;
+  return DOGRULAMA_ADRESI;
 }
 
 // Dogrulamadan sonra kullanici dogrudan uygulamaya girer. "/welcome" satin
@@ -27,8 +31,21 @@ const TURE_GORE_HEDEF = {
   email_change: "/settings",
 };
 
+// Hem universal link hem de eski ozel sema kabul edilir; ozel sema yedek
+// olarak duruyor.
 export function uygulamaBaglantisiMi(adres) {
-  return typeof adres === "string" && adres.startsWith(`${NATIVE_SEMA}://`);
+  if (typeof adres !== "string") return false;
+  if (adres.startsWith(`${NATIVE_SEMA}://`)) return true;
+  try {
+    const url = new URL(adres);
+    return (
+      (url.protocol === "https:" || url.protocol === "http:") &&
+      /^(www\.)?borcama\.com$/.test(url.hostname) &&
+      url.pathname === DOGRULAMA_YOLU
+    );
+  } catch {
+    return false;
+  }
 }
 
 // Supabase anahtarlari akisa gore ya adres parcasinda (#access_token=...) ya
@@ -48,6 +65,9 @@ export function derinBaglantiAyristir(adres) {
     tur,
     // Acik yonlendirmeyi onlemek icin yalniz uygulama ici yollar kabul edilir.
     hedef: hedef.startsWith("/") && !hedef.startsWith("//") ? hedef : "/summary",
+    // Universal link akisinda tek kullanimlik dogrulama anahtari gelir;
+    // dogrulamayi uygulama yapar.
+    dogrulamaAnahtari: oku("token_hash") || oku("token"),
     erisimAnahtari: oku("access_token"),
     yenilemeAnahtari: oku("refresh_token"),
     kod: oku("code"),
