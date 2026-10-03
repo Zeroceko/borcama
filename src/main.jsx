@@ -2,7 +2,7 @@ import React, { lazy, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from './errorMonitoring.js';
 import LandingControl from "./LandingAlt.jsx";
-import LandingVariant, { PublicExample } from "./LandingGrowth.jsx";
+import LandingVariant from "./LandingGrowth.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import DogrulamaEkrani from "./DogrulamaEkrani.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
@@ -142,7 +142,7 @@ function Kok() {
   if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
-  if (yol === "/demo") return <App publicDemo />;
+  if (yol === "/demo") return <HariciYonlendirme url="/register?plan=free" />;
   if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
   if (import.meta.env.DEV && yol === "/backoffice-preview")

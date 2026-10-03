@@ -1645,20 +1645,17 @@ function borcamaOnerileriniHesapla({
 }
 
 /* ---------------- Ana bileşen ---------------- */
-export default function BorcTakip({ publicDemo = false }) {
+export default function BorcTakip() {
   // Bu satır web sürümünde (supabaseClient bağlı) gerçek çıkışla değiştirilir; artifact önizlemesinde zararsızdır.
   const cikisYap = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
-  const [veri, setVeri] = useState(() => publicDemo ? demoVerisiOlustur() : BOS_VERI);
-  const [yukleniyor, setYukleniyor] = useState(!publicDemo);
+  const [veri, setVeri] = useState(BOS_VERI);
+  const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState("");
-  const [demoUyarisi, setDemoUyarisi] = useState(false);
   const [sekme, setSekmeState] = useState(
-    () => publicDemo
-      ? new URLSearchParams(window.location.search).get("screen") || "ozet"
-      : YOL_SEKMELERI[window.location.pathname] || "ozet",
+    () => YOL_SEKMELERI[window.location.pathname] || "ozet",
   );
   const [form, setForm] = useState(null);
   const [kaydediliyor, setKaydediliyor] = useState(false);
@@ -1682,9 +1679,9 @@ export default function BorcTakip({ publicDemo = false }) {
   });
   const [kullaniciEposta, setKullaniciEposta] = useState("");
   const [reklamsiz, setReklamsiz] = useState({
-    yukleniyor: !publicDemo,
+    yukleniyor: true,
     aktif: false,
-    proAktif: publicDemo || demoModu,
+    proAktif: demoModu,
     proBitis: null,
     proYonetimUrl: null,
     proKaynak: null,
@@ -1714,7 +1711,7 @@ export default function BorcTakip({ publicDemo = false }) {
   const veriDepolamaAnahtari = yeniUyelikOnizlemesi
     ? "borctakip:v999"
     : "borctakip:v1";
-  const planOnizlemesiAktif = import.meta.env.DEV && !publicDemo;
+  const planOnizlemesiAktif = import.meta.env.DEV;
   const [demoPlan, setDemoPlan] = useState(() => {
     if (!import.meta.env.DEV) return "gercek";
     if (
@@ -1853,7 +1850,6 @@ export default function BorcTakip({ publicDemo = false }) {
   }
 
   useEffect(() => {
-    if (publicDemo) return;
     (async () => {
       try {
         const s = await window.storage.get(veriDepolamaAnahtari);
@@ -1911,48 +1907,39 @@ export default function BorcTakip({ publicDemo = false }) {
         setYukleniyor(false);
       }
     })();
-  }, [publicDemo]);
+  }, []);
 
   useEffect(() => {
-    if (publicDemo) return;
     const geriIleri = () =>
       setSekmeState(YOL_SEKMELERI[window.location.pathname] || "ozet");
     window.addEventListener("popstate", geriIleri);
     return () => window.removeEventListener("popstate", geriIleri);
-  }, [publicDemo]);
+  }, []);
 
   useEffect(() => {
-    if (publicDemo) return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("feedback") !== "1") return;
     setGeriBildirimPenceresi(true);
     url.searchParams.delete("feedback");
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [publicDemo]);
+  }, []);
 
   useEffect(() => {
-    if (publicDemo) return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("assistant") !== "1") return;
     setAsistanPenceresi(true);
     url.searchParams.delete("assistant");
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [publicDemo]);
+  }, []);
 
   useEffect(() => {
-    if (publicDemo) return;
     if (yukleniyor || rehberKontrolEdildi) return;
     setRehberKontrolEdildi(true);
     const zorla = new URLSearchParams(window.location.search).get("rehber") === "1";
     if (zorla) rehberAdiminaGit(0);
-  }, [publicDemo, yukleniyor, rehberKontrolEdildi, veri]);
+  }, [yukleniyor, rehberKontrolEdildi, veri]);
 
   useEffect(() => {
-    if (publicDemo) {
-      setKullaniciEposta("");
-      setProPaketler({ yukleniyor: false, monthly: null, annual: null, hata: "" });
-      return;
-    }
     supabase.auth
       .getUser()
       .then(async ({ data }) => {
@@ -1984,7 +1971,7 @@ export default function BorcTakip({ publicDemo = false }) {
           });
         }
       });
-  }, [publicDemo]);
+  }, []);
 
   async function reklamsizKontrol() {
     setReklamsiz((eski) => ({ ...eski, yukleniyor: true, hata: "" }));
@@ -2196,12 +2183,10 @@ export default function BorcTakip({ publicDemo = false }) {
   }
 
   useEffect(() => {
-    if (publicDemo) return;
     reklamsizKontrol();
-  }, [publicDemo]);
+  }, []);
 
   useEffect(() => {
-    if (publicDemo) return;
     if (yukleniyor || !nativeMi || !veri.ayarlar?.odemeHatirlatmalari) return;
     void odemeHatirlaticilariniYenile(veri, true).catch(() => {});
   }, [
@@ -2213,7 +2198,6 @@ export default function BorcTakip({ publicDemo = false }) {
   ]);
 
   useEffect(() => {
-    if (publicDemo) return;
     if (reklamsiz.yukleniyor || !reklamsiz.trialAktif) {
       setTrialHatirlaticiAcik(false);
       return;
@@ -2241,18 +2225,11 @@ export default function BorcTakip({ publicDemo = false }) {
   }
 
   useEffect(() => {
-    if (!publicDemo && !yukleniyor) piyasaFiyatlariniYenile();
-  }, [publicDemo, yukleniyor, piyasaKodAnahtari]);
+    if (!yukleniyor) piyasaFiyatlariniYenile();
+  }, [yukleniyor, piyasaKodAnahtari]);
 
   function setSekme(yeniSekme) {
     setSekmeState(yeniSekme);
-    if (publicDemo) {
-      const url = new URL(window.location.href);
-      if (yeniSekme === "ozet") url.searchParams.delete("screen");
-      else url.searchParams.set("screen", yeniSekme);
-      window.history.replaceState({}, "", `${url.pathname}${url.search}`);
-      return;
-    }
     const yol = SEKME_YOLLARI[yeniSekme];
     if (yol && window.location.pathname !== yol)
       window.history.pushState({}, "", yol);
@@ -3069,23 +3046,10 @@ export default function BorcTakip({ publicDemo = false }) {
     setHizliMenuAcik(false);
   }
 
-  function demoYazmaIsleminiEngelle(event) {
-    if (!publicDemo) return;
-    const hedef = event.target.closest?.("button, a");
-    if (!hedef || hedef.closest(".bt-nav") || hedef.closest(".bt-public-demo-banner")) return;
-    const etiket = `${hedef.getAttribute("aria-label") || ""} ${hedef.textContent || ""}`.toLocaleLowerCase("tr");
-    if (!/(ekle|kaydet|sil|düzenle|ödeme gir|yükle|geri al|gönder|satın al|pro'ya geç|parola|şifre)/.test(etiket)) return;
-    event.preventDefault();
-    event.stopPropagation();
-    setDemoUyarisi(true);
-    window.setTimeout(() => setDemoUyarisi(false), 2600);
-  }
-
   return (
     <div
-      className={`bt-app${publicDemo ? " bt-public-demo" : ""}`}
+      className="bt-app"
       style={rootStyle}
-      onClickCapture={demoYazmaIsleminiEngelle}
       onKeyDownCapture={sayisalTusKontrol}
       onBeforeInputCapture={sayisalOnceGirdiKontrol}
       onPasteCapture={sayisalYapistirmaKontrol}
@@ -3097,21 +3061,6 @@ export default function BorcTakip({ publicDemo = false }) {
         ))}
       </datalist>
       <div className="bt-wrap">
-        {publicDemo && (
-          <section
-            className="bt-public-demo-banner"
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 14, padding: "13px 16px", border: "1px solid var(--line)", borderRadius: 16, background: "var(--lime)", color: INK }}
-          >
-            <div>
-              <strong style={{ display: "block", fontSize: 14 }}>Dolu örnek hesap</strong>
-              <span style={{ fontSize: 11 }}>Borcama'yı hazır kayıtlarla incele. Burada yaptığın değişiklikler kaydedilmez.</span>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <a className="bt-btn kucuk ikincil" href="/">Ana sayfa</a>
-              <a className="bt-btn kucuk birincil" href="/register?plan=free">Kendi hesabını oluştur</a>
-            </div>
-          </section>
-        )}
         <header className="bt-header">
           <div>
             <img
@@ -3152,7 +3101,7 @@ export default function BorcTakip({ publicDemo = false }) {
                 <span style={{ marginLeft: 8 }}>● kaydediliyor</span>
               )}
             </div>
-            {!publicDemo && <button
+            <button
               className="bt-assistant-header"
               type="button"
               onClick={() => setAsistanPenceresi(true)}
@@ -3161,7 +3110,7 @@ export default function BorcTakip({ publicDemo = false }) {
               <Sparkles size={14} aria-hidden="true" />
               <span>Borcama'ya sor</span>
               <em className="bt-assistant-beta">Beta</em>
-            </button>}
+            </button>
             {!reklamsiz.yukleniyor && !etkinPro && (
               <button
                 className="bt-upgrade-link"
@@ -3171,7 +3120,7 @@ export default function BorcTakip({ publicDemo = false }) {
                 <Sparkles size={14} /> Pro'ya Geç
               </button>
             )}
-            {!publicDemo && <button
+            <button
               className={
                 "bt-settings-link " + (sekme === "ayarlar" ? "aktif" : "")
               }
@@ -3181,7 +3130,7 @@ export default function BorcTakip({ publicDemo = false }) {
               }}
             >
               <Settings size={14} /> Ayarlar
-            </button>}
+            </button>
             <button
               className="bt-themebtn"
               onClick={temaAnahtarlarSwitch}
@@ -3193,9 +3142,9 @@ export default function BorcTakip({ publicDemo = false }) {
               />
             </button>
             <div className="bt-themelabel">{isDark ? "Koyu" : "Açık"}</div>
-            {!publicDemo && <button className="bt-exit" onClick={cikisYap}>
+            <button className="bt-exit" onClick={cikisYap}>
               Çıkış →
-            </button>}
+            </button>
           </div>
         </header>
 
@@ -3219,7 +3168,7 @@ export default function BorcTakip({ publicDemo = false }) {
               <span>{ad}</span>
             </button>
           ))}
-          {!publicDemo && <button
+          <button
             className="bt-pill bt-assistant-nav"
             type="button"
             onClick={() => {
@@ -3230,14 +3179,8 @@ export default function BorcTakip({ publicDemo = false }) {
           >
             <Sparkles aria-hidden="true" />
             <span>Borcama'ya sor <em className="bt-assistant-beta">Beta</em></span>
-          </button>}
+          </button>
         </nav>
-
-        {demoUyarisi && (
-          <div role="status" style={{ position: "fixed", zIndex: 1000, left: "50%", bottom: 24, transform: "translateX(-50%)", width: "min(430px,calc(100% - 32px))", padding: "13px 16px", border: `1px solid ${INK}`, borderRadius: 14, background: INK, color: "white", boxShadow: "0 12px 35px #0004", fontSize: 12, textAlign: "center" }}>
-            Bu örnekte değişiklikler kaydedilmez. Kayıt eklemek için kendi ücretsiz hesabını oluştur.
-          </div>
-        )}
 
         {anaSekme === "borclar" && (
           <nav className="bt-nav bt-nav-alt" aria-label="Borç bölümleri">

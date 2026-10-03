@@ -33,7 +33,7 @@ test("örnek hesap özeti alt kırılımlarla ve harcama kategorileriyle mutabı
   assert.equal(ozet.odemeler.length, 4);
 });
 
-test("uygulama ve landing aynı demo veri fabrikasını kullanır", async () => {
+test("uygulama ve landing aynı örnek veri fabrikasını kullanır", async () => {
   const [app, landing, main] = await Promise.all([
     readFile(new URL("./App.jsx", import.meta.url), "utf8"),
     readFile(new URL("./LandingGrowth.jsx", import.meta.url), "utf8"),
@@ -42,8 +42,6 @@ test("uygulama ve landing aynı demo veri fabrikasını kullanır", async () => 
   assert.match(app, /import \{ demoVerisiOlustur \} from "\.\/demoAccount\.js"/);
   assert.doesNotMatch(app, /function demoVerisiOlustur\(/);
   assert.match(landing, /demoHesapOzeti\(demoData\)/);
-  assert.match(landing, /href="\/demo"/);
-  assert.match(main, /yol === "\/demo"\) return <App publicDemo/);
-  assert.match(app, /Dolu örnek hesap/);
-  assert.doesNotMatch(app, /salt okunur/i);
+  assert.doesNotMatch(landing, /href="\/demo"/);
+  assert.match(main, /yol === "\/demo"\) return <HariciYonlendirme url="\/register\?plan=free"/);
 });
