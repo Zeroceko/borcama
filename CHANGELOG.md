@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- Hesabını kalıcı olarak silen kullanıcıya işlemin tamamlandığı açıkça gösteriliyor ve kullanıcı 5 saniye sonra otomatik olarak ana sayfaya yönlendiriliyor.
 - E-posta doğrulama ve parola yenileme bağlantıları artık doğrudan uygulamada açılıyor; iOS uygulaması kuruluysa tarayıcı hiç devreye girmiyor ve kullanıcı giriş yapmış olarak karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışmaya devam ediyor.
 
 ### Eklendi

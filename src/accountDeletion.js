@@ -1,4 +1,9 @@
 export const HESAP_SILME_ONAYI = "HESABIMI SİL";
+export const HESAP_SILME_YONLENDIRME_SURESI_MS = 5000;
+
+export function hesapSilmeBasarisiVar(search = "") {
+  return new URLSearchParams(String(search || "")).get("account_deleted") === "1";
+}
 
 export function hesapSilmeOnayiGecerli(metin) {
   return String(metin || "").trim().toLocaleUpperCase("tr-TR") === HESAP_SILME_ONAYI;

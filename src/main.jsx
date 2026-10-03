@@ -20,6 +20,8 @@ import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 import { nativeDerinBaglantilariBaslat } from "./nativeDeepLinks.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import NativeCevrimdisi from "./NativeCevrimdisi.jsx";
+import HesapSilindiEkrani from "./AccountDeleted.jsx";
+import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
@@ -78,6 +80,8 @@ function Kok() {
     }
     meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
+  if (yol === "/" && hesapSilmeBasarisiVar(window.location.search))
+    return <HesapSilindiEkrani />;
   // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
   // uygulama dogrudan kimlik/uygulama akisiyla acilir.
   if (nativeMi) {
