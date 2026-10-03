@@ -3103,8 +3103,8 @@ export default function BorcTakip({ publicDemo = false }) {
             style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 14, padding: "13px 16px", border: "1px solid var(--line)", borderRadius: 16, background: "var(--lime)", color: INK }}
           >
             <div>
-              <strong style={{ display: "block", fontSize: 14 }}>Dolu örnek hesap · salt okunur</strong>
-              <span style={{ fontSize: 11 }}>Gerçek Borcama ekranları, tamamen sentetik kayıtlar. Hiçbir değişiklik kaydedilmez.</span>
+              <strong style={{ display: "block", fontSize: 14 }}>Dolu örnek hesap</strong>
+              <span style={{ fontSize: 11 }}>Borcama'yı hazır kayıtlarla incele. Burada yaptığın değişiklikler kaydedilmez.</span>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <a className="bt-btn kucuk ikincil" href="/">Ana sayfa</a>
@@ -3235,7 +3235,7 @@ export default function BorcTakip({ publicDemo = false }) {
 
         {demoUyarisi && (
           <div role="status" style={{ position: "fixed", zIndex: 1000, left: "50%", bottom: 24, transform: "translateX(-50%)", width: "min(430px,calc(100% - 32px))", padding: "13px 16px", border: `1px solid ${INK}`, borderRadius: 14, background: INK, color: "white", boxShadow: "0 12px 35px #0004", fontSize: 12, textAlign: "center" }}>
-            Bu örnek hesap salt okunur. Kayıt eklemek için kendi ücretsiz hesabını oluştur.
+            Bu örnekte değişiklikler kaydedilmez. Kayıt eklemek için kendi ücretsiz hesabını oluştur.
           </div>
         )}
 

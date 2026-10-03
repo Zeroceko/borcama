@@ -7,7 +7,7 @@ const oku = () => readFile(new URL("./LandingGrowth.jsx", import.meta.url), "utf
 test("kayıtsız örnek deneyim ortak sentetik hesabı gösterir ve hesap/AI istemez", async () => {
   const landing = await oku();
   assert.match(landing, /demoHesapOzeti, demoVerisiOlustur/);
-  assert.match(landing, /Salt okunur örnek/);
+  assert.match(landing, /Örnek hesap/);
   assert.match(landing, /hiçbir gerçek kullanıcı verisi kullanılmaz/);
   assert.match(landing, /canlı AI çağrısı değildir/);
   assert.match(landing, /İlk 30 gün Pro özellikleri hediye/);

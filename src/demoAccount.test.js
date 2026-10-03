@@ -44,5 +44,6 @@ test("uygulama ve landing aynı demo veri fabrikasını kullanır", async () => 
   assert.match(landing, /demoHesapOzeti\(demoData\)/);
   assert.match(landing, /href="\/demo"/);
   assert.match(main, /yol === "\/demo"\) return <App publicDemo/);
-  assert.match(app, /Dolu örnek hesap · salt okunur/);
+  assert.match(app, /Dolu örnek hesap/);
+  assert.doesNotMatch(app, /salt okunur/i);
 });
