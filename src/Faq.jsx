@@ -39,7 +39,11 @@ const questions = [
   ],
   [
     "Pro paketimi nasıl iptal ederim?",
-    <>Borcama'da <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolunu kullan. Otomatik yenilemeyi Borcama içinden durdurabilirsin; Pro erişimin ödediğin dönemin sonuna kadar sürer. Kart ve fatura işlemleri Paddle'ın güvenli müşteri portalında yönetilir.</>,
+    nativeMi ? (
+      <>Uygulamadaki aboneliğin App Store üzerinden yürür. <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolundan App Store abonelik ekranını açıp yenilemeyi durdurabilirsin; Pro erişimin ödediğin dönemin sonuna kadar sürer.</>
+    ) : (
+      <>Borcama'da <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolunu kullan. Otomatik yenilemeyi Borcama içinden durdurabilirsin; Pro erişimin ödediğin dönemin sonuna kadar sürer. Kart ve fatura işlemleri Paddle'ın güvenli müşteri portalında yönetilir.</>
+    ),
   ],
   [
     "İptal edince Pro hemen kapanır mı?",

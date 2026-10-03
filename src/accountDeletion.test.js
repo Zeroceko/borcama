@@ -52,6 +52,18 @@ test("yerel temizlik yalnız Borcama hesap anahtarlarını kaldırır", () => {
   assert.equal(session.has("other"), true);
 });
 
+test("derin baglanti isareti hesap silmede korunur", () => {
+  const session = bellekDeposu({
+    "borcama:derin-baglanti": "https://borcama.com/auth-callback?token_hash=abc&type=signup",
+    "borcama:funnel-session": "x",
+  });
+  borcamaYerelVerileriniTemizle(bellekDeposu({}), session);
+  // Isaret silinirse uygulama acilista ayni baglantiyi yeniden isliyor ve
+  // harcanmis anahtar yuzunden "baglantinin suresi dolmus" ekrani cikiyordu.
+  assert.equal(session.has("borcama:derin-baglanti"), true);
+  assert.equal(session.has("borcama:funnel-session"), false);
+});
+
 test("abonelik hatası kullanıcıya silmenin gerçekleşmediğini açıklar", () => {
   assert.match(hesapSilmeHataMesaji("SUBSCRIPTION_CANCELLATION_FAILED"), /hesabın silinmedi/i);
 });

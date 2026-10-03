@@ -24,6 +24,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında hesabını silen kullanıcı artık "bağlantının süresi dolmuş" uyarısıyla karşılaşmıyor; silme bitince doğrudan giriş ekranına dönüyor.
+- iOS uygulamasında abonelik yönetimi ve Sık Sorulan Sorular metinleri App Store aboneliğini anlatıyor; uygulama içinde artık App Store dışı bir ödeme sağlayıcısından söz edilmiyor. Tarayıcı sürümünün metinleri değişmedi.
 - iOS uygulamasında e-posta bağlantısı doğrulanamazsa kullanıcı giriş formuna düşmüyor; bağlantının süresinin dolduğunu ya da daha önce kullanıldığını söyleyen ve yeni bağlantı istemeye yönlendiren bir ekran gösteriliyor.
 - iOS uygulamasında e-posta doğrulama ve parola yenileme bağlantıları doğrudan uygulamada açılıyor; ara sayfa ya da tarayıcı devreye girmiyor ve kullanıcı doğrulamadan sonra giriş yapmış olarak uygulamayla karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışıyor. Önceden bağlantı tarayıcıda açılıyor, tek kullanımlık anahtar orada harcanıyor ve uygulama "E-postanı kontrol et" ekranında kalıyordu.
 - App Store aboneliği satın alındıktan sonra Pro erişimi açılmayabiliyordu; ödeme tamamlandığı halde "Pro'ya geç" ekranı gösteriliyordu. Satın alma kaydı artık uygulama ekran değiştirmeden önce yazılıyor ve geçerli bir abonelik hiçbir durumda kapalı sayılmıyor.

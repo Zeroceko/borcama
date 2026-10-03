@@ -15,12 +15,19 @@ export function hesapSilmeHataMesaji(kod) {
   return "Hesabın silinemedi. Hiçbir verin kaldırılmadı; lütfen tekrar dene.";
 }
 
+// Kullanici verisi degil, uygulamanin acilis durumunu tutan teknik isaretler.
+// Silinirlerse uygulama acilista e-posta baglantisini ikinci kez islemeye
+// calisiyor; tek kullanimlik anahtar coktan harcandigi icin hesap silindikten
+// sonra kullanici "baglantinin suresi dolmus" ekraniyla karsilaniyordu.
+export const TEMIZLIK_DISI_ANAHTARLAR = new Set(["borcama:derin-baglanti"]);
+
 export function borcamaYerelVerileriniTemizle(local = globalThis.localStorage, session = globalThis.sessionStorage) {
   for (const depo of [local, session]) {
     if (!depo) continue;
     const silinecekler = [];
     for (let index = 0; index < depo.length; index += 1) {
       const anahtar = depo.key(index);
+      if (TEMIZLIK_DISI_ANAHTARLAR.has(anahtar)) continue;
       if (anahtar?.startsWith("borcama:") || anahtar?.startsWith("borctakip:"))
         silinecekler.push(anahtar);
     }

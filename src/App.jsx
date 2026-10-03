@@ -5088,9 +5088,9 @@ function Ayarlar({
               </button>
             </div>
             <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.55 }}>
-              Yenilemeyi durdurabilir veya ödeme kartını Borcama'dan ayrılmadan
-              güncelleyebilirsin. Kart ekranı Paddle tarafından güvenli biçimde
-              açılır; Borcama kart bilgilerini görmez veya saklamaz.
+              {nativeMi
+                ? "Aboneliğin App Store üzerinden yürüyor. Yenilemeyi durdurmak ya da planını değiştirmek için App Store abonelik ekranını kullan."
+                : "Yenilemeyi durdurabilir veya ödeme kartını Borcama'dan ayrılmadan güncelleyebilirsin. Kart ekranı Paddle tarafından güvenli biçimde açılır; Borcama kart bilgilerini görmez veya saklamaz."}
             </p>
             <div
               style={{
