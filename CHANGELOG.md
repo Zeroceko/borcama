@@ -24,6 +24,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- Kayıt ve parola yenileme e-postalarının saatlik gönderim sınırı 2'den 30'a çıkarıldı; aynı saat içinde kayıt olan üçüncü kullanıcı artık "Çok fazla deneme yapıldı" uyarısıyla karşılaşmıyor.
 - iOS uygulamasında hesabını silen kullanıcı artık "bağlantının süresi dolmuş" uyarısıyla karşılaşmıyor; silme bitince doğrudan giriş ekranına dönüyor.
 - iOS uygulamasında abonelik yönetimi ve Sık Sorulan Sorular metinleri App Store aboneliğini anlatıyor; uygulama içinde artık App Store dışı bir ödeme sağlayıcısından söz edilmiyor. Tarayıcı sürümünün metinleri değişmedi.
 - iOS uygulamasında e-posta bağlantısı doğrulanamazsa kullanıcı giriş formuna düşmüyor; bağlantının süresinin dolduğunu ya da daha önce kullanıldığını söyleyen ve yeni bağlantı istemeye yönlendiren bir ekran gösteriliyor.
