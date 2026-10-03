@@ -19,7 +19,6 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Landing sayfasındaki açık örnek hesap kaldırıldı; ürünü denemek isteyen kullanıcılar artık kendi ücretsiz hesaplarını oluşturarak gerçek kayıt akışına başlıyor.
 - iOS uygulamasındaki varsayılan Capacitor simgesi, küçük boyutta okunabilen 1024 piksel opak Borcama App Store ikonu ile değiştirildi.
 - iOS uygulaması Google Analytics ve Google Ads etiketlerini yüklemiyor; App Store gizlilik beyanı hesap, finansal kayıt, abonelik, ürün kullanımı ve kişisel bilgi içermeyen çökme verisiyle sınırlandırıldı.
 - iOS sürümü web SemVer sürümünü izlerken build numarası yalnız yeni TestFlight veya App Store yüklemesinde artırılacak biçimde yayın sürecine bağlandı.
@@ -32,6 +31,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
 - iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
+
+## [1.60.5] - 2026-10-03
+
+### Değiştirildi
+
+- Landing sayfasındaki açık örnek hesap kaldırıldı; ürünü denemek isteyen kullanıcılar artık kendi ücretsiz hesaplarını oluşturarak gerçek kayıt akışına başlıyor.
 
 ## [1.60.4] - 2026-10-03
 
