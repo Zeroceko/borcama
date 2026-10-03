@@ -142,7 +142,7 @@ function Kok() {
   if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
-  if (yol === "/demo") return <PublicExample />;
+  if (yol === "/demo") return <App publicDemo />;
   if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
   if (import.meta.env.DEV && yol === "/backoffice-preview")

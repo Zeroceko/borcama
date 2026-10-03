@@ -34,12 +34,15 @@ test("örnek hesap özeti alt kırılımlarla ve harcama kategorileriyle mutabı
 });
 
 test("uygulama ve landing aynı demo veri fabrikasını kullanır", async () => {
-  const [app, landing] = await Promise.all([
+  const [app, landing, main] = await Promise.all([
     readFile(new URL("./App.jsx", import.meta.url), "utf8"),
     readFile(new URL("./LandingGrowth.jsx", import.meta.url), "utf8"),
+    readFile(new URL("./main.jsx", import.meta.url), "utf8"),
   ]);
   assert.match(app, /import \{ demoVerisiOlustur \} from "\.\/demoAccount\.js"/);
   assert.doesNotMatch(app, /function demoVerisiOlustur\(/);
   assert.match(landing, /demoHesapOzeti\(demoData\)/);
   assert.match(landing, /href="\/demo"/);
+  assert.match(main, /yol === "\/demo"\) return <App publicDemo/);
+  assert.match(app, /Dolu örnek hesap · salt okunur/);
 });

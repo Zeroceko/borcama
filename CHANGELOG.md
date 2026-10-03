@@ -19,7 +19,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Landing sayfasındaki “Örnek hesabı incele” yolu, ürünle aynı hesaplama kaynağını kullanan kart, kredi, ek hesap, gelir, harcama ve varlıklarla dolu salt okunur sentetik hesaba dönüştürüldü.
+- Landing sayfasındaki “Örnek hesabı incele” yolu, giriş yapan kullanıcıyla aynı Borcama ekranlarını ve hesaplama kaynağını kullanan; kart, kredi, ek hesap, gelir, harcama ve varlıklarla dolu salt okunur sentetik hesaba dönüştürüldü.
 - iOS uygulamasındaki varsayılan Capacitor simgesi, küçük boyutta okunabilen 1024 piksel opak Borcama App Store ikonu ile değiştirildi.
 - iOS uygulaması Google Analytics ve Google Ads etiketlerini yüklemiyor; App Store gizlilik beyanı hesap, finansal kayıt, abonelik, ürün kullanımı ve kişisel bilgi içermeyen çökme verisiyle sınırlandırıldı.
 - iOS sürümü web SemVer sürümünü izlerken build numarası yalnız yeni TestFlight veya App Store yüklemesinde artırılacak biçimde yayın sürecine bağlandı.
