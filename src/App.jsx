@@ -151,6 +151,7 @@ import {
   KREDI_KARTI_ASGARI_LIMIT_ESIGI,
   krediKartiAsgariOrani,
 } from "./creditCardMinimum.js";
+import { demoVerisiOlustur } from "./demoAccount.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -1303,135 +1304,6 @@ const BOS_VERI = {
   ayarlar: {},
   snapshots: {},
 };
-
-function demoVerisiOlustur() {
-  const buAy = ayAnahtari();
-  const oncekiAy = ayEkle(buAy, -1);
-  const tarih = (ay, gun) => ay + "-" + String(gun).padStart(2, "0");
-  return {
-    ...BOS_VERI,
-    cards: [
-      {
-        id: "demo-bonus",
-        banka: "Garanti BBVA",
-        ad: "Bonus",
-        limit: 120000,
-        kesimGunu: 10,
-        sonOdemeGunu: 20,
-        ekstreAyi: buAy,
-        yeniDonemEkstreBorcu: 31000,
-        oncekiAydanKalan: 11000,
-        toplamEkstreBorcu: 42000,
-        yapilanOdeme: 10000,
-        ekstreGecmisi: [
-          {
-            ekstreAyi: oncekiAy,
-            yeniDonemEkstreBorcu: 28500,
-            oncekiAydanKalan: 0,
-            toplamEkstreBorcu: 28500,
-            yapilanOdeme: 17500,
-            kesimGunu: 10,
-            sonOdemeGunu: 20,
-          },
-        ],
-      },
-      {
-        id: "demo-world",
-        banka: "Yapı Kredi",
-        ad: "World",
-        limit: 50000,
-        kesimGunu: 25,
-        sonOdemeGunu: 7,
-        ekstreAyi: buAy,
-        yeniDonemEkstreBorcu: 46000,
-        oncekiAydanKalan: 0,
-        toplamEkstreBorcu: 46000,
-        yapilanOdeme: 0,
-        ekstreGecmisi: [],
-      },
-      {
-        id: "demo-maximum",
-        banka: "İş Bankası",
-        ad: "Maximum",
-        limit: 95000,
-        kesimGunu: 22,
-        sonOdemeGunu: 5,
-        ekstreAyi: buAy,
-        yeniDonemEkstreBorcu: 18500,
-        oncekiAydanKalan: 0,
-        toplamEkstreBorcu: 18500,
-        yapilanOdeme: 3000,
-        ekstreGecmisi: [],
-      },
-    ],
-    loans: [
-      {
-        id: "demo-kredi",
-        banka: "QNB",
-        ad: "İhtiyaç kredisi",
-        kalanBorc: 168000,
-        taksit: 12400,
-        kalanTaksit: 15,
-        faiz: 3.49,
-        odemeGunu: 8,
-      },
-    ],
-    overdrafts: [
-      {
-        id: "demo-kmh",
-        banka: "Enpara",
-        limit: 50000,
-        kullanilan: 27000,
-        yapilanOdeme: 5000,
-        faiz: 4.25,
-        odemeGecmisi: [
-          {
-            id: "demo-kmh-odeme",
-            tutar: 5000,
-            tarih: new Date().toISOString(),
-          },
-        ],
-      },
-    ],
-    expenses: [
-      { id: "dh1", tarih: tarih(buAy, 3), kategori: "Market", tutar: 4200, kaynak: "Yapı Kredi · World" },
-      { id: "dh2", tarih: tarih(buAy, 7), kategori: "Yeme-İçme", tutar: 6800, kaynak: "Garanti BBVA · Bonus" },
-      { id: "dh3", tarih: tarih(buAy, 12), kategori: "Yeme-İçme", tutar: 5900, kaynak: "Garanti BBVA · Bonus" },
-      { id: "dh4", tarih: tarih(buAy, 17), kategori: "Yeme-İçme", tutar: 5300, kaynak: "İş Bankası · Maximum" },
-      { id: "dh5", tarih: tarih(buAy, 19), kategori: "Ulaşım", tutar: 3600, kaynak: "Yapı Kredi · World" },
-      { id: "dh6", tarih: tarih(buAy, 22), kategori: "Fatura", tutar: 4100, kaynak: "Banka hesabı" },
-      { id: "dh7", tarih: tarih(buAy, 25), kategori: "Market", tutar: 3900, kaynak: "Yapı Kredi · World" },
-      { id: "do1", tarih: tarih(oncekiAy, 4), kategori: "Market", tutar: 3600, kaynak: "Yapı Kredi · World" },
-      { id: "do2", tarih: tarih(oncekiAy, 11), kategori: "Yeme-İçme", tutar: 4500, kaynak: "Garanti BBVA · Bonus" },
-      { id: "do3", tarih: tarih(oncekiAy, 18), kategori: "Yeme-İçme", tutar: 3500, kaynak: "İş Bankası · Maximum" },
-      { id: "do4", tarih: tarih(oncekiAy, 24), kategori: "Market", tutar: 3400, kaynak: "Yapı Kredi · World" },
-      { id: "do5", tarih: tarih(oncekiAy, 26), kategori: "Ulaşım", tutar: 3100, kaynak: "Banka hesabı" },
-    ],
-    incomes: [
-      { id: "demo-maas", ad: "Maaş", tutar: 70000, tekrar: "Aylık", tarih: tarih(buAy, 1) },
-    ],
-    assets: [
-      {
-        id: "demo-mevduat",
-        kategori: "nakit",
-        tur: "mevduat",
-        ad: "Acil durum birikimi",
-        kurum: "Banka hesabı",
-        paraBirimi: "TRY",
-        guncelDeger: 48000,
-        toplamMaliyet: 48000,
-      },
-    ],
-    paid: {},
-    loanPaymentHistory: {},
-    ayarlar: {
-      ekstreDonemleriV2: true,
-      ekstreBorcModeliV3: true,
-      ilkKullanimRehberiV1: true,
-    },
-    snapshots: { [oncekiAy]: 250000 },
-  };
-}
 
 const KATEGORI_META = {
   cards: { ad: "Kredi kartları", liste: "cards", rozetBg: LIME },
