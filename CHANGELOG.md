@@ -6,7 +6,6 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
-- Hesabını kalıcı olarak silen kullanıcıya işlemin tamamlandığı açıkça gösteriliyor ve kullanıcı 5 saniye sonra otomatik olarak ana sayfaya yönlendiriliyor.
 - E-posta doğrulama ve parola yenileme bağlantıları artık doğrudan uygulamada açılıyor; iOS uygulaması kuruluysa tarayıcı hiç devreye girmiyor ve kullanıcı giriş yapmış olarak karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışmaya devam ediyor.
 
 ### Eklendi
@@ -32,6 +31,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
 - iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
+
+## [1.60.4] - 2026-10-03
+
+### Düzeltildi
+
+- Hesabını kalıcı olarak silen kullanıcıya işlemin tamamlandığı açıkça gösteriliyor ve kullanıcı 5 saniye sonra otomatik olarak ana sayfaya yönlendiriliyor.
 
 ## [1.60.3] - 2026-10-02
 
