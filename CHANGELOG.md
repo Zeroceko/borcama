@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- Kullanıcı Sözleşmesi ve İade Politikası sayfaları iki satın alma kanalını da açıkça anlatıyor: iOS uygulamasından alınan aboneliklerde yetkili satıcı Apple ve yönetim App Store üzerinden, borcama.com'dan alınanlarda ise Paddle üzerinden. Önceden tarayıcıda açılan metin yalnız Paddle'ı anlatıyordu.
 - E-posta doğrulama ve parola yenileme bağlantıları artık doğrudan uygulamada açılıyor; iOS uygulaması kuruluysa tarayıcı hiç devreye girmiyor ve kullanıcı giriş yapmış olarak karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışmaya devam ediyor.
 
 ### Eklendi
