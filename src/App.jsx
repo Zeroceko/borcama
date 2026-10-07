@@ -4999,30 +4999,37 @@ function Ayarlar({
             <span className="bt-yakinda">Yakında</span>
           </div>
         </section>
-        <section className="bt-settings-card">
-          <div className="bt-settings-title">
-            <ShieldCheck size={18} /> Gizlilik ve ölçüm
-          </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Google Analytics ve reklam ölçümü</strong>
-              <small>
-                Site kullanımını ve reklam kaynaklı kayıtları ölçer; e-posta ve finansal kayıtlar gönderilmez.
-              </small>
+        {/* Uygulama surumunde Google Analytics ve reklam etiketi hic
+            yuklenmiyor; olculecek bir sey olmadigi icin izin satiri da
+            gosterilmiyor. Apple, olcum izni soran uygulama ici metni
+            AppTrackingTransparency yerine gecen ozel bir istem sayiyor
+            (Guideline 5.1.2). Tarayici surumunde satir aynen duruyor. */}
+        {!nativeMi && (
+          <section className="bt-settings-card">
+            <div className="bt-settings-title">
+              <ShieldCheck size={18} /> Gizlilik ve ölçüm
             </div>
-            <button
-              className="bt-btn kucuk ikincil"
-              type="button"
-              onClick={() => {
-                const yeniIzin = !olcumIzni;
-                setOlcumIzni(yeniIzin);
-                void googleAdsOlcumIzniAyarla(yeniIzin);
-              }}
-            >
-              {olcumIzni ? "Ölçümü kapat" : "Ölçüme izin ver"}
-            </button>
-          </div>
-        </section>
+            <div className="bt-setting-row">
+              <div>
+                <strong>Google Analytics ve reklam ölçümü</strong>
+                <small>
+                  Site kullanımını ve reklam kaynaklı kayıtları ölçer; e-posta ve finansal kayıtlar gönderilmez.
+                </small>
+              </div>
+              <button
+                className="bt-btn kucuk ikincil"
+                type="button"
+                onClick={() => {
+                  const yeniIzin = !olcumIzni;
+                  setOlcumIzni(yeniIzin);
+                  void googleAdsOlcumIzniAyarla(yeniIzin);
+                }}
+              >
+                {olcumIzni ? "Ölçümü kapat" : "Ölçüme izin ver"}
+              </button>
+            </div>
+          </section>
+        )}
         <section className="bt-settings-card wide">
           <div className="bt-settings-title">
             <Database size={18} /> Veri ve yönetim
