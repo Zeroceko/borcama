@@ -24,7 +24,6 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     ]
 
     private var cubuk: UITabBar?
-    private var altSerit: UIVisualEffectView?
     private var kanalKuruldu = false
 
     override func capacitorDidLoad() {
@@ -50,7 +49,6 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             case "goster":
                 let gorunsun = govde["gorunsun"] as? Bool ?? true
                 self.cubuk?.isHidden = !gorunsun
-                self.altSerit?.isHidden = !gorunsun
             default:
                 break
             }
@@ -86,25 +84,18 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         }
         yeni.selectedItem = yeni.items?.first
 
-        // Cubuk guvenli alanin ustune oturuyor; altinda kalan ev cubugu
-        // seridi ayni malzemeyle dolduruluyor ki bosluk gorunmesin.
-        let serit = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
-        serit.translatesAutoresizingMaskIntoConstraints = false
-        pencere.addSubview(serit)
+        // Cubuk guvenli alanin ustune oturuyor. Altinda kalan serit webview'in
+        // kendi arka planiyla doluyor; buraya ayri bir katman koyulursa sistem
+        // koyu temadayken uygulamanin acik zemininin altinda koyu bir bant
+        // olarak goruluyordu.
         pencere.addSubview(yeni)
         NSLayoutConstraint.activate([
             yeni.leadingAnchor.constraint(equalTo: pencere.leadingAnchor),
             yeni.trailingAnchor.constraint(equalTo: pencere.trailingAnchor),
             yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor),
-            serit.leadingAnchor.constraint(equalTo: pencere.leadingAnchor),
-            serit.trailingAnchor.constraint(equalTo: pencere.trailingAnchor),
-            serit.topAnchor.constraint(equalTo: yeni.bottomAnchor),
-            serit.bottomAnchor.constraint(equalTo: pencere.bottomAnchor),
         ])
-        pencere.bringSubviewToFront(serit)
         pencere.bringSubviewToFront(yeni)
         cubuk = yeni
-        altSerit = serit
 
         // Klavye acilinca cubuk klavyenin uzerinde asili kalmasin.
         NotificationCenter.default.addObserver(
@@ -116,22 +107,25 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     }
 
     private func secileniAyarla(_ anahtar: String) {
-        guard let sira = Self.anahtarlar.firstIndex(of: anahtar),
-              let ogeler = cubuk?.items, sira < ogeler.count else { return }
+        guard let ogeler = cubuk?.items else { return }
+        // Ayarlar gibi sekmelerden biri olmayan ekranlarda hicbiri secili
+        // gorunmemeli; aksi halde onceki sekme yanik kaliyor.
+        guard let sira = Self.anahtarlar.firstIndex(of: anahtar), sira < ogeler.count else {
+            cubuk?.selectedItem = nil
+            return
+        }
         cubuk?.selectedItem = ogeler[sira]
     }
 
     @objc private func klavyeAcildi() {
         DispatchQueue.main.async {
             self.cubuk?.isHidden = true
-            self.altSerit?.isHidden = true
         }
     }
 
     @objc private func klavyeKapandi() {
         DispatchQueue.main.async {
             self.cubuk?.isHidden = false
-            self.altSerit?.isHidden = false
         }
     }
 

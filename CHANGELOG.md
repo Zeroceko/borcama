@@ -31,6 +31,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında alt sekme çubuğunun altında koyu bir bant görünmüyor; uygulama ekranın altına kadar yayılıyor. Sistem koyu temadayken çubuğun altına çizilen katman, açık zeminli uygulamada bant gibi duruyordu.
+- iOS uygulamasında sekme değiştirince ekran en üstten açılıyor; önceki ekranın kaydırma konumu taşınmıyor.
+- iOS uygulamasında Ayarlar gibi sekmelerden biri olmayan ekranlarda alt çubukta hiçbir sekme seçili görünmüyor; önceden son sekme yanık kalıyordu.
+
 - iOS uygulamasında Ayarlar'daki "Google Analytics ve reklam ölçümü" izin satırı kaldırıldı; uygulama zaten ölçüm veya reklam etiketi yüklemiyordu, izin istenecek bir şey yoktu. Tarayıcı sürümündeki tercih aynen duruyor.
 
 - Kayıt ve parola yenileme e-postalarının saatlik gönderim sınırı 2'den 30'a çıkarıldı; aynı saat içinde kayıt olan üçüncü kullanıcı artık "Çok fazla deneme yapıldı" uyarısıyla karşılaşmıyor.

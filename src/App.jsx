@@ -3221,6 +3221,9 @@ export default function BorcTakip() {
   useEffect(() => {
     if (!nativeSekmeCubuguVarMi) return;
     sekmeCubugunuSec(anaSekme);
+    // Native sekme cubugunda kullanici yeni sekmenin en ustunden baslamayi
+    // bekler; onceki ekranin kaydirma konumu tasinmiyor.
+    window.scrollTo({ top: 0 });
   }, [anaSekme]);
 
   return (
