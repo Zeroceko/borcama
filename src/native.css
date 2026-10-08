@@ -208,3 +208,9 @@ html.borcama-native .legal {
 html.borcama-native .pc-page {
   padding-top: calc(18px + var(--guvenli-ust));
 }
+
+/* iOS'ta alt gezinme cubugu UITabBar olarak isletim sisteminden geliyor;
+   HTML karsiligi gizleniyor. Android ve tarayicida HTML cubuk devrede. */
+html.borcama-ios .bt-nav-ana.bt-nav-gizli {
+  display: none !important;
+}

@@ -3,6 +3,12 @@ import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
 import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
+import {
+  nativeSekmeCubuguVarMi,
+  sekmeCubuguHazirla,
+  sekmeCubugunuGoster,
+  sekmeCubugunuSec,
+} from "./nativeSekmeCubugu.js";
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
@@ -3196,6 +3202,27 @@ export default function BorcTakip() {
     setHizliMenuAcik(false);
   }
 
+  // iOS'ta alt gezinme cubugu isletim sisteminin kendi UITabBar'i. Dokunus
+  // native taraftan geliyor; guncel yonlendirme islevine ref uzerinden
+  // ulasiyoruz ki dinleyici ilk render'daki eski durumu tasimasin.
+  const sekmeGidisRef = useRef(null);
+  useEffect(() => {
+    sekmeGidisRef.current = anaSekmeyeGit;
+  });
+  useEffect(() => {
+    if (!nativeSekmeCubuguVarMi) return;
+    sekmeCubuguHazirla((anahtar) => sekmeGidisRef.current?.(anahtar));
+    // Cubuk pencereye bagli oldugu icin uygulama kabugu kapandiginda
+    // (cikis, hukuki sayfalar) gizleniyor; aksi halde giris ekraninin
+    // uzerinde asili kalirdi.
+    sekmeCubugunuGoster(true);
+    return () => sekmeCubugunuGoster(false);
+  }, []);
+  useEffect(() => {
+    if (!nativeSekmeCubuguVarMi) return;
+    sekmeCubugunuSec(anaSekme);
+  }, [anaSekme]);
+
   return (
     <div
       className="bt-app"
@@ -3298,7 +3325,7 @@ export default function BorcTakip() {
           </div>
         </header>
 
-        <nav className="bt-nav bt-nav-ana">
+        <nav className={"bt-nav bt-nav-ana" + (nativeSekmeCubuguVarMi ? " bt-nav-gizli" : "")}>
           {[
             ["ozet", "Bugün", BarChart3],
             ["borclar", "Borçlar", Wallet],

@@ -21,6 +21,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
+- iOS uygulamasının alt gezinme çubuğu artık iOS'un kendi sekme çubuğu; simgeler sistem simge kütüphanesinden geliyor, çubuk ev çubuğunun üstüne oturuyor ve klavye açılınca gizleniyor. Tarayıcı sürümündeki çubuk değişmedi.
+
 - iOS uygulamasının giriş ekranından tek kullanımlık e-posta linkiyle giriş kaldırıldı; uygulamada giriş Apple ile ya da parolayla yapılıyor. Tarayıcı sürümünde iki seçenek de duruyor.
 - iOS uygulamasının kayıt ekranındaki uzun tanıtım metni kaldırıldı; ekran doğrudan Apple ile devam et seçeneği ve formla açılıyor.
 
