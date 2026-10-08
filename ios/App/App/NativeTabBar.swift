@@ -24,12 +24,31 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     ]
 
     private var cubuk: UITabBar?
+    private var koyuTema = false
+
+    // Cubuk uygulamanin kendi temasini izliyor; sistem temasini degil. Kullanici
+    // uygulama icinden koyu temaya gecince cubuk da koyuya donuyor.
+    private func temayiUygula(_ koyu: Bool) {
+        koyuTema = koyu
+        guard let cubuk else { return }
+        cubuk.overrideUserInterfaceStyle = koyu ? .dark : .light
+        cubuk.tintColor = koyu
+            ? UIColor(red: 0.80, green: 0.98, blue: 0.35, alpha: 1)
+            : UIColor(red: 0.04, green: 0.29, blue: 0.22, alpha: 1)
+        cubuk.unselectedItemTintColor = koyu
+            ? UIColor(red: 0.69, green: 0.71, blue: 0.66, alpha: 1)
+            : UIColor(red: 0.36, green: 0.38, blue: 0.33, alpha: 1)
+    }
     private var kanalKuruldu = false
 
     override func capacitorDidLoad() {
         guard !kanalKuruldu else { return }
         kanalKuruldu = true
         webView?.configuration.userContentController.add(self, name: "borcamaTab")
+        // Uygulamalarda kaydirma cubugu gosterilmez; webview'in kendi
+        // gostergesi kapatiliyor.
+        webView?.scrollView.showsVerticalScrollIndicator = false
+        webView?.scrollView.showsHorizontalScrollIndicator = false
     }
 
     // MARK: - Web'den gelen mesajlar
@@ -46,6 +65,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
                 self.cubuguKur()
             case "sec":
                 if let anahtar = govde["anahtar"] as? String { self.secileniAyarla(anahtar) }
+            case "tema":
+                self.temayiUygula(govde["koyu"] as? Bool ?? false)
             case "goster":
                 let gorunsun = govde["gorunsun"] as? Bool ?? true
                 self.cubuk?.isHidden = !gorunsun
@@ -70,8 +91,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         let yeni = UITabBar()
         yeni.translatesAutoresizingMaskIntoConstraints = false
         yeni.delegate = self
-        yeni.tintColor = UIColor(red: 0.04, green: 0.29, blue: 0.22, alpha: 1)
-        yeni.unselectedItemTintColor = UIColor(red: 0.36, green: 0.38, blue: 0.33, alpha: 1)
+        cubuk = yeni
+        temayiUygula(koyuTema)
 
         yeni.items = Self.anahtarlar.indices.map { sira in
             let oge = UITabBarItem(
@@ -92,10 +113,9 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         NSLayoutConstraint.activate([
             yeni.leadingAnchor.constraint(equalTo: pencere.leadingAnchor),
             yeni.trailingAnchor.constraint(equalTo: pencere.trailingAnchor),
-            yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor),
+            yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor, constant: -10),
         ])
         pencere.bringSubviewToFront(yeni)
-        cubuk = yeni
 
         // Klavye acilinca cubuk klavyenin uzerinde asili kalmasin.
         NotificationCenter.default.addObserver(

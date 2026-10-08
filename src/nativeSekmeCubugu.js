@@ -25,6 +25,10 @@ export function sekmeCubugunuSec(anahtar) {
   kanal()?.postMessage({ tip: "sec", anahtar });
 }
 
+export function sekmeCubuguTemasi(koyu) {
+  kanal()?.postMessage({ tip: "tema", koyu: Boolean(koyu) });
+}
+
 export function sekmeCubugunuGoster(gorunsun) {
   kanal()?.postMessage({ tip: "goster", gorunsun });
 }

@@ -6,6 +6,7 @@ import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasa
 import {
   nativeSekmeCubuguVarMi,
   sekmeCubuguHazirla,
+  sekmeCubuguTemasi,
   sekmeCubugunuGoster,
   sekmeCubugunuSec,
 } from "./nativeSekmeCubugu.js";
@@ -3220,6 +3221,10 @@ export default function BorcTakip() {
   }, []);
   useEffect(() => {
     if (!nativeSekmeCubuguVarMi) return;
+    sekmeCubuguTemasi(isDark);
+  }, [isDark]);
+  useEffect(() => {
+    if (!nativeSekmeCubuguVarMi) return;
     sekmeCubugunuSec(anaSekme);
     // Native sekme cubugunda kullanici yeni sekmenin en ustunden baslamayi
     // bekler; onceki ekranin kaydirma konumu tasinmiyor.
@@ -3244,7 +3249,7 @@ export default function BorcTakip() {
         <header className="bt-header">
           <div>
             <img
-              src="/borcama-logo.png"
+              src={isDark ? "/borcama-logo-koyu.png" : "/borcama-logo.png"}
               alt="Borcama"
               style={{
                 width: "clamp(150px,22vw,220px)",

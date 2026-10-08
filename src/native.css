@@ -214,3 +214,21 @@ html.borcama-native .pc-page {
 html.borcama-ios .bt-nav-ana.bt-nav-gizli {
   display: none !important;
 }
+
+/* Kayit ve giris ekrani tek ekrana sigsin: kart icinde kaydirma kalmasin.
+   Olculer yalniz uygulamada daraltiliyor, tarayici surumu degismiyor. */
+html.borcama-native .auth-title { width: 118px; margin-bottom: 10px; }
+html.borcama-native .auth-card { padding: 18px 18px; }
+html.borcama-native .auth-welcome { font-size: 16px; margin-bottom: 6px; }
+html.borcama-native .auth-sub { margin-bottom: 12px; font-size: 13px; }
+html.borcama-native .auth-apple { min-height: 44px; }
+html.borcama-native .auth-ayirac { margin: 10px 0 12px; }
+html.borcama-native .auth-input { min-height: 44px; }
+html.borcama-native .auth-btn { min-height: 44px; }
+html.borcama-native .auth-help { margin: -2px 0 8px; }
+html.borcama-native .auth-referral-toggle { margin: 0 0 10px; padding: 9px 11px; }
+html.borcama-native .auth-consents { gap: 7px; margin: 2px 0 12px; padding: 10px; }
+html.borcama-native .auth-legal { margin-top: 8px; }
+/* Alttaki bilgi notu uygulamada gizleniyor; ayni bilgi Gizlilik ve KVKK
+   sayfasinda zaten var ve ekranda en az kritik satir bu. */
+html.borcama-native .auth-foot { display: none; }

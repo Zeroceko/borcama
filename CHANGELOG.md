@@ -31,6 +31,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- Koyu temada Borcama logosu okunuyor; harfler koyu zeminde kaybolmuyordu.
+- iOS uygulamasında alt sekme çubuğu uygulamanın kendi temasını izliyor; koyu temada seçili sekme açık renkle gösteriliyor, önceden koyu zeminde koyu kalıyordu.
+- iOS uygulamasında alt sekme çubuğu ekranın altından biraz yukarı alındı.
+- iOS uygulamasında kaydırma çubuğu görünmüyor.
+- iOS uygulamasında kayıt ve giriş ekranı tek ekrana sığıyor; kart içinde kaydırma gerekmiyor.
+
 - iOS uygulamasında alt sekme çubuğunun altında koyu bir bant görünmüyor; uygulama ekranın altına kadar yayılıyor. Sistem koyu temadayken çubuğun altına çizilen katman, açık zeminli uygulamada bant gibi duruyordu.
 - iOS uygulamasında sekme değiştirince ekran en üstten açılıyor; önceki ekranın kaydırma konumu taşınmıyor.
 - iOS uygulamasında Ayarlar gibi sekmelerden biri olmayan ekranlarda alt çubukta hiçbir sekme seçili görünmüyor; önceden son sekme yanık kalıyordu.
