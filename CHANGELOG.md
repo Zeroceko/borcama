@@ -6,6 +6,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasında Apple ile giriş eklendi; giriş ve kayıt ekranlarında tek dokunuşla hesap açılabiliyor veya girilebiliyor.
+
 - iOS uygulamasında Pro satın alma kartında abonelik adı, süresi ve fiyatı ile Kullanım Şartları, Gizlilik Politikası ve İade Politikası bağlantıları gösteriliyor; aynı kartta "Satın alımları geri yükle" seçeneği yer alıyor.
 - iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
 - iOS uygulamasında oturumu olmayan kullanıcı artık doğrudan giriş formu yerine "Ücretsiz başla / Giriş yap" karşılama ekranını görüyor; tanıtımı daha önce görmüş ya da çıkış yapmış kullanıcıya da bu ekran açılıyor.
@@ -18,6 +20,9 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
 
 ### Değiştirildi
+
+- iOS uygulamasının giriş ekranından tek kullanımlık e-posta linkiyle giriş kaldırıldı; uygulamada giriş Apple ile ya da parolayla yapılıyor. Tarayıcı sürümünde iki seçenek de duruyor.
+- iOS uygulamasının kayıt ekranındaki uzun tanıtım metni kaldırıldı; ekran doğrudan Apple ile devam et seçeneği ve formla açılıyor.
 
 - Pro ödeme ekranında abonelik adı ve süresi ayrı satırda gösteriliyor; Kullanıcı Sözleşmesi, Gizlilik Politikası ve İade Politikası bağlantıları tek cümlede toplandı.
 - iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.

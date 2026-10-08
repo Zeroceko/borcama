@@ -25,6 +25,7 @@ import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
+import { appleGirisiVarMi, appleHataMesaji, appleIleGirisYap } from "./appleGiris.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 
@@ -161,6 +162,11 @@ const CSS = `
 }
 .auth-btn:disabled{opacity:.6; cursor:default}
 .auth-btn:hover:not(:disabled){filter:brightness(0.96)}
+.auth-apple{width:100%;min-height:46px;padding:12px 0;border-radius:999px;border:1px solid #000;background:#000;color:#fff;font:700 15px -apple-system,'Space Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.auth-apple:disabled{opacity:.6;cursor:default}
+.auth-apple svg{margin-top:-2px}
+.auth-ayirac{display:flex;align-items:center;gap:10px;margin:14px 0 16px;color:#8a8c7e;font-size:11.5px;font-weight:700}
+.auth-ayirac:before,.auth-ayirac:after{content:"";flex:1;height:1px;background:#14160f22}
 .auth-error{background:#ff6f5922;border:2px solid #ff6f59;color:#a53a2a;font-size:13px;border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .auth-captcha-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid #e2a44f;border-radius:12px;background:#fff6df;color:#6e4712;font-size:12px;line-height:1.4}.auth-captcha-status button{flex:0 0 auto;border:1px solid #14160f;border-radius:999px;background:#fff;padding:7px 10px;color:#14160f;font:700 11px 'Space Grotesk',sans-serif;cursor:pointer}
 .auth-sent{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:10px 0}
@@ -237,6 +243,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [sifirlamaModu, setSifirlamaModu] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
+  const [appleYukleniyor, setAppleYukleniyor] = useState(false);
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaAttempt, setCaptchaAttempt] = useState(0);
@@ -492,6 +499,30 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     }
   }
 
+  async function appleIleGiris() {
+    if (appleYukleniyor) return;
+    setAppleYukleniyor(true);
+    setHata("");
+    try {
+      const girildi = await appleIleGirisYap();
+      if (!girildi) return;
+      if (oturumuAcikTut) {
+        localStorage.removeItem("borcama_session_only");
+        sessionStorage.removeItem("borcama_session_active");
+      } else {
+        localStorage.setItem("borcama_session_only", "1");
+        sessionStorage.setItem("borcama_session_active", "1");
+      }
+      window.location.href = sonrakiSayfa;
+    } catch (appleHatasi) {
+      // Kullanici Apple ekranini kapatirsa mesaj bos doner; hata gostermiyoruz.
+      const mesaj = appleHataMesaji(appleHatasi);
+      if (mesaj) setHata(mesaj);
+    } finally {
+      setAppleYukleniyor(false);
+    }
+  }
+
   function yontemDegistir(yeni) {
     setYontem(yeni);
     setHata("");
@@ -518,12 +549,21 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             ? "Ücretsiz hesabını oluştur"
             : "Hesabına giriş yap"}
         </div>
-        <div className="auth-sub">
-          {kayitModu
-            ? "Bir kartını, ekstreni veya nakit varlığını ekleyerek başla. Ücretsiz planın süresi dolmaz. İlk 30 gün Pro da dahil; kart gerekmez, süre sonunda Ücretsiz planla devam edersin."
-            : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
-        </div>
-        {!kayitModu && (
+        {/* Uygulamada kayit ekranindaki uzun tanitim metni gosterilmiyor;
+            ekran dogrudan Apple ile devam et ve form ile aciliyor. Tarayici
+            surumunde metin aynen duruyor. */}
+        {!(nativeMi && kayitModu) && (
+          <div className="auth-sub">
+            {kayitModu
+              ? "Bir kartını, ekstreni veya nakit varlığını ekleyerek başla. Ücretsiz planın süresi dolmaz. İlk 30 gün Pro da dahil; kart gerekmez, süre sonunda Ücretsiz planla devam edersin."
+              : nativeMi
+                ? "Apple ile ya da parolanla giriş yap."
+                : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
+          </div>
+        )}
+        {/* Tek kullanimlik e-posta linkiyle giris yalniz tarayici surumunde
+            sunuluyor; uygulamada giris Apple ile ya da parolayla yapiliyor. */}
+        {!kayitModu && !nativeMi && (
           <div className="auth-tabs">
             <button
               className={"auth-tab " + (yontem === "parola" ? "active" : "")}
@@ -540,6 +580,27 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               E-posta linki
             </button>
           </div>
+        )}
+
+        {appleGirisiVarMi && !sifirlamaModu && !gonderildi && (
+          <>
+            <button
+              className="auth-apple"
+              type="button"
+              onClick={appleIleGiris}
+              disabled={appleYukleniyor || gonderiliyor}
+            >
+              <svg width="15" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
+                <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
+              </svg>
+              {appleYukleniyor
+                ? "Apple ile devam ediliyor…"
+                : kayitModu
+                  ? "Apple ile devam et"
+                  : "Apple ile giriş yap"}
+            </button>
+            <div className="auth-ayirac">ya da</div>
+          </>
         )}
 
         {hata && <div className="auth-error">{hata}</div>}
@@ -724,7 +785,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             <div className="auth-help">
               {kayitModu
                 ? "Parolan en az 8 karakter olmalı."
-                : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}
+                : nativeMi
+                  ? "Parolanı unuttuysan aşağıdan yenileme bağlantısı isteyebilirsin."
+                  : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}
             </div>
             {!kayitModu && (
               <button

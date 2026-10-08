@@ -12,5 +12,13 @@
 		<string>applinks:borcama.com</string>
 		<string>applinks:www.borcama.com</string>
 	</array>
+	<!-- Apple ile giris. Calismasi icin App ID uzerinde "Sign In with Apple"
+	     yetkisinin acik olmasi ve Supabase'te Apple saglayicisinda
+	     com.borcama.app kimliginin yetkili istemci olarak tanimli olmasi
+	     gerekir. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>
