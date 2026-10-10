@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.1] - 2026-10-10
+
+### Değiştirildi
+
+- Uygulama başlığı sadeleşti: tema düğmesi ve "Çıkış" bağlantısı başlıktan kaldırıldı. Tema Ayarlar > Görünüm'deki "Açık | Koyu" seçicisinden, çıkış Ayarlar > Hesap > Oturum'daki "Çıkış yap" düğmesinden yapılıyor.
+
 ## [1.62.0] - 2026-10-10
 
 ### Eklendi
