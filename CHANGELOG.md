@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.2] - 2026-10-10
+
+### Düzeltildi
+
+- Taksitleri uygulamadan ödenerek bittiği halde kaydı açık kalan kredi artık Bugün ekranında gecikmiş ödeme veya açık borç olarak görünmüyor; Krediler'de kapanmış sayılan kredi açıkça kapatılıyor (kalan borç 0, kapanış tarihi son ödeme günü) ve tüm ekranlar aynı sonucu gösteriyor.
+
 ## [1.62.1] - 2026-10-10
 
 ### Değiştirildi

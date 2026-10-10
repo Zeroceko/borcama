@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import {
+  gecmisleKapananKrediAlanlari,
   KREDI_KAPANISI_GECMIS,
   krediKapanisiOncedenKutlandiMi,
   krediKapanisKutlamasiniIsaretle,
@@ -12,8 +13,8 @@ const oku = (yol) => readFile(new URL(yol, import.meta.url), "utf8");
 
 test("kutlaması işaretlenmiş kredi yeni bir tarayıcıda tekrar kutlanmaz", () => {
   const krediler = [
-    { id: "a", kapanisKutlandi: "2026-10-01T09:00:00.000Z" },
-    { id: "b", kapanisKutlandi: KREDI_KAPANISI_GECMIS },
+    { id: "a", kalanBorc: 0, kapanisKutlandi: "2026-10-01T09:00:00.000Z" },
+    { id: "b", kapatildiTarihi: "2026-09-30T10:00:00.000Z", kapanisKutlandi: KREDI_KAPANISI_GECMIS },
   ];
   assert.equal(kutlanacakKapaliKredi(krediler), null);
   assert.equal(kutlanacakKapaliKredi([...krediler, { id: "c" }])?.id, "c");
@@ -53,4 +54,23 @@ test("tebrik e-postası kredi başına bir kez, yalnız yeni kapanışlar için 
   const fonksiyon = sablon.slice(sablon.indexOf("export function krediKapandiHtml"), sablon.indexOf("export function referansOduluHtml"));
   assert.match(fonksiyon, /krediKapandiHtml\(url: string\)/);
   assert.doesNotMatch(fonksiyon, /\$\{(?!buton\(url|ozellikSatiri\()/);
+});
+
+test("yalnız taksit geçmişiyle kapanan kredi açıkça kapatılır; Bugün ekranı onu açık borç saymaz", () => {
+  const gecmis = {
+    "2026-08": { k: { tutar: 1000, odendiTarihi: "2026-08-05T09:00:00.000Z" } },
+    "2026-09": { k: { tutar: 1000, odendiTarihi: "2026-09-05T09:00:00.000Z" } },
+  };
+  const kredi = { id: "k", taksit: 1000, kalanTaksit: 2, kalanBorc: 2000, kapanisKutlandi: KREDI_KAPANISI_GECMIS };
+  assert.deepEqual(gecmisleKapananKrediAlanlari(kredi, gecmis), {
+    kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: "2026-09-05T09:00:00.000Z",
+  });
+  // işaretli olsa bile kaydı açık kaldığı için bir kez daha işlenir
+  assert.equal(kutlanacakKapaliKredi([kredi])?.id, "k");
+  assert.equal(gecmisleKapananKrediAlanlari({ ...kredi, kalanTaksit: 3 }, gecmis), null);
+  assert.equal(gecmisleKapananKrediAlanlari({ ...kredi, kalanBorc: 0 }, gecmis), null);
+  assert.deepEqual(
+    krediKapanisKutlamasiniIsaretle([kredi], "k", KREDI_KAPANISI_GECMIS, gecmisleKapananKrediAlanlari(kredi, gecmis))[0],
+    { ...kredi, kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: "2026-09-05T09:00:00.000Z", kapanisKutlandi: KREDI_KAPANISI_GECMIS },
+  );
 });
