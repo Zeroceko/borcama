@@ -15,15 +15,15 @@ test("atanmış ziyaretçi sonraki oturumda aynı varyantı görür", () => {
   assert.equal(landingDeneyiVaryantiBelirle({ source: pmax, storedVariant: "control", randomValue: 0.9 }), "control");
 });
 
-test("LANDING-002 ataması yeni deney için tekrar kullanılmaz", () => {
+test("durdurulan LANDING-003 eski veya mevcut atamayı olaylara etiketlemez", () => {
   const previousWindow = globalThis.window;
   const previousStorage = globalThis.localStorage;
   const requestedKeys = [];
   globalThis.window = {};
-  globalThis.localStorage = { getItem(key) { requestedKeys.push(key); return key === "borcama:landing-002-variant" ? "variant" : null; } };
+  globalThis.localStorage = { getItem(key) { requestedKeys.push(key); return "variant"; } };
   try {
     assert.deepEqual(aktifLandingDeneyiOku(), { experiment_id: "", experiment_variant: "" });
-    assert.deepEqual(requestedKeys, [LANDING_DENEYI_ANAHTARI]);
+    assert.deepEqual(requestedKeys, []);
     assert.equal(LANDING_DENEYI_ANAHTARI, "borcama:landing-003-variant");
   } finally {
     if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow;
