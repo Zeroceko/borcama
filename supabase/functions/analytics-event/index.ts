@@ -13,7 +13,13 @@ const izinliEtkinlikler = new Set([
   "deposit_product_click",
   "debt_payoff_result_view",
   "debt_payoff_product_click",
+  "landing_cta_click",
+  "landing_scroll_half",
+  "content_product_click",
 ]);
+// src/funnelNavigation.js ile aynı desen; otomasyon ziyaretleri huniye yazılmaz.
+const botKullaniciAjani =
+  /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|gtmetrix|pingdom|uptime|monitor|preview|prerender|puppeteer|playwright|phantomjs|selenium|python-requests|curl|wget|httpclient|facebookexternalhit|embedly|quora link|whatsapp|telegrambot/i;
 const guvenliEdinimKarakterleri = /[^\p{L}\p{N}._/ -]+/gu;
 
 function cors(origin: string | null) {
@@ -61,6 +67,10 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response(JSON.stringify({ error: "METHOD_NOT_ALLOWED" }), { status: 405, headers });
   if (!izinliOriginler.has(req.headers.get("origin") || ""))
     return new Response(JSON.stringify({ error: "ORIGIN_NOT_ALLOWED" }), { status: 403, headers });
+
+  const userAgent = req.headers.get("user-agent") || "";
+  if (!userAgent || botKullaniciAjani.test(userAgent))
+    return new Response(JSON.stringify({ ignored: true }), { status: 200, headers });
 
   const body = await req.json().catch(() => null);
   const eventName = metin(body?.event_name, 40);

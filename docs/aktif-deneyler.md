@@ -10,8 +10,13 @@
 
 ## Aktif deney
 
+Şu an aktif landing deneyi yok. Yeni deney, yeterli trafik (kol başına en az 200 ziyaret ve 20 kayıt makul sürede) sağlandığında açılır.
+
+## Tarihsel deney (durduruldu)
+
 - Kod: `LANDING-003`
-- Durum: `v1.54.7` ile canlı; iki landing kolu da eşit teklif, sadeleştirilmiş içerik ve mobil aralık düzeniyle yayımlandı.
+- Durum: `v1.54.7` ile canlıya çıktı; 10 Ekim 2026'da Özer kararıyla `v1.61.0` ile durduruldu. Tüm ziyaretçiler kontrol landing'ini (A) görüyor; yeni atama yapılmıyor ve olaylara deney etiketi eklenmiyor. Mevcut deney verisi silinmedi.
+- Durdurma anındaki veri (26 Eylül-10 Ekim, bot trafiği hariç): kontrol 74 ziyaret, 9 kayıt ekranı, 3 hesap; varyant 71 ziyaret, 5 kayıt ekranı, 2 hesap. Eşik (kol başına 200 ziyaret / 20 kayıt) dolmadığı için kazanan ilan edilmedi; kontrolün seçilmesi sonuç değil varsayılana dönüştür.
 - Hipotez: Aynı teklif, ana mesaj ve kayıt hedefi korunurken aylık ödeme, ekstre kategorileri ve ilk kayıt adımını somut örneklerle gösteren yeni sayfa sunumu kayıt tamamlama oranını artırır. Bu, yalnız yerleşimi değil örneklerin sunumunu da karşılaştıran tam sayfa deneyidir; tek bir tasarım öğesine nedensel sonuç atfedilmez.
 - Kontrol A: Canlıdaki mevcut landing.
 - Varyant B: Yeni sonuç odaklı landing ve kayıtsız temsili demo.
@@ -23,13 +28,13 @@
 - Raporlama: `landing_visit → register_view → sign_up → email_verified → first_debt_or_statement` zinciri iki kol için ayrı gösterilir. Olaylarda edinim bilgisi korunur; mevcut deney özeti kaynak/cihaz kırılımı sunmadığından bu kırılımlar ayrıca incelenmeden kanal bazlı kazanan ilan edilmez.
 - Karar: Kol başına en az 200 ziyaret ve 20 tamamlanan kayıt oluşmadan sonuç yalnız erken sinyal sayılır; kayıt artarken doğrulama ve ilk finansal kayıt kalitesi bozuluyorsa B kazanmaz.
 
-## Tarihsel deney
+## Daha eski tarihsel deney
 
 - Kod: `LANDING-002`
 - Durum: LANDING-003 yayınıyla tarihsel deney oldu. Teklif, ana mesaj ve logo sunumu eşit olmadığı için verisi LANDING-003 ile birleştirilmez ve tek başına tasarım kazananı ilan etmekte kullanılmaz.
 - Sonuç: Tasarım etkisini diğer değişkenlerden ayırmadığı için yorumlanabilir bir kazanan üretmedi.
 
-## Daha eski tarihsel deney
+## En eski tarihsel deney
 
 - Kod: `LANDING-001`
 - Durum: CTA ile sınırlı eski deney kapatıldı; verisi tarihsel olarak korunur ve sonraki deneylerle birleştirilmez.
