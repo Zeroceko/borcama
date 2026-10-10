@@ -12,16 +12,22 @@ Bu dosya yalnız yönlendirmedir; asıl kurallar `AGENTS.md` içindedir. İşe b
 2. Kullanıcıyı, arayüzü, hesaplamayı veya veriyi etkileyen her değişikliği aynı commit'te `CHANGELOG.md > Unreleased` altına tek cümleyle yaz; duyurulabilir yenilikleri `docs/mailing-yenilik-havuzu.md`ye ekle.
 3. PR açmadan önce `npm ci`, `npm run release:check`, `npm test` ve `npm run build` geçmeli.
 4. PR açıklaması: amaç, değişen dosyalar, test kanıtı, risk, ölçüm planı, gereken onay. Aynı PR'da `docs/departman-devirleri.md > Son devirler` en üstüne devir maddesi ekle.
-5. `main`e doğrudan push yok. PR'ları Özer onaylar ve birleştirir.
+5. `main`e birleştirme Vercel'de otomatik production deploy'dur; Claude `main`e push etmez ve PR birleştirmez. PR'ları yalnız Özer birleştirir.
+6. Dal push'unun Vercel önizleme adresi PR açıklamasında paylaşılır.
 
 ## Onay gerektirenler
 
 - Push, deploy, etiket, Supabase migration, Edge Function deploy, production secret, App Store gönderimi, fiyat/Pro politikası: önce Özer onayı.
-- `CHANGELOG.md > Unreleased` altındaki iOS maddeleri web yamasına karıştırılmaz; web yaması gerekiyorsa son etiketten `release/x.y.z` dalı önerilir ve onaylatılır.
+
+## Sürüm kuralı
+
+- Web sürümü `main` üzerinden çıkar; ayrı `release/x.y.z` yama dalı açılmaz (iOS `Unreleased` commit'leri 4 Ekim 2026'dan beri web'de canlı).
+- Sonraki sürümde yeni değişiklik ile mevcut `Unreleased` maddeleri birlikte tarihli sürüme taşınır (ör. `1.61.0`); iOS maddeleri changelog'da iOS olarak işaretli kalır.
+- Sürüm numarası ve kapsamı PR'da Özer'e onaylatılır.
 
 ## Canlı doğrulama
 
-- Git push deploy kanıtı değildir. Vercel CLI erişimi doğrulanana kadar canlı durum yalnız yayınlanan bundle sürümü, route yanıtı ve meta etiketleriyle doğrulanır.
+- Vercel CLI kullanılmaz. Deploy kaydı `gh api repos/Zeroceko/borcama/deployments` ile (main = Production, dal = Preview), canlı durum yayınlanan bundle sürümü, route yanıtı ve meta etiketleriyle doğrulanır.
 
 ## Yasaklar
 
