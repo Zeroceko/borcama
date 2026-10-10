@@ -4,25 +4,25 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
-### Düzeltildi
-
-- Kullanıcı Sözleşmesi ve İade Politikası sayfaları iki satın alma kanalını da açıkça anlatıyor: iOS uygulamasından alınan aboneliklerde yetkili satıcı Apple ve yönetim App Store üzerinden, borcama.com'dan alınanlarda ise Paddle üzerinden. Önceden tarayıcıda açılan metin yalnız Paddle'ı anlatıyordu.
-- E-posta doğrulama ve parola yenileme bağlantıları artık doğrudan uygulamada açılıyor; iOS uygulaması kuruluysa tarayıcı hiç devreye girmiyor ve kullanıcı giriş yapmış olarak karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışmaya devam ediyor.
+## [1.61.0] - 2026-10-10
 
 ### Eklendi
 
-- iOS'taki e-posta giriş ve parola yenileme bağlantıları Safari'de yarım kalmadan Borcama uygulamasındaki doğru ekrana dönebiliyor; internet kesildiğinde boş finansal ekran yerine kayıtların korunduğunu açıklayan bağlantı durumu gösteriliyor.
-- iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
-- iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
-- iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
-- Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
-- iOS uygulamasında kullanıcı onayıyla açılan ödeme hatırlatmaları, yaklaşan kart ve kredi ödemelerini bir gün önce saat 09.00'da tutar veya banka adı göstermeden cihazda bildiriyor; tamamlanan ödemeler yeniden planlanmıyor.
+- Finansal sözlük, rehber ve borç araçlarının (kredi kartı asgari ödeme, kredi ödeme planı, borç ödeme planı, aylık ödeme takvimi) sonunda ücretsiz hesaba geçiş bölümü var; sayfada girilen tutarlar kayıt bağlantısına veya ölçüme eklenmiyor.
+- Landing'deki kayıt butonu tıklamaları, landing'in yarısının görülmesi ve içerik sayfalarından ürüne geçişler anonim olarak ölçülüyor; bu olaylar tutar, e-posta veya kişisel bilgi taşımıyor.
+- **iOS:** iOS'taki e-posta giriş ve parola yenileme bağlantıları Safari'de yarım kalmadan Borcama uygulamasındaki doğru ekrana dönebiliyor; internet kesildiğinde boş finansal ekran yerine kayıtların korunduğunu açıklayan bağlantı durumu gösteriliyor.
+- **iOS:** iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
+- **iOS:** iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
+- **iOS:** iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
+- **iOS:** Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
+- **iOS:** iOS uygulamasında kullanıcı onayıyla açılan ödeme hatırlatmaları, yaklaşan kart ve kredi ödemelerini bir gün önce saat 09.00'da tutar veya banka adı göstermeden cihazda bildiriyor; tamamlanan ödemeler yeniden planlanmıyor.
 
 ### Değiştirildi
 
-- iOS uygulamasındaki varsayılan Capacitor simgesi, küçük boyutta okunabilen 1024 piksel opak Borcama App Store ikonu ile değiştirildi.
-- iOS uygulaması Google Analytics ve Google Ads etiketlerini yüklemiyor; App Store gizlilik beyanı hesap, finansal kayıt, abonelik, ürün kullanımı ve kişisel bilgi içermeyen çökme verisiyle sınırlandırıldı.
-- iOS sürümü web SemVer sürümünü izlerken build numarası yalnız yeni TestFlight veya App Store yüklemesinde artırılacak biçimde yayın sürecine bağlandı.
+- LANDING-003 deneyi durduruldu; tüm ziyaretçiler kontrol landing'ini görüyor ve yeni olaylara deney etiketi eklenmiyor.
+- **iOS:** iOS uygulamasındaki varsayılan Capacitor simgesi, küçük boyutta okunabilen 1024 piksel opak Borcama App Store ikonu ile değiştirildi.
+- **iOS:** iOS uygulaması Google Analytics ve Google Ads etiketlerini yüklemiyor; App Store gizlilik beyanı hesap, finansal kayıt, abonelik, ürün kullanımı ve kişisel bilgi içermeyen çökme verisiyle sınırlandırıldı.
+- **iOS:** iOS sürümü web SemVer sürümünü izlerken build numarası yalnız yeni TestFlight veya App Store yüklemesinde artırılacak biçimde yayın sürecine bağlandı.
 
 ### Güvenlik
 
@@ -30,8 +30,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
-- RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
-- iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
+- Otomasyon ve bot tarayıcılarından gelen ziyaretler artık huniye yazılmıyor; 3 Ekim gecesi tek saatte gelen 201 oturum gibi trafik ziyaretçi sayısını şişirmiyor.
+- Araç sayfalarındaki ürüne geçiş tıklamaları sayfa değişmeden önce kaydediliyor; önceden bağlantı açılırken ölçüm isteği iptal olabiliyordu.
+- Kullanıcı Sözleşmesi ve İade Politikası sayfaları iki satın alma kanalını da açıkça anlatıyor: iOS uygulamasından alınan aboneliklerde yetkili satıcı Apple ve yönetim App Store üzerinden, borcama.com'dan alınanlarda ise Paddle üzerinden. Önceden tarayıcıda açılan metin yalnız Paddle'ı anlatıyordu.
+- E-posta doğrulama ve parola yenileme bağlantıları artık doğrudan uygulamada açılıyor; iOS uygulaması kuruluysa tarayıcı hiç devreye girmiyor ve kullanıcı giriş yapmış olarak karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışmaya devam ediyor.
+- **iOS:** RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
+- **iOS:** iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
 
 ## [1.60.5] - 2026-10-03
 

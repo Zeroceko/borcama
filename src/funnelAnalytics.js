@@ -1,6 +1,7 @@
 import { supabase, supabaseHazir } from "./supabaseClient.js";
 import { edinimKaynaginiOlustur } from "./acquisition.js";
 import { aktifLandingDeneyiOku } from "./landingExperiment.js";
+import { olayiKaydedipGit, otomasyonTarayicisiMi } from "./funnelNavigation.js";
 export { edinimKaynaginiOlustur } from "./acquisition.js";
 
 const OTURUM_ANAHTARI = "borcama:funnel-session";
@@ -13,6 +14,9 @@ const IZINLI_ETKINLIKLER = new Set([
   "deposit_product_click",
   "debt_payoff_result_view",
   "debt_payoff_product_click",
+  "landing_cta_click",
+  "landing_scroll_half",
+  "content_product_click",
 ]);
 let kayitSirasi = Promise.resolve(false);
 
@@ -50,6 +54,7 @@ export function funnelKaynakBilgisi() {
 
 export function funnelEtkinligiKaydet(eventName, experiment = null) {
   if (!supabaseHazir || !IZINLI_ETKINLIKLER.has(eventName)) return false;
+  if (otomasyonTarayicisiMi()) return false;
   const kaydet = async () => {
     const sessionId = oturumKimligi();
     if (!sessionId) return false;
@@ -77,4 +82,10 @@ export function funnelEtkinligiKaydet(eventName, experiment = null) {
   };
   kayitSirasi = kayitSirasi.catch(() => false).then(kaydet);
   return kayitSirasi;
+}
+
+// Kayda giden bağlantı tıklamalarında olayın sayfa değişmeden yazılmasını bekler.
+export function funnelTiklamasiKaydedipGit(olay, eventName) {
+  const baglanti = olay?.currentTarget?.closest?.("a") || olay?.target?.closest?.("a");
+  return olayiKaydedipGit(olay, baglanti, () => funnelEtkinligiKaydet(eventName));
 }

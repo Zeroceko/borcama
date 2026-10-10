@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ArrowRight, Check, Coins, FileUp, ReceiptText, ShieldCheck, Target, WalletCards } from "lucide-react";
+import { landingOlcumunuBaslat } from "./landingMeasurement.js";
 
 const money = (value) => new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
 const example = {
@@ -33,7 +34,9 @@ const CSS = `
 export default function LandingAlt() {
   const mevduattanGeldi = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "mevduat";
   const heroCtaHref = mevduattanGeldi ? "/register?plan=free&redirect=%2Fassets" : "/register?plan=free";
-  return <div className="la"><style>{CSS}</style>
+  const kok = useRef(null);
+  useEffect(() => landingOlcumunuBaslat(kok.current), []);
+  return <div className="la" ref={kok}><style>{CSS}</style>
     <header className="la-shell la-nav"><a className="la-logo" href="/" aria-label="Borcama ana sayfa"><LandingLogo sizes="(max-width:650px) 122px, 152px" /></a><nav className="la-links"><a href="#nasil-calisir">Nasıl çalışır?</a><a href="/login">Giriş yap</a><a className="la-btn" href={heroCtaHref}>Ücretsiz başla <ArrowRight size={14}/></a></nav></header>
     <main>
       <section className="la-hero"><div className="la-shell la-hero-grid"><div>{mevduattanGeldi && <div className="la-context"><Coins size={17}/><span>Mevduat getirini hesapladın. Şimdi birikimini bütün finansal tablonla birlikte gör.</span></div>}<h1 className="la-h1">Paran nereye gidiyor?<span className="la-mark-wrap"><span className="la-mark">Borcunu gör, kontrolü al.</span></span></h1><p className="la-lead">Borçlarını, ödemelerini ve bütçeni tek yerde gör.</p><div className="la-hero-actions"><a className="la-btn" href={heroCtaHref}>Ücretsiz başla <ArrowRight size={14}/></a><a className="la-small-link" href="/login">Zaten hesabım var</a><a className="la-small-link la-mobile-how" href="#nasil-calisir">Nasıl çalışır?</a></div><div className="la-proof"><span><Check size={16}/> Süresiz ücretsiz</span><span><ShieldCheck size={16}/> Kart bilgisi gerekmez</span></div></div><DashboardPreview/></div></section>

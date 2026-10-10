@@ -70,7 +70,7 @@ test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu say
   assert.doesNotMatch(migration, /ua\.first_touch_at/);
 });
 
-test("LANDING-003 eşit teklifli tam sayfaları ayrı ölçer; eski deneyler tarihsel kalır", async () => {
+test("LANDING-003 durduruldu; eşit teklifli sayfalar ve eski deney verisi tarihsel kalır", async () => {
   const [control, landing, experiment, main, client, edge, historicalMigration, migration, backoffice, analytics] = await Promise.all([
     oku("./LandingAlt.jsx"),
     oku("./LandingGrowth.jsx"),
@@ -84,7 +84,7 @@ test("LANDING-003 eşit teklifli tam sayfaları ayrı ölçer; eski deneyler tar
     oku("./Analytics.jsx"),
   ]);
   assert.match(experiment, /LANDING_DENEYI = "landing-003"/);
-  assert.match(experiment, /LANDING_DENEYI_AKTIF = true/);
+  assert.match(experiment, /LANDING_DENEYI_AKTIF = false/);
   assert.match(control, /Borcunu gör, kontrolü al\./);
   assert.match(control, /İlk 30 gün Pro özellikleri hediye\./);
   assert.match(control, /Kontrol edip onayladığın bilgiler hesabına kaydedilir/);
