@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.0] - 2026-10-10
+
+### Eklendi
+
+- Bir kredi kapandığında kullanıcıya kredi başına tek bir tebrik e-postası gönderiliyor; e-posta tutar veya banka adı içermiyor ve yalnız bu sürümden sonraki kapanışlar için gidiyor.
+
+### Düzeltildi
+
+- Kapatılan kredinin kutlaması artık yalnız bir kez görünüyor; "gösterildi" bilgisi tarayıcıda değil kullanıcının kaydında tutulduğu için yeni bir tarayıcıda veya cihazda aynı kredi için tekrar çıkmıyor.
+
 ## [1.61.0] - 2026-10-10
 
 ### Eklendi

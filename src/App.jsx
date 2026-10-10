@@ -95,7 +95,14 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
-import { loanClosesAfterPayment, loanIsClosed } from "./loanCompletion.js";
+import {
+  krediKapanisiOncedenKutlandiMi,
+  krediKapanisKutlamasiniIsaretle,
+  KREDI_KAPANISI_GECMIS,
+  kutlanacakKapaliKredi,
+  loanClosesAfterPayment,
+  loanIsClosed,
+} from "./loanCompletion.js";
 import {
   buAyDuzenliBorcToplami,
   duzenliBorcOdemeleri,
@@ -2879,7 +2886,7 @@ export default function BorcTakip() {
     };
     const loans = (veri.loans || []).map((x) =>
       x.id === krediId && kapandi
-        ? { ...x, kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: kapanisTarihi }
+        ? { ...x, kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: kapanisTarihi, kapanisKutlandi: new Date().toISOString() }
         : x,
     );
     const yeniVeri = {
@@ -7603,31 +7610,31 @@ function Borclar({
 
   useEffect(() => {
     if (!guncelKrediGorunumu) return;
-    const yeniTaninmisKredi = kapatilanKrediler.find(
-      (kredi) =>
-        !loanIsClosed(kredi) &&
-        !gecmisKrediKutlamalari.current.has(kredi.id),
-    );
-    if (!yeniTaninmisKredi) return;
+    const kredi = kutlanacakKapaliKredi(kapatilanKrediler, gecmisKrediKutlamalari.current);
+    if (!kredi) return;
+    gecmisKrediKutlamalari.current.add(kredi.id);
 
-    const anahtar = `borcama:kredi-kutlamasi:${yeniTaninmisKredi.id}`;
+    let yerelIzVar = false;
     try {
-      if (localStorage.getItem(anahtar)) {
-        gecmisKrediKutlamalari.current.add(yeniTaninmisKredi.id);
-        return;
-      }
-      localStorage.setItem(anahtar, "1");
+      yerelIzVar = Boolean(localStorage.getItem(`borcama:kredi-kutlamasi:${kredi.id}`));
     } catch {
-      // Depolama engelliyse aynı oturumda tekrar göstermemek yeterli.
+      // Depolama engelliyse yalnız kullanıcı verisindeki işaret esas alınır.
     }
-    gecmisKrediKutlamalari.current.add(yeniTaninmisKredi.id);
+    const oncedenKutlandi = krediKapanisiOncedenKutlandiMi(kredi, yerelIzVar);
+    void kaydet({
+      ...veri,
+      loans: krediKapanisKutlamasiniIsaretle(
+        veri.loans || [],
+        kredi.id,
+        oncedenKutlandi ? KREDI_KAPANISI_GECMIS : new Date().toISOString(),
+      ),
+    });
+    if (oncedenKutlandi) return;
     borcKutla?.({
       tur: "Kredi",
-      baslik:
-        yeniTaninmisKredi.banka +
-        (yeniTaninmisKredi.ad ? ` · ${yeniTaninmisKredi.ad}` : ""),
+      baslik: kredi.banka + (kredi.ad ? ` · ${kredi.ad}` : ""),
     });
-  }, [borcKutla, guncelKrediGorunumu, kapatilanKrediler]);
+  }, [borcKutla, guncelKrediGorunumu, kapatilanKrediler, kaydet, veri]);
 
   useEffect(() => {
     if (!yerindeFormHedefi) return;
