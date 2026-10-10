@@ -96,6 +96,7 @@ import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
 import {
+  gecmisleKapananKrediAlanlari,
   krediKapanisiOncedenKutlandiMi,
   krediKapanisKutlamasiniIsaretle,
   KREDI_KAPANISI_GECMIS,
@@ -7612,13 +7613,16 @@ function Borclar({
     } catch {
       // Depolama engelliyse yalnız kullanıcı verisindeki işaret esas alınır.
     }
-    const oncedenKutlandi = krediKapanisiOncedenKutlandiMi(kredi, yerelIzVar);
+    const oncedenKutlandi = Boolean(kredi.kapanisKutlandi) ||
+      krediKapanisiOncedenKutlandiMi(kredi, yerelIzVar);
     void kaydet({
       ...veri,
       loans: krediKapanisKutlamasiniIsaretle(
         veri.loans || [],
         kredi.id,
-        oncedenKutlandi ? KREDI_KAPANISI_GECMIS : new Date().toISOString(),
+        kredi.kapanisKutlandi ||
+          (oncedenKutlandi ? KREDI_KAPANISI_GECMIS : new Date().toISOString()),
+        gecmisleKapananKrediAlanlari(kredi, veri.loanPaymentHistory),
       ),
     });
     if (oncedenKutlandi) return;

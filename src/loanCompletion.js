@@ -65,10 +65,29 @@ export function loanClosesAfterPayment({
 // "gecmis": bu alan eklenmeden önce kapanmış ve kutlaması zaten gösterilmiş.
 export const KREDI_KAPANISI_GECMIS = "gecmis";
 
+// Kutlaması işaretlenmemiş ya da yalnız taksit geçmişiyle kapanmış (kalan
+// borcu hâlâ dolu) ilk kredi. İkincisi Bugün ekranında açık borç gibi
+// görünmesin diye açıkça kapatılır.
 export function kutlanacakKapaliKredi(kapaliKrediler = [], buOturumdaIslenen = new Set()) {
   return kapaliKrediler.find(
-    (kredi) => kredi?.id && !kredi.kapanisKutlandi && !buOturumdaIslenen.has(kredi.id),
+    (kredi) => kredi?.id && !buOturumdaIslenen.has(kredi.id) &&
+      (!kredi.kapanisKutlandi || !loanIsClosed(kredi)),
   ) || null;
+}
+
+// Taksit geçmişine göre bitmiş ama kaydı açık kalmış krediyi, son taksit
+// ödeme ekranından girilmiş gibi kapatır: kalan borç ve taksit 0, kapanış
+// tarihi son ödemenin tarihi. Böylece Bugün, toplamlar ve asistan da krediyi
+// kapalı görür. Zaten açıkça kapalıysa veya geçmiş yetmiyorsa null döner.
+export function gecmisleKapananKrediAlanlari(kredi, history = {}) {
+  if (!kredi?.id || loanIsClosed(kredi) || !loanIsClosed(kredi, history)) return null;
+  const sonOdeme = Object.values(history || {})
+    .map((ay) => ay?.[kredi.id])
+    .filter((odeme) => odeme?.tutar != null && odeme?.odendiTarihi)
+    .map((odeme) => String(odeme.odendiTarihi))
+    .sort()
+    .pop();
+  return { kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: sonOdeme || new Date().toISOString() };
 }
 
 // Alan eklenmeden önceki kapanışlar: ödeme ekranından kapatılan kredi o anda
@@ -79,6 +98,6 @@ export function krediKapanisiOncedenKutlandiMi(kredi, yerelIzVar = false) {
   return loanIsClosed(kredi) || Boolean(yerelIzVar);
 }
 
-export function krediKapanisKutlamasiniIsaretle(krediler = [], krediId, deger) {
-  return krediler.map((kredi) => (kredi?.id === krediId ? { ...kredi, kapanisKutlandi: deger } : kredi));
+export function krediKapanisKutlamasiniIsaretle(krediler = [], krediId, deger, ekAlanlar = null) {
+  return krediler.map((kredi) => (kredi?.id === krediId ? { ...kredi, ...(ekAlanlar || {}), kapanisKutlandi: deger } : kredi));
 }
