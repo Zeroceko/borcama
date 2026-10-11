@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.5] - 2026-10-11
+
+### Değiştirildi
+
+- Bank run sözlük sayfasındaki İngilizce bölüm kaldırıldı; sayfa yalnız Türkçe. İngilizce içerik, sitenin dil seçeneğiyle birlikte gelecek.
+
 ## [1.62.4] - 2026-10-11
 
 ### Eklendi
