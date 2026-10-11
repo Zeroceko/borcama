@@ -59,3 +59,10 @@ test("tek ay kullanımında mezuniyet yok", () => {
   const veri = kurulmus({ loans: [{ id: "l1" }], expenses: [{ id: "s", tekrar: "Her ay" }] });
   assert.equal(rehberDurumu(veri, { simdi: SIMDI }).asama, "bekle");
 });
+
+test("bitirme mesajını rehber söyler; kullanıcının düğmesi 'Başka borcum yok'", () => {
+  const veri = kurulmus();
+  assert.equal(rehberDurumu(veri, { simdi: SIMDI }).oneri.kapatEtiketi, "Başka borcum yok");
+  const mezun = kurulmus({ cards: [{ id: "k1", toplamEkstreBorcu: 1, ekstreAyi: "2026-10", ekstreGecmisi: [{ ekstreAyi: "2026-09" }] }], loans: [{ id: "l" }], expenses: [{ tekrar: "Her ay" }] });
+  assert.equal(rehberDurumu(mezun, { simdi: SIMDI }).oneri.baslik, "Hepsi bu kadar! Artık hazırsın.");
+});

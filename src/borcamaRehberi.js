@@ -94,7 +94,7 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
       id: "baska-borc", tur: "tamamla", hedef: "borclar",
       baslik: "Başka kartın veya kredin var mı?",
       aciklama: "Hepsini ekleyince toplam borcun ve ödeme takvimin tamamlanır.",
-      aksiyonEtiketi: "Borç ekle", ertelenebilir: true, kapatEtiketi: "Hepsi bu kadar",
+      aksiyonEtiketi: "Borç ekle", ertelenebilir: true, kapatEtiketi: "Başka borcum yok",
     });
 
   // 4) Tamamlama: her ay tekrarlanan gider yok.
@@ -116,7 +116,7 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
       asama: "mezuniyet",
       oneri: {
         id: "mezuniyet", tur: "mezuniyet",
-        baslik: "Tamamdır, artık hazırsın!",
+        baslik: "Hepsi bu kadar! Artık hazırsın.",
         aciklama: "Her ay yeni ekstreni gir ve ödemelerini işaretle; gerisini Borcama hesaplar. Bundan sonra bu kutuyla seni rahatsız etmeyeceğim; ödeme ve ekstre zamanları Bugün ekranında.",
         aksiyonEtiketi: "Anladım",
       },
