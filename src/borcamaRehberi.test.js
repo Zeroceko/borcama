@@ -71,3 +71,10 @@ test("başka borç önerisi borç türü seçenekleri sunar", () => {
   const o = rehberDurumu(kurulmus(), { simdi: SIMDI }).oneri;
   assert.deepEqual(o.secenekler.map(([d]) => d), ["cards", "loans", "od", "others"]);
 });
+
+test("ödeme gününden sonra eklenen borç için ödeme hatırlatması yapılmaz", () => {
+  const yaklasan = [{ id: "kredi-l", anahtar: "kredi-l", ad: "Enpara", tarih: new Date(2026, 9, 5), odendi: false, eklendi: new Date(2026, 9, 11, 10).toISOString() }];
+  assert.notEqual(rehberDurumu(kurulmus(), { simdi: SIMDI, yaklasan }).oneri.tur, "odeme");
+  const eskiden = [{ ...yaklasan[0], eklendi: new Date(2026, 8, 20).toISOString() }];
+  assert.equal(rehberDurumu(kurulmus(), { simdi: SIMDI, yaklasan: eskiden }).oneri.tur, "odeme");
+});

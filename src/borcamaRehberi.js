@@ -66,6 +66,8 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
     if (o?.odendi || !o?.tarih) continue;
     const gun = gunFarki(o.tarih, simdi);
     if (gun === null || gun > 0 || gun < -7) continue;
+    // Ödeme gününden sonra eklenen borç için "ödediysen işaretle" denmez.
+    if (o.eklendi && gunFarki(o.eklendi, simdi) !== null && gunFarki(o.eklendi, simdi) >= gun) continue;
     adaylar.push({
       id: `odeme-${o.anahtar || o.id}`, tur: "odeme", hedef: "odemeler",
       baslik: `${o.ad || o.banka || "Ödemen"}: ödediysen işaretle`,
