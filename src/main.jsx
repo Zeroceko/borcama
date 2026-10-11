@@ -1,4 +1,4 @@
-import React, { lazy, useEffect, useState } from "react";
+import React, { lazy, useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from './errorMonitoring.js';
 import LandingControl from "./LandingAlt.jsx";
@@ -71,7 +71,10 @@ function Kok() {
       : yol;
   if (crmAlani && yol === "/") yol = "/backoffice";
   else if (crmAlani && yol.startsWith("/user/")) yol = `/backoffice${yol}`;
-  useEffect(() => {
+  // Layout effect: lazy SEO sayfası Kok ile aynı commit'te bağlanır ve React
+  // pasif efektleri önce çocukta çalıştırır; landing_visit araç sonucundan
+  // (ör. debt_payoff_result_view) önce kuyruğa girsin diye layout effect.
+  useLayoutEffect(() => {
     if (yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
     const indekslenmemeli = noindexYoluMu(yol, crmAlani);
