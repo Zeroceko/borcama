@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient.js";
 import { CRM_ALANI } from "../yonetimUrls.js";
 import Backoffice from "../Backoffice.jsx";
 import Buyume from "./Buyume.jsx";
-import Marketing from "../Marketing.jsx";
+import Iletisim from "./Iletisim.jsx";
 import {
   SEGMENTLER,
   huniOzeti,
@@ -79,7 +79,7 @@ async function backofficeVerisi() {
 
 export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }) {
   const [yenileme, setYenileme] = useState(0);
-  const veriGerekli = sayfa === "bugun" || sayfa === "kullanicilar" || sayfa === "buyume";
+  const veriGerekli = sayfa === "bugun" || sayfa === "kullanicilar" || sayfa === "buyume" || sayfa === "iletisim";
   const [veri, setVeri] = useState(() => (preview ? crmOnizlemeVerisi() : null));
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -136,14 +136,10 @@ export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }
         {sayfa === "kullanicilar" && veri && <Kullanicilar veri={veri} preview={preview} />}
         {sayfa === "kullanici" && <><div className="crm-gomulu" key={`k${yenileme}`}><Backoffice userId={userId} preview={preview} /></div><KullaniciSil userId={userId} preview={preview} /></>}
         {sayfa === "buyume" && veri && <Buyume veri={veri} />}
-        {sayfa === "iletisim" && (preview ? <Onizlemede /> : <div className="crm-gomulu" key={`i${yenileme}`}><Marketing /></div>)}
+        {sayfa === "iletisim" && veri && <Iletisim veri={veri} preview={preview} key={`i${yenileme}`} />}
       </main>
     </div>
   );
-}
-
-function Onizlemede() {
-  return <div className="crm-kart crm-bos">Bu ekran yerel önizlemede canlı veri olmadan açılmaz.</div>;
 }
 
 function Bugun({ veri, preview }) {

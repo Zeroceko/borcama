@@ -79,3 +79,13 @@ test("önceki dönem eksikse karşılaştırma işaretlenir; Büyüme yeni olay 
   const olcum = edge.slice(edge.indexOf("async function olcumOlaylari"), edge.indexOf("async function funnelIstatistikleri"));
   assert.match(olcum, /\.select\("session_id,event_name,path,created_at"\)/);
 });
+
+test("İletişim: özet yeni, gönderim eski onaylı ekranda; CRM kabuğu eski Analytics/Marketing'i doğrudan kullanmaz", async () => {
+  const [iletisim, crm] = await Promise.all([
+    readFile(new URL("./crm/Iletisim.jsx", import.meta.url), "utf8"),
+    readFile(new URL("./crm/CrmApp.jsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(iletisim, /k\.kind === "lifecycle" \|\| k\.kind === "auth"/);
+  assert.match(iletisim, /<Marketing \/>/);
+  assert.doesNotMatch(crm, /import Analytics|import Marketing/);
+});

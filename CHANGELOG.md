@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.66.1] - 2026-10-12
+
+### Değiştirildi
+
+- CRM "İletişim" ekranı otomatik e-postaları ve toplu kampanyaları tek tabloda durum, gönderilen, açılma, tıklama ve siteye gelme oranlarıyla özetliyor; toplu gönderim ve konu düzenleme iki adımlı onayla "Kampanya yönetimi" sekmesinde.
+
 ## [1.66.0] - 2026-10-12
 
 ### Eklendi
