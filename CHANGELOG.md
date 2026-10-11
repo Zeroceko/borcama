@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.66.0] - 2026-10-12
+
+### Eklendi
+
+- CRM "Büyüme" ekranı yeniden yazıldı: 7/30/90 gün seçimli kayıt hunisi ve günlük ziyaret grafiği, ziyaretçinin giriş sayfasına göre ne yaptığı (landing'in yarısını görme, kayıt butonu, içerikten ürüne geçiş, kayıt ekranı), borç kapatma ve mevduat araç hunileri, kayıttan kullanıma (doğrulama, ilk borç/ekstre, tam aktivasyon, aktif kullanıcı, 7. gün dönüşü) ve kanal tablosu tek ekranda.
+
 ## [1.65.1] - 2026-10-11
 
 ### Düzeltildi

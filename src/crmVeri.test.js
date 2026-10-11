@@ -64,3 +64,18 @@ test("CRM alanı yeni kabuğa yönlenir; Vercel yeni yolları yalnız CRM alanı
     assert.equal(kural?.has?.[0]?.value, "crm.borcama.com");
   }
 });
+
+test("önceki dönem eksikse karşılaştırma işaretlenir; Büyüme yeni olay ölçümünü okur", async () => {
+  const gunluk = Array.from({ length: 10 }, (_, i) => ({ day: `2026-10-${String(i + 1).padStart(2, "0")}`, visitors: 1 }));
+  assert.equal(huniOzeti(gunluk, 7).oncekiTam, false);
+  assert.equal(huniOzeti(gunluk, 5).oncekiTam, true);
+  const [buyume, edge] = await Promise.all([
+    readFile(new URL("./crm/Buyume.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../supabase/functions/backoffice/index.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(buyume, /analitik\.olcum\?\.\[gun <= 7 \? "son_7_gun" : "son_30_gun"\]/);
+  assert.match(edge, /async function olcumOlaylari\(admin/);
+  assert.match(edge, /analytics = \{ \.\.\.analytics, olcum: await olcumOlaylari\(admin\) \}/);
+  const olcum = edge.slice(edge.indexOf("async function olcumOlaylari"), edge.indexOf("async function funnelIstatistikleri"));
+  assert.match(olcum, /\.select\("session_id,event_name,path,created_at"\)/);
+});

@@ -84,6 +84,8 @@ export function huniOzeti(gunluk = [], gun = 7) {
   return {
     bu: topla(satirlar.slice(-gun)),
     onceki: topla(satirlar.slice(-2 * gun, -gun)),
+    // Önceki dönem tam veri içermiyorsa karşılaştırma gösterilmez.
+    oncekiTam: satirlar.length >= 2 * gun,
   };
 }
 
