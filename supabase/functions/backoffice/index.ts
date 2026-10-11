@@ -678,6 +678,36 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null);
     const userId = String(body?.userId || "");
     const action = String(body?.action || "");
+    if (action === "delete_user") {
+      // Test hesapları ve kullanıcı talebiyle silme. Geri alınamaz: sebep,
+      // e-posta ile yazılı onay ve aktif ücretli abonelik kontrolü zorunlu.
+      const sebep = String(body?.reason || "");
+      if (!["test", "user_request", "other"].includes(sebep))
+        return new Response(JSON.stringify({ error: "REASON_REQUIRED" }), { status: 422, headers });
+      if (!/^[0-9a-f-]{36}$/i.test(userId))
+        return new Response(JSON.stringify({ error: "INVALID_USER" }), { status: 422, headers });
+      const { data: hedefVeri } = await admin.auth.admin.getUserById(userId);
+      const hedefEposta = String(hedefVeri?.user?.email || "").trim().toLowerCase();
+      if (!hedefEposta) return new Response(JSON.stringify({ error: "ACCOUNT_NOT_FOUND" }), { status: 404, headers });
+      if (hedefEposta === TEK_YONETICI_EPOSTASI)
+        return new Response(JSON.stringify({ error: "CANNOT_DELETE_ADMIN" }), { status: 403, headers });
+      if (String(body?.confirmation || "").trim().toLowerCase() !== hedefEposta)
+        return new Response(JSON.stringify({ error: "CONFIRMATION_MISMATCH" }), { status: 422, headers });
+      const { data: hak } = await admin.from("user_entitlements")
+        .select("pro_expires_at,pro_purchase_id,source").eq("user_id", userId).maybeSingle();
+      const hakBitis = hak?.pro_expires_at ? Date.parse(hak.pro_expires_at) : NaN;
+      if (Number.isFinite(hakBitis) && hakBitis > Date.now() &&
+        (hak?.pro_purchase_id || /^(revenuecat|paddle|shopier)/.test(String(hak?.source || ""))))
+        return new Response(JSON.stringify({ error: "PAID_SUBSCRIPTION_ACTIVE" }), { status: 409, headers });
+      const { error: silmeHatasi } = await admin.rpc("delete_borcama_account", { target_user_id: userId, target_email: hedefEposta });
+      if (silmeHatasi) return new Response(JSON.stringify({ error: "ACCOUNT_DELETE_FAILED" }), { status: 500, headers });
+      const ozet = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(hedefEposta))))
+        .map((b) => b.toString(16).padStart(2, "0")).join("");
+      const { error: izHatasi } = await admin.from("admin_actions").insert({
+        action: "delete_user", reason: sebep, target_user_id: userId, target_email_sha256: ozet, actor_email: email,
+      });
+      return new Response(JSON.stringify({ ok: true, audit_saved: !izHatasi }), { status: 200, headers });
+    }
     if (action === "update_campaign_subject") {
       try {
         const slug = String(body?.slug || "").trim();

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BarChart3, Gift, Home, Mail, MessageSquare, RefreshCw, Search, Timer, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, Gift, Home, Mail, MessageSquare, RefreshCw, Search, Timer, Trash2, UserRound, Users } from "lucide-react";
 import { supabase } from "../supabaseClient.js";
 import { CRM_ALANI } from "../yonetimUrls.js";
 import Backoffice from "../Backoffice.jsx";
@@ -54,6 +54,18 @@ const tarih = (v, saatli = false) => {
 };
 
 const sayi = (v) => (v === null || v === undefined ? "—" : new Intl.NumberFormat("tr-TR").format(v));
+
+async function backofficeIstegi(govde) {
+  const { data } = await supabase.auth.getSession();
+  const cevap = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/backoffice`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${data.session?.access_token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(govde),
+  });
+  const json = await cevap.json().catch(() => null);
+  if (!cevap.ok || !json?.ok) throw new Error(json?.error || `HTTP_${cevap.status}`);
+  return json;
+}
 
 async function backofficeVerisi() {
   const { data } = await supabase.auth.getSession();
@@ -122,7 +134,7 @@ export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }
         {veriGerekli && !veri && !hata && <div className="crm-yukleniyor">Yükleniyor…</div>}
         {sayfa === "bugun" && veri && <Bugun veri={veri} preview={preview} />}
         {sayfa === "kullanicilar" && veri && <Kullanicilar veri={veri} preview={preview} />}
-        {sayfa === "kullanici" && <div className="crm-gomulu" key={`k${yenileme}`}><Backoffice userId={userId} preview={preview} /></div>}
+        {sayfa === "kullanici" && <><div className="crm-gomulu" key={`k${yenileme}`}><Backoffice userId={userId} preview={preview} /></div><KullaniciSil userId={userId} preview={preview} /></>}
         {sayfa === "buyume" && (preview ? <Onizlemede /> : <div className="crm-gomulu" key={`b${yenileme}`}><Analytics /></div>)}
         {sayfa === "iletisim" && (preview ? <Onizlemede /> : <div className="crm-gomulu" key={`i${yenileme}`}><Marketing /></div>)}
       </main>
@@ -248,6 +260,60 @@ function Kullanicilar({ veri, preview }) {
         {!liste.length && <p className="crm-bos-kucuk">Bu segmentte kullanıcı yok.</p>}
       </div>
       {liste.length > goster && <button type="button" className="crm-btn crm-daha" onClick={() => setGoster((g) => g + SAYFA_BOYUTU)}>Daha fazla göster ({liste.length - goster})</button>}
+    </section>
+  );
+}
+
+const SILME_SEBEPLERI = [["test", "Test hesabı"], ["user_request", "Kullanıcı talebi"], ["other", "Diğer"]];
+const SILME_HATALARI = {
+  PAID_SUBSCRIPTION_ACTIVE: "Bu hesabın aktif ücretli aboneliği var. Önce aboneliği iptal et, sonra sil.",
+  CONFIRMATION_MISMATCH: "Yazdığın e-posta bu kullanıcının e-postasıyla eşleşmiyor.",
+  CANNOT_DELETE_ADMIN: "Yönetici hesabı CRM'den silinemez.",
+  ACCOUNT_NOT_FOUND: "Hesap bulunamadı; daha önce silinmiş olabilir.",
+  REASON_REQUIRED: "Silme sebebini seç.",
+};
+
+// Kalıcı silme: sebep + kullanıcının e-postasını yazarak onay. Sunucu ayrıca
+// aktif ücretli aboneliği ve yönetici hesabını reddeder, iz kaydı tutar.
+function KullaniciSil({ userId, preview }) {
+  const [acik, setAcik] = useState(false);
+  const [sebep, setSebep] = useState("");
+  const [onay, setOnay] = useState("");
+  const [durum, setDurum] = useState({ yukleniyor: false, hata: "", tamam: false });
+  async function sil() {
+    setDurum({ yukleniyor: true, hata: "", tamam: false });
+    try {
+      await backofficeIstegi({ action: "delete_user", userId, reason: sebep, confirmation: onay });
+      setDurum({ yukleniyor: false, hata: "", tamam: true });
+      setTimeout(() => window.location.assign(crmYolu("kullanicilar", { preview })), 1500);
+    } catch (e) {
+      setDurum({ yukleniyor: false, hata: SILME_HATALARI[e.message] || "Hesap silinemedi. Tekrar dene.", tamam: false });
+    }
+  }
+  return (
+    <section className="crm-kart crm-tehlike">
+      <h2><Trash2 size={17} aria-hidden="true" /> Hesabı sil</h2>
+      <p className="crm-not">Hesap ve bütün finansal kayıtları kalıcı olarak silinir; geri alınamaz. Aktif ücretli aboneliği olan hesap silinemez.</p>
+      {durum.tamam ? <p className="crm-basari" role="status">Hesap silindi. Kullanıcı listesine dönülüyor…</p> : !acik ? (
+        <button type="button" className="crm-btn crm-btn-tehlike" onClick={() => setAcik(true)}>Hesabı silmeye başla</button>
+      ) : (
+        <div className="crm-silme-form">
+          <label>Sebep
+            <select value={sebep} onChange={(e) => setSebep(e.target.value)}>
+              <option value="">Seç</option>
+              {SILME_SEBEPLERI.map(([d, ad]) => <option key={d} value={d}>{ad}</option>)}
+            </select>
+          </label>
+          <label>Onay için kullanıcının e-posta adresini yaz
+            <input type="email" value={onay} onChange={(e) => setOnay(e.target.value)} autoComplete="off" spellCheck={false} />
+          </label>
+          {durum.hata && <p className="crm-hata-metin" role="alert">{durum.hata}</p>}
+          <div className="crm-silme-butonlar">
+            <button type="button" className="crm-btn" onClick={() => { setAcik(false); setOnay(""); setSebep(""); setDurum({ yukleniyor: false, hata: "", tamam: false }); }}>Vazgeç</button>
+            <button type="button" className="crm-btn crm-btn-tehlike dolu" onClick={sil} disabled={preview || !sebep || !onay.includes("@") || durum.yukleniyor}>{durum.yukleniyor ? "Siliniyor…" : "Kalıcı olarak sil"}</button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

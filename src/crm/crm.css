@@ -68,6 +68,18 @@ a.crm-satir:hover{background:#f6f8f0}
 .crm-rozet.uyari{background:#fff1d6;color:var(--uyari)}
 .crm-rozet.tehlike{background:#ffe3dd;color:var(--tehlike)}
 .crm-daha{margin-top:14px}
+
+.crm-tehlike{border-color:#f3b3a8}
+.crm-tehlike h2{display:flex;align-items:center;gap:8px;color:var(--tehlike)}
+.crm-tehlike .crm-not{margin-bottom:14px}
+.crm-btn-tehlike{border-color:#f3b3a8;color:var(--tehlike)}
+.crm-btn-tehlike.dolu{background:var(--tehlike);border-color:var(--tehlike);color:#fff}
+.crm-silme-form{display:grid;gap:12px;max-width:480px}
+.crm-silme-form label{display:grid;gap:6px;font-size:13px;font-weight:700}
+.crm-silme-form select,.crm-silme-form input{min-height:42px;padding:0 12px;border:1px solid var(--cizgi);border-radius:12px;font:500 15px 'Space Grotesk',sans-serif;background:#fff}
+.crm-silme-butonlar{display:flex;flex-wrap:wrap;gap:8px}
+.crm-hata-metin{margin:0;color:var(--tehlike);font-size:14px;font-weight:700}
+.crm-basari{margin:0;color:#2f7d32;font-weight:700}
 /* Eski ekranlar yeni kabuğun içinde: kendi başlık ve gezinmeleri gizlenir. */
 .crm-gomulu .bo,.crm-gomulu .an,.crm-gomulu .mk{min-height:0;background:transparent}
 .crm-gomulu .bo-wrap,.crm-gomulu .an-wrap,.crm-gomulu .mk-wrap{width:auto;max-width:none;margin:0;padding:0}

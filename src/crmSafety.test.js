@@ -32,3 +32,22 @@ test("Pro tanımlama ve davet onayı onay ister", async () => {
   assert.match(backoffice, /window\.confirm\("Bu davet ödülü onaylansın mı\?/);
   assert.match(backoffice, /window\.confirm\("Bu kullanıcıya 30 gün Pro tanımlansın mı\?"\)/);
 });
+
+test("CRM'den kullanıcı silme: sebep, e-posta onayı, yönetici ve ücretli abonelik koruması, iz kaydı", async () => {
+  const [edge, migration, crm] = await Promise.all([
+    oku("../supabase/functions/backoffice/index.ts"),
+    oku("../supabase/migrations/20261011120000_admin_user_deletion.sql"),
+    oku("./crm/CrmApp.jsx"),
+  ]);
+  const blok = edge.slice(edge.indexOf('if (action === "delete_user")'), edge.indexOf('if (action === "update_campaign_subject")'));
+  assert.match(blok, /REASON_REQUIRED/);
+  assert.match(blok, /CANNOT_DELETE_ADMIN/);
+  assert.match(blok, /CONFIRMATION_MISMATCH/);
+  assert.match(blok, /PAID_SUBSCRIPTION_ACTIVE/);
+  assert.match(blok, /rpc\("delete_borcama_account"/);
+  assert.match(blok, /from\("admin_actions"\)\.insert/);
+  assert.doesNotMatch(blok, /target_email: hedefEposta, actor/);
+  assert.match(migration, /target_email_sha256 text not null/);
+  assert.match(migration, /revoke all on public\.admin_actions from public, anon, authenticated/);
+  assert.match(crm, /action: "delete_user", userId, reason: sebep, confirmation: onay/);
+});

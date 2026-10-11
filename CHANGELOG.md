@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.64.0] - 2026-10-11
+
+### Eklendi
+
+- CRM'de kullanıcı detayından hesap silinebiliyor: sebep (test hesabı, kullanıcı talebi, diğer) seçilip kullanıcının e-postası yazılarak onaylanıyor; hesap ve bütün kayıtları kullanıcının kendi silme akışıyla aynı şekilde kalıcı olarak siliniyor. Yönetici hesabı ve aktif ücretli aboneliği olan hesap silinemiyor; her silme, e-posta açık tutulmadan iz kaydına yazılıyor.
+
 ## [1.63.0] - 2026-10-11
 
 ### Eklendi
