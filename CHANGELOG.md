@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.65.0] - 2026-10-11
+
+### Eklendi
+
+- Borcama rehberi: her ekranın üstünde tek bir sıradaki adım gösteriliyor (ilk kurulum, ödemesi gelen veya geçen ödemeyi işaretleme, kesilen yeni ekstreyi girme, diğer borçları ve sabit giderleri ekleme). Kullanıcı iki ay düzenli kullandığında rehber "Hepsi bu kadar! Artık hazırsın." deyip kapanıyor; öneriler kapatılabiliyor veya kalıcı olarak geçilebiliyor.
+
+### Değiştirildi
+
+- Yeni kredi kartı tek formda ekleniyor: banka, bu ayki ekstre borcu ve son ödeme günü yeterli; kart ve bu ayın ekstresi birlikte oluşuyor, borç hemen görünüyor. Kart adı, limit, kesim günü ve devreden borç isteğe bağlı.
+- Yeni kredi dört bilgiyle ekleniyor: banka, aylık taksit, kalan taksit ve ödeme günü; kalan borç otomatik hesaplanıyor. Kredi adı, faiz, tutar, toplam ve ödenen taksit ile ilk taksit tarihi isteğe bağlı.
+
 ## [1.64.1] - 2026-10-11
 
 ### Düzeltildi
