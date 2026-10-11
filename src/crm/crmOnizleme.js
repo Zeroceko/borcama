@@ -26,6 +26,12 @@ export function crmOnizlemeVerisi() {
     ].map(([id, user_id, event_type, saat]) => ({ id, user_id, email: kullanicilar.find((u) => u.id === user_id).email, event_type, created_at: saatOnce(saat) })),
     feedback: [{ id: "f1", user_id: "u4", email: "ornek.can@example.com", message: "Ekstre yüklerken bankamı listede bulamadım.", created_at: gunOnce(1) }],
     referrals: { available: true, items: [{ id: "r1", status: "review", referrer_email: "ornek.deniz@example.com", invitee_email: "ornek.elif@example.com", invitee_user_id: "u5" }] },
+    campaigns: [
+      { slug: "trial-started", name: "Pro denemesi başladı", subject: "Borcama Pro deneme üyeliğin başladı", kind: "lifecycle", status: "active", audience_type: "Yeni Pro denemesi", metrics: { sent: 34, opened: 21, clicked: 6, visited: 5 } },
+      { slug: "loan-closed", name: "Kredi kapanışı tebriği", subject: "Tebrikler, bir kredini daha kapattın", kind: "lifecycle", status: "active", audience_type: "Son 30 günde kredi kapatan üyeler", metrics: { sent: 0, opened: 0, clicked: 0, visited: 0 } },
+      { slug: "auth-confirmation", name: "E-posta doğrulama", subject: "Borcama hesabını doğrula", kind: "auth", status: "active", audience_type: "Yeni üye", metrics: { sent: 42, opened: 38, clicked: 35, visited: 33 } },
+      { slug: "credit-card-minimum-2026-10", name: "Kredi kartı asgari ödeme güncellemesi", subject: "Kredi kartı asgari ödeme kuralı değişti", kind: "manual", status: "active", audience_type: "Doğrulanmış üyeler", metrics: { sent: 0, opened: 0, clicked: 0, visited: 0 } },
+    ],
     analytics: {
       available: true,
       daily: Array.from({ length: 90 }, (_, i) => {
