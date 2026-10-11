@@ -80,6 +80,19 @@ a.crm-satir:hover{background:#f6f8f0}
 .crm-silme-butonlar{display:flex;flex-wrap:wrap;gap:8px}
 .crm-hata-metin{margin:0;color:var(--tehlike);font-size:14px;font-weight:700}
 .crm-basari{margin:0;color:#2f7d32;font-weight:700}
+.crm-kart h2 small,.crm-arac-baslik small{margin-left:6px;color:var(--soluk);font-size:12px;font-weight:600}
+.crm-donem{margin-bottom:16px}
+.crm-grafik{display:flex;align-items:flex-end;gap:3px;height:90px;margin:16px 0 8px;padding:8px;border-radius:12px;background:#f6f8f0}
+.crm-grafik span{flex:1;min-width:2px;border-radius:3px 3px 0 0;background:#c9d6cf}
+.crm-grafik span.hesapli{background:var(--yesil)}
+.crm-satir-6{grid-template-columns:minmax(0,1.3fr) repeat(5,minmax(0,1fr))}
+.crm-satir-5k{grid-template-columns:minmax(0,2fr) repeat(4,minmax(0,1fr))}
+.crm-tablo-dar .crm-satir{font-size:13px}
+.crm-arac-baslik{margin:0 0 10px;font-size:15px}
+.crm-arac{margin:0;padding:0;list-style:none}
+.crm-arac li{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--cizgi);font-size:14px}
+.crm-kpi-dar{margin:14px 0 10px}
+.crm-izgara-2{grid-template-columns:repeat(2,minmax(0,1fr))}
 /* Eski ekranlar yeni kabuğun içinde: kendi başlık ve gezinmeleri gizlenir. */
 .crm-gomulu .bo,.crm-gomulu .an,.crm-gomulu .mk{min-height:0;background:transparent}
 .crm-gomulu .bo-wrap,.crm-gomulu .an-wrap,.crm-gomulu .mk-wrap{width:auto;max-width:none;margin:0;padding:0}
@@ -94,8 +107,9 @@ a.crm-satir:hover{background:#f6f8f0}
   .crm-uygulama{display:none}
   .crm-icerik{padding:20px 16px 48px}
   .crm-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .crm-izgara-2{grid-template-columns:1fr}
   .crm-satir-bas{display:none}
-  .crm-satir{grid-template-columns:1fr 1fr;gap:6px 12px;padding:14px 4px}
+  .crm-satir,.crm-satir-6,.crm-satir-5k{grid-template-columns:1fr 1fr;gap:6px 12px;padding:14px 4px}
   .crm-satir .crm-eposta{grid-column:1/-1}
   .crm-satir span[data-etiket]::before{content:attr(data-etiket) ": ";color:var(--soluk);font-size:12px}
   .crm-akis li{grid-template-columns:1fr;gap:2px}

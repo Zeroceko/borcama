@@ -150,6 +150,53 @@ async function kullaniciKampanyaGecmisi(
   });
 }
 
+// v1.61.0 ölçüm olayları: son 30 gün, tekil oturum. Giriş sayfası grubuna göre ayrılır.
+async function olcumOlaylari(admin: ReturnType<typeof createClient>) {
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  const satirlar: Array<{ session_id: string; event_name: string; path: string; created_at: string }> = [];
+  for (let sayfa = 0; sayfa < 20; sayfa++) {
+    const { data, error } = await admin.from("analytics_events")
+      .select("session_id,event_name,path,created_at")
+      .gte("created_at", since)
+      .in("event_name", ["landing_visit", "landing_scroll_half", "landing_cta_click", "content_product_click", "register_view"])
+      .order("created_at").range(sayfa * 1000, sayfa * 1000 + 999);
+    if (error) throw new Error("OLCUM_UNAVAILABLE");
+    satirlar.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  const grup = (yol: string) => {
+    const y = String(yol || "").replace(/\/+$/, "") || "/";
+    if (y === "/") return "ana";
+    if (y.startsWith("/araclar")) return "araclar";
+    if (y.startsWith("/finansal-sozluk")) return "sozluk";
+    if (y.startsWith("/rehber")) return "rehber";
+    return "diger";
+  };
+  const say = (gun: number) => {
+    const sinir = Date.now() - gun * 86400000;
+    const oturumlar = new Map<string, { giris: string; olaylar: Set<string> }>();
+    for (const r of satirlar) {
+      if (Date.parse(r.created_at) < sinir) continue;
+      const o = oturumlar.get(r.session_id) || { giris: "", olaylar: new Set<string>() };
+      if (r.event_name === "landing_visit" && !o.giris) o.giris = grup(r.path);
+      o.olaylar.add(r.event_name);
+      oturumlar.set(r.session_id, o);
+    }
+    const sonuc: Record<string, Record<string, number>> = {};
+    for (const o of oturumlar.values()) {
+      if (!o.giris) continue;
+      const g = (sonuc[o.giris] ||= { ziyaret: 0, yari: 0, cta: 0, icerik_gecis: 0, kayit_ekrani: 0 });
+      g.ziyaret += 1;
+      if (o.olaylar.has("landing_scroll_half")) g.yari += 1;
+      if (o.olaylar.has("landing_cta_click")) g.cta += 1;
+      if (o.olaylar.has("content_product_click")) g.icerik_gecis += 1;
+      if (o.olaylar.has("register_view")) g.kayit_ekrani += 1;
+    }
+    return sonuc;
+  };
+  return { available: true, son_7_gun: say(7), son_30_gun: say(30), olcum_baslangici: "2026-10-10" };
+}
+
 async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
   const since = new Date(Date.now() - 90 * 86400000).toISOString();
   const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }, { data: pmax, error: pmaxError }, { data: landingExperiment, error: landingExperimentError }, { data: depositTool, error: depositToolError }, { data: debtPayoffTool, error: debtPayoffToolError }] = await Promise.all([
@@ -963,6 +1010,7 @@ Deno.serve(async (req) => {
   if (!istenenKullaniciId) {
     try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
     analytics = await funnelIstatistikleri(admin);
+    try { analytics = { ...analytics, olcum: await olcumOlaylari(admin) }; } catch { /* yeni olay sayımı opsiyonel */ }
     finansal = topluFinansalIstatistik(kayitlar || []);
     if (finansal.available) {
       try {

@@ -3,7 +3,7 @@ import { ArrowLeft, BarChart3, Gift, Home, Mail, MessageSquare, RefreshCw, Searc
 import { supabase } from "../supabaseClient.js";
 import { CRM_ALANI } from "../yonetimUrls.js";
 import Backoffice from "../Backoffice.jsx";
-import Analytics from "../Analytics.jsx";
+import Buyume from "./Buyume.jsx";
 import Marketing from "../Marketing.jsx";
 import {
   SEGMENTLER,
@@ -79,7 +79,7 @@ async function backofficeVerisi() {
 
 export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }) {
   const [yenileme, setYenileme] = useState(0);
-  const veriGerekli = sayfa === "bugun" || sayfa === "kullanicilar";
+  const veriGerekli = sayfa === "bugun" || sayfa === "kullanicilar" || sayfa === "buyume";
   const [veri, setVeri] = useState(() => (preview ? crmOnizlemeVerisi() : null));
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -135,7 +135,7 @@ export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }
         {sayfa === "bugun" && veri && <Bugun veri={veri} preview={preview} />}
         {sayfa === "kullanicilar" && veri && <Kullanicilar veri={veri} preview={preview} />}
         {sayfa === "kullanici" && <><div className="crm-gomulu" key={`k${yenileme}`}><Backoffice userId={userId} preview={preview} /></div><KullaniciSil userId={userId} preview={preview} /></>}
-        {sayfa === "buyume" && (preview ? <Onizlemede /> : <div className="crm-gomulu" key={`b${yenileme}`}><Analytics /></div>)}
+        {sayfa === "buyume" && veri && <Buyume veri={veri} />}
         {sayfa === "iletisim" && (preview ? <Onizlemede /> : <div className="crm-gomulu" key={`i${yenileme}`}><Marketing /></div>)}
       </main>
     </div>
