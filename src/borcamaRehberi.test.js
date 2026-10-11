@@ -66,3 +66,8 @@ test("bitirme mesajını rehber söyler; kullanıcının düğmesi 'Başka borcu
   const mezun = kurulmus({ cards: [{ id: "k1", toplamEkstreBorcu: 1, ekstreAyi: "2026-10", ekstreGecmisi: [{ ekstreAyi: "2026-09" }] }], loans: [{ id: "l" }], expenses: [{ tekrar: "Her ay" }] });
   assert.equal(rehberDurumu(mezun, { simdi: SIMDI }).oneri.baslik, "Hepsi bu kadar! Artık hazırsın.");
 });
+
+test("başka borç önerisi borç türü seçenekleri sunar", () => {
+  const o = rehberDurumu(kurulmus(), { simdi: SIMDI }).oneri;
+  assert.deepEqual(o.secenekler.map(([d]) => d), ["cards", "loans", "od", "others"]);
+});

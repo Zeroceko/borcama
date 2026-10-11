@@ -95,6 +95,7 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
       baslik: "Başka kartın veya kredin var mı?",
       aciklama: "Hepsini ekleyince toplam borcun ve ödeme takvimin tamamlanır.",
       aksiyonEtiketi: "Borç ekle", ertelenebilir: true, kapatEtiketi: "Başka borcum yok",
+      secenekler: [["cards", "Kredi kartı"], ["loans", "Kredi"], ["od", "Ek hesap / KMH"], ["others", "Diğer borç"]],
     });
 
   // 4) Tamamlama: her ay tekrarlanan gider yok.

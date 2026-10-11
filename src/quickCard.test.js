@@ -21,4 +21,7 @@ test("rehber şeridi uygulamaya bağlı; kurulumda Bugün'de ve ilk adımdan ön
   assert.match(app, /rehberDurumu\(veri, \{ simdi: new Date\(\), yaklasan \}\)/);
   assert.match(app, /rehber\.asama === "kurulum" && \(anaSekme === "ozet" \|\| rehber\.kurulum\.tamamlanan === 0\)/);
   assert.match(app, /oneri\.tur === "mezuniyet"\) return ayarKaydet\(\{ rehber: rehberiMezunEt/);
+  // form açıkken rehber gizlenir; seçilen borç türünün formu doğrudan açılır
+  assert.match(app, /if \(form\) return null;/);
+  assert.match(app, /setForm\(\{ liste: KATEGORI_META\[secenek\]\?\.liste \|\| "cards", veri: \{\} \}\)/);
 });
