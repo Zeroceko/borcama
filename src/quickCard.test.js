@@ -14,3 +14,10 @@ test("yeni kart tek formda: 3 zorunlu alan, ayrıntılar isteğe bağlı, kart v
   // mevcut kart düzenleme formu değişmedi
   assert.match(app, /cards: form\?\.veri\?\.id \? \[\n      \{ k: "banka", e: "Banka", t: "text", z: true \},\n      \{ k: "ad", e: "Kart adı \(Bonus, World…\)", t: "text", z: true \},/);
 });
+
+test("ilk plan kurulumu bitene kadar Bugün dışındaki ekranlarda sıradaki adım şeridi görünür", async () => {
+  const app = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(app, /function SiradakiAdimSeridi\(\{ durum, onBaslat \}\)/);
+  assert.match(app, /anaSekme !== "ozet" && \(\(\) => \{\n\s+const kurulum = getActivationState\(veri\);/);
+  assert.match(app, /!kurulum\.tamam && kurulum\.siradaki && kurulum\.tamamlanan > 0/);
+});

@@ -618,6 +618,7 @@ const CSS = `
 .bt-yapilandirma-oranlar>summary{display:list-item;width:auto;height:auto;min-height:24px;cursor:pointer;font-size:14px;font-weight:700;line-height:1.5;color:var(--text);overflow-wrap:normal}
 .bt-yapilandirma-oranlar>summary span{font-size:12px;font-weight:400;color:var(--dim)}
 .bt-yapilandirma-oranlar>summary:focus-visible{outline:2px solid var(--text);outline-offset:4px;border-radius:4px}
+.bt-siradaki{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:10px 12px 10px 16px;border:1px solid color-mix(in srgb,var(--lime) 70%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--lime) 22%,var(--panel));font-size:14px}.bt-siradaki em{margin-right:8px;font-style:normal;font-size:12px;font-weight:800;color:var(--dim)}.bt-siradaki .bt-btn{white-space:nowrap}
 .bt-alan-ek{margin-top:12px}.bt-alan-ek>summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--dim);padding:6px 0}.bt-alan-ek[open]>summary{margin-bottom:8px}
 .bt-alanlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;align-items:start}
 .bt-modal.bt-yapilandirma-modal{max-width:680px;max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;min-width:0}.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-yapilandirma-modal .bt-alan{min-width:0}.bt-yapilandirma-modal .bt-input{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}.bt-yapilandirma-modal .bt-ekstre-bilgi{min-width:0;overflow-wrap:anywhere}.bt-yapilandirma-modal .bt-modalbaslik>div{min-width:0}.bt-yapilandirma-modal .bt-ipucu>div{min-width:0;overflow-wrap:anywhere}@media(max-width:600px){.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:minmax(0,1fr)}.bt-yapilandirma-modal .bt-form-butonlar{flex-wrap:wrap}}
@@ -3171,6 +3172,13 @@ export default function BorcTakip() {
           </button>
         </nav>
 
+        {anaSekme !== "ozet" && (() => {
+          const kurulum = getActivationState(veri);
+          return !kurulum.tamam && kurulum.siradaki && kurulum.tamamlanan > 0 ? (
+            <SiradakiAdimSeridi durum={kurulum} onBaslat={aktivasyonAdiminiBaslat} />
+          ) : null;
+        })()}
+
         {anaSekme === "borclar" && (
           <nav className="bt-nav bt-nav-alt" aria-label="Borç bölümleri">
             {[
@@ -5148,6 +5156,22 @@ function Ayarlar({
 }
 
 /* ---------------- Özet ---------------- */
+// İlk plan kurulumu bitene kadar Bugün dışındaki ekranlarda sıradaki adımı gösterir;
+// kullanıcı bir adımı bitirdiğinde nereye gideceğini aramaz.
+function SiradakiAdimSeridi({ durum, onBaslat }) {
+  return (
+    <div className="bt-siradaki" role="status">
+      <span>
+        <em>Adım {Math.min(durum.tamamlanan + 1, durum.toplam)}/{durum.toplam}</em>
+        Sıradaki: <b>{durum.siradaki.baslik}</b>
+      </span>
+      <button className="bt-btn birincil kucuk" type="button" onClick={() => onBaslat(durum.siradaki)}>
+        Devam et <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+}
+
 function AktivasyonKutusu({ durum, onBaslat }) {
   if (durum.tamam || !durum.siradaki) return null;
   const aktifAdim = Math.min(durum.tamamlanan + 1, durum.toplam);
