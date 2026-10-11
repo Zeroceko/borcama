@@ -15,9 +15,10 @@ test("yeni kart tek formda: 3 zorunlu alan, ayrıntılar isteğe bağlı, kart v
   assert.match(app, /cards: form\?\.veri\?\.id \? \[\n      \{ k: "banka", e: "Banka", t: "text", z: true \},\n      \{ k: "ad", e: "Kart adı \(Bonus, World…\)", t: "text", z: true \},/);
 });
 
-test("ilk plan kurulumu bitene kadar Bugün dışındaki ekranlarda sıradaki adım şeridi görünür", async () => {
+test("rehber şeridi uygulamaya bağlı; kurulumda Bugün'de ve ilk adımdan önce gizli", async () => {
   const app = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
-  assert.match(app, /function SiradakiAdimSeridi\(\{ durum, onBaslat \}\)/);
-  assert.match(app, /anaSekme !== "ozet" && \(\(\) => \{\n\s+const kurulum = getActivationState\(veri\);/);
-  assert.match(app, /!kurulum\.tamam && kurulum\.siradaki && kurulum\.tamamlanan > 0/);
+  assert.match(app, /function RehberSeridi\(\{ oneri, onAksiyon, onErtele, onKapat \}\)/);
+  assert.match(app, /rehberDurumu\(veri, \{ simdi: new Date\(\), yaklasan \}\)/);
+  assert.match(app, /rehber\.asama === "kurulum" && \(anaSekme === "ozet" \|\| rehber\.kurulum\.tamamlanan === 0\)/);
+  assert.match(app, /oneri\.tur === "mezuniyet"\) return ayarKaydet\(\{ rehber: rehberiMezunEt/);
 });

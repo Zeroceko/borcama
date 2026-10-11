@@ -95,6 +95,7 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
+import { rehberDurumu, rehberiErtele, rehberiMezunEt, rehberOnerisiniKapat } from "./borcamaRehberi.js";
 import {
   gecmisleKapananKrediAlanlari,
   krediKapanisiOncedenKutlandiMi,
@@ -618,7 +619,7 @@ const CSS = `
 .bt-yapilandirma-oranlar>summary{display:list-item;width:auto;height:auto;min-height:24px;cursor:pointer;font-size:14px;font-weight:700;line-height:1.5;color:var(--text);overflow-wrap:normal}
 .bt-yapilandirma-oranlar>summary span{font-size:12px;font-weight:400;color:var(--dim)}
 .bt-yapilandirma-oranlar>summary:focus-visible{outline:2px solid var(--text);outline-offset:4px;border-radius:4px}
-.bt-siradaki{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:10px 12px 10px 16px;border:1px solid color-mix(in srgb,var(--lime) 70%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--lime) 22%,var(--panel));font-size:14px}.bt-siradaki em{margin-right:8px;font-style:normal;font-size:12px;font-weight:800;color:var(--dim)}.bt-siradaki .bt-btn{white-space:nowrap}
+.bt-siradaki{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:12px 12px 12px 16px;border:1px solid color-mix(in srgb,var(--lime) 70%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--lime) 22%,var(--panel));font-size:14px}.bt-siradaki.mezun{background:color-mix(in srgb,var(--lime) 45%,var(--panel))}.bt-siradaki-metin{display:grid;gap:3px;min-width:0;flex:1 1 260px}.bt-siradaki-metin em{font-style:normal;font-size:12px;font-weight:800;color:var(--dim)}.bt-siradaki-metin span{color:var(--dim);font-size:13px;line-height:1.45}.bt-siradaki-aksiyon{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bt-siradaki-aksiyon .bt-btn{white-space:nowrap}.bt-siradaki-ikincil{border:0;background:none;color:var(--dim);font-family:inherit;font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;padding:6px}
 .bt-alan-ek{margin-top:12px}.bt-alan-ek>summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--dim);padding:6px 0}.bt-alan-ek[open]>summary{margin-bottom:8px}
 .bt-alanlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;align-items:start}
 .bt-modal.bt-yapilandirma-modal{max-width:680px;max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;min-width:0}.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-yapilandirma-modal .bt-alan{min-width:0}.bt-yapilandirma-modal .bt-input{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}.bt-yapilandirma-modal .bt-ekstre-bilgi{min-width:0;overflow-wrap:anywhere}.bt-yapilandirma-modal .bt-modalbaslik>div{min-width:0}.bt-yapilandirma-modal .bt-ipucu>div{min-width:0;overflow-wrap:anywhere}@media(max-width:600px){.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:minmax(0,1fr)}.bt-yapilandirma-modal .bt-form-butonlar{flex-wrap:wrap}}
@@ -2260,6 +2261,17 @@ export default function BorcTakip() {
     setSekme(gorev?.hedef || "ozet");
   }
 
+  function rehberAksiyonu(oneri) {
+    if (oneri.tur === "kurulum") return aktivasyonAdiminiBaslat(oneri.gorev);
+    if (oneri.tur === "mezuniyet") return ayarKaydet({ rehber: rehberiMezunEt(veri.ayarlar?.rehber) });
+    setForm(null);
+    if (oneri.tur === "ekstre") {
+      setBorcKategori("cards");
+      setEkstreYuklemeIstegi((eski) => eski + 1);
+    }
+    setSekme(oneri.hedef || "ozet");
+  }
+
   function rehberAdiminaGit(adim) {
     const hedefler = ["ozet", "borclar", "odemeler"];
     const guvenliAdim = Math.max(0, Math.min(adim, hedefler.length - 1));
@@ -3172,11 +3184,12 @@ export default function BorcTakip() {
           </button>
         </nav>
 
-        {anaSekme !== "ozet" && (() => {
-          const kurulum = getActivationState(veri);
-          return !kurulum.tamam && kurulum.siradaki && kurulum.tamamlanan > 0 ? (
-            <SiradakiAdimSeridi durum={kurulum} onBaslat={aktivasyonAdiminiBaslat} />
-          ) : null;
+        {(() => {
+          const rehber = rehberDurumu(veri, { simdi: new Date(), yaklasan });
+          if (!rehber.oneri) return null;
+          // Kurulumda Bugün ekranında büyük kart var; ilk adım atılmadan şerit gösterilmez.
+          if (rehber.asama === "kurulum" && (anaSekme === "ozet" || rehber.kurulum.tamamlanan === 0)) return null;
+          return <RehberSeridi oneri={rehber.oneri} onAksiyon={rehberAksiyonu} onErtele={(id) => ayarKaydet({ rehber: rehberiErtele(veri.ayarlar?.rehber, id) })} onKapat={(id) => ayarKaydet({ rehber: rehberOnerisiniKapat(veri.ayarlar?.rehber, id) })} />;
         })()}
 
         {anaSekme === "borclar" && (
@@ -5158,16 +5171,21 @@ function Ayarlar({
 /* ---------------- Özet ---------------- */
 // İlk plan kurulumu bitene kadar Bugün dışındaki ekranlarda sıradaki adımı gösterir;
 // kullanıcı bir adımı bitirdiğinde nereye gideceğini aramaz.
-function SiradakiAdimSeridi({ durum, onBaslat }) {
+function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
   return (
-    <div className="bt-siradaki" role="status">
-      <span>
-        <em>Adım {Math.min(durum.tamamlanan + 1, durum.toplam)}/{durum.toplam}</em>
-        Sıradaki: <b>{durum.siradaki.baslik}</b>
-      </span>
-      <button className="bt-btn birincil kucuk" type="button" onClick={() => onBaslat(durum.siradaki)}>
-        Devam et <ChevronRight size={14} />
-      </button>
+    <div className={"bt-siradaki" + (oneri.tur === "mezuniyet" ? " mezun" : "")} role="status">
+      <div className="bt-siradaki-metin">
+        <em>{oneri.adim ? `Adım ${oneri.adim}` : oneri.tur === "mezuniyet" ? "Rehber" : "Sıradaki adım"}</em>
+        <b>{oneri.baslik}</b>
+        {oneri.tur !== "kurulum" && <span>{oneri.aciklama}</span>}
+      </div>
+      <div className="bt-siradaki-aksiyon">
+        <button className="bt-btn birincil kucuk" type="button" onClick={() => onAksiyon(oneri)}>
+          {oneri.aksiyonEtiketi || "Devam et"} {oneri.tur !== "mezuniyet" && <ChevronRight size={14} />}
+        </button>
+        {oneri.ertelenebilir && <button className="bt-siradaki-ikincil" type="button" onClick={() => onErtele(oneri.id)}>Daha sonra</button>}
+        {oneri.kapatEtiketi && <button className="bt-siradaki-ikincil" type="button" onClick={() => onKapat(oneri.id)}>{oneri.kapatEtiketi}</button>}
+      </div>
     </div>
   );
 }
