@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BarChart3, Gift, Home, Mail, MessageSquare, RefreshCw, Search, Timer, UserRound, Users } from "lucide-react";
 import { supabase } from "../supabaseClient.js";
 import { CRM_ALANI } from "../yonetimUrls.js";
-import Backoffice, { ONIZLEME_VERISI } from "../Backoffice.jsx";
+import Backoffice from "../Backoffice.jsx";
 import Analytics from "../Analytics.jsx";
 import Marketing from "../Marketing.jsx";
 import {
@@ -14,6 +14,7 @@ import {
   paketAdi,
   sonEtkinlikler,
 } from "./crmVeri.js";
+import { crmOnizlemeVerisi } from "./crmOnizleme.js";
 import "./crm.css";
 
 const MENU = [
@@ -67,7 +68,7 @@ async function backofficeVerisi() {
 export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }) {
   const [yenileme, setYenileme] = useState(0);
   const veriGerekli = sayfa === "bugun" || sayfa === "kullanicilar";
-  const [veri, setVeri] = useState(preview ? ONIZLEME_VERISI : null);
+  const [veri, setVeri] = useState(() => (preview ? crmOnizlemeVerisi() : null));
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
 
