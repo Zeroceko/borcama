@@ -43,7 +43,7 @@ test("tasfiye ve bank run sayfaları güncel fon krizini kaynaklı anlatır; SSS
   assert.ok(tasfiye.kaynaklar.every(([, adres]) => /^https:\/\//.test(adres)));
   assert.ok(tasfiye.kaynaklar.some(([, adres]) => adres.includes("spk.gov.tr")));
   const bankRun = finansalSozlukTerimi("bank-run");
-  assert.ok(bankRun.ekBolumler.some(([baslik]) => baslik.startsWith("In English")));
+  assert.ok(bankRun.ekBolumler.some(([baslik]) => /Fon krizinde/.test(baslik)));
   assert.ok(bankRun.related.includes("tasfiye") && tasfiye.related.includes("bank-run"));
   const prerender = await readFile(new URL("../scripts/prerender-seo.mjs", import.meta.url), "utf8");
   assert.match(prerender, /"@type": "FAQPage"/);
