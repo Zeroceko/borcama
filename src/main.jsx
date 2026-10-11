@@ -26,6 +26,7 @@ import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
 const LandingStory = lazy(() => import("./LandingStory.jsx"));
+const CrmApp = lazy(() => import("./crm/CrmApp.jsx"));
 const Backoffice = lazy(() => import("./Backoffice.jsx"));
 const CeoDashboard = lazy(() => import("./CeoDashboard.jsx"));
 const Marketing = lazy(() => import("./Marketing.jsx"));
@@ -147,6 +148,14 @@ function Kok() {
   if (yol === "/demo") return <HariciYonlendirme url="/register?plan=free" />;
   if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
+  if (import.meta.env.DEV && (yol === "/crm-preview" || yol.startsWith("/crm-preview/"))) {
+    const ek = yol.slice("/crm-preview".length) || "/";
+    return <CrmApp preview {...crmSayfasi(ek)} />;
+  }
+  if (crmAlani && ["/backoffice", "/kullanicilar", "/buyume", "/iletisim"].includes(yol))
+    return supabaseHazir ? <KimlikliCrm {...crmSayfasi(yol === "/backoffice" ? "/" : yol)} /> : <YapilandirmaEksik />;
+  if (crmAlani && yol.startsWith("/backoffice/user/"))
+    return supabaseHazir ? <KimlikliCrm sayfa="kullanici" userId={decodeURIComponent(yol.slice("/backoffice/user/".length))} /> : <YapilandirmaEksik />;
   if (import.meta.env.DEV && yol === "/backoffice-preview")
     return <Backoffice preview />;
   if (import.meta.env.DEV && yol.startsWith("/backoffice-preview/user/"))
@@ -212,6 +221,21 @@ function KimlikliBackoffice({ userId = "" }) {
   if (!yonetimYetkisiVar(session))
     return <HariciYonlendirme url="https://borcama.com/summary" />;
   return <Backoffice userId={userId} />;
+}
+
+// Yeni CRM kabuğu: "/" Bugün, "/kullanicilar", "/user/:id", "/buyume", "/iletisim".
+function crmSayfasi(ek) {
+  if (ek.startsWith("/user/")) return { sayfa: "kullanici", userId: decodeURIComponent(ek.slice("/user/".length)) };
+  return { sayfa: { "/kullanicilar": "kullanicilar", "/buyume": "buyume", "/iletisim": "iletisim" }[ek] || "bugun" };
+}
+
+function KimlikliCrm({ sayfa, userId = "" }) {
+  const session = useSession();
+  if (session === undefined) return <Yukleniyor />;
+  if (!session) return <GirisEkrani redirectTo={sayfa === "kullanici" ? `/user/${encodeURIComponent(userId)}` : sayfa === "bugun" ? "/" : `/${sayfa}`} />;
+  if (!yonetimYetkisiVar(session))
+    return <HariciYonlendirme url="https://borcama.com/summary" />;
+  return <CrmApp sayfa={sayfa} userId={userId} />;
 }
 
 function HariciYonlendirme({ url }) {
