@@ -692,6 +692,7 @@ Deno.serve(async (req) => {
       }
     }
     if (action === "send_trial_announcement") {
+      return new Response(JSON.stringify({ error: "CAMPAIGN_RETIRED" }), { status: 410, headers });
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await denemeDuyurusuGonder(admin, kullanicilar);
@@ -702,6 +703,7 @@ Deno.serve(async (req) => {
       }
     }
     if (action === "send_features_announcement") {
+      return new Response(JSON.stringify({ error: "CAMPAIGN_RETIRED" }), { status: 410, headers });
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await yeniOzelliklerDuyurusuGonder(admin, kullanicilar);
@@ -712,6 +714,7 @@ Deno.serve(async (req) => {
       }
     }
     if (action === "send_release_133_announcement") {
+      return new Response(JSON.stringify({ error: "CAMPAIGN_RETIRED" }), { status: 410, headers });
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await surum133DuyurusuGonder(admin, kullanicilar);
@@ -779,10 +782,16 @@ Deno.serve(async (req) => {
     if (action === "grant_pro") {
       const { data: mevcut } = await admin
         .from("user_entitlements")
-        .select("pro_expires_at")
+        .select("pro_expires_at,pro_purchase_id,source")
         .eq("user_id", userId)
         .maybeSingle();
       const mevcutBitis = mevcut?.pro_expires_at ? new Date(mevcut.pro_expires_at) : null;
+      // Ücretli abonelikte elle gün eklemek ödeme bağını (pro_purchase_id) siliyordu;
+      // abonelik sağlayıcıdan yönetilir, buradan uzatılmaz.
+      const ucretliAktif = Boolean(mevcutBitis && mevcutBitis.getTime() > simdi.getTime() &&
+        (mevcut?.pro_purchase_id || /^(revenuecat|paddle|shopier)/.test(String(mevcut?.source || ""))));
+      if (ucretliAktif)
+        return new Response(JSON.stringify({ error: "PAID_SUBSCRIPTION_ACTIVE" }), { status: 409, headers });
       const baslangic = mevcutBitis && mevcutBitis.getTime() > simdi.getTime() ? mevcutBitis : simdi;
       const bitis = new Date(baslangic);
       bitis.setDate(bitis.getDate() + 30);

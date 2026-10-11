@@ -29,8 +29,8 @@ test("native kabuk Google etiketini yuklemez ve privacy manifest tracking kapali
     oku("ios/App/App/PrivacyInfo.xcprivacy"),
     oku("ios/App/App.xcodeproj/project.pbxproj"),
   ]);
-  assert.match(main, /if \(!nativeMi\) googleAdsBaslat\(\)/);
-  assert.match(main, /\{!nativeMi && <GoogleAdsConsent \/>\}/);
+  assert.match(main, /if \(!nativeMi(?: && !crmAlanindaMi)?\) googleAdsBaslat\(\)/);
+  assert.match(main, /\{!nativeMi(?: && !crmAlanindaMi)? && <GoogleAdsConsent \/>\}/);
   assert.match(manifest, /<key>NSPrivacyTracking<\/key>\s*<false\/>/);
   assert.match(manifest, /NSPrivacyCollectedDataTypeOtherFinancialInfo/);
   assert.match(manifest, /NSPrivacyAccessedAPICategoryUserDefaults/);

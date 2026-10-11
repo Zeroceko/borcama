@@ -39,7 +39,9 @@ const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ defa
 
 nativeGorunumuHazirla();
 void nativeDerinBaglantilariBaslat();
-if (!nativeMi) googleAdsBaslat();
+// CRM'de Google etiketleri yüklenmez; kullanıcı kimliği içeren yollar ölçüme gitmez.
+const crmAlanindaMi = typeof window !== "undefined" && window.location.hostname.toLowerCase() === CRM_ALANI;
+if (!nativeMi && !crmAlanindaMi) googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
 
@@ -450,7 +452,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <BiyometrikKilit>
         <NativeCevrimdisi>
           <Kok />
-          {!nativeMi && <GoogleAdsConsent />}
+          {!nativeMi && !crmAlanindaMi && <GoogleAdsConsent />}
         </NativeCevrimdisi>
       </BiyometrikKilit>
     </React.Suspense>

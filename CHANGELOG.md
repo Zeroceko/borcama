@@ -4,6 +4,18 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.6] - 2026-10-11
+
+### Güvenlik
+
+- CRM'de ücretli aboneliği olan kullanıcıya elle Pro günü eklenemiyor; önceden bu işlem ödeme bağlantısını siliyordu.
+- CRM'de Google Analytics/Ads etiketleri ve çerez bandı yüklenmiyor; kullanıcı kimliği içeren yönetim adresleri ölçüme gitmiyor.
+- Eski manuel toplu e-posta kampanyaları (deneme daveti, Ağustos ve 1 Eylül yenilik duyuruları) CRM'den kaldırıldı ve sunucu tarafında gönderilemiyor; durdurulmuş veya arşivlenmiş kampanya gönderilebilir görünmüyor.
+
+### Düzeltildi
+
+- CRM'de Pro tanımlama ve davet ödülü onayı yanlışlıkla tıklamaya karşı onay istiyor; boş Pro bitiş tarihi CEO ekranını çökertmiyor. Kredi kapanışı tebriği ve deneme ilk plan hatırlatması e-postaları kampanya listesinde görünüyor.
+
 ## [1.62.5] - 2026-10-11
 
 ### Değiştirildi
