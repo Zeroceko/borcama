@@ -10,10 +10,61 @@
     <link rel="apple-touch-icon" href="/borcama-icon.png" />
     <link rel="preload" href="/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta property="og:site_name" content="Borcama" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:title" content="Borcama — Borçlarını bir plana dönüştür" />
+    <meta property="og:description" content="Kredi kartı, kredi ve ek hesap borçlarını tek yerde takip et; ekstreni kontrol et ve borç kapatma planını oluştur." />
+    <meta property="og:url" content="https://borcama.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://borcama.com/og/borcama-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Borcama: Borcunu gör, kontrolü al." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://borcama.com/og/borcama-og.png" />
     <title>Borcama — Borçlarını bir plana dönüştür</title>
+    <script>
+      // Statik landing metni arama motorları ve JavaScript çalıştırmayan
+      // tarayıcılar içindir. Uygulama ekranlarında, oturumu açık kullanıcıda
+      // ve iOS kabuğunda React yüklenene kadar bile gösterilmez.
+      try {
+        var oturumVar = Object.keys(localStorage).some(function (k) { return /^sb-.*-auth-token$/.test(k); });
+        if (location.pathname !== "/" || oturumVar || window.Capacitor) document.documentElement.classList.add("borcama-statik-gizli");
+      } catch (e) {}
+    </script>
+    <style>.borcama-statik-gizli .landing-static{display:none}.landing-static{max-width:960px;margin:auto;padding:56px 24px;font-family:system-ui,sans-serif;color:#14160f;background:#f4efe0}.landing-static h1{font-size:44px;line-height:1.05;margin:24px 0 12px}.landing-static h2{font-size:24px;margin:36px 0 10px}.landing-static p,.landing-static li{font-size:17px;line-height:1.6}</style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Borcama","url":"https://borcama.com/","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"tr","description":"Kredi kartı, kredi ve ek hesap borçlarını tek yerde takip etmeye, ekstreni kontrol etmeye ve borç kapatma planı oluşturmaya yarayan uygulama.","offers":{"@type":"Offer","price":"0","priceCurrency":"TRY"}}</script>
   </head>
   <body style="margin:0">
-    <div id="root"></div>
+    <div id="root"><main class="landing-static">
+      <a href="/">Borcama</a>
+      <h1>Paran nereye gidiyor? Borcunu gör, kontrolü al.</h1>
+      <p>Borçlarını, ödemelerini ve bütçeni tek yerde gör. Süresiz ücretsiz, kart bilgisi gerekmez. İlk 30 gün Pro özellikleri hediye.</p>
+      <p><a href="/register?plan=free">Ücretsiz başla</a> · <a href="/login">Zaten hesabım var</a></p>
+      <h2>Ekle, öde, kalanı gör</h2>
+      <ul>
+        <li>Borçlarını ekle: kredi kartı, kredi ve ek hesap (KMH).</li>
+        <li>Ekstreni kaydet: dosyayı yükle ya da elle gir.</li>
+        <li>Ödemeni işaretle: kalan borcun güncellensin. Sonraki aylarda yalnız yeni ekstreni ve ödemeni ekle.</li>
+      </ul>
+      <h2>Her ay üç cevabın olsun</h2>
+      <ul>
+        <li>Ne ödeyeceksin? Tutarı ve son ödeme tarihini gör.</li>
+        <li>Önce hangi borç? Kapatma sıranı gör.</li>
+        <li>Ne kadar kalacak? Gelir, harcama ve zorunlu ödemelerden sonra aylık alanını gör.</li>
+      </ul>
+      <h2>Banka şifresi yok</h2>
+      <p>Banka bağlantısı gerekmez. Ekstre dosyan cihazında işlenir, ham dosya sunucuya yüklenmez; kontrol edip onayladığın bilgiler hesabına kaydedilir.</p>
+      <h2>Ücretsiz araçlar ve rehberler</h2>
+      <ul>
+        <li><a href="/araclar/borc-kapatma-hesaplayici">Borç kapatma hesaplayıcı</a></li>
+        <li><a href="/araclar/kredi-karti-asgari-odeme-hesaplayici">Kredi kartı asgari ödeme hesaplayıcı</a></li>
+        <li><a href="/araclar/borc-odeme-plani">Borç ödeme planı</a></li>
+        <li><a href="/araclar">Tüm hesaplama araçları</a></li>
+        <li><a href="/finansal-sozluk">Finansal sözlük</a></li>
+        <li><a href="/rehber">Borç ve kredi kartı rehberleri</a></li>
+      </ul>
+    </main></div><!--/root-->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

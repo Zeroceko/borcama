@@ -125,8 +125,10 @@ for (const page of pages) {
     .replace(/<title>.*?<\/title>/s, `<title>${escapeHtml(fullTitle)}</title>`)
     .replace(/<meta name="description" content="[^"]*"\s*\/>/, `<meta name="description" content="${escapeHtml(page.description)}" />`)
     .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${canonical}" />`)
+    .replace(/\s*<meta property="og:(title|description|url|type)" content="[^"]*" \/>/g, "")
     .replace("</head>", `<meta property="og:title" content="${escapeHtml(page.title)}" />\n    <meta property="og:description" content="${escapeHtml(page.description)}" />\n    <meta property="og:url" content="${canonical}" />\n    <meta property="og:type" content="${page.type === "Article" ? "article" : "website"}" />\n    <script type="application/ld+json">${JSON.stringify(schema).replaceAll("</", "<\\/")}</script>\n    <style>.seo-prerender{max-width:960px;margin:auto;padding:72px 24px;font-family:system-ui,sans-serif;color:#14160f}.seo-prerender>a{font-weight:800}.seo-prerender h1{max-width:800px;font-size:48px;line-height:1.05}.seo-prerender p{max-width:720px;font-size:18px;line-height:1.65}.seo-prerender nav{margin-top:48px}.seo-prerender li{margin:10px 0}</style>\n  </head>`)
-    .replace('<div id="root"></div>', staticBody(page));
+    .replace(/<div id="root">[\s\S]*?<\/div><!--\/root-->/, `${staticBody(page)}<!--/root-->`)
+    .replace(/\s*<script type="application\/ld\+json">\{"@context":"https:\/\/schema\.org","@type":"WebApplication","name":"Borcama"[\s\S]*?<\/script>/, "");
   const output = join(DIST, `${page.path}.html`);
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, html);
