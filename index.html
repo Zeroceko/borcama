@@ -23,15 +23,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://borcama.com/og/borcama-og.png" />
     <title>Borcama — Borçlarını bir plana dönüştür</title>
-    <script>
-      // Statik landing metni arama motorları ve JavaScript çalıştırmayan
-      // tarayıcılar içindir. Uygulama ekranlarında, oturumu açık kullanıcıda
-      // iOS kabuğunda ve CRM alanında React yüklenene kadar bile gösterilmez.
-      try {
-        var oturumVar = Object.keys(localStorage).some(function (k) { return /^sb-.*-auth-token$/.test(k); });
-        if (location.pathname !== "/" || location.hostname.indexOf("crm.") === 0 || oturumVar || window.Capacitor) document.documentElement.classList.add("borcama-statik-gizli");
-      } catch (e) {}
-    </script>
+    <script src="/statik-gizle.js"></script>
     <style>.borcama-statik-gizli .landing-static{display:none}.landing-static{max-width:960px;margin:auto;padding:56px 24px;font-family:system-ui,sans-serif;color:#14160f;background:#f4efe0}.landing-static h1{font-size:44px;line-height:1.05;margin:24px 0 12px}.landing-static h2{font-size:24px;margin:36px 0 10px}.landing-static p,.landing-static li{font-size:17px;line-height:1.6}</style>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Borcama","url":"https://borcama.com/","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"tr","description":"Kredi kartı, kredi ve ek hesap borçlarını tek yerde takip etmeye, ekstreni kontrol etmeye ve borç kapatma planı oluşturmaya yarayan uygulama.","offers":{"@type":"Offer","price":"0","priceCurrency":"TRY"}}</script>
   </head>

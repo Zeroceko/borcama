@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.64.1] - 2026-10-11
+
+### Düzeltildi
+
+- Ana sayfanın arama motorları için eklenen statik metni, uygulama ekranlarında ve oturumu açık kullanıcıda artık kısa süre bile görünmüyor; gizleme betiği sitenin güvenlik politikasının engellemediği ayrı bir dosyadan yükleniyor.
+
 ## [1.64.0] - 2026-10-11
 
 ### Eklendi
