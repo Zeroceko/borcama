@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.4] - 2026-10-11
+
+### Eklendi
+
+- Finansal sözlüğe "Bank run (banka hücumu)" sayfası eklendi; kavram Türkçe ve İngilizce anlatılıyor ve Eylül 2026 fon krizindeki benzer durumla ilişkilendiriliyor.
+
+### Değiştirildi
+
+- Tasfiye sayfası "borcun tasfiyesi ne demek?" sorusunu doğrudan cevaplıyor; kredi kartı borcunun tasfiyesi, yapılandırma ve ibra farkı, borcun kapandığını teyit etme yolları ve SPK'nın Eylül 2026 fon tasfiye kararı kaynaklarıyla birlikte anlatılıyor, sık sorulan sorular eklendi.
+
 ## [1.62.3] - 2026-10-11
 
 ### Değiştirildi
