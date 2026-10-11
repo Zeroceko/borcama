@@ -487,8 +487,8 @@ function AdSlot() {
   return <aside className="seo-ad-slot"><span className="seo-ad-icon"><Megaphone size={27}/></span><div><h2>Markanızı burada tanıtın.</h2><p>Borcama ziyaretçilerine ulaşmak için bu alanda reklam verebilirsiniz.</p></div><a href="mailto:zero@borcama.com?subject=Borcama%20reklam%20alan%C4%B1">zero@borcama.com</a></aside>;
 }
 
-function Faq({ items }) {
-  return <section className="seo-faq"><h2>Hesaplama hakkında</h2>{items.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</section>;
+function Faq({ items, baslik = "Hesaplama hakkında" }) {
+  return <section className="seo-faq"><h2>{baslik}</h2>{items.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</section>;
 }
 
 function FinansalSozlukAna() {
@@ -530,11 +530,11 @@ function FinansalSozlukDetay({ terim }) {
     author: { "@type": "Organization", name: "Borcama" },
     publisher: { "@type": "Organization", name: "Borcama", logo: { "@type": "ImageObject", url: `${SITE}/borcama-logo.png` } },
     datePublished: "2026-09-23",
-    dateModified: "2026-09-23",
+    dateModified: terim.guncellendi || "2026-09-23",
     mainEntity: { "@type": "DefinedTerm", name: terim.title, description: terim.definition, inDefinedTermSet: `${SITE}/finansal-sozluk` },
   }), [path, terim]);
-  useSeo({ title: `${terim.title} Nedir?`, description: `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`, path, schema });
-  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.title} nedir?</h1><p className="seo-article-lead">{terim.definition}</p><div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section><section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div><UrunKoprusu kicker="TANIMI ÖĞRENDİN. ŞİMDİ KENDİ TABLONU GÖR." baslik="Bunu kendi kart, kredi ve ödemelerinde gör." redirect="/debts" id="sozluk-sonraki-adim"/>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
+  useSeo({ title: terim.seoTitle || `${terim.title} Nedir?`, description: terim.seoDescription || `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`, path, schema });
+  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.h1 || `${terim.title} nedir?`}</h1><p className="seo-article-lead">{terim.definition}</p><div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section>{(terim.ekBolumler || []).map(([baslik, metin]) => <section key={baslik}><h2>{baslik}</h2><p>{metin}</p></section>)}<section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div><UrunKoprusu kicker="TANIMI ÖĞRENDİN. ŞİMDİ KENDİ TABLONU GÖR." baslik="Bunu kendi kart, kredi ve ödemelerinde gör." redirect="/debts" id="sozluk-sonraki-adim"/>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}{terim.sss?.length > 0 && <Faq items={terim.sss} baslik="Sık sorulan sorular"/>}{terim.kaynaklar?.length > 0 && <GuideSources items={terim.kaynaklar.map(([etiket, adres]) => [adres, etiket])}/>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
 }
 
 function slugifyCategory(category) {
