@@ -25,7 +25,7 @@ Bu dosya yalnız yönlendirmedir; asıl kurallar `AGENTS.md` içindedir. İşe b
 
 - Web sürümü `main` üzerinden çıkar; ayrı `release/x.y.z` yama dalı açılmaz (iOS `Unreleased` maddelerinin kodu `v1.59.0` (30 Eylül 2026) ve sonraki etiketli sürümlerle zaten web'de canlı).
 - Sonraki sürümde yeni değişiklik ile mevcut `Unreleased` maddeleri birlikte tarihli sürüme taşınır (ör. `1.61.0`); iOS maddeleri changelog'da iOS olarak işaretli kalır.
-- Sürüm numarası ve kapsamı PR'da Özer'e onaylatılır.
+- Patch/minor sürüm numarasını CTO `AGENTS.md`deki SemVer kuralına göre belirler ve PR'da yazar; major sürüm Özer onayıyla.
 
 ## Canlı doğrulama
 
