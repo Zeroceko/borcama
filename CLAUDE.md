@@ -12,12 +12,14 @@ Bu dosya yalnız yönlendirmedir; asıl kurallar `AGENTS.md` içindedir. İşe b
 2. Kullanıcıyı, arayüzü, hesaplamayı veya veriyi etkileyen her değişikliği aynı commit'te `CHANGELOG.md > Unreleased` altına tek cümleyle yaz; duyurulabilir yenilikleri `docs/mailing-yenilik-havuzu.md`ye ekle.
 3. PR açmadan önce `npm ci`, `npm run release:check`, `npm test` ve `npm run build` geçmeli.
 4. PR açıklaması: amaç, değişen dosyalar, test kanıtı, risk, ölçüm planı, gereken onay. Aynı PR'da `docs/departman-devirleri.md > Son devirler` en üstüne devir maddesi ekle.
-5. `main`e birleştirme Vercel'de otomatik production deploy'dur; Claude `main`e push etmez ve PR birleştirmez. PR'ları yalnız Özer birleştirir.
+5. `main`e birleştirme Vercel'de otomatik production deploy'dur; `main`e doğrudan push yok, her değişiklik PR ile girer. Rutin PR'ları CTO (Claude) inceleyip birleştirir; büyük işler Özer onayıyla (aşağıda).
 6. Dal push'unun Vercel önizleme adresi PR açıklamasında paylaşılır.
 
-## Onay gerektirenler
+## Yayın yetkisi (11 Ekim 2026)
 
-- Push, deploy, etiket, Supabase migration, Edge Function deploy, production secret, App Store gönderimi, fiyat/Pro politikası: önce Özer onayı.
+- **CTO kendisi yayına alır:** hata düzeltmeleri, küçük arayüz/metin işleri, ölçüm, içerik/SEO sayfaları, geriye uyumlu migration ve Edge Function, geri alınabilir değişiklikler. Akış: PR → `release:check`/test/build → canlı doğrulama → `vX.Y.Z` etiketi.
+- **Özer onayı gerekir:** fiyat/Pro/ödeme/abonelik, kullanıcı verisini silen veya toplu değiştiren işlem, toplu e-posta gönderimi, güvenlik/giriş akışı, ana akışların yeniden tasarımı, özellik kaldırma, major sürüm, reklam harcaması, production secret, App Store. Kuşkuda büyük sayılır.
+- iOS uygulamasına bu görev dokunmaz.
 
 ## Sürüm kuralı
 
