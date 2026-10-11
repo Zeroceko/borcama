@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.65.1] - 2026-10-11
+
+### Düzeltildi
+
+- Borç kapatma ve mevduat araçlarının hunisi artık sonuç görme ve ürüne geçiş adımlarını sayıyor; ziyaret olayı sonuçtan önce kaydediliyor ve rapor milisaniyelik sıra farkını tolere ediyor (geçmiş veri de düzeldi).
+
 ## [1.65.0] - 2026-10-11
 
 ### Eklendi

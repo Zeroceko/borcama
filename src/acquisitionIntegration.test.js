@@ -157,3 +157,15 @@ test("borç kapatma aracı sonuçtan ilk borç kaydına güvenli ve ölçülebil
   assert.match(backoffice, /admin_debt_payoff_tool_funnel/);
   assert.match(analytics, /Borç kapatma aracı → Borcama hunisi/);
 });
+
+test("araç hunisinde ziyaret olayı sonuçtan önce yazılır; sorgu milisaniye farkını ve sondaki / işaretini tolere eder", async () => {
+  const [main, migration] = await Promise.all([
+    oku("./main.jsx"),
+    oku("../supabase/migrations/20261011220000_tool_funnel_event_order.sql"),
+  ]);
+  assert.match(main, /useLayoutEffect\(\(\) => \{\n    if \(yol === "\/classic" \|\| yol === "\/landing-v2" \|\| seoYoluMu\(yol\)\)\n      funnelEtkinligiKaydet\("landing_visit"\);/);
+  assert.match(migration, /create or replace function public\.admin_debt_payoff_tool_funnel/);
+  assert.match(migration, /create or replace function public\.admin_deposit_tool_funnel/);
+  assert.doesNotMatch(migration, /ae\.created_at >= d\.entered_at\)/);
+  assert.match(migration, /rtrim\(ae\.path, '\/'\) = '\/araclar\/borc-kapatma-hesaplayici'/);
+});
