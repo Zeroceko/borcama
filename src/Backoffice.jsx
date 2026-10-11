@@ -16,7 +16,7 @@ const CSS = `
 const tarih=(v)=>v?new Intl.DateTimeFormat("tr-TR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v)):"—";
 const para=(v)=>turkLirasiFormatla(v);
 
-const ONIZLEME_VERISI={
+export const ONIZLEME_VERISI={
  summary:{total:38,trial_active:7,active_30d:24,signed_in_7d:16,new_7d:5,activity_24h:12},
  activities:[
   {id:"a1",user_id:"u1",email:"oze***@gmail.com",event_type:"login",source:"auth",path:"/summary",created_at:"2026-08-25T11:42:00+03:00"},

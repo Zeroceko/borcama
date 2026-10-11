@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.63.0] - 2026-10-11
+
+### Eklendi
+
+- Yeni CRM kabuğu: crm.borcama.com solda tek menüyle (Bugün, Kullanıcılar, Büyüme, İletişim) açılıyor; mobilde üstte sekme olarak çalışıyor.
+- CRM "Bugün" ekranı toplam/yeni/haftalık aktif/Pro özetini, son 7 günün kayıt hunisini önceki haftayla karşılaştırmalı ve "ilgilenilecekler" listesini (veri girmeyen yeni kayıtlar, doğrulanmamış e-postalar, biten denemeler, yeni geri bildirimler, davet incelemeleri) gösteriyor.
+- CRM "Kullanıcılar" ekranı segmentler (son 7 gün yeni, veri girmemiş, son 7 gün giriş, doğrulanmamış, deneme, Pro), arama ve sayfalı listeyle çalışıyor; kullanıcı detayı, büyüme ve iletişim ekranları yeni kabuğun içinde açılıyor.
+
 ## [1.62.6] - 2026-10-11
 
 ### Güvenlik

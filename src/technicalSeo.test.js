@@ -12,7 +12,7 @@ test("ana sayfa paylaşım etiketleri ve JavaScript'siz okunabilir metin taşır
   assert.match(html, /<div id="root"><main class="landing-static">[\s\S]*<\/main><\/div><!--\/root-->/);
   assert.match(html, /Borcunu gör, kontrolü al\./);
   // uygulama ekranlarında, oturum açıkken ve iOS kabuğunda statik metin gizlenir
-  assert.match(html, /location\.pathname !== "\/" \|\| oturumVar \|\| window\.Capacitor/);
+  assert.match(html, /location\.pathname !== "\/" \|\| location\.hostname\.indexOf\("crm\."\) === 0 \|\| oturumVar \|\| window\.Capacitor/);
 });
 
 test("ön oluşturulan SEO sayfaları kökü değiştirir, og etiketlerini tekrarlamaz ve ana sayfa şemasını taşımaz", async () => {
