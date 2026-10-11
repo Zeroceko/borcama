@@ -97,6 +97,15 @@ ${buton(url, "Borcama Pro'ya geç")}
 <p style="margin:15px 0 0;color:#85877d;font-size:12px;line-height:1.5;text-align:center">Satın alma ekranında aylık veya yıllık planı seçebilirsin.</p>`);
 }
 
+export function krediKapandiHtml(url: string) {
+  return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Tebrikler, bir kredini daha kapattın.</h1>
+<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0 0 24px">Son taksit de ödendi. Bu kredi artık aylık yükünün bir parçası değil; Borcama'da kapatılan krediler arasında duruyor.</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+${ozellikSatiri("Boşalan ödemeyi planla", "Bu krediye giden tutarı sıradaki borcuna veya birikimine yönlendirebilirsin.", "#eef8d0")}
+${ozellikSatiri("Sıradaki borcu gör", "Kalan borçlarının ödeme günlerini ve aylık toplamını tek yerde takip et.", "#e5f1ee")}
+</table>${buton(url, "Borçlarıma bak")}`);
+}
+
 export function referansOduluHtml(role: "referrer" | "invitee", url: string) {
   const referrer = role === "referrer";
   return cerceve(`<div style="padding:28px;border-radius:22px;background:#073b2d;box-shadow:7px 7px 0 #ff6c5c">

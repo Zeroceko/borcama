@@ -95,7 +95,15 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
-import { loanClosesAfterPayment, loanIsClosed } from "./loanCompletion.js";
+import {
+  gecmisleKapananKrediAlanlari,
+  krediKapanisiOncedenKutlandiMi,
+  krediKapanisKutlamasiniIsaretle,
+  KREDI_KAPANISI_GECMIS,
+  kutlanacakKapaliKredi,
+  loanClosesAfterPayment,
+  loanIsClosed,
+} from "./loanCompletion.js";
 import {
   buAyDuzenliBorcToplami,
   duzenliBorcOdemeleri,
@@ -378,6 +386,7 @@ const CSS = `
 
 .bt-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;row-gap:24px;flex-wrap:wrap;margin-bottom:32px}
 .bt-headright{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.bt-tema-secim{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel2)}.bt-tema-secim button{min-width:64px;padding:7px 14px;border:0;border-radius:999px;background:transparent;color:var(--dim);font:700 13px 'Space Grotesk',sans-serif;cursor:pointer}.bt-tema-secim button.aktif{background:${LIME};color:${INK};box-shadow:0 2px 8px #14160f1f}
 .bt-demo-plan{display:inline-flex;align-items:center;gap:4px;padding:4px;border:1px dashed var(--line-soft);border-radius:999px;background:var(--panel2)}
 .bt-demo-plan>span{padding:0 6px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
 .bt-demo-plan button{border:0;border-radius:999px;background:transparent;color:var(--dim);padding:5px 9px;font:700 10.5px 'Space Grotesk',sans-serif;cursor:pointer}
@@ -387,11 +396,6 @@ const CSS = `
 .bt-assistant-header{display:none}
 .bt-upgrade-link{display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${INK};border-radius:999px;background:${LIME};color:${INK};padding:7px 11px;font:800 11.5px 'Space Grotesk',sans-serif;box-shadow:3px 3px 0 ${CORAL};cursor:pointer}.bt-upgrade-link:hover{transform:translateY(-1px)}
 .bt-trial-son{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;margin:-14px 0 24px;padding:14px 16px;border:1px solid color-mix(in srgb,${CORAL} 62%,var(--line-soft));border-radius:17px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));box-shadow:0 8px 22px #14160f0a}.bt-trial-son-ikon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:${CORAL};color:${INK}}.bt-trial-son strong{display:block;font-size:13.5px}.bt-trial-son p{margin:3px 0 0;color:var(--dim);font-size:11.5px;line-height:1.45}.bt-trial-son-actions{display:flex;align-items:center;gap:7px}.bt-trial-son-kapat{border:0;background:transparent;color:var(--dim);font:700 11px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-trial-son .bt-btn{white-space:nowrap}
-.bt-themebtn{position:relative;width:54px;height:30px;border-radius:16px;border:1px solid var(--line-soft);background:var(--panel);box-shadow:0 3px 10px #14160f08;cursor:pointer;padding:0;flex:0 0 auto}
-.bt-themeknob{position:absolute;top:2px;width:22px;height:22px;border-radius:50%;background:${LIME};border:2px solid ${INK};transition:left .18s ease}
-.bt-themelabel{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);width:34px}
-.bt-exit{background:none;border:none;padding:0;font:inherit;font-size:14px;font-weight:600;color:var(--text);text-decoration:underline;cursor:pointer;display:flex;align-items:center;gap:4px}
-.bt-exit:hover{color:${CORAL}}
 
 .bt-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px}
 .bt-nav-ana{align-items:center}.bt-nav-ana .bt-pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px}.bt-nav-ana .bt-pill svg{width:18px;height:18px;flex:0 0 auto}.bt-nav-ana .bt-pill span{display:block;line-height:1}.bt-nav-alt{display:flex;gap:7px;flex-wrap:wrap;margin:-22px 0 28px;padding:7px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:16px}.bt-nav-alt .bt-pill{padding:7px 13px;font-size:12px;border-width:1px}
@@ -715,8 +719,6 @@ const CSS = `
   .bt-assistant-header{display:inline-flex;align-items:center;gap:7px;margin-right:auto;padding:8px 11px;border:1px solid ${INK};border-radius:999px;background:${INK};color:${CREAM};font:800 11px 'Space Grotesk',sans-serif;cursor:pointer}.bt-assistant-header svg{color:${LIME}}.bt-assistant-header .bt-assistant-beta{font-size:7px}
   .bt-upgrade-link{padding:7px 9px}
   .bt-trial-son{grid-template-columns:auto minmax(0,1fr);margin:-8px 0 20px;padding:13px}.bt-trial-son-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;width:100%}.bt-trial-son .bt-btn{justify-content:center;min-height:42px}
-  .bt-themelabel{width:auto;font-size:11px}
-  .bt-exit{font-size:12px;margin-left:auto}
   .bt-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:24px}
   .bt-nav.bt-nav-ana{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0;padding:8px max(6px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-right));background:color-mix(in srgb,var(--panel) 96%,transparent);border-top:1px solid var(--line-soft);box-shadow:0 -8px 24px #14160f12;backdrop-filter:blur(12px)}
   .bt-nav-ana .bt-pill{display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:13px;padding:6px 2px;background:transparent;color:var(--dim);font-size:clamp(9px,2.7vw,10.5px);line-height:1.05;opacity:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -766,7 +768,7 @@ const CSS = `
 }
 @media (min-width:601px) and (max-width:820px){.bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Sakin yüzey sistemi: normal yüzeylerde çizgi değil boşluk ve ton hiyerarşi kurar. */
-.bt-themeknob,.bt-hero .deko-daire,.bt-hero .deko-kare{border-width:1px}
+.bt-hero .deko-daire,.bt-hero .deko-kare{border-width:1px}
 .bt-risk{border:1px solid color-mix(in srgb,${CORAL} 52%,transparent);transform:none}
 .bt-satir-menu-panel,.bt-modal,.bt-quick-menu,.bt-borc-araclari,.bt-varlik-hero{border:1px solid var(--line-soft);box-shadow:0 14px 36px #14160f12}
 .bt-borc-araclari{background:color-mix(in srgb,var(--panel) 96%,var(--bg));box-shadow:0 7px 20px #14160f0a}
@@ -2879,7 +2881,7 @@ export default function BorcTakip() {
     };
     const loans = (veri.loans || []).map((x) =>
       x.id === krediId && kapandi
-        ? { ...x, kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: kapanisTarihi }
+        ? { ...x, kalanBorc: 0, kalanTaksit: 0, kapatildiTarihi: kapanisTarihi, kapanisKutlandi: new Date().toISOString() }
         : x,
     );
     const yeniVeri = {
@@ -3130,20 +3132,6 @@ export default function BorcTakip() {
               }}
             >
               <Settings size={14} /> Ayarlar
-            </button>
-            <button
-              className="bt-themebtn"
-              onClick={temaAnahtarlarSwitch}
-              title="Tema değiştir"
-            >
-              <span
-                className="bt-themeknob"
-                style={{ left: isDark ? 26 : 2 }}
-              />
-            </button>
-            <div className="bt-themelabel">{isDark ? "Koyu" : "Açık"}</div>
-            <button className="bt-exit" onClick={cikisYap}>
-              Çıkış →
             </button>
           </div>
         </header>
@@ -4784,11 +4772,23 @@ function Ayarlar({
           <div className="bt-setting-row">
             <div>
               <strong>Tema</strong>
-              <small>Şu an {isDark ? "koyu" : "açık"} tema kullanılıyor.</small>
+              <small>Borcama'yı açık ya da koyu renklerle kullan.</small>
             </div>
-            <button className="bt-btn kucuk ikincil" onClick={temaDegistir}>
-              {isDark ? "Açık temaya geç" : "Koyu temaya geç"}
-            </button>
+            <div className="bt-tema-secim" role="group" aria-label="Tema">
+              {[["Açık", false], ["Koyu", true]].map(([ad, koyu]) => (
+                <button
+                  key={ad}
+                  type="button"
+                  className={isDark === koyu ? "aktif" : ""}
+                  aria-pressed={isDark === koyu}
+                  onClick={() => {
+                    if (isDark !== koyu) temaDegistir();
+                  }}
+                >
+                  {ad}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="bt-setting-row">
             <div>
@@ -7603,31 +7603,34 @@ function Borclar({
 
   useEffect(() => {
     if (!guncelKrediGorunumu) return;
-    const yeniTaninmisKredi = kapatilanKrediler.find(
-      (kredi) =>
-        !loanIsClosed(kredi) &&
-        !gecmisKrediKutlamalari.current.has(kredi.id),
-    );
-    if (!yeniTaninmisKredi) return;
+    const kredi = kutlanacakKapaliKredi(kapatilanKrediler, gecmisKrediKutlamalari.current);
+    if (!kredi) return;
+    gecmisKrediKutlamalari.current.add(kredi.id);
 
-    const anahtar = `borcama:kredi-kutlamasi:${yeniTaninmisKredi.id}`;
+    let yerelIzVar = false;
     try {
-      if (localStorage.getItem(anahtar)) {
-        gecmisKrediKutlamalari.current.add(yeniTaninmisKredi.id);
-        return;
-      }
-      localStorage.setItem(anahtar, "1");
+      yerelIzVar = Boolean(localStorage.getItem(`borcama:kredi-kutlamasi:${kredi.id}`));
     } catch {
-      // Depolama engelliyse aynı oturumda tekrar göstermemek yeterli.
+      // Depolama engelliyse yalnız kullanıcı verisindeki işaret esas alınır.
     }
-    gecmisKrediKutlamalari.current.add(yeniTaninmisKredi.id);
+    const oncedenKutlandi = Boolean(kredi.kapanisKutlandi) ||
+      krediKapanisiOncedenKutlandiMi(kredi, yerelIzVar);
+    void kaydet({
+      ...veri,
+      loans: krediKapanisKutlamasiniIsaretle(
+        veri.loans || [],
+        kredi.id,
+        kredi.kapanisKutlandi ||
+          (oncedenKutlandi ? KREDI_KAPANISI_GECMIS : new Date().toISOString()),
+        gecmisleKapananKrediAlanlari(kredi, veri.loanPaymentHistory),
+      ),
+    });
+    if (oncedenKutlandi) return;
     borcKutla?.({
       tur: "Kredi",
-      baslik:
-        yeniTaninmisKredi.banka +
-        (yeniTaninmisKredi.ad ? ` · ${yeniTaninmisKredi.ad}` : ""),
+      baslik: kredi.banka + (kredi.ad ? ` · ${kredi.ad}` : ""),
     });
-  }, [borcKutla, guncelKrediGorunumu, kapatilanKrediler]);
+  }, [borcKutla, guncelKrediGorunumu, kapatilanKrediler, kaydet, veri]);
 
   useEffect(() => {
     if (!yerindeFormHedefi) return;

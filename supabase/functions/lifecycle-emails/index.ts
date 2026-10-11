@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { denemeBasladiHtml, denemeBitiyorHtml, denemeIlkPlanHatirlatmaHtml, referansOduluHtml } from "../_shared/borcama-email.ts";
+import { denemeBasladiHtml, denemeBitiyorHtml, denemeIlkPlanHatirlatmaHtml, krediKapandiHtml, referansOduluHtml } from "../_shared/borcama-email.ts";
 import { gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
@@ -8,6 +8,30 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 });
 
 type Campaign = { id: string; slug: string; subject: string };
+
+// Bu tarihten önce gösterilen kapanış kutlamaları için e-posta gönderilmez.
+const KREDI_KAPANIS_EPOSTA_BASLANGICI = Date.parse("2026-10-10T00:00:00Z");
+const KREDI_KAPANIS_EPOSTA_PENCERESI = 30 * 86400000;
+
+// Uygulama kutlamayı gösterdiğinde kredinin kapanisKutlandi alanına ISO tarih
+// yazar; "gecmis" değeri bu özellikten önceki kapanışları işaretler.
+export function tebrikEdilecekKrediler(value: string, simdi = Date.now()) {
+  try {
+    const veri = JSON.parse(value);
+    const krediler = Array.isArray(veri?.loans) ? veri.loans : [];
+    return krediler
+      .filter((kredi: Record<string, unknown>) => {
+        if (kredi?.id === undefined || kredi?.id === null || kredi.id === "") return false;
+        const zaman = typeof kredi.kapanisKutlandi === "string" ? Date.parse(kredi.kapanisKutlandi) : NaN;
+        return Number.isFinite(zaman) && zaman >= KREDI_KAPANIS_EPOSTA_BASLANGICI &&
+          zaman <= simdi && simdi - zaman <= KREDI_KAPANIS_EPOSTA_PENCERESI;
+      })
+      .map((kredi: Record<string, unknown>) => String(kredi.id).slice(0, 80))
+      .slice(0, 10);
+  } catch {
+    return [];
+  }
+}
 type ReferralBillingReward = {
   id: string;
   referral_id: string;
@@ -290,6 +314,8 @@ Deno.serve(async (req) => {
       kampanya(admin, "trial-first-plan-reminder"),
       kampanya(admin, "referral-reward-referrer"), kampanya(admin, "referral-reward-invitee"),
     ]);
+    // Kampanya CRM'den durdurulursa diğer yaşam döngüsü e-postaları etkilenmez.
+    const loanClosedCampaign = await kampanya(admin, "loan-closed").catch(() => null);
     const now = new Date();
     const threeDays = new Date(now.getTime() + 3 * 86400000);
     const { data: entitlements, error } = await admin.from("user_entitlements")
@@ -365,7 +391,29 @@ Deno.serve(async (req) => {
         if (result.sent) referralSent += 1;
       }
     }
-    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, trial_reminder_sent: reminder, referral_reward_sent: referralSent, referral_billing_scheduled: referralBillingScheduled, skipped, debt_snapshot_saved: debtSnapshotSaved });
+    let loanClosedSent = 0;
+    const { data: veriKayitlari, error: veriHatasi } = loanClosedCampaign
+      ? await admin.from("kv_store")
+        .select("user_id,value").eq("key", "borctakip:v1")
+        .gte("updated_at", new Date(now.getTime() - KREDI_KAPANIS_EPOSTA_PENCERESI).toISOString())
+      : { data: [], error: null };
+    if (veriHatasi) throw new Error("LOAN_DATA_UNAVAILABLE");
+    for (const kayit of loanClosedCampaign ? veriKayitlari || [] : []) {
+      const krediIdleri = tebrikEdilecekKrediler(kayit.value, now.getTime());
+      if (!krediIdleri.length) continue;
+      const { data } = await admin.auth.admin.getUserById(kayit.user_id);
+      const user = data.user;
+      if (!user?.email || !user.email_confirmed_at) { skipped += 1; continue; }
+      for (const krediId of krediIdleri) {
+        const result = await takipliGonder({
+          admin, campaign: loanClosedCampaign!, userId: user.id, email: user.email.trim().toLowerCase(),
+          destination: "/debts?source=loan-closed-email", deliveryKey: `loan:${krediId}`, html: krediKapandiHtml,
+        });
+        if (result.sent) loanClosedSent += 1;
+        if (!result.sent && !result.duplicate) break;
+      }
+    }
+    return json({ ok: true, trial_started_sent: started, trial_ending_sent: ending, trial_reminder_sent: reminder, referral_reward_sent: referralSent, loan_closed_sent: loanClosedSent, referral_billing_scheduled: referralBillingScheduled, skipped, debt_snapshot_saved: debtSnapshotSaved });
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : "LIFECYCLE_EMAIL_FAILED" }, 500);
   }
