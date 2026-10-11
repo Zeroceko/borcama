@@ -95,6 +95,7 @@ import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
+import { rehberDurumu, rehberiErtele, rehberiMezunEt, rehberOnerisiniKapat } from "./borcamaRehberi.js";
 import {
   gecmisleKapananKrediAlanlari,
   krediKapanisiOncedenKutlandiMi,
@@ -618,6 +619,8 @@ const CSS = `
 .bt-yapilandirma-oranlar>summary{display:list-item;width:auto;height:auto;min-height:24px;cursor:pointer;font-size:14px;font-weight:700;line-height:1.5;color:var(--text);overflow-wrap:normal}
 .bt-yapilandirma-oranlar>summary span{font-size:12px;font-weight:400;color:var(--dim)}
 .bt-yapilandirma-oranlar>summary:focus-visible{outline:2px solid var(--text);outline-offset:4px;border-radius:4px}
+.bt-siradaki{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;border:2px solid ${INK};border-radius:16px;background:#062d20;color:#f4efe0;box-shadow:6px 6px 0 ${CORAL};animation:bt-rehber-gir .35s ease-out}.bt-siradaki.mezun{background:${LIME};color:${INK}}.bt-siradaki-ikon{display:grid;place-items:center;flex:0 0 auto;width:34px;height:34px;border-radius:11px;background:${LIME};color:${INK}}.bt-siradaki.mezun .bt-siradaki-ikon{background:${INK};color:${LIME}}.bt-siradaki-metin{display:grid;gap:1px;min-width:0;flex:1 1 220px}.bt-siradaki-metin em{justify-self:start;padding:3px 8px;border-radius:999px;background:#ffffff1f;color:${LIME};font-style:normal;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.bt-siradaki.mezun .bt-siradaki-metin em{background:#14160f14;color:${INK}}.bt-siradaki-metin b{font-size:15px;line-height:1.3}.bt-siradaki-metin span{color:#c9d6cf;font-size:13px;line-height:1.4}.bt-siradaki.mezun .bt-siradaki-metin span{color:#2b3b31}.bt-siradaki-aksiyon{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-siradaki-aksiyon .bt-btn{white-space:nowrap;background:${LIME};color:${INK};border-color:${INK}}.bt-siradaki.mezun .bt-siradaki-aksiyon .bt-btn{background:${INK};color:${LIME}}.bt-siradaki-ikincil{border:0;background:none;color:#c9d6cf;font-family:inherit;font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;padding:6px}.bt-siradaki.mezun .bt-siradaki-ikincil{color:${INK}}.bt-siradaki.canli{animation:bt-rehber-gir .45s cubic-bezier(.22,1,.36,1),bt-rehber-isik 3.2s ease-in-out .5s infinite}@keyframes bt-rehber-isik{0%,100%{box-shadow:6px 6px 0 ${CORAL},0 0 0 0 #cdf56400,0 0 0 0 #cdf56400}50%{box-shadow:6px 6px 0 ${CORAL},0 0 0 3px #cdf5648c,0 0 26px 8px #cdf56459}}.bt-siradaki.canli .bt-siradaki-ikon{animation:bt-rehber-ikon-isik 3.2s ease-in-out .5s infinite}@keyframes bt-rehber-ikon-isik{0%,100%{box-shadow:0 0 0 0 #cdf56400}50%{box-shadow:0 0 14px 4px #cdf564b3}}.bt-siradaki-secenekler{display:flex;flex-wrap:wrap;gap:6px}.bt-siradaki-aksiyon.secim{flex-basis:100%}.bt-siradaki-baglantilar{display:inline-flex;align-items:center;gap:4px}@keyframes bt-rehber-gir{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.bt-siradaki,.bt-siradaki.canli,.bt-siradaki.canli .bt-siradaki-ikon{animation:none}}@media(max-width:600px){.bt-siradaki{padding:10px 12px;box-shadow:4px 4px 0 ${CORAL}}.bt-siradaki-aksiyon{display:grid;grid-template-columns:1fr;gap:6px}.bt-siradaki-baglantilar{justify-content:space-between}.bt-siradaki-secenekler{display:grid;grid-template-columns:1fr 1fr;width:100%}.bt-siradaki-secenekler .bt-btn{justify-content:center}.bt-siradaki-metin b{font-size:15px}.bt-siradaki-aksiyon{width:100%}.bt-siradaki-aksiyon .bt-btn{justify-content:center}}
+.bt-alan-ek{margin-top:12px}.bt-alan-ek>summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--dim);padding:6px 0}.bt-alan-ek[open]>summary{margin-bottom:8px}
 .bt-alanlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px;align-items:start}
 .bt-modal.bt-yapilandirma-modal{max-width:680px;max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;min-width:0}.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-yapilandirma-modal .bt-alan{min-width:0}.bt-yapilandirma-modal .bt-input{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}.bt-yapilandirma-modal .bt-ekstre-bilgi{min-width:0;overflow-wrap:anywhere}.bt-yapilandirma-modal .bt-modalbaslik>div{min-width:0}.bt-yapilandirma-modal .bt-ipucu>div{min-width:0;overflow-wrap:anywhere}@media(max-width:600px){.bt-yapilandirma-modal .bt-alanlar{grid-template-columns:minmax(0,1fr)}.bt-yapilandirma-modal .bt-form-butonlar{flex-wrap:wrap}}
 .bt-alan{display:grid;grid-template-rows:minmax(38px,auto) 44px;align-content:start;gap:5px;min-width:0;font-size:12px;font-weight:600;color:var(--dim)}
@@ -2258,6 +2261,29 @@ export default function BorcTakip() {
     setSekme(gorev?.hedef || "ozet");
   }
 
+  function rehberAksiyonu(oneri, secenek) {
+    if (secenek) {
+      // Rehberden doğrudan ilgili borç formunu aç.
+      setBorcKategori(secenek);
+      setSekme("borclar");
+      setForm({ liste: KATEGORI_META[secenek]?.liste || "cards", veri: {} });
+      return;
+    }
+    if (oneri.tur === "kurulum") return aktivasyonAdiminiBaslat(oneri.gorev);
+    if (oneri.tur === "mezuniyet") return ayarKaydet({ rehber: rehberiMezunEt(veri.ayarlar?.rehber) });
+    if (oneri.id === "sabit-gider") {
+      setSekme("sabit-giderler");
+      setForm({ liste: "expenses", veri: {} });
+      return;
+    }
+    setForm(null);
+    if (oneri.tur === "ekstre") {
+      setBorcKategori("cards");
+      setEkstreYuklemeIstegi((eski) => eski + 1);
+    }
+    setSekme(oneri.hedef || "ozet");
+  }
+
   function rehberAdiminaGit(adim) {
     const hedefler = ["ozet", "borclar", "odemeler"];
     const guvenliAdim = Math.max(0, Math.min(adim, hedefler.length - 1));
@@ -2581,6 +2607,8 @@ export default function BorcTakip() {
     const dizi = veri[liste];
     const oncekiKayit = dizi.find((x) => x.id === kayit.id) || null;
     const varMi = !!oncekiKayit;
+    // Yeni kayda eklenme zamanı: rehber, eklenmeden önce geçmiş ödeme için hatırlatma yapmaz.
+    if (!varMi && !kayit.eklendi) kayit = { ...kayit, eklendi: new Date().toISOString() };
     const yeniVeri = {
       ...veri,
       [liste]: varMi
@@ -3170,6 +3198,7 @@ export default function BorcTakip() {
           </button>
         </nav>
 
+
         {anaSekme === "borclar" && (
           <nav className="bt-nav bt-nav-alt" aria-label="Borç bölümleri">
             {[
@@ -3225,6 +3254,18 @@ export default function BorcTakip() {
             ))}
           </nav>
         )}
+
+        {(() => {
+          const kaynakKayit = (o) => String(o.id || "").startsWith("kart-")
+            ? veri.cards.find((k) => "kart-" + k.id === o.id)
+            : String(o.id || "").startsWith("kredi-") ? veri.loans.find((k) => "kredi-" + k.id === o.id) : null;
+          const rehber = rehberDurumu(veri, { simdi: new Date(), yaklasan: yaklasan.map((o) => ({ ...o, eklendi: kaynakKayit(o)?.eklendi })) });
+          if (!rehber.oneri) return null;
+          // Kurulumda Bugün ekranında büyük kart var; ilk adım atılmadan şerit gösterilmez.
+          if (rehber.asama === "kurulum" && (anaSekme === "ozet" || rehber.kurulum.tamamlanan === 0)) return null;
+          if (form) return null;
+          return <RehberSeridi oneri={rehber.oneri} onAksiyon={rehberAksiyonu} onErtele={(id) => ayarKaydet({ rehber: rehberiErtele(veri.ayarlar?.rehber, id) })} onKapat={(id) => ayarKaydet({ rehber: rehberOnerisiniKapat(veri.ayarlar?.rehber, id) })} />;
+        })()}
 
         {trialHatirlaticiAcik && (
           <section className="bt-trial-son" aria-label="Pro denemesi bitiş hatırlatması">
@@ -5147,6 +5188,40 @@ function Ayarlar({
 }
 
 /* ---------------- Özet ---------------- */
+// İlk plan kurulumu bitene kadar Bugün dışındaki ekranlarda sıradaki adımı gösterir;
+// kullanıcı bir adımı bitirdiğinde nereye gideceğini aramaz.
+function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
+  const [secimAcik, setSecimAcik] = useState(false);
+  return (
+    <div key={oneri.id} className={"bt-siradaki canli" + (oneri.tur === "mezuniyet" ? " mezun" : "")} role="status">
+      <span className="bt-siradaki-ikon" aria-hidden="true"><Sparkles size={17} /></span>
+      <div className="bt-siradaki-metin">
+        <b>{oneri.baslik}</b>
+        <span>{oneri.adim ? `Adım ${oneri.adim} · ` : ""}{oneri.aciklama}</span>
+      </div>
+      <div className={"bt-siradaki-aksiyon" + (secimAcik && oneri.secenekler ? " secim" : "")}>
+        {secimAcik && oneri.secenekler ? (
+          <div className="bt-siradaki-secenekler">
+            {oneri.secenekler.map(([deger, ad]) => (
+              <button key={deger} className="bt-btn birincil kucuk" type="button" onClick={() => onAksiyon(oneri, deger)}>{ad}</button>
+            ))}
+          </div>
+        ) : (
+          <button className="bt-btn birincil kucuk" type="button" onClick={() => (oneri.secenekler ? setSecimAcik(true) : onAksiyon(oneri))}>
+            {oneri.aksiyonEtiketi || "Devam et"} {oneri.tur !== "mezuniyet" && <ChevronRight size={14} />}
+          </button>
+        )}
+        {(oneri.kapatEtiketi || oneri.ertelenebilir) && (
+          <span className="bt-siradaki-baglantilar">
+            {oneri.kapatEtiketi && <button className="bt-siradaki-ikincil" type="button" onClick={() => onKapat(oneri.id)}>{oneri.kapatEtiketi}</button>}
+            {oneri.ertelenebilir && <button className="bt-siradaki-ikincil" type="button" title="3 gün sonra yeniden gösterilir" onClick={() => onErtele(oneri.id)}>Kapat</button>}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AktivasyonKutusu({ durum, onBaslat }) {
   if (durum.tamam || !durum.siradaki) return null;
   const aktifAdim = Math.min(durum.tamamlanan + 1, durum.toplam);
@@ -7804,7 +7879,9 @@ function Borclar({
   }, [acik, form, kategori, guncelEkstreAyi]);
 
   const ALAN_TANIMLARI = {
-    cards: [
+    // Yeni kartta yalnız borcu görmek için gerekenler zorunlu; kart ve bu ayın
+    // ekstresi tek formda birlikte oluşur. Ayrıntılar "Daha fazla bilgi"de.
+    cards: form?.veri?.id ? [
       { k: "banka", e: "Banka", t: "text", z: true },
       { k: "ad", e: "Kart adı (Bonus, World…)", t: "text", z: true },
       { k: "limit", e: "Toplam kart limiti (₺)", t: "number", z: true, para: true },
@@ -7815,8 +7892,17 @@ function Borclar({
         t: "number",
         z: true,
       },
+    ] : [
+      { k: "banka", e: "Banka", t: "text", z: true },
+      { k: "yeniDonemEkstreBorcu", e: "Bu ayki ekstre borcun (₺)", t: "number", z: true, para: true, p: "Ekstrende yazan dönem borcu" },
+      { k: "sonOdemeGunu", e: "Son ödeme günü (ayın kaçı)", t: "number", z: true, p: "Örn. 15" },
+      { k: "ad", e: "Kart adı (Bonus, World…)", t: "text", ek: true },
+      { k: "limit", e: "Toplam kart limiti (₺)", t: "number", para: true, ek: true },
+      { k: "kesimGunu", e: "Ekstre kesim günü", t: "number", ek: true },
+      { k: "oncekiAydanKalan", e: "Geçen aydan devreden (₺)", t: "number", para: true, ek: true },
     ],
-    loans: [
+    // Yeni kredide yalnız kalan borcu ve ödeme gününü bulmaya yetenler zorunlu.
+    loans: form?.veri?.id ? [
       { k: "banka", e: "Banka", t: "text", z: true },
       { k: "ad", e: "Kredi adı", t: "text", z: true },
       { k: "anaPara", e: "Kredi tutarı (₺)", t: "number", z: !form?.veri?.id, para: true },
@@ -7827,6 +7913,17 @@ function Borclar({
       { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
       { k: "odemeGunu", e: "Ödeme günü", t: "number", p: "İlk taksit tarihinden hesaplanır" },
       { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form?.veri?.id },
+    ] : [
+      { k: "banka", e: "Banka", t: "text", z: true },
+      { k: "taksit", e: "Aylık taksit tutarı (₺)", t: "number", z: true, para: true },
+      { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number", z: true, p: "Örn. 18" },
+      { k: "odemeGunu", e: "Ödeme günü (ayın kaçı)", t: "number", z: true, p: "Örn. 5" },
+      { k: "ad", e: "Kredi adı (İhtiyaç, Taşıt…)", t: "text", ek: true },
+      { k: "faiz", e: "Aylık faiz oranı (%)", t: "number", ek: true },
+      { k: "anaPara", e: "Kredi tutarı (₺)", t: "number", para: true, ek: true },
+      { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", ek: true },
+      { k: "odenenTaksit", e: "Ödenen taksit sayısı", t: "number", ek: true },
+      { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", ek: true },
     ],
     od: [
       { k: "banka", e: "Banka", t: "text", z: true },
@@ -8086,9 +8183,24 @@ function Borclar({
       ekleGuncelle("cards", { ...form.veri, ...ekstreVerisi });
       return;
     }
+    if (kategori === "cards" && !f.id && String(f.yeniDonemEkstreBorcu ?? "").trim() !== "") {
+      // Hızlı kart: kart ve bu ayın ekstresi birlikte; borç hemen görünür.
+      ekleGuncelle("cards", {
+        id: uid(),
+        ...f,
+        ekstreAyi: guncelEkstreAyi,
+        yapilanOdeme: "0",
+        toplamEkstreBorcu: (+f.yeniDonemEkstreBorcu || 0) + (+f.oncekiAydanKalan || 0),
+      });
+      return;
+    }
     let kaydedilecek = f;
     if (kategori === "loans") {
-      const sonuc = krediKaydiniHazirla(f);
+      // Hızlı kredi: toplam/ödenen taksit girilmediyse kalan borç = aylık taksit × kalan taksit.
+      const hizliKredi = !f.id && !String(f.toplamTaksit ?? "").trim() && !String(f.odenenTaksit ?? "").trim();
+      const sonuc = krediKaydiniHazirla(hizliKredi && !(+f.kalanBorc > 0)
+        ? { ...f, kalanBorc: Math.round((+f.taksit || 0) * (+f.kalanTaksit || 0) * 100) / 100 }
+        : f);
       if (!sonuc.tamam) {
         setKrediGirisHatasi(sonuc.hata);
         return;
@@ -8604,7 +8716,7 @@ function Borclar({
                   );
                 })()}
               <div className="bt-alanlar">
-                {alanlar.map((a) => (
+                {alanlar.filter((a) => !a.ek).map((a) => (
                   <label key={a.k} className="bt-alan">
                     {a.e}
                     {a.z ? " *" : ""}
@@ -8664,6 +8776,72 @@ function Borclar({
                   </label>
                 ))}
               </div>
+              {alanlar.some((a) => a.ek) && (
+                <details className="bt-alan-ek">
+                  <summary>Daha fazla bilgi (isteğe bağlı)</summary>
+                  <div className="bt-alanlar">
+                    {alanlar.filter((a) => a.ek).map((a) => (
+                      <label key={a.k} className="bt-alan">
+                    {a.e}
+                    {a.z ? " *" : ""}
+                    {a.k === "banka" && kategori !== "others" ? (
+                      <select
+                        className="bt-input"
+                        value={f.banka ?? ""}
+                        onChange={(e) => {
+                          if (e.target.value === "__diger__")
+                            setBankaPenceresi(true);
+                          else setF({ ...f, banka: e.target.value });
+                        }}
+                      >
+                        <option value="">Banka seçin…</option>
+                        {bankalar.map((b) => (
+                          <option key={b} value={b}>
+                            {b}
+                          </option>
+                        ))}
+                        <option value="__diger__">Diğer…</option>
+                      </select>
+                    ) : (
+                      <input
+                        className="bt-input"
+                        type={a.para ? "text" : a.t}
+                        inputMode={a.para ? "decimal" : undefined}
+                        min={!a.para && a.t === "number" ? 0 : undefined}
+                        step={a.k === "faiz" ? "0.01" : undefined}
+                        readOnly={
+                          kategori === "loans" &&
+                          ((krediIlerlemesi?.gecerli && a.k === "kalanTaksit") ||
+                            (a.k === "odemeGunu" && !!f.ilkOdemeTarihi))
+                        }
+                        placeholder={a.p}
+                        value={a.para ? paraGirdisiniFormatla(
+                          f[a.k] ?? ""
+                        ) : (
+                          kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
+                            ? krediIlerlemesi.kalanTaksit
+                            : kategori === "loans" && a.k === "odemeGunu" && f.ilkOdemeTarihi
+                              ? Number(f.ilkOdemeTarihi.slice(-2))
+                              : f[a.k] ?? ""
+                        )}
+                        onChange={(e) => {
+                          setKrediGirisHatasi("");
+                          const deger = a.para ? paraGirdisiniCoz(e.target.value) : e.target.value;
+                          setF({
+                            ...f,
+                            [a.k]: deger,
+                            ...(kategori === "loans" && a.k === "ilkOdemeTarihi"
+                              ? { odemeGunu: deger ? Number(deger.slice(-2)) : "" }
+                              : {}),
+                          });
+                        }}
+                      />
+                    )}
+                  </label>
+                    ))}
+                  </div>
+                </details>
+              )}
               {kategori === "loans" && (
                 <div
                   className="bt-ipucu"
@@ -8681,8 +8859,12 @@ function Borclar({
                       <>
                         <b>Otomatik plan:</b> {krediIlerlemesi.kalanTaksit} taksit kaldı · kalan toplam ödeme <b>{fmt(krediIlerlemesi.kalanToplamOdeme)}</b>.
                       </>
+                    ) : !f.id && +f.taksit > 0 && +f.kalanTaksit > 0 ? (
+                      <>
+                        <b>Kalan toplam ödeme:</b> {fmt((+f.taksit || 0) * (+f.kalanTaksit || 0))} ({f.kalanTaksit} taksit × {fmt(+f.taksit || 0)}).
+                      </>
                     ) : (
-                      <>Toplam ve ödenen taksiti girersen kalan taksit ile toplam ödeme otomatik hesaplanır.</>
+                      <>Aylık taksiti ve kalan taksit sayısını yazman yeterli; kalan toplam ödeme otomatik hesaplanır.</>
                     )}
                     <br />Aylık faiz, bankanın bildirdiği taksiti değiştirmez; maliyet ve borç önceliği için ayrıca saklanır.
                   </div>
