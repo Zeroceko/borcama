@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.62.3] - 2026-10-11
+
+### Değiştirildi
+
+- Arama motorları ve yapay zekâ arama araçları ana sayfanın metnini JavaScript çalıştırmadan okuyabiliyor; uygulama ekranlarında ve oturum açıkken bu metin gösterilmiyor.
+- Bütün sayfalar paylaşıldığında Borcama görseli, başlığı ve açıklamasıyla önizleniyor (Open Graph ve Twitter kartı); yeni sayfalar IndexNow ile Bing ve Yandex'e bildirilebiliyor.
+
 ## [1.62.2] - 2026-10-10
 
 ### Düzeltildi

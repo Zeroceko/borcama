@@ -1,7 +1,7 @@
 {
   "name": "borc-takip",
   "private": true,
-  "version": "1.62.2",
+  "version": "1.62.3",
   "type": "module",
   "engines": {
     "node": ">=22.12.0"
@@ -14,7 +14,8 @@
     "test": "node --test src/*.test.js",
     "build": "vite build && node scripts/prerender-seo.mjs",
     "preview": "vite preview",
-    "ios:version": "node scripts/sync-ios-version.mjs"
+    "ios:version": "node scripts/sync-ios-version.mjs",
+    "seo:indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",
