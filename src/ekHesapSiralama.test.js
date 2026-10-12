@@ -6,19 +6,21 @@ import { fileURLToPath } from "node:url";
 
 const kaynak = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "App.jsx"), "utf8");
 const parca = kaynak.slice(kaynak.indexOf("const VARSAYILAN_FAIZ_EK_HESAP"), kaynak.indexOf("const BOS_VERI"));
-const ekHesaplariSirala = new Function(`${parca}; return ekHesaplariSirala;`)();
+const ekHesaplariAyir = new Function(`${parca}; return ekHesaplariAyir;`)();
 
-test("kapanan ek hesaplar listenin altına iner, sıra kendi içinde korunur", () => {
-  const liste = [
+test("kapanan ek hesaplar ayrı gruba ayrılır, sıra kendi içinde korunur", () => {
+  const { acik, kapanan } = ekHesaplariAyir([
     { id: "a", kullanilan: 5000, yapilanOdeme: 5000 },
     { id: "b", kullanilan: 3000, yapilanOdeme: 1000 },
     { id: "c", kullanilan: 0 },
     { id: "d", kullanilan: 800 },
-  ];
-  assert.equal(ekHesaplariSirala(liste).map((k) => k.id).join(","), "b,d,a,c");
-  assert.equal(liste[0].id, "a");
+  ]);
+  assert.equal(acik.map((k) => k.id).join(","), "b,d");
+  assert.equal(kapanan.map((k) => k.id).join(","), "a,c");
 });
 
-test("ek hesap listesi görünümde sıralanır", () => {
-  assert.match(kaynak, /kategori === "od"\s*\?\s*ekHesaplariSirala\(kayitlar\)/);
+test("kapanan ek hesaplar 'Kapattığın borçlar' başlığı altında gösterilir", () => {
+  assert.match(kaynak, /kategori === "od"\s*\?\s*ekHesaplariAyir\(kayitlar\)\.acik/);
+  assert.match(kaynak, /id="kapanan-ek-hesaplar-baslik">Kapattığın borçlar</);
+  assert.match(kaynak, /kapananEkHesaplar\.map\(borcSatiri\)/);
 });
