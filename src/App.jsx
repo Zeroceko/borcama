@@ -1293,11 +1293,12 @@ function ekHesapHesabi(k) {
   const oran = +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ_EK_HESAP;
   return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100 };
 }
-// Borcu süren ek hesaplar üstte, kapananlar (kalan 0) altta; kendi içinde sıra korunur.
-function ekHesaplariSirala(liste) {
-  return [...liste].sort(
-    (a, b) => (ekHesapHesabi(a).kalan > 0 ? 0 : 1) - (ekHesapHesabi(b).kalan > 0 ? 0 : 1),
-  );
+// Borcu süren ek hesaplar listede, kapananlar (kalan 0) "Kapattığın borçlar" başlığı altında.
+function ekHesaplariAyir(liste) {
+  const acik = [];
+  const kapanan = [];
+  for (const k of liste) (ekHesapHesabi(k).kalan > 0 ? acik : kapanan).push(k);
+  return { acik, kapanan };
 }
 const BOS_VERI = {
   cards: [],
@@ -7664,8 +7665,10 @@ function Borclar({
   const gorunenKayitlar = guncelKrediGorunumu
     ? kayitlar.filter((kredi) => !loanIsClosed(kredi, veri.loanPaymentHistory))
     : kategori === "od"
-      ? ekHesaplariSirala(kayitlar)
+      ? ekHesaplariAyir(kayitlar).acik
       : kayitlar;
+  const kapananEkHesaplar =
+    kategori === "od" ? ekHesaplariAyir(kayitlar).kapanan : [];
   const saltOkunurGorunum =
     arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
   const acik = form && form.liste === meta.liste;
@@ -8024,6 +8027,33 @@ function Borclar({
         : 0)
     );
   }
+  const borcSatiri = (k, i) => (
+    <BorclarSatiri
+      key={k.id}
+      k={k}
+      i={i}
+      kategori={kategori}
+      meta={meta}
+      setForm={setForm}
+      sil={sil}
+      silmeOnayiAc={(liste, kayit) => setSilinecekBorc({ liste, kayit })}
+      ekHesapOdemesiSil={ekHesapOdemesiSil}
+      paid={veri.paid}
+      krediOdemeGecmisi={veri.loanPaymentHistory}
+      odendiIsaretle={odendiIsaretle}
+      odemelereGit={odemelereGit}
+      kartOdemesiAc={(odeme) => setOdemePenceresi(odeme)}
+      kartOdemeGecmisi={veri.cardPaymentHistory}
+      kartOdemesiDegistir={kartOdemesiDegistir}
+      krediOdemesiAc={(odeme) => setOdemePenceresi(odeme)}
+      kartYapilandirmaAc={(kart) => setYapilandirmaPenceresi(kart)}
+      yeniEkstreAc={(kart) => {
+        setEkstreAkisKarti(kart);
+        setBaslangicSecimiAcik(true);
+      }}
+      arsiv={saltOkunurGorunum}
+    />
+  );
   function sayacHesapla() {
     const n = gorunenKayitlar.length;
     if (kategori === "cards") return n + " kredi kartı";
@@ -8992,7 +9022,9 @@ function Borclar({
                           ? "Aktif kredi borcun kalmadı. Tamamlanan kredilerin aşağıda duruyor."
                           : "Henüz kredi kaydı yok. İlk kredini ekleyerek aylık taksitlerini takip edebilirsin."
                         : kategori === "od"
-                          ? "Henüz ek hesap / KMH kaydı yok."
+                          ? kapananEkHesaplar.length > 0
+                            ? "Açık ek hesap borcun kalmadı. Kapattığın borçlar aşağıda."
+                            : "Henüz ek hesap / KMH kaydı yok."
                           : "Geciken kayıt yok. Kart ve kredi ödeme tarihleri geçtiğinde burada otomatik görünür."}
               </div>
             )
@@ -9008,33 +9040,7 @@ function Borclar({
                   </div>
                 </div>
               )}
-              {gorunenKayitlar.map((k, i) => (
-                <BorclarSatiri
-                  key={k.id}
-                  k={k}
-                  i={i}
-                  kategori={kategori}
-                  meta={meta}
-                  setForm={setForm}
-                  sil={sil}
-                  silmeOnayiAc={(liste, kayit) => setSilinecekBorc({ liste, kayit })}
-                  ekHesapOdemesiSil={ekHesapOdemesiSil}
-                  paid={veri.paid}
-                  krediOdemeGecmisi={veri.loanPaymentHistory}
-                  odendiIsaretle={odendiIsaretle}
-                  odemelereGit={odemelereGit}
-                  kartOdemesiAc={(odeme) => setOdemePenceresi(odeme)}
-                  kartOdemeGecmisi={veri.cardPaymentHistory}
-                  kartOdemesiDegistir={kartOdemesiDegistir}
-                  krediOdemesiAc={(odeme) => setOdemePenceresi(odeme)}
-                  kartYapilandirmaAc={(kart) => setYapilandirmaPenceresi(kart)}
-                  yeniEkstreAc={(kart) => {
-                    setEkstreAkisKarti(kart);
-                    setBaslangicSecimiAcik(true);
-                  }}
-                  arsiv={saltOkunurGorunum}
-                />
-              ))}
+              {gorunenKayitlar.map(borcSatiri)}
             </div>
           )}
 
@@ -9059,6 +9065,24 @@ function Borclar({
                   index={index}
                 />
               ))}
+            </section>
+          )}
+
+          {kapananEkHesaplar.length > 0 && (
+            <section
+              className="bt-kapatilan-krediler"
+              aria-labelledby="kapanan-ek-hesaplar-baslik"
+            >
+              <div className="bt-kapatilan-krediler-baslik">
+                <span aria-hidden="true"><Check size={18} /></span>
+                <div>
+                  <strong id="kapanan-ek-hesaplar-baslik">Kapattığın borçlar</strong>
+                  <small>
+                    {kapananEkHesaplar.length} ek hesabın borcu kapandı. Yeniden kullanırsan "Yeni borç ekle" ile güncelle.
+                  </small>
+                </div>
+              </div>
+              {kapananEkHesaplar.map(borcSatiri)}
             </section>
           )}
 

@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.3`, sürüm `1.66.4`, dal `claude/ek-hesap-kapananlar`: Özer talebi; `ekHesaplariSirala` yerine `ekHesaplariAyir`, kapanan ek hesaplar kapatılan krediler stilinde "Kapattığın borçlar" bölümünde; satır JSX'i `borcSatiri` yardımcısına alındı. Test: `ekHesapSiralama.test.js`.
+
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.2`, sürüm `1.66.3`, dal `claude/ek-hesap-siralama`: Özer talebi; `App.jsx` `ekHesaplariSirala` ek hesap listesinde kalan borcu 0 olanları alta alıyor (kararlı sıralama, veri değişmez). Test: `ekHesapSiralama.test.js`.
 
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.1`, sürüm `1.66.2`, dal `claude/beta-etiketi`: App Store reddi (Guideline 2.2) üzerine asistandaki "Beta" etiketleri `App.jsx` ve `LandingGrowth.jsx`'ten kaldırıldı; `assistantQuality.test.js` artık etiketin olmadığını doğruluyor. iOS paketi bu web kodundan yeniden derlenmeli (iOS sorumlusu).

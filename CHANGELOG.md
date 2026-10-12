@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.66.4] - 2026-10-12
+
+### Değiştirildi
+
+- Ek hesap / KMH listesinde borcu kapanan hesaplar artık "Kapattığın borçlar" başlığı altında, açık borçların altında ayrı bir bölümde gösteriliyor.
+
 ## [1.66.3] - 2026-10-12
 
 ### Değiştirildi
