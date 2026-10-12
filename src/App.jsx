@@ -1293,6 +1293,12 @@ function ekHesapHesabi(k) {
   const oran = +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ_EK_HESAP;
   return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100 };
 }
+// Borcu süren ek hesaplar üstte, kapananlar (kalan 0) altta; kendi içinde sıra korunur.
+function ekHesaplariSirala(liste) {
+  return [...liste].sort(
+    (a, b) => (ekHesapHesabi(a).kalan > 0 ? 0 : 1) - (ekHesapHesabi(b).kalan > 0 ? 0 : 1),
+  );
+}
 const BOS_VERI = {
   cards: [],
   loans: [],
@@ -7657,7 +7663,9 @@ function Borclar({
     : [];
   const gorunenKayitlar = guncelKrediGorunumu
     ? kayitlar.filter((kredi) => !loanIsClosed(kredi, veri.loanPaymentHistory))
-    : kayitlar;
+    : kategori === "od"
+      ? ekHesaplariSirala(kayitlar)
+      : kayitlar;
   const saltOkunurGorunum =
     arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
   const acik = form && form.liste === meta.liste;
