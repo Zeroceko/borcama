@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Kaldırıldı
+
+- Hesaplama araçlarının sonuç alanındaki "Markanızı burada tanıtın" reklam satış kutusu kaldırıldı; reklam ve işbirliği iletişimi artık araç, sözlük, rehber ve ana sayfa alt bilgisindeki bağlantıdan yapılıyor.
+
 ## [1.66.1] - 2026-10-12
 
 ### Değiştirildi
