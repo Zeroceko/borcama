@@ -78,3 +78,14 @@ test("ödeme gününden sonra eklenen borç için ödeme hatırlatması yapılma
   const eskiden = [{ ...yaklasan[0], eklendi: new Date(2026, 8, 20).toISOString() }];
   assert.equal(rehberDurumu(kurulmus(), { simdi: SIMDI, yaklasan: eskiden }).oneri.tur, "odeme");
 });
+
+test("kayda değer veri giren kullanıcıda rehber hiç görünmez", () => {
+  const harcamalar = Array.from({ length: 5 }, (_, i) => ({ id: `h${i}`, tutar: 100 }));
+  const yaklasan = [{ id: "kart-k1", anahtar: "kart-k1", ad: "QNB", tarih: new Date(2026, 9, 9), odendi: false }];
+  const dolu = kurulmus({ loans: [{ id: "l1", kalanBorc: 1000 }], expenses: harcamalar });
+  const d = rehberDurumu(dolu, { simdi: SIMDI, yaklasan });
+  assert.equal(d.asama, "dolu");
+  assert.equal(d.oneri, null);
+  assert.equal(rehberDurumu(kurulmus({ expenses: harcamalar }), { simdi: SIMDI }).asama, "tamamla");
+  assert.equal(rehberDurumu(kurulmus({ loans: [{ id: "l1" }], expenses: harcamalar.slice(0, 4) }), { simdi: SIMDI }).oneri.tur, "tamamla");
+});
