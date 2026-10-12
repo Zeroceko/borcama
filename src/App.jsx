@@ -3139,7 +3139,6 @@ export default function BorcTakip() {
             >
               <Sparkles size={14} aria-hidden="true" />
               <span>Borcama'ya sor</span>
-              <em className="bt-assistant-beta">Beta</em>
             </button>
             {!reklamsiz.yukleniyor && !etkinPro && (
               <button
@@ -3194,7 +3193,7 @@ export default function BorcTakip() {
             aria-label="Borcama'ya sor"
           >
             <Sparkles aria-hidden="true" />
-            <span>Borcama'ya sor <em className="bt-assistant-beta">Beta</em></span>
+            <span>Borcama'ya sor</span>
           </button>
         </nav>
 
@@ -4233,7 +4232,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       <section className="bt-modal bt-assistant-modal" role="dialog" aria-modal="true" aria-labelledby="bt-assistant-title">
         <div className="bt-assistant-head">
           <span className="bt-assistant-mark"><Sparkles size={20}/></span>
-          <div><h2 id="bt-assistant-title">Borcama Asistanı <em className="bt-assistant-beta">Beta</em></h2><p>Finansal tablonu anlaşılır bir sonraki adıma dönüştürür.</p></div>
+          <div><h2 id="bt-assistant-title">Borcama Asistanı</h2><p>Finansal tablonu anlaşılır bir sonraki adıma dönüştürür.</p></div>
           <button className="bt-assistant-close" type="button" aria-label="Asistanı kapat" onClick={kapat}><X size={17}/></button>
         </div>
         {!yapayZekaIzni && (

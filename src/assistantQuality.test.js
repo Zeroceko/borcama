@@ -253,7 +253,8 @@ test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", 
   assert.match(kaynak, /\.bt-nav-ana \.bt-assistant-nav\{display:none\}/);
   assert.match(kaynak, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(kaynak, /className="bt-assistant-trigger"/);
-  assert.match(kaynak, /bt-assistant-beta">Beta/);
+  // App Store 2.2: mağaza sürümünde beta etiketi olmaz.
+  assert.doesNotMatch(kaynak, /bt-assistant-beta">Beta/);
   assert.match(kaynak, /Sonuçları kontrol edin/);
 });
 
