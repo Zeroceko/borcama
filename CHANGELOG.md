@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.66.2] - 2026-10-12
+
+### Kaldırıldı
+
+- Borcama Asistanı'ndaki "Beta" etiketi kaldırıldı (pencere başlığı, menü düğmesi, landing ürün görseli); App Store 2.2 gereği mağaza sürümünde beta ifadesi yer almıyor.
+
 ## [1.66.1] - 2026-10-12
 
 ### Değiştirildi

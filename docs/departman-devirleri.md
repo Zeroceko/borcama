@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.1`, sürüm `1.66.2`, dal `claude/beta-etiketi`: App Store reddi (Guideline 2.2) üzerine asistandaki "Beta" etiketleri `App.jsx` ve `LandingGrowth.jsx`'ten kaldırıldı; `assistantQuality.test.js` artık etiketin olmadığını doğruluyor. iOS paketi bu web kodundan yeniden derlenmeli (iOS sorumlusu).
+
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.65.1`, sürüm `1.66.0`, dal `claude/crm-buyume`: CRM 2. aşama, Büyüme ekranı `src/crm/Buyume.jsx` ile yeniden yazıldı (eski `Analytics.jsx` yalnız eski `/analytics` yolunda). `backoffice` GET `analytics.olcum`: son 7/30 gün tekil oturumlarda giriş grubuna göre landing_visit/landing_scroll_half/landing_cta_click/content_product_click/register_view sayımı (kişisel veri yok). PMax ve LANDING-003 kartları yeni ekranda yok. Test, build; `/crm-preview/buyume` masaüstü ve 375px ekran görüntüsüyle kontrol edildi.
 
 - 2026-10-11 · Ürün ve Mühendislik · Baz `1.65.0`, sürüm `1.65.1`, dal `claude/olay-sirasi`: SEO tasfiye planı Adım 0.1 (olay sırası). `main.jsx` Kok'taki `landing_visit` `useLayoutEffect`'e alındı; migration `20261011220000_tool_funnel_event_order.sql` iki araç RPC'sinde olay koşulunu `entered_at - 1 dakika` ve yolu `rtrim(path,'/')` ile eşliyor (canlıya uygulandı, fonksiyon tanımları doğrulandı). 306 test, build.
