@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.66.3] - 2026-10-12
+
+### Değiştirildi
+
+- Ek hesap / KMH listesinde borcu süren hesaplar üstte, borcu kapanan (kalan 0) hesaplar en altta gösteriliyor.
+
 ## [1.66.2] - 2026-10-12
 
 ### Kaldırıldı
