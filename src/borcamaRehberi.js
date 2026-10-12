@@ -7,6 +7,10 @@ import { getActivationState } from "./productActivation.js";
 
 const GUN = 86400000;
 export const REHBER_ERTELEME_GUNU = 3;
+// Kayda değer veri: bu kadar borç ve harcama/gider kaydı giren kullanıcı ürünü
+// öğrenmiştir; rehber artık hiç görünmez.
+export const REHBER_DOLU_BORC = 2;
+export const REHBER_DOLU_HARCAMA = 5;
 
 const ayAnahtari = (tarih) => `${tarih.getFullYear()}-${String(tarih.getMonth() + 1).padStart(2, "0")}`;
 
@@ -36,6 +40,14 @@ function kullanimAylari(veri) {
   return aylar;
 }
 
+export function yeterliVeriVar(veri) {
+  return (
+    borcKalemSayisi(veri) >= REHBER_DOLU_BORC &&
+    (veri?.expenses?.length || 0) >= REHBER_DOLU_HARCAMA &&
+    (veri?.incomes || []).some((g) => Number(g?.tutar) > 0)
+  );
+}
+
 function kartAdi(kart) {
   return [kart?.banka, kart?.ad].filter(Boolean).join(" · ") || "Kartın";
 }
@@ -43,6 +55,7 @@ function kartAdi(kart) {
 export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
   const ayar = veri?.ayarlar?.rehber || {};
   if (ayar.mezun) return { asama: "mezun", oneri: null };
+  if (yeterliVeriVar(veri)) return { asama: "dolu", oneri: null };
 
   const kurulum = getActivationState(veri);
   if (!kurulum.tamam) {

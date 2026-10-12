@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.66.5] - 2026-10-12
+
+### Değiştirildi
+
+- Borcama rehberi, kayda değer veri giren kullanıcıda (en az 2 borç kaydı, 5 harcama/gider ve gelir) artık hiç görünmüyor; rehber yalnız kullanıcı bu noktaya gelene kadar yol gösteriyor.
+
 ## [1.66.4] - 2026-10-12
 
 ### Değiştirildi
