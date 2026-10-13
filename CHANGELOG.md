@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasında hesap açmadan kullanım eklendi; karşılama ekranındaki "Hesap açmadan devam et" ile borçlar, ekstreler, varlıklar ve tüm hesaplamalar kayıt olmadan kullanılabiliyor, kayıtlar yalnızca cihazda tutuluyor. Kullanıcı sonradan hesap açtığında ya da giriş yaptığında cihazdaki kayıtlar hesabına taşınıyor; hesapta zaten kayıt varsa üzerine yazılmıyor. Tarayıcı sürümündeki akış değişmedi.
 - iOS uygulamasında Apple ile giriş eklendi; giriş ve kayıt ekranlarında tek dokunuşla hesap açılabiliyor veya girilebiliyor.
 
 - iOS uygulamasında Pro satın alma kartında abonelik adı, süresi ve fiyatı ile Kullanım Şartları, Gizlilik Politikası ve İade Politikası bağlantıları gösteriliyor; aynı kartta "Satın alımları geri yükle" seçeneği yer alıyor.
@@ -31,6 +32,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında giriş ve kayıt ekranının üstünde alt sekme çubuğu artık görünmüyor; çubuğun altında kalan "Giriş yap" ve sözleşme bağlantılarına ulaşılabiliyor.
 - Koyu temada Borcama logosu okunuyor; harfler koyu zeminde kaybolmuyordu.
 - iOS uygulamasında alt sekme çubuğu uygulamanın kendi temasını izliyor; koyu temada seçili sekme açık renkle gösteriliyor, önceden koyu zeminde koyu kalıyordu.
 - iOS uygulamasında alt sekme çubuğu ekranın altından biraz yukarı alındı.
@@ -60,6 +62,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iOS uygulamasında Pro üyelik durumu ve abonelik fiyatları artık yükleniyor; ekran "Fiyat yükleniyor…" ve "Kontrol ediliyor…" durumunda takılı kalmıyor.
 - iOS uygulamasında Pro üyelik durumu, davet kodu, hesap silme ve Borcama'ya sor artık çalışıyor; native kabuğun sunucu isteklerini engelleyen kaynak kısıtı giderildi. Tarayıcı sürümü etkilenmedi.
 - iOS uygulamasında daha önce Pro planı seçmiş bir kullanıcı e-posta bağlantısıyla giriş yaptığında bağlantı uygulamaya dönüyor; önceden tarayıcıda açılıyordu. Seçilen plan korunuyor ve Pro ekranı açıldığında geri geliyor. Tarayıcı sürümündeki yönlendirme değişmedi.
+
+### Kaldırıldı
+
+- iOS uygulamasından "Beta" rozetleri, "Görüş bildir" düğmesi ve Ayarlar'daki "Yakında" satırları kaldırıldı; uygulama sürümünde yalnızca kullanıma hazır özellikler görünüyor. Tarayıcı sürümü değişmedi.
 
 ## [1.58.0] - 2026-09-28
 
