@@ -253,7 +253,9 @@ test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", 
   assert.match(kaynak, /\.bt-nav-ana \.bt-assistant-nav\{display:none\}/);
   assert.match(kaynak, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(kaynak, /className="bt-assistant-trigger"/);
-  assert.match(kaynak, /bt-assistant-beta">Beta/);
+  // Apple, uretim surumunde "Beta" etiketini beta testi ozelligi sayip
+  // reddetti (Guideline 2.2); rozet kaldirildi ve geri gelmemeli.
+  assert.doesNotMatch(kaynak, /bt-assistant-beta">Beta/);
   assert.match(kaynak, /Sonuçları kontrol edin/);
 });
 

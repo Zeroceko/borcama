@@ -7,6 +7,7 @@ import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import DogrulamaEkrani from "./DogrulamaEkrani.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import { proNiyetiniOku } from "./proIntent.js";
+import { misafirModuAcik, misafirVerisiniHesabaTasi } from "./misafirModu.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi } from "./funnelAnalytics.js";
@@ -100,6 +101,8 @@ function OnboardingKapisi({ children, yol }) {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
   if (session) return children;
+  // Hesapsiz kullanan kisi karsilama akisina geri dusmemeli.
+  if (misafirModuAcik()) return children;
   if (yol === "/login" || yol === "/register") return children;
   return <Onboarding baslangic={onboardingTamamlandiMi() ? KARAR_ADIMI : 0} />;
 }
@@ -467,9 +470,33 @@ function LandingDeneyi({ experiment = {} }) {
 
 function KimlikliKok() {
   const session = useSession();
+  // Hesapsiz kullanimdan hesaba gecildiginde cihazdaki kayitlar once hesaba
+  // tasinir; tasima bitene kadar uygulama acilmaz ki bos veriyle baslamasin.
+  const [misafirTasimaBekliyor, setMisafirTasimaBekliyor] = useState(() =>
+    misafirModuAcik(),
+  );
+
+  useEffect(() => {
+    if (!session) return undefined;
+    if (!misafirModuAcik()) {
+      setMisafirTasimaBekliyor(false);
+      return undefined;
+    }
+    let iptal = false;
+    misafirVerisiniHesabaTasi().finally(() => {
+      if (!iptal) setMisafirTasimaBekliyor(false);
+    });
+    return () => {
+      iptal = true;
+    };
+  }, [session]);
 
   if (session === undefined) {
     return <Yukleniyor />;
+  }
+
+  if (!session && misafirModuAcik()) {
+    return <App />;
   }
 
   if (!session) {
@@ -478,6 +505,10 @@ function KimlikliKok() {
       ? `${window.location.pathname}${window.location.search}`
       : "/summary";
     return <GirisEkrani redirectTo={uygulamaIciHedef} />;
+  }
+
+  if (misafirTasimaBekliyor) {
+    return <Yukleniyor />;
   }
 
   const bekleyenPlan = proNiyetiniOku();

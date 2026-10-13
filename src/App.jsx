@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
 import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
+import { misafirModuAcik } from "./misafirModu.js";
 import {
   nativeSekmeCubuguVarMi,
   sekmeCubuguHazirla,
@@ -2488,6 +2489,9 @@ export default function BorcTakip() {
     }
   }
 
+  // Hesapsiz kullanim: hesaba bagli isler (Pro, asistan, cikis, davet, hesap
+  // silme) kayit ekranina yonlendirilir; geri kalan her sey cihazda calisir.
+  const misafir = misafirModuAcik();
   const isDark = (veri.ayarlar || {}).tema === "dark";
   const ozelBankalar = (veri.ayarlar || {}).ozelBankalar || [];
   const bankalar = useMemo(
@@ -3289,18 +3293,23 @@ export default function BorcTakip() {
             <button
               className="bt-assistant-header"
               type="button"
-              onClick={() => setAsistanPenceresi(true)}
+              onClick={() =>
+                misafir
+                  ? window.location.assign("/register")
+                  : setAsistanPenceresi(true)
+              }
               aria-label="Borcama'ya sor"
             >
               <Sparkles size={14} aria-hidden="true" />
               <span>Borcama'ya sor</span>
-              <em className="bt-assistant-beta">Beta</em>
             </button>
             {reklamsiz.kontrolEdildi && !etkinPro && (
               <button
                 className="bt-upgrade-link"
                 type="button"
-                onClick={() => window.location.assign("/upgrade?plan=monthly")}
+                onClick={() =>
+                  window.location.assign(misafir ? "/register" : "/upgrade?plan=monthly")
+                }
               >
                 <Sparkles size={14} /> Pro'ya Geç
               </button>
@@ -3327,9 +3336,18 @@ export default function BorcTakip() {
               />
             </button>
             <div className="bt-themelabel">{isDark ? "Koyu" : "Açık"}</div>
-            <button className="bt-exit" onClick={cikisYap}>
-              Çıkış →
-            </button>
+            {misafir ? (
+              <button
+                className="bt-exit"
+                onClick={() => window.location.assign("/register")}
+              >
+                Hesap aç →
+              </button>
+            ) : (
+              <button className="bt-exit" onClick={cikisYap}>
+                Çıkış →
+              </button>
+            )}
           </div>
         </header>
 
@@ -3358,12 +3376,13 @@ export default function BorcTakip() {
             type="button"
             onClick={() => {
               dokunusGeriBildirimi();
-              setAsistanPenceresi(true);
+              if (misafir) window.location.assign("/register");
+              else setAsistanPenceresi(true);
             }}
             aria-label="Borcama'ya sor"
           >
             <Sparkles aria-hidden="true" />
-            <span>Borcama'ya sor <em className="bt-assistant-beta">Beta</em></span>
+            <span>Borcama'ya sor</span>
           </button>
         </nav>
 
@@ -3690,12 +3709,17 @@ export default function BorcTakip() {
       >
         {hizliMenuAcik ? <X size={18} /> : <Plus size={18} />} <span>Hızlı işlem</span>
       </button>
-      <button
-        className="bt-feedback-trigger"
-        onClick={() => setGeriBildirimPenceresi(true)}
-      >
-        <MessageCircle size={16} /> Görüş bildir
-      </button>
+      {/* Geri bildirim dugmesi beta testi ozelligi olarak degerlendirildigi
+          icin uygulama surumunde gosterilmiyor (Guideline 2.2). Tarayici
+          surumunde duruyor. */}
+      {!nativeMi && (
+        <button
+          className="bt-feedback-trigger"
+          onClick={() => setGeriBildirimPenceresi(true)}
+        >
+          <MessageCircle size={16} /> Görüş bildir
+        </button>
+      )}
       <BorcamaAsistani
         key={kullaniciEposta || "demo"}
         acik={asistanPenceresi}
@@ -4376,7 +4400,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       <section className="bt-modal bt-assistant-modal" role="dialog" aria-modal="true" aria-labelledby="bt-assistant-title">
         <div className="bt-assistant-head">
           <span className="bt-assistant-mark"><Sparkles size={20}/></span>
-          <div><h2 id="bt-assistant-title">Borcama Asistanı <em className="bt-assistant-beta">Beta</em></h2><p>Finansal tablonu anlaşılır bir sonraki adıma dönüştürür.</p></div>
+          <div><h2 id="bt-assistant-title">Borcama Asistanı</h2><p>Finansal tablonu anlaşılır bir sonraki adıma dönüştürür.</p></div>
           <button className="bt-assistant-close" type="button" aria-label="Asistanı kapat" onClick={kapat}><X size={17}/></button>
         </div>
         {!yapayZekaIzni && (
@@ -4669,6 +4693,8 @@ function Ayarlar({
   const [iptalDurumu, setIptalDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const [kartDurumu, setKartDurumu] = useState({ yukleniyor: false, hata: "", tamam: false });
   const [olcumIzni, setOlcumIzni] = useState(() => googleAdsOlcumTercihi() === true);
+  // Hesapsiz kullanimda hesaba bagli bolumler gizleniyor.
+  const misafir = misafirModuAcik();
   const [hesapSilmeAcik, setHesapSilmeAcik] = useState(false);
   const [hesapSilmeMetni, setHesapSilmeMetni] = useState("");
   const [hesapSilmeDurumu, setHesapSilmeDurumu] = useState({ yukleniyor: false, hata: "" });
@@ -4760,6 +4786,32 @@ function Ayarlar({
         </div>
       </div>
       <div className="bt-settings-grid">
+        {/* Hesapsiz kullanimda abonelik satin alinamaz; App Store aboneligi
+            hesaba baglandigi icin once hesap acilmasi gerekiyor. Satin alma
+            arayuzu yerine ne yapilacagini soyleyen bir kart gosteriliyor. */}
+        {misafir ? (
+          <section className="bt-premium-card">
+            <div className="bt-premium-copy">
+              <span className="bt-premium-badge">
+                <Sparkles size={13} /> AYLIK VE YILLIK PLAN
+              </span>
+              <h2>Pro için önce hesap aç.</h2>
+              <p>
+                Borcama'yı hesapsız kullanmaya devam edebilirsin; kayıtların bu
+                cihazda duruyor. Pro aboneliği, kayıtlarının cihazlar arasında
+                eşlenmesi ve yedeklenmesi için hesap gerekir. Hesap açtığında bu
+                cihazdaki kayıtların hesabına taşınır.
+              </p>
+              <button
+                className="bt-btn birincil"
+                type="button"
+                onClick={() => window.location.assign("/register")}
+              >
+                <Sparkles size={15} /> Hesap aç
+              </button>
+            </div>
+          </section>
+        ) : (
         <section className="bt-premium-card">
           <div className="bt-premium-copy">
             <span className="bt-premium-badge">
@@ -4933,7 +4985,10 @@ function Ayarlar({
             )}
           </div>
         </section>
-        <DavetKarti />
+        )}
+        {!misafir && <DavetKarti />}
+        {/* Hesap bolumu yalnizca hesabi olan kullanici icin anlamli. */}
+        {!misafir && (
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <AtSign size={18} /> Hesap
@@ -4963,6 +5018,8 @@ function Ayarlar({
             </button>
           </div>
         </section>
+        )}
+        {!misafir && (
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <KeyRound size={18} /> Giriş yöntemleri
@@ -4990,6 +5047,7 @@ function Ayarlar({
             </span>
           </div>
         </section>
+        )}
         <BiyometrikAyar />
         <OdemeHatirlatmaAyari />
         <section className="bt-settings-card">
@@ -5015,25 +5073,29 @@ function Ayarlar({
             </button>
           </div>
         </section>
-        <section className="bt-settings-card">
-          <div className="bt-settings-title">
-            <Bell size={18} /> Bildirimler
-          </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Ödeme hatırlatmaları</strong>
-              <small>Yaklaşan kredi ve kart ödemeleri.</small>
+        {/* "Yakinda" satirlari henuz olmayan ozellikleri duyuruyor; uygulama
+            surumunde gosterilmiyorlar. Tarayici surumu degismedi. */}
+        {!nativeMi && (
+          <section className="bt-settings-card">
+            <div className="bt-settings-title">
+              <Bell size={18} /> Bildirimler
             </div>
-            <span className="bt-yakinda">Yakında</span>
-          </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Ekstre hatırlatmaları</strong>
-              <small>Yeni dönem ekstresi giriş zamanı.</small>
+            <div className="bt-setting-row">
+              <div>
+                <strong>Ödeme hatırlatmaları</strong>
+                <small>Yaklaşan kredi ve kart ödemeleri.</small>
+              </div>
+              <span className="bt-yakinda">Yakında</span>
             </div>
-            <span className="bt-yakinda">Yakında</span>
-          </div>
-        </section>
+            <div className="bt-setting-row">
+              <div>
+                <strong>Ekstre hatırlatmaları</strong>
+                <small>Yeni dönem ekstresi giriş zamanı.</small>
+              </div>
+              <span className="bt-yakinda">Yakında</span>
+            </div>
+          </section>
+        )}
         {/* Uygulama surumunde Google Analytics ve reklam etiketi hic
             yuklenmiyor; olculecek bir sey olmadigi icin izin satiri da
             gosterilmiyor. Apple, olcum izni soran uygulama ici metni
@@ -5069,22 +5131,27 @@ function Ayarlar({
           <div className="bt-settings-title">
             <Database size={18} /> Veri ve yönetim
           </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Bankaları yönet</strong>
-              <small>Özel banka adlarını düzenle veya kaldır.</small>
-            </div>
-            <span className="bt-yakinda">
-              <Building2 size={11} /> Yakında
-            </span>
-          </div>
-          <div className="bt-setting-row">
-            <div>
-              <strong>Verileri dışa aktar</strong>
-              <small>Borcama kayıtlarının kişisel bir kopyasını indir.</small>
-            </div>
-            <span className="bt-yakinda">Yakında</span>
-          </div>
+          {!nativeMi && (
+            <>
+              <div className="bt-setting-row">
+                <div>
+                  <strong>Bankaları yönet</strong>
+                  <small>Özel banka adlarını düzenle veya kaldır.</small>
+                </div>
+                <span className="bt-yakinda">
+                  <Building2 size={11} /> Yakında
+                </span>
+              </div>
+              <div className="bt-setting-row">
+                <div>
+                  <strong>Verileri dışa aktar</strong>
+                  <small>Borcama kayıtlarının kişisel bir kopyasını indir.</small>
+                </div>
+                <span className="bt-yakinda">Yakında</span>
+              </div>
+            </>
+          )}
+          {!misafir && (
           <div className="bt-setting-row">
             <div>
               <strong>Hesabı ve verileri sil</strong>
@@ -5098,6 +5165,7 @@ function Ayarlar({
               <Trash2 size={14} /> Hesabımı sil
             </button>
           </div>
+          )}
         </section>
       </div>
       {paketYonetimiAcik && reklamsiz.proYonetimUrl && (

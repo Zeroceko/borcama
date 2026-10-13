@@ -421,3 +421,14 @@
 @media (prefers-reduced-motion: reduce) {
   .ob, .ob-noktalar span { transition: none; }
 }
+
+/* Hesapsiz devam secenegi: ana iki secenegin altinda, daha sakin bir duzeyde. */
+.ob-dugme-duz {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 40px;
+  font-size: 13.5px;
+}

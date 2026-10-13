@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ArrowRight, Check, Diamond, Target, Wallet } from "lucide-react";
 import { onboardingTamamla } from "./onboardingDurumu.js";
+import { misafirModunuAc } from "./misafirModu.js";
 import "./onboarding.css";
 
 // iOS onboarding: dort ekran. Ilk uc ekran urunun ne yaptigini anlatir,
@@ -187,6 +188,18 @@ export default function Onboarding({ baslangic = 0 }) {
             </button>
             <button className="ob-dugme" type="button" onClick={() => bitir("/login")}>
               Giriş yap
+            </button>
+            {/* Hesapsiz kullanim: kayit olmadan uygulamanin tamami kullanilabilir,
+                veriler cihazda kalir. Hesap sonradan acilinca kayitlar tasinir. */}
+            <button
+              className="ob-dugme ob-dugme-duz"
+              type="button"
+              onClick={() => {
+                misafirModunuAc();
+                bitir("/summary");
+              }}
+            >
+              Hesap açmadan devam et
             </button>
           </div>
         </div>

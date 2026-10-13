@@ -1,4 +1,11 @@
 import { supabase, demoModu } from "./supabaseClient.js";
+import { misafirModuAcik } from "./misafirModu.js";
+
+// Hesapsiz kullanimda ve yerel demo modunda veriler cihazda tutulur; oturum
+// gerektiren Supabase yolu yalnizca hesabi olan kullanici icin calisir.
+function yerelDepoMu() {
+  return demoModu || misafirModuAcik();
+}
 
 const AZAMI_VERI_BOYUTU = 2 * 1024 * 1024;
 const surumler = new Map();
@@ -20,7 +27,7 @@ async function userId() {
 const storage = {
   async get(key) {
     anahtarKontrol(key);
-    if (demoModu) {
+    if (yerelDepoMu()) {
       const value = localStorage.getItem(key);
       if (value === null) return { key, value: null };
       return { key, value };
@@ -44,7 +51,7 @@ const storage = {
   async set(key, value) {
     anahtarKontrol(key);
     if (typeof value !== "string" || new Blob([value]).size > AZAMI_VERI_BOYUTU) throw new Error("Veri boyutu sınırı aşıldı");
-    if (demoModu) {
+    if (yerelDepoMu()) {
       localStorage.setItem(key, value);
       return { key, value };
     }
@@ -68,7 +75,7 @@ const storage = {
 
   async delete(key) {
     anahtarKontrol(key);
-    if (demoModu) {
+    if (yerelDepoMu()) {
       localStorage.removeItem(key);
       return { key, deleted: true };
     }
@@ -80,7 +87,7 @@ const storage = {
 
   async list(prefix = "") {
     if (prefix && !/^borctakip:v\d*$/.test(prefix)) throw new Error("Geçersiz veri anahtarı");
-    if (demoModu) {
+    if (yerelDepoMu()) {
       const keys = Object.keys(localStorage).filter((key) => key.startsWith(prefix));
       return { keys, prefix };
     }
