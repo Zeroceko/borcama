@@ -113,8 +113,13 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         NSLayoutConstraint.activate([
             yeni.leadingAnchor.constraint(equalTo: pencere.leadingAnchor),
             yeni.trailingAnchor.constraint(equalTo: pencere.trailingAnchor),
-            yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor),
         ])
+        // UITabBar kendi icinde ev cubugu icin bosluk birakiyor; guvenli alana
+        // oturtuldugunda bu bosluk ustune binince cubuk ekranin cok
+        // yukarisinda kaliyordu. Yukseklige dokunmadan asagi kaydiriliyor ki
+        // ic yerlesim (simge ve etiket hizasi) bozulmasin.
+        yeni.transform = CGAffineTransform(translationX: 0, y: 33)
         pencere.bringSubviewToFront(yeni)
 
         // Klavye acilinca cubuk klavyenin uzerinde asili kalmasin.

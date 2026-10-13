@@ -35,7 +35,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iOS uygulamasında giriş ve kayıt ekranının üstünde alt sekme çubuğu artık görünmüyor; çubuğun altında kalan "Giriş yap" ve sözleşme bağlantılarına ulaşılabiliyor.
 - Koyu temada Borcama logosu okunuyor; harfler koyu zeminde kaybolmuyordu.
 - iOS uygulamasında alt sekme çubuğu uygulamanın kendi temasını izliyor; koyu temada seçili sekme açık renkle gösteriliyor, önceden koyu zeminde koyu kalıyordu.
-- iOS uygulamasında alt sekme çubuğu ekranın altından biraz yukarı alındı.
+- iOS uygulamasında alt sekme çubuğu ekranın altına, ev çubuğunun hemen üstüne oturuyor; önceden ekranın epey yukarısında kalıyordu.
 - iOS uygulamasında kaydırma çubuğu görünmüyor.
 - iOS uygulamasında kayıt ve giriş ekranı tek ekrana sığıyor; kart içinde kaydırma gerekmiyor.
 
