@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-14 · Ürün ve Mühendislik (gece ekibi) · Baz `1.66.5`, sürüm yayında belirlenecek, dal `claude/arac-tutar-tek-satir`: PM iş listesi madde 2 (sürtünme #4). `.seo-summary strong` `overflow-wrap:anywhere` yüzünden 851–1060px aralığında "₺22.168,7 / 2" gibi bölünüyordu. Sonuç kartı artık `seo-sonuc` adlı container; kart 520px altındaysa özet kutuları tek sütun, tutarlar `nowrap` ve `--karakter` (biçimlenmiş tutar uzunluğu) ile `100cqi`ye sığacak şekilde küçülüyor; kısa tutarlar eski boyutta. Yeni `BuyukTutar` bileşeni 6 aracın büyük tutarını kapsıyor. 7 araç × 320/375/800/950/1280px'de varsayılan ve 98 milyonluk girdiyle tek satır, taşma yok. Migration veya Edge Function yok. Ayrı not: 320px'de giriş paneli (`.seo-panel`) ~25px yatay taşıyor; bu işten bağımsız, önceden var.
+
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.4`, sürüm `1.66.5`, dal `claude/rehber-dolu-kullanici`: Özer talebi; `borcamaRehberi.js` `yeterliVeriVar` (borç ≥2, expenses ≥5, gelir >0) sağlanınca `asama: "dolu"`, öneri yok. 12 Eki itibarıyla 27 kullanıcı kaydından 2'si eşiği geçiyor (salt okunur sayım). Test: `borcamaRehberi.test.js`; demo hesapta 1 ve 5 harcamayla kontrol edildi.
 
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.3`, sürüm `1.66.4`, dal `claude/ek-hesap-kapananlar`: Özer talebi; `ekHesaplariSirala` yerine `ekHesaplariAyir`, kapanan ek hesaplar kapatılan krediler stilinde "Kapattığın borçlar" bölümünde; satır JSX'i `borcSatiri` yardımcısına alındı. Test: `ekHesapSiralama.test.js`.

@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Hesaplama araçlarının sonuç kartında tutarlar artık ikiye bölünmüyor; dar ekranda kutular alt alta diziliyor ve çok uzun tutarlarda yazı tek satıra sığacak kadar küçülüyor.
+
 ## [1.66.5] - 2026-10-12
 
 ### Değiştirildi
