@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-14 · Ürün ve Mühendislik (gece ekibi) · Baz `1.66.5`, sürüm PR'da CTO belirler (öneri patch), dal `claude/kart-formu-donem-secici`: PM iş listesi madde 3 (sürtünme #5); `App.jsx` Borçlar ekranında kart ve kredi dönem seçicisi `!acik` koşuluyla form açıkken gizleniyor (ödeme grafiği gibi). Veri ve hesaplama değişmez. Test: `donemSeciciForm.test.js`; demo hesapta masaüstü + 375px kontrol edildi.
+
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.4`, sürüm `1.66.5`, dal `claude/rehber-dolu-kullanici`: Özer talebi; `borcamaRehberi.js` `yeterliVeriVar` (borç ≥2, expenses ≥5, gelir >0) sağlanınca `asama: "dolu"`, öneri yok. 12 Eki itibarıyla 27 kullanıcı kaydından 2'si eşiği geçiyor (salt okunur sayım). Test: `borcamaRehberi.test.js`; demo hesapta 1 ve 5 harcamayla kontrol edildi.
 
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.3`, sürüm `1.66.4`, dal `claude/ek-hesap-kapananlar`: Özer talebi; `ekHesaplariSirala` yerine `ekHesaplariAyir`, kapanan ek hesaplar kapatılan krediler stilinde "Kapattığın borçlar" bölümünde; satır JSX'i `borcSatiri` yardımcısına alındı. Test: `ekHesapSiralama.test.js`.
