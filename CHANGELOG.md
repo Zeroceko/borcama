@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.67.1] - 2026-10-14
+
+### Eklendi
+
+- Borcama Asistanı döviz, altın, gümüş ve bitcoin çevirisi sorularını güncel kurla (TCMB döviz satış, Gold API, CoinGecko) yanıtlıyor; kurlar sunucuda alınıyor ve kur tarihi yanıtta belirtiliyor.
+
+### Düzeltildi
+
+- Asistan, gidilecek anlamlı bir ekran olmayan yanıtlarda (kur çevirisi, genel bilgi) artık anlamsız aksiyon butonu göstermiyor.
+- `financial-assistant` fonksiyonundaki iOS kaynağı (`capacitor://borcama.com`) repoya işlendi; canlıdaki izin korunuyor.
+
 ## [1.67.0] - 2026-10-14
 
 ### Değiştirildi

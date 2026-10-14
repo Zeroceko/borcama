@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-14 · Ürün ve Mühendislik · Baz `1.67.0`, sürüm `1.67.1`, dal `claude/asistan-kur`: Özer talebi. `_shared/financialAssistantRates.js` `/api/market-prices`ten kur özeti (3 sn zaman aşımı, hata → null); `financial-assistant` bağlama `guncelPiyasaKurlari` ekliyor, istemcinin aynı alanı atılıyor; prompt çeviri ve `route="none"` kuralı; App.jsx route none'da buton yok. Deploy öncesi canlı fonksiyonda main'de olmayan `capacitor://borcama.com` origin'i bulundu, koda eklendi; deploy edildi, indirilen kaynak repoyla aynı. Diğer Edge Function'larda da iOS origin'i yalnız canlıda olabilir: deploy öncesi indirip karşılaştır. Test: `asistanKur.test.js`.
+
 - 2026-10-14 · Ürün ve Mühendislik · Baz `1.66.5`, sürüm `1.67.0`, dal `claude/asistan-kota`: Özer kararı; migration `20261014120000_financial_assistant_free_limit_5.sql` (ücretsiz 3→5, Pro/deneme 20; canlı tanım repodakiyle aynıydı, uygulandı). `BorcamaAsistani` `proAc` ile upsell, plan etiketi `quota.limit`ten. Not: Özer'in hesabında Pro iOS sandbox aboneliğinden; webhook sandbox'ı sunucu hakkına yazmıyor (tasarım gereği), admin Pro 9 Eki'de bitmiş. Test: `asistanKota.test.js`; upsell masaüstü ve 375px kontrol edildi.
 
 - 2026-10-12 · Ürün ve Mühendislik · Baz `1.66.4`, sürüm `1.66.5`, dal `claude/rehber-dolu-kullanici`: Özer talebi; `borcamaRehberi.js` `yeterliVeriVar` (borç ≥2, expenses ≥5, gelir >0) sağlanınca `asama: "dolu"`, öneri yok. 12 Eki itibarıyla 27 kullanıcı kaydından 2'si eşiği geçiyor (salt okunur sayım). Test: `borcamaRehberi.test.js`; demo hesapta 1 ve 5 harcamayla kontrol edildi.
