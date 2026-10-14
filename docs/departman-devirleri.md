@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-14 · Ürün ve Mühendislik · Baz `1.67.1`, sürüm `1.67.2`, dal `claude/asistan-pro-ayri-kota`: Özer kararı; migration `20261014180000_financial_assistant_separate_pro_quota.sql` (`pro_question_count`, `financial_assistant_pro_active`, consume/refund güncellendi). Canlıda rollback'li işlemde Pro 20/21 izin, ücretsiz 5/7 izin ve iade doğrulandı; sonra uygulandı. Web kodu değişmedi.
+
 - 2026-10-14 · Ürün ve Mühendislik · Baz `1.67.0`, sürüm `1.67.1`, dal `claude/asistan-kur`: Özer talebi. `_shared/financialAssistantRates.js` `/api/market-prices`ten kur özeti (3 sn zaman aşımı, hata → null); `financial-assistant` bağlama `guncelPiyasaKurlari` ekliyor, istemcinin aynı alanı atılıyor; prompt çeviri ve `route="none"` kuralı; App.jsx route none'da buton yok. Deploy öncesi canlı fonksiyonda main'de olmayan `capacitor://borcama.com` origin'i bulundu, koda eklendi; deploy edildi, indirilen kaynak repoyla aynı. Diğer Edge Function'larda da iOS origin'i yalnız canlıda olabilir: deploy öncesi indirip karşılaştır. Test: `asistanKur.test.js`.
 
 - 2026-10-14 · Ürün ve Mühendislik · Baz `1.66.5`, sürüm `1.67.0`, dal `claude/asistan-kota`: Özer kararı; migration `20261014120000_financial_assistant_free_limit_5.sql` (ücretsiz 3→5, Pro/deneme 20; canlı tanım repodakiyle aynıydı, uygulandı). `BorcamaAsistani` `proAc` ile upsell, plan etiketi `quota.limit`ten. Not: Özer'in hesabında Pro iOS sandbox aboneliğinden; webhook sandbox'ı sunucu hakkına yazmıyor (tasarım gereği), admin Pro 9 Eki'de bitmiş. Test: `asistanKota.test.js`; upsell masaüstü ve 375px kontrol edildi.

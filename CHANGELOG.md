@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.67.2] - 2026-10-14
+
+### Değiştirildi
+
+- Asistanda Pro'ya geçen kullanıcı, o gün ücretsizken kullandığı sorulardan bağımsız olarak günde 20 soru hakkı alıyor; ücretsiz ve Pro soruları ayrı sayılıyor.
+
 ## [1.67.1] - 2026-10-14
 
 ### Eklendi

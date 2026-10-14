@@ -20,3 +20,11 @@ test("ücretsiz hak bitince Pro'yu aktif et butonu çıkar; plan etiketi sunucu 
   assert.match(app, /Pro'yu aktif et/);
   assert.match(app, /modelDurumu\.kota\?\.limit \? modelDurumu\.kota\.limit >= ASISTAN_PRO_SORU : proAktif/);
 });
+
+test("Pro günlük 20 soru, ücretsiz kullanımdan ayrı sayılır", () => {
+  const ayri = readFileSync(resolve(kok, "supabase/migrations/20261014180000_financial_assistant_separate_pro_quota.sql"), "utf8");
+  assert.match(ayri, /add column if not exists pro_question_count/);
+  assert.match(ayri, /question_limit := case when pro then 20 else 5 end;/);
+  assert.match(ayri, /pro_question_count < question_limit/);
+  assert.match(ayri, /question_count - public\.financial_assistant_daily_usage\.pro_question_count < question_limit/);
+});
