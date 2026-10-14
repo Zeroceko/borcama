@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.67.0] - 2026-10-14
+
+### Değiştirildi
+
+- Borcama Asistanı'nda ücretsiz plan günlük soru hakkı 3'ten 5'e çıktı; Pro'da günde 20 soru.
+- Asistan, plan etiketini sunucunun uyguladığı limite göre gösteriyor (istemcideki Pro durumu sunucuyla farklıysa yanlış "Pro" görünmez).
+
+### Eklendi
+
+- Ücretsiz soru hakkı bitince asistanda "Pro'yu aktif et" kutusu çıkıyor ve Pro penceresini açıyor.
+
 ## [1.66.5] - 2026-10-12
 
 ### Değiştirildi
