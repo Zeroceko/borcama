@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Kart veya kredi ekleme/düzenleme formu açıkken üstteki "Gösterilen dönem" seçicisi gizleniyor; seçici artık formun bir alanı gibi görünmüyor.
+
 ## [1.66.5] - 2026-10-12
 
 ### Değiştirildi

@@ -8644,7 +8644,8 @@ function Borclar({
             </div>
           )}
 
-          {kategori === "cards" && veri.cards.length > 0 && (
+          {/* Form açıkken dönem seçicisi gizlenir; formun alanı sanılmasın (dönem değişince form zaten kapanır). */}
+          {!acik && kategori === "cards" && veri.cards.length > 0 && (
             <div className="bt-borc-donem-satiri">
               <div>
                 <strong>Gösterilen ekstre dönemi</strong>
@@ -8666,7 +8667,7 @@ function Borclar({
             </div>
           )}
 
-          {kategori === "loans" && veri.loans.length > 0 && (
+          {!acik && kategori === "loans" && veri.loans.length > 0 && (
             <div className="bt-borc-donem-satiri">
               <div>
                 <strong>Gösterilen kredi taksiti dönemi</strong>
