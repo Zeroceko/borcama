@@ -4302,7 +4302,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           <div className="bt-assistant-check"><AlertTriangle size={14}/><span><b>Sonuçları kontrol edin.</b> Asistan hata yapabilir; özellikle faiz, vergi, tarih ve banka tekliflerini resmi belgenizle karşılaştırın.</span></div>
           <small>Borcama, sorularını kaydettiğin verileri yorumlayarak yanıtlar. Yatırım tavsiyesi vermez.</small>
           <div className="bt-assistant-answer-footer">
-            <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>
+            {!(secim === "model" && modelYaniti?.route === "none") && <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>}
             {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : "Ücretsiz"}</span><strong>{modelDurumu.kota.remaining}</strong><span>bugünkü soru hakkın kaldı</span></div>}
             {!asistanProKotasi && proAc && modelDurumu.kota && modelDurumu.kota.remaining <= 0 && (
               <div className="bt-assistant-upsell">
