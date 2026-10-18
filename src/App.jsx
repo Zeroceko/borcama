@@ -4986,7 +4986,10 @@ function Ayarlar({
           </div>
         </section>
         )}
-        {!misafir && <DavetKarti />}
+        {/* Davet programi uygulama surumunde gosterilmiyor: App Store, kodla
+            acilan Pro odulunu uygulama ici satin alma disi bir mekanizma
+            sayiyor. Tarayici surumunde program aynen devam ediyor. */}
+        {!misafir && !nativeMi && <DavetKarti />}
         {/* Hesap bolumu yalnizca hesabi olan kullanici icin anlamli. */}
         {!misafir && (
         <section className="bt-settings-card">
@@ -5749,6 +5752,7 @@ function Ozet({
         </div>
       </div>
 
+      {!nativeMi && (
       <section className="bt-referral-campaign" aria-label="Arkadaşını davet et kampanyası">
         <span className="bt-referral-campaign-ikon" aria-hidden="true"><Gift size={19}/></span>
         <div>
@@ -5759,6 +5763,7 @@ function Ozet({
           Davet et <ChevronRight size={15}/>
         </a>
       </section>
+      )}
 
       {(gelir > 0 || proAktif) && (
         <section className={"bt-pro-senaryo " + (proAktif ? "aktif" : "kilitli")}>

@@ -248,7 +248,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaAttempt, setCaptchaAttempt] = useState(0);
   const [captchaDurumu, setCaptchaDurumu] = useState("loading");
-  const ilkReferansKodu = kayitModu ? davetKodunuYoldanOku("", window.location.search) : "";
+  // Uygulama surumunde referans kodu hic okunmuyor; alan gizli oldugu icin
+  // kod bos kaliyor ve kayitla birlikte sunucuya gonderilmiyor.
+  const ilkReferansKodu = kayitModu && !nativeMi ? davetKodunuYoldanOku("", window.location.search) : "";
   const [referansKodu, setReferansKodu] = useState(ilkReferansKodu);
   const [referansDurumu, setReferansDurumu] = useState(ilkReferansKodu ? "checking" : "idle");
   const [referansAcik, setReferansAcik] = useState(Boolean(ilkReferansKodu));
@@ -744,6 +746,11 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                   onChange={(e) => setParolaTekrar(e.target.value)}
                   required
                 />
+                {/* Referans kodu alani uygulama surumunde yok: App Store, kodla
+                    acilan Pro odulunu uygulama ici satin alma disi bir mekanizma
+                    sayiyor. Tarayici surumunde alan aynen duruyor. */}
+                {!nativeMi && (
+                <>
                 <button
                   className={`auth-referral-toggle ${referansAcik ? "acik" : ""}`}
                   type="button"
@@ -780,6 +787,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                     </div>
                   </div>
                 </div>
+                </>
+                )}
               </>
             )}
             <div className="auth-help">

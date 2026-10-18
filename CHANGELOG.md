@@ -65,6 +65,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Kaldırıldı
 
+- iOS uygulamasından davet programı kaldırıldı: Ayarlar'daki "Arkadaşını davet et" kartı, Bugün ekranındaki davet şeridi ve kayıt ekranındaki "Referans kodun var mı?" alanı uygulama sürümünde görünmüyor, uygulamadan yapılan kayıtta referans kodu gönderilmiyor. Program tarayıcı sürümünde aynen sürüyor; web üzerinden kazanılmış Pro günleri korunuyor.
 - iOS uygulamasından "Beta" rozetleri, "Görüş bildir" düğmesi ve Ayarlar'daki "Yakında" satırları kaldırıldı; uygulama sürümünde yalnızca kullanıma hazır özellikler görünüyor. Tarayıcı sürümü değişmedi.
 
 ## [1.58.0] - 2026-09-28
