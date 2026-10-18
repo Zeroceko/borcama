@@ -3943,8 +3943,8 @@ export default function BorcTakip() {
                   }}
                 >
                   Bundan sonra giriş ekranından e-posta ve parolanla giriş
-                  yapabilirsin. E-posta linki seçeneği de kullanılmaya devam
-                  edecek.
+                  yapabilirsin.
+                  {!nativeMi && " E-posta linki seçeneği de kullanılmaya devam edecek."}
                 </div>
                 <div className="bt-form-butonlar">
                   <button
@@ -5027,6 +5027,9 @@ function Ayarlar({
           <div className="bt-settings-title">
             <KeyRound size={18} /> Giriş yöntemleri
           </div>
+          {/* E-posta linkiyle giris uygulama surumunden kaldirilmisti; satir
+              uygulamada artik gosterilmiyor. Tarayici surumunde duruyor. */}
+          {!nativeMi && (
           <div className="bt-setting-row">
             <div>
               <strong>E-posta linki</strong>
@@ -5038,6 +5041,7 @@ function Ayarlar({
               Aktif
             </span>
           </div>
+          )}
           <div className="bt-setting-row">
             <div>
               <strong>Parola ile giriş</strong>

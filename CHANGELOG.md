@@ -65,6 +65,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Kaldırıldı
 
+- iOS uygulamasının Ayarlar ekranındaki "Giriş yöntemleri" bölümünden "E-posta linki" satırı kaldırıldı; bu yöntem uygulamadan zaten çıkarılmıştı ve satır var olmayan bir seçeneği "Aktif" gösteriyordu. Parola belirlendikten sonra çıkan onay metninden de e-posta linki cümlesi çıkarıldı. Tarayıcı sürümünde ikisi de duruyor.
 - iOS uygulamasından davet programı kaldırıldı: Ayarlar'daki "Arkadaşını davet et" kartı, Bugün ekranındaki davet şeridi ve kayıt ekranındaki "Referans kodun var mı?" alanı uygulama sürümünde görünmüyor, uygulamadan yapılan kayıtta referans kodu gönderilmiyor. Program tarayıcı sürümünde aynen sürüyor; web üzerinden kazanılmış Pro günleri korunuyor.
 - iOS uygulamasından "Beta" rozetleri, "Görüş bildir" düğmesi ve Ayarlar'daki "Yakında" satırları kaldırıldı; uygulama sürümünde yalnızca kullanıma hazır özellikler görünüyor. Tarayıcı sürümü değişmedi.
 
