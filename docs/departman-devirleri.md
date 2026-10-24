@@ -86,6 +86,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-24 · Ürün ve Mühendislik · Baz `1.67.2`, sürüm `1.68.0`, dal `claude/app-store-rozeti`: iOS App Store yayını (id 6817634876). `src/appStore.js` sabitleri; `LandingAlt.jsx` `AppStoreRozeti` (hero + final), alt bilgi bağlantıları (`LandingAlt`, `SeoPages`), `index.html` `apple-itunes-app` meta ve statik içerikte bağlantı; rozet Apple Marketing Tools'tan (`public/app-store-rozet-tr.svg`). Tıklama ölçümü App Store Connect web yönlendiren raporundan izlenir (yeni analitik olayı yok). Test/build; masaüstü + 375px kontrol.
+
 - 2026-10-14 · Ürün ve Mühendislik · Baz `1.67.1`, sürüm `1.67.2`, dal `claude/asistan-pro-ayri-kota`: Özer kararı; migration `20261014180000_financial_assistant_separate_pro_quota.sql` (`pro_question_count`, `financial_assistant_pro_active`, consume/refund güncellendi). Canlıda rollback'li işlemde Pro 20/21 izin, ücretsiz 5/7 izin ve iade doğrulandı; sonra uygulandı. Web kodu değişmedi.
 
 - 2026-10-14 · Ürün ve Mühendislik · Baz `1.67.0`, sürüm `1.67.1`, dal `claude/asistan-kur`: Özer talebi. `_shared/financialAssistantRates.js` `/api/market-prices`ten kur özeti (3 sn zaman aşımı, hata → null); `financial-assistant` bağlama `guncelPiyasaKurlari` ekliyor, istemcinin aynı alanı atılıyor; prompt çeviri ve `route="none"` kuralı; App.jsx route none'da buton yok. Deploy öncesi canlı fonksiyonda main'de olmayan `capacitor://borcama.com` origin'i bulundu, koda eklendi; deploy edildi, indirilen kaynak repoyla aynı. Diğer Edge Function'larda da iOS origin'i yalnız canlıda olabilir: deploy öncesi indirip karşılaştır. Test: `asistanKur.test.js`.

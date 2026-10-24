@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.68.0] - 2026-10-24
+
+### Eklendi
+
+- iOS uygulaması App Store'da yayında: ana sayfada (üst bölüm ve son çağrı) resmî Türkçe "App Store'dan İndirin" rozeti, site ve SEO sayfası alt bilgisinde "iPhone uygulaması" bağlantısı ve iPhone Safari için App Store akıllı bandı (`apple-itunes-app`).
+
 ## [1.67.2] - 2026-10-14
 
 ### Değiştirildi
