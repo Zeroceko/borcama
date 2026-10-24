@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.68.1] - 2026-10-24
+
+### Düzeltildi
+
+- Ana sayfanın son çağrı bölümünde "Ücretsiz başla" butonu App Store rozetiyle aynı hizaya alındı.
+
 ## [1.68.0] - 2026-10-24
 
 ### Eklendi
