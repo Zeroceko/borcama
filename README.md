@@ -46,6 +46,18 @@ Diğer borçların minimum ödemelerini aksatmadan, ekstra paranı sıradaki hed
 
 E-posta adresinle giriş yaptığında verilerine telefon, tablet veya bilgisayarından ulaşabilirsin. Her kullanıcı yalnızca kendi kayıtlarını görür.
 
+## Geliştirici dokümanları
+
+- **Kurulum ve çalıştırma:** [docs/yeni-gelistirici-kurulum.md](docs/yeni-gelistirici-kurulum.md)
+  — bağımlılıklar, ortam değişkenleri, testler, iOS derlemesi ve yayın komutları.
+- **Devir paketi:** [docs/devir-paketi.md](docs/devir-paketi.md) — teknik yapı,
+  devredilecek hesaplar, sır envanteri, çalışan otomasyonlar ve App Store kısıtları.
+- **Sürüm ve yayın süreci:** [docs/surum-ve-yayin-sureci.md](docs/surum-ve-yayin-sureci.md)
+- **Çalışma kuralları:** [AGENTS.md](AGENTS.md)
+
+Hızlı başlangıç: `npm install && npm run dev`. Ortam değişkeni tanımlı
+değilken uygulama yerel demo modunda açılır; Supabase gerekmez.
+
 ## Sürümler
 
 Güncel sürüm ve tüm kullanıcı etkili değişiklikler için [CHANGELOG.md](CHANGELOG.md) dosyasına bak. Önceki sürümleri indirmek için [Releases](https://github.com/Zeroceko/borcama/releases) sayfasını kullanabilirsin.
