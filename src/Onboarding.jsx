@@ -2,28 +2,35 @@ import React, { useRef, useState } from "react";
 import { ArrowRight, Check, Diamond, Target, Wallet } from "lucide-react";
 import { onboardingTamamla } from "./onboardingDurumu.js";
 import { misafirModunuAc } from "./misafirModu.js";
+import { t } from "./i18n.js";
+import { kullaniciParaBirimi, paraBiriminiFormatla } from "./currencyInput.js";
 import "./onboarding.css";
 
 // iOS onboarding: dort ekran. Ilk uc ekran urunun ne yaptigini anlatir,
 // dorduncusu karar ekranidir. Metinler Borcama'nin mevcut yetenekleriyle
 // sinirlidir; banka baglantisi veya otomatik veri cekme vaadi yoktur.
+// Metinler sozluk anahtaridir; ekranda t() ile secili dile cevrilir.
 const ADIMLAR = [
   {
     sira: "01",
-    baslik: "Borçların tek yerde.",
-    aciklama: "Kart, kredi ve ek hesaplarını aynı tabloda gör. Ne kadar borcun kaldığını karıştırma.",
+    baslik: "onboarding.adim1.baslik",
+    aciklama: "onboarding.adim1.aciklama",
   },
   {
     sira: "02",
-    baslik: "Önce neyi kapatacağını bil.",
-    aciklama: "Faiz yükünü ve yaklaşan ödemelerini birlikte gör. İlk adımını netleştir.",
+    baslik: "onboarding.adim2.baslik",
+    aciklama: "onboarding.adim2.aciklama",
   },
   {
     sira: "03",
-    baslik: "Ay sonunda ne kalacağını gör.",
-    aciklama: "Gelirini, zorunlu ödemelerini ve harcamalarını tek aylık planda buluştur.",
+    baslik: "onboarding.adim3.baslik",
+    aciklama: "onboarding.adim3.aciklama",
   },
 ];
+
+// Temsili tutarlar kullanicinin para birimi ve diliyle, kurussuz gosterilir.
+const temsiliTutar = (n) =>
+  paraBiriminiFormatla(n, kullaniciParaBirimi(), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 // Tanitim gorselleri temsili tutarlar kullanir; gercek kullanici verisi degildir.
 function BorcKartlari() {
@@ -35,9 +42,9 @@ function BorcKartlari() {
       </div>
       <div className="ob-kart on">
         <span className="ob-cip" />
-        <span className="ob-kart-etiket">Toplam borç</span>
-        <span className="ob-kart-tutar">₺284.750</span>
-        <span className="ob-kart-alt">3 hesap · tek tablo</span>
+        <span className="ob-kart-etiket">{t("onboarding.kart.toplamBorc")}</span>
+        <span className="ob-kart-tutar">{temsiliTutar(284750)}</span>
+        <span className="ob-kart-alt">{t("onboarding.kart.alt")}</span>
       </div>
     </div>
   );
@@ -45,15 +52,15 @@ function BorcKartlari() {
 
 function KapatmaSirasi() {
   const satirlar = [
-    ["01", "Ek hesap", "%4,50 aylık"],
-    ["02", "Kredi kartı", "Son ödeme 6 gün"],
-    ["03", "İhtiyaç kredisi", "Planında ilerliyor"],
+    ["01", t("onboarding.sira.ekHesap"), t("onboarding.sira.ekHesapBilgi")],
+    ["02", t("onboarding.sira.krediKarti"), t("onboarding.sira.krediKartiBilgi")],
+    ["03", t("onboarding.sira.ihtiyacKredisi"), t("onboarding.sira.ihtiyacKredisiBilgi")],
   ];
   return (
     <div className="ob-panel" aria-hidden="true">
       <div className="ob-panel-ust">
         <Target size={22} />
-        Kapatma sıran
+        {t("onboarding.sira.baslik")}
       </div>
       {satirlar.map(([no, ad, bilgi]) => (
         <div className="ob-satir" key={no}>
@@ -68,15 +75,15 @@ function KapatmaSirasi() {
 
 function AylikPlan() {
   const satirlar = [
-    ["Gelir", "₺70.000"],
-    ["Ödemeler", "− ₺42.600"],
-    ["Yaşam giderleri", "− ₺19.300"],
+    [t("onboarding.plan.gelir"), temsiliTutar(70000)],
+    [t("onboarding.plan.odemeler"), `− ${temsiliTutar(42600)}`],
+    [t("onboarding.plan.yasam"), `− ${temsiliTutar(19300)}`],
   ];
   return (
     <div className="ob-panel" aria-hidden="true">
       <div className="ob-panel-ust">
         <Wallet size={22} />
-        Bu ay
+        {t("onboarding.plan.baslik")}
       </div>
       {satirlar.map(([ad, tutar]) => (
         <div className="ob-satir duz" key={ad}>
@@ -86,8 +93,8 @@ function AylikPlan() {
       ))}
       <div className="ob-ozet">
         <div>
-          <span>Ay sonunda</span>
-          <strong>₺8.100 kalır</strong>
+          <span>{t("onboarding.plan.aySonunda")}</span>
+          <strong>{t("onboarding.plan.kalir", { tutar: temsiliTutar(8100) })}</strong>
         </div>
       </div>
     </div>
@@ -155,7 +162,7 @@ export default function Onboarding({ baslangic = 0 }) {
         <img className="ob-logo" src="/borcama-logo-368.png" alt="Borcama" width="368" height="90" />
         {!kararEkrani && (
           <button className="ob-atla" type="button" onClick={() => setAdim(ADIMLAR.length)}>
-            Atla
+            {t("onboarding.atla")}
           </button>
         )}
       </div>
@@ -169,25 +176,25 @@ export default function Onboarding({ baslangic = 0 }) {
               <Check size={30} strokeWidth={3} />
             </span>
             <h1 className="ob-baslik">
-              Paran nereye gidiyor?
+              {t("onboarding.karar.baslik")}
               <br />
-              <em>Artık bil.</em>
+              <em>{t("onboarding.karar.vurgu")}</em>
             </h1>
             <p className="ob-aciklama">
-              Borçlarını, ödeme günlerini ve aylık planını tek yerde takip et.
+              {t("onboarding.karar.aciklama")}
             </p>
           </div>
           <p className="ob-guvence">
             <Diamond size={15} />
-            Banka şifresi ve kredi kartı bilgisi gerekmez.
+            {t("onboarding.karar.guvence")}
           </p>
           <div className="ob-dugmeler">
             <button className="ob-dugme birincil" type="button" onClick={() => bitir("/register")}>
-              Ücretsiz başla
+              {t("onboarding.karar.ucretsizBasla")}
               <ArrowRight size={19} />
             </button>
             <button className="ob-dugme" type="button" onClick={() => bitir("/login")}>
-              Giriş yap
+              {t("onboarding.karar.girisYap")}
             </button>
             {/* Hesapsiz kullanim: kayit olmadan uygulamanin tamami kullanilabilir,
                 veriler cihazda kalir. Hesap sonradan acilinca kayitlar tasinir. */}
@@ -199,7 +206,7 @@ export default function Onboarding({ baslangic = 0 }) {
                 bitir("/summary");
               }}
             >
-              Hesap açmadan devam et
+              {t("onboarding.karar.misafir")}
             </button>
           </div>
         </div>
@@ -210,15 +217,15 @@ export default function Onboarding({ baslangic = 0 }) {
           </div>
           <div className="ob-alt">
             <span className="ob-sira">{icerik.sira}</span>
-            <h1 className="ob-baslik">{icerik.baslik}</h1>
-            <p className="ob-aciklama">{icerik.aciklama}</p>
+            <h1 className="ob-baslik">{t(icerik.baslik)}</h1>
+            <p className="ob-aciklama">{t(icerik.aciklama)}</p>
             <div className="ob-pager">
               <div className="ob-noktalar" aria-hidden="true">
                 {ADIMLAR.map((a, i) => (
                   <span key={a.sira} className={i === adim ? "etkin" : ""} />
                 ))}
               </div>
-              <button className="ob-ileri" type="button" onClick={ileri} aria-label="Sonraki">
+              <button className="ob-ileri" type="button" onClick={ileri} aria-label={t("onboarding.sonraki")}>
                 <ArrowRight size={26} />
               </button>
             </div>

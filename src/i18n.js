@@ -76,3 +76,23 @@ export function cevir(kod, anahtar, degiskenler) {
 export function t(anahtar, degiskenler) {
   return cevir(dil(), anahtar, degiskenler);
 }
+
+// Metin icine React ogesi (kalin e-posta, baglanti dugmesi) yerlestirmek icin:
+// cumle parcalara bolunur, {ad} yerine degiskenin kendisi (oge olabilir) konur.
+// Kelime sirasi dile gore degistigi icin ogeyi metnin disinda birakmak yerine
+// yer tutucuyla sozluge tasiriz.
+export function cevirOgeler(kod, anahtar, degiskenler = {}) {
+  const sozluk = SOZLUKLER[kod] || tr;
+  const metin = sozluk[anahtar] ?? tr[anahtar] ?? anahtar;
+  return metin
+    .split(/(\{\w+\})/)
+    .filter((parca) => parca !== "")
+    .map((parca) => {
+      const ad = /^\{(\w+)\}$/.exec(parca)?.[1];
+      return ad && Object.prototype.hasOwnProperty.call(degiskenler, ad) ? degiskenler[ad] : parca;
+    });
+}
+
+export function tOgeler(anahtar, degiskenler) {
+  return cevirOgeler(dil(), anahtar, degiskenler);
+}
