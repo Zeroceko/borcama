@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
+import { locale } from "./i18n.js";
 import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
 import { misafirModuAcik } from "./misafirModu.js";
 import {
@@ -1030,7 +1031,7 @@ const tarihSaatEtiketi = (deger) => {
   const d = new Date(deger);
   return Number.isNaN(d.getTime())
     ? "Tarih bilgisi yok"
-    : d.toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" });
+    : d.toLocaleString(locale(), { dateStyle: "medium", timeStyle: "short" });
 };
 const yerelTarihSaatDegeri = (deger = new Date()) => {
   const d = new Date(deger);
@@ -4784,7 +4785,7 @@ function Ayarlar({
                 <span className="vurgu">{denemeAktif ? "Kart gerektirmeyen deneme" : "Pro erişimi açık"}</span>
                 {reklamsiz.proBitis && (
                   <span>
-                    {denemeAktif ? "Deneme bitişi" : reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: {new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR", {
+                    {denemeAktif ? "Deneme bitişi" : reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: {new Date(reklamsiz.proBitis).toLocaleDateString(locale(), {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
@@ -5147,7 +5148,7 @@ function Ayarlar({
               </strong>
               <span style={{ display: "block", marginTop: 5, color: "var(--dim)", fontSize: 11 }}>
                 {reklamsiz.proBitis
-                  ? `${reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: ${new Date(reklamsiz.proBitis).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}`
+                  ? `${reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: ${new Date(reklamsiz.proBitis).toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" })}`
                   : "Paket bilgilerin güvenli ödeme portalında görüntülenir."}
               </span>
             </div>
@@ -7601,7 +7602,7 @@ function BorcKapatmaKutlamasi({ kutlama, kapat, kredilereGit }) {
 
 function KapatilanKrediSatiri({ kredi, index }) {
   const kapanisEtiketi = kredi.kapatildiTarihi
-    ? new Date(kredi.kapatildiTarihi).toLocaleDateString("tr-TR")
+    ? new Date(kredi.kapatildiTarihi).toLocaleDateString(locale())
     : "Tamamlandı";
   return (
     <div className="bt-kapatilan-kredi">
@@ -10368,7 +10369,7 @@ function BorclarSatiri({
       ? "Ekstre bekleniyor"
       : arsiv
         ? ayEtiketi(k.ekstreAyi) + " ekstresi"
-        : "Son ödeme " + gecikmeTarihi.toLocaleDateString("tr-TR");
+        : "Son ödeme " + gecikmeTarihi.toLocaleDateString(locale());
     if (yapilandirma && borcKapandi) {
       altYazi = `${fmt(yapilandirma.tutar)} kart borcu taksit planına taşındı`;
     } else if (gecikmis) {
@@ -10889,7 +10890,7 @@ function GecikmisBorcSatiri({ g, i }) {
           <span style={{ color: "var(--dim)", fontWeight: 500 }}>· {g.ad}</span>
         </div>
         <div className="bt-satir-meta">
-          {g.tur} · son ödeme {g.tarih.toLocaleDateString("tr-TR")} · aylık %
+          {g.tur} · son ödeme {g.tarih.toLocaleDateString(locale())} · aylık %
           {g.oran.toFixed(2)}
         </div>
       </div>
@@ -11823,7 +11824,7 @@ function Varliklar({
   }
 
   const fiyatTarihi = piyasa.updatedAt
-    ? new Date(piyasa.updatedAt).toLocaleString("tr-TR", {
+    ? new Date(piyasa.updatedAt).toLocaleString(locale(), {
         day: "2-digit",
         month: "short",
         hour: "2-digit",
