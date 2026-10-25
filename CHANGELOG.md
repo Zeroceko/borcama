@@ -29,6 +29,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Düzeltildi
 
+- iOS uygulamasında hesapsız kullanımda Ayarlar'daki boş "Veri ve yönetim" kartı gösterilmiyor; asistanın yanıt veremediği sorularda "Görüş bildir" düğmesi çıkmıyor.
+- iOS uygulaması web'deki 1.59.0–1.68.1 yeniliklerini alıyor; kart asgari ödemesi BDDK'nın 1 Ekim 2026 oranlarıyla hesaplanıyor.
 - iOS uygulamasında giriş ve kayıt ekranının üstünde alt sekme çubuğu artık görünmüyor; çubuğun altında kalan "Giriş yap" ve sözleşme bağlantılarına ulaşılabiliyor.
 - Koyu temada Borcama logosu okunuyor; harfler koyu zeminde kaybolmuyordu.
 - iOS uygulamasında alt sekme çubuğu uygulamanın kendi temasını izliyor; koyu temada seçili sekme açık renkle gösteriliyor, önceden koyu zeminde koyu kalıyordu.

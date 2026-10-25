@@ -5055,6 +5055,8 @@ function Ayarlar({
             </button>
           </div>
         </section>}
+        {/* Misafir uygulama surumunde bu kartta satir kalmiyor; bos kart gosterilmez. */}
+        {!(nativeMi && misafir) && (
         <section className="bt-settings-card wide">
           <div className="bt-settings-title">
             <Database size={18} /> Veri ve yönetim
@@ -5095,6 +5097,7 @@ function Ayarlar({
           </div>
           )}
         </section>
+        )}
       </div>
       {paketYonetimiAcik && reklamsiz.proYonetimUrl && (
         <div
