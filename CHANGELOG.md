@@ -8,7 +8,6 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - iOS uygulamasında hesap açmadan kullanım eklendi; karşılama ekranındaki "Hesap açmadan devam et" ile borçlar, ekstreler, varlıklar ve tüm hesaplamalar kayıt olmadan kullanılabiliyor, kayıtlar yalnızca cihazda tutuluyor. Kullanıcı sonradan hesap açtığında ya da giriş yaptığında cihazdaki kayıtlar hesabına taşınıyor; hesapta zaten kayıt varsa üzerine yazılmıyor. Tarayıcı sürümündeki akış değişmedi.
 - iOS uygulamasında Apple ile giriş eklendi; giriş ve kayıt ekranlarında tek dokunuşla hesap açılabiliyor veya girilebiliyor.
-
 - iOS uygulamasında Pro satın alma kartında abonelik adı, süresi ve fiyatı ile Kullanım Şartları, Gizlilik Politikası ve İade Politikası bağlantıları gösteriliyor; aynı kartta "Satın alımları geri yükle" seçeneği yer alıyor.
 - iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
 - iOS uygulamasında oturumu olmayan kullanıcı artık doğrudan giriş formu yerine "Ücretsiz başla / Giriş yap" karşılama ekranını görüyor; tanıtımı daha önce görmüş ya da çıkış yapmış kullanıcıya da bu ekran açılıyor.
@@ -23,10 +22,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Değiştirildi
 
 - iOS uygulamasının alt gezinme çubuğu artık iOS'un kendi sekme çubuğu; simgeler sistem simge kütüphanesinden geliyor, çubuk ev çubuğunun üstüne oturuyor ve klavye açılınca gizleniyor. Tarayıcı sürümündeki çubuk değişmedi.
-
 - iOS uygulamasının giriş ekranından tek kullanımlık e-posta linkiyle giriş kaldırıldı; uygulamada giriş Apple ile ya da parolayla yapılıyor. Tarayıcı sürümünde iki seçenek de duruyor.
 - iOS uygulamasının kayıt ekranındaki uzun tanıtım metni kaldırıldı; ekran doğrudan Apple ile devam et seçeneği ve formla açılıyor.
-
 - Pro ödeme ekranında abonelik adı ve süresi ayrı satırda gösteriliyor; Kullanıcı Sözleşmesi, Gizlilik Politikası ve İade Politikası bağlantıları tek cümlede toplandı.
 - iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.
 
@@ -38,13 +35,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iOS uygulamasında alt sekme çubuğu ekranın altına, ev çubuğunun hemen üstüne oturuyor; önceden ekranın epey yukarısında kalıyordu.
 - iOS uygulamasında kaydırma çubuğu görünmüyor.
 - iOS uygulamasında kayıt ve giriş ekranı tek ekrana sığıyor; kart içinde kaydırma gerekmiyor.
-
 - iOS uygulamasında alt sekme çubuğunun altında koyu bir bant görünmüyor; uygulama ekranın altına kadar yayılıyor. Sistem koyu temadayken çubuğun altına çizilen katman, açık zeminli uygulamada bant gibi duruyordu.
 - iOS uygulamasında sekme değiştirince ekran en üstten açılıyor; önceki ekranın kaydırma konumu taşınmıyor.
 - iOS uygulamasında Ayarlar gibi sekmelerden biri olmayan ekranlarda alt çubukta hiçbir sekme seçili görünmüyor; önceden son sekme yanık kalıyordu.
-
 - iOS uygulamasında Ayarlar'daki "Google Analytics ve reklam ölçümü" izin satırı kaldırıldı; uygulama zaten ölçüm veya reklam etiketi yüklemiyordu, izin istenecek bir şey yoktu. Tarayıcı sürümündeki tercih aynen duruyor.
-
 - Kayıt ve parola yenileme e-postalarının saatlik gönderim sınırı 2'den 30'a çıkarıldı; aynı saat içinde kayıt olan üçüncü kullanıcı artık "Çok fazla deneme yapıldı" uyarısıyla karşılaşmıyor.
 - iOS uygulamasında hesabını silen kullanıcı artık "bağlantının süresi dolmuş" uyarısıyla karşılaşmıyor; silme bitince doğrudan giriş ekranına dönüyor.
 - iOS uygulamasında abonelik yönetimi ve Sık Sorulan Sorular metinleri App Store aboneliğini anlatıyor; uygulama içinde artık App Store dışı bir ödeme sağlayıcısından söz edilmiyor. Tarayıcı sürümünün metinleri değişmedi.
@@ -68,6 +62,265 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iOS uygulamasının Ayarlar ekranındaki "Giriş yöntemleri" bölümünden "E-posta linki" satırı kaldırıldı; bu yöntem uygulamadan zaten çıkarılmıştı ve satır var olmayan bir seçeneği "Aktif" gösteriyordu. Parola belirlendikten sonra çıkan onay metninden de e-posta linki cümlesi çıkarıldı. Tarayıcı sürümünde ikisi de duruyor.
 - iOS uygulamasından davet programı kaldırıldı: Ayarlar'daki "Arkadaşını davet et" kartı, Bugün ekranındaki davet şeridi ve kayıt ekranındaki "Referans kodun var mı?" alanı uygulama sürümünde görünmüyor, uygulamadan yapılan kayıtta referans kodu gönderilmiyor. Program tarayıcı sürümünde aynen sürüyor; web üzerinden kazanılmış Pro günleri korunuyor.
 - iOS uygulamasından "Beta" rozetleri, "Görüş bildir" düğmesi ve Ayarlar'daki "Yakında" satırları kaldırıldı; uygulama sürümünde yalnızca kullanıma hazır özellikler görünüyor. Tarayıcı sürümü değişmedi.
+
+## [1.68.1] - 2026-10-24
+
+### Düzeltildi
+
+- Ana sayfanın son çağrı bölümünde "Ücretsiz başla" butonu App Store rozetiyle aynı hizaya alındı.
+
+## [1.68.0] - 2026-10-24
+
+### Eklendi
+
+- iOS uygulaması App Store'da yayında: ana sayfada (üst bölüm ve son çağrı) resmî Türkçe "App Store'dan İndirin" rozeti, site ve SEO sayfası alt bilgisinde "iPhone uygulaması" bağlantısı ve iPhone Safari için App Store akıllı bandı (`apple-itunes-app`).
+
+## [1.67.2] - 2026-10-14
+
+### Değiştirildi
+
+- Asistanda Pro'ya geçen kullanıcı, o gün ücretsizken kullandığı sorulardan bağımsız olarak günde 20 soru hakkı alıyor; ücretsiz ve Pro soruları ayrı sayılıyor.
+
+## [1.67.1] - 2026-10-14
+
+### Eklendi
+
+- Borcama Asistanı döviz, altın, gümüş ve bitcoin çevirisi sorularını güncel kurla (TCMB döviz satış, Gold API, CoinGecko) yanıtlıyor; kurlar sunucuda alınıyor ve kur tarihi yanıtta belirtiliyor.
+
+### Düzeltildi
+
+- Asistan, gidilecek anlamlı bir ekran olmayan yanıtlarda (kur çevirisi, genel bilgi) artık anlamsız aksiyon butonu göstermiyor.
+- `financial-assistant` fonksiyonundaki iOS kaynağı (`capacitor://borcama.com`) repoya işlendi; canlıdaki izin korunuyor.
+
+## [1.67.0] - 2026-10-14
+
+### Değiştirildi
+
+- Borcama Asistanı'nda ücretsiz plan günlük soru hakkı 3'ten 5'e çıktı; Pro'da günde 20 soru.
+- Asistan, plan etiketini sunucunun uyguladığı limite göre gösteriyor (istemcideki Pro durumu sunucuyla farklıysa yanlış "Pro" görünmez).
+
+### Eklendi
+
+- Ücretsiz soru hakkı bitince asistanda "Pro'yu aktif et" kutusu çıkıyor ve Pro penceresini açıyor.
+
+## [1.66.5] - 2026-10-12
+
+### Değiştirildi
+
+- Borcama rehberi, kayda değer veri giren kullanıcıda (en az 2 borç kaydı, 5 harcama/gider ve gelir) artık hiç görünmüyor; rehber yalnız kullanıcı bu noktaya gelene kadar yol gösteriyor.
+
+## [1.66.4] - 2026-10-12
+
+### Değiştirildi
+
+- Ek hesap / KMH listesinde borcu kapanan hesaplar artık "Kapattığın borçlar" başlığı altında, açık borçların altında ayrı bir bölümde gösteriliyor.
+
+## [1.66.3] - 2026-10-12
+
+### Değiştirildi
+
+- Ek hesap / KMH listesinde borcu süren hesaplar üstte, borcu kapanan (kalan 0) hesaplar en altta gösteriliyor.
+
+## [1.66.2] - 2026-10-12
+
+### Kaldırıldı
+
+- Borcama Asistanı'ndaki "Beta" etiketi kaldırıldı (pencere başlığı, menü düğmesi, landing ürün görseli); App Store 2.2 gereği mağaza sürümünde beta ifadesi yer almıyor.
+
+## [1.66.1] - 2026-10-12
+
+### Değiştirildi
+
+- CRM "İletişim" ekranı otomatik e-postaları ve toplu kampanyaları tek tabloda durum, gönderilen, açılma, tıklama ve siteye gelme oranlarıyla özetliyor; toplu gönderim ve konu düzenleme iki adımlı onayla "Kampanya yönetimi" sekmesinde.
+
+## [1.66.0] - 2026-10-12
+
+### Eklendi
+
+- CRM "Büyüme" ekranı yeniden yazıldı: 7/30/90 gün seçimli kayıt hunisi ve günlük ziyaret grafiği, ziyaretçinin giriş sayfasına göre ne yaptığı (landing'in yarısını görme, kayıt butonu, içerikten ürüne geçiş, kayıt ekranı), borç kapatma ve mevduat araç hunileri, kayıttan kullanıma (doğrulama, ilk borç/ekstre, tam aktivasyon, aktif kullanıcı, 7. gün dönüşü) ve kanal tablosu tek ekranda.
+
+## [1.65.1] - 2026-10-11
+
+### Düzeltildi
+
+- Borç kapatma ve mevduat araçlarının hunisi artık sonuç görme ve ürüne geçiş adımlarını sayıyor; ziyaret olayı sonuçtan önce kaydediliyor ve rapor milisaniyelik sıra farkını tolere ediyor (geçmiş veri de düzeldi).
+
+## [1.65.0] - 2026-10-11
+
+### Eklendi
+
+- Borcama rehberi: her ekranın üstünde tek bir sıradaki adım gösteriliyor (ilk kurulum, ödemesi gelen veya geçen ödemeyi işaretleme, kesilen yeni ekstreyi girme, diğer borçları ve sabit giderleri ekleme). Kullanıcı iki ay düzenli kullandığında rehber "Hepsi bu kadar! Artık hazırsın." deyip kapanıyor; öneriler kapatılabiliyor veya kalıcı olarak geçilebiliyor.
+
+### Değiştirildi
+
+- Yeni kredi kartı tek formda ekleniyor: banka, bu ayki ekstre borcu ve son ödeme günü yeterli; kart ve bu ayın ekstresi birlikte oluşuyor, borç hemen görünüyor. Kart adı, limit, kesim günü ve devreden borç isteğe bağlı.
+- Yeni kredi dört bilgiyle ekleniyor: banka, aylık taksit, kalan taksit ve ödeme günü; kalan borç otomatik hesaplanıyor. Kredi adı, faiz, tutar, toplam ve ödenen taksit ile ilk taksit tarihi isteğe bağlı.
+
+## [1.64.1] - 2026-10-11
+
+### Düzeltildi
+
+- Ana sayfanın arama motorları için eklenen statik metni, uygulama ekranlarında ve oturumu açık kullanıcıda artık kısa süre bile görünmüyor; gizleme betiği sitenin güvenlik politikasının engellemediği ayrı bir dosyadan yükleniyor.
+
+## [1.64.0] - 2026-10-11
+
+### Eklendi
+
+- CRM'de kullanıcı detayından hesap silinebiliyor: sebep (test hesabı, kullanıcı talebi, diğer) seçilip kullanıcının e-postası yazılarak onaylanıyor; hesap ve bütün kayıtları kullanıcının kendi silme akışıyla aynı şekilde kalıcı olarak siliniyor. Yönetici hesabı ve aktif ücretli aboneliği olan hesap silinemiyor; her silme, e-posta açık tutulmadan iz kaydına yazılıyor.
+
+## [1.63.0] - 2026-10-11
+
+### Eklendi
+
+- Yeni CRM kabuğu: crm.borcama.com solda tek menüyle (Bugün, Kullanıcılar, Büyüme, İletişim) açılıyor; mobilde üstte sekme olarak çalışıyor.
+- CRM "Bugün" ekranı toplam/yeni/haftalık aktif/Pro özetini, son 7 günün kayıt hunisini önceki haftayla karşılaştırmalı ve "ilgilenilecekler" listesini (veri girmeyen yeni kayıtlar, doğrulanmamış e-postalar, biten denemeler, yeni geri bildirimler, davet incelemeleri) gösteriyor.
+- CRM "Kullanıcılar" ekranı segmentler (son 7 gün yeni, veri girmemiş, son 7 gün giriş, doğrulanmamış, deneme, Pro), arama ve sayfalı listeyle çalışıyor; kullanıcı detayı, büyüme ve iletişim ekranları yeni kabuğun içinde açılıyor.
+
+## [1.62.6] - 2026-10-11
+
+### Güvenlik
+
+- CRM'de ücretli aboneliği olan kullanıcıya elle Pro günü eklenemiyor; önceden bu işlem ödeme bağlantısını siliyordu.
+- CRM'de Google Analytics/Ads etiketleri ve çerez bandı yüklenmiyor; kullanıcı kimliği içeren yönetim adresleri ölçüme gitmiyor.
+- Eski manuel toplu e-posta kampanyaları (deneme daveti, Ağustos ve 1 Eylül yenilik duyuruları) CRM'den kaldırıldı ve sunucu tarafında gönderilemiyor; durdurulmuş veya arşivlenmiş kampanya gönderilebilir görünmüyor.
+
+### Düzeltildi
+
+- CRM'de Pro tanımlama ve davet ödülü onayı yanlışlıkla tıklamaya karşı onay istiyor; boş Pro bitiş tarihi CEO ekranını çökertmiyor. Kredi kapanışı tebriği ve deneme ilk plan hatırlatması e-postaları kampanya listesinde görünüyor.
+
+## [1.62.5] - 2026-10-11
+
+### Değiştirildi
+
+- Bank run sözlük sayfasındaki İngilizce bölüm kaldırıldı; sayfa yalnız Türkçe. İngilizce içerik, sitenin dil seçeneğiyle birlikte gelecek.
+
+## [1.62.4] - 2026-10-11
+
+### Eklendi
+
+- Finansal sözlüğe "Bank run (banka hücumu)" sayfası eklendi; kavram Türkçe ve İngilizce anlatılıyor ve Eylül 2026 fon krizindeki benzer durumla ilişkilendiriliyor.
+
+### Değiştirildi
+
+- Tasfiye sayfası "borcun tasfiyesi ne demek?" sorusunu doğrudan cevaplıyor; kredi kartı borcunun tasfiyesi, yapılandırma ve ibra farkı, borcun kapandığını teyit etme yolları ve SPK'nın Eylül 2026 fon tasfiye kararı kaynaklarıyla birlikte anlatılıyor, sık sorulan sorular eklendi.
+
+## [1.62.3] - 2026-10-11
+
+### Değiştirildi
+
+- Arama motorları ve yapay zekâ arama araçları ana sayfanın metnini JavaScript çalıştırmadan okuyabiliyor; uygulama ekranlarında ve oturum açıkken bu metin gösterilmiyor.
+- Bütün sayfalar paylaşıldığında Borcama görseli, başlığı ve açıklamasıyla önizleniyor (Open Graph ve Twitter kartı); yeni sayfalar IndexNow ile Bing ve Yandex'e bildirilebiliyor.
+
+## [1.62.2] - 2026-10-10
+
+### Düzeltildi
+
+- Taksitleri uygulamadan ödenerek bittiği halde kaydı açık kalan kredi artık Bugün ekranında gecikmiş ödeme veya açık borç olarak görünmüyor; Krediler'de kapanmış sayılan kredi açıkça kapatılıyor (kalan borç 0, kapanış tarihi son ödeme günü) ve tüm ekranlar aynı sonucu gösteriyor.
+
+## [1.62.1] - 2026-10-10
+
+### Değiştirildi
+
+- Uygulama başlığı sadeleşti: tema düğmesi ve "Çıkış" bağlantısı başlıktan kaldırıldı. Tema Ayarlar > Görünüm'deki "Açık | Koyu" seçicisinden, çıkış Ayarlar > Hesap > Oturum'daki "Çıkış yap" düğmesinden yapılıyor.
+
+## [1.62.0] - 2026-10-10
+
+### Eklendi
+
+- Bir kredi kapandığında kullanıcıya kredi başına tek bir tebrik e-postası gönderiliyor; e-posta tutar veya banka adı içermiyor ve yalnız bu sürümden sonraki kapanışlar için gidiyor.
+
+### Düzeltildi
+
+- Kapatılan kredinin kutlaması artık yalnız bir kez görünüyor; "gösterildi" bilgisi tarayıcıda değil kullanıcının kaydında tutulduğu için yeni bir tarayıcıda veya cihazda aynı kredi için tekrar çıkmıyor.
+
+## [1.61.0] - 2026-10-10
+
+### Eklendi
+
+- Finansal sözlük, rehber ve borç araçlarının (kredi kartı asgari ödeme, kredi ödeme planı, borç ödeme planı, aylık ödeme takvimi) sonunda ücretsiz hesaba geçiş bölümü var; sayfada girilen tutarlar kayıt bağlantısına veya ölçüme eklenmiyor.
+- Landing'deki kayıt butonu tıklamaları, landing'in yarısının görülmesi ve içerik sayfalarından ürüne geçişler anonim olarak ölçülüyor; bu olaylar tutar, e-posta veya kişisel bilgi taşımıyor.
+- **iOS:** iOS'taki e-posta giriş ve parola yenileme bağlantıları Safari'de yarım kalmadan Borcama uygulamasındaki doğru ekrana dönebiliyor; internet kesildiğinde boş finansal ekran yerine kayıtların korunduğunu açıklayan bağlantı durumu gösteriliyor.
+- **iOS:** iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
+- **iOS:** iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
+- **iOS:** iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
+- **iOS:** Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
+- **iOS:** iOS uygulamasında kullanıcı onayıyla açılan ödeme hatırlatmaları, yaklaşan kart ve kredi ödemelerini bir gün önce saat 09.00'da tutar veya banka adı göstermeden cihazda bildiriyor; tamamlanan ödemeler yeniden planlanmıyor.
+
+### Değiştirildi
+
+- LANDING-003 deneyi durduruldu; tüm ziyaretçiler kontrol landing'ini görüyor ve yeni olaylara deney etiketi eklenmiyor.
+- **iOS:** iOS uygulamasındaki varsayılan Capacitor simgesi, küçük boyutta okunabilen 1024 piksel opak Borcama App Store ikonu ile değiştirildi.
+- **iOS:** iOS uygulaması Google Analytics ve Google Ads etiketlerini yüklemiyor; App Store gizlilik beyanı hesap, finansal kayıt, abonelik, ürün kullanımı ve kişisel bilgi içermeyen çökme verisiyle sınırlandırıldı.
+- **iOS:** iOS sürümü web SemVer sürümünü izlerken build numarası yalnız yeni TestFlight veya App Store yüklemesinde artırılacak biçimde yayın sürecine bağlandı.
+
+### Güvenlik
+
+- Pro hakkı artık istemcinin gönderdiği bitiş tarihine göre açılamıyor; satın alma sunucudan RevenueCat ile doğrulanıyor, App Store abonelik olayları yetki başlığı ve HMAC imzası doğrulanan tekilleştirilmiş webhook üzerinden işleniyor.
+
+### Düzeltildi
+
+- Otomasyon ve bot tarayıcılarından gelen ziyaretler artık huniye yazılmıyor; 3 Ekim gecesi tek saatte gelen 201 oturum gibi trafik ziyaretçi sayısını şişirmiyor.
+- Araç sayfalarındaki ürüne geçiş tıklamaları sayfa değişmeden önce kaydediliyor; önceden bağlantı açılırken ölçüm isteği iptal olabiliyordu.
+- Kullanıcı Sözleşmesi ve İade Politikası sayfaları iki satın alma kanalını da açıkça anlatıyor: iOS uygulamasından alınan aboneliklerde yetkili satıcı Apple ve yönetim App Store üzerinden, borcama.com'dan alınanlarda ise Paddle üzerinden. Önceden tarayıcıda açılan metin yalnız Paddle'ı anlatıyordu.
+- E-posta doğrulama ve parola yenileme bağlantıları artık doğrudan uygulamada açılıyor; iOS uygulaması kuruluysa tarayıcı hiç devreye girmiyor ve kullanıcı giriş yapmış olarak karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışmaya devam ediyor.
+- **iOS:** RevenueCat testleri veya tanınmayan kullanıcı kimlikleri webhook kaydını durdurmuyor; abonelik olayı yalnız Supabase Auth'ta gerçekten bulunan kullanıcıya bağlanıyor.
+- **iOS:** iOS projesi doğru Apple geliştirici takımıyla otomatik imzalanarak cihaz ve App Store arşivi oluşturulabilir hale geldi.
+
+## [1.60.5] - 2026-10-03
+
+### Değiştirildi
+
+- Landing sayfasındaki açık örnek hesap kaldırıldı; ürünü denemek isteyen kullanıcılar artık kendi ücretsiz hesaplarını oluşturarak gerçek kayıt akışına başlıyor.
+
+## [1.60.4] - 2026-10-03
+
+### Düzeltildi
+
+- Hesabını kalıcı olarak silen kullanıcıya işlemin tamamlandığı açıkça gösteriliyor ve kullanıcı 5 saniye sonra otomatik olarak ana sayfaya yönlendiriliyor.
+
+## [1.60.3] - 2026-10-02
+
+### Eklendi
+
+- Marketing merkezine, kredi kartı asgari ödeme sınırındaki 100.000 TL güncellemesini resmî BDDK kaynağıyla açıklayan ve yalnız uygun doğrulanmış üyelere tek sefer gönderilebilen bilgilendirme kampanyası eklendi.
+
+### Düzeltildi
+
+- Kredi kartı asgari ödeme tahmini, 1 Ekim 2026 tarihli BDDK kararına uygun olarak 100.000 TL ve altındaki kart limitlerinde yüzde 20, bu tutarın üzerindeki limitlerde yüzde 40 oranını kullanıyor.
+
+## [1.60.2] - 2026-10-02
+
+### Düzeltildi
+
+- Son taksiti önceki sürümde ödenmiş krediler artık aktif krediler arasında kalmıyor; ödeme geçmişinden tamamlandığı doğrulanınca sayfanın altındaki Kapatılan krediler alanına taşınıyor ve kutlama bir kez gösteriliyor.
+
+## [1.60.1] - 2026-10-02
+
+### Düzeltildi
+
+- CRM ve ana uygulama girişindeki güvenlik kontrolü, Cloudflare'ın otomatik toparlanması tamamlanmadan hata göstermiyor; script tek kez yükleniyor ve ağ, içerik engelleyici, tarayıcı desteği ile alan adı yapılandırma sorunları kullanıcıya ayrı yönlendirmelerle sunuluyor.
+
+## [1.60.0] - 2026-10-01
+
+### Eklendi
+
+- Son taksiti tamamlanan krediler ve tamamen ödenen ek hesaplar için kutlama gösteriliyor; kapanan krediler aktif listeden Krediler bölümünün altındaki geçmiş alanına taşınırken ek hesaplar yeniden borç eklenebilmesi için yerinde kalıyor.
+
+## [1.59.1] - 2026-10-01
+
+### Değiştirildi
+
+- Krediler ekranındaki ayrı “Ödeme planı yükle” ve “Yeni kredi ekle” düğmeleri tek “Yeni kredi” akışında birleştirildi; kullanıcı artık manuel giriş veya ödeme planı yükleme yöntemini açılan pencereden seçiyor.
+
+## [1.59.0] - 2026-09-30
+
+### Eklendi
+
+- Bugün ekranı değişken faizli borçların aylık faiz yükünü ve Pro kullanıcılar için ilk üç kapatma önceliğini gösteriyor; Krediler ekranındaki her kredi kartı ise kalan taksitlerdeki gelecekteki faizi dışarıda bırakan ayrı bir “Bugün kapatırsam” tahmini sunuyor.
+
+### Düzeltildi
+
+- Kredi ödeme planı aktarımı VakıfBank, Yapı Kredi, Fibabanka ve Enpara'nın farklı PDF satır düzenlerinde taksit, faiz, vergi ve kalan anaparayı doğru kolonlardan okuyor; belgede ayrı faiz alanı yoksa oranı ödeme satırlarından tahmini çıkarıp kullanıcıyı uyarıyor.
 
 ## [1.58.0] - 2026-09-28
 

@@ -5,7 +5,8 @@ Bu dosya, projeyi devralan geliştiricinin kendi bilgisayarında sıfırdan
 gerektiği yazıyor.
 
 Devrin tamamı (hangi hesaplar, hangi servisler, hangi sırlar) için
-`docs/devir-paketi.md` dosyasına bak.
+[docs/devir-paketi.md](devir-paketi.md) dosyasına bak. Rakamlar `v1.68.0`
+itibarıyladır.
 
 ---
 
@@ -81,13 +82,13 @@ bölümünde bul.
 ## 4. Testler ve derleme
 
 ```bash
-npm test              # 253 test, node:test ile, ağ gerektirmez
+npm test              # 317 test, node:test ile, ağ gerektirmez
 npm run release:check # CHANGELOG ile package.json sürümünü doğrular
-npm run build         # vite build + 222 statik SEO sayfası üretir
+npm run build         # vite build + 223 statik SEO sayfası üretir
 ```
 
 Üçü de temiz geçmeden yayın yapma. `npm run build` sonunda
-`Prerendered 222 SEO pages.` satırını görmelisin.
+`Prerendered 223 SEO pages.` satırını görmelisin.
 
 Asistan testleri ayrı: `npm run test:assistant`. Canlı Gemini çağrısı yapan
 eval (`npm run test:assistant:live`) ücretli API kullanır ve
@@ -118,7 +119,7 @@ open ios/App/App.xcodeproj
 ```
 
 Xcode'da hedef cihazı bir iPhone simülatörü seçip Run. İlk açılışta Xcode
-imzalama için takımı soracaktır; `Borcama (2SH6N4AK3P)` seç.
+imzalama için takımı soracaktır; `Özer Öcek (2SH6N4AK3P)` seç.
 
 Komut satırından:
 
@@ -140,7 +141,8 @@ npm run ios:version              # package.json sürümünü Xcode'a taşır
 npm run ios:version -- --bump-build   # ayrıca build numarasını bir artırır
 ```
 
-- `MARKETING_VERSION` = web sürümü (`1.58.0`)
+- `MARKETING_VERSION` = uygulamaya taşınan web sürümü (ör. `1.59.0`; web
+  sürümünden geride olabilir, yalnız App Store'a yüklenirken eşitlenir)
 - `CURRENT_PROJECT_VERSION` = App Store'a yüklenen her build için artan sayı
 
 Aynı sürümden ikinci bir build yüklenecekse yalnız build numarası artar.
@@ -154,11 +156,12 @@ xcodebuild -project App.xcodeproj -scheme App -configuration Release \
   -archivePath /tmp/Borcama.xcarchive -allowProvisioningUpdates archive
 
 xcodebuild -exportArchive -archivePath /tmp/Borcama.xcarchive \
-  -exportOptionsPlist ios/UploadOptions.plist \
+  -exportOptionsPlist ../UploadOptions.plist \
   -exportPath /tmp/export -allowProvisioningUpdates
 ```
 
-`UploadOptions.plist` içeriği:
+`ios/UploadOptions.plist` depoda **yoktur**; ilk yüklemeden önce bu
+içerikle oluştur (sır içermez, istersen commit edebilirsin):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -186,14 +189,14 @@ Supabase projesi: `pohxifqgxyxyiorejqvg`
 
 ```bash
 supabase link --project-ref pohxifqgxyxyiorejqvg
-supabase db push                      # migrations/ altındaki 28 migration
+supabase db push                      # migrations/ altındaki 36 migration
 supabase functions deploy <isim>      # tek fonksiyon
 ```
 
-Fonksiyonlar `supabase/functions/` altında (11 adet):
+Fonksiyonlar `supabase/functions/` altında (11 fonksiyon + ortak `_shared`):
 `analytics-event`, `auth-email`, `backoffice`, `delete-account`,
 `email-redirect`, `financial-assistant`, `lifecycle-emails`, `referrals`,
-`resend-webhook`, `shopier-entitlement`, `_shared`.
+`resend-webhook`, `revenuecat-webhook`, `shopier-entitlement`.
 
 `supabase/config.toml` auth ayarlarını tutar; en kritik satır **Send Email
 Auth Hook**'un `auth-email` fonksiyonuna bağlı olmasıdır. Bu hook bozulursa
@@ -226,7 +229,8 @@ Ayrıntı: [docs/surum-ve-yayin-sureci.md](surum-ve-yayin-sureci.md)
   eklentiler native tarafta kayıtlı olur ama JS'e tanıtılmaz; çağrılar
   sessizce askıda kalır. Çözüm olarak native sekme çubuğu doğrudan WebKit
   mesaj kanalı kullanıyor ([ios/App/App/NativeTabBar.swift](../ios/App/App/NativeTabBar.swift),
-  [src/nativeSekmeCubugu.js](../src/nativeSekmeCubugu.js)).
+  [src/nativeSekmeCubugu.js](../src/nativeSekmeCubugu.js)). Bu iki dosya
+  şu an yalnız `ios-app` dalında; `main`'de yoktur.
 - **`CAPBridgeViewController.view` doğrudan WKWebView'dir.** Üzerine eklenen
   alt görünümler çizilir ama dokunuş almaz; native çubuk bu yüzden
   `view.window` üzerine ekleniyor.

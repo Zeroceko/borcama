@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
   HESAP_SILME_ONAYI,
+  HESAP_SILME_YONLENDIRME_SURESI_MS,
   borcamaHesabiniSil,
   borcamaYerelVerileriniTemizle,
+  hesapSilmeBasarisiVar,
   hesapSilmeHataMesaji,
   hesapSilmeOnayiGecerli,
 } from "./accountDeletion.js";
@@ -22,6 +24,13 @@ function bellekDeposu(kayitlar) {
 test("hesap silme ifadesi Türkçe karakter ve boşluklarla doğrulanır", () => {
   assert.equal(hesapSilmeOnayiGecerli("  hesabımı sil "), true);
   assert.equal(hesapSilmeOnayiGecerli("hesabı sil"), false);
+});
+
+test("hesap silme başarısı yalnız doğru sorgu değeriyle gösterilir", () => {
+  assert.equal(hesapSilmeBasarisiVar("?account_deleted=1"), true);
+  assert.equal(hesapSilmeBasarisiVar("?account_deleted=0"), false);
+  assert.equal(hesapSilmeBasarisiVar(""), false);
+  assert.equal(HESAP_SILME_YONLENDIRME_SURESI_MS, 5000);
 });
 
 test("hesap silme isteği kimlikli ve sabit onay metniyle gönderilir", async () => {

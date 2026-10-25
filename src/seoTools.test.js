@@ -12,14 +12,15 @@ import {
   nettenBruteMaas2026,
 } from "./seoTools.js";
 
-test("50 bin TL ve altı kart limitinde asgari oran yüzde 20'dir", () => {
-  assert.equal(krediKartiAsgariOrani(50_000), 0.2);
-  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 50_000 }).tahminiAsgari, 4_000);
+test("100 bin TL ve altı kart limitinde asgari oran yüzde 20'dir", () => {
+  assert.equal(krediKartiAsgariOrani(50_001), 0.2);
+  assert.equal(krediKartiAsgariOrani(100_000), 0.2);
+  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 100_000 }).tahminiAsgari, 4_000);
 });
 
-test("50 bin TL üstü kart limitinde asgari oran yüzde 40'tır", () => {
-  assert.equal(krediKartiAsgariOrani(50_001), 0.4);
-  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 100_000 }).tahminiAsgari, 8_000);
+test("100 bin TL üstü kart limitinde asgari oran yüzde 40'tır", () => {
+  assert.equal(krediKartiAsgariOrani(100_001), 0.4);
+  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 100_001 }).tahminiAsgari, 8_000);
 });
 
 test("borç kapatma hesabı faiz ve son kısmi ödemeyi içerir", () => {

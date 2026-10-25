@@ -156,8 +156,11 @@ export function KullaniciSozlesmesi({ embedded = false }) {
           </>
         ) : (
           <>
-            Ödeme, faturalandırma ve abonelik yönetimi yetkili satıcı ve ödeme
-            sağlayıcısı Paddle üzerinden yürütülür.{" "}
+            iOS uygulamasından alınan aboneliklerde yetkili satıcı Apple'dır;
+            ödeme, faturalandırma ve abonelik yönetimi App Store üzerinden
+            yürütülür ve abonelik iOS'ta Ayarlar → Apple Hesabı → Abonelikler
+            bölümünden yönetilir. borcama.com üzerinden alınan aboneliklerde
+            yetkili satıcı ve ödeme sağlayıcısı Paddle'dır.{" "}
           </>
         )}
         Ayrıntılı cayma, iptal ve iade koşulları için{" "}
@@ -203,7 +206,7 @@ export function IadePolitikasi({ embedded = false }) {
         hizmetidir.{" "}
         {nativeMi
           ? "iOS uygulamasından yapılan satın alımlarda yetkili satıcı Apple'dır."
-          : "Ödemelerde yetkili satıcı ve ödeme sağlayıcısı Paddle'dır."}
+          : "iOS uygulamasından yapılan satın alımlarda yetkili satıcı Apple'dır ve abonelik App Store üzerinden yönetilir; borcama.com üzerinden yapılan satın alımlarda yetkili satıcı ve ödeme sağlayıcısı Paddle'dır."}
       </p>
 
       <h2>1. Aboneliğin yenilenmesi</h2>
@@ -226,10 +229,14 @@ export function IadePolitikasi({ embedded = false }) {
           </>
         ) : (
           <>
-            Aboneliğinizi istediğiniz zaman Paddle tarafından gönderilen satın
-            alma makbuzundaki “Manage subscription / Aboneliği yönet”
-            bağlantısından veya Borcama Ayarlar ekranındaki “Aboneliği yönet”
-            seçeneğinden iptal edebilirsiniz.{" "}
+            iOS uygulamasından alınan abonelikler iOS cihazınızda Ayarlar →
+            Apple Hesabı → Abonelikler bölümünden iptal edilir; yenilemenin
+            durması için iptalin, mevcut dönemin bitiminden en az 24 saat önce
+            yapılması gerekir. borcama.com üzerinden alınan abonelikleri
+            istediğiniz zaman Paddle tarafından gönderilen satın alma
+            makbuzundaki “Manage subscription / Aboneliği yönet” bağlantısından
+            veya Borcama Ayarlar ekranındaki “Aboneliği yönet” seçeneğinden
+            iptal edebilirsiniz.{" "}
           </>
         )}
         İptal, normal şartlarda mevcut faturalandırma döneminin sonunda geçerli
@@ -246,10 +253,11 @@ export function IadePolitikasi({ embedded = false }) {
       {nativeMi ? (
         <p>
           App Store üzerinden yapılan satın alımlarda iade talepleri Apple'a
-          iletilir ve Apple'ın iade politikası uygulanır. Borcama, App Store
-          işlemleri için doğrudan iade yapamaz. Türkiye'deki tüketicilerin
-          emredici mevzuattan doğan cayma ve iade hakları saklıdır; bu hakların
-          sağladığı korumalar önceliklidir.
+          iletilir ve standart iade süreci Apple tarafından yürütülür. Borcama,
+          talebin doğru kanala iletilmesi ve hizmete erişimle ilgili teknik
+          sorunların çözülmesi için destek sağlar. Türkiye'deki tüketicilerin
+          emredici mevzuattan doğan cayma, ayıplı hizmet ve iade hakları
+          saklıdır; bu hakların sağladığı korumalar önceliklidir.
         </p>
       ) : (
         <>
@@ -291,9 +299,22 @@ export function IadePolitikasi({ embedded = false }) {
         ) : (
           <>
             <li>
-              Paddle satın alma onay e-postasındaki “View receipt / Makbuzu
-              görüntüle” veya “Manage subscription / Aboneliği yönet”
-              bağlantısını kullanabilirsiniz.
+              iOS uygulamasından yapılan satın alımlarda iade talepleri Apple'a
+              iletilir:{" "}
+              <a
+                href="https://reportaproblem.apple.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                reportaproblem.apple.com
+              </a>{" "}
+              adresinden Apple hesabınızla giriş yapabilirsiniz.
+            </li>
+            <li>
+              borcama.com üzerinden yapılan satın alımlarda Paddle satın alma
+              onay e-postasındaki “View receipt / Makbuzu görüntüle” veya
+              “Manage subscription / Aboneliği yönet” bağlantısını
+              kullanabilirsiniz.
             </li>
             <li>
               <a href="https://paddle.net" target="_blank" rel="noreferrer">
@@ -309,7 +330,7 @@ export function IadePolitikasi({ embedded = false }) {
           <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresinden
           Borcama'ya ulaşabilirsiniz.{" "}
           {nativeMi
-            ? "Talebinizi Apple'a iletme sürecinde yardımcı oluruz; iade kararı Apple'a aittir."
+            ? "Talebinizi Apple'ın standart iade kanalına iletme sürecinde ve hizmete erişim sorunlarında yardımcı oluruz."
             : "Talebin ödeme sağlayıcısına iletilmesine yardımcı oluruz."}
         </li>
       </ul>

@@ -2,14 +2,49 @@
 
 Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki kayıtlar gönderim onayı değildir; kampanya oluşturulurken hedef kitle ve metin ayrıca kontrol edilir.
 
+## Kredi kartı asgari ödeme sınırı · 2 Ekim 2026
+
+- Yayın sürümü: `v1.60.3`
+- Durum: Gönderime hazır taslak; toplu gönderim yapılmadı.
+- Konu: `Kredi kartı asgari ödeme kuralı değişti`
+- Önizleme metni: `100.000 TL ve altındaki kart limitlerinde asgari ödeme oranı yüzde 20 olarak uygulanıyor.`
+- Mesaj: BDDK'nın 1 Ekim 2026 tarihli 11581 sayılı kararıyla kart limiti 100.000 TL ve altındaysa dönem borcunun yüzde 20'si, üzerindeyse yüzde 40'ı asgari ödeme olarak esas alınıyor.
+- Etkilenen grup açıklaması: Önceki 50.000 TL eşiğine göre doğrudan değişiklik, kart limiti 50.000 TL'nin üstünde ve 100.000 TL veya altında olan kullanıcıları etkiliyor.
+- Ana CTA: `Kartlarımı kontrol et`
+- Aksiyon: `https://borcama.com/debts?utm_source=resend&utm_medium=email&utm_campaign=asgari_odeme_2026_10&utm_content=ana_cta`
+- Resmî kaynak: `https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349`
+- Hedef kitle: E-posta adresi doğrulanmış, iletişimden çıkmamış, bounce veya şikâyet kaydı bulunmayan ve kampanyayı daha önce almamış üyeler.
+- Gönderim öncesi zorunlu kontrol: Hesaplama düzeltmesinin canlı sürümünü doğrula; Marketing ekranındaki gerçek alıcı sayısını kontrol et; yönetici test adresine test gönderimiyle mobil ve masaüstü görünümü, CTA, BDDK bağlantısı ve teslimat webhook'unu doğrula.
+
 ## Gelecek sürüm adayları
 
-### Borcama artık iPhone uygulamasıyla yanında
+### Bir borç daha bittiğinde ilerlemeni gör — v1.60.0
 
-- Siz istediniz: Borçlarınızı ve ödeme gününüzü telefonda, tarayıcı açmadan takip etmek.
-- Biz yaptık: Borcama'nın iPhone uygulamasını yayınladık; uygulama Face ID veya Touch ID ile kilitlenebiliyor, ödeme gününden bir gün önce hatırlatma gönderiyor ve ilk açılışta kısa bir tanıtımla kurulumu anlatıyor.
-- Faydası: Aynı hesapla giriş yaparsınız, kayıtlarınız tarayıcıyla birebir aynı kalır; Pro üyeliğinizi hangi taraftan aldıysanız diğer tarafta da geçerli olur.
-- Aksiyon: App Store bağlantısı yayın sonrası eklenecek.
+- Siz istediniz: Son taksiti ödenen borcun aktif listede kalmamasını ve bu ilerlemenin görünür olmasını.
+- Biz yaptık: Tamamlanan kredi için kutlama ekledik ve krediyi aktif listeden “Kapatılan krediler” geçmişine taşıdık; sıfırlanan ek hesap ise yeniden borç eklenebilmesi için hesabın üzerinde kalıyor.
+- Faydası: Açık borçlarla bitenleri karıştırmadan ilerlemeni görebilir, yeniden kullandığın ek hesabı baştan tanımlamadan takip edebilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
+### Borcama artık iPhone'unda — App Store ilk yayın adayı
+
+- Siz istediniz: Borç, ödeme ve bütçe kayıtlarını telefonda güvenli ve hızlı biçimde takip etmek.
+- Biz yaptık: Borcama'nın iOS uygulamasına aynı hesapla giriş, App Store üzerinden Pro, Face ID/Touch ID kilidi ve tutar ya da banka adı göstermeyen isteğe bağlı ödeme hatırlatmaları ekledik.
+- Faydası: Web ve iPhone'da aynı finansal tabloyu kullanabilir, Pro hakkını iki platformda birlikte sürdürebilirsin.
+- Aksiyon: App Store yayını tamamlandıktan sonra ürün sayfası bağlantısı eklenecek.
+
+### Daha fazla bankanın kredi planını tek tek yazmadan aktar — v1.59.0
+
+- Siz istediniz: Farklı bankaların ödeme planlarında kolonlar değişse de kredinin taksitini, kalan anaparasını ve faizini elle düzeltmeden aktarabilmek.
+- Biz yaptık: VakıfBank, Yapı Kredi, Fibabanka ve Enpara planlarını kendi tablo düzenleriyle okuyup tutar, taksit, faiz, vergi ve kalan anapara alanlarını birbirinden ayırdık.
+- Faydası: Bankanın PDF'indeki planı cihazında okuyup kontrol ederek daha az elle girişle ayrı kredi kaydı oluşturabilirsin.
+- Aksiyon: `https://borcama.com/debts`
+
+### Her kredinin bugünkü kapatma tutarını ve ilk borcunu gör — v1.59.0
+
+- Siz istediniz: Toplam kalan taksitleri görmekle yetinmeyip bütün borçları bugün kapatmak için yaklaşık ne gerekeceğini ve hangi borcun önce geleceğini anlamak.
+- Biz yaptık: Bugün ekranına aylık tahmini faiz yükü ve Pro için ilk üç borç önceliği; Krediler ekranında her krediye, gelecekteki faizi kalan taksit toplamından ayıran “Bugün kapatırsam” tahmini eklendi. Faiz verisi bilinmeyen krediler ayrı biçimde üst sınır olarak işaretleniyor.
+- Faydası: Kalan ödeme toplamını erken kapama tutarıyla karıştırmadan aylık faiz baskısını ve ilk odak noktanı tek bakışta görebilirsin.
+- Aksiyon: `https://borcama.com/debts`
 
 ### Kredinin başlangıcını ve kalan planını birlikte gör — v1.58.0
 
@@ -99,7 +134,7 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 - Siz istediniz: Bütçe, yeni kredi, yapılandırma ve borç kapatma gibi konularda kendi finansal durumuna göre anlaşılır yanıt almak.
 - Biz yaptık: Borcama Asistanı'na serbest soru-cevap ekledik; asistan kayıtlı gelir, gider, borç ve ödeme özetini açıklarken ham ekstreyi, kart numarasını ve işlem açıklamalarını modele göndermiyor.
-- Faydası: Ücretsiz planda günde 3, Pro'da 20 soruyla finansal tablonun ne söylediğini anlayabilir ve ilgili işleme doğrudan geçebilirsin.
+- Faydası: Ücretsiz planda günde 5, Pro'da 20 soruyla finansal tablonun ne söylediğini anlayabilir ve ilgili işleme doğrudan geçebilirsin.
 - Aksiyon: `https://borcama.com/summary`
 
 ### Borcama'nın vereceği cevaplar ilk bakışta daha net — v1.46.0

@@ -1,8 +1,8 @@
-import React, { lazy, useEffect, useState } from "react";
+import React, { lazy, useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from './errorMonitoring.js';
 import LandingControl from "./LandingAlt.jsx";
-import LandingVariant, { PublicExample } from "./LandingGrowth.jsx";
+import LandingVariant from "./LandingGrowth.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import DogrulamaEkrani from "./DogrulamaEkrani.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
@@ -24,10 +24,13 @@ import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
 import Onboarding, { KARAR_ADIMI } from "./Onboarding.jsx";
 import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
+import HesapSilindiEkrani from "./AccountDeleted.jsx";
+import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
 
 const App = lazy(() => import("./App.jsx"));
 const Landing = lazy(() => import("./Landing.jsx"));
 const LandingStory = lazy(() => import("./LandingStory.jsx"));
+const CrmApp = lazy(() => import("./crm/CrmApp.jsx"));
 const Backoffice = lazy(() => import("./Backoffice.jsx"));
 const CeoDashboard = lazy(() => import("./CeoDashboard.jsx"));
 const Marketing = lazy(() => import("./Marketing.jsx"));
@@ -48,7 +51,10 @@ sekmeCubugunuGoster(false);
 // E-posta dogrulama ve parola yenileme baglantilari uygulamaya doner;
 // oturum burada kurulur ve kullanici giris yapmis olarak karsilanir.
 derinBaglantilariDinle();
-googleAdsBaslat();
+// CRM'de Google etiketleri yüklenmez; kullanıcı kimliği içeren yollar ölçüme gitmez.
+// Native kabukta da yüklenmez (App Privacy beyanı).
+const crmAlanindaMi = typeof window !== "undefined" && window.location.hostname.toLowerCase() === CRM_ALANI;
+if (!nativeMi && !crmAlanindaMi) googleAdsBaslat();
 
 const YONETIM_EPOSTALARI = new Set(["ozerocek@gmail.com"]);
 
@@ -134,7 +140,10 @@ function Kok() {
       : yol;
   if (crmAlani && yol === "/") yol = "/backoffice";
   else if (crmAlani && yol.startsWith("/user/")) yol = `/backoffice${yol}`;
-  useEffect(() => {
+  // Layout effect: lazy SEO sayfası Kok ile aynı commit'te bağlanır ve React
+  // pasif efektleri önce çocukta çalıştırır; landing_visit araç sonucundan
+  // (ör. debt_payoff_result_view) önce kuyruğa girsin diye layout effect.
+  useLayoutEffect(() => {
     if (yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
     const indekslenmemeli = noindexYoluMu(yol, crmAlani);
@@ -146,6 +155,8 @@ function Kok() {
     }
     meta.setAttribute("content", indekslenmemeli ? "noindex,nofollow,noarchive" : "index,follow");
   }, [yol]);
+  if (yol === "/" && hesapSilmeBasarisiVar(window.location.search))
+    return <HesapSilindiEkrani />;
   // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
   // uygulama dogrudan kimlik/uygulama akisiyla acilir. Oturumsuz ilk
   // kurulumda once onboarding gosterilir.
@@ -197,9 +208,17 @@ function Kok() {
   if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
   if (yol === "/classic") return <Landing />;
   if (yol === "/landing-v2") return <LandingStory />;
-  if (yol === "/demo") return <PublicExample />;
+  if (yol === "/demo") return <HariciYonlendirme url="/register?plan=free" />;
   if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
+  if (import.meta.env.DEV && (yol === "/crm-preview" || yol.startsWith("/crm-preview/"))) {
+    const ek = yol.slice("/crm-preview".length) || "/";
+    return <CrmApp preview {...crmSayfasi(ek)} />;
+  }
+  if (crmAlani && ["/backoffice", "/kullanicilar", "/buyume", "/iletisim"].includes(yol))
+    return supabaseHazir ? <KimlikliCrm {...crmSayfasi(yol === "/backoffice" ? "/" : yol)} /> : <YapilandirmaEksik />;
+  if (crmAlani && yol.startsWith("/backoffice/user/"))
+    return supabaseHazir ? <KimlikliCrm sayfa="kullanici" userId={decodeURIComponent(yol.slice("/backoffice/user/".length))} /> : <YapilandirmaEksik />;
   if (import.meta.env.DEV && yol === "/backoffice-preview")
     return <Backoffice preview />;
   if (import.meta.env.DEV && yol.startsWith("/backoffice-preview/user/"))
@@ -265,6 +284,21 @@ function KimlikliBackoffice({ userId = "" }) {
   if (!yonetimYetkisiVar(session))
     return <HariciYonlendirme url="https://borcama.com/summary" />;
   return <Backoffice userId={userId} />;
+}
+
+// Yeni CRM kabuğu: "/" Bugün, "/kullanicilar", "/user/:id", "/buyume", "/iletisim".
+function crmSayfasi(ek) {
+  if (ek.startsWith("/user/")) return { sayfa: "kullanici", userId: decodeURIComponent(ek.slice("/user/".length)) };
+  return { sayfa: { "/kullanicilar": "kullanicilar", "/buyume": "buyume", "/iletisim": "iletisim" }[ek] || "bugun" };
+}
+
+function KimlikliCrm({ sayfa, userId = "" }) {
+  const session = useSession();
+  if (session === undefined) return <Yukleniyor />;
+  if (!session) return <GirisEkrani redirectTo={sayfa === "kullanici" ? `/user/${encodeURIComponent(userId)}` : sayfa === "bugun" ? "/" : `/${sayfa}`} />;
+  if (!yonetimYetkisiVar(session))
+    return <HariciYonlendirme url="https://borcama.com/summary" />;
+  return <CrmApp sayfa={sayfa} userId={userId} />;
 }
 
 function HariciYonlendirme({ url }) {
@@ -534,7 +568,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <CevrimdisiPerde>
           <Kok />
           {/* Native'de Google etiketi yuklenmiyor; olcum izni sormak anlamsiz. */}
-          {!nativeMi && <GoogleAdsConsent />}
+          {!nativeMi && !crmAlanindaMi && <GoogleAdsConsent />}
         </CevrimdisiPerde>
       </BiyometrikKilit>
     </React.Suspense>

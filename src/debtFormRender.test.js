@@ -10,6 +10,12 @@ test("borç alanları form kapalıyken de güvenle oluşturulur", () => {
   for (const form of [null, undefined, { veri: {} }, { veri: { id: "existing" } }]) {
     const definitions = vm.runInNewContext(`(${fields})`, { form, f: {} });
     const date = definitions.loans.find(field => field.k === "ilkOdemeTarihi");
-    assert.equal(date.z, !form?.veri?.id);
+    // Hızlı kredi: yeni kredide ilk taksit tarihi isteğe bağlı ("Daha fazla bilgi"), düzenlemede de zorunlu değil.
+    assert.ok(!date.z);
+    if (!form?.veri?.id) {
+      assert.equal(date.ek, true);
+      const zorunlu = definitions.loans.filter((field) => field.z).map((field) => field.k);
+      assert.equal(zorunlu.join(","), "banka,taksit,kalanTaksit,odemeGunu");
+    }
   }
 });

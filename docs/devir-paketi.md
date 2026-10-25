@@ -7,6 +7,10 @@ Bu dosya, projenin yeni bir geliştiriciye devredilmesi için hazırlanmıştır
 Bilgisayarında sıfırdan kurulum için:
 [docs/yeni-gelistirici-kurulum.md](yeni-gelistirici-kurulum.md)
 
+Rakamlar (dosya, test, migration sayıları) `v1.68.0` itibarıyladır.
+30 Eylül tarihli [ios-app-devir-2026-09-30.md](ios-app-devir-2026-09-30.md)
+App Store öncesi durumu anlatan tarihli kayıttır; güncel bilgi bu dosyadadır.
+
 > Bu dosyada hiçbir parola, API anahtarı veya token yazılı **değildir**.
 > Yalnız hangi sırrın nerede durduğu listelenir. Devir sırasında sırlar
 > servis panellerinden yeniden üretilip devralan kişiye kendi hesabı
@@ -34,7 +38,7 @@ Güncel sürüm `package.json` içindedir. Kullanıcıya yansıyan tüm değişi
 
 | Katman | Teknoloji |
 |---|---|
-| Arayüz | React 18 + Vite 8, tek sayfa uygulama, 138 dosyalık `src/` |
+| Arayüz | React 18 + Vite 8, tek sayfa uygulama, 162 dosyalık `src/` |
 | Native kabuk | Capacitor 8 (iOS); web çıktısı uygulamaya gömülür, uzak site yüklenmez |
 | Veritabanı + kimlik | Supabase (Postgres, Auth, Edge Functions) |
 | Barındırma + cron | Vercel |
@@ -140,6 +144,8 @@ kimlik doğrulama sırrı değildir.
 | `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_PAID_SERVICE_CONFIRMED` | `financial-assistant` |
 | `PADDLE_API_KEY`, `PADDLE_ENVIRONMENT` | Abonelik okuma/yazma (Customers: Read, Subscriptions: Read+Write izinleri gerekir) |
 | `REVENUECAT_SECRET_API_KEY` | Abonelik doğrulama |
+| `REVENUECAT_WEBHOOK_AUTHORIZATION`, `REVENUECAT_WEBHOOK_SIGNING_SECRET` | `revenuecat-webhook` — RevenueCat olaylarının yetki başlığı ve imzası |
+| `REVENUECAT_IOS_APP_ID` | `revenuecat-webhook` — RevenueCat panelindeki iOS uygulama kimliği (`app_...`, bundle ID değil) |
 | `SHOPIER_BRIDGE_SECRET`, `SHOPIER_PRODUCT_ID`, `SHOPIER_PRO_PRODUCT_ID` | `shopier-entitlement` |
 | `ANALYTICS_SESSION_SECRET` | `analytics-event` — oturum kimliği imzası |
 | `LIFECYCLE_CRON_SECRET` | `lifecycle-emails` — Vercel cron çağrısını doğrular |
@@ -170,6 +176,7 @@ Devralan kendi token'ını üretip aynı adla kaydeder; mevcut token iptal edili
 | Yaşam döngüsü e-postaları | `vercel.json > crons` → `/api/lifecycle-emails` | Her gün 07:15 UTC |
 | Supabase Send Email Hook | `supabase/config.toml` → `auth-email` fonksiyonu | Her kayıt/parola yenileme |
 | Resend webhook | `resend-webhook` fonksiyonu | Teslimat, bounce, şikâyet olayları |
+| RevenueCat webhook | `revenuecat-webhook` fonksiyonu | Abonelik başlangıcı, yenileme, iptal olayları |
 | Sentry production issue kontrolü | `scripts/check-sentry-issues.mjs` | Elle çalıştırılır |
 
 **Send Email Hook kritiktir.** Bozulursa kayıt ve parola yenileme
@@ -239,8 +246,10 @@ birini değiştiren bir geliştirme yapılırsa o metin de güncellenmelidir.**
   anahtarı hazır, mağaza süreci hiç başlatılmadı.
 - **Fiyat sağlayıcıları sözleşmesiz.** 6. bölümdeki ücretsiz kaynaklar
   kapanırsa Varlıklar ekranı fiyatsız kalır.
-- **`ios-app` dalı.** iOS çalışmaları bu dalda yürüdü; devirden önce
-  `main` ile ilişkisi netleştirilmeli.
+- **`ios-app` dalı.** iOS çalışmaları bu dalda yürüdü; `main`'de olmayan
+  45 commit taşıyor (`git log --oneline main..origin/ios-app`). Devirden
+  önce birleştirilecek mi, kapatılacak mı netleştirilmeli. Native sekme çubuğu
+  (`NativeTabBar.swift`, `src/nativeSekmeCubugu.js`) yalnız bu dalda.
 - **Test hesabı.** Supabase'de `info+bc-misafir1@vmpspares.com` adlı
   tek kullanımlık test hesabı duruyor; devirde silinebilir.
 - **Yol haritası ve açık deneyler** `docs/urun-yol-haritasi.md` ve
@@ -267,6 +276,7 @@ Sırlar:
 - [ ] Resend API anahtarı yeniden üretildi
 - [ ] Paddle API anahtarı yeniden üretildi
 - [ ] RevenueCat secret anahtarı yeniden üretildi
+- [ ] RevenueCat webhook yetki başlığı ve imza sırrı yenilendi (RevenueCat paneli ve Supabase'de aynı)
 - [ ] Shopier access token yeniden üretildi
 - [ ] Sentry Internal Integration token'ı devralan adına üretildi, eskisi iptal edildi
 - [ ] `CRON_SECRET` / `LIFECYCLE_CRON_SECRET` çifti yenilendi (iki tarafta da aynı)

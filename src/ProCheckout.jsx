@@ -15,6 +15,7 @@ import {
   proNiyetiniTemizle,
 } from "./proIntent.js";
 import { googleAdsSatinAlmaDonusumu } from "./googleAds.js";
+import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap');
@@ -86,7 +87,8 @@ export default function ProCheckout() {
         return;
       }
       if (!sonuc.active) throw new Error("Satın alma doğrulanamadı");
-      await googleAdsSatinAlmaDonusumu(sonuc);
+      if (!nativeMi) await googleAdsSatinAlmaDonusumu(sonuc);
+      await revenueCatProHakkiniSenkronizeEt();
       proNiyetiniTemizle();
       window.location.assign("/welcome");
     } catch {
@@ -100,6 +102,7 @@ export default function ProCheckout() {
     try {
       const sonuc = await revenueCatSatinAlimlariGeriYukle(session.user.id);
       if (sonuc.active) {
+        await revenueCatProHakkiniSenkronizeEt();
         proNiyetiniTemizle();
         window.location.assign("/welcome");
         return;

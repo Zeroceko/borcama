@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateRemainingLoanPlan, summarizeLoanRecord } from "./loanPlanSummary.js";
+import {
+  calculateRemainingLoanPlan,
+  estimateManualLoanRemainingPrincipal,
+  summarizeLoanRecord,
+} from "./loanPlanSummary.js";
 
 test("yüklenen ödeme planında anapara, kalan toplam ve finansman maliyetini ayırır", () => {
   const result = calculateRemainingLoanPlan({
@@ -54,6 +58,54 @@ test("ödeme planı olmayan kredide taksit çarpımını güvenli yedek olarak k
   assert.equal(result.remainingPrincipal, null);
   assert.equal(result.remainingFinancingCost, null);
   assert.equal(result.financingCostIsKnown, false);
+});
+
+test("manuel kredide çekilen tutar ve taksit ilerlemesinden kalan anaparayı tahmin eder", () => {
+  const monthlyRate = 0.03;
+  const totalInstallments = 12;
+  const principal = 100000;
+  const factor = (1 + monthlyRate) ** totalInstallments;
+  const installment = principal * monthlyRate * factor / (factor - 1);
+  const remaining = estimateManualLoanRemainingPrincipal({
+    anaPara: principal,
+    taksit: installment,
+    toplamTaksit: totalInstallments,
+    odenenTaksit: 4,
+    kalanTaksit: 8,
+    kalanBorc: installment * 8,
+    faiz: 3,
+  });
+
+  assert.ok(remaining > 0 && remaining < principal);
+  const summary = summarizeLoanRecord({
+    id: "manuel-1",
+    anaPara: principal,
+    taksit: installment,
+    toplamTaksit: totalInstallments,
+    odenenTaksit: 4,
+    kalanTaksit: 8,
+    kalanBorc: installment * 8,
+    faiz: 3,
+  });
+  assert.equal(summary.remainingPrincipal, remaining);
+  assert.equal(summary.financingCostIsKnown, true);
+  assert.ok(summary.remainingPaymentTotal > summary.remainingPrincipal);
+});
+
+test("kalan taksit toplamındaki gelecekteki faizi bugün kapatma tahmininden çıkarır", () => {
+  const summary = summarizeLoanRecord({
+    id: "eski",
+    anaPara: 186000,
+    faiz: 3.49,
+    taksit: 12400,
+    kalanTaksit: 15,
+    kalanBorc: 168000,
+  });
+
+  assert.equal(summary.remainingPaymentTotal, 168000);
+  assert.equal(Math.round(summary.remainingPrincipal), 129087);
+  assert.equal(summary.financingCostIsKnown, true);
+  assert.equal(Math.round(summary.remainingFinancingCost), 38913);
 });
 
 test("eski kredi kaydındaki kalan borcu anapara sanmadan ödemeleri düşer", () => {

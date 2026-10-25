@@ -17,6 +17,14 @@
 6. Sürüm kontrolü, test ve production build tamamlanmadan yayınlama.
 7. Canlı doğrulama sonrası sürüm etiketini gönder.
 
+## iOS sürümü ve build numarası
+
+- `CFBundleShortVersionString`, `package.json` içindeki SemVer sürümünü izler.
+- `CFBundleVersion` yalnız yeni bir TestFlight veya App Store build'i yüklenirken artan tamsayıdır; her web yayınında artırılmaz.
+- iOS arşivi hazırlamadan önce `npm run ios:version -- --bump-build` çalıştırılır ve oluşan Xcode proje değişikliği aynı iOS teslim commitine eklenir.
+- Aynı pazarlama sürümünden yeniden build alınırsa SemVer değişmez, yalnız build numarası artar.
+- App Store'a gönderimden önce `npm run release:check`, `npm test`, `npm run build`, `npx cap sync ios` ve imzasız simulator build doğrulaması tamamlanır.
+
 ## Sürüm kararı örnekleri
 
 | Değişiklik | Sürüm etkisi | Örnek |
@@ -37,4 +45,3 @@ Mailing, changelog'un kopyası değildir. Yalnızca kullanıcıya somut fayda sa
 - İlgili sayfaya götüren tek aksiyon
 
 Toplu gönderimden önce hedef kitle, konu satırı, önizleme metni, bağlantı UTM'leri, test gönderimi ve açılma/tıklama ölçümü ayrıca doğrulanır.
-

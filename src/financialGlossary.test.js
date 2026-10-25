@@ -10,7 +10,7 @@ test("finansal sözlük slugları kalıcı, ASCII ve benzersizdir", () => {
 });
 
 test("her sözlük terimi özgün açıklama, örnek ve çalışan ilgili terimler içerir", () => {
-  assert.equal(FINANSAL_SOZLUK.length, 200);
+  assert.equal(FINANSAL_SOZLUK.length, 201);
   for (const terim of FINANSAL_SOZLUK) {
     assert.ok(terim.definition.length >= 55, `${terim.slug}: definition`);
     assert.ok(terim.detail.length >= 140, `${terim.slug}: detail`);
@@ -34,4 +34,18 @@ test("sözlük tek veri kaynağından prerender ve sitemap üretimine bağlanır
   assert.match(prerender, /FINANSAL_SOZLUK/);
   assert.match(prerender, /DefinedTerm/);
   assert.match(sitemap, /FINANSAL_SOZLUK_URLS/);
+});
+
+test("tasfiye ve bank run sayfaları güncel fon krizini kaynaklı anlatır; SSS şeması üretilir", async () => {
+  const tasfiye = finansalSozlukTerimi("tasfiye");
+  assert.match(tasfiye.seoTitle, /Borcun Tasfiyesi Ne Demek\?/);
+  assert.ok(tasfiye.ekBolumler.some(([baslik]) => /SPK'nın fon tasfiye kararı/.test(baslik)));
+  assert.ok(tasfiye.kaynaklar.every(([, adres]) => /^https:\/\//.test(adres)));
+  assert.ok(tasfiye.kaynaklar.some(([, adres]) => adres.includes("spk.gov.tr")));
+  const bankRun = finansalSozlukTerimi("bank-run");
+  assert.ok(bankRun.ekBolumler.some(([baslik]) => /Fon krizinde/.test(baslik)));
+  assert.ok(bankRun.related.includes("tasfiye") && tasfiye.related.includes("bank-run"));
+  const prerender = await readFile(new URL("../scripts/prerender-seo.mjs", import.meta.url), "utf8");
+  assert.match(prerender, /"@type": "FAQPage"/);
+  assert.match(prerender, /terim\.seoTitle/);
 });

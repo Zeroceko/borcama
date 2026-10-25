@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { borcamaAsistaniDuyuruHtml, denemeDavetHtml, konuGuvenli, surum133DuyuruHtml, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
+import { borcamaAsistaniDuyuruHtml, denemeDavetHtml, konuGuvenli, krediKartiAsgariGuncellemeHtml, surum133DuyuruHtml, yeniOzelliklerHtml as yeniOzelliklerSablonu } from "../_shared/borcama-email.ts";
 import { borcToplamlariniHesapla, guvenliSayi, gunlukBorcSnapshotKaydet } from "../_shared/debt-snapshot.ts";
 
 const izinliOriginler = new Set([
@@ -150,6 +150,53 @@ async function kullaniciKampanyaGecmisi(
   });
 }
 
+// v1.61.0 ölçüm olayları: son 30 gün, tekil oturum. Giriş sayfası grubuna göre ayrılır.
+async function olcumOlaylari(admin: ReturnType<typeof createClient>) {
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  const satirlar: Array<{ session_id: string; event_name: string; path: string; created_at: string }> = [];
+  for (let sayfa = 0; sayfa < 20; sayfa++) {
+    const { data, error } = await admin.from("analytics_events")
+      .select("session_id,event_name,path,created_at")
+      .gte("created_at", since)
+      .in("event_name", ["landing_visit", "landing_scroll_half", "landing_cta_click", "content_product_click", "register_view"])
+      .order("created_at").range(sayfa * 1000, sayfa * 1000 + 999);
+    if (error) throw new Error("OLCUM_UNAVAILABLE");
+    satirlar.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  const grup = (yol: string) => {
+    const y = String(yol || "").replace(/\/+$/, "") || "/";
+    if (y === "/") return "ana";
+    if (y.startsWith("/araclar")) return "araclar";
+    if (y.startsWith("/finansal-sozluk")) return "sozluk";
+    if (y.startsWith("/rehber")) return "rehber";
+    return "diger";
+  };
+  const say = (gun: number) => {
+    const sinir = Date.now() - gun * 86400000;
+    const oturumlar = new Map<string, { giris: string; olaylar: Set<string> }>();
+    for (const r of satirlar) {
+      if (Date.parse(r.created_at) < sinir) continue;
+      const o = oturumlar.get(r.session_id) || { giris: "", olaylar: new Set<string>() };
+      if (r.event_name === "landing_visit" && !o.giris) o.giris = grup(r.path);
+      o.olaylar.add(r.event_name);
+      oturumlar.set(r.session_id, o);
+    }
+    const sonuc: Record<string, Record<string, number>> = {};
+    for (const o of oturumlar.values()) {
+      if (!o.giris) continue;
+      const g = (sonuc[o.giris] ||= { ziyaret: 0, yari: 0, cta: 0, icerik_gecis: 0, kayit_ekrani: 0 });
+      g.ziyaret += 1;
+      if (o.olaylar.has("landing_scroll_half")) g.yari += 1;
+      if (o.olaylar.has("landing_cta_click")) g.cta += 1;
+      if (o.olaylar.has("content_product_click")) g.icerik_gecis += 1;
+      if (o.olaylar.has("register_view")) g.kayit_ekrani += 1;
+    }
+    return sonuc;
+  };
+  return { available: true, son_7_gun: say(7), son_30_gun: say(30), olcum_baslangici: "2026-10-10" };
+}
+
 async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {
   const since = new Date(Date.now() - 90 * 86400000).toISOString();
   const [{ data: daily, error: dailyError }, { data: sources, error: sourceError }, { data: pmax, error: pmaxError }, { data: landingExperiment, error: landingExperimentError }, { data: depositTool, error: depositToolError }, { data: debtPayoffTool, error: debtPayoffToolError }] = await Promise.all([
@@ -296,6 +343,45 @@ async function borcamaAsistaniDuyurusuGonder(
       hedef,
       (url) => borcamaAsistaniDuyuruHtml(url),
       "/summary?assistant=1&utm_source=resend&utm_medium=email&utm_campaign=siz_istediniz_3&utm_content=ana_cta",
+    );
+    if (sent) gonderilen += 1;
+  }
+  return gonderilen;
+}
+
+async function krediKartiAsgariHedefleri(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: KampanyaKullanicisi[],
+) {
+  const campaign = await kampanyaGetir(admin, "credit-card-minimum-2026-10");
+  if (campaign.status !== "active") throw new Error("CAMPAIGN_NOT_ACTIVE");
+  const [{ data: mevcutlar, error: mevcutHatasi }, { data: engellenenler, error: engelHatasi }] = await Promise.all([
+    admin.from("marketing_deliveries").select("user_id,status").eq("campaign_id", campaign.id),
+    admin.from("marketing_deliveries").select("user_id,status").in("status", ["bounced", "complained"]),
+  ]);
+  if (mevcutHatasi || engelHatasi) throw new Error("DELIVERIES_UNAVAILABLE");
+  const dahaOnceGonderilen = new Set((mevcutlar || []).filter((x) => x.user_id && x.status !== "failed").map((x) => x.user_id));
+  const teslimatiEngellenen = new Set((engellenenler || []).filter((x) => x.user_id).map((x) => x.user_id));
+  const hedefler = kullanicilar
+    .filter((u) => u.email && u.email_confirmed_at)
+    .filter((u) => !iletisimdenCikmis(u) && !teslimatiEngellenen.has(u.id) && !dahaOnceGonderilen.has(u.id))
+    .map((u) => ({ user_id: u.id, email: String(u.email).trim().toLowerCase() }));
+  return { campaign, hedefler };
+}
+
+async function krediKartiAsgariDuyurusuGonder(
+  admin: ReturnType<typeof createClient>,
+  kullanicilar: KampanyaKullanicisi[],
+) {
+  const { campaign, hedefler } = await krediKartiAsgariHedefleri(admin, kullanicilar);
+  let gonderilen = 0;
+  for (const hedef of hedefler) {
+    const sent = await takipliKampanyaGonder(
+      admin,
+      campaign,
+      hedef,
+      (url) => krediKartiAsgariGuncellemeHtml(url),
+      "/debts?utm_source=resend&utm_medium=email&utm_campaign=asgari_odeme_2026_10&utm_content=ana_cta",
     );
     if (sent) gonderilen += 1;
   }
@@ -639,6 +725,36 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null);
     const userId = String(body?.userId || "");
     const action = String(body?.action || "");
+    if (action === "delete_user") {
+      // Test hesapları ve kullanıcı talebiyle silme. Geri alınamaz: sebep,
+      // e-posta ile yazılı onay ve aktif ücretli abonelik kontrolü zorunlu.
+      const sebep = String(body?.reason || "");
+      if (!["test", "user_request", "other"].includes(sebep))
+        return new Response(JSON.stringify({ error: "REASON_REQUIRED" }), { status: 422, headers });
+      if (!/^[0-9a-f-]{36}$/i.test(userId))
+        return new Response(JSON.stringify({ error: "INVALID_USER" }), { status: 422, headers });
+      const { data: hedefVeri } = await admin.auth.admin.getUserById(userId);
+      const hedefEposta = String(hedefVeri?.user?.email || "").trim().toLowerCase();
+      if (!hedefEposta) return new Response(JSON.stringify({ error: "ACCOUNT_NOT_FOUND" }), { status: 404, headers });
+      if (hedefEposta === TEK_YONETICI_EPOSTASI)
+        return new Response(JSON.stringify({ error: "CANNOT_DELETE_ADMIN" }), { status: 403, headers });
+      if (String(body?.confirmation || "").trim().toLowerCase() !== hedefEposta)
+        return new Response(JSON.stringify({ error: "CONFIRMATION_MISMATCH" }), { status: 422, headers });
+      const { data: hak } = await admin.from("user_entitlements")
+        .select("pro_expires_at,pro_purchase_id,source").eq("user_id", userId).maybeSingle();
+      const hakBitis = hak?.pro_expires_at ? Date.parse(hak.pro_expires_at) : NaN;
+      if (Number.isFinite(hakBitis) && hakBitis > Date.now() &&
+        (hak?.pro_purchase_id || /^(revenuecat|paddle|shopier)/.test(String(hak?.source || ""))))
+        return new Response(JSON.stringify({ error: "PAID_SUBSCRIPTION_ACTIVE" }), { status: 409, headers });
+      const { error: silmeHatasi } = await admin.rpc("delete_borcama_account", { target_user_id: userId, target_email: hedefEposta });
+      if (silmeHatasi) return new Response(JSON.stringify({ error: "ACCOUNT_DELETE_FAILED" }), { status: 500, headers });
+      const ozet = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(hedefEposta))))
+        .map((b) => b.toString(16).padStart(2, "0")).join("");
+      const { error: izHatasi } = await admin.from("admin_actions").insert({
+        action: "delete_user", reason: sebep, target_user_id: userId, target_email_sha256: ozet, actor_email: email,
+      });
+      return new Response(JSON.stringify({ ok: true, audit_saved: !izHatasi }), { status: 200, headers });
+    }
     if (action === "update_campaign_subject") {
       try {
         const slug = String(body?.slug || "").trim();
@@ -653,6 +769,7 @@ Deno.serve(async (req) => {
       }
     }
     if (action === "send_trial_announcement") {
+      return new Response(JSON.stringify({ error: "CAMPAIGN_RETIRED" }), { status: 410, headers });
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await denemeDuyurusuGonder(admin, kullanicilar);
@@ -663,6 +780,7 @@ Deno.serve(async (req) => {
       }
     }
     if (action === "send_features_announcement") {
+      return new Response(JSON.stringify({ error: "CAMPAIGN_RETIRED" }), { status: 410, headers });
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await yeniOzelliklerDuyurusuGonder(admin, kullanicilar);
@@ -673,6 +791,7 @@ Deno.serve(async (req) => {
       }
     }
     if (action === "send_release_133_announcement") {
+      return new Response(JSON.stringify({ error: "CAMPAIGN_RETIRED" }), { status: 410, headers });
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await surum133DuyurusuGonder(admin, kullanicilar);
@@ -686,6 +805,16 @@ Deno.serve(async (req) => {
       try {
         const kullanicilar = await tumKullanicilariGetir(admin);
         const sent = await borcamaAsistaniDuyurusuGonder(admin, kullanicilar);
+        return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
+      } catch (error) {
+        const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
+        return new Response(JSON.stringify({ error: kod }), { status: kod === "EMAIL_PROVIDER_NOT_CONFIGURED" ? 503 : 502, headers });
+      }
+    }
+    if (action === "send_credit_card_minimum_update") {
+      try {
+        const kullanicilar = await tumKullanicilariGetir(admin);
+        const sent = await krediKartiAsgariDuyurusuGonder(admin, kullanicilar);
         return new Response(JSON.stringify({ ok: true, sent }), { status: 200, headers });
       } catch (error) {
         const kod = error instanceof Error ? error.message : "EMAIL_SEND_FAILED";
@@ -730,10 +859,16 @@ Deno.serve(async (req) => {
     if (action === "grant_pro") {
       const { data: mevcut } = await admin
         .from("user_entitlements")
-        .select("pro_expires_at")
+        .select("pro_expires_at,pro_purchase_id,source")
         .eq("user_id", userId)
         .maybeSingle();
       const mevcutBitis = mevcut?.pro_expires_at ? new Date(mevcut.pro_expires_at) : null;
+      // Ücretli abonelikte elle gün eklemek ödeme bağını (pro_purchase_id) siliyordu;
+      // abonelik sağlayıcıdan yönetilir, buradan uzatılmaz.
+      const ucretliAktif = Boolean(mevcutBitis && mevcutBitis.getTime() > simdi.getTime() &&
+        (mevcut?.pro_purchase_id || /^(revenuecat|paddle|shopier)/.test(String(mevcut?.source || ""))));
+      if (ucretliAktif)
+        return new Response(JSON.stringify({ error: "PAID_SUBSCRIPTION_ACTIVE" }), { status: 409, headers });
       const baslangic = mevcutBitis && mevcutBitis.getTime() > simdi.getTime() ? mevcutBitis : simdi;
       const bitis = new Date(baslangic);
       bitis.setDate(bitis.getDate() + 30);
@@ -844,6 +979,7 @@ Deno.serve(async (req) => {
     features_unannounced: satirlar.filter((x) => !x.features_announcement_sent_at && x.email_confirmed_at).length,
     release_133_unannounced: 0,
     assistant_announcement_unannounced: 0,
+    credit_card_minimum_unannounced: 0,
   };
 
   try {
@@ -854,6 +990,11 @@ Deno.serve(async (req) => {
   try {
     const { hedefler } = await borcamaAsistaniHedefleri(admin, kullanicilar);
     ozet.assistant_announcement_unannounced = hedefler.length;
+  } catch { /* Kampanya canlı değilse gönderim sayısı sıfır kalır. */ }
+
+  try {
+    const { hedefler } = await krediKartiAsgariHedefleri(admin, kullanicilar);
+    ozet.credit_card_minimum_unannounced = hedefler.length;
   } catch { /* Kampanya canlı değilse gönderim sayısı sıfır kalır. */ }
 
   const istenenKullaniciId = new URL(req.url).searchParams.get("userId");
@@ -869,6 +1010,7 @@ Deno.serve(async (req) => {
   if (!istenenKullaniciId) {
     try { campaigns = await kampanyaListesi(admin); } catch { campaigns = []; }
     analytics = await funnelIstatistikleri(admin);
+    try { analytics = { ...analytics, olcum: await olcumOlaylari(admin) }; } catch { /* yeni olay sayımı opsiyonel */ }
     finansal = topluFinansalIstatistik(kayitlar || []);
     if (finansal.available) {
       try {

@@ -70,7 +70,7 @@ test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu say
   assert.doesNotMatch(migration, /ua\.first_touch_at/);
 });
 
-test("LANDING-003 eşit teklifli tam sayfaları ayrı ölçer; eski deneyler tarihsel kalır", async () => {
+test("LANDING-003 durduruldu; eşit teklifli sayfalar ve eski deney verisi tarihsel kalır", async () => {
   const [control, landing, experiment, main, client, edge, historicalMigration, migration, backoffice, analytics] = await Promise.all([
     oku("./LandingAlt.jsx"),
     oku("./LandingGrowth.jsx"),
@@ -84,7 +84,7 @@ test("LANDING-003 eşit teklifli tam sayfaları ayrı ölçer; eski deneyler tar
     oku("./Analytics.jsx"),
   ]);
   assert.match(experiment, /LANDING_DENEYI = "landing-003"/);
-  assert.match(experiment, /LANDING_DENEYI_AKTIF = true/);
+  assert.match(experiment, /LANDING_DENEYI_AKTIF = false/);
   assert.match(control, /Borcunu gör, kontrolü al\./);
   assert.match(control, /İlk 30 gün Pro özellikleri hediye\./);
   assert.match(control, /Kontrol edip onayladığın bilgiler hesabına kaydedilir/);
@@ -156,4 +156,16 @@ test("borç kapatma aracı sonuçtan ilk borç kaydına güvenli ve ölçülebil
   assert.doesNotMatch(migration, /(?:activity_logs|kv_store)\.(?:metadata|value)|select\([^)]*email/);
   assert.match(backoffice, /admin_debt_payoff_tool_funnel/);
   assert.match(analytics, /Borç kapatma aracı → Borcama hunisi/);
+});
+
+test("araç hunisinde ziyaret olayı sonuçtan önce yazılır; sorgu milisaniye farkını ve sondaki / işaretini tolere eder", async () => {
+  const [main, migration] = await Promise.all([
+    oku("./main.jsx"),
+    oku("../supabase/migrations/20261011220000_tool_funnel_event_order.sql"),
+  ]);
+  assert.match(main, /useLayoutEffect\(\(\) => \{\n    if \(yol === "\/classic" \|\| yol === "\/landing-v2" \|\| seoYoluMu\(yol\)\)\n      funnelEtkinligiKaydet\("landing_visit"\);/);
+  assert.match(migration, /create or replace function public\.admin_debt_payoff_tool_funnel/);
+  assert.match(migration, /create or replace function public\.admin_deposit_tool_funnel/);
+  assert.doesNotMatch(migration, /ae\.created_at >= d\.entered_at\)/);
+  assert.match(migration, /rtrim\(ae\.path, '\/'\) = '\/araclar\/borc-kapatma-hesaplayici'/);
 });

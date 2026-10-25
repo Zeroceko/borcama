@@ -6,6 +6,7 @@ import {
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../_shared/financialAssistantPrompt.js";
 import { buildFinancialAssistantContents, normalizeAssistantHistory } from "../_shared/financialAssistantConversation.js";
 import { buildFinancialAssistantFallback } from "../_shared/financialAssistantFallback.js";
+import { guncelPiyasaKurlari } from "../_shared/financialAssistantRates.js";
 
 const allowedOrigins = new Set([
   "https://borcama.com", "https://www.borcama.com",
@@ -45,12 +46,12 @@ Deno.serve(async (req) => {
 
   const body = await req.json().catch(() => null);
   const question = String(body?.question || "").trim().slice(0, 500);
-  const context = body?.context;
+  const istemciBaglami = body?.context;
   let history;
   try { history = normalizeAssistantHistory(body?.history); } catch {
     return new Response(JSON.stringify({ error: "INVALID_HISTORY" }), { status: 422, headers });
   }
-  if (question.length < (history.length ? 1 : 3) || !context || JSON.stringify(context).length > 30000)
+  if (question.length < (history.length ? 1 : 3) || !istemciBaglami || typeof istemciBaglami !== "object" || JSON.stringify(istemciBaglami).length > 30000)
     return new Response(JSON.stringify({ error: "INVALID_REQUEST" }), { status: 422, headers });
 
   const apiKey = Deno.env.get("GEMINI_API_KEY");
@@ -61,6 +62,10 @@ Deno.serve(async (req) => {
   if (quotaError) return new Response(JSON.stringify({ error: "QUOTA_UNAVAILABLE" }), { status: 500, headers });
   if (!quota?.allowed)
     return new Response(JSON.stringify({ error: "DAILY_LIMIT", quota }), { status: 429, headers });
+  // Kurlar sunucuda alınır; istemcinin gönderdiği kur bilgisi kullanılmaz.
+  const { guncelPiyasaKurlari: _istemciKuru, ...temizBaglam } = istemciBaglami;
+  const kurlar = await guncelPiyasaKurlari();
+  const context = kurlar ? { ...temizBaglam, guncelPiyasaKurlari: kurlar } : temizBaglam;
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-3.7-flash";
   const fallback = buildFinancialAssistantFallback({ context, question });
   let gemini: Response | null = null;

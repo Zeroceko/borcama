@@ -13,16 +13,26 @@
 	    - Google Analytics / Google Ads: native kabukta etiket yuklenmez.
 	    - Reklam kimligi (IDFA): kullanilmiyor.
 
-	  NSPrivacyAccessedAPITypes bilerek bos: uygulama kodu required-reason
-	  API kullanmiyor. Capacitor ve RevenueCat kendi manifestlerini
-	  getiriyor; Xcode arsivindeki birlesik privacy report ile dogrulanir.
+	  NSPrivacyAccessedAPITypes: UserDefaults (CA92.1) ihtiyaten beyan
+	  ediliyor; Capacitor eklentileri uygulama ayarlarini orada tutabilir.
+	  Fazla beyan zararsiz, eksik beyan ITMS-91053 uyarisi getirir.
+	  Xcode arsivindeki birlesik privacy report ile dogrulanir.
 	-->
 	<key>NSPrivacyTracking</key>
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>
 	<array/>
 	<key>NSPrivacyAccessedAPITypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>
 		<!-- E-posta adresi: hesap, giris ve destek -->

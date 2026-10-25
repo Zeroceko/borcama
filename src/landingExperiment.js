@@ -2,7 +2,10 @@ export const LANDING_DENEYI = "landing-003";
 // LANDING-001 was a CTA-only test and LANDING-002 mixed offer, copy and
 // presentation changes. LANDING-003 keeps the offer and core claims equal so
 // that the complete page presentation can be compared cleanly.
-export const LANDING_DENEYI_AKTIF = true;
+// 10 Ekim 2026: LANDING-003 durduruldu; kol başına ~70 ziyaretle 200 ziyaret /
+// 20 kayıt eşiği aylar sürerdi. Herkes kontrol landing'ini görür, yeni atama
+// yapılmaz ve olaylara deney etiketi eklenmez.
+export const LANDING_DENEYI_AKTIF = false;
 export const LANDING_DENEYI_ANAHTARI = "borcama:landing-003-variant";
 
 const GECERLI_VARYANTLAR = new Set(["control", "variant"]);

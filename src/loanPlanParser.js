@@ -40,9 +40,9 @@ export function parseLoanMoney(raw) {
   const comma = value.lastIndexOf(",");
   const decimal = dot >= 0 && comma >= 0
     ? (dot > comma ? "." : ",")
-    : dot >= 0 && value.length - dot - 1 === 2
+    : dot >= 0 && value.length - dot - 1 >= 1 && value.length - dot - 1 <= 2
       ? "."
-      : comma >= 0 && value.length - comma - 1 === 2
+      : comma >= 0 && value.length - comma - 1 >= 1 && value.length - comma - 1 <= 2
         ? ","
         : "";
   if (decimal) {
@@ -92,12 +92,13 @@ export function detectLoanBank(text) {
 }
 
 function parseRate(text) {
-  const raw = fieldNear(text, ["akdi faiz orani", "faiz orani"], /%?\s*([0-9]+(?:[.,][0-9]+)?)/);
+  const raw = fieldNear(text, ["akdi faiz orani", "aylik faiz orani", "faiz orani"], /:?\s*%?\s*([0-9]+(?:[.,][0-9]+)?)/);
   return raw ? Number(raw.replace(",", ".")) : null;
 }
 
 function parseTerm(text) {
-  const raw = fieldNear(text, ["kredi vadesi", "vade"], /([0-9]{1,3})/);
+  const raw = fieldNear(text, ["kredi vadesi", "taksit sayisi"], /:?\s*([0-9]{1,3})/)
+    || normalizeLoanPlanText(text).match(/(?:^|\n)\s*vade\s*:?\s*([0-9]{1,3})\b/)?.[1];
   return raw ? Number(raw) : null;
 }
 
@@ -109,6 +110,7 @@ function parseLoanAmount(text) {
 function parseProduct(text) {
   const normalized = normalizeLoanPlanText(text);
   const candidates = [
+    ["taksitli ek hesap", "Taksitli Ek Hesap"],
     ["konut kredisi", "Konut kredisi"],
     ["tasit kredisi", "Taşıt kredisi"],
     ["ihtiyac kredisi", "İhtiyaç kredisi"],
@@ -126,7 +128,8 @@ function parseProduct(text) {
 }
 
 function moneyTokens(line) {
-  return [...String(line).matchAll(/-?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})|-?\d+[.,]\d{2}/g)]
+  const withoutDates = String(line).replace(/\d{1,2}[./-]\d{1,2}[./-]\d{4}/g, " ");
+  return [...withoutDates.matchAll(/-?\d[\d.,]*/g)]
     .map((match) => parseLoanMoney(match[0]))
     .filter((value) => value !== null);
 }
@@ -135,6 +138,24 @@ function parseVakifRows(text) {
   const rows = [];
   for (const rawLine of String(text).split(/\n/)) {
     const line = rawLine.replace(/\s+/g, " ").trim();
+    const dateFirst = line.match(/^(\d{1,3})\s+(\d{2}[./]\d{2}[./]\d{4})\s+/);
+    if (dateFirst) {
+      const values = moneyTokens(line.slice(dateFirst[0].length));
+      if (values.length >= 6) {
+        rows.push({
+          number: Number(dateFirst[1]),
+          dueDate: parseDate(dateFirst[2]),
+          installment: values[0] ?? null,
+          principal: values[1] ?? null,
+          interest: values[2] ?? null,
+          taxes: (values[3] || 0) + (values[4] || 0),
+          insurance: values.length >= 7 ? values[5] || 0 : 0,
+          remainingPrincipal: values.at(-1) ?? null,
+          source: "plan",
+        });
+        continue;
+      }
+    }
     const start = line.match(/^(\d{1,3})\s+([0-9.,]+)\s*TL\s+(\d{2}[./]\d{2}[./]\d{4})\s+/i);
     if (!start) continue;
     const number = Number(start[1]);
@@ -159,6 +180,80 @@ function parseVakifRows(text) {
   return rows;
 }
 
+function parseYapiKrediRows(text) {
+  const rows = [];
+  for (const rawLine of String(text).split(/\n/)) {
+    const line = rawLine.replace(/\s+/g, " ").trim();
+    const start = line.match(/^(\d{1,3})\s+(\d{2}[./]\d{2}[./]\d{4})\s+/);
+    if (!start) continue;
+    const values = moneyTokens(line.slice(start[0].length));
+    if (values.length < 5) continue;
+    const installment = values[0] ?? null;
+    const interest = values[1] ?? null;
+    const taxes = (values[2] || 0) + (values[3] || 0);
+    rows.push({
+      number: Number(start[1]),
+      dueDate: parseDate(start[2]),
+      installment,
+      principal: installment !== null && interest !== null
+        ? Math.round(Math.max(installment - interest - taxes, 0) * 100) / 100
+        : null,
+      interest,
+      taxes,
+      insurance: 0,
+      remainingPrincipal: values[4] ?? null,
+      source: "plan",
+    });
+  }
+  return rows;
+}
+
+function parseFibaRows(text) {
+  const rows = [];
+  for (const rawLine of String(text).split(/\n/)) {
+    const line = rawLine.replace(/\s+/g, " ").trim();
+    const start = line.match(/^(?:(\d{1,3})\s+)?(\d{2}[./]\d{2}[./]\d{4})\s+/);
+    if (!start) continue;
+    const values = moneyTokens(line.slice(start[0].length));
+    if (values.length < 6) continue;
+    rows.push({
+      number: start[1] ? Number(start[1]) : rows.length + 1,
+      dueDate: parseDate(start[2]),
+      installment: values[0] ?? null,
+      remainingPrincipal: values[1] ?? null,
+      principal: values[2] ?? null,
+      interest: values[3] ?? null,
+      taxes: (values[4] || 0) + (values[5] || 0),
+      insurance: 0,
+      source: "plan",
+    });
+  }
+  return rows;
+}
+
+function parseEnparaRows(text) {
+  const rows = [];
+  for (const rawLine of String(text).split(/\n/)) {
+    const line = rawLine.replace(/\s+/g, " ").trim();
+    const start = line.match(/^(\d{1,3})\s+(\d{2}[./]\d{2}[./]\d{4})\s+/);
+    if (!start) continue;
+    const values = moneyTokens(line.slice(start[0].length));
+    if (values.length < 6) continue;
+    rows.push({
+      number: Number(start[1]),
+      dueDate: parseDate(start[2]),
+      remainingPrincipal: values[0] ?? null,
+      installment: values[1] ?? null,
+      principal: values[2] ?? null,
+      interest: values[3] ?? null,
+      taxes: (values[4] || 0) + (values[5] || 0),
+      insurance: 0,
+      source: "plan",
+    });
+  }
+  return rows;
+}
+
 function parseQnbRows(text) {
   const rows = [];
   for (const rawLine of String(text).split(/\n/)) {
@@ -170,10 +265,10 @@ function parseQnbRows(text) {
     rows.push({
       number: Number(start[1]),
       dueDate: parseDate(start[2]),
-      installment: values[1] ?? null,
+      installment: values[2] ?? null,
       principal: values.at(-2) ?? null,
-      interest: values[3] ?? values[2] ?? null,
-      taxes: (values[4] || 0) + (values[5] || 0),
+      interest: values[4] ?? values[3] ?? null,
+      taxes: (values[5] || 0) + (values[6] || 0),
       insurance: 0,
       remainingPrincipal: values.at(-1) ?? null,
       source: "plan",
@@ -193,7 +288,7 @@ function parseGenericRows(text) {
     rows.push({
       number: Number(start[1]),
       dueDate: parseDate(start[2]),
-      installment: values[1] ?? null,
+      installment: values[0] ?? null,
       principal: null,
       interest: null,
       taxes: null,
@@ -223,6 +318,17 @@ function median(values) {
   return sorted[Math.floor(sorted.length / 2)];
 }
 
+function inferMonthlyRateFromSchedule(schedule = []) {
+  const rates = schedule.map((row) => {
+    const openingPrincipal = (row.principal || 0) + (row.remainingPrincipal || 0);
+    if (!(openingPrincipal > 0) || !(row.interest >= 0)) return null;
+    const rate = (row.interest / openingPrincipal) * 100;
+    return rate > 0 && rate <= 20 ? rate : null;
+  });
+  const inferred = median(rates);
+  return inferred === null ? null : Math.round(inferred * 10000) / 10000;
+}
+
 export function validateLoanPlanResult(result = {}) {
   const errors = [];
   if (!result.bank) errors.push("Banka otomatik tanınamadı; banka adını kontrol et.");
@@ -239,13 +345,19 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     ? parseVakifRows(text)
     : bank === "QNB"
       ? parseQnbRows(text)
+      : bank === "Yapı Kredi"
+        ? parseYapiKrediRows(text)
+        : bank === "Fibabanka"
+          ? parseFibaRows(text)
+          : bank === "Enpara"
+            ? parseEnparaRows(text)
       : parseGenericRows(text);
   const schedule = uniqueRows(profileRows);
   const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const remainingRows = schedule.filter((row) => row.dueDate >= todayKey && (row.remainingPrincipal === null || row.remainingPrincipal >= 0));
   const next = remainingRows[0] || null;
   const previous = next ? schedule.find((row) => row.number === next.number - 1) : schedule.at(-1);
-  const inferredPrincipal = schedule[0]?.principal !== null && schedule[0]?.remainingPrincipal !== null
+  const inferredPrincipal = schedule[0]?.principal != null && schedule[0]?.remainingPrincipal != null
     ? schedule[0].principal + schedule[0].remainingPrincipal
     : null;
   const parsedPrincipal = parseLoanAmount(text);
@@ -275,7 +387,14 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     ? percentageCandidates[0]
     : parsedRate && parsedRate <= 20
       ? parsedRate
-      : percentageCandidates[0] ?? null;
+      : percentageCandidates[0] ?? inferMonthlyRateFromSchedule(schedule);
+  const interestRateSource = parsedRate && parsedRate <= 20 || bank === "QNB" && percentageCandidates.length
+    ? "document"
+    : percentageCandidates.length
+      ? "document"
+      : monthlyInterestRate !== null
+        ? "schedule"
+        : "missing";
   const result = {
     bank,
     productName: parseProduct(text),
@@ -285,6 +404,7 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     term,
     remainingInstallments: remainingRows.length,
     monthlyInterestRate,
+    interestRateSource,
     nextInstallmentNumber: next?.number || null,
     firstPaymentDate: next?.dueDate || schedule[0]?.dueDate || "",
     paymentDay: next?.dueDate ? Number(next.dueDate.slice(-2)) : null,
@@ -296,8 +416,11 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     sourceType,
     warnings: [],
   };
-  if (bank && !["VakıfBank", "QNB"].includes(bank)) {
+  if (bank && !["VakıfBank", "QNB", "Yapı Kredi", "Fibabanka", "Enpara"].includes(bank)) {
     result.warnings.push("Bu banka genel tablo okuyucusuyla işlendi; tüm alanları kontrol et.");
+  }
+  if (interestRateSource === "schedule") {
+    result.warnings.push("Aylık faiz oranı belgede ayrı alan olarak bulunamadı; taksit satırlarından tahmini hesaplandı.");
   }
   if (schedule.length && result.term && schedule.length !== result.term) {
     result.warnings.push(`Belgede ${schedule.length} taksit satırı bulundu; bildirilen vade ${result.term}.`);
