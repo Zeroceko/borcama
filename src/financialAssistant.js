@@ -1,8 +1,8 @@
 import { demoModu, supabase } from "./supabaseClient.js";
 import { normalizeAssistantHistory } from "../supabase/functions/_shared/financialAssistantConversation.js";
-import { turkLirasiFormatla } from "./currencyInput.js";
+import { kullaniciParaFormatla } from "./currencyInput.js";
 
-const tl = (value) => turkLirasiFormatla(value);
+const tl = (value) => kullaniciParaFormatla(value);
 
 function demoYaniti(question, context) {
   const soru = String(question || "").toLocaleLowerCase("tr-TR");

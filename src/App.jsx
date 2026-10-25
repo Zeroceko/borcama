@@ -85,7 +85,7 @@ import {
   paraBiriminiFormatla,
   paraGirdisiniCoz,
   paraGirdisiniFormatla,
-  turkLirasiFormatla,
+  kullaniciParaFormatla,
 } from "./currencyInput.js";
 import {
   matchStatementToCard,
@@ -797,9 +797,9 @@ const CSS = `
 `;
 
 /* ---------------- Yardımcılar (iş mantığı — değişmedi) ---------------- */
-const fmt = (n) => turkLirasiFormatla(n);
-const fmt0 = (n) => turkLirasiFormatla(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-const fmtBirim = (n) => turkLirasiFormatla(n, { minimumFractionDigits: 2, maximumFractionDigits: 8 });
+const fmt = (n) => kullaniciParaFormatla(n);
+const fmt0 = (n) => kullaniciParaFormatla(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const fmtBirim = (n) => kullaniciParaFormatla(n, { minimumFractionDigits: 2, maximumFractionDigits: 8 });
 
 function ParaInput({ value, onValueChange, ...props }) {
   return (
