@@ -167,3 +167,10 @@ export async function readStatementFile(file, progress) {
 }
 
 export { MAX_FILE_SIZE };
+
+// Ekstre ve kredi plani okuyucusu yalniz Turk bankalarinin belgelerini
+// taniyor; okunan kayit TRY'dir. Ana birim TRY ise alan yazilmaz (eski
+// kayitlarla birebir ayni veri), degilse kayit "TRY" olarak isaretlenir.
+export function belgeKaydiParaBirimi(anaBirim = "TRY") {
+  return anaBirim === "TRY" ? {} : { paraBirimi: "TRY" };
+}

@@ -179,6 +179,14 @@ export function paraBirimiAyarla(kod) {
   return kod;
 }
 
+// Borc kaydinin para birimi. Kayitta gecerli `paraBirimi` yoksa (eski
+// veriler, web) kullanicinin ana birimi sayilir; boylece eski kayitlar
+// degismeden ayni birimde kalir.
+export function kayitParaBirimi(kayit, ana = kullaniciParaBirimi()) {
+  const kod = kayit?.paraBirimi;
+  return DESTEKLENEN_PARA_BIRIMLERI.includes(kod) ? kod : ana;
+}
+
 // Para biriminin secili dildeki adi ("US Dollar", "ABD Doları").
 export function paraBirimiAdi(kod, yerel = locale()) {
   try {
