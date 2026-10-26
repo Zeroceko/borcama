@@ -303,7 +303,7 @@ export const en = {
   "plan.kayitlariTamamla": "Complete your records",
 
   "plan.ipucu":
-    "The {cig} pays off the highest-interest debt first, so you pay the least interest. The {kartopu} pays off the smallest debt first, and quick wins keep you motivated. Keep paying the minimum on your other debts and put every extra lira toward the next single target.",
+    "The {cig} pays off the highest-interest debt first, so you pay the least interest. The {kartopu} pays off the smallest debt first, and quick wins keep you motivated. Keep paying the minimum on your other debts and put all your extra money toward the next single target.",
   "plan.cigYontemi": "avalanche method",
   "plan.kartopuYontemi": "snowball method",
   "plan.siraniz": "Your payoff order",
