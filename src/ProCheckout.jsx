@@ -15,6 +15,8 @@ import {
   proNiyetiniTemizle,
 } from "./proIntent.js";
 import { googleAdsSatinAlmaDonusumu } from "./googleAds.js";
+import { t } from "./i18n.js";
+import Ceviri from "./Ceviri.jsx";
 import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 
 const CSS = `
@@ -23,7 +25,7 @@ const CSS = `
 `;
 
 function Yukleniyor() {
-  return <div className="pc-loading">Pro seçenekleri hazırlanıyor…</div>;
+  return <div className="pc-loading">{t("pro.hazirlaniyor")}</div>;
 }
 
 export default function ProCheckout() {
@@ -51,7 +53,7 @@ export default function ProCheckout() {
       } catch {
         if (aktif) {
           setPaketler({ yukleniyor: false, monthly: null, annual: null });
-          setDurum({ yukleniyor: false, hata: "Pro fiyatları şu anda alınamadı. Biraz sonra tekrar deneyebilirsin." });
+          setDurum({ yukleniyor: false, hata: t("pro.hata.fiyatAlinamadi") });
         }
       }
     })();
@@ -92,7 +94,7 @@ export default function ProCheckout() {
       proNiyetiniTemizle();
       window.location.assign("/welcome");
     } catch {
-      setDurum({ yukleniyor: false, hata: "Ödeme ekranı açılamadı. Lütfen tekrar dene." });
+      setDurum({ yukleniyor: false, hata: t("pro.hata.odemeAcilamadi") });
     }
   }
 
@@ -109,12 +111,12 @@ export default function ProCheckout() {
       }
       setDurum({
         yukleniyor: false,
-        hata: "Bu Apple hesabında geri yüklenecek bir Borcama Pro aboneliği bulunamadı.",
+        hata: t("pro.hata.geriYuklenecekYok"),
       });
     } catch {
       setDurum({
         yukleniyor: false,
-        hata: "Satın alımlar geri yüklenemedi. Lütfen tekrar dene.",
+        hata: t("pro.hata.geriYuklenemedi"),
       });
     }
   }
@@ -138,38 +140,35 @@ export default function ProCheckout() {
         </header>
         <section className="pc-card">
           <div className="pc-copy">
-            <h1 style={{ marginTop: 0 }}>Pro'yu sürdürmek istediğinde.</h1>
-            <p>
-              Yeni hesaplarda Pro özellikleri ilk 30 gün kart bilgisi istemeden
-              açıktır. Sonrasında istersen aylık veya yıllık planla devam edebilirsin.
-            </p>
+            <h1 style={{ marginTop: 0 }}>{t("pro.baslik")}</h1>
+            <p>{t("pro.aciklama")}</p>
             <ul className="pc-list">
-              <li><Check size={18} /> Tüm kişiselleştirilmiş öneri ve sinyaller</li>
-              <li><Check size={18} /> Faiz ve ödeme önceliği analizleri</li>
-              <li><Check size={18} /> Aylık yük ve faiz senaryolarını karşılaştırma</li>
-              <li><Check size={18} /> İstediğin zaman aboneliği yönetme özgürlüğü</li>
+              <li><Check size={18} /> {t("pro.ozellik.oneriler")}</li>
+              <li><Check size={18} /> {t("pro.ozellik.faizAnalizi")}</li>
+              <li><Check size={18} /> {t("pro.ozellik.senaryolar")}</li>
+              <li><Check size={18} /> {t("pro.ozellik.abonelikYonetimi")}</li>
             </ul>
           </div>
           <div className="pc-pay">
-            <h2>Pro üyeliğini başlat</h2>
-            <p className="pc-pay-sub">Güvenli ödeme ekranı bir sonraki adımda açılır.</p>
-            <div className="pc-toggle" role="group" aria-label="Faturalama dönemi">
-              <button className={plan === "monthly" ? "active" : ""} onClick={() => planSec("monthly")} type="button">Aylık</button>
-              <button className={plan === "annual" ? "active" : ""} onClick={() => planSec("annual")} type="button">Yıllık</button>
+            <h2>{t("pro.odeme.baslik")}</h2>
+            <p className="pc-pay-sub">{t("pro.odeme.altBaslik")}</p>
+            <div className="pc-toggle" role="group" aria-label={t("pro.donem.etiket")}>
+              <button className={plan === "monthly" ? "active" : ""} onClick={() => planSec("monthly")} type="button">{t("pro.donem.aylik")}</button>
+              <button className={plan === "annual" ? "active" : ""} onClick={() => planSec("annual")} type="button">{t("pro.donem.yillik")}</button>
             </div>
             <div className="pc-price">
               <strong>{fiyat || (paketler.yukleniyor ? "…" : "—")}</strong>
-              <span>{plan === "annual" ? "/ yıl" : "/ ay"}</span>
+              <span>{plan === "annual" ? t("pro.fiyat.yil") : t("pro.fiyat.ay")}</span>
             </div>
             <p className="pc-plan-ad">
-              {plan === "annual" ? "Borcama Pro Yıllık · 1 yıl" : "Borcama Pro Aylık · 1 ay"}
+              {plan === "annual" ? t("pro.planAdi.yillik") : t("pro.planAdi.aylik")}
             </p>
-            <p className="pc-renew">Abonelik seçtiğin dönemde otomatik yenilenir.</p>
+            <p className="pc-renew">{t("pro.yenileme")}</p>
             {durum.hata && <div className="pc-error">{durum.hata}</div>}
             <button className="pc-primary" type="button" disabled={!revenueCatHazir || paketler.yukleniyor || !fiyat || durum.yukleniyor} onClick={satinAl}>
-              {durum.yukleniyor ? "Ödeme açılıyor…" : "Güvenli ödemeye geç →"}
+              {durum.yukleniyor ? t("pro.odemeAciliyor") : t("pro.odemeyeGec")}
             </button>
-            <button className="pc-secondary" type="button" onClick={ucretsizDevam}>Uygulamaya dön</button>
+            <button className="pc-secondary" type="button" onClick={ucretsizDevam}>{t("pro.uygulamayaDon")}</button>
             {nativeMi && (
               <button
                 className="pc-secondary"
@@ -177,10 +176,10 @@ export default function ProCheckout() {
                 disabled={durum.yukleniyor}
                 onClick={satinAlimlariGeriYukle}
               >
-                Satın alımları geri yükle
+                {t("pro.geriYukle")}
               </button>
             )}
-            <p className="pc-note"><ShieldCheck size={15} /> {nativeMi ? "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme App Store üzerinden tamamlanır." : "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır."}</p>
+            <p className="pc-note"><ShieldCheck size={15} /> {nativeMi ? t("pro.not.native") : "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır."}</p>
             <div
               style={{
                 marginTop: 12,
@@ -190,19 +189,26 @@ export default function ProCheckout() {
                 lineHeight: 1.5,
               }}
             >
-              Devam ederek{" "}
-              <a href="/terms" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
-                Kullanıcı Sözleşmesi
-              </a>
-              ,{" "}
-              <a href="/privacy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
-                Gizlilik Politikası
-              </a>{" "}
-              ve{" "}
-              <a href="/refund-policy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
-                İade Politikası
-              </a>
-              'nı kabul edersin.
+              <Ceviri
+                anahtar="pro.yasal.cumle"
+                degerler={{
+                  sozlesme: (
+                    <a href="/terms" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
+                      {t("pro.yasal.sozlesme")}
+                    </a>
+                  ),
+                  gizlilik: (
+                    <a href="/privacy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
+                      {t("pro.yasal.gizlilik")}
+                    </a>
+                  ),
+                  iade: (
+                    <a href="/refund-policy" target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 700 }}>
+                      {t("pro.yasal.iade")}
+                    </a>
+                  ),
+                }}
+              />
             </div>
           </div>
         </section>
