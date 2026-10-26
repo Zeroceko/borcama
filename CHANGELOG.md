@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasının İngilizce modunda ana ekranlar (Bugün, Borçlar, Hareketler, Plan, Varlıklar, Gelir/Gider, Ayarlar ve hesap silme), asistan arayüzü, Pro satın alma kartı, kilit/bağlantı/doğrulama ekranları, bildirimler, hata mesajları ve SSS İngilizce gösteriliyor; Kullanım Şartları, Gizlilik ve İade Politikası İngilizce taslak olarak ekleniyor, ekstre okuma Türk bankaları için olduğunu belirtiyor. Tarayıcı sürümü Türkçe kalmaya devam ediyor.
 - iOS uygulamasında giriş yapmadan dil değiştirilebiliyor; tanıtımın ilk ekranında, karşılama ekranında ve giriş/kayıt ekranlarında sağ üstteki düğmeyle, oturum açıkken Ayarlar > Dil satırından Türkçe ile İngilizce arasında geçiliyor. Tarayıcı sürümünde düğme yok.
 - iOS uygulamasına İngilizce dil altyapısı eklendi; cihaz dili Türkçe değilse tanıtım, giriş, kayıt ve parola yenileme ekranları İngilizce açılıyor, tarih ve para biçimi seçili dile uyuyor. Tarayıcı sürümü Türkçe kalmaya devam ediyor.
 - iOS uygulamasında hesap açmadan kullanım eklendi; karşılama ekranındaki "Hesap açmadan devam et" ile borçlar, ekstreler, varlıklar ve tüm hesaplamalar kayıt olmadan kullanılabiliyor, kayıtlar yalnızca cihazda tutuluyor. Kullanıcı sonradan hesap açtığında ya da giriş yaptığında cihazdaki kayıtlar hesabına taşınıyor; hesapta zaten kayıt varsa üzerine yazılmıyor. Tarayıcı sürümündeki akış değişmedi.
