@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.70.0] - 2026-10-27
+
 ### Eklendi
 
 - Tarayıcı sürümünün uygulama içi ekranları (giriş, kayıt, uygulama, Ayarlar, SSS ve yasal metinler) iOS'taki gibi Türkçe, İngilizce, Almanca, Fransızca, İspanyolca ve İtalyanca açılıyor: dil kayıtlı seçimden, yoksa tarayıcı dilinden (desteklenen ilk dil), o da yoksa Türkçe belirleniyor; giriş/kayıt ekranının sağ üstünden ve Ayarlar > Dil satırından değiştirilebiliyor, `<html lang>` seçili dile eşitleniyor. Landing, araç/rehber/sözlük sayfaları ve CRM Türkçe kalıyor; tarayıcı dili Türkçe olan ziyaretçi web'i birebir eskisi gibi görüyor.
@@ -11,6 +13,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - `/api/ulke` uç noktası eklendi: Vercel'in `x-vercel-ip-country` başlığından yalnız iki harfli ülke kodunu döner, önbelleğe alınmaz (`private, no-store`), hiçbir şey saklamaz veya loglamaz.
 - Tarayıcı sürümünde İngilizce (ve diğer diller için İngilizce) Kullanım Şartları, Gizlilik Politikası ve İade Politikası gösteriliyor; web satın alımlarının Paddle (Merchant of Record) üzerinden yapıldığı, Paddle iade süreci ve web'de Pro'nun yalnız Türkiye'de satıldığı bölümleri içeriyor. Taslak, hukuk kontrolü bekliyor.
 - Her borç (kart, kredi, ek hesap, diğer borç) kendi para biriminde kaydedilebiliyor: formdaki para birimi seçicisiyle örneğin İngiltere'de yaşayan kullanıcı GBP kartının yanında Türk kartını ve kredisini TRY olarak takip ediyor. Kurallar borç bazında (TRY borçta TCMB azami faizi, BDDK asgari oranı, KKDF/BSMV ve Türk bankası listesi; diğer birimlerde o ülkenin ortalaması), en az bir TRY borcu olan kullanıcıda Türk bankası ekstre/kredi planı okuma açık. Toplam borç, zorunlu ödeme, plan, Bugün ve öneriler ana birime TCMB/ECB kuruyla çevriliyor ("≈ kur tarihi" notuyla); kuru olmayan kayıt toplama katılmıyor, "kur bekliyor" diye ayrıca gösteriliyor. Tek birimli TRY kullanıcısının ekranları değişmedi.
+- Tarayıcı sürümünde Türkçe dışındaki dillerde kalan web'e özel metinler (Görüş bildir düğmesi ve penceresi, Ayarlar'daki E-posta linki, Gizlilik ve ölçüm, Bankaları yönet/Verileri dışa aktar satırları, davet kartı ve Bugün ekranındaki davet bandı) seçili dilde gösteriliyor; davet programı ödülü Pro olduğundan Pro'nun satılmadığı ülkede davet kartı ve bandı gizleniyor. Türkiye'deki Türkçe web çıktısı değişmedi.
 
 ### Değiştirildi
 
