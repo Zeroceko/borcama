@@ -11710,7 +11710,12 @@ function Varliklar({
     ["fon", t("varliklar.filtre.fon")],
     ["hisse", t("varliklar.filtre.hisse")],
     ["diger", t("varliklar.filtre.diger")],
-  ];
+  ].filter(([k]) =>
+    // TRY disinda yalniz elle girilebilen kategoriler ve kaydi olanlar.
+    k === "tumu" ||
+    piyasaDegerlemesiAcik() ||
+    gorunurVarlikKategorileri().some((kategori) => kategori.id === k) ||
+    ozet.kalemler.some((kalem) => (varlikTuru(kalem.tur).kategori || "diger") === k));
   const varlikGrubu = (tur) => varlikTuru(tur).kategori || "diger";
   const gorunenKalemler = ozet.kalemler.filter(
     (k) => filtre === "tumu" || varlikGrubu(k.tur) === filtre,
@@ -11820,7 +11825,7 @@ function Varliklar({
 
   async function kaydet(e) {
     e.preventDefault();
-    const tur = varlikTuru(f.tur || "usd");
+    const tur = varlikTuru(f.tur || (piyasaDegerlemesiAcik() ? "usd" : "nakit"));
     if (tur.otomatik && (tur.id === "bes" ? !(+f.besToplamTutar > 0) : !(+f.miktar > 0))) return;
     if (!tur.otomatik && !(+f.guncelDeger > 0)) return;
     let fonBilgisi = null;
@@ -12015,7 +12020,9 @@ function Varliklar({
                   onClick={() =>
                     setForm({
                       liste: "assets",
-                      veri: { kategori: "doviz", tur: "usd" },
+                      veri: piyasaDegerlemesiAcik()
+                        ? { kategori: "doviz", tur: "usd" }
+                        : { kategori: "nakit", tur: "nakit" },
                     })
                   }
                 >

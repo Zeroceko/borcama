@@ -6,6 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- iOS uygulamasında para birimi seçilebiliyor; ilk açılışta cihaz bölgesinden (Türkiye için TRY, desteklenmeyen bölgelerde USD) belirleniyor, karşılama ekranındaki seçiciden ve Ayarlar > Para birimi satırından değiştirilebiliyor. Kur çevirisi yapılmıyor; TRY dışındaki birimlerde BDDK asgari ödeme oranı yerine girilen asgari tutar kullanılıyor ve TRY bazlı piyasa fiyatlarıyla otomatik varlık değerlemesi kapalı. Mevcut kullanıcılar TRY'de kalıyor, tarayıcı sürümü değişmedi.
 - iOS uygulamasının İngilizce modunda ana ekranlar (Bugün, Borçlar, Hareketler, Plan, Varlıklar, Gelir/Gider, Ayarlar ve hesap silme), asistan arayüzü, Pro satın alma kartı, kilit/bağlantı/doğrulama ekranları, bildirimler, hata mesajları ve SSS İngilizce gösteriliyor; Kullanım Şartları, Gizlilik ve İade Politikası İngilizce taslak olarak ekleniyor, ekstre okuma Türk bankaları için olduğunu belirtiyor. Tarayıcı sürümü Türkçe kalmaya devam ediyor.
 - iOS uygulamasında giriş yapmadan dil değiştirilebiliyor; tanıtımın ilk ekranında, karşılama ekranında ve giriş/kayıt ekranlarında sağ üstteki düğmeyle, oturum açıkken Ayarlar > Dil satırından Türkçe ile İngilizce arasında geçiliyor. Tarayıcı sürümünde düğme yok.
 - iOS uygulamasına İngilizce dil altyapısı eklendi; cihaz dili Türkçe değilse tanıtım, giriş, kayıt ve parola yenileme ekranları İngilizce açılıyor, tarih ve para biçimi seçili dile uyuyor. Tarayıcı sürümü Türkçe kalmaya devam ediyor.
