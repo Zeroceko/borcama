@@ -119,7 +119,7 @@ export const en = {
   "asistan.izin.etkinlestir": "Turn on",
   "asistan.soruEtiketi": "What would you like to know?",
   "asistan.placeholderDevam": "Reply or ask a follow-up…",
-  "asistan.placeholder": "E.g. Which debt should I pay off first with 10,000 TL?",
+  "asistan.placeholder": "E.g. Which debt should I pay off first with {simge}10,000?",
   "asistan.soruAria": "Type your question",
   "asistan.bakiyorum": "Checking",
   "asistan.sor": "Ask",

@@ -86,7 +86,7 @@ export const en = {
   "sss.giris": "Frequently asked questions about using Borcama, Pro, canceling, refunds and your data.",
   "sss.iletisim": "Didn't find the answer you were looking for?",
   "sss.altSozlesme": "Terms of Use",
-  "sss.altGizlilik": "Privacy & KVKK",
+  "sss.altGizlilik": "Privacy",
   "sss.altIade": "Refund Policy",
 
   "sss.ne.soru": "What does Borcama do?",
@@ -138,5 +138,5 @@ export const en = {
   "sss.paylasim.soru": "Who is my financial information shared with?",
   "sss.paylasim.cevap":
     "How data is processed and stored is explained in the {baglanti}. Borcama doesn't store subscription card details; that is separate from the debt and payment records you add to the app yourself.",
-  "sss.paylasim.baglanti": "Privacy and KVKK Notice",
+  "sss.paylasim.baglanti": "Privacy Notice",
 };

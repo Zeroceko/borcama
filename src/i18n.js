@@ -168,3 +168,13 @@ export function tDeger(metin) {
   if (kod === "tr") return metin;
   return sozlukMetni(kod, `deger.${metin}`) ?? metin;
 }
+
+// "YYYY-MM-DD" bicimindeki kayit tarihini ekranda gosterir. Web'de bugunku
+// "GG.AA.YYYY" ciktisi birebir korunur; native'de secili dilin yerel tarih
+// bicimi kullanilir (en: 10/5/2026, de: 5.10.2026).
+export function isoTarihGoster(iso, { native = nativeMi, yerel = locale() } = {}) {
+  const metin = String(iso ?? "");
+  const parca = /^(\d{4})-(\d{2})-(\d{2})/.exec(metin);
+  if (!native || !parca) return metin.split("-").reverse().join(".");
+  return new Date(Number(parca[1]), Number(parca[2]) - 1, Number(parca[3])).toLocaleDateString(yerel);
+}

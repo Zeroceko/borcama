@@ -14,6 +14,8 @@ export const tr = {
   "borclar.alan.krediAdiOrnek": "Kredi adı (İhtiyaç, Taşıt…)",
   "borclar.alan.krediTutari": "Kredi tutarı ({simge})",
   "borclar.alan.aylikFaiz": "Aylık faiz oranı (%)",
+  "borclar.alan.kartFaizi": "Aylık kart faizi (%)",
+  "borclar.alan.kartFaiziIpucu": "Örn. 2 (yıllık %24 ÷ 12)",
   "borclar.alan.toplamTaksit": "Toplam taksit sayısı",
   "borclar.alan.aylikTaksit": "Aylık taksit tutarı ({simge})",
   "borclar.alan.odenenTaksit": "Ödenen taksit sayısı",
@@ -116,6 +118,8 @@ export const tr = {
   "borclar.ekstre.islemler": "Ekstre işlemleri",
   "borclar.ekstre.islemlerAciklama": "Ekstreni cihazında okut veya bilgileri manuel ekle.",
   "borclar.ekstre.ekle": "Ekstre ekle",
+  "borclar.ekstre.islemlerAciklamaManuel": "Ekstre bilgilerini manuel ekle.",
+  "borclar.ekstre.ekleManuel": "Ekstre ekle",
   "borclar.ekstre.araclarAria": "Ekstre araçları",
 
   // Şerit
@@ -271,6 +275,8 @@ export const en = {
   "borclar.alan.krediAdiOrnek": "Loan name (Personal, Auto…)",
   "borclar.alan.krediTutari": "Loan amount ({simge})",
   "borclar.alan.aylikFaiz": "Monthly interest rate (%)",
+  "borclar.alan.kartFaizi": "Monthly card interest (%)",
+  "borclar.alan.kartFaiziIpucu": "E.g. 2 (24% APR ÷ 12)",
   "borclar.alan.toplamTaksit": "Total number of installments",
   "borclar.alan.aylikTaksit": "Monthly installment ({simge})",
   "borclar.alan.odenenTaksit": "Installments paid",
@@ -365,6 +371,8 @@ export const en = {
   "borclar.ekstre.islemler": "Statements",
   "borclar.ekstre.islemlerAciklama": "Import a statement from a Turkish bank on your device, or add the details manually.",
   "borclar.ekstre.ekle": "Add statement (Turkish banks)",
+  "borclar.ekstre.islemlerAciklamaManuel": "Add your statement details manually.",
+  "borclar.ekstre.ekleManuel": "Add statement",
   "borclar.ekstre.araclarAria": "Statement tools",
 
   "borclar.serit.kalanToplam": "Total remaining payments",

@@ -3,7 +3,11 @@ import {
   FINANCIAL_ASSISTANT_ROUTE_IDS,
   validateFinancialAssistantResponse,
 } from "../_shared/financialAssistantValidation.js";
-import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../_shared/financialAssistantPrompt.js";
+import {
+  buildFinancialAssistantSystemInstruction,
+  financialAssistantLanguage,
+  normalizeFinancialAssistantMarkers,
+} from "../_shared/financialAssistantPrompt.js";
 import { buildFinancialAssistantContents, normalizeAssistantHistory } from "../_shared/financialAssistantConversation.js";
 import { buildFinancialAssistantFallback } from "../_shared/financialAssistantFallback.js";
 import { guncelPiyasaKurlari } from "../_shared/financialAssistantRates.js";
@@ -47,6 +51,8 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => null);
   const question = String(body?.question || "").trim().slice(0, 500);
   const istemciBaglami = body?.context;
+  // Geriye uyumlu: "language" gondermeyen istemci (web, eski iOS) Turkce yanit alir.
+  const language = financialAssistantLanguage(body?.language);
   let history;
   try { history = normalizeAssistantHistory(body?.history); } catch {
     return new Response(JSON.stringify({ error: "INVALID_HISTORY" }), { status: 422, headers });
@@ -67,7 +73,8 @@ Deno.serve(async (req) => {
   const kurlar = await guncelPiyasaKurlari();
   const context = kurlar ? { ...temizBaglam, guncelPiyasaKurlari: kurlar } : temizBaglam;
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-3.7-flash";
-  const fallback = buildFinancialAssistantFallback({ context, question });
+  // Hazir yedek yanit Turkce ve TL bicimlidir; baska dilde kullaniciya gosterilmez.
+  const fallback = language === "tr" ? buildFinancialAssistantFallback({ context, question }) : null;
   let gemini: Response | null = null;
   let answer = null;
   try {
@@ -75,7 +82,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION }] },
+        systemInstruction: { parts: [{ text: buildFinancialAssistantSystemInstruction(language) }] },
         contents: buildFinancialAssistantContents({ question, context, history }),
         generationConfig: {
           thinkingConfig: { thinkingLevel: "LOW" },
@@ -104,7 +111,7 @@ Deno.serve(async (req) => {
   if (gemini?.ok) {
     const payload = await gemini.json();
     const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
-    try { answer = JSON.parse(text); } catch { answer = null; }
+    try { answer = normalizeFinancialAssistantMarkers(JSON.parse(text), language); } catch { answer = null; }
   }
   let validation = validateFinancialAssistantResponse({ response: answer, context, question, history });
   if (!validation.valid && fallback) {

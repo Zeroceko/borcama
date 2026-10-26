@@ -59,6 +59,9 @@ export function asistanBaglamiOlustur({
   planAcigi,
   kalemler = [],
   tarih = new Date(),
+  // TRY disinda TCMB/urun referans oranlari ve KKDF/BSMV vergi-fon yuku yok;
+  // oran girilmemis kart ve ek hesaplarda faiz bilinmiyor sayilir.
+  turkiyeKurallari = true,
 }) {
   const kartlar = veri?.cards || [];
   const krediler = veri?.loans || [];
@@ -117,7 +120,7 @@ export function asistanBaglamiOlustur({
     const kayitli = opsiyonelSayi(kart.faiz ?? kart.aylikFaiz);
     return kayitli !== null && kayitli > 0
       ? { oran: kayitli, tahmini: false, kaynak: "kullanıcı kaydı" }
-      : (() => {
+      : !turkiyeKurallari ? null : (() => {
           const hesaplanan = kalemFaizi("kart", kart.id);
           return hesaplanan ? { ...hesaplanan, kaynak: "TCMB azami oranı" } : null;
         })();
@@ -126,7 +129,7 @@ export function asistanBaglamiOlustur({
     const kayitli = opsiyonelSayi(hesap.faiz);
     return kayitli !== null && kayitli > 0
       ? { oran: kayitli, tahmini: false, kaynak: "kullanıcı kaydı" }
-      : (() => {
+      : !turkiyeKurallari ? null : (() => {
           const hesaplanan = kalemFaizi("ek", hesap.id);
           return hesaplanan ? { ...hesaplanan, kaynak: "ürün referans oranı" } : null;
         })();
@@ -305,9 +308,11 @@ export function asistanBaglamiOlustur({
       kartAylikFaizVergiHaricTahmin: paraYuvarla(kartAylikFaizTahmini),
       ekHesapAylikFaizVergiHaricTahmin: paraYuvarla(ekHesapAylikFaizTahmini),
       kartVeEkHesapAylikFaizVergiHaricTahmin: paraYuvarla(degiskenBorcAylikFaizi),
-      kartVeEkHesapAylikFaizVergiDahilTahmin: paraYuvarla(degiskenBorcAylikFaizi * 1.3),
-      vergiToplamYuzde: 30,
-      vergiVarsayimi: "Faiz tutarına toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir.",
+      kartVeEkHesapAylikFaizVergiDahilTahmin: paraYuvarla(degiskenBorcAylikFaizi * (turkiyeKurallari ? 1.3 : 1)),
+      vergiToplamYuzde: turkiyeKurallari ? 30 : 0,
+      vergiVarsayimi: turkiyeKurallari
+        ? "Faiz tutarına toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir."
+        : "Para birimi TRY değil; Türkiye'ye özgü BSMV/KKDF vergi-fon varsayımı eklenmemiştir.",
       planiBilinenKredilerKalanOdemeToplami: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanOdemeToplami, 0)),
       planiBilinenKredilerKalanFinansmanMaliyeti: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanFinansmanMaliyeti, 0)),
       planiBilinenKrediSayisi: krediPlanMaliyetleri.length,
@@ -329,6 +334,21 @@ export function asistanBaglamiOlustur({
       gelirKaydi: gelirler.length,
       varlikKaydi: varliklar.length,
       odemeKaydi: odemeKaydi.length,
+    },
+  };
+}
+
+// Asistan istegi "language" alanini ayrica gonderir. Sunucu henuz
+// guncellenmemisse dil ve para birimi bilgisi baglamdaki
+// kullaniciTercihleri alaninda da modele ulasir; soru metnine ek yapilmaz
+// (kayitli konusmayi ve sunucu dogrulamasini bozmamak icin).
+export function asistanKullaniciTercihleri({ dilKodu = "tr", paraBirimi = "TRY" } = {}) {
+  if (dilKodu === "tr" && paraBirimi === "TRY") return {};
+  return {
+    kullaniciTercihleri: {
+      yanitDili: dilKodu,
+      not: `Kullanıcının uygulama dili "${dilKodu}". Yanıtı bu dilde yaz; "Kısa cevap: ", "• " ve "Yapman gereken: " işaretlerini değiştirme.`,
+      paraBirimi,
     },
   };
 }

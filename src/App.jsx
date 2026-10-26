@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
-import { dil, locale, t, tDeger } from "./i18n.js";
+import { dil, isoTarihGoster, locale, t, tDeger } from "./i18n.js";
 import Ceviri from "./Ceviri.jsx";
 import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
 import { misafirModuAcik } from "./misafirModu.js";
@@ -17,7 +17,21 @@ import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
 import DilAyari from "./DilAyari.jsx";
 import ParaBirimiAyari from "./ParaBirimiAyari.jsx";
+import {
+  bankaSecenekleri,
+  belgeOkumaAcik,
+  ekHesapFaizOrani,
+  kartFaizOranlari,
+  turkiyeKurallariGecerli,
+  vergiFonOrani,
+} from "./bolgeKurallari.js";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
+import {
+  kayitliProSatisDurumu,
+  proSatisDurumuBelirle,
+  proSatisDurumunuKaydet,
+  proSatistaDegil as proMagazadaSatistaDegil,
+} from "./proSatis.js";
 import {
   revenueCatHazir,
   revenueCatProKontrol,
@@ -165,9 +179,9 @@ import {
 } from "./cardRestructuring.js";
 import { BANK_LOGOS } from "./bankLogos.js";
 import { davetDurumunuGetir } from "./referrals.js";
-import { asistanBaglamiOlustur } from "./assistantContext.js";
+import { asistanBaglamiOlustur, asistanKullaniciTercihleri } from "./assistantContext.js";
 import { finansalAsistanaSor } from "./financialAssistant.js";
-import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
+import { asistanYanitiniSunumaDonustur, yanitIsaretleriniCevir } from "./assistantPresentation.js";
 import { appendAssistantExchange, MAX_ASSISTANT_EXCHANGES } from "../supabase/functions/_shared/financialAssistantConversation.js";
 import {
   harcamaKaynagiSecimDegeri,
@@ -1120,6 +1134,12 @@ const kartOdemeAnahtari = (kart) =>
   "-ekstre-" +
   (kart.ekstreAyi || ayAnahtari());
 
+// TRY'de kart faizi TCMB azami oranindan gelir, alan gosterilmez. TRY disinda
+// kullanici kendi aylik oranini girer; girmezse faiz varsayilmaz.
+function kartFaizAlani(ek) {
+  if (turkiyeKurallariGecerli()) return [];
+  return [{ k: "faiz", e: t("borclar.alan.kartFaizi"), t: "number", p: t("borclar.alan.kartFaiziIpucu"), ...(ek ? { ek: true } : {}) }];
+}
 const KATEGORILER = [
   "Market",
   "Yeme-İçme",
@@ -1150,16 +1170,6 @@ const BANKALAR = [
   "HSBC",
   "Türkiye Finans",
 ];
-function tcmbKartAzamiFaizi(bakiye) {
-  if (bakiye >= 180000) return 4.25;
-  if (bakiye >= 30000) return 3.75;
-  return 3.25;
-}
-function tcmbKartAzamiGecikmeFaizi(bakiye) {
-  if (bakiye >= 180000) return 4.55;
-  if (bakiye >= 30000) return 4.05;
-  return 3.55;
-}
 function gunlukBirikmisFaiz(bakiye, aylikOran, gecikenGun) {
   return (
     (((Math.max(+bakiye || 0, 0) * Math.max(+aylikOran || 0, 0)) / 100) *
@@ -1182,7 +1192,7 @@ function kartHesabi(k) {
       devreden: Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0),
       yeni: +k.donemIciEklenen || 0,
       faiz: 0,
-      oran: tcmbKartAzamiFaizi(ana),
+      oran: kartFaizOranlari(ana, k.faiz).akdi,
       toplam: Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0),
       asgari: Math.min(+k.asgari || 0, Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0)),
     };
@@ -1203,7 +1213,7 @@ function kartHesabi(k) {
       : +k.toplamEkstreBorcu || +k.oncekiDonemBorcu || 0;
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), onceki);
   const devreden = Math.max(onceki - odeme - yapilandirilan, 0);
-  const oran = tcmbKartAzamiFaizi(onceki);
+  const oran = kartFaizOranlari(onceki, k.faiz).akdi;
   const faiz = (devreden * oran) / 100;
   const toplam = devreden;
   const asgariOran = krediKartiAsgariOrani(k.limit) * 100;
@@ -1318,13 +1328,13 @@ function ekstreBorcModeliniDuzelt(veri) {
     degisti: true,
   };
 }
-const VARSAYILAN_FAIZ_EK_HESAP = 4.25;
 function ekHesapHesabi(k) {
   const kullanilan = Math.max(+k.kullanilan || 0, 0);
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), kullanilan);
   const kalan = Math.max(kullanilan - odeme, 0);
-  const oran = +k.faiz > 0 ? +k.faiz : VARSAYILAN_FAIZ_EK_HESAP;
-  return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100 };
+  // TRY'de oran girilmemisse %4,25 referans; TRY disinda varsayim yok.
+  const { oran, tahmini, bilinmiyor } = ekHesapFaizOrani(k.faiz);
+  return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100, tahmini, bilinmiyor };
 }
 // Borcu süren ek hesaplar listede, kapananlar (kalan 0) "Kapattığın borçlar" başlığı altında.
 function ekHesaplariAyir(liste) {
@@ -1384,8 +1394,9 @@ function borcKalemleri(veri) {
     const guncelBorc = hesap.toplam;
     if (guncelBorc > 0) {
       const gecikmis = kalanGun(kartGecikmeTarihi(k)) < 0;
-      const akdiOran = tcmbKartAzamiFaizi(guncelBorc);
-      const gecikmeOran = tcmbKartAzamiGecikmeFaizi(guncelBorc);
+      const oranlar = kartFaizOranlari(guncelBorc, k.faiz);
+      const akdiOran = oranlar.akdi;
+      const gecikmeOran = oranlar.gecikme;
       const ozelFaizVar = +k.faiz > 0;
       const asgariEksigi = gecikmis
         ? Math.min(Math.max(hesap.asgari - hesap.odeme, 0), guncelBorc)
@@ -1410,7 +1421,9 @@ function borcKalemleri(veri) {
                 ? (faizTutari / guncelBorc) * 100
                 : akdiOran,
         faizTutari,
-        faizTahmini: !ozelFaizVar,
+        // TRY disinda TCMB referansi yok: oran ya kullanicinindir ya da hic yoktur.
+        faizTahmini: !ozelFaizVar && oranlar.referans,
+        faizBilinmiyor: oranlar.bilinmiyor,
         gecikmis,
         yapilanOdeme: hesap.odeme,
         asgari: hesap.asgari,
@@ -1420,7 +1433,7 @@ function borcKalemleri(veri) {
           hesap.onceki > 0 && hesap.asgari > 0
             ? Math.min(Math.max(hesap.asgari / hesap.onceki, 0), 1)
             : 0,
-        vergiFonOrani: 0.3,
+        vergiFonOrani: vergiFonOrani(),
       });
     }
   });
@@ -1437,10 +1450,11 @@ function borcKalemleri(veri) {
         bakiye,
         faiz,
         faizTutari: (bakiye * faiz) / 100,
-        faizTahmini: !(+k.faiz > 0),
+        faizTahmini: hesap.tahmini,
+        faizBilinmiyor: hesap.bilinmiyor,
         minimumOdeme: 0,
         minimumOran: 0,
-        vergiFonOrani: 0.3,
+        vergiFonOrani: vergiFonOrani(),
       });
     }
   });
@@ -1736,6 +1750,10 @@ export default function BorcTakip() {
     annual: null,
     hata: "",
   });
+  // Native: kullanicinin App Store ulkesinde Pro satista mi ("var" | "yok" |
+  // null). Son bilinen durum cihazda saklanir; acilista onunla baslanir ki
+  // teklifler yuklenirken Pro yuzeyleri gorunup kaybolmasin. Web'de daima "var".
+  const [proSatisDurumu, setProSatisDurumu] = useState(() => kayitliProSatisDurumu());
   const [proGeriYukleme, setProGeriYukleme] = useState({ yukleniyor: false, hata: "" });
   const [proSatinAlma, setProSatinAlma] = useState({
     yukleniyor: false,
@@ -1760,9 +1778,17 @@ export default function BorcTakip() {
       return "pro";
     return localStorage.getItem("borcama:demo-plan") === "free" ? "free" : "pro";
   });
+  // Pro satilmayan magazada (native) satin alma yuzeyleri gizlenir ve Pro'ya
+  // bagli ozellikler ucretsiz acilir; ucretli aboneligi olan kullanici (ör.
+  // Turkiye'de alip baska ulkeye gecen) normal Pro akisini gormeye devam eder.
+  const ucretliPro = reklamsiz.proAktif && !reklamsiz.trialAktif;
+  const proSatistaDegil = nativeMi && proSatisDurumu === "yok" && !ucretliPro;
+  // Satis durumu henuz bilinmiyorsa (ilk acilis) "Pro'ya Gec" teklifler
+  // yuklenene kadar bekler; gosterilip sonra kaybolmaz.
+  const proSatisBekleniyor = nativeMi && proSatisDurumu === null && proPaketler.yukleniyor;
   const etkinPro = planOnizlemesiAktif
-    ? demoPlan === "pro"
-    : reklamsiz.proAktif;
+    ? demoPlan === "pro" || proSatistaDegil
+    : reklamsiz.proAktif || proSatistaDegil;
   const demoPlaniDegistir = (plan) => {
     setDemoPlan(plan);
     localStorage.setItem("borcama:demo-plan", plan);
@@ -1996,13 +2022,15 @@ export default function BorcTakip() {
         }
         try {
           const paketler = await revenueCatProPaketleri(kullanici.id);
+          proSatisKarariniUygula({ paketler });
           setProPaketler({
             yukleniyor: false,
             monthly: paketler.monthly || null,
             annual: paketler.annual || null,
             hata: "",
           });
-        } catch {
+        } catch (error) {
+          proSatisKarariniUygula({ hata: error });
           setProPaketler({
             yukleniyor: false,
             monthly: null,
@@ -2012,6 +2040,14 @@ export default function BorcTakip() {
         }
       });
   }, []);
+
+  function proSatisKarariniUygula(sonuc) {
+    if (!nativeMi) return;
+    const durum = proSatisDurumuBelirle(sonuc);
+    if (!durum) return;
+    proSatisDurumunuKaydet(durum);
+    setProSatisDurumu(durum);
+  }
 
   async function reklamsizKontrol() {
     // Yalniz ilk sorguda "yukleniyor" isaretlenir. Her yenilemede isaretlenince
@@ -2407,9 +2443,15 @@ export default function BorcTakip() {
   const misafir = misafirModuAcik();
   const isDark = (veri.ayarlar || {}).tema === "dark";
   const ozelBankalar = (veri.ayarlar || {}).ozelBankalar || [];
+  // TRY disinda Turk banka listesi gosterilmez; kullanicinin ekledigi ve
+  // kayitlarinda gecen bankalar kalir, "Diger" ile serbest metin girilir.
   const bankalar = useMemo(
-    () => [...new Set([...BANKALAR, ...ozelBankalar])],
-    [ozelBankalar],
+    () => bankaSecenekleri({
+      turkBankalari: BANKALAR,
+      ozelBankalar,
+      kayitliBankalar: [...(veri.cards || []), ...(veri.loans || []), ...(veri.overdrafts || [])].map((k) => k?.banka),
+    }),
+    [ozelBankalar, veri.cards, veri.loans, veri.overdrafts],
   );
   const temaAnahtarlarSwitch = () =>
     ayarKaydet({ tema: isDark ? "light" : "dark" });
@@ -3236,7 +3278,7 @@ export default function BorcTakip() {
               <Sparkles size={14} aria-hidden="true" />
               <span>{t("kabuk.sor")}</span>
             </button>
-            {reklamsiz.kontrolEdildi && !etkinPro && (
+            {reklamsiz.kontrolEdildi && !etkinPro && !proSatisBekleniyor && (
               <button
                 className="bt-upgrade-link"
                 type="button"
@@ -3365,7 +3407,7 @@ export default function BorcTakip() {
           return <RehberSeridi oneri={rehber.oneri} onAksiyon={rehberAksiyonu} onErtele={(id) => ayarKaydet({ rehber: rehberiErtele(veri.ayarlar?.rehber, id) })} onKapat={(id) => ayarKaydet({ rehber: rehberOnerisiniKapat(veri.ayarlar?.rehber, id) })} />;
         })()}
 
-        {trialHatirlaticiAcik && (
+        {trialHatirlaticiAcik && !proSatistaDegil && (
           <section className="bt-trial-son" aria-label={t("kabuk.trial.aria")}>
             <div className="bt-trial-son-ikon">
               <Sparkles size={19} aria-hidden="true" />
@@ -3432,7 +3474,7 @@ export default function BorcTakip() {
                 varlikOzeti={varlikOzeti}
                 oneriler={borcamaOnerileri}
                 proAktif={etkinPro}
-                trialKalanGun={reklamsiz.trialAktif ? reklamsiz.trialKalanGun : 0}
+                trialKalanGun={reklamsiz.trialAktif && !proSatistaDegil ? reklamsiz.trialKalanGun : 0}
                 proAc={() => setProPenceresiAcik(true)}
               />
             )}
@@ -3570,6 +3612,7 @@ export default function BorcTakip() {
                 eposta={kullaniciEposta}
                 isDark={isDark}
                 reklamsiz={{ ...reklamsiz, proAktif: etkinPro }}
+                proSatisYok={proSatistaDegil}
                 reklamsizKontrol={reklamsizKontrol}
                 manuelProIptal={manuelProIptal}
                 paddleProIptal={paddleProIptal}
@@ -3657,7 +3700,8 @@ export default function BorcTakip() {
         veri={veri}
         kalemler={kalemler}
         proAktif={etkinPro}
-        proAc={() => {
+        proSatisYok={proSatistaDegil}
+        proAc={proSatistaDegil ? undefined : () => {
           setAsistanPenceresi(false);
           setProPenceresiAcik(true);
         }}
@@ -3674,7 +3718,7 @@ export default function BorcTakip() {
         }}
       />
       <ProTanitimPenceresi
-        acik={proPenceresiAcik}
+        acik={proPenceresiAcik && !proSatistaDegil}
         kapat={() => setProPenceresiAcik(false)}
         proSatinAl={proSatinAl}
         proSatinAlma={proSatinAlma}
@@ -4226,7 +4270,7 @@ function IlkKullanimRehberi({
 // Günlük asistan soru hakkı; sunucudaki consume_financial_assistant_question ile aynı.
 const ASISTAN_UCRETSIZ_SORU = 5;
 const ASISTAN_PRO_SORU = 20;
-function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, veri, kalemler, git, gorusBildir, proAktif, proAc, yapayZekaIzni, yapayZekaIzniVer }) {
+function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, veri, kalemler, git, gorusBildir, proAktif, proAc, proSatisYok = false, yapayZekaIzni, yapayZekaIzniVer }) {
   const [secim, setSecim] = useState("durum");
   const [soru, setSoru] = useState("");
   const [modelYaniti, setModelYaniti] = useState(null);
@@ -4303,9 +4347,14 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
     setModelYaniti(null);
     setModelDurumu({ yukleniyor: true, hata: "", kota: null });
     try {
-      const context = asistanBaglamiOlustur({
-        veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
-      });
+      const context = {
+        ...asistanBaglamiOlustur({
+          veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
+          turkiyeKurallari: turkiyeKurallariGecerli(),
+        }),
+        // Web'de (tr + TRY) bos; baglam bugunkuyle birebir ayni kalir.
+        ...asistanKullaniciTercihleri({ dilKodu: dil(), paraBirimi: kullaniciParaBirimi() }),
+      };
       const sonuc = await finansalAsistanaSor({ question: metin, context, history: konusmaGecmisi });
       setModelYaniti(sonuc);
       setKonusmaGecmisi((gecmis) => appendAssistantExchange(gecmis, { question: metin, answer: sonuc.answer }));
@@ -4314,7 +4363,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       setModelDurumu({ yukleniyor: false, hata: "", kota: sonuc.quota || null });
     } catch (error) {
       const mesaj = error?.message === "DAILY_LIMIT"
-        ? (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif)
+        ? (proSatisYok || (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif))
           ? t("asistan.hata.limitPro", { limit: error.quota?.limit || ASISTAN_PRO_SORU })
           : t("asistan.hata.limitUcretsiz", { limit: error.quota?.limit || ASISTAN_UCRETSIZ_SORU, pro: ASISTAN_PRO_SORU })
         : error?.message === "DEMO_MODE"
@@ -4383,7 +4432,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           <summary style={{ cursor: "pointer", fontSize: 12 }}>{t("asistan.gecmis", { n: konusmaGecmisi.length })}</summary>
           {konusmaGecmisi.map((tur, index) => <div key={index} style={{ padding: "12px 0", borderBottom: "1px solid var(--line-soft)", fontSize: 12, lineHeight: 1.5 }}>
             <strong>{t("asistan.sen", { soru: tur.question })}</strong>
-            <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", color: "var(--dim)" }}>{tur.answer}</p>
+            <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", color: "var(--dim)" }}>{yanitIsaretleriniCevir(tur.answer, dil(), t("asistan.yapmanGereken"))}</p>
           </div>)}
         </details>}
         <div className="bt-assistant-answer" aria-live="polite">
@@ -4399,7 +4448,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           <small>{t("asistan.uyari")}</small>
           <div className="bt-assistant-answer-footer">
             {!(nativeMi && secim === "bilinmiyor") && !(secim === "model" && modelYaniti?.route === "none") && <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>}
-            {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : t("asistan.kota.ucretsiz")}</span><strong>{modelDurumu.kota.remaining}</strong><span>{modelDurumu.kota.remaining === 1 ? t("asistan.kota.kaldiTekil") : t("asistan.kota.kaldiCogul")}</span></div>}
+            {modelDurumu.kota && <div className="bt-assistant-quota">{!proSatisYok && <span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : t("asistan.kota.ucretsiz")}</span>}<strong>{modelDurumu.kota.remaining}</strong><span>{modelDurumu.kota.remaining === 1 ? t("asistan.kota.kaldiTekil") : t("asistan.kota.kaldiCogul")}</span></div>}
             {!asistanProKotasi && proAc && modelDurumu.kota && modelDurumu.kota.remaining <= 0 && (
               <div className="bt-assistant-upsell">
                 <span><b>{t("asistan.upsell.baslik")}</b> {t("asistan.upsell.metin", { n: ASISTAN_PRO_SORU })}</span>
@@ -4638,6 +4687,7 @@ function Ayarlar({
   rehberAc,
   cikisYap,
   hesabiSil,
+  proSatisYok = false,
 }) {
   const [proPlan, setProPlan] = useState("monthly");
   const [ucretsizOnayi, setUcretsizOnayi] = useState(false);
@@ -4742,7 +4792,8 @@ function Ayarlar({
         {/* Hesapsiz kullanimda abonelik satin alinamaz; App Store aboneligi
             hesaba baglandigi icin once hesap acilmasi gerekiyor. Satin alma
             arayuzu yerine ne yapilacagini soyleyen bir kart gosteriliyor. */}
-        {misafir ? (
+        {/* Pro'nun satilmadigi App Store ulkesinde abonelik karti hic yok. */}
+        {proSatisYok ? null : misafir ? (
           <section className="bt-premium-card">
             <div className="bt-premium-copy">
               <span className="bt-premium-badge">
@@ -5764,10 +5815,12 @@ function Ozet({
                     <span>
                       <strong>{item.ad}</strong>
                       <small>
-                        {t("ozet.plan.siraFaiz", {
-                          oran: Number(item.faiz || 0).toLocaleString(locale(), { maximumFractionDigits: 2 }),
-                          tutar: tutarGoster(item.faizTutari),
-                        })}
+                        {item.faizBilinmiyor
+                          ? t("plan.faizGirilmedi")
+                          : t("ozet.plan.siraFaiz", {
+                              oran: Number(item.faiz || 0).toLocaleString(locale(), { maximumFractionDigits: 2 }),
+                              tutar: tutarGoster(item.faizTutari),
+                            })}
                       </small>
                     </span>
                     <span className="bt-bugun-sira-tutar">{tutarGoster(item.bakiye)}</span>
@@ -5817,7 +5870,7 @@ function Ozet({
       {(gelir > 0 || proAktif) && (
         <section className={"bt-pro-senaryo " + (proAktif ? "aktif" : "kilitli")}>
           <div className="bt-pro-senaryo-ust">
-            <span className="bt-pro-senaryo-rozet"><Sparkles size={15} /> Borcama Pro</span>
+            {!proMagazadaSatistaDegil() && <span className="bt-pro-senaryo-rozet"><Sparkles size={15} /> Borcama Pro</span>}
             {proAktif && trialKalanGun > 0 && <span>{t(trialKalanGun === 1 ? "ozet.pro.denemeTekil" : "ozet.pro.denemeCogul", { n: trialKalanGun })}</span>}
           </div>
           {proAktif && borcsuzlukSenaryosu.status === "ok" ? (
@@ -7569,7 +7622,7 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
               <div className="bt-loan-plan-preview">
                 {result.schedule.slice(0, 5).map((row) => (
                   <div key={`${row.number}-${row.dueDate}`}>
-                    <span>{t("ekstre.plan.taksitNo", { n: row.number })} · {row.dueDate ? row.dueDate.split("-").reverse().join(".") : t("ekstre.tarihOkunamadi")}</span>
+                    <span>{t("ekstre.plan.taksitNo", { n: row.number })} · {row.dueDate ? isoTarihGoster(row.dueDate) : t("ekstre.tarihOkunamadi")}</span>
                     <strong>{fmt(row.installment)}</strong>
                     <small>{t("ekstre.plan.satirKalan", { tutar: fmt(row.remainingPrincipal) })}</small>
                   </div>
@@ -7769,6 +7822,11 @@ function Borclar({
     setEkstreAkisKarti(null);
     setBaslangicSecimiAcik(true);
   }
+  // Ekstre okuyucu yalniz Turk bankalarinin belgelerini taniyor. TRY disinda
+  // "okut / elle gir" secimi gosterilmez; istek dogrudan elle girise gider.
+  useEffect(() => {
+    if (baslangicSecimiAcik && !belgeOkumaAcik()) manuelEkstreAkisiniAc();
+  }, [baslangicSecimiAcik]);
   function ekstreYontemSeciminiKapat() {
     setBaslangicSecimiAcik(false);
     setEkstreAkisKarti(null);
@@ -7976,9 +8034,8 @@ function Borclar({
       const odendi = !!veri.paid?.[kartOdemeAnahtari(k)];
       if (gun > 0 && h.toplam > 0) {
         const minimumTamam = asgariTamam || odendi;
-        const oran = minimumTamam
-          ? tcmbKartAzamiFaizi(h.onceki || h.toplam)
-          : tcmbKartAzamiGecikmeFaizi(h.onceki || h.toplam);
+        const oranlar = kartFaizOranlari(h.onceki || h.toplam, k.faiz);
+        const oran = minimumTamam ? oranlar.akdi : oranlar.gecikme;
         liste.push({
           id: "kart-" + k.id,
           tur: minimumTamam ? t("borclar.gecikme.devredenKart") : t("borclar.gecikme.gecikmisKart"),
@@ -8128,6 +8185,7 @@ function Borclar({
         t: "number",
         z: true,
       },
+      ...kartFaizAlani(false),
     ] : [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
       { k: "yeniDonemEkstreBorcu", e: t("borclar.alan.buAykiEkstre"), t: "number", z: true, para: true, p: t("borclar.alan.buAykiEkstreIpucu") },
@@ -8136,6 +8194,7 @@ function Borclar({
       { k: "limit", e: t("borclar.alan.kartLimiti"), t: "number", para: true, ek: true },
       { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number", ek: true },
       { k: "oncekiAydanKalan", e: t("borclar.alan.devreden"), t: "number", para: true, ek: true },
+      ...kartFaizAlani(true),
     ],
     // Yeni kredide yalnız kalan borcu ve ödeme gününü bulmaya yetenler zorunlu.
     loans: form?.veri?.id ? [
@@ -8807,14 +8866,14 @@ function Borclar({
                 <div className="bt-kart-ust-islemler">
                   <div className="bt-kart-islem-baslik">
                     <strong>{t("borclar.ekstre.islemler")}</strong>
-                    <span>{t("borclar.ekstre.islemlerAciklama")}</span>
+                    <span>{t(belgeOkumaAcik() ? "borclar.ekstre.islemlerAciklama" : "borclar.ekstre.islemlerAciklamaManuel")}</span>
                   </div>
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
                       onClick={genelEkstreAkisiniAc}
                     >
-                      <Plus size={14} /> {t("borclar.ekstre.ekle")}
+                      <Plus size={14} /> {t(belgeOkumaAcik() ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
                     </button>
                   </div>
                   <div className="bt-kart-ust-araclar" aria-label={t("borclar.ekstre.araclarAria")}>
@@ -8859,7 +8918,10 @@ function Borclar({
                     type="button"
                     onClick={() => {
                       if (kategori === "loans") {
-                        setKrediEklemeSecimiAcik(true);
+                        // Odeme plani okuyucusu yalniz Turk bankalarini taniyor;
+                        // TRY disinda dogrudan elle giris formu acilir.
+                        if (belgeOkumaAcik()) setKrediEklemeSecimiAcik(true);
+                        else setForm({ liste: "loans", veri: {} });
                         return;
                       }
                       setForm({ liste: meta.liste, veri: {} });
@@ -9417,7 +9479,7 @@ function Borclar({
         />
       )}
 
-      {baslangicSecimiAcik && (
+      {baslangicSecimiAcik && belgeOkumaAcik() && (
         <div
           className="bt-modal-arka"
           role="presentation"
@@ -9698,7 +9760,7 @@ function Borclar({
                       genelEkstreAkisiniAc();
                     }}
                   >
-                    <Plus size={14} /> {t("borclar.ekstre.ekle")}
+                    <Plus size={14} /> {t(belgeOkumaAcik() ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
                   </button>
                 </div>
               </div>
@@ -10190,13 +10252,13 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
     return (
       <div className="bt-arac-bos">
         <h3>{t("borcSatir.kontrol.bosBaslik")}</h3>
-        <p>{t("borcSatir.kontrol.bosAciklama")}</p>
+        <p>{t(belgeOkumaAcik() ? "borcSatir.kontrol.bosAciklama" : "borcSatir.kontrol.bosAciklamaManuel")}</p>
         <div className="bt-arac-bos-actions">
           <button className="bt-btn birincil" type="button" onClick={onKartEkle}>
             <Plus size={14} /> {t("borcSatir.kontrol.kartEkle")}
           </button>
           <button className="bt-btn ikincil" type="button" onClick={onEkstreYukle}>
-            <Plus size={14} /> {t("borcSatir.kontrol.ekstreEkle")}
+            <Plus size={14} /> {t(belgeOkumaAcik() ? "borcSatir.kontrol.ekstreEkle" : "borcSatir.kontrol.ekstreEkleManuel")}
           </button>
         </div>
       </div>
@@ -10279,8 +10341,8 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
                     <div className="bt-satir-ad">{kartGorunenAdi(k)}</div>
                     <div className="bt-satir-meta">
                       {t("borcSatir.kontrol.donemIci", {
-                        baslangic: donem.baslangic.split("-").reverse().join("."),
-                        bitis: donem.bitis.split("-").reverse().join("."),
+                        baslangic: isoTarihGoster(donem.baslangic),
+                        bitis: isoTarihGoster(donem.bitis),
                       })}
                     </div>
                   </div>
@@ -10376,7 +10438,7 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
         <label className="bt-alan">{t("borcSatir.yap.ilkOdeme")}<input className="bt-input" type="date" value={f.firstPaymentDate} onChange={(e) => setF({ ...f, firstPaymentDate: e.target.value })}/></label>
         <label className="bt-alan">{t("borcSatir.yap.toplamGeriOdeme")} <ParaInput className="bt-input" value={f.totalRepayment} onValueChange={(value) => setF({ ...f, totalRepayment: value })}/><small>{t("borcSatir.yap.bosBirak")}</small></label>
       </div>
-      <details className="bt-yapilandirma-oranlar"><summary>{t("borcSatir.yap.oranlar")} <span>{t("ortak.istegeBagli")}</span></summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">{t("borcSatir.yap.nominalFaiz")}<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></div></details>
+      <details className="bt-yapilandirma-oranlar"><summary>{t("borcSatir.yap.oranlar")} <span>{t("ortak.istegeBagli")}</span></summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">{t("borcSatir.yap.nominalFaiz")}<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label>{/* KKDF ve BSMV Turk vergi-fon kalemleri; TRY disinda alan yok, hesaba 0 girer. */}{turkiyeKurallariGecerli() && <><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></>}</div></details>
       {tutar > 0 && adet > 0 && <div className="bt-ipucu" style={{ marginTop: 14 }}><Check size={16}/><div><b>{t("borcSatir.yap.onizlemeBaslik")}</b> {t("borcSatir.yap.onizleme", { tutar: fmt(tutar), adet, dusen: fmt(Math.min(tutar, kalan)), toplam: fmt(toplam) })}{tutar > kalan && <> {t("borcSatir.yap.onizlemeFazla", { fazla: fmt(tutar - kalan) })}</>}</div></div>}
       {hata && <div className="bt-ipucu" role="alert" style={{ marginTop: 12, borderColor: CORAL }}>{hata}</div>}
       <div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={kaydet}><Check size={14}/> {t("borcSatir.yap.kaydet")}</button><button className="bt-btn ikincil" type="button" onClick={onClose}>{t("ortak.vazgec")}</button></div>
@@ -10481,18 +10543,22 @@ function BorclarSatiri({
     if (yapilandirma && borcKapandi) {
       altYazi = t("borcSatir.kart.taksitPlaninaTasindi", { tutar: fmt(yapilandirma.tutar) });
     } else if (gecikmis) {
-      const gecikmeOrani = tcmbKartAzamiGecikmeFaizi(
+      const gecikmeOrani = kartFaizOranlari(
         hesap.onceki || hesap.toplam,
-      );
+        k.faiz,
+      ).gecikme;
       const birikenFaiz = gunlukBirikmisFaiz(
         hesap.toplam,
         gecikmeOrani,
         gecikenGun,
       );
-      altYazi = t(
-        gecikenGun === 1 ? "borcSatir.kart.gecikmeTekil" : "borcSatir.kart.gecikmeCogul",
-        { n: gecikenGun, faiz: fmt(birikenFaiz) },
-      );
+      // TRY disinda oran girilmemisse faiz tutari gosterilmez (varsayim yok).
+      altYazi = gecikmeOrani > 0
+        ? t(
+            gecikenGun === 1 ? "borcSatir.kart.gecikmeTekil" : "borcSatir.kart.gecikmeCogul",
+            { n: gecikenGun, faiz: fmt(birikenFaiz) },
+          )
+        : t(gecikenGun === 1 ? "borcSatir.kart.gecikmeFaizsizTekil" : "borcSatir.kart.gecikmeFaizsizCogul", { n: gecikenGun });
     }
     tutarEtiketi = ekstreVar ? durumMetni : null;
     kartDetay = ekstreVar
@@ -10540,7 +10606,7 @@ function BorclarSatiri({
         : t("borcSatir.kredi.taksitHerAyin", { taksit: fmt(k.taksit), gun: k.odemeGunu }) +
           (+k.kalanTaksit > 0 ? t("borcSatir.kredi.taksitKaldi", { n: krediPlanOzeti.remainingInstallments }) : "") +
           (buAyKrediOdendi ? t("borcSatir.kredi.buAykiOdendi") : "");
-    if (k.ilkOdemeTarihi) altMeta += t("borcSatir.kredi.ilkTaksit", { tarih: k.ilkOdemeTarihi.split("-").reverse().join(".") });
+    if (k.ilkOdemeTarihi) altMeta += t("borcSatir.kredi.ilkTaksit", { tarih: isoTarihGoster(k.ilkOdemeTarihi) });
     if (!arsiv && !k._gelecek && krediPlanOzeti.remainingPaymentTotal > 0) {
       tutarEtiketi = t("borcSatir.kredi.toplamKalanOdeme");
       altYazi = krediPlanOzeti.financingCostIsKnown
@@ -10570,7 +10636,9 @@ function BorclarSatiri({
     tutarEtiketi = hesap.kalan > 0 ? t("borcSatir.kalanBorc") : t("borcSatir.od.borcKapandi");
     altYazi =
       hesap.kalan > 0
-        ? t("borcSatir.od.tahminiFaiz", { faiz: fmt(hesap.faiz), oran: hesap.oran.toFixed(2) })
+        ? hesap.bilinmiyor
+          ? t("borcSatir.od.faizGirilmedi")
+          : t("borcSatir.od.tahminiFaiz", { faiz: fmt(hesap.faiz), oran: hesap.oran.toFixed(2) })
         : null;
   } else {
     tutar = +k.tutar || 0;
@@ -11008,7 +11076,11 @@ function GecikmisBorcSatiri({ g, i }) {
           {t("borcSatir.kalanBorc")}
         </div>
         <div className="bt-satir-alt">
-          {g.durum === "devreden"
+          {g.oran === 0 && g.id.startsWith("kart-")
+            ? g.durum === "devreden"
+              ? t("borcSatir.kart.asgariOdendi")
+              : t(g.gun === 1 ? "borcSatir.kart.gecikmeFaizsizTekil" : "borcSatir.kart.gecikmeFaizsizCogul", { n: g.gun })
+            : g.durum === "devreden"
             ? t("borcSatir.gecikmis.asgariOdendi", { faiz: fmt(g.faiz) })
             : t(g.gun === 1 ? "borcSatir.gecikmis.gecikmeTekil" : "borcSatir.gecikmis.gecikmeCogul", {
                 n: g.gun,
@@ -11210,10 +11282,12 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         </div>
         {gecikmisler.length > 0 && (
           <div className="bt-plan-gecikme">
-            {t(gecikmisler.length === 1 ? "plan.gecikmeTekil" : "plan.gecikmeCogul", {
-              n: gecikmisler.length,
-              tutar: fmt0(gecikmisFaiz),
-            })}
+            {gecikmisler.every((k) => k.faizBilinmiyor)
+              ? t(gecikmisler.length === 1 ? "plan.gecikmeFaizsizTekil" : "plan.gecikmeFaizsizCogul", { n: gecikmisler.length })
+              : t(gecikmisler.length === 1 ? "plan.gecikmeTekil" : "plan.gecikmeCogul", {
+                  n: gecikmisler.length,
+                  tutar: fmt0(gecikmisFaiz),
+                })}
           </div>
         )}
       </section>
@@ -11314,7 +11388,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                   })}
                 </span>
               ) : (
-                <span>{t("plan.planAciklama")}</span>
+                <span>{t(turkiyeKurallariGecerli() ? "plan.planAciklama" : "plan.planAciklamaVergisiz")}</span>
               )}
               </div>
             </details>
@@ -11564,6 +11638,8 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                     <div className="bt-satir-meta">
                       {kartFaizAciklamasi
                         ? kartFaizAciklamasi
+                        : k.faizBilinmiyor
+                        ? t("plan.faizGirilmedi")
                         : t("plan.faizMeta", {
                             oran: k.faiz.toFixed(2),
                             kaynak: k.faizTahmini
@@ -12749,7 +12825,7 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
                     {g.tekrar === "Tek seferlik"
                       ? t("gelirGider.gelir.tekSeferlik") +
                         (g.tarih
-                          ? " · " + g.tarih.split("-").reverse().join(".")
+                          ? " · " + isoTarihGoster(g.tarih)
                           : "")
                       : t("gelirGider.gelir.herAyTekrarlaniyor")}
                   </div>
@@ -13240,7 +13316,7 @@ function Harcamalar({
                     {odeme.yapilandirma ? t("gelirGider.harcama.yapilandirma") : t("gelirGider.harcama.krediTaksiti")}
                     {odeme.kalanTaksit > 0 && <> · {t("gelirGider.harcama.taksitKaldi", { n: odeme.kalanTaksit })}</>}
                     {!odeme.buAyOdenecek && odeme.ilkOdemeTarihi && (
-                      <> · {t("gelirGider.harcama.tarihindeBaslar", { tarih: odeme.ilkOdemeTarihi.split("-").reverse().join(".") })}</>
+                      <> · {t("gelirGider.harcama.tarihindeBaslar", { tarih: isoTarihGoster(odeme.ilkOdemeTarihi) })}</>
                     )}
                   </div>
                 </div>
@@ -13367,7 +13443,7 @@ function Harcamalar({
                           )}
                         </div>
                         <div className="bt-satir-meta">
-                          {sabit ? tDeger("Her ay") : h.tarih && h.tarih.split("-").reverse().join(".")}
+                          {sabit ? tDeger("Her ay") : h.tarih && isoTarihGoster(h.tarih)}
                           {h.kaynak && <> · {tDeger(h.kaynak)}</>}
                           {harcamaEkstreAyi && (
                             <> · {t("gelirGider.harcama.ekstre", { ay: ayEtiketi(harcamaEkstreAyi) })}</>

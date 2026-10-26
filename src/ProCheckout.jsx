@@ -18,6 +18,18 @@ import { googleAdsSatinAlmaDonusumu } from "./googleAds.js";
 import { t } from "./i18n.js";
 import Ceviri from "./Ceviri.jsx";
 import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
+import { proSatisDurumuBelirle, proSatisDurumunuKaydet, proSatistaDegil } from "./proSatis.js";
+
+// Native: App Store ulkesinde Pro satilmiyorsa satin alma ekrani yerine
+// uygulamaya donulur (Pro ozellikleri orada zaten ucretsiz acik).
+function satisYoksaUygulamayaDon(sonuc) {
+  if (!nativeMi) return false;
+  const durum = proSatisDurumuBelirle(sonuc);
+  if (durum) proSatisDurumunuKaydet(durum);
+  if (durum !== "yok") return false;
+  window.location.replace("/summary");
+  return true;
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap');
@@ -44,13 +56,15 @@ export default function ProCheckout() {
           revenueCatProKontrol(session.user.id),
         ]);
         if (!aktif) return;
+        if (!pro.active && satisYoksaUygulamayaDon({ paketler: fiyatlar })) return;
         if (pro.active) {
           proNiyetiniTemizle();
           window.location.replace("/welcome");
           return;
         }
         setPaketler({ yukleniyor: false, monthly: fiyatlar.monthly, annual: fiyatlar.annual });
-      } catch {
+      } catch (error) {
+        if (aktif && satisYoksaUygulamayaDon({ hata: error })) return;
         if (aktif) {
           setPaketler({ yukleniyor: false, monthly: null, annual: null });
           setDurum({ yukleniyor: false, hata: t("pro.hata.fiyatAlinamadi") });
@@ -60,6 +74,10 @@ export default function ProCheckout() {
     return () => { aktif = false; };
   }, [session]);
 
+  if (proSatistaDegil()) {
+    window.location.replace("/summary");
+    return <Yukleniyor />;
+  }
   if (session === undefined) return <Yukleniyor />;
   if (!session) {
     const hedef = encodeURIComponent(`/upgrade?plan=${plan}`);
