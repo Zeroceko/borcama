@@ -1816,7 +1816,7 @@ export default function BorcTakip() {
   // bagli ozellikler ucretsiz acilir; ucretli aboneligi olan kullanici (ör.
   // Turkiye'de alip baska ulkeye gecen) normal Pro akisini gormeye devam eder.
   const ucretliPro = reklamsiz.proAktif && !reklamsiz.trialAktif;
-  const proSatistaDegil = nativeMi && proSatisDurumu === "yok" && !ucretliPro;
+  const proSatistaDegil = proSatisDurumu === "yok" && !ucretliPro;
   // Satis durumu henuz bilinmiyorsa (ilk acilis) "Pro'ya Gec" teklifler
   // yuklenene kadar bekler; gosterilip sonra kaybolmaz.
   const proSatisBekleniyor = nativeMi && proSatisDurumu === null && proPaketler.yukleniyor;

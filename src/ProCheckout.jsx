@@ -20,8 +20,10 @@ import Ceviri from "./Ceviri.jsx";
 import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 import { proSatisDurumuBelirle, proSatisDurumunuKaydet, proSatistaDegil } from "./proSatis.js";
 
-// Native: App Store ulkesinde Pro satilmiyorsa satin alma ekrani yerine
-// uygulamaya donulur (Pro ozellikleri orada zaten ucretsiz acik).
+// App Store ulkesinde (native) veya IP ulkesinde (web) Pro satilmiyorsa
+// satin alma ekrani yerine uygulamaya donulur (Pro ozellikleri orada zaten
+// ucretsiz acik). Native'de karar teklif yanitindaki magaza ulkesinden de
+// guncellenir; web'de karar acilista /api/ulke ile verilir (proSatistaDegil).
 function satisYoksaUygulamayaDon(sonuc) {
   if (!nativeMi) return false;
   const durum = proSatisDurumuBelirle(sonuc);
@@ -152,7 +154,7 @@ export default function ProCheckout() {
           <img className="pc-logo" src="/borcama-logo.png" alt="Borcama" />
           {!nativeMi && (
             <a className="pc-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-              <ChevronLeft size={15} /> Ana sayfa
+              <ChevronLeft size={15} /> {t("web.pro.anaSayfa")}
             </a>
           )}
         </header>
@@ -197,7 +199,7 @@ export default function ProCheckout() {
                 {t("pro.geriYukle")}
               </button>
             )}
-            <p className="pc-note"><ShieldCheck size={15} /> {nativeMi ? t("pro.not.native") : "Kart bilgilerin Borcama tarafından saklanmaz. Ödeme güvenli ödeme sağlayıcısı üzerinden tamamlanır."}</p>
+            <p className="pc-note"><ShieldCheck size={15} /> {nativeMi ? t("pro.not.native") : t("web.pro.not")}</p>
             <div
               style={{
                 marginTop: 12,

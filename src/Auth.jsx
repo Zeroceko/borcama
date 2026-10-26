@@ -29,6 +29,7 @@ import { appleGirisiVarMi, appleHataMesaji, appleIleGirisYap } from "./appleGiri
 import { dil, t } from "./i18n.js";
 import Ceviri from "./Ceviri.jsx";
 import DilDugmesi from "./DilDugmesi.jsx";
+import { proSatistaDegil } from "./proSatis.js";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 const TURNSTILE_SCRIPT_ID = "borcama-turnstile-script";
@@ -245,6 +246,7 @@ const CSS = `
 @media(max-width:720px){.auth-wrap{display:block;min-height:100dvh;padding:78px 12px 32px;overflow-x:clip;overflow-y:visible}.auth-card{margin:0 auto}.auth-back{top:15px;left:12px}}
 @media(max-width:520px){.auth-card{padding:28px 20px;box-shadow:6px 6px 0 #ff6f59;border-radius:20px}.auth-title{width:155px}.auth-tabs{margin-bottom:15px}.auth-legal-modal{padding:7px}.auth-legal-dialog{height:96dvh;border-radius:16px;box-shadow:4px 4px 0 #cdf564}.auth-legal-head{padding:10px 12px}.auth-consents{padding:11px}.auth-btn{min-height:46px}}
 .auth-back,.auth-card,.auth-input,.auth-tabs,.auth-remember input,.auth-legal-dialog,.auth-legal-close,.auth-btn{border-width:1px;border-color:#14160f24}.auth-card,.auth-legal-dialog{box-shadow:0 18px 46px #14160f18}.auth-legal-head{border-bottom-width:1px;border-bottom-color:#14160f1f}.auth-error{border-width:1px}
+html:not(.borcama-native) .auth-dil{position:absolute;top:24px;right:clamp(20px,4vw,48px);z-index:2;display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border:1px solid #14160f24;border-radius:999px;background:#fff;color:#14160f;font-size:13px;font-weight:700;box-shadow:3px 3px 0 #14160f;cursor:pointer}html:not(.borcama-native) .auth-dil .dil-dugmesi-secim{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer}html:not(.borcama-native) .auth-dil:focus-within{outline:2px solid #14160f;outline-offset:2px}@media(max-width:720px){html:not(.borcama-native) .auth-dil{top:15px;right:12px}}
 `;
 
 export function useSession() {
@@ -294,7 +296,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   // listesindeki yollara gidebilir; /upgrade?plan=... ikisinde de yok, o yuzden
   // link uygulamaya donmez. Secilen plan zaten cihazda saklandigi icin Pro
   // ekrani acildiginda geri okunuyor. Tarayici davranisi degismiyor.
-  const proYonlendirmesi = !nativeMi && ilkProPlani
+  // Web'de Pro satilmayan ulkede (proSatis.js) satin alma ekranina gidilmez.
+  const proYonlendirmesi = !nativeMi && ilkProPlani && !proSatistaDegil()
     ? `/upgrade?plan=${ilkProPlani}`
     : null;
   const sonrakiSayfa = kayitModu
@@ -604,7 +607,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           <ArrowLeft size={15} /> {t("auth.anaSayfayaDon")}
         </a>
       )}
-      {/* Giris yapmadan dil degistirme; yalniz native'de cizilir. */}
+      {/* Giris yapmadan dil degistirme (native ve web). */}
       <DilDugmesi className="auth-dil" />
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
