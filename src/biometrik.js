@@ -1,4 +1,5 @@
 import { nativeMi } from "./platform.js";
+import { t } from "./i18n.js";
 
 // Biyometrik kilit yalniz native'de anlamli; eklenti dinamik import ile
 // yuklenir ve tarayici paketine girmez.
@@ -41,7 +42,7 @@ export async function biyometriKullanilabilir() {
     const durum = await BiometricAuth.checkBiometry();
     return {
       kullanilabilir: Boolean(durum?.isAvailable),
-      ad: getBiometryName(durum?.biometryType) || "Biyometrik kimlik",
+      ad: getBiometryName(durum?.biometryType) || t("bilesen.biyometrik.varsayilanAd"),
     };
   } catch {
     return { kullanilabilir: false, ad: "" };
@@ -55,10 +56,10 @@ export async function kimlikDogrula() {
   try {
     const { BiometricAuth } = await biyometriSdk();
     await BiometricAuth.authenticate({
-      reason: "Borcama'yı açmak için kimliğini doğrula",
-      cancelTitle: "Vazgeç",
+      reason: t("bilesen.biyometrik.sebep"),
+      cancelTitle: t("bilesen.biyometrik.vazgec"),
       allowDeviceCredential: true,
-      iosFallbackTitle: "Cihaz şifresini kullan",
+      iosFallbackTitle: t("bilesen.biyometrik.cihazSifresi"),
     });
     return true;
   } catch {

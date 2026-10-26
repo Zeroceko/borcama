@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { HESAP_SILME_YONLENDIRME_SURESI_MS } from "./accountDeletion.js";
+import { t } from "./i18n.js";
 
 export default function HesapSilindiEkrani() {
   const toplamSaniye = HESAP_SILME_YONLENDIRME_SURESI_MS / 1000;
@@ -60,11 +61,12 @@ export default function HesapSilindiEkrani() {
           ✓
         </div>
         <h1 style={{ margin: "0 0 12px", fontSize: "clamp(30px, 7vw, 46px)" }}>
-          Hesabın silindi.
+          {t("bilesen.hesapSilindi.baslik")}
         </h1>
         <p style={{ margin: "0 auto 24px", maxWidth: 430, color: "#5d6054", lineHeight: 1.65 }}>
-          Borcama hesabın ve hesabına bağlı kayıtlar kalıcı olarak silindi.
-          {" "}{kalanSaniye} saniye içinde ana sayfaya yönlendiriliyorsun.
+          {kalanSaniye === 1
+            ? t("bilesen.hesapSilindi.metinTekil", { n: kalanSaniye })
+            : t("bilesen.hesapSilindi.metinCogul", { n: kalanSaniye })}
         </p>
         <a
           href="/"
@@ -82,7 +84,7 @@ export default function HesapSilindiEkrani() {
             textDecoration: "none",
           }}
         >
-          Ana sayfaya dön →
+          {t("bilesen.hesapSilindi.anaSayfa")}
         </a>
       </section>
     </main>

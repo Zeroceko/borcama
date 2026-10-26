@@ -1,5 +1,6 @@
 import { nativeMi } from "./platform.js";
 import { bildirimKimligi, bildirimZamanlari } from "./odemeBildirimiPlan.js";
+import { t } from "./i18n.js";
 
 // Odeme hatirlatmasi. Kural docs/ios gonderim kaydindan birebir alindi:
 //   - yalniz kullanici Ayarlar'dan acarsa kurulur
@@ -8,8 +9,6 @@ import { bildirimKimligi, bildirimZamanlari } from "./odemeBildirimiPlan.js";
 //   - kilit ekraninda tutar, banka, kart son hanesi veya borc turu YOK
 //   - tamamen cihazda hesaplanir; push servisine finansal icerik gitmez
 const AYAR_ANAHTARI = "borcama_odeme_hatirlatmasi";
-const BASLIK = "Ödeme hatırlatması";
-const METIN = "Yarın için kayıtlı ödemen var. Ayrıntıları Borcama'da kontrol et.";
 
 // Ayar ekrani ile planlama ayni listeyi kullanmali; App.jsx'ten prop
 // gecirmek yerine son bilinen liste burada tutulur.
@@ -73,11 +72,14 @@ export async function bildirimleriPlanla(yaklasan = sonYaklasan) {
     const zamanlar = bildirimZamanlari(yaklasan);
     if (!zamanlar.length) return { planlanan: 0 };
 
+    // Bildirim metni planlama anindaki dille yazilir.
+    const baslik = t("bilesen.bildirim.baslik");
+    const metin = t("bilesen.bildirim.metin");
     await LocalNotifications.schedule({
       notifications: zamanlar.map(({ anahtar, zaman }) => ({
         id: bildirimKimligi(anahtar),
-        title: BASLIK,
-        body: METIN,
+        title: baslik,
+        body: metin,
         schedule: { at: zaman, allowWhileIdle: true },
       })),
     });

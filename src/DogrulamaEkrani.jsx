@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient.js";
 import { derinBaglantiAyristir } from "./derinBaglantiAdres.js";
 import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
+import { t } from "./i18n.js";
 
 // E-postadaki dogrulama baglantisi iOS'ta universal link oldugu icin uygulama
 // kuruluysa bu ekran hic gorunmez; baglanti dogrudan uygulamada acilir. Bu
@@ -14,8 +15,8 @@ import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
 function hataMetni(sebep) {
   const metin = String(sebep || "");
   if (!metin || /expired|invalid|otp_expired/i.test(metin))
-    return "Bağlantının süresi dolmuş ya da daha önce kullanılmış. Yeni bir bağlantı iste.";
-  return `Bağlantı doğrulanamadı. (${metin})`;
+    return t("bilesen.dogrulama.suresiDolmus");
+  return t("bilesen.dogrulama.dogrulanamadi", { sebep: metin });
 }
 
 export default function DogrulamaEkrani() {
@@ -49,7 +50,7 @@ export default function DogrulamaEkrani() {
           });
           if (error) throw error;
         } else {
-          throw new Error("Bağlantıda doğrulama bilgisi yok.");
+          throw new Error(t("bilesen.dogrulama.bilgiYok"));
         }
       } catch (hata) {
         if (!iptal) setHata(hataMetni(hata?.message));
@@ -84,12 +85,12 @@ export default function DogrulamaEkrani() {
           style={{ width: 150, height: "auto", marginBottom: 18 }}
         />
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: hata ? "#a53a2a" : "#5d6054" }}>
-          {hata || "Hesabın doğrulanıyor…"}
+          {hata || t("bilesen.dogrulama.dogrulaniyor")}
         </p>
         {hata && (
           <p style={{ marginTop: 18 }}>
             <a href="/login" style={{ color: "#315c47", fontWeight: 800 }}>
-              Giriş ekranına dön
+              {t("bilesen.dogrulama.giriseDon")}
             </a>
           </p>
         )}

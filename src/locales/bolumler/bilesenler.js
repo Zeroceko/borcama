@@ -1,7 +1,83 @@
 // Bölüm sözlüğü: bilesenler. tr değerleri ekranda bugün görünen Türkçe metnin
 // birebir aynısıdır; en yalnız native (iOS) İngilizce modunda görünür.
 export const tr = {
+  // CevrimdisiPerde
+  "bilesen.cevrimdisi.baslik": "Bağlantı gerekiyor",
+  "bilesen.cevrimdisi.metin": "Borcama finansal kayıtlarını hesabından okur. İnternet bağlantısı olmadan güncel tutarları gösteremez.",
+  "bilesen.cevrimdisi.guvence": "Kayıtların silinmedi. Bağlantı geri geldiğinde kaldığın yerden devam edeceksin.",
+  // BiyometrikKilit (kilit ekranı)
+  "bilesen.kilit.ariaEtiket": "Uygulama kilidi",
+  "bilesen.kilit.metin": "Finansal verilerini görmek için kimliğini doğrula.",
+  "bilesen.kilit.kilidiAc": "Kilidi aç",
+  // BiyometrikAyar (Ayarlar kartı)
+  "bilesen.biyometrik.guvenlik": "Güvenlik",
+  "bilesen.biyometrik.baslik": "{ad} ile uygulama kilidi",
+  "bilesen.biyometrik.acikAciklama": "Borcama her açıldığında ve arka plandan her dönüşte {ad} sorulur.",
+  "bilesen.biyometrik.kapaliAciklama": "Açarsan Borcama her açıldığında {ad} sorulur.",
+  "bilesen.biyometrik.kapat": "Kilidi kapat",
+  "bilesen.biyometrik.ac": "Kilidi aç",
+  // biometrik.js
+  "bilesen.biyometrik.varsayilanAd": "Biyometrik kimlik",
+  "bilesen.biyometrik.sebep": "Borcama'yı açmak için kimliğini doğrula",
+  "bilesen.biyometrik.vazgec": "Vazgeç",
+  "bilesen.biyometrik.cihazSifresi": "Cihaz şifresini kullan",
+  // OdemeHatirlatmaAyari
+  "bilesen.hatirlatma.izinYok": "Bildirim izni verilmedi. iOS Ayarlar → Borcama → Bildirimler bölümünden açabilirsin.",
+  "bilesen.hatirlatma.baslik": "Hatırlatmalar",
+  "bilesen.hatirlatma.satir": "Ödeme günü hatırlatması",
+  "bilesen.hatirlatma.acikAciklama": "Kayıtlı ödemelerinden bir gün önce saat 09:00'da hatırlatılır. Hesaplama cihazında yapılır; tutar ve banka bilgisi bildirimde gösterilmez.",
+  "bilesen.hatirlatma.kapaliAciklama": "Açarsan kayıtlı ödemelerinden bir gün önce saat 09:00'da hatırlatılır.",
+  "bilesen.hatirlatma.kapat": "Hatırlatmayı kapat",
+  "bilesen.hatirlatma.ac": "Hatırlatmayı aç",
+  // odemeBildirimi.js (yerel bildirim)
+  "bilesen.bildirim.baslik": "Ödeme hatırlatması",
+  "bilesen.bildirim.metin": "Yarın için kayıtlı ödemen var. Ayrıntıları Borcama'da kontrol et.",
+  // DogrulamaEkrani
+  "bilesen.dogrulama.suresiDolmus": "Bağlantının süresi dolmuş ya da daha önce kullanılmış. Yeni bir bağlantı iste.",
+  "bilesen.dogrulama.dogrulanamadi": "Bağlantı doğrulanamadı. ({sebep})",
+  "bilesen.dogrulama.bilgiYok": "Bağlantıda doğrulama bilgisi yok.",
+  "bilesen.dogrulama.dogrulaniyor": "Hesabın doğrulanıyor…",
+  "bilesen.dogrulama.giriseDon": "Giriş ekranına dön",
+  // AccountDeleted
+  "bilesen.hesapSilindi.baslik": "Hesabın silindi.",
+  "bilesen.hesapSilindi.metinTekil": "Borcama hesabın ve hesabına bağlı kayıtlar kalıcı olarak silindi. {n} saniye içinde ana sayfaya yönlendiriliyorsun.",
+  "bilesen.hesapSilindi.metinCogul": "Borcama hesabın ve hesabına bağlı kayıtlar kalıcı olarak silindi. {n} saniye içinde ana sayfaya yönlendiriliyorsun.",
+  "bilesen.hesapSilindi.anaSayfa": "Ana sayfaya dön →",
 };
 
 export const en = {
+  "bilesen.cevrimdisi.baslik": "Connection needed",
+  "bilesen.cevrimdisi.metin": "Borcama reads your financial records from your account. Without an internet connection it can't show up-to-date amounts.",
+  "bilesen.cevrimdisi.guvence": "Your records weren't deleted. Once you're back online, you'll pick up right where you left off.",
+  "bilesen.kilit.ariaEtiket": "App lock",
+  "bilesen.kilit.metin": "Verify your identity to see your financial data.",
+  "bilesen.kilit.kilidiAc": "Unlock",
+  "bilesen.biyometrik.guvenlik": "Security",
+  "bilesen.biyometrik.baslik": "App lock with {ad}",
+  "bilesen.biyometrik.acikAciklama": "Borcama asks for {ad} every time it opens and whenever you return from the background.",
+  "bilesen.biyometrik.kapaliAciklama": "Turn it on and Borcama will ask for {ad} every time it opens.",
+  "bilesen.biyometrik.kapat": "Turn off lock",
+  "bilesen.biyometrik.ac": "Turn on lock",
+  "bilesen.biyometrik.varsayilanAd": "Biometrics",
+  "bilesen.biyometrik.sebep": "Verify your identity to open Borcama",
+  "bilesen.biyometrik.vazgec": "Cancel",
+  "bilesen.biyometrik.cihazSifresi": "Use device passcode",
+  "bilesen.hatirlatma.izinYok": "Notification permission wasn't granted. You can turn it on in iOS Settings → Borcama → Notifications.",
+  "bilesen.hatirlatma.baslik": "Reminders",
+  "bilesen.hatirlatma.satir": "Payment day reminder",
+  "bilesen.hatirlatma.acikAciklama": "You'll get a reminder at 9:00 AM the day before your saved payments. It's calculated on your device; amounts and bank details never appear in the notification.",
+  "bilesen.hatirlatma.kapaliAciklama": "Turn it on to get a reminder at 9:00 AM the day before your saved payments.",
+  "bilesen.hatirlatma.kapat": "Turn off reminders",
+  "bilesen.hatirlatma.ac": "Turn on reminders",
+  "bilesen.bildirim.baslik": "Payment reminder",
+  "bilesen.bildirim.metin": "You have a payment due tomorrow. Check the details in Borcama.",
+  "bilesen.dogrulama.suresiDolmus": "This link has expired or has already been used. Request a new one.",
+  "bilesen.dogrulama.dogrulanamadi": "We couldn't verify the link. ({sebep})",
+  "bilesen.dogrulama.bilgiYok": "The link has no verification details.",
+  "bilesen.dogrulama.dogrulaniyor": "Verifying your account…",
+  "bilesen.dogrulama.giriseDon": "Back to sign in",
+  "bilesen.hesapSilindi.baslik": "Your account has been deleted.",
+  "bilesen.hesapSilindi.metinTekil": "Your Borcama account and all records linked to it have been permanently deleted. Redirecting you in {n} second.",
+  "bilesen.hesapSilindi.metinCogul": "Your Borcama account and all records linked to it have been permanently deleted. Redirecting you in {n} seconds.",
+  "bilesen.hesapSilindi.anaSayfa": "Go to home →",
 };
