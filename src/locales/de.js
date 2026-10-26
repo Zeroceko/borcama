@@ -352,6 +352,7 @@ const de_ = {
   "asistan.hizli.duzelt.baslik": "Eintrag korrigieren",
   "asistan.hizli.duzelt.aciklama": "Zum richtigen Bildschirm springen",
   "asistan.hata.limitPro": "Du hast alle {limit} Fragen für heute genutzt. Morgen kannst du wieder fragen.",
+  "asistan.hata.limitProAy": "Du hast alle {limit} Fragen für diesen Monat genutzt. Sie werden am 1. erneuert.",
   "asistan.hata.limitUcretsiz": "Du hast deine {limit} kostenlosen Fragen für heute genutzt. Mit Pro kannst du {pro} Fragen pro Tag stellen; deine kostenlosen Fragen werden morgen zurückgesetzt.",
   "asistan.hata.demo": "KI-Antworten funktionieren nur in einem angemeldeten Konto. In dieser Vorschau kannst du die vorbereiteten Antworten nutzen.",
   "asistan.hata.genel": "Ich konnte gerade keine verlässliche Antwort erstellen. Bitte versuch es gleich noch einmal.",

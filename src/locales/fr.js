@@ -352,6 +352,7 @@ const fr_ = {
   "asistan.hizli.duzelt.baslik": "Corriger une saisie",
   "asistan.hizli.duzelt.aciklama": "Aller au bon écran",
   "asistan.hata.limitPro": "Vous avez utilisé vos {limit} questions du jour. Vous pourrez en poser à nouveau demain.",
+  "asistan.hata.limitProAy": "Vous avez utilisé vos {limit} questions du mois. Elles se renouvellent le 1er.",
   "asistan.hata.limitUcretsiz": "Vous avez utilisé vos {limit} questions gratuites du jour. Avec Pro, vous pouvez poser {pro} questions par jour ; vos questions gratuites se renouvellent demain.",
   "asistan.hata.demo": "Les réponses de l'IA ne fonctionnent que sur un compte connecté. Vous pouvez utiliser les réponses toutes faites dans cet aperçu.",
   "asistan.hata.genel": "Je n'ai pas pu formuler de réponse fiable pour le moment. Réessayez dans un instant.",
