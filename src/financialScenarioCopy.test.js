@@ -40,3 +40,18 @@ test("gelirin zorunlu yapı taşlarına yetmediği durumu harcamadan ayırır", 
     "structural_gap",
   );
 });
+
+test("senaryo metinleri web'de (tr) bugünkü Türkçe metni gösterir", () => {
+  assert.deepEqual(FINANCIAL_SCENARIO_COPY.missing_income.titles, [
+    "Borç planını hesaplamak için aylık gelirini ekle",
+    "Kapanış süresi için gelir bilgisi gerekiyor",
+  ]);
+  assert.equal(
+    FINANCIAL_SCENARIO_COPY.long_payoff.reason,
+    "Mevcut bütçe faizin üzerinde ödeme sağlıyor ancak ana para yavaş azalıyor.",
+  );
+  assert.equal(
+    FINANCIAL_SCENARIO_COPY.structural_gap.titles[0],
+    "Gelir, mevcut giderler ve zorunlu borç ödemelerine yetmiyor",
+  );
+});

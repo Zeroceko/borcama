@@ -24,6 +24,11 @@ import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js
 import { girisAktivitesiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
+import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
+import { appleGirisiVarMi, appleHataMesaji, appleIleGirisYap } from "./appleGiris.js";
+import { dil, t } from "./i18n.js";
+import Ceviri from "./Ceviri.jsx";
+import DilDugmesi from "./DilDugmesi.jsx";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 const TURNSTILE_SCRIPT_ID = "borcama-turnstile-script";
@@ -100,7 +105,7 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
         sitekey: siteKey,
         appearance: 'interaction-only',
         execution: 'render',
-        language: 'tr',
+        language: dil(),
         size: 'flexible',
         retry: 'auto',
         'refresh-expired': 'auto',
@@ -226,6 +231,11 @@ const CSS = `
 }
 .auth-btn:disabled{opacity:.6; cursor:default}
 .auth-btn:hover:not(:disabled){filter:brightness(0.96)}
+.auth-apple{width:100%;min-height:46px;padding:12px 0;border-radius:999px;border:1px solid #000;background:#000;color:#fff;font:700 15px -apple-system,'Space Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.auth-apple:disabled{opacity:.6;cursor:default}
+.auth-apple svg{margin-top:-2px}
+.auth-ayirac{display:flex;align-items:center;gap:10px;margin:14px 0 16px;color:#8a8c7e;font-size:11.5px;font-weight:700}
+.auth-ayirac:before,.auth-ayirac:after{content:"";flex:1;height:1px;background:#14160f22}
 .auth-error{background:#ff6f5922;border:2px solid #ff6f59;color:#a53a2a;font-size:13px;border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .auth-captcha-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid #e2a44f;border-radius:12px;background:#fff6df;color:#6e4712;font-size:12px;line-height:1.4}.auth-captcha-status button{flex:0 0 auto;border:1px solid #14160f;border-radius:999px;background:#fff;padding:7px 10px;color:#14160f;font:700 11px 'Space Grotesk',sans-serif;cursor:pointer}
 .auth-sent{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:10px 0}
@@ -280,9 +290,16 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     ? hamYonlendirme
     : null;
   const ilkProPlani = proNiyetiniOku();
+  // Native kabukta e-posta yonlendirmesi yalniz AASA'daki ve Supabase izin
+  // listesindeki yollara gidebilir; /upgrade?plan=... ikisinde de yok, o yuzden
+  // link uygulamaya donmez. Secilen plan zaten cihazda saklandigi icin Pro
+  // ekrani acildiginda geri okunuyor. Tarayici davranisi degismiyor.
+  const proYonlendirmesi = !nativeMi && ilkProPlani
+    ? `/upgrade?plan=${ilkProPlani}`
+    : null;
   const sonrakiSayfa = kayitModu
     ? sorguYonlendirmesi || "/summary"
-    : sorguYonlendirmesi || (ilkProPlani ? `/upgrade?plan=${ilkProPlani}` : redirectTo);
+    : sorguYonlendirmesi || proYonlendirmesi || redirectTo;
   const [yontem, setYontem] = useState("parola");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
@@ -295,11 +312,14 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [sifirlamaModu, setSifirlamaModu] = useState(false);
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
+  const [appleYukleniyor, setAppleYukleniyor] = useState(false);
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaAttempt, setCaptchaAttempt] = useState(0);
   const [captchaDurumu, setCaptchaDurumu] = useState("loading");
-  const ilkReferansKodu = kayitModu ? davetKodunuYoldanOku("", window.location.search) : "";
+  // Uygulama surumunde referans kodu hic okunmuyor; alan gizli oldugu icin
+  // kod bos kaliyor ve kayitla birlikte sunucuya gonderilmiyor.
+  const ilkReferansKodu = kayitModu && !nativeMi ? davetKodunuYoldanOku("", window.location.search) : "";
   const [referansKodu, setReferansKodu] = useState(ilkReferansKodu);
   const [referansDurumu, setReferansDurumu] = useState(ilkReferansKodu ? "checking" : "idle");
   const [referansAcik, setReferansAcik] = useState(Boolean(ilkReferansKodu));
@@ -371,12 +391,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           <div className="auth-captcha-status" role="alert">
             <span>
               {yapilandirmaHatasi
-                ? "Güvenlik kontrolünün site ayarı doğrulanamadı. Lütfen zero@borcama.com adresine bildirin."
+                ? t("auth.captcha.yapilandirma")
                 : engellenmis
-                  ? "Güvenlik kontrolü tarayıcı veya içerik engelleyici tarafından durduruldu. Bu site için engelleyiciyi kapatıp yeniden deneyin."
+                  ? t("auth.captcha.engellendi")
                   : captchaDurumu === "unsupported"
-                    ? "Bu tarayıcı güvenlik kontrolünü desteklemiyor. Güncel bir tarayıcıyla yeniden deneyin."
-                    : "Güvenlik kontrolü tamamlanamadı. Bağlantını kontrol edip yeniden deneyebilirsin."}
+                    ? t("auth.captcha.desteklenmiyor")
+                    : t("auth.captcha.tamamlanamadi")}
             </span>
             <button
               type="button"
@@ -389,7 +409,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                 setCaptchaAttempt((x) => x + 1);
               }}
             >
-              Yeniden dene
+              {t("auth.captcha.yenidenDene")}
             </button>
           </div>
         )}
@@ -401,9 +421,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     e.preventDefault();
     if (!eposta.trim()) return;
     if (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu))
-      return setHata(
-        "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
-      );
+      return setHata(t("auth.hata.sozlesme"));
     setGonderiliyor(true);
     setHata("");
     if (kayitModu) await funnelEtkinligiKaydet("register_view");
@@ -412,7 +430,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     const { error } = await authIstegiYap(() => supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
-        emailRedirectTo: window.location.origin + sonrakiSayfa,
+        emailRedirectTo: epostaDonusAdresi(sonrakiSayfa),
         captchaToken: captchaToken || undefined,
         shouldCreateUser: kayitModu,
         data: kayitModu ? {
@@ -431,10 +449,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     if (error)
       setHata(
         error.status === 429
-          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin."
+          ? t("auth.hata.cokDenemeTekrar")
           : kayitModu
-            ? "Kayıt bağlantısı gönderilemedi. Lütfen tekrar deneyin."
-            : "Bu e-postayla kayıtlı bir hesap bulunamadı veya giriş bağlantısı gönderilemedi.",
+            ? t("auth.hata.kayitLinki")
+            : t("auth.hata.girisLinki"),
       );
     else setGonderildi(true);
   }
@@ -452,24 +470,20 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     if (error) {
       const kod = error.code || "";
       if (error.status === 429 || kod === "over_request_rate_limit")
-        setHata("Çok fazla deneme yapıldı. Lütfen biraz bekleyin.");
+        setHata(t("auth.hata.cokDeneme"));
       else if (["captcha_failed", "captcha_provider_disabled"].includes(kod))
-        setHata(
-          `Güvenlik doğrulaması başarısız oldu. ${yenilemeYonergesi} tekrar deneyin.`,
-        );
+        setHata(t("auth.hata.captcha", { yenileme: yenilemeYonergesi }));
       else if (kod === "email_not_confirmed")
-        setHata(
-          "E-posta adresiniz henüz doğrulanmamış. Gelen kutunuzdaki doğrulama bağlantısını açın.",
-        );
+        setHata(t("auth.hata.epostaDogrulanmamis"));
       else if (kod === "user_banned")
-        setHata("Bu hesabın girişi geçici olarak durdurulmuş.");
+        setHata(t("auth.hata.hesapDurduruldu"));
       else if (kod === "invalid_credentials")
-        setHata(
-          "E-posta veya parola eşleşmiyor. Parolanızı kontrol edin ya da yenileme bağlantısı isteyin.",
-        );
+        setHata(t("auth.hata.bilgilerYanlis"));
       else
         setHata(
-          `Giriş tamamlanamadı${kod ? ` (Hata: ${kod})` : ""}. Lütfen tekrar deneyin.`,
+          kod
+            ? t("auth.hata.girisTamamlanamadiKod", { kod })
+            : t("auth.hata.girisTamamlanamadi"),
         );
     } else {
       if (oturumuAcikTut) {
@@ -487,15 +501,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     e.preventDefault();
     if (!eposta.trim()) return;
     if (!supabaseHazir) {
-      setHata(
-        "Yerel önizleme e-posta gönderemez. Parola yenileme işlemini canlı borcama.com giriş ekranından yapmalısınız.",
-      );
+      setHata(t("auth.hata.onizlemeEposta"));
       return;
     }
     setGonderiliyor(true);
     setHata("");
     const { error } = await authIstegiYap(() => supabase.auth.resetPasswordForEmail(eposta.trim(), {
-      redirectTo: window.location.origin + "/reset-password",
+      redirectTo: epostaDonusAdresi("/reset-password"),
       captchaToken: captchaToken || undefined,
     }));
     if (error)
@@ -507,12 +519,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     e.preventDefault();
     if (!eposta.trim() || !parola) return;
     if (!sozlesmeKabul || !aydinlatmaOkundu)
-      return setHata(
-        "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
-      );
-    if (parola.length < 8) return setHata("Parolanız en az 8 karakter olmalı.");
+      return setHata(t("auth.hata.sozlesme"));
+    if (parola.length < 8) return setHata(t("auth.hata.parolaKisa"));
     if (parola !== parolaTekrar)
-      return setHata("Parolalar birbiriyle eşleşmiyor.");
+      return setHata(t("auth.hata.parolaEslesmiyor"));
     setGonderiliyor(true);
     setHata("");
     await funnelEtkinligiKaydet("register_view");
@@ -522,7 +532,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       email: eposta.trim(),
       password: parola,
       options: {
-        emailRedirectTo: window.location.origin + sonrakiSayfa,
+        emailRedirectTo: epostaDonusAdresi(sonrakiSayfa),
         captchaToken: captchaToken || undefined,
         data: {
           terms_version: "1.0",
@@ -540,14 +550,38 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     if (error)
       setHata(
         error.status === 429
-          ? "Çok fazla deneme yapıldı. Lütfen biraz bekleyin."
-          : "Hesap oluşturulamadı. E-posta adresini ve parolanı kontrol edip tekrar dene.",
+          ? t("auth.hata.cokDeneme")
+          : t("auth.hata.hesapOlusturulamadi"),
       );
     else {
       proNiyetiniTemizle();
       if (data?.session) {
         window.location.href = sonrakiSayfa;
       } else setGonderildi(true);
+    }
+  }
+
+  async function appleIleGiris() {
+    if (appleYukleniyor) return;
+    setAppleYukleniyor(true);
+    setHata("");
+    try {
+      const girildi = await appleIleGirisYap();
+      if (!girildi) return;
+      if (oturumuAcikTut) {
+        localStorage.removeItem("borcama_session_only");
+        sessionStorage.removeItem("borcama_session_active");
+      } else {
+        localStorage.setItem("borcama_session_only", "1");
+        sessionStorage.setItem("borcama_session_active", "1");
+      }
+      window.location.href = sonrakiSayfa;
+    } catch (appleHatasi) {
+      // Kullanici Apple ekranini kapatirsa mesaj bos doner; hata gostermiyoruz.
+      const mesaj = appleHataMesaji(appleHatasi);
+      if (mesaj) setHata(mesaj);
+    } finally {
+      setAppleYukleniyor(false);
     }
   }
 
@@ -560,40 +594,77 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   return (
     <div className="auth-wrap">
       <style>{CSS}</style>
-      {!nativeMi && (
+      {nativeMi ? (
+        // Native kabukta ana sayfa yok; geri dugmesi karsilama ekranina doner.
+        <a className="auth-back" href="/summary" onClick={proNiyetiniTemizle}>
+          <ArrowLeft size={15} /> {t("auth.geri")}
+        </a>
+      ) : (
         <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-          <ArrowLeft size={15} /> Ana sayfaya dön
+          <ArrowLeft size={15} /> {t("auth.anaSayfayaDon")}
         </a>
       )}
+      {/* Giris yapmadan dil degistirme; yalniz native'de cizilir. */}
+      <DilDugmesi className="auth-dil" />
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">
           {kayitModu
-            ? "Ücretsiz hesabını oluştur"
-            : "Hesabına giriş yap"}
+            ? t("auth.kayit.baslik")
+            : t("auth.giris.baslik")}
         </div>
-        <div className="auth-sub">
-          {kayitModu
-            ? "Bir kartını, ekstreni veya nakit varlığını ekleyerek başla. Ücretsiz planın süresi dolmaz. İlk 30 gün Pro da dahil; kart gerekmez, süre sonunda Ücretsiz planla devam edersin."
-            : "İstersen tek kullanımlık bağlantıyla, istersen parolanla giriş yap."}
-        </div>
-        {!kayitModu && (
+        {/* Uygulamada kayit ekranindaki uzun tanitim metni gosterilmiyor;
+            ekran dogrudan Apple ile devam et ve form ile aciliyor. Tarayici
+            surumunde metin aynen duruyor. */}
+        {!(nativeMi && kayitModu) && (
+          <div className="auth-sub">
+            {kayitModu
+              ? t("auth.kayit.aciklama")
+              : nativeMi
+                ? t("auth.giris.aciklamaNative")
+                : t("auth.giris.aciklamaWeb")}
+          </div>
+        )}
+        {/* Tek kullanimlik e-posta linkiyle giris yalniz tarayici surumunde
+            sunuluyor; uygulamada giris Apple ile ya da parolayla yapiliyor. */}
+        {!kayitModu && !nativeMi && (
           <div className="auth-tabs">
             <button
               className={"auth-tab " + (yontem === "parola" ? "active" : "")}
               onClick={() => yontemDegistir("parola")}
               type="button"
             >
-              Parola
+              {t("auth.sekme.parola")}
             </button>
             <button
               className={"auth-tab " + (yontem === "link" ? "active" : "")}
               onClick={() => yontemDegistir("link")}
               type="button"
             >
-              E-posta linki
+              {t("auth.sekme.link")}
             </button>
           </div>
+        )}
+
+        {appleGirisiVarMi && !sifirlamaModu && !gonderildi && (
+          <>
+            <button
+              className="auth-apple"
+              type="button"
+              onClick={appleIleGiris}
+              disabled={appleYukleniyor || gonderiliyor}
+            >
+              <svg width="15" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
+                <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
+              </svg>
+              {appleYukleniyor
+                ? t("auth.apple.yukleniyor")
+                : kayitModu
+                  ? t("auth.apple.devam")
+                  : t("auth.apple.giris")}
+            </button>
+            <div className="auth-ayirac">{t("auth.yaDa")}</div>
+          </>
         )}
 
         {hata && <div className="auth-error">{hata}</div>}
@@ -603,32 +674,33 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             <CheckCircle2 size={34} />
             <div style={{ fontWeight: 700, fontSize: 15 }}>
               {sifirlamaModu
-                ? "Parola yenileme bağlantısı gönderildi"
+                ? t("auth.gonderildi.sifirlama")
                 : kayitModu
-                  ? "E-postanı kontrol et"
-                  : "Link gönderildi"}
+                  ? t("auth.gonderildi.kayit")
+                  : t("auth.gonderildi.link")}
             </div>
             <div style={{ fontSize: 13, color: "#55584c" }}>
-              <b style={{ color: "#14160f" }}>{eposta}</b> adresine{" "}
-              {sifirlamaModu
-                ? "parolanı yenileyebileceğin bir bağlantı"
-                : kayitModu
-                  ? "hesabını doğrulayacağın bir bağlantı"
-                  : "bir giriş linki"}{" "}
-              yolladık. Gelen kutunu (ve spam klasörünü) kontrol edip bağlantıya
-              tıkla.
+              <Ceviri
+                anahtar={
+                  sifirlamaModu
+                    ? "auth.gonderildi.sifirlamaMetni"
+                    : kayitModu
+                      ? "auth.gonderildi.kayitMetni"
+                      : "auth.gonderildi.linkMetni"
+                }
+                degerler={{ eposta: <b style={{ color: "#14160f" }}>{eposta}</b> }}
+              />
             </div>
           </div>
         ) : sifirlamaModu ? (
           <form onSubmit={sifirlamaLinkiGonder}>
             <div className="auth-help" style={{ marginBottom: 14 }}>
-              Hesabındaki e-posta adresini yaz. Yeni parola belirleyebileceğin
-              güvenli bağlantıyı gönderelim.
+              {t("auth.sifirlama.yardim")}
             </div>
             <input
               className="auth-input"
               type="email"
-              placeholder="ornek@eposta.com"
+              placeholder={t("auth.epostaOrnek")}
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
               autoFocus={!nativeMi}
@@ -643,7 +715,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               }
             >
               <Mail size={16} />{" "}
-              {gonderiliyor ? "Gönderiliyor…" : "Parola yenileme linki gönder"}
+              {gonderiliyor ? t("auth.gonderiliyor") : t("auth.sifirlama.gonder")}
             </button>
             <button
               className="auth-reset-link"
@@ -654,7 +726,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                 setHata("");
               }}
             >
-              Giriş ekranına dön
+              {t("auth.girisEkraninaDon")}
             </button>
           </form>
         ) : yontem === "link" ? (
@@ -662,7 +734,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             <input
               className="auth-input"
               type="email"
-              placeholder="ornek@eposta.com"
+              placeholder={t("auth.epostaOrnek")}
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
               autoFocus={!nativeMi}
@@ -678,27 +750,27 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             >
               <Mail size={16} />{" "}
               {gonderiliyor
-                ? "Gönderiliyor…"
+                ? t("auth.gonderiliyor")
                 : kayitModu
-                  ? "Kayıt linki gönder"
-                  : "Giriş linki gönder"}
+                  ? t("auth.link.kayit")
+                  : t("auth.link.giris")}
             </button>
           </form>
         ) : (
-          <form onSubmit={preview && import.meta.env.DEV ? (event) => { event.preventDefault(); setHata("Bu bir önizleme; hesap oluşturulmadı."); } : kayitModu ? parolaylaKayit : parolaylaGiris}>
-            <label htmlFor="auth-email" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>E-posta</label>
+          <form onSubmit={preview && import.meta.env.DEV ? (event) => { event.preventDefault(); setHata(t("auth.hata.onizleme")); } : kayitModu ? parolaylaKayit : parolaylaGiris}>
+            <label htmlFor="auth-email" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>{t("auth.eposta")}</label>
             <input
               id="auth-email"
               autoComplete="email"
               className="auth-input"
               type="email"
-              placeholder="ornek@eposta.com"
+              placeholder={t("auth.epostaOrnek")}
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
               autoFocus={!nativeMi}
               required
             />
-            <label htmlFor="auth-password" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>Parola</label>
+            <label htmlFor="auth-password" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>{t("auth.parola")}</label>
             <div className="auth-password">
               <input
                 id="auth-password"
@@ -706,7 +778,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                 className="auth-input"
                 type={parolaGorunur ? "text" : "password"}
                 placeholder={
-                  kayitModu ? "En az 8 karakter parola" : "Parolanız"
+                  kayitModu ? t("auth.parola.yerTutucuKayit") : t("auth.parola.yerTutucuGiris")
                 }
                 value={parola}
                 onChange={(e) => setParola(e.target.value)}
@@ -717,7 +789,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                 className="auth-eye"
                 type="button"
                 aria-label={
-                  parolaGorunur ? "Parolayı gizle" : "Parolayı göster"
+                  parolaGorunur ? t("auth.parola.gizle") : t("auth.parola.goster")
                 }
                 onClick={() => setParolaGorunur(!parolaGorunur)}
               >
@@ -726,17 +798,22 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             </div>
             {kayitModu && (
               <>
-                <label htmlFor="auth-password-confirm" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>Parolanı tekrar yaz</label>
+                <label htmlFor="auth-password-confirm" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>{t("auth.parola.tekrarEtiket")}</label>
                 <input
                   id="auth-password-confirm"
                   autoComplete="new-password"
                   className="auth-input"
                   type={parolaGorunur ? "text" : "password"}
-                  placeholder="Parolayı tekrar yaz"
+                  placeholder={t("auth.parola.tekrarYerTutucu")}
                   value={parolaTekrar}
                   onChange={(e) => setParolaTekrar(e.target.value)}
                   required
                 />
+                {/* Referans kodu alani uygulama surumunde yok: App Store, kodla
+                    acilan Pro odulunu uygulama ici satin alma disi bir mekanizma
+                    sayiyor. Tarayici surumunde alan aynen duruyor. */}
+                {!nativeMi && (
+                <>
                 <button
                   className={`auth-referral-toggle ${referansAcik ? "acik" : ""}`}
                   type="button"
@@ -744,21 +821,21 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                   aria-controls="referans-kodu-alani"
                   onClick={() => setReferansAcik((acik) => !acik)}
                 >
-                  <span><Gift size={15}/> Referans kodun var mı?</span>
-                  {!referansAcik && referansKodu && <small>Kod eklendi</small>}
+                  <span><Gift size={15}/> {t("auth.referans.soru")}</span>
+                  {!referansAcik && referansKodu && <small>{t("auth.referans.eklendi")}</small>}
                   <ChevronDown size={15}/>
                 </button>
                 <div className={`auth-referral-collapse ${referansAcik ? "acik" : ""}`} aria-hidden={!referansAcik}>
                   <div className="auth-referral-collapse-inner">
                     <div className="auth-referral" id="referans-kodu-alani">
-                    <div className="auth-referral-head">Referans kodu <span style={{fontWeight:500,color:"#777a6d"}}>(isteğe bağlı)</span></div>
+                    <div className="auth-referral-head">{t("auth.referans.baslik")} <span style={{fontWeight:500,color:"#777a6d"}}>{t("auth.referans.istegeBagli")}</span></div>
                     <input
                       className="auth-input"
                       type="text"
                       inputMode="text"
                       autoComplete="off"
                       tabIndex={referansAcik ? undefined : -1}
-                      placeholder="Örn. BRCM7K4M2Q"
+                      placeholder={t("auth.referans.ornek")}
                       value={referansKodu}
                       onChange={(event) => {
                         const value = referansKodunuTemizle(event.target.value);
@@ -768,17 +845,21 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                       aria-describedby="referans-kodu-durumu"
                     />
                     <span id="referans-kodu-durumu" className={`auth-referral-state ${referansDurumu}`}>
-                      {referansDurumu === "checking" ? "Kod kontrol ediliyor…" : referansDurumu === "valid" ? "Davet kodu uygulandı. E-postanı doğruladığında ikiniz de 30 gün Pro kazanacaksınız." : referansDurumu === "invalid" ? "Bu kod bulunamadı. Kodu düzeltebilir veya boş bırakarak devam edebilirsin." : referansDurumu === "unknown" ? "Kod şu anda kontrol edilemedi; üyeliğin yine de oluşturulabilir." : "Bir arkadaşın davet ettiyse kalıcı kodunu buraya yazabilirsin."}
+                      {referansDurumu === "checking" ? t("auth.referans.kontrol") : referansDurumu === "valid" ? t("auth.referans.gecerli") : referansDurumu === "invalid" ? t("auth.referans.gecersiz") : referansDurumu === "unknown" ? t("auth.referans.bilinmiyor") : t("auth.referans.bos")}
                     </span>
                     </div>
                   </div>
                 </div>
+                </>
+                )}
               </>
             )}
             <div className="auth-help">
               {kayitModu
-                ? "Parolan en az 8 karakter olmalı."
-                : "Parolanız yoksa veya unuttuysanız “E-posta linki” ile giriş yapabilirsiniz."}
+                ? t("auth.yardim.kayit")
+                : nativeMi
+                  ? t("auth.yardim.native")
+                  : t("auth.yardim.web")}
             </div>
             {!kayitModu && (
               <button
@@ -790,7 +871,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                   setGonderildi(false);
                 }}
               >
-                Parolamı unuttum
+                {t("auth.parolamiUnuttum")}
               </button>
             )}
             {kayitModu && (
@@ -803,13 +884,19 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                     required
                   />
                   <span>
-                    <button
-                      type="button"
-                      onClick={() => setYasalMetin("terms")}
-                    >
-                      Kullanıcı Sözleşmesi
-                    </button>
-                    'ni okudum ve kabul ediyorum.
+                    <Ceviri
+                      anahtar="auth.onay.sozlesme"
+                      degerler={{
+                        baglanti: (
+                          <button
+                            type="button"
+                            onClick={() => setYasalMetin("terms")}
+                          >
+                            {t("auth.kullaniciSozlesmesi")}
+                          </button>
+                        ),
+                      }}
+                    />
                   </span>
                 </label>
                 <label className="auth-remember">
@@ -820,13 +907,19 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                     required
                   />
                   <span>
-                    <button
-                      type="button"
-                      onClick={() => setYasalMetin("privacy")}
-                    >
-                      Gizlilik ve KVKK Aydınlatma Metni
-                    </button>
-                    'ni okudum.
+                    <Ceviri
+                      anahtar="auth.onay.aydinlatma"
+                      degerler={{
+                        baglanti: (
+                          <button
+                            type="button"
+                            onClick={() => setYasalMetin("privacy")}
+                          >
+                            {t("auth.aydinlatmaMetni")}
+                          </button>
+                        ),
+                      }}
+                    />
                   </span>
                 </label>
               </div>
@@ -838,7 +931,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                   checked={oturumuAcikTut}
                   onChange={(e) => setOturumuAcikTut(e.target.checked)}
                 />
-                <span>Bu {ortamAdi}da oturumu açık tut</span>
+                <span>{t("auth.oturumuAcikTut", { ortam: ortamAdi })}</span>
               </label>
             )}
             {captchaAlani(`password-${kayitModu}`)}
@@ -855,13 +948,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               <KeyRound size={16} />
               {gonderiliyor
                 ? kayitModu
-                  ? "Hesap oluşturuluyor…"
-                  : "Giriş yapılıyor…"
+                  ? t("auth.gonder.olusturuluyor")
+                  : t("auth.gonder.girisYapiliyor")
                 : kayitModu
                   ? ilkProPlani
-                    ? "Hesap oluştur ve devam et"
-                    : "Hesap oluştur"
-                  : "Parolayla giriş yap"}
+                    ? t("auth.gonder.olusturVeDevam")
+                    : t("auth.gonder.olustur")
+                  : t("auth.gonder.parolaylaGiris")}
             </button>
           </form>
         )}
@@ -869,27 +962,27 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         <div className="auth-switch">
           {kayitModu ? (
             <>
-              Zaten hesabın var mı? <a href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>Giriş yap</a>
+              {t("auth.gecis.hesapVar")} <a href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>{t("auth.gecis.girisYap")}</a>
             </>
           ) : (
             <>
-              Henüz hesabın yok mu? <a href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>Kayıt ol</a>
+              {t("auth.gecis.hesapYok")} <a href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>{t("auth.gecis.kayitOl")}</a>
             </>
           )}
         </div>
         <div className="auth-legal">
           <button type="button" onClick={() => setYasalMetin("terms")}>
-            Kullanıcı Sözleşmesi
+            {t("auth.kullaniciSozlesmesi")}
           </button>
           <span>·</span>
           <button type="button" onClick={() => setYasalMetin("privacy")}>
-            Gizlilik ve KVKK
+            {t("auth.gizlilikKvkk")}
           </button>
         </div>
 
         <div className="auth-foot">
           <ShieldCheck size={13} />
-          <span>Diğer kullanıcılar hesap verilerinize erişemez.</span>
+          <span>{t("auth.guvence")}</span>
         </div>
       </div>
       {yasalMetin && (
@@ -899,8 +992,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           aria-modal="true"
           aria-label={
             yasalMetin === "terms"
-              ? "Kullanıcı Sözleşmesi"
-              : "Gizlilik ve KVKK Aydınlatma Metni"
+              ? t("auth.kullaniciSozlesmesi")
+              : t("auth.aydinlatmaMetni")
           }
           onClick={() => setYasalMetin(null)}
         >
@@ -911,13 +1004,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             <div className="auth-legal-head">
               <span>
                 {yasalMetin === "terms"
-                  ? "Kullanıcı Sözleşmesi"
-                  : "Gizlilik ve KVKK Aydınlatma Metni"}
+                  ? t("auth.kullaniciSozlesmesi")
+                  : t("auth.aydinlatmaMetni")}
               </span>
               <button
                 className="auth-legal-close"
                 type="button"
-                aria-label="Metni kapat"
+                aria-label={t("auth.metniKapat")}
                 onClick={() => setYasalMetin(null)}
               >
                 <X size={18} />
@@ -953,13 +1046,13 @@ export function ParolaYenileEkrani() {
     if (parola.length < 8)
       return setDurum({
         kaydediliyor: false,
-        hata: "Parolanız en az 8 karakter olmalı.",
+        hata: t("auth.hata.parolaKisa"),
         tamam: false,
       });
     if (parola !== tekrar)
       return setDurum({
         kaydediliyor: false,
-        hata: "Parolalar birbiriyle eşleşmiyor.",
+        hata: t("auth.hata.parolaEslesmiyor"),
         tamam: false,
       });
     setDurum({ kaydediliyor: true, hata: "", tamam: false });
@@ -970,8 +1063,7 @@ export function ParolaYenileEkrani() {
     }
     let hataMesaji = "";
     if (error?.code === "weak_password")
-      hataMesaji =
-        "Parola en az 8 karakter olmalı.";
+      hataMesaji = t("auth.yenile.zayif");
     else if (
       [
         "reauthentication_needed",
@@ -979,10 +1071,11 @@ export function ParolaYenileEkrani() {
         "reauthentication_not_valid",
       ].includes(error?.code)
     )
-      hataMesaji =
-        "Güvenlik doğrulaması yenilenmeli. Giriş ekranından yeni bir parola yenileme bağlantısı iste.";
+      hataMesaji = t("auth.yenile.yenidenDogrula");
     else if (error)
-      hataMesaji = `Parola yenilenemedi. Yeni bir bağlantı isteyip tekrar dene${error.code ? ` (Hata: ${error.code})` : ""}.`;
+      hataMesaji = error.code
+        ? t("auth.yenile.hataKod", { kod: error.code })
+        : t("auth.yenile.hata");
     setDurum(
       error
         ? {
@@ -998,49 +1091,48 @@ export function ParolaYenileEkrani() {
     <div className="auth-wrap">
       <style>{CSS}</style>
       <a className="auth-back" href="/login">
-        <ArrowLeft size={15} /> Giriş ekranına dön
+        <ArrowLeft size={15} /> {t("auth.girisEkraninaDon")}
       </a>
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         {session === undefined ? (
-          <div className="auth-sub">Güvenli bağlantı kontrol ediliyor…</div>
+          <div className="auth-sub">{t("auth.yenile.kontrol")}</div>
         ) : !session ? (
           <>
             <div className="auth-welcome">
-              Bağlantı geçersiz veya süresi dolmuş
+              {t("auth.yenile.gecersizBaslik")}
             </div>
             <div className="auth-sub">
-              Giriş ekranındaki “Parolamı unuttum” bağlantısından yeni bir
-              parola yenileme e-postası isteyebilirsin.
+              {t("auth.yenile.gecersizAciklama")}
             </div>
             <a
               className="auth-btn"
               href="/login"
               style={{ textDecoration: "none" }}
             >
-              Yeni bağlantı iste
+              {t("auth.yenile.yeniBaglanti")}
             </a>
           </>
         ) : durum.tamam ? (
           <div className="auth-sent">
             <CheckCircle2 size={34} />
-            <div style={{ fontWeight: 700, fontSize: 15 }}>Parolan hazır</div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{t("auth.yenile.hazir")}</div>
             <div style={{ fontSize: 13, color: "#55584c" }}>
-              Bu parolayla hesabını kullanmaya devam edebilirsin.
+              {t("auth.yenile.hazirAciklama")}
             </div>
             <a
               className="auth-btn"
               href="/summary"
               style={{ textDecoration: "none", marginTop: 8 }}
             >
-              Borcama'ya devam et
+              {t("auth.yenile.devam")}
             </a>
           </div>
         ) : (
           <>
-            <div className="auth-welcome">Yeni parolanı belirle</div>
+            <div className="auth-welcome">{t("auth.yenile.baslik")}</div>
             <div className="auth-sub">
-              En az 8 karakterli bir parola seç.
+              {t("auth.yenile.aciklama")}
             </div>
             {durum.hata && <div className="auth-error">{durum.hata}</div>}
             <form onSubmit={parolayiKaydet}>
@@ -1048,7 +1140,7 @@ export function ParolaYenileEkrani() {
                 <input
                   className="auth-input"
                   type={gorunur ? "text" : "password"}
-                  placeholder="Yeni parola"
+                  placeholder={t("auth.yenile.yeniParola")}
                   value={parola}
                   onChange={(e) => setParola(e.target.value)}
                   autoFocus={!nativeMi}
@@ -1058,7 +1150,7 @@ export function ParolaYenileEkrani() {
                 <button
                   className="auth-eye"
                   type="button"
-                  aria-label={gorunur ? "Parolayı gizle" : "Parolayı göster"}
+                  aria-label={gorunur ? t("auth.parola.gizle") : t("auth.parola.goster")}
                   onClick={() => setGorunur(!gorunur)}
                 >
                   {gorunur ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -1067,7 +1159,7 @@ export function ParolaYenileEkrani() {
               <input
                 className="auth-input"
                 type={gorunur ? "text" : "password"}
-                placeholder="Yeni parolayı tekrar yaz"
+                placeholder={t("auth.yenile.yeniParolaTekrar")}
                 value={tekrar}
                 onChange={(e) => setTekrar(e.target.value)}
                 required
@@ -1079,7 +1171,7 @@ export function ParolaYenileEkrani() {
                 disabled={durum.kaydediliyor || !parola || !tekrar}
               >
                 <KeyRound size={16} />
-                {durum.kaydediliyor ? "Kaydediliyor…" : "Yeni parolayı kaydet"}
+                {durum.kaydediliyor ? t("auth.yenile.kaydediliyor") : t("auth.yenile.kaydet")}
               </button>
             </form>
           </>
@@ -1094,9 +1186,9 @@ export function CikisButonu({ className }) {
     <button
       className={className}
       onClick={() => supabase.auth.signOut()}
-      title="Çıkış yap"
+      title={t("auth.cikisYap")}
     >
-      <LogOut size={15} /> Çıkış
+      <LogOut size={15} /> {t("auth.cikis")}
     </button>
   );
 }

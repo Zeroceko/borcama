@@ -9,6 +9,7 @@ import {
 import { validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
 import { ASISTAN_KONUSMA_EVAL_VAKALARI } from "../evals/financial-assistant/conversationCases.js";
 import { deterministikYanitiKontrolEt } from "../evals/financial-assistant/rubric.js";
+import { tr as asistanTr } from "./locales/bolumler/asistan.js";
 
 test("araba devam sorusu ve tutar düzeltmesi sentetik eval sözleşmesinden geçer", () => {
   for (const vaka of ASISTAN_KONUSMA_EVAL_VAKALARI) {
@@ -63,7 +64,8 @@ test("arayüz devam konuşmasını bellekte tutar ve yeni konuşmayı açıkça 
   const client = readFileSync(new URL("./financialAssistant.js", import.meta.url), "utf8");
   assert.match(app, /history: konusmaGecmisi/);
   assert.match(app, /setKonusmaGecmisi\(\[\]\)/);
-  assert.match(app, /Yeni konuşma/);
+  assert.match(app, /t\("asistan\.yeniKonusma"\)/);
+  assert.equal(asistanTr["asistan.yeniKonusma"], "Yeni konuşma");
   assert.match(app, /key=\{kullaniciEposta \|\| "demo"\}/);
   assert.match(app, /konusmaGecmisi\.length \? 1 : 3/);
   assert.match(client, /history: safeHistory/);

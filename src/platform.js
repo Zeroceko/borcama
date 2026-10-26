@@ -11,6 +11,7 @@ export const androidMi = nativeMi && platformAdi === "android";
 // ekranlari listede yok: App Store 4.2 geregi native surum bir web
 // sarmalayicisi gibi davranmamali, dogrudan uygulama akisina girmeli.
 const NATIVE_YOLLARI = new Set([
+  "/auth-callback",
   "/login",
   "/register",
   "/reset-password",
@@ -98,3 +99,14 @@ export const yenilemeYonergesiKucuk = nativeMi
 
 export const ortamAdi = nativeMi ? "cihaz" : "tarayıcı";
 export const ortamSozcugu = `${ortamAdi}da`;
+
+// Tarayici surumunde uygulama ve /api/* uc noktalari ayni kaynaktadir; goreli
+// adres dogru calisir. Native kabukta uygulama dosyalari cihazdan servis
+// edilir, yani goreli "/api/..." adresi capacitor://borcama.com altinda
+// karsiliksiz kalir ve istek bos doner. Bu yuzden native'de fiyat servisleri
+// tam adresle cagrilir; tarayicida davranis degismez.
+export const API_TABANI = nativeMi ? "https://borcama.com" : "";
+
+export function apiAdresi(yol) {
+  return `${API_TABANI}${yol}`;
+}

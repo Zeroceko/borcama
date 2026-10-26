@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ShieldCheck } from "lucide-react";
 import { nativeMi } from "./platform.js";
+import { t } from "./i18n.js";
 import { biyometriKullanilabilir, kilidiAyarla, kilitAcikMi, kimlikDogrula } from "./biometrik.js";
 
 const CSS = `
@@ -66,15 +68,13 @@ export default function BiyometrikKilit({ children }) {
   if (!nativeMi || !kilitli) return children;
 
   return (
-    <div className="bk-ekran" role="dialog" aria-modal="true" aria-label="Uygulama kilidi">
+    <div className="bk-ekran" role="dialog" aria-modal="true" aria-label={t("bilesen.kilit.ariaEtiket")}>
       <style>{CSS}</style>
       <div className="bk-kutu">
         <img className="bk-logo" src="/borcama-logo.png" alt="Borcama" />
-        <p className="bk-metin">
-          Finansal verilerini görmek için kimliğini doğrula.
-        </p>
+        <p className="bk-metin">{t("bilesen.kilit.metin")}</p>
         <button className="bk-btn" type="button" onClick={kilidiAcmayiDene}>
-          Kilidi aç
+          {t("bilesen.kilit.kilidiAc")}
         </button>
       </div>
     </div>
@@ -84,7 +84,7 @@ export default function BiyometrikKilit({ children }) {
 // Ayarlar ekranindaki acma/kapama karti. Tarayicida ve biyometri
 // desteklemeyen cihazlarda hicbir sey render etmez.
 export function BiyometrikAyar() {
-  const [destek, setDestek] = useState({ kullanilabilir: false, tur: "" });
+  const [destek, setDestek] = useState({ kullanilabilir: false, ad: "" });
   const [acik, setAcik] = useState(() => kilitAcikMi());
   const [islemde, setIslemde] = useState(false);
 
@@ -101,7 +101,7 @@ export function BiyometrikAyar() {
 
   if (!nativeMi || !destek.kullanilabilir) return null;
 
-  const ad = destek.tur.toLowerCase().includes("face") ? "Face ID" : "Touch ID";
+  const ad = destek.ad;
 
   async function degistir() {
     setIslemde(true);
@@ -122,18 +122,23 @@ export function BiyometrikAyar() {
   }
 
   return (
-    <div className="bt-setting-row">
-      <div>
-        <strong>{ad} ile uygulama kilidi</strong>
-        <small>
-          {acik
-            ? `Borcama her açıldığında ${ad} sorulur.`
-            : `Açarsan Borcama her açıldığında ${ad} sorulur.`}
-        </small>
+    <section className="bt-settings-card">
+      <div className="bt-settings-title">
+        <ShieldCheck size={18} /> {t("bilesen.biyometrik.guvenlik")}
       </div>
-      <button className="bt-btn kucuk ikincil" type="button" disabled={islemde} onClick={degistir}>
-        {acik ? "Kilidi kapat" : "Kilidi aç"}
-      </button>
-    </div>
+      <div className="bt-setting-row">
+        <div>
+          <strong>{t("bilesen.biyometrik.baslik", { ad })}</strong>
+          <small>
+            {acik
+              ? t("bilesen.biyometrik.acikAciklama", { ad })
+              : t("bilesen.biyometrik.kapaliAciklama", { ad })}
+          </small>
+        </div>
+        <button className="bt-btn kucuk ikincil" type="button" disabled={islemde} onClick={degistir}>
+          {acik ? t("bilesen.biyometrik.kapat") : t("bilesen.biyometrik.ac")}
+        </button>
+      </div>
+    </section>
   );
 }

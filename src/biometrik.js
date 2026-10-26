@@ -1,4 +1,5 @@
 import { nativeMi } from "./platform.js";
+import { t } from "./i18n.js";
 
 // Biyometrik kilit yalniz native'de anlamli; eklenti dinamik import ile
 // yuklenir ve tarayici paketine girmez.
@@ -32,17 +33,19 @@ export function kilidiAyarla(acik) {
 }
 
 // Cihaz biyometri destekliyor ve kullanici kaydetmis mi?
+// biometryType sayisal bir enum (faceId = 2, touchId = 1); eklentinin kendi
+// getBiometryName'i dogru gorunen adi veriyor.
 export async function biyometriKullanilabilir() {
-  if (!nativeMi) return { kullanilabilir: false, tur: "" };
+  if (!nativeMi) return { kullanilabilir: false, ad: "" };
   try {
-    const { BiometricAuth } = await biyometriSdk();
+    const { BiometricAuth, getBiometryName } = await biyometriSdk();
     const durum = await BiometricAuth.checkBiometry();
     return {
       kullanilabilir: Boolean(durum?.isAvailable),
-      tur: durum?.biometryType ? String(durum.biometryType) : "",
+      ad: getBiometryName(durum?.biometryType) || t("bilesen.biyometrik.varsayilanAd"),
     };
   } catch {
-    return { kullanilabilir: false, tur: "" };
+    return { kullanilabilir: false, ad: "" };
   }
 }
 
@@ -53,10 +56,10 @@ export async function kimlikDogrula() {
   try {
     const { BiometricAuth } = await biyometriSdk();
     await BiometricAuth.authenticate({
-      reason: "Borcama'yı açmak için kimliğini doğrula",
-      cancelTitle: "Vazgeç",
+      reason: t("bilesen.biyometrik.sebep"),
+      cancelTitle: t("bilesen.biyometrik.vazgec"),
       allowDeviceCredential: true,
-      iosFallbackTitle: "Cihaz şifresini kullan",
+      iosFallbackTitle: t("bilesen.biyometrik.cihazSifresi"),
     });
     return true;
   } catch {

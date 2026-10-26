@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tr } from "./locales/bolumler/borclar.js";
+import { ekHesapFaizOrani } from "./bolgeKurallari.js";
 
 const kaynak = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "App.jsx"), "utf8");
-const parca = kaynak.slice(kaynak.indexOf("const VARSAYILAN_FAIZ_EK_HESAP"), kaynak.indexOf("const BOS_VERI"));
-const ekHesaplariAyir = new Function(`${parca}; return ekHesaplariAyir;`)();
+const parca = kaynak.slice(kaynak.indexOf("function ekHesapHesabi"), kaynak.indexOf("const BOS_VERI"));
+const ekHesaplariAyir = new Function("ekHesapFaizOrani", `${parca}; return ekHesaplariAyir;`)(ekHesapFaizOrani);
 
 test("kapanan ek hesaplar ayrı gruba ayrılır, sıra kendi içinde korunur", () => {
   const { acik, kapanan } = ekHesaplariAyir([
@@ -21,6 +23,7 @@ test("kapanan ek hesaplar ayrı gruba ayrılır, sıra kendi içinde korunur", (
 
 test("kapanan ek hesaplar 'Kapattığın borçlar' başlığı altında gösterilir", () => {
   assert.match(kaynak, /kategori === "od"\s*\?\s*ekHesaplariAyir\(kayitlar\)\.acik/);
-  assert.match(kaynak, /id="kapanan-ek-hesaplar-baslik">Kapattığın borçlar</);
+  assert.match(kaynak, /id="kapanan-ek-hesaplar-baslik">\{t\("borclar\.kapanan\.baslik"\)\}</);
+  assert.equal(tr["borclar.kapanan.baslik"], "Kapattığın borçlar");
   assert.match(kaynak, /kapananEkHesaplar\.map\(borcSatiri\)/);
 });

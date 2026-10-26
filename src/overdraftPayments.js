@@ -1,17 +1,19 @@
+import { t } from "./i18n.js";
+
 const para = (deger) => Math.max(Number(deger) || 0, 0);
 
 export function ekHesapBorcuEkle(hesap, { tutar, yeniId, tarih = new Date() }) {
   const yeniTutar = Math.round(Number(tutar) * 100) / 100;
   if (!Number.isFinite(yeniTutar) || yeniTutar <= 0)
-    return { tamam: false, hata: "Sıfırdan büyük bir yeni kullanım tutarı girin." };
+    return { tamam: false, hata: t("borclar.ekHesapGiris.sifirdanBuyuk") };
   const kullanilan = para(hesap?.kullanilan);
   const yapilanOdeme = Math.min(para(hesap?.yapilanOdeme), kullanilan);
   const kalan = Math.round((kullanilan - yapilanOdeme + yeniTutar) * 100) / 100;
   if (para(hesap?.limit) > 0 && kalan > para(hesap.limit))
-    return { tamam: false, hata: "Yeni kullanım güncel ek hesap limitini aşıyor. Önce limit bilgisini kontrol edin." };
+    return { tamam: false, hata: t("borclar.ekHesapGiris.limitiAsiyor") };
   const kayitTarihi = new Date(tarih);
   if (Number.isNaN(kayitTarihi.getTime()))
-    return { tamam: false, hata: "Geçerli bir kullanım tarihi girin." };
+    return { tamam: false, hata: t("borclar.ekHesapGiris.kullanimTarihi") };
   return { tamam: true, hesap: {
     ...hesap,
     kullanilan: Math.round((kullanilan + yeniTutar) * 100) / 100,
@@ -55,9 +57,9 @@ export function ekHesapOdemesiUygula(
   const odemeTarihi = new Date(tarih);
 
   if (odemeTutari <= 0)
-    return { tamam: false, hata: "Ödenecek güncel bakiye bulunamadı." };
+    return { tamam: false, hata: t("borclar.ekHesapGiris.bakiyeYok") };
   if (Number.isNaN(odemeTarihi.getTime()))
-    return { tamam: false, hata: "Geçerli bir ödeme tarihi girin." };
+    return { tamam: false, hata: t("borclar.ekHesapGiris.odemeTarihi") };
 
   const kayit = {
     ...(duzenlenenOdeme || {}),

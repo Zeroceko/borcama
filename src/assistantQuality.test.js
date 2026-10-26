@@ -13,6 +13,7 @@ import {
 import { getCardMinimumState, getKmhPaymentConstraint, validateFinancialAssistantResponse } from "../supabase/functions/_shared/financialAssistantValidation.js";
 import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
 import { FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION } from "../supabase/functions/_shared/financialAssistantPrompt.js";
+import { tr as asistanTr } from "./locales/bolumler/asistan.js";
 
 const kok = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -253,16 +254,21 @@ test("asistan erişimi içeriği kapatan sticky düğme yerine ana menüdedir", 
   assert.match(kaynak, /\.bt-nav-ana \.bt-assistant-nav\{display:none\}/);
   assert.match(kaynak, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(kaynak, /className="bt-assistant-trigger"/);
-  // App Store 2.2: mağaza sürümünde beta etiketi olmaz.
+  // Apple, uretim surumunde "Beta" etiketini beta testi ozelligi sayip
+  // reddetti (Guideline 2.2); rozet kaldirildi ve geri gelmemeli.
   assert.doesNotMatch(kaynak, /bt-assistant-beta">Beta/);
-  assert.match(kaynak, /Sonuçları kontrol edin/);
+  assert.match(kaynak, /t\("asistan\.kontrolBaslik"\)/);
+  assert.equal(asistanTr["asistan.kontrolBaslik"], "Sonuçları kontrol edin.");
 });
 
 test("asistan penceresi serbest soruyu öne çıkarır ve hızlı incelemeleri FAQ gibi sunmaz", () => {
   const kaynak = readFileSync(resolve(kok, "src/App.jsx"), "utf8");
-  assert.match(kaynak, /Ne öğrenmek istiyorsun\?/);
-  assert.match(kaynak, /aria-label="Hızlı finansal incelemeler"/);
-  assert.match(kaynak, /Aylık durumumu özetle/);
+  assert.match(kaynak, /t\("asistan\.soruEtiketi"\)/);
+  assert.equal(asistanTr["asistan.soruEtiketi"], "Ne öğrenmek istiyorsun?");
+  assert.match(kaynak, /aria-label=\{t\("asistan\.hizliAria"\)\}/);
+  assert.equal(asistanTr["asistan.hizliAria"], "Hızlı finansal incelemeler");
+  assert.match(kaynak, /baslik: t\("asistan\.hizli\.durum\.baslik"\)/);
+  assert.equal(asistanTr["asistan.hizli.durum.baslik"], "Aylık durumumu özetle");
   assert.doesNotMatch(kaynak, /aria-label="Hazır sorular"/);
 });
 

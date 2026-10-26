@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Borcama App Store görseli</title>
+<style>
+  @font-face { font-family: "Archivo Black"; src: url("../../public/fonts/archivo-black-latin-ext.woff2") format("woff2"); unicode-range: U+0100-024F; }
+  @font-face { font-family: "Archivo Black"; src: url("../../public/fonts/archivo-black-latin.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 300 700; src: url("../../public/fonts/space-grotesk-latin-ext.woff2") format("woff2"); unicode-range: U+0100-024F; }
+  @font-face { font-family: "Space Grotesk"; font-weight: 300 700; src: url("../../public/fonts/space-grotesk-latin.woff2") format("woff2"); }
+  :root { --ink:#14160f; --cream:#f4efe0; --lime:#cdf564; --coral:#ff6f59; --forest:#083a2b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1320px; height: 2868px; overflow: hidden; }
+  body { position: relative; font-family: "Space Grotesk", sans-serif; background: var(--bg); color: var(--fg); }
+  .sekil { position: absolute; border-radius: 50%; }
+  .ust { position: absolute; left: 96px; right: 96px; top: 150px; z-index: 3; }
+  .etiket { display: inline-block; padding: 18px 34px; border: 5px solid var(--ink); border-radius: 999px; background: var(--etiketBg); color: var(--etiketFg); font: 700 38px/1 "Space Grotesk"; letter-spacing: .06em; text-transform: uppercase; box-shadow: 8px 8px 0 var(--ink); }
+  h1 { margin-top: 64px; font: 400 132px/1.02 "Archivo Black", sans-serif; letter-spacing: -.035em; }
+  h1 em { font-style: normal; color: var(--vurgu); }
+  p { margin-top: 44px; max-width: 1060px; font: 500 50px/1.32 "Space Grotesk"; opacity: .82; }
+  .telefon { position: absolute; left: 50%; top: var(--telTop); width: var(--telW); transform: translateX(-50%) rotate(var(--aci)); z-index: 2; }
+  .cerceve { position: relative; padding: 26px; border-radius: 132px; background: var(--ink); box-shadow: 30px 30px 0 var(--golge); }
+  .cerceve img { display: block; width: 100%; border-radius: 108px; }
+  .rozet { position: absolute; z-index: 4; padding: 30px 40px; border: 5px solid var(--ink); border-radius: 36px; background: var(--rozetBg); color: var(--ink); font: 700 44px/1.15 "Space Grotesk"; box-shadow: 12px 12px 0 var(--ink); }
+  .rozet b { display: block; font: 400 64px/1 "Archivo Black"; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="kok"></div>
+<script>
+const SLAYTLAR = [
+  { ekran: "tr/02-bugun.png", bg: "#f4efe0", fg: "#14160f", vurgu: "#ff6f59", etiket: "Borç takibi", etiketBg: "#cdf564", etiketFg: "#14160f", golge: "#ff6f59",
+    baslik: "Borcunu <em>plana</em><br>dönüştür.", alt: "Kart, kredi ve ek hesabın tek ekranda. Bu ay ne ödeyeceğini hemen gör.", aci: "-2deg",
+    sekiller: [["#ff6f59", 760, 1640, 980], ["#cdf564", -260, 2300, 760]], rozet: { metin: "<b>3 cevap</b>her ay", x: 840, y: 2250, bg: "#cdf564" } },
+  { ekran: "tr/03-borclar.png", bg: "#cdf564", fg: "#14160f", vurgu: "#083a2b", etiket: "Tek tablo", etiketBg: "#f4efe0", etiketFg: "#14160f", golge: "#083a2b",
+    baslik: "Bütün kartların<br><em>tek yerde.</em>", alt: "Ekstreni cihazında okut. Dosyan sunucuya yüklenmez.", aci: "2deg",
+    sekiller: [["#ff6f59", -300, 1500, 900], ["#f4efe0", 900, 2350, 700]], rozet: { metin: "<b>0</b>banka şifresi", x: 70, y: 2320, bg: "#f4efe0" } },
+  { ekran: "tr/04-borc-plani.png", bg: "#083a2b", fg: "#f4efe0", vurgu: "#cdf564", etiket: "Borç planı", etiketBg: "#cdf564", etiketFg: "#14160f", golge: "#cdf564",
+    baslik: "Önce hangi borç?<br><em>Sıran hazır.</em>", alt: "Aylık faiz yükünü gör, kapatma sıranı kendi kayıtlarınla çıkar.", aci: "-2deg",
+    sekiller: [["#ff6f59", 820, 1580, 900], ["#14160f", -320, 2250, 820]], rozet: { metin: "<b>Pro</b>kişisel kapatma sırası", x: 760, y: 2330, bg: "#ff6f59" } },
+  { ekran: "tr/05-varliklar.png", bg: "#ff6f59", fg: "#14160f", vurgu: "#f4efe0", etiket: "Varlıklar", etiketBg: "#f4efe0", etiketFg: "#14160f", golge: "#14160f",
+    baslik: "Varlığın da<br><em>hesapta.</em>", alt: "Döviz, altın, kripto ve fonlarını borçlarınla yan yana takip et.", aci: "2deg",
+    sekiller: [["#cdf564", -280, 1560, 860], ["#f4efe0", 920, 2380, 680]], rozet: { metin: "<b>Güncel</b>kur ve fiyatlar", x: 70, y: 2330, bg: "#cdf564" } },
+  { ekran: "tr/06-karsilama.png", telW: "860px", telTop: "940px", bg: "#f4efe0", fg: "#14160f", vurgu: "#083a2b", etiket: "Ücretsiz", etiketBg: "#ff6f59", etiketFg: "#14160f", golge: "#cdf564",
+    baslik: "Hesap açmadan<br><em>hemen başla.</em>", alt: "Banka şifresi yok, kart bilgisi yok. İstersen Face ID ile kilitle.", aci: "-2deg",
+    sekiller: [["#cdf564", 800, 1600, 940], ["#ff6f59", -300, 2300, 760]], rozet: { metin: "<b>Face ID</b>uygulama kilidi", x: 860, y: 1180, bg: "#f4efe0" } },
+];
+const METINLER = {
+  en: [
+    { etiket: "Debt tracker", baslik: "Turn your debt<br>into a <em>plan.</em>", alt: "Cards, loans and overdrafts on one screen. See what to pay this month at a glance.", rozet: "<b>3 answers</b>every month" },
+    { etiket: "One table", baslik: "Every card<br><em>in one place.</em>", alt: "No bank login. Enter what matters, in your own currency.", rozet: "<b>0</b>bank passwords" },
+    { etiket: "Payoff plan", baslik: "Which debt first?<br><em>Your order is ready.</em>", alt: "See your monthly interest and get a payoff order from your own records.", rozet: "<b>Avalanche</b>or snowball" },
+    { etiket: "Net worth", baslik: "Your assets<br><em>count too.</em>", alt: "Cash, savings, property and more, right next to your debts.", rozet: "<b>Your</b>currency" },
+    { etiket: "Free", baslik: "Start without<br><em>an account.</em>", alt: "No bank password, no card details. Lock it with Face ID if you like.", rozet: "<b>Face ID</b>app lock" },
+  ],
+  de: [
+    { etiket: "Schulden-Tracker", baslik: "Mach aus Schulden<br>einen <em>Plan.</em>", alt: "Karten, Kredite und Dispo auf einem Bildschirm. Sieh sofort, was diesen Monat fällig ist.", rozet: "<b>3 Antworten</b>jeden Monat" },
+    { etiket: "Alles im Blick", baslik: "Alle Karten<br><em>an einem Ort.</em>", alt: "Kein Bank-Login. Trag ein, was zählt – in deiner Währung.", rozet: "<b>0</b>Bankpasswörter" },
+    { etiket: "Tilgungsplan", baslik: "Welche Schuld zuerst?<br><em>Dein Plan steht.</em>", alt: "Sieh deine Monatszinsen und erhalte eine Tilgungsreihenfolge aus deinen Daten.", rozet: "<b>Lawine</b>oder Schneeball" },
+    { etiket: "Vermögen", baslik: "Dein Vermögen<br><em>zählt mit.</em>", alt: "Bargeld, Ersparnisse, Immobilien und mehr – direkt neben deinen Schulden.", rozet: "<b>Deine</b>Währung" },
+    { etiket: "Kostenlos", baslik: "Ohne Konto<br><em>sofort loslegen.</em>", alt: "Kein Bankpasswort, keine Kartendaten. Auf Wunsch mit Face ID gesperrt.", rozet: "<b>Face ID</b>App-Sperre" },
+  ],
+  fr: [
+    { etiket: "Suivi des dettes", baslik: "Faites de vos dettes<br>un <em>plan.</em>", alt: "Cartes, crédits et découverts sur un seul écran. Voyez d'un coup d'œil quoi payer ce mois-ci.", rozet: "<b>3 réponses</b>chaque mois" },
+    { etiket: "Vue unique", baslik: "Toutes vos cartes<br><em>au même endroit.</em>", alt: "Aucun identifiant bancaire. Saisissez l'essentiel, dans votre devise.", rozet: "<b>0</b>mot de passe bancaire" },
+    { etiket: "Plan de remboursement", baslik: "Quelle dette d'abord ?<br><em>Votre ordre est prêt.</em>", alt: "Voyez vos intérêts mensuels et obtenez un ordre de remboursement à partir de vos données.", rozet: "<b>Avalanche</b>ou boule de neige" },
+    { etiket: "Patrimoine", baslik: "Votre patrimoine<br><em>compte aussi.</em>", alt: "Liquidités, épargne, immobilier et plus, à côté de vos dettes.", rozet: "<b>Votre</b>devise" },
+    { etiket: "Gratuit", baslik: "Commencez<br><em>sans compte.</em>", alt: "Ni mot de passe bancaire, ni carte. Verrouillez avec Face ID si vous voulez.", rozet: "<b>Face ID</b>verrouillage" },
+  ],
+  es: [
+    { etiket: "Control de deudas", baslik: "Convierte tus deudas<br>en un <em>plan.</em>", alt: "Tarjetas, préstamos y descubiertos en una pantalla. Mira qué pagar este mes de un vistazo.", rozet: "<b>3 respuestas</b>cada mes" },
+    { etiket: "Todo junto", baslik: "Todas tus tarjetas<br><em>en un lugar.</em>", alt: "Sin claves del banco. Introduce lo importante, en tu moneda.", rozet: "<b>0</b>claves del banco" },
+    { etiket: "Plan de pago", baslik: "¿Qué deuda primero?<br><em>Tu orden está listo.</em>", alt: "Mira tus intereses mensuales y obtén un orden de pago con tus propios datos.", rozet: "<b>Avalancha</b>o bola de nieve" },
+    { etiket: "Patrimonio", baslik: "Tu patrimonio<br><em>también cuenta.</em>", alt: "Efectivo, ahorros, inmuebles y más, junto a tus deudas.", rozet: "<b>Tu</b>moneda" },
+    { etiket: "Gratis", baslik: "Empieza<br><em>sin cuenta.</em>", alt: "Sin clave del banco ni datos de tarjeta. Bloquéala con Face ID si quieres.", rozet: "<b>Face ID</b>bloqueo" },
+  ],
+  it: [
+    { etiket: "Gestione debiti", baslik: "Trasforma i debiti<br>in un <em>piano.</em>", alt: "Carte, prestiti e scoperti in una schermata. Vedi subito cosa pagare questo mese.", rozet: "<b>3 risposte</b>ogni mese" },
+    { etiket: "Tutto in uno", baslik: "Tutte le carte<br><em>in un posto.</em>", alt: "Nessun accesso bancario. Inserisci ciò che conta, nella tua valuta.", rozet: "<b>0</b>password bancarie" },
+    { etiket: "Piano di rimborso", baslik: "Quale debito prima?<br><em>Il tuo ordine è pronto.</em>", alt: "Vedi gli interessi mensili e ottieni un ordine di rimborso dai tuoi dati.", rozet: "<b>Valanga</b>o palla di neve" },
+    { etiket: "Patrimonio", baslik: "Anche il patrimonio<br><em>conta.</em>", alt: "Contanti, risparmi, immobili e altro, accanto ai tuoi debiti.", rozet: "<b>La tua</b>valuta" },
+    { etiket: "Gratis", baslik: "Inizia<br><em>senza account.</em>", alt: "Nessuna password bancaria né carta. Bloccala con Face ID se vuoi.", rozet: "<b>Face ID</b>blocco app" },
+  ],
+};
+const parametreler = new URLSearchParams(location.search);
+const i = Number(parametreler.get("i") || 0);
+const dilKodu = parametreler.get("dil") || "tr";
+const s = { ...SLAYTLAR[i] };
+if (dilKodu !== "tr" && METINLER[dilKodu]) {
+  const m = METINLER[dilKodu][i];
+  s.ekran = s.ekran.replace(/^tr\//, dilKodu + "/");
+  s.etiket = m.etiket; s.baslik = m.baslik; s.alt = m.alt;
+  s.rozet = { ...s.rozet, metin: m.rozet };
+  document.documentElement.lang = dilKodu;
+}
+const k = document.documentElement.style;
+for (const [a, d] of Object.entries({ bg: s.bg, fg: s.fg, vurgu: s.vurgu, etiketBg: s.etiketBg, etiketFg: s.etiketFg, golge: s.golge, aci: s.aci, telTop: s.telTop || "980px", telW: s.telW || "1010px" })) k.setProperty("--" + a, d);
+document.getElementById("kok").innerHTML =
+  s.sekiller.map(([renk, x, y, r]) => `<div class="sekil" style="background:${renk};left:${x}px;top:${y - r / 2}px;width:${r}px;height:${r}px"></div>`).join("") +
+  `<div class="ust"><span class="etiket">${s.etiket}</span><h1>${s.baslik}</h1><p>${s.alt}</p></div>` +
+  `<div class="telefon"><div class="cerceve"><img src="${s.ekran}"></div></div>` +
+  `<div class="rozet" style="left:${s.rozet.x}px;top:${s.rozet.y}px;--rozetBg:${s.rozet.bg}">${s.rozet.metin}</div>`;
+// Uzun basliklar telefonun ustune binmesin: once yaziyi kucult, sonra
+// telefonu metnin altina it.
+document.fonts.ready.then(function yerlestir() {
+  const ust = document.querySelector(".ust");
+  const h1 = ust.querySelector("h1");
+  const p = ust.querySelector("p");
+  const tel = document.querySelector(".telefon");
+  const istenen = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--telTop")) || 980;
+  let boyut = 132;
+  while (ust.getBoundingClientRect().bottom > istenen - 50 && boyut > 96) {
+    boyut -= 6;
+    h1.style.fontSize = boyut + "px";
+    p.style.fontSize = Math.max(42, Math.round(boyut * 0.38)) + "px";
+  }
+  const alt = ust.getBoundingClientRect().bottom;
+  if (alt > istenen - 50) document.documentElement.style.setProperty("--telTop", Math.round(alt + 60) + "px");
+});
+</script>
+</body>
+</html>

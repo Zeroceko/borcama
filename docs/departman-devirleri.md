@@ -1,5 +1,12 @@
 # Borcama departmanları ve devir panosu
 
+### 2026-10-24 · Ürün ve Mühendislik · Projenin yeni geliştiriciye devri
+
+- iOS uygulaması App Store'da yayına girdikten sonra proje yeni bir geliştiriciye devredilmek üzere belgelendi. İki yeni doküman eklendi: `docs/devir-paketi.md` (teknik yapı, devredilecek hesaplar ve roller, sır envanteri, çalışan otomasyonlar, dış veri kaynakları, App Store kısıtları ve devir kontrol listesi) ile `docs/yeni-gelistirici-kurulum.md` (araç sürümleri, sıfırdan kurulum, demo modu, test ve derleme komutları, iOS arşiv/yükleme akışı, Supabase migration ve fonksiyon deploy'u, bilinen tuzaklar). `.env.example` artık yerel geliştirme için yalnız dört değerin gerektiğini söylüyor ve sunucu tarafı secret'ları envanter olarak listeliyor; `README.md` geliştirici dokümanlarına bağlantı veriyor.
+- Hiçbir parola, API anahtarı veya token dokümana yazılmadı; yalnız hangi sırrın hangi panelde durduğu listelendi. Devirde sırların yeniden üretilmesi ve eskilerinin iptali kontrol listesine madde olarak kondu.
+- Apple tarafının `2SH6N4AK3P` (Özer Öcek) takımında olduğu ve aynı makinedeki VMP Mühendislik takımına dokunulmaması gerektiği belgeye işlendi; devralan kendi hesabıyla App Manager olarak davet edilecek.
+- Doğrulama: `npm test` 253/253, `release:check` ve production build temiz; `npm run ios:version` çalıştırılarak sürüm 1.58.0 / build 25 eşleşmesi teyit edildi. Ürün sürümü yükseltilmedi; değişiklik yalnız geliştirici dokümanıdır.
+
 ### 2026-09-23 · Ürün ve Mühendislik · Kart yapılandırması dönem ayrımı
 
 - `v1.56.5`, eski kart yapılandırmalarının sonraki ekstrelerden tekrar düşülerek kalan borcu asgari ödeme seviyesine indirmesini engelliyor. Yapılandırmalar ekstre dönemine bağlandı; dönem alanı bulunmayan eski kayıtlar güncel ekstrenin yüklenme veya arşivlenme zamanına göre ayrıştırılıyor. Halkbank örneğindeki `₺52.110,52 - ₺46.404,49 = ₺5.706,03` hatası sentetik regresyonla kapsandı.

@@ -3,6 +3,11 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const allowedOrigins = new Set([
   "https://borcama.com",
   "https://www.borcama.com",
+  // iOS native kabukta webview kaynagi capacitor://borcama.com olur.
+  // capacitor.config.ts iosScheme "https" istese de iOS bu semayi ayrilmis
+  // kabul edip capacitor'a geri duser; yalniz hostname uygulanir. Bu origin
+  // listede olmazsa uygulamanin kendi fonksiyon cagrilari CORS'ta engellenir.
+  "capacitor://borcama.com",
   "https://crm.borcama.com",
 ]);
 

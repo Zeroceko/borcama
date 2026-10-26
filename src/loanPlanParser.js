@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 const BANKS = [
   { name: "VakıfBank", tokens: ["turkiye vakiflar bankasi", "vakifbank", "vakif bank"] },
   { name: "QNB", tokens: ["qnb bank", "qnb finansbank", "qnb"] },
@@ -331,11 +333,11 @@ function inferMonthlyRateFromSchedule(schedule = []) {
 
 export function validateLoanPlanResult(result = {}) {
   const errors = [];
-  if (!result.bank) errors.push("Banka otomatik tanınamadı; banka adını kontrol et.");
-  if (!(result.originalPrincipal > 0)) errors.push("Kredi tutarı okunamadı.");
-  if (!(result.installment > 0)) errors.push("Aylık taksit okunamadı.");
-  if (!(result.remainingInstallments > 0)) errors.push("Kalan taksit bulunamadı; kapanmış plan olabilir.");
-  if (!(result.remainingPrincipal > 0)) errors.push("Kalan anapara okunamadı.");
+  if (!result.bank) errors.push(t("ekstre.plan.hata.bankaYok"));
+  if (!(result.originalPrincipal > 0)) errors.push(t("ekstre.plan.hata.tutarYok"));
+  if (!(result.installment > 0)) errors.push(t("ekstre.plan.hata.taksitYok"));
+  if (!(result.remainingInstallments > 0)) errors.push(t("ekstre.plan.hata.kalanTaksitYok"));
+  if (!(result.remainingPrincipal > 0)) errors.push(t("ekstre.plan.hata.anaparaYok"));
   return errors;
 }
 
@@ -417,13 +419,13 @@ export function parseLoanPlanText(text, { sourceType = "pdf", pagesRead = 1, tod
     warnings: [],
   };
   if (bank && !["VakıfBank", "QNB", "Yapı Kredi", "Fibabanka", "Enpara"].includes(bank)) {
-    result.warnings.push("Bu banka genel tablo okuyucusuyla işlendi; tüm alanları kontrol et.");
+    result.warnings.push(t("ekstre.plan.uyari.genelTablo"));
   }
   if (interestRateSource === "schedule") {
-    result.warnings.push("Aylık faiz oranı belgede ayrı alan olarak bulunamadı; taksit satırlarından tahmini hesaplandı.");
+    result.warnings.push(t("ekstre.plan.uyari.faizTahmini"));
   }
   if (schedule.length && result.term && schedule.length !== result.term) {
-    result.warnings.push(`Belgede ${schedule.length} taksit satırı bulundu; bildirilen vade ${result.term}.`);
+    result.warnings.push(t("ekstre.plan.uyari.vadeFarki", { n: schedule.length, vade: result.term }));
   }
   result.blockingErrors = validateLoanPlanResult(result);
   const found = [bank, originalPrincipal, installment, result.remainingInstallments, remainingPrincipal, result.monthlyInterestRate]

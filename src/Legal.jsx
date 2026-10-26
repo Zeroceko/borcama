@@ -1,10 +1,17 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { nativeMi } from "./platform.js";
+import { dil, t } from "./i18n.js";
+import { EN_BASLIKLAR, PrivacyPolicyEn, RefundPolicyEn, TermsOfUseEn } from "./LegalEn.jsx";
+
+// Ingilizce taslak metinler yalniz native kabukta ve dil Ingilizce iken
+// gosterilir; web ve Turkce cikti degismez.
+// Yasal metinlerin yalniz Turkce ve Ingilizce surumu var; diger diller Ingilizceyi gorur.
+const ingilizceMi = () => nativeMi && dil() !== "tr";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-.legal,.legal *{box-sizing:border-box}.legal{min-height:100vh;background:#f4efe0;color:#14160f;font-family:'Space Grotesk',sans-serif;padding:28px 18px 70px}.legal-shell{width:min(900px,100%);margin:auto}.legal-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:36px}.legal-logo{width:160px}.legal-logo img{display:block;width:100%}.legal-back{display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border:2px solid #14160f;border-radius:999px;background:#fff;color:#14160f;text-decoration:none;font-size:13px;font-weight:700;box-shadow:3px 3px 0 #14160f}.legal-card{background:#fff;border:3px solid #14160f;border-radius:26px;padding:clamp(26px,5vw,58px);box-shadow:10px 10px 0 #cdf564}.legal h1{font-family:'Archivo Black',sans-serif;font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.035em;margin:0 0 10px}.legal-date{color:#6d7064;font-size:13px;margin-bottom:34px}.legal h2{font-size:20px;margin:32px 0 10px}.legal h3{font-size:16px;margin:22px 0 8px}.legal p,.legal li{font-size:14px;line-height:1.75;color:#4f5248}.legal ul{padding-left:22px}.legal a{color:#315c47;font-weight:700}.legal-callout{margin-top:34px;padding:18px 20px;background:#f4efe0;border:2px solid #14160f;border-radius:16px}.legal-callout p{margin:0}.legal-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.legal-links a{padding:10px 14px;border:2px solid #14160f;border-radius:999px;background:#fff;text-decoration:none;color:#14160f;font-size:12px}.legal-links a.active{background:#14160f;color:#fff}@media(max-width:560px){.legal-nav{align-items:flex-start}.legal-logo{width:135px}.legal-back{padding:8px 11px;font-size:12px}.legal-card{box-shadow:6px 6px 0 #cdf564}}
+.legal,.legal *{box-sizing:border-box}.legal{min-height:100vh;background:#f4efe0;color:#14160f;font-family:'Space Grotesk',sans-serif;padding:28px 18px 70px}.legal-shell{width:min(900px,100%);margin:auto}.legal-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:36px}.legal-logo{width:160px}.legal-logo img{display:block;width:100%}.legal-back{display:inline-flex;font-family:inherit;cursor:pointer;align-items:center;gap:7px;padding:10px 15px;border:2px solid #14160f;border-radius:999px;background:#fff;color:#14160f;text-decoration:none;font-size:13px;font-weight:700;box-shadow:3px 3px 0 #14160f}.legal-card{background:#fff;border:3px solid #14160f;border-radius:26px;padding:clamp(26px,5vw,58px);box-shadow:10px 10px 0 #cdf564}.legal h1{font-family:'Archivo Black',sans-serif;font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.035em;margin:0 0 10px}.legal-date{color:#6d7064;font-size:13px;margin-bottom:34px}.legal h2{font-size:20px;margin:32px 0 10px}.legal h3{font-size:16px;margin:22px 0 8px}.legal p,.legal li{font-size:14px;line-height:1.75;color:#4f5248}.legal ul{padding-left:22px}.legal a{color:#315c47;font-weight:700}.legal-callout{margin-top:34px;padding:18px 20px;background:#f4efe0;border:2px solid #14160f;border-radius:16px}.legal-callout p{margin:0}.legal-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.legal-links a{padding:10px 14px;border:2px solid #14160f;border-radius:999px;background:#fff;text-decoration:none;color:#14160f;font-size:12px}.legal-links a.active{background:#14160f;color:#fff}@media(max-width:560px){.legal-nav{align-items:flex-start}.legal-logo{width:135px}.legal-back{padding:8px 11px;font-size:12px}.legal-card{box-shadow:6px 6px 0 #cdf564}}
 .legal-embed{padding:0;background:#f4efe0}.legal-embed .legal-shell{width:100%}.legal-embed .legal-card{border:0;border-radius:0;box-shadow:none;padding:28px}.legal-embed .legal-links{display:none}@media(max-width:560px){.legal{padding:16px 10px 42px}.legal-nav{margin-bottom:22px}.legal-card{padding:22px 18px;border-radius:18px;box-shadow:5px 5px 0 #cdf564}.legal h1{font-size:34px}.legal h2{font-size:18px;margin-top:26px}.legal p,.legal li{font-size:13px;line-height:1.65}.legal-embed{padding:0}.legal-embed .legal-card{padding:20px 17px}.legal-embed h1{font-size:30px}.legal-links a{width:100%;text-align:center}}
 .legal-back,.legal-card,.legal-callout,.legal-links a{border-width:1px;border-color:#14160f24}.legal-back,.legal-card{box-shadow:0 12px 32px #14160f0d}
 `;
@@ -29,27 +36,37 @@ function LegalLayout({
             <a className="legal-logo" href="/">
               <img src="/borcama-logo.png" alt="Borcama" />
             </a>
-            <a className="legal-back" href="/">
-              <ArrowLeft size={15} /> Ana sayfaya dön
-            </a>
+            {/* Native kabukta bu sayfalara uygulama icinden, cogunlukla
+                abonelik ekranindaki baglantilardan geliniyor; "Ana sayfaya
+                don" kullaniciyi ozet ekranina atip geldigi yeri kaybettiriyor.
+                Geri dugmesi bir onceki ekrana dondurur. */}
+            {nativeMi ? (
+              <button className="legal-back" type="button" onClick={() => window.history.back()}>
+                <ArrowLeft size={15} /> {t("yasal.geri")}
+              </button>
+            ) : (
+              <a className="legal-back" href="/">
+                <ArrowLeft size={15} /> Ana sayfaya dön
+              </a>
+            )}
           </nav>
         )}
         <article className="legal-card">
           <h1>{title}</h1>
           <div className="legal-date">
-            Yürürlük tarihi: {tarih} · Sürüm {surum}
+            {t("yasal.yururluk", { tarih, surum })}
           </div>
           {children}
           {!embedded && (
             <div className="legal-links">
               <a className={tur === "terms" ? "active" : ""} href="/terms">
-                Kullanıcı Sözleşmesi
+                {t("yasal.link.sozlesme")}
               </a>
               <a className={tur === "privacy" ? "active" : ""} href="/privacy">
-                Gizlilik ve KVKK
+                {t("yasal.link.gizlilik")}
               </a>
               <a className={tur === "refund" ? "active" : ""} href="/refund-policy">
-                İade Politikası
+                {t("yasal.link.iade")}
               </a>
             </div>
           )}
@@ -60,6 +77,13 @@ function LegalLayout({
 }
 
 export function KullaniciSozlesmesi({ embedded = false }) {
+  if (ingilizceMi()) {
+    return (
+      <LegalLayout tur="terms" {...EN_BASLIKLAR.terms} embedded={embedded}>
+        <TermsOfUseEn />
+      </LegalLayout>
+    );
+  }
   return (
     <LegalLayout
       tur="terms"
@@ -182,6 +206,13 @@ export function KullaniciSozlesmesi({ embedded = false }) {
 }
 
 export function IadePolitikasi({ embedded = false }) {
+  if (ingilizceMi()) {
+    return (
+      <LegalLayout tur="refund" {...EN_BASLIKLAR.refund} embedded={embedded}>
+        <RefundPolicyEn />
+      </LegalLayout>
+    );
+  }
   return (
     <LegalLayout
       tur="refund"
@@ -394,6 +425,13 @@ export function IadePolitikasi({ embedded = false }) {
 }
 
 export function GizlilikMetni({ embedded = false }) {
+  if (ingilizceMi()) {
+    return (
+      <LegalLayout tur="privacy" {...EN_BASLIKLAR.privacy} embedded={embedded}>
+        <PrivacyPolicyEn />
+      </LegalLayout>
+    );
+  }
   return (
     <LegalLayout
       tur="privacy"

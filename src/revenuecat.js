@@ -48,21 +48,66 @@ function revenueCatNativeSdk() {
 // StoreKit tarafinda appUserId Supabase kullanici kimligidir; web ile ayni
 // kimlik kullanildigi icin `pro` entitlement'i iki platform arasinda
 // kendiliginden tasinir.
+// Acilista hak kontrolu ve fiyat sorgusu ayni anda baslar. Hazirlik
+// serilestirilmezse ikisi yarisir: birincisi configure()'i beklerken ikincisi
+// isConfigured=true gorur, ama configuredUserId henuz atanmadigi icin
+// logIn()'i configure surerken cagirir ve RevenueCat koprusu sozu hic
+// cozmez; ekran "Fiyat yukleniyor..." ve "Kontrol ediliyor..." durumunda
+// kilitli kalir. Hazirligi tek bir paylasilan soze bagliyoruz.
+let nativeHazirlik = { userId: null, promise: null };
+
+// Hesapsiz (misafir) kullanicida da Pro'nun bu App Store ulkesinde satilip
+// satilmadigini ogrenmek icin SDK anonim kullaniciyla yapilandirilir.
+// configuredUserId null kalir; kullanici hesap acinca/girince
+// nativePurchasesForUser logIn() cagirir ve RevenueCat anonim kullaniciyi
+// hesapla birlestirir. Kullanici hazirligi bu sozu bekler ki configure()
+// iki kez cagrilmasin.
+let anonimHazirlik = null;
+
+function nativeAnonimHazirla() {
+  if (nativeHazirlik.promise) return nativeHazirlik.promise;
+  if (!anonimHazirlik) {
+    const promise = (async () => {
+      const { Purchases } = await revenueCatNativeSdk();
+      const { isConfigured } = await Purchases.isConfigured();
+      if (!isConfigured) await Purchases.configure({ apiKey });
+      // Proxy `then` tuzagi: eklenti nesnesi sarmalanarak dondurulur.
+      return { Purchases };
+    })();
+    promise.catch(() => {
+      if (anonimHazirlik === promise) anonimHazirlik = null;
+    });
+    anonimHazirlik = promise;
+  }
+  return anonimHazirlik;
+}
+
 async function nativePurchasesForUser(userId) {
   if (configurationError) throw new Error(configurationError);
   if (!userId) return null;
-  const { Purchases } = await revenueCatNativeSdk();
-  const { isConfigured } = await Purchases.isConfigured();
-  if (!isConfigured) {
-    await Purchases.configure({ apiKey, appUserID: userId });
-    configuredUserId = userId;
-    return Purchases;
+  if (nativeHazirlik.userId !== userId || !nativeHazirlik.promise) {
+    const bekleyenAnonim = anonimHazirlik;
+    const promise = (async () => {
+      if (bekleyenAnonim) await bekleyenAnonim.catch(() => {});
+      const { Purchases } = await revenueCatNativeSdk();
+      const { isConfigured } = await Purchases.isConfigured();
+      if (!isConfigured) await Purchases.configure({ apiKey, appUserID: userId });
+      else if (configuredUserId !== userId) await Purchases.logIn({ appUserID: userId });
+      configuredUserId = userId;
+      // Capacitor eklenti nesnesi bir Proxy'dir ve her ozellik erisimine
+      // fonksiyon dondurur, `then` dahil. Async bir fonksiyondan dogrudan
+      // dondurulurse JavaScript onu thenable sanip Purchases.then(resolve,
+      // reject) cagirir; eklenti bunu native bir metot sanar, resolve hic
+      // calismaz ve soz sonsuza kadar askida kalir. Sarmalayarak donduruyoruz.
+      return { Purchases };
+    })();
+    // Hata durumunda hazirlik tekrar denenebilsin.
+    promise.catch(() => {
+      if (nativeHazirlik.promise === promise) nativeHazirlik = { userId: null, promise: null };
+    });
+    nativeHazirlik = { userId, promise };
   }
-  if (configuredUserId !== userId) {
-    await Purchases.logIn({ appUserID: userId });
-    configuredUserId = userId;
-  }
-  return Purchases;
+  return nativeHazirlik.promise;
 }
 
 async function purchasesForUser(userId) {
@@ -139,17 +184,45 @@ function paketOzeti(rcPackage) {
   };
 }
 
+async function nativeTeklifOzeti({ Purchases }) {
+  // App Store ulkesi (ISO 3166-1 alpha-3, ör. "TUR"); Pro'nun bu ulkede
+  // satista olup olmadigina karar verirken guvenlik kontrolu olarak kullanilir.
+  const storefront = await Purchases.getStorefront()
+    .then((magaza) => magaza?.countryCode || null)
+    .catch(() => null);
+  let offerings;
+  try {
+    offerings = await Purchases.getOfferings();
+  } catch (error) {
+    if (error && typeof error === "object") error.storefront = storefront;
+    throw error;
+  }
+  const offering = proOffering(offerings);
+  if (!offering) {
+    const error = new Error("Borcama Pro teklifi bulunamadı.");
+    error.bosTeklif = true;
+    error.storefront = storefront;
+    throw error;
+  }
+  return {
+    monthly: paketOzeti(planPackage(offering, "monthly")),
+    annual: paketOzeti(planPackage(offering, "annual")),
+    storefront,
+  };
+}
+
+// Misafir dahil native acilista: bu App Store ulkesinde Pro teklifleri.
+// Hesap gerekmez; satin alma yine hesapla yapilir.
+export async function revenueCatNativeTeklifleri() {
+  if (!nativeMi || configurationError) return { unavailable: true };
+  return nativeTeklifOzeti(await nativeAnonimHazirla());
+}
+
 export async function revenueCatProPaketleri(userId) {
   if (nativeMi) {
-    const Purchases = await nativePurchasesForUser(userId);
-    if (!Purchases) return { unavailable: true };
-    const offerings = await Purchases.getOfferings();
-    const offering = proOffering(offerings);
-    if (!offering) throw new Error("Borcama Pro teklifi bulunamadı.");
-    return {
-      monthly: paketOzeti(planPackage(offering, "monthly")),
-      annual: paketOzeti(planPackage(offering, "annual")),
-    };
+    const hazir = await nativePurchasesForUser(userId);
+    if (!hazir) return { unavailable: true };
+    return nativeTeklifOzeti(hazir);
   }
 
   const purchases = await purchasesForUser(userId);
@@ -169,8 +242,9 @@ export async function revenueCatProPaketleri(userId) {
 
 export async function revenueCatProKontrol(userId) {
   if (nativeMi) {
-    const Purchases = await nativePurchasesForUser(userId);
-    if (!Purchases) return { active: false, unavailable: true };
+    const hazir = await nativePurchasesForUser(userId);
+    if (!hazir) return { active: false, unavailable: true };
+    const { Purchases } = hazir;
     const { customerInfo } = await Purchases.getCustomerInfo();
     return proBilgisi(customerInfo);
   }
@@ -185,16 +259,18 @@ export async function revenueCatProKontrol(userId) {
 // Web tarafinda karsiligi yoktur; orada abonelik zaten hesaba baglidir.
 export async function revenueCatSatinAlimlariGeriYukle(userId) {
   if (!nativeMi) return { unavailable: true };
-  const Purchases = await nativePurchasesForUser(userId);
-  if (!Purchases) return { active: false, unavailable: true };
+  const hazir = await nativePurchasesForUser(userId);
+  if (!hazir) return { active: false, unavailable: true };
+  const { Purchases } = hazir;
   const { customerInfo } = await Purchases.restorePurchases();
   return { ...proBilgisi(customerInfo), restored: true };
 }
 
 export async function revenueCatProSatinAl({ userId, email, plan = "monthly" }) {
   if (nativeMi) {
-    const Purchases = await nativePurchasesForUser(userId);
-    if (!Purchases) return { unavailable: true };
+    const hazir = await nativePurchasesForUser(userId);
+    if (!hazir) return { unavailable: true };
+    const { Purchases } = hazir;
     try {
       const offerings = await Purchases.getOfferings();
       const offering = proOffering(offerings);

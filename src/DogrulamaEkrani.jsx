@@ -2,21 +2,37 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient.js";
 import { derinBaglantiAyristir } from "./derinBaglantiAdres.js";
 import { teslimZiyaretiniBildir } from "./teslimBildirimi.js";
+import { t } from "./i18n.js";
 
 // E-postadaki dogrulama baglantisi iOS'ta universal link oldugu icin uygulama
 // kuruluysa bu ekran hic gorunmez; baglanti dogrudan uygulamada acilir. Bu
 // ekran uygulamanin kurulu olmadigi durumlar icindir: bilgisayar, Android ya
 // da uygulamayi silmis bir kullanici. Ayni tek kullanimlik anahtarla oturumu
 // tarayicida kurar ve kullaniciyi uygulamaya birakir.
+// Suresi dolmus baglanti gunluk bir durum; teknik mesaji kullaniciya
+// gostermiyoruz. Beklenmeyen durumlarda sebep de yaziliyor ki destek
+// tarafinda ne oldugu gorulebilsin.
+function hataMetni(sebep) {
+  const metin = String(sebep || "");
+  if (!metin || /expired|invalid|otp_expired/i.test(metin))
+    return t("bilesen.dogrulama.suresiDolmus");
+  return t("bilesen.dogrulama.dogrulanamadi", { sebep: metin });
+}
+
 export default function DogrulamaEkrani() {
   const [hata, setHata] = useState("");
 
   useEffect(() => {
     let iptal = false;
     (async () => {
+      const sorgu = new URLSearchParams(window.location.search);
+      if (sorgu.get("baglanti") === "gecersiz") {
+        if (!iptal) setHata(hataMetni(sorgu.get("sebep")));
+        return;
+      }
       const veri = derinBaglantiAyristir(window.location.href);
       if (!veri || veri.hata) {
-        if (!iptal) setHata("Bağlantı geçersiz ya da süresi dolmuş.");
+        if (!iptal) setHata(hataMetni(veri?.hata));
         return;
       }
       teslimZiyaretiniBildir(veri.teslimKimligi);
@@ -34,10 +50,10 @@ export default function DogrulamaEkrani() {
           });
           if (error) throw error;
         } else {
-          throw new Error("Bağlantıda doğrulama bilgisi yok.");
+          throw new Error(t("bilesen.dogrulama.bilgiYok"));
         }
-      } catch {
-        if (!iptal) setHata("Bağlantı geçersiz ya da süresi dolmuş.");
+      } catch (hata) {
+        if (!iptal) setHata(hataMetni(hata?.message));
         return;
       }
       if (!iptal) window.location.assign(veri.hedef);
@@ -69,12 +85,12 @@ export default function DogrulamaEkrani() {
           style={{ width: 150, height: "auto", marginBottom: 18 }}
         />
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: hata ? "#a53a2a" : "#5d6054" }}>
-          {hata || "Hesabın doğrulanıyor…"}
+          {hata || t("bilesen.dogrulama.dogrulaniyor")}
         </p>
         {hata && (
           <p style={{ marginTop: 18 }}>
             <a href="/login" style={{ color: "#315c47", fontWeight: 800 }}>
-              Giriş ekranına dön
+              {t("bilesen.dogrulama.giriseDon")}
             </a>
           </p>
         )}

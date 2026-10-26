@@ -7,6 +7,7 @@ import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import DogrulamaEkrani from "./DogrulamaEkrani.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
 import { proNiyetiniOku } from "./proIntent.js";
+import { misafirModuAcik, misafirVerisiniHesabaTasi } from "./misafirModu.js";
 import GoogleAdsConsent from "./GoogleAdsConsent.jsx";
 import { googleAdsBaslat } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelKaynakBilgisi } from "./funnelAnalytics.js";
@@ -17,9 +18,13 @@ import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
-import { nativeDerinBaglantilariBaslat } from "./nativeDeepLinks.js";
+import { belgeDiliniAyarla } from "./i18n.js";
+import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
+import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
-import NativeCevrimdisi from "./NativeCevrimdisi.jsx";
+import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
+import Onboarding, { KARAR_ADIMI } from "./Onboarding.jsx";
+import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
 import HesapSilindiEkrani from "./AccountDeleted.jsx";
 import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
 
@@ -39,8 +44,18 @@ const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ defau
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
 nativeGorunumuHazirla();
-void nativeDerinBaglantilariBaslat();
+// <html lang> secili dile esitlenir; web'de dil "tr" oldugundan degismez.
+belgeDiliniAyarla();
+// Native sekme cubugu uygulama penceresinde yasiyor, sayfayla birlikte
+// silinmiyor. Giris/kayit gibi tam sayfa yenileyen ekranlara gecince React
+// temizligi calismadigi icin cubuk ekranda asili kaliyordu; her acilista
+// gizleniyor, uygulama kabugu yuklenince kendisi geri gosteriyor.
+sekmeCubugunuGoster(false);
+// E-posta dogrulama ve parola yenileme baglantilari uygulamaya doner;
+// oturum burada kurulur ve kullanici giris yapmis olarak karsilanir.
+derinBaglantilariDinle();
 // CRM'de Google etiketleri yüklenmez; kullanıcı kimliği içeren yollar ölçüme gitmez.
+// Native kabukta da yüklenmez (App Privacy beyanı).
 const crmAlanindaMi = typeof window !== "undefined" && window.location.hostname.toLowerCase() === CRM_ALANI;
 if (!nativeMi && !crmAlanindaMi) googleAdsBaslat();
 
@@ -54,6 +69,63 @@ function yonetimYetkisiVar(session) {
   return YONETIM_EPOSTALARI.has(
     String(session?.user?.email || "").trim().toLowerCase(),
   );
+}
+
+// Onboarding bu yollari engellemez: parola yenileme ve yasal metinler
+// dogrudan acilabilmeli.
+const ONBOARDING_DISI_YOLLAR = new Set([
+  "/auth-callback",
+  "/reset-password",
+  "/terms",
+  "/privacy",
+  "/refund-policy",
+  "/faq",
+]);
+
+// E-posta dogrulama ve magic link donusleri de engellenmez; bu adreslerde
+// Supabase oturumu kurar, araya tanitim akisi girmemeli.
+function dogrulamaBaglantisiMi() {
+  const hash = window.location.hash || "";
+  const arama = window.location.search || "";
+  return (
+    /access_token|refresh_token|type=recovery|type=signup|type=magiclink/.test(hash) ||
+    /[?&]code=/.test(arama)
+  );
+}
+
+function nativeEkran(yol) {
+  if (yol === "/login") return <GirisEkrani />;
+  if (yol === "/register") return <GirisEkrani kayitModu />;
+  if (yol === "/auth-callback") return <DogrulamaEkrani />;
+  if (yol === "/reset-password") return <ParolaYenileEkrani />;
+  if (yol === "/terms") return <KullaniciSozlesmesi />;
+  if (yol === "/privacy") return <GizlilikMetni />;
+  if (yol === "/refund-policy") return <IadePolitikasi />;
+  if (yol === "/faq") return <Faq />;
+  if (yol === "/welcome") return <KimlikliWelcome />;
+  if (yol === "/upgrade") return <ProCheckout />;
+  return <KimlikliKok />;
+}
+
+// Oturumu olmayan kullanici once karsilama akisini gorur. Ilk kurulumda
+// tanitim ekranlariyla baslar; tanitimi gormus veya cikis yapmis kullaniciya
+// dogrudan "Ucretsiz basla / Giris yap" karar ekrani acilir. /login ve
+// /register bu kapidan gecmez; oralara karar ekranindan veya ekran icindeki
+// baglantilardan gelinir ve geri dugmesiyle karar ekranina donulur.
+function OnboardingKapisi({ children, yol }) {
+  const session = useSession();
+  if (session === undefined) return <Yukleniyor />;
+  if (session) return children;
+  // Hesapsiz kullanan kisi karsilama akisina geri dusmemeli.
+  if (misafirModuAcik()) return children;
+  if (yol === "/login" || yol === "/register") return children;
+  return <Onboarding baslangic={onboardingTamamlandiMi() ? KARAR_ADIMI : 0} />;
+}
+
+function NativeKapi({ yol }) {
+  const ekran = nativeEkran(yol);
+  if (ONBOARDING_DISI_YOLLAR.has(yol) || dogrulamaBaglantisiMi()) return ekran;
+  return <OnboardingKapisi yol={yol}>{ekran}</OnboardingKapisi>;
 }
 
 function Kok() {
@@ -89,7 +161,8 @@ function Kok() {
   if (yol === "/" && hesapSilmeBasarisiVar(window.location.search))
     return <HesapSilindiEkrani />;
   // Native kabuk: landing, SEO, demo ve yonetim ekranlari render edilmez;
-  // uygulama dogrudan kimlik/uygulama akisiyla acilir.
+  // uygulama dogrudan kimlik/uygulama akisiyla acilir. Oturumsuz ilk
+  // kurulumda once onboarding gosterilir.
   if (nativeMi) {
     // Dev build'de Supabase ayari yoksa web ile ayni sekilde demo moduna
     // duser; ekranlar gercek veri olmadan gezilebilir.
@@ -99,19 +172,9 @@ function Kok() {
     }
     if (!nativeYoluMu(yol)) {
       window.history.replaceState({}, "", "/summary");
-      return <KimlikliKok />;
+      return <NativeKapi yol="/summary" />;
     }
-    if (yol === "/login") return <GirisEkrani />;
-    if (yol === "/register") return <GirisEkrani kayitModu />;
-    if (yol === "/auth-callback") return <DogrulamaEkrani />;
-    if (yol === "/reset-password") return <ParolaYenileEkrani />;
-    if (yol === "/terms") return <KullaniciSozlesmesi />;
-    if (yol === "/privacy") return <GizlilikMetni />;
-    if (yol === "/refund-policy") return <IadePolitikasi />;
-    if (yol === "/faq") return <Faq />;
-    if (yol === "/welcome") return <KimlikliWelcome />;
-    if (yol === "/upgrade") return <ProCheckout />;
-    return <KimlikliKok />;
+    return <NativeKapi yol={yol} />;
   }
   if (yol.startsWith("/davet/"))
     return <HariciYonlendirme url={davetKayitYolu(davetKodunuYoldanOku(yol, window.location.search))} />;
@@ -450,9 +513,33 @@ function LandingDeneyi({ experiment = {} }) {
 
 function KimlikliKok() {
   const session = useSession();
+  // Hesapsiz kullanimdan hesaba gecildiginde cihazdaki kayitlar once hesaba
+  // tasinir; tasima bitene kadar uygulama acilmaz ki bos veriyle baslamasin.
+  const [misafirTasimaBekliyor, setMisafirTasimaBekliyor] = useState(() =>
+    misafirModuAcik(),
+  );
+
+  useEffect(() => {
+    if (!session) return undefined;
+    if (!misafirModuAcik()) {
+      setMisafirTasimaBekliyor(false);
+      return undefined;
+    }
+    let iptal = false;
+    misafirVerisiniHesabaTasi().finally(() => {
+      if (!iptal) setMisafirTasimaBekliyor(false);
+    });
+    return () => {
+      iptal = true;
+    };
+  }, [session]);
 
   if (session === undefined) {
     return <Yukleniyor />;
+  }
+
+  if (!session && misafirModuAcik()) {
+    return <App />;
   }
 
   if (!session) {
@@ -461,6 +548,10 @@ function KimlikliKok() {
       ? `${window.location.pathname}${window.location.search}`
       : "/summary";
     return <GirisEkrani redirectTo={uygulamaIciHedef} />;
+  }
+
+  if (misafirTasimaBekliyor) {
+    return <Yukleniyor />;
   }
 
   const bekleyenPlan = proNiyetiniOku();
@@ -477,10 +568,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
       <BiyometrikKilit>
-        <NativeCevrimdisi>
+        <CevrimdisiPerde>
           <Kok />
+          {/* Native'de Google etiketi yuklenmiyor; olcum izni sormak anlamsiz. */}
           {!nativeMi && !crmAlanindaMi && <GoogleAdsConsent />}
-        </NativeCevrimdisi>
+        </CevrimdisiPerde>
       </BiyometrikKilit>
     </React.Suspense>
     </ErrorBoundary>

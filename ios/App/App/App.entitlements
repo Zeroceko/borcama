@@ -2,9 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Universal Links: e-posta dogrulama ve parola yenileme baglantilari
+	     tarayici yerine dogrudan uygulamada acilsin. Calismasi icin
+	     https://borcama.com/.well-known/apple-app-site-association
+	     dosyasinin canlida 200 ve application/json donmesi, ayrica bu
+	     dosyanin hedefte CODE_SIGN_ENTITLEMENTS olarak bagli olmasi gerekir. -->
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:borcama.com</string>
+		<string>applinks:www.borcama.com</string>
+	</array>
+	<!-- Apple ile giris. Calismasi icin App ID uzerinde "Sign In with Apple"
+	     yetkisinin acik olmasi ve Supabase'te Apple saglayicisinda
+	     com.borcama.app kimliginin yetkili istemci olarak tanimli olmasi
+	     gerekir. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
 	</array>
 </dict>
 </plist>

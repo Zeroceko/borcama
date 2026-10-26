@@ -57,11 +57,47 @@ html.borcama-native .auth-wrap:not(:has(> .auth-back)) {
   padding-top: calc(24px + var(--guvenli-ust));
 }
 
+/* Giris ve kayit ekrani native kabukta sayfa olarak kaymaz; ekran sabit
+   kalir ve kart dikeyde ortalanir. Icerik ekrana sigmazsa sayfa yerine
+   kartin kendisi kayar; boylece kucuk ekranlarda "Hesap olustur" dugmesi
+   erisilemez hale gelmez. */
+html.borcama-native .auth-wrap {
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  /* align-items:center kullanilirsa karttan uzun icerik ustten tasiyor ve
+     klavye acilip alan daraldiginda baslik durum cubugunun altina giriyordu.
+     Kart margin:auto ile ortalanir; tasan durumda ust kenara yaslanir. */
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: calc(58px + var(--guvenli-ust));
+  padding-bottom: calc(12px + var(--guvenli-alt));
+}
+
+html.borcama-native .auth-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  margin: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Sabit ekranda dikey alan kisitli; kayit formunun nefes payini daraltiyoruz. */
+html.borcama-native .auth-card { padding: 22px 20px; }
+html.borcama-native .auth-tabs { margin-bottom: 12px; }
+html.borcama-native .auth-sub { margin-bottom: 14px; }
+
 /* Uygulama kabugu: ust guvenli alan. .bt-wrap alt boslukta zaten
    env(safe-area-inset-bottom) kullaniyor fakat ustte kullanmiyordu;
    bu yuzden baslik status bar ve Dynamic Island'in altinda kaliyordu. */
 html.borcama-native .bt-wrap {
   padding-top: calc(20px + var(--guvenli-ust));
+  /* Yuzen "Gorus bildir" ve hizli ekleme dugmeleri sayfanin en altindaki
+     icerigin uzerine biniyordu ve sayfa sonunda kaydirarak kurtarilamiyordu.
+     Alt bosluk en yuksek yuzen dugmenin ustune cikarilir. */
+  padding-bottom: calc(200px + var(--guvenli-alt));
 }
 
 /* Sabit konumlu ogeler alt guvenli alani hesaba katmiyordu; ev cubugu
@@ -171,4 +207,118 @@ html.borcama-native .legal {
 
 html.borcama-native .pc-page {
   padding-top: calc(18px + var(--guvenli-ust));
+}
+
+/* iOS'ta alt gezinme cubugu UITabBar olarak isletim sisteminden geliyor;
+   HTML karsiligi gizleniyor. Android ve tarayicida HTML cubuk devrede. */
+html.borcama-ios .bt-nav-ana.bt-nav-gizli {
+  display: none !important;
+}
+
+/* Kayit ve giris ekrani tek ekrana sigsin: kart icinde kaydirma kalmasin.
+   Olculer yalniz uygulamada daraltiliyor, tarayici surumu degismiyor. */
+html.borcama-native .auth-title { width: 118px; margin-bottom: 10px; }
+html.borcama-native .auth-card { padding: 18px 18px; }
+html.borcama-native .auth-welcome { font-size: 16px; margin-bottom: 6px; }
+html.borcama-native .auth-sub { margin-bottom: 12px; font-size: 13px; }
+html.borcama-native .auth-apple { min-height: 44px; }
+html.borcama-native .auth-ayirac { margin: 10px 0 12px; }
+html.borcama-native .auth-input { min-height: 44px; }
+html.borcama-native .auth-btn { min-height: 44px; }
+html.borcama-native .auth-help { margin: -2px 0 8px; }
+html.borcama-native .auth-referral-toggle { margin: 0 0 10px; padding: 9px 11px; }
+html.borcama-native .auth-consents { gap: 7px; margin: 2px 0 12px; padding: 10px; }
+html.borcama-native .auth-legal { margin-top: 8px; }
+/* Alttaki bilgi notu uygulamada gizleniyor; ayni bilgi Gizlilik ve KVKK
+   sayfasinda zaten var ve ekranda en az kritik satir bu. */
+html.borcama-native .auth-foot { display: none; }
+
+/* Dil dugmesi (DilDugmesi.jsx) yalniz native'de cizilir. Dokunma alani
+   44pt; gorunen hap daha kucuk kalir. */
+html.borcama-native .dil-dugmesi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #14160f2e;
+  border-radius: 999px;
+  background: #ffffffb8;
+  color: #14160f;
+  font: 700 13px "Space Grotesk", system-ui, sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dil secimi: dugmenin tamamini kaplayan gorunmez <select>; dokununca
+   sistemin secim tekeri acilir. */
+html.borcama-native .dil-dugmesi { position: relative; }
+html.borcama-native .dil-dugmesi-secim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+html.borcama-native .dil-dugmesi.ob-dil {
+  font-family: "OB Space", "Space Grotesk", system-ui, sans-serif;
+}
+
+/* Giris/kayit: geri dugmesinin karsisina, sag uste. */
+html.borcama-native .dil-dugmesi.auth-dil {
+  position: absolute;
+  z-index: 2;
+  top: calc(24px + var(--guvenli-ust));
+  right: clamp(20px, 4vw, 48px);
+  min-height: 40px;
+  background: #fff;
+}
+
+@media (max-width: 720px) {
+  html.borcama-native .dil-dugmesi.auth-dil {
+    top: calc(15px + var(--guvenli-ust));
+    right: 12px;
+  }
+}
+
+/* Para birimi secici (ParaBirimiSecici.jsx) yalniz native'de cizilir. Gorunen
+   kisim kucuk bir hap; ustundeki seffaf select sistemin secicisini acar. */
+html.borcama-native .para-birimi-secici {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #14160f2e;
+  border-radius: 999px;
+  background: #ffffffb8;
+  color: #14160f;
+  font: 700 13px "Space Grotesk", system-ui, sans-serif;
+}
+
+html.borcama-native .para-birimi-secici > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+html.borcama-native .para-birimi-secici select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px; /* iOS yakinlastirmasin */
+  cursor: pointer;
+}
+
+html.borcama-native .para-birimi-secici.ob-para-birimi {
+  font-family: "OB Space", "Space Grotesk", system-ui, sans-serif;
+  margin: 0 0 14px;
 }

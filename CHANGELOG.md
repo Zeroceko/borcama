@@ -4,6 +4,83 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.69.0] - 2026-10-26
+
+### Eklendi
+
+- iOS uygulaması Almanca, Fransızca, İspanyolca ve İtalyanca destekliyor; cihaz dili bu dillerden biriyse uygulama o dilde açılıyor, dil karşılama ekranında ve Ayarlar'da seçilebiliyor; Face ID izin metni de aynı dillerde.
+- iOS uygulaması AB ülkeleri ve ABD App Store'larında yayına hazırlandı; Pro'nun satışta olmadığı ülkelerde satın alma ekranları gizleniyor ve Pro özellikleri ücretsiz açılıyor, Borcama Asistanı kullanıcının dilinde yanıt veriyor.
+- iOS uygulamasında para birimi seçilebiliyor; ilk açılışta cihaz bölgesinden (Türkiye için TRY, desteklenmeyen bölgelerde USD) belirleniyor, karşılama ekranındaki seçiciden ve Ayarlar > Para birimi satırından değiştirilebiliyor. Kur çevirisi yapılmıyor; TRY dışındaki birimlerde BDDK asgari ödeme oranı yerine girilen asgari tutar kullanılıyor ve TRY bazlı piyasa fiyatlarıyla otomatik varlık değerlemesi kapalı. Mevcut kullanıcılar TRY'de kalıyor, tarayıcı sürümü değişmedi.
+- iOS uygulamasının İngilizce modunda ana ekranlar (Bugün, Borçlar, Hareketler, Plan, Varlıklar, Gelir/Gider, Ayarlar ve hesap silme), asistan arayüzü, Pro satın alma kartı, kilit/bağlantı/doğrulama ekranları, bildirimler, hata mesajları ve SSS İngilizce gösteriliyor; Kullanım Şartları, Gizlilik ve İade Politikası İngilizce taslak olarak ekleniyor, ekstre okuma Türk bankaları için olduğunu belirtiyor. Tarayıcı sürümü Türkçe kalmaya devam ediyor.
+- iOS uygulamasında giriş yapmadan dil değiştirilebiliyor; tanıtımın ilk ekranında, karşılama ekranında ve giriş/kayıt ekranlarında sağ üstteki düğmeyle, oturum açıkken Ayarlar > Dil satırından Türkçe ile İngilizce arasında geçiliyor. Tarayıcı sürümünde düğme yok.
+- iOS uygulamasına İngilizce dil altyapısı eklendi; cihaz dili Türkçe değilse tanıtım, giriş, kayıt ve parola yenileme ekranları İngilizce açılıyor, tarih ve para biçimi seçili dile uyuyor. Tarayıcı sürümü Türkçe kalmaya devam ediyor.
+- iOS uygulamasında hesap açmadan kullanım eklendi; karşılama ekranındaki "Hesap açmadan devam et" ile borçlar, ekstreler, varlıklar ve tüm hesaplamalar kayıt olmadan kullanılabiliyor, kayıtlar yalnızca cihazda tutuluyor. Kullanıcı sonradan hesap açtığında ya da giriş yaptığında cihazdaki kayıtlar hesabına taşınıyor; hesapta zaten kayıt varsa üzerine yazılmıyor. Tarayıcı sürümündeki akış değişmedi.
+- iOS uygulamasında Apple ile giriş eklendi; giriş ve kayıt ekranlarında tek dokunuşla hesap açılabiliyor veya girilebiliyor.
+- iOS uygulamasında Pro satın alma kartında abonelik adı, süresi ve fiyatı ile Kullanım Şartları, Gizlilik Politikası ve İade Politikası bağlantıları gösteriliyor; aynı kartta "Satın alımları geri yükle" seçeneği yer alıyor.
+- iOS uygulamasında ilk kurulumda dört ekranlık tanıtım akışı gösteriliyor: borçların tek yerde toplanması, kapatma önceliği, ay sonu planı ve ardından ücretsiz başlama veya giriş seçimi. Tanıtım atlanabiliyor, parola yenileme ve e-posta doğrulama bağlantılarını engellemiyor.
+- iOS uygulamasında oturumu olmayan kullanıcı artık doğrudan giriş formu yerine "Ücretsiz başla / Giriş yap" karşılama ekranını görüyor; tanıtımı daha önce görmüş ya da çıkış yapmış kullanıcıya da bu ekran açılıyor.
+- iOS uygulamasında giriş ve kayıt ekranlarına geri butonu eklendi; karşılama ekranına dönülebiliyor.
+- iOS uygulamasında bağlantı kesildiğinde boş finansal ekran yerine, bağlantının gerekli olduğunu ve kayıtların silinmediğini açıklayan bir durum ekranı gösteriliyor.
+- iOS uygulamasında ödeme günü hatırlatması açılabiliyor; kayıtlı ödemelerden bir gün önce saat 09:00'da bildirim geliyor, aynı güne denk gelen ödemeler tek bildirimde birleşiyor ve bildirimde tutar, banka veya borç türü gösterilmiyor. Hesaplama cihazda yapılıyor, sunucuya veri gitmiyor.
+- iOS uygulamasında Face ID veya Touch ID ile uygulama kilidi açılabiliyor; kilit açıkken Borcama her açılışta ve arka plandan her dönüşte kimlik doğrulaması istiyor, tercih yalnızca cihazda saklanıyor.
+- iOS uygulamasında Kullanıcı Sözleşmesi ve İade Politikası, satıcının Apple olduğu ve iptal/iade işlemlerinin App Store üzerinden yürüdüğü bilgisiyle gösteriliyor.
+- iOS uygulamasında Pro aboneliği App Store içi satın alma (StoreKit) ile alınabilir; abonelik aynı `pro` hakkına bağlandığı için web'den alan iOS'ta, iOS'tan alan web'de Pro olarak devam eder. Satın alımları geri yükleme yolu eklendi.
+- Borcama'nın iOS uygulaması için Capacitor tabanlı native kabuk kuruldu; uygulama açılışında landing, SEO ve yönetim ekranları yerine doğrudan giriş ve uygulama akışı geliyor, cihazın çentik ve ev çubuğu boşlukları hesaba katılıyor. Tarayıcı sürümünün davranışı değişmedi.
+
+### Değiştirildi
+
+- iOS uygulamasında Pro'nun App Store ülkesinde satışta olup olmadığı hesap açmadan kullananlarda da anlaşılıyor: RevenueCat açılışta anonim kullanıcıyla teklifleri sorguluyor, ürün yoksa misafirde de "Upgrade to Pro" ve Pro kartı gizleniyor ve Pro özellikleri açılıyor; hesap açıldığında anonim RevenueCat kullanıcısı hesapla birleşiyor. Türkiye App Store'unda ve tarayıcı sürümünde davranış değişmedi.
+- iOS uygulamasında para birimi TRY değilse faiz ve asgari ödeme varsayılanları ülkeye göre belirleniyor: oran girilmemiş kart ve ek hesapta cihaz bölgesinin (bölge para birimiyle uyuşmuyorsa para biriminin ülkesinin) tipik yıllık oranı aylığa bölünerek kullanılıyor (ör. ABD kart %22, Almanya Dispo %11,5, İngiltere overdraft %39,9), asgari tutar girilmemişse ülkenin asgari ödeme kuralıyla tahmin ediliyor; plan, Bugün faiz tahmini, öneriler, gecikme hesabı ve asistan bağlamı bu değerleri kullanıyor ve ekranda "ülke ortalaması, değiştirebilirsin" notu gösteriliyor. Tanıtım, rehber, asistan örnek sorusu ve tutar alanlarındaki örnek tutarlar ile harcama önerisi eşikleri para birimine göre ölçekleniyor. TRY kullanıcıları ve tarayıcı sürümü değişmedi.
+- iOS uygulamasının İngilizce metinlerinden Türkiye'ye özgü ifadeler kaldırıldı: asistan örnek sorusu "TL" yerine seçili para biriminin simgesini, SSS'deki gizlilik bağlantısı "KVKK" yerine "Privacy" başlığını, plan yöntemi açıklaması "lira" yerine para birimi bağımsız ifadeyi kullanıyor. Türkçe metinler değişmedi.
+- iOS uygulamasında gelir-gider kayıtlarının, ekstre dönemlerinin, kredi ilk taksitinin ve ödeme planı satırlarının tarihleri seçili dilin tarih biçimiyle gösteriliyor (ör. İngilizcede 10/5/2026); tarayıcı sürümünde GG.AA.YYYY biçimi değişmedi.
+- iOS uygulamasında Pro aboneliği kullanıcının App Store ülkesinde satışta değilse (RevenueCat teklifi boş dönüyorsa) "Pro'ya Geç" düğmesi, Pro tanıtım penceresi, Ayarlar'daki abonelik kartı, deneme hatırlatıcısı ve asistandaki Pro önerisi gösterilmiyor, Pro'ya bağlı özellikler ücretsiz açılıyor. Son bilinen durum cihazda saklandığı için açılışta düğme görünüp kaybolmuyor; Türkiye App Store'unda bu durum hiçbir koşulda devreye girmiyor ve ürünler geldiğinde mevcut satın alma akışı aynen sürüyor. Tarayıcı sürümü değişmedi.
+- Finansal asistan isteği kullanıcının uygulama dilini (`language`) taşıyor; `financial-assistant` Edge Function'ı bu alan geldiğinde sistem talimatına "kullanıcının dilinde yanıt ver" kuralını ekliyor, alan yoksa (tarayıcı, eski iOS sürümü) Türkçe talimat birebir aynı kalıyor. iOS uygulamasında dil Türkçe değilse ya da para birimi TRY değilse bağlama dil ve para birimi tercihi de ekleniyor, Türkçe olmayan dilde Türkçe hazır yedek yanıt gösterilmiyor ve konuşma geçmişindeki yapı işaretleri seçili dilde gösteriliyor.
+- iOS uygulamasında para birimi TRY değilse ekstre ve kredi ödeme planı okuma seçenekleri gösterilmiyor (okuyucu yalnız Türk bankalarının belgelerini tanıyor); "Ekstre ekle" ve "Yeni kredi" doğrudan elle giriş formunu açıyor. Banka listesinde Türk bankaları yerine kullanıcının eklediği ve kayıtlarında geçen bankalar ile "Diğer" seçeneği yer alıyor. TRY kullanıcıları ve tarayıcı sürümü değişmedi.
+- iOS uygulamasında para birimi TRY değilse Türkiye'ye özgü faiz kuralları uygulanmıyor: kart faizi TCMB azami oranı yerine kartta girilen aylık orandan, ek hesap faizi %4,25 varsayımı yerine girilen orandan hesaplanıyor, plan ve asistan KKDF/BSMV vergi-fon yükü eklemiyor, yapılandırma formunda KKDF/BSMV alanları gösterilmiyor; oran girilmemiş kart ve ek hesapta ülke ortalaması kullanılıyor. TRY kullanıcıları ve tarayıcı sürümü değişmedi.
+- iOS uygulamasının alt gezinme çubuğu artık iOS'un kendi sekme çubuğu; simgeler sistem simge kütüphanesinden geliyor, çubuk ev çubuğunun üstüne oturuyor ve klavye açılınca gizleniyor. Tarayıcı sürümündeki çubuk değişmedi.
+- iOS uygulamasının giriş ekranından tek kullanımlık e-posta linkiyle giriş kaldırıldı; uygulamada giriş Apple ile ya da parolayla yapılıyor. Tarayıcı sürümünde iki seçenek de duruyor.
+- iOS uygulamasının kayıt ekranındaki uzun tanıtım metni kaldırıldı; ekran doğrudan Apple ile devam et seçeneği ve formla açılıyor.
+- Pro ödeme ekranında abonelik adı ve süresi ayrı satırda gösteriliyor; Kullanıcı Sözleşmesi, Gizlilik Politikası ve İade Politikası bağlantıları tek cümlede toplandı.
+- iOS uygulamasında Google Analytics ve Google Ads etiketi yüklenmiyor; ölçüm yalnızca tarayıcı sürümünde çalışmaya devam ediyor.
+
+### Düzeltildi
+
+- iOS uygulamasında hesapsız kullanımda Ayarlar'daki boş "Veri ve yönetim" kartı gösterilmiyor; asistanın yanıt veremediği sorularda "Görüş bildir" düğmesi çıkmıyor.
+- iOS uygulaması web'deki 1.59.0–1.68.1 yeniliklerini alıyor; kart asgari ödemesi BDDK'nın 1 Ekim 2026 oranlarıyla hesaplanıyor.
+- iOS uygulamasında giriş ve kayıt ekranının üstünde alt sekme çubuğu artık görünmüyor; çubuğun altında kalan "Giriş yap" ve sözleşme bağlantılarına ulaşılabiliyor.
+- Koyu temada Borcama logosu okunuyor; harfler koyu zeminde kaybolmuyordu.
+- iOS uygulamasında alt sekme çubuğu uygulamanın kendi temasını izliyor; koyu temada seçili sekme açık renkle gösteriliyor, önceden koyu zeminde koyu kalıyordu.
+- iOS uygulamasında alt sekme çubuğu ekranın altına, ev çubuğunun hemen üstüne oturuyor; önceden ekranın epey yukarısında kalıyordu.
+- iOS uygulamasında kaydırma çubuğu görünmüyor.
+- iOS uygulamasında kayıt ve giriş ekranı tek ekrana sığıyor; kart içinde kaydırma gerekmiyor.
+- iOS uygulamasında alt sekme çubuğunun altında koyu bir bant görünmüyor; uygulama ekranın altına kadar yayılıyor. Sistem koyu temadayken çubuğun altına çizilen katman, açık zeminli uygulamada bant gibi duruyordu.
+- iOS uygulamasında sekme değiştirince ekran en üstten açılıyor; önceki ekranın kaydırma konumu taşınmıyor.
+- iOS uygulamasında Ayarlar gibi sekmelerden biri olmayan ekranlarda alt çubukta hiçbir sekme seçili görünmüyor; önceden son sekme yanık kalıyordu.
+- iOS uygulamasında Ayarlar'daki "Google Analytics ve reklam ölçümü" izin satırı kaldırıldı; uygulama zaten ölçüm veya reklam etiketi yüklemiyordu, izin istenecek bir şey yoktu. Tarayıcı sürümündeki tercih aynen duruyor.
+- Kayıt ve parola yenileme e-postalarının saatlik gönderim sınırı 2'den 30'a çıkarıldı; aynı saat içinde kayıt olan üçüncü kullanıcı artık "Çok fazla deneme yapıldı" uyarısıyla karşılaşmıyor.
+- iOS uygulamasında hesabını silen kullanıcı artık "bağlantının süresi dolmuş" uyarısıyla karşılaşmıyor; silme bitince doğrudan giriş ekranına dönüyor.
+- iOS uygulamasında abonelik yönetimi ve Sık Sorulan Sorular metinleri App Store aboneliğini anlatıyor; uygulama içinde artık App Store dışı bir ödeme sağlayıcısından söz edilmiyor. Tarayıcı sürümünün metinleri değişmedi.
+- iOS uygulamasında e-posta bağlantısı doğrulanamazsa kullanıcı giriş formuna düşmüyor; bağlantının süresinin dolduğunu ya da daha önce kullanıldığını söyleyen ve yeni bağlantı istemeye yönlendiren bir ekran gösteriliyor.
+- iOS uygulamasında e-posta doğrulama ve parola yenileme bağlantıları doğrudan uygulamada açılıyor; ara sayfa ya da tarayıcı devreye girmiyor ve kullanıcı doğrulamadan sonra giriş yapmış olarak uygulamayla karşılanıyor. Uygulama kurulu değilse ya da bağlantı bilgisayarda açılırsa aynı adres tarayıcıda çalışıyor. Önceden bağlantı tarayıcıda açılıyor, tek kullanımlık anahtar orada harcanıyor ve uygulama "E-postanı kontrol et" ekranında kalıyordu.
+- App Store aboneliği satın alındıktan sonra Pro erişimi açılmayabiliyordu; ödeme tamamlandığı halde "Pro'ya geç" ekranı gösteriliyordu. Satın alma kaydı artık uygulama ekran değiştirmeden önce yazılıyor ve geçerli bir abonelik hiçbir durumda kapalı sayılmıyor.
+- iOS uygulamasında Kullanım Şartları, Gizlilik Politikası, İade Politikası ve Sık Sorulan Sorular sayfalarından geldiğin ekrana dönülüyor; önceden yalnızca ana sayfaya dönülebiliyordu.
+- iOS uygulamasında giriş ve kayıt ekranında klavye açıkken başlık durum çubuğunun altında kalmıyor.
+- iOS uygulamasında sayfa sonundaki içerik yüzen "Görüş bildir" ve hızlı ekleme düğmelerinin altında kalmıyor.
+- Pro ekranında plan değiştirirken fiyat kısa süreliğine kaybolmuyor; üstteki "Pro'ya Geç" düğmesi durum yenilenirken kaybolup geri gelmiyor.
+- Varlıklar ekranında fiyat servisinin bir kaynağı geçici olarak yanıt vermediğinde diğer varlıkların son bilinen fiyatları korunuyor; eksik kaynak yüzünden tüm liste fiyatsız kalmıyor.
+- Varlıklar ekranında fiyatı hiç alınamamış otomatik varlık artık ₺0,00 yerine "Fiyat alınamadı" olarak gösteriliyor.
+- iOS uygulamasında Varlıklar ekranındaki döviz, altın, kripto, fon ve hisse fiyatları artık güncelleniyor; "Canlı fiyatlar alınamadı" uyarısı yerine güncel değerler geliyor. Tarayıcı sürümü etkilenmedi.
+- iOS uygulamasında giriş ve kayıt ekranları artık sayfa olarak kaymıyor; ekran sabit kalıyor ve kart dikeyde ortalanıyor.
+- iOS uygulamasında Pro üyelik durumu ve abonelik fiyatları artık yükleniyor; ekran "Fiyat yükleniyor…" ve "Kontrol ediliyor…" durumunda takılı kalmıyor.
+- iOS uygulamasında Pro üyelik durumu, davet kodu, hesap silme ve Borcama'ya sor artık çalışıyor; native kabuğun sunucu isteklerini engelleyen kaynak kısıtı giderildi. Tarayıcı sürümü etkilenmedi.
+- iOS uygulamasında daha önce Pro planı seçmiş bir kullanıcı e-posta bağlantısıyla giriş yaptığında bağlantı uygulamaya dönüyor; önceden tarayıcıda açılıyordu. Seçilen plan korunuyor ve Pro ekranı açıldığında geri geliyor. Tarayıcı sürümündeki yönlendirme değişmedi.
+
+### Kaldırıldı
+
+- iOS uygulamasının Ayarlar ekranındaki "Giriş yöntemleri" bölümünden "E-posta linki" satırı kaldırıldı; bu yöntem uygulamadan zaten çıkarılmıştı ve satır var olmayan bir seçeneği "Aktif" gösteriyordu. Parola belirlendikten sonra çıkan onay metninden de e-posta linki cümlesi çıkarıldı. Tarayıcı sürümünde ikisi de duruyor.
+- iOS uygulamasından davet programı kaldırıldı: Ayarlar'daki "Arkadaşını davet et" kartı, Bugün ekranındaki davet şeridi ve kayıt ekranındaki "Referans kodun var mı?" alanı uygulama sürümünde görünmüyor, uygulamadan yapılan kayıtta referans kodu gönderilmiyor. Program tarayıcı sürümünde aynen sürüyor; web üzerinden kazanılmış Pro günleri korunuyor.
+- iOS uygulamasından "Beta" rozetleri, "Görüş bildir" düğmesi ve Ayarlar'daki "Yakında" satırları kaldırıldı; uygulama sürümünde yalnızca kullanıma hazır özellikler görünüyor. Tarayıcı sürümü değişmedi.
+
 ## [1.68.1] - 2026-10-24
 
 ### Düzeltildi

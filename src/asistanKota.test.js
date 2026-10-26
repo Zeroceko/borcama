@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tr as asistanTr } from "./locales/bolumler/asistan.js";
 
 const kok = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const app = readFileSync(resolve(kok, "src/App.jsx"), "utf8");
@@ -17,7 +18,8 @@ test("ücretsiz plan günde 5, Pro günde 20 asistan sorusu", () => {
 
 test("ücretsiz hak bitince Pro'yu aktif et butonu çıkar; plan etiketi sunucu limitinden okunur", () => {
   assert.match(app, /!asistanProKotasi && proAc && modelDurumu\.kota && modelDurumu\.kota\.remaining <= 0/);
-  assert.match(app, /Pro'yu aktif et/);
+  assert.match(app, /t\("asistan\.upsell\.buton"\)/);
+  assert.equal(asistanTr["asistan.upsell.buton"], "Pro'yu aktif et");
   assert.match(app, /modelDurumu\.kota\?\.limit \? modelDurumu\.kota\.limit >= ASISTAN_PRO_SORU : proAktif/);
 });
 

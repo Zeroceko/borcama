@@ -21,6 +21,10 @@ test("Turnstile hata ve zaman aşımında sessizce kilitlenmez", async () => {
   assert.match(auth, /'error-callback'/);
   assert.match(auth, /'timeout-callback'/);
   assert.match(auth, /'unsupported-callback'/);
-  assert.match(auth, /içerik engelleyici tarafından durduruldu/);
-  assert.match(auth, /Yeniden dene/);
+  // Metinler sözlükte; Auth.jsx anahtarla çağırır.
+  const { default: tr } = await import("./locales/tr.js");
+  assert.match(auth, /t\("auth\.captcha\.engellendi"\)/);
+  assert.match(tr["auth.captcha.engellendi"], /içerik engelleyici tarafından durduruldu/);
+  assert.match(auth, /t\("auth\.captcha\.yenidenDene"\)/);
+  assert.equal(tr["auth.captcha.yenidenDene"], "Yeniden dene");
 });
