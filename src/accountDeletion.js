@@ -1,4 +1,4 @@
-import { cevir, dil } from "./i18n.js";
+import { cevir, dil, locale } from "./i18n.js";
 
 // Sunucuya giden sabit onay metni; dil ne olursa olsun degismez.
 export const HESAP_SILME_ONAYI = "HESABIMI SİL";
@@ -18,7 +18,7 @@ export function hesapSilmeOnayiGecerli(metin, dilKodu = dil()) {
   const yazilan = String(metin || "").trim();
   if (yazilan.toLocaleUpperCase("tr-TR") === HESAP_SILME_ONAYI) return true;
   if (dilKodu === "tr") return false;
-  return yazilan.toLocaleUpperCase(dilKodu === "en" ? "en-US" : "tr-TR") === hesapSilmeOnayIfadesi(dilKodu);
+  return yazilan.toLocaleUpperCase(locale(dilKodu)) === hesapSilmeOnayIfadesi(dilKodu).toLocaleUpperCase(locale(dilKodu));
 }
 
 export function hesapSilmeHataMesaji(kod, dilKodu = dil()) {

@@ -17,20 +17,19 @@ export default function DilAyari() {
           <strong>{t("dil.satir")}</strong>
           <small>{t("dil.aciklama")}</small>
         </div>
-        <div style={{ display: "flex", gap: 6 }} role="group" aria-label={t("dil.satir")}>
+        <select
+          className="bt-input"
+          style={{ width: "auto", minWidth: 150 }}
+          aria-label={t("dil.satir")}
+          value={secili}
+          onChange={(e) => diliDegistirVeYenile(e.target.value)}
+        >
           {DESTEKLENEN_DILLER.map((kod) => (
-            <button
-              key={kod}
-              type="button"
-              lang={kod}
-              className={`bt-btn kucuk ${kod === secili ? "birincil" : "ikincil"}`}
-              aria-pressed={kod === secili}
-              onClick={() => diliDegistirVeYenile(kod)}
-            >
+            <option key={kod} value={kod} lang={kod}>
               {DIL_ADLARI[kod]}
-            </button>
+            </option>
           ))}
-        </div>
+        </select>
       </div>
     </section>
   );

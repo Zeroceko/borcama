@@ -1,15 +1,19 @@
 import { nativeMi } from "./platform.js";
 import tr from "./locales/tr.js";
 import en from "./locales/en.js";
+import de from "./locales/de.js";
+import fr from "./locales/fr.js";
+import es from "./locales/es.js";
+import it from "./locales/it.js";
 
 // Uygulama ici dil secimi. Harici kutuphane yok: sozlukler duz nesne,
 // eksik anahtar Turkce metne duser. Web surumu simdilik daima Turkce;
 // Ingilizce yalniz native kabukta (iOS) devreye girer.
 
 export const DIL_ANAHTARI = "borcama_dil";
-export const DESTEKLENEN_DILLER = ["tr", "en"];
-const SOZLUKLER = { tr, en };
-const LOCALELER = { tr: "tr-TR", en: "en-US" };
+export const DESTEKLENEN_DILLER = ["tr", "en", "de", "fr", "es", "it"];
+const SOZLUKLER = { tr, en, de, fr, es, it };
+const LOCALELER = { tr: "tr-TR", en: "en-US", de: "de-DE", fr: "fr-FR", es: "es-ES", it: "it-IT" };
 
 function guvenliOku(anahtar) {
   try {
@@ -31,7 +35,9 @@ function guvenliYaz(anahtar, deger) {
 export function dilBelirle({ native = false, kayitli = null, tarayiciDili = "" } = {}) {
   if (!native) return "tr";
   if (DESTEKLENEN_DILLER.includes(kayitli)) return kayitli;
-  return String(tarayiciDili || "").toLowerCase().startsWith("tr") ? "tr" : "en";
+  // Cihaz dili desteklenen dillerden biriyse o; degilse Ingilizce.
+  const onek = String(tarayiciDili || "").toLowerCase().slice(0, 2);
+  return DESTEKLENEN_DILLER.includes(onek) ? onek : "en";
 }
 
 let oturumDili = null;
@@ -57,7 +63,7 @@ export function dilAyarla(kod) {
 
 // Dil adlari her zaman kendi dilinde yazilir; kullanici okuyamadigi dilde
 // kalmissa da kendi dilini tanir.
-export const DIL_ADLARI = { tr: "Türkçe", en: "English" };
+export const DIL_ADLARI = { tr: "Türkçe", en: "English", de: "Deutsch", fr: "Français", es: "Español", it: "Italiano" };
 
 export function digerDil(kod = dil()) {
   return kod === "en" ? "tr" : "en";
@@ -103,9 +109,15 @@ function yerlestir(metin, hamDegiskenler) {
 }
 
 // Anahtar secili dilde yoksa Turkceye, orada da yoksa anahtarin kendisine duser.
-export function cevir(kod, anahtar, degiskenler) {
+// Yedek zinciri: secili dil -> (Turkce degilse) Ingilizce -> Turkce -> anahtar.
+// Yeni bir dilde eksik kalan anahtar Turkce degil Ingilizce gorunur.
+function sozlukMetni(kod, anahtar) {
   const sozluk = SOZLUKLER[kod] || tr;
-  const metin = sozluk[anahtar] ?? tr[anahtar] ?? anahtar;
+  return sozluk[anahtar] ?? (kod !== "tr" ? en[anahtar] : undefined) ?? tr[anahtar];
+}
+
+export function cevir(kod, anahtar, degiskenler) {
+  const metin = sozlukMetni(kod, anahtar) ?? anahtar;
   return yerlestir(metin, degiskenler);
 }
 
@@ -118,8 +130,7 @@ export function t(anahtar, degiskenler) {
 // Kelime sirasi dile gore degistigi icin ogeyi metnin disinda birakmak yerine
 // yer tutucuyla sozluge tasiriz.
 export function cevirOgeler(kod, anahtar, degiskenler = {}) {
-  const sozluk = SOZLUKLER[kod] || tr;
-  const metin = sozluk[anahtar] ?? tr[anahtar] ?? anahtar;
+  const metin = sozlukMetni(kod, anahtar) ?? anahtar;
   degiskenler = ortakDegiskenler(metin, degiskenler) || {};
   return metin
     .split(/(\{\w+\})/)
@@ -139,7 +150,7 @@ export function tOgeler(anahtar, degiskenler) {
 // "deger.<Turkce metin>" anahtari varsa o, yoksa metnin kendisi doner.
 export function tDeger(metin) {
   if (metin === null || metin === undefined || metin === "") return metin;
-  const anahtar = `deger.${metin}`;
-  const sozluk = SOZLUKLER[dil()] || tr;
-  return sozluk[anahtar] ?? metin;
+  const kod = dil();
+  if (kod === "tr") return metin;
+  return sozlukMetni(kod, `deger.${metin}`) ?? metin;
 }

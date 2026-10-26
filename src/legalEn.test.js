@@ -86,9 +86,9 @@ test("İngilizce iade politikası iadeyi Apple'a yönlendirir", () => {
   assert.ok(html.includes("Borcama cannot issue refunds for App Store purchases"));
 });
 
-test("İngilizce yalnız native ve dil İngilizce iken seçilir", () => {
+test("İngilizce yalnız native ve dil Türkçe değilken seçilir", () => {
   const kaynak = readFileSync(new URL("./Legal.jsx", import.meta.url), "utf8");
-  assert.match(kaynak, /const ingilizceMi = \(\) => nativeMi && dil\(\) === "en";/);
+  assert.match(kaynak, /const ingilizceMi = \(\) => nativeMi && dil\(\) !== "tr";/);
   for (const [ad, bilesen] of [
     ["KullaniciSozlesmesi", "TermsOfUseEn"],
     ["IadePolitikasi", "RefundPolicyEn"],

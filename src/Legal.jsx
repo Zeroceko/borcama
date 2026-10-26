@@ -6,7 +6,8 @@ import { EN_BASLIKLAR, PrivacyPolicyEn, RefundPolicyEn, TermsOfUseEn } from "./L
 
 // Ingilizce taslak metinler yalniz native kabukta ve dil Ingilizce iken
 // gosterilir; web ve Turkce cikti degismez.
-const ingilizceMi = () => nativeMi && dil() === "en";
+// Yasal metinlerin yalniz Turkce ve Ingilizce surumu var; diger diller Ingilizceyi gorur.
+const ingilizceMi = () => nativeMi && dil() !== "tr";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');

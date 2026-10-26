@@ -26,11 +26,19 @@ test("native'de kayıtlı seçim cihaz dilinden önce gelir", () => {
   assert.equal(dilBelirle({ native: true, kayitli: "en", tarayiciDili: "tr-TR" }), "en");
 });
 
-test("native'de kayıt yoksa cihaz diline bakar, Türkçe dışı her şey İngilizce", () => {
+test("native'de kayıt yoksa cihaz diline bakar; desteklenmeyen dil İngilizce", () => {
   assert.equal(dilBelirle({ native: true, tarayiciDili: "tr-TR" }), "tr");
   assert.equal(dilBelirle({ native: true, tarayiciDili: "TR" }), "tr");
-  assert.equal(dilBelirle({ native: true, tarayiciDili: "de-DE" }), "en");
-  assert.equal(dilBelirle({ native: true, kayitli: "fr", tarayiciDili: "" }), "en");
+  assert.equal(dilBelirle({ native: true, tarayiciDili: "de-DE" }), "de");
+  assert.equal(dilBelirle({ native: true, tarayiciDili: "fr-CA" }), "fr");
+  assert.equal(dilBelirle({ native: true, tarayiciDili: "pt-BR" }), "en");
+  assert.equal(dilBelirle({ native: true, kayitli: "it", tarayiciDili: "" }), "it");
+  assert.equal(dilBelirle({ native: true, kayitli: "xx", tarayiciDili: "" }), "en");
+});
+
+test("yeni dillerde eksik anahtar Türkçeye değil İngilizceye düşer", () => {
+  assert.equal(cevir("de", "dil.degistir"), cevir("en", "dil.degistir"));
+  assert.notEqual(cevir("de", "dil.degistir"), cevir("tr", "dil.degistir"));
 });
 
 test("locale dil koduna karşılık gelir", () => {
