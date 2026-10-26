@@ -45,8 +45,54 @@ const SLAYTLAR = [
     baslik: "Hesap açmadan<br><em>hemen başla.</em>", alt: "Banka şifresi yok, kart bilgisi yok. İstersen Face ID ile kilitle.", aci: "-2deg",
     sekiller: [["#cdf564", 800, 1600, 940], ["#ff6f59", -300, 2300, 760]], rozet: { metin: "<b>Face ID</b>uygulama kilidi", x: 860, y: 1180, bg: "#f4efe0" } },
 ];
-const i = Number(new URLSearchParams(location.search).get("i") || 0);
-const s = SLAYTLAR[i];
+const METINLER = {
+  en: [
+    { etiket: "Debt tracker", baslik: "Turn your debt<br>into a <em>plan.</em>", alt: "Cards, loans and overdrafts on one screen. See what to pay this month at a glance.", rozet: "<b>3 answers</b>every month" },
+    { etiket: "One table", baslik: "Every card<br><em>in one place.</em>", alt: "No bank login. Enter what matters, in your own currency.", rozet: "<b>0</b>bank passwords" },
+    { etiket: "Payoff plan", baslik: "Which debt first?<br><em>Your order is ready.</em>", alt: "See your monthly interest and get a payoff order from your own records.", rozet: "<b>Avalanche</b>or snowball" },
+    { etiket: "Net worth", baslik: "Your assets<br><em>count too.</em>", alt: "Cash, savings, property and more, right next to your debts.", rozet: "<b>Your</b>currency" },
+    { etiket: "Free", baslik: "Start without<br><em>an account.</em>", alt: "No bank password, no card details. Lock it with Face ID if you like.", rozet: "<b>Face ID</b>app lock" },
+  ],
+  de: [
+    { etiket: "Schulden-Tracker", baslik: "Mach aus Schulden<br>einen <em>Plan.</em>", alt: "Karten, Kredite und Dispo auf einem Bildschirm. Sieh sofort, was diesen Monat fällig ist.", rozet: "<b>3 Antworten</b>jeden Monat" },
+    { etiket: "Alles im Blick", baslik: "Alle Karten<br><em>an einem Ort.</em>", alt: "Kein Bank-Login. Trag ein, was zählt – in deiner Währung.", rozet: "<b>0</b>Bankpasswörter" },
+    { etiket: "Tilgungsplan", baslik: "Welche Schuld zuerst?<br><em>Dein Plan steht.</em>", alt: "Sieh deine Monatszinsen und erhalte eine Tilgungsreihenfolge aus deinen Daten.", rozet: "<b>Lawine</b>oder Schneeball" },
+    { etiket: "Vermögen", baslik: "Dein Vermögen<br><em>zählt mit.</em>", alt: "Bargeld, Ersparnisse, Immobilien und mehr – direkt neben deinen Schulden.", rozet: "<b>Deine</b>Währung" },
+    { etiket: "Kostenlos", baslik: "Ohne Konto<br><em>sofort loslegen.</em>", alt: "Kein Bankpasswort, keine Kartendaten. Auf Wunsch mit Face ID gesperrt.", rozet: "<b>Face ID</b>App-Sperre" },
+  ],
+  fr: [
+    { etiket: "Suivi des dettes", baslik: "Faites de vos dettes<br>un <em>plan.</em>", alt: "Cartes, crédits et découverts sur un seul écran. Voyez d'un coup d'œil quoi payer ce mois-ci.", rozet: "<b>3 réponses</b>chaque mois" },
+    { etiket: "Vue unique", baslik: "Toutes vos cartes<br><em>au même endroit.</em>", alt: "Aucun identifiant bancaire. Saisissez l'essentiel, dans votre devise.", rozet: "<b>0</b>mot de passe bancaire" },
+    { etiket: "Plan de remboursement", baslik: "Quelle dette d'abord ?<br><em>Votre ordre est prêt.</em>", alt: "Voyez vos intérêts mensuels et obtenez un ordre de remboursement à partir de vos données.", rozet: "<b>Avalanche</b>ou boule de neige" },
+    { etiket: "Patrimoine", baslik: "Votre patrimoine<br><em>compte aussi.</em>", alt: "Liquidités, épargne, immobilier et plus, à côté de vos dettes.", rozet: "<b>Votre</b>devise" },
+    { etiket: "Gratuit", baslik: "Commencez<br><em>sans compte.</em>", alt: "Ni mot de passe bancaire, ni carte. Verrouillez avec Face ID si vous voulez.", rozet: "<b>Face ID</b>verrouillage" },
+  ],
+  es: [
+    { etiket: "Control de deudas", baslik: "Convierte tus deudas<br>en un <em>plan.</em>", alt: "Tarjetas, préstamos y descubiertos en una pantalla. Mira qué pagar este mes de un vistazo.", rozet: "<b>3 respuestas</b>cada mes" },
+    { etiket: "Todo junto", baslik: "Todas tus tarjetas<br><em>en un lugar.</em>", alt: "Sin claves del banco. Introduce lo importante, en tu moneda.", rozet: "<b>0</b>claves del banco" },
+    { etiket: "Plan de pago", baslik: "¿Qué deuda primero?<br><em>Tu orden está listo.</em>", alt: "Mira tus intereses mensuales y obtén un orden de pago con tus propios datos.", rozet: "<b>Avalancha</b>o bola de nieve" },
+    { etiket: "Patrimonio", baslik: "Tu patrimonio<br><em>también cuenta.</em>", alt: "Efectivo, ahorros, inmuebles y más, junto a tus deudas.", rozet: "<b>Tu</b>moneda" },
+    { etiket: "Gratis", baslik: "Empieza<br><em>sin cuenta.</em>", alt: "Sin clave del banco ni datos de tarjeta. Bloquéala con Face ID si quieres.", rozet: "<b>Face ID</b>bloqueo" },
+  ],
+  it: [
+    { etiket: "Gestione debiti", baslik: "Trasforma i debiti<br>in un <em>piano.</em>", alt: "Carte, prestiti e scoperti in una schermata. Vedi subito cosa pagare questo mese.", rozet: "<b>3 risposte</b>ogni mese" },
+    { etiket: "Tutto in uno", baslik: "Tutte le carte<br><em>in un posto.</em>", alt: "Nessun accesso bancario. Inserisci ciò che conta, nella tua valuta.", rozet: "<b>0</b>password bancarie" },
+    { etiket: "Piano di rimborso", baslik: "Quale debito prima?<br><em>Il tuo ordine è pronto.</em>", alt: "Vedi gli interessi mensili e ottieni un ordine di rimborso dai tuoi dati.", rozet: "<b>Valanga</b>o palla di neve" },
+    { etiket: "Patrimonio", baslik: "Anche il patrimonio<br><em>conta.</em>", alt: "Contanti, risparmi, immobili e altro, accanto ai tuoi debiti.", rozet: "<b>La tua</b>valuta" },
+    { etiket: "Gratis", baslik: "Inizia<br><em>senza account.</em>", alt: "Nessuna password bancaria né carta. Bloccala con Face ID se vuoi.", rozet: "<b>Face ID</b>blocco app" },
+  ],
+};
+const parametreler = new URLSearchParams(location.search);
+const i = Number(parametreler.get("i") || 0);
+const dilKodu = parametreler.get("dil") || "tr";
+const s = { ...SLAYTLAR[i] };
+if (dilKodu !== "tr" && METINLER[dilKodu]) {
+  const m = METINLER[dilKodu][i];
+  s.ekran = s.ekran.replace(/^tr\//, dilKodu + "/");
+  s.etiket = m.etiket; s.baslik = m.baslik; s.alt = m.alt;
+  s.rozet = { ...s.rozet, metin: m.rozet };
+  document.documentElement.lang = dilKodu;
+}
 const k = document.documentElement.style;
 for (const [a, d] of Object.entries({ bg: s.bg, fg: s.fg, vurgu: s.vurgu, etiketBg: s.etiketBg, etiketFg: s.etiketFg, golge: s.golge, aci: s.aci, telTop: s.telTop || "980px", telW: s.telW || "1010px" })) k.setProperty("--" + a, d);
 document.getElementById("kok").innerHTML =
