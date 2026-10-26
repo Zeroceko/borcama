@@ -212,7 +212,7 @@ export const en = {
   // Spending categories (stored value; translated only for display)
   "deger.Market": "Groceries",
   "deger.Yeme-İçme": "Food & drink",
-  "deger.Ulaşım": "Transport",
+  "deger.Ulaşım": "Transportation",
   "deger.Fatura": "Bills",
   "deger.Kira": "Rent",
   "deger.Sağlık": "Health",

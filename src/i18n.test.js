@@ -157,6 +157,7 @@ test("bölüm sözlüklerinde aynı anahtar farklı Türkçe metinle tanımlanma
   const { readdir } = await import("node:fs/promises");
   const dosyalar = (await readdir(new URL("./locales/bolumler/", import.meta.url))).filter((d) => d.endsWith(".js"));
   const gorulen = new Map();
+  const gorulenEn = new Map();
   for (const dosya of dosyalar) {
     const bolum = await import(`./locales/bolumler/${dosya}`);
     for (const [anahtar, metin] of Object.entries(bolum.tr)) {
@@ -164,8 +165,11 @@ test("bölüm sözlüklerinde aynı anahtar farklı Türkçe metinle tanımlanma
         assert.equal(metin, gorulen.get(anahtar).metin, `${anahtar}: ${dosya} ile ${gorulen.get(anahtar).dosya} çakışıyor`);
       } else gorulen.set(anahtar, { metin, dosya });
     }
-    for (const anahtar of Object.keys(bolum.en)) {
+    for (const [anahtar, metin] of Object.entries(bolum.en)) {
       assert.ok(anahtar in bolum.tr, `${dosya}: en'de olup tr'de olmayan anahtar ${anahtar}`);
+      const onceki = gorulenEn.get(anahtar);
+      if (onceki) assert.equal(metin, onceki.metin, `${anahtar}: İngilizcesi ${dosya} ile ${onceki.dosya} arasında farklı`);
+      else gorulenEn.set(anahtar, { metin, dosya });
     }
   }
 });
