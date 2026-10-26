@@ -3680,6 +3680,7 @@ export default function BorcTakip() {
                 proAktif={etkinPro}
                 trialKalanGun={reklamsiz.trialAktif && !proSatistaDegil ? reklamsiz.trialKalanGun : 0}
                 proAc={() => setProPenceresiAcik(true)}
+                proSatisYok={proSatistaDegil}
               />
             )}
             {sekme === "borclar" && (
@@ -3893,7 +3894,7 @@ export default function BorcTakip() {
           className="bt-feedback-trigger"
           onClick={() => setGeriBildirimPenceresi(true)}
         >
-          <MessageCircle size={16} /> Görüş bildir
+          <MessageCircle size={16} /> {t("web.geriBildirim.dugme")}
         </button>
       )}
       <BorcamaAsistani
@@ -3987,7 +3988,7 @@ export default function BorcTakip() {
                   className="bt-h2"
                   style={{ marginBottom: 8 }}
                 >
-                  Görüşün bize ulaştı.
+                  {t("web.geriBildirim.ulasti")}
                 </div>
                 <div
                   style={{
@@ -3996,8 +3997,7 @@ export default function BorcTakip() {
                     lineHeight: 1.55,
                   }}
                 >
-                  Teşekkürler. Bu geri bildirim Borcama yönetim ekranında
-                  değerlendirilmek üzere kaydedildi.
+                  {t("web.geriBildirim.tesekkur")}
                 </div>
                 <div className="bt-form-butonlar">
                   <button
@@ -4005,7 +4005,7 @@ export default function BorcTakip() {
                     type="button"
                     onClick={geriBildirimKapat}
                   >
-                    Tamam
+                    {t("web.geriBildirim.tamam")}
                   </button>
                 </div>
               </>
@@ -4016,7 +4016,7 @@ export default function BorcTakip() {
                   className="bt-h2"
                   style={{ marginBottom: 8 }}
                 >
-                  <MessageCircle size={19} /> Görüş bildir
+                  <MessageCircle size={19} /> {t("web.geriBildirim.dugme")}
                 </div>
                 <div
                   style={{
@@ -4026,11 +4026,10 @@ export default function BorcTakip() {
                     marginBottom: 16,
                   }}
                 >
-                  Borcama’yı daha iyi yapmak için fikrini veya yaşadığın sorunu
-                  paylaş.
+                  {t("web.geriBildirim.aciklama")}
                 </div>
                 <label className="bt-alan" style={{ display: "grid" }}>
-                  Geri bildirim türü
+                  {t("web.geriBildirim.tur")}
                   <select
                     className="bt-input"
                     value={geriBildirimFormu.tur}
@@ -4041,20 +4040,20 @@ export default function BorcTakip() {
                       })
                     }
                   >
-                    <option>Fikir</option>
-                    <option>İyileştirme</option>
-                    <option>Sorun</option>
+                    <option value="Fikir">{t("web.geriBildirim.turFikir")}</option>
+                    <option value="İyileştirme">{t("web.geriBildirim.turIyilestirme")}</option>
+                    <option value="Sorun">{t("web.geriBildirim.turSorun")}</option>
                   </select>
                 </label>
                 <label
                   className="bt-alan bt-feedback-field"
                   style={{ display: "grid", marginTop: 12 }}
                 >
-                  Mesaj
+                  {t("web.geriBildirim.mesaj")}
                   <textarea
                     className="bt-input bt-feedback-textarea"
                     maxLength={1000}
-                    placeholder="Ne düşünüyorsun?"
+                    placeholder={t("web.geriBildirim.yerTutucu")}
                     value={geriBildirimFormu.mesaj}
                     onChange={(e) =>
                       setGeriBildirimFormu({
@@ -4075,14 +4074,14 @@ export default function BorcTakip() {
                     type="submit"
                     disabled={geriBildirimFormu.mesaj.trim().length < 3}
                   >
-                    <Send size={14} /> Gönder
+                    <Send size={14} /> {t("web.geriBildirim.gonder")}
                   </button>
                   <button
                     className="bt-btn ikincil"
                     type="button"
                     onClick={geriBildirimKapat}
                   >
-                    Vazgeç
+                    {t("web.geriBildirim.vazgec")}
                   </button>
                 </div>
               </>
@@ -4136,7 +4135,7 @@ export default function BorcTakip() {
                   }}
                 >
                   {t("kabuk.parola.hazirAciklama")}
-                  {!nativeMi && " E-posta linki seçeneği de kullanılmaya devam edecek."}
+                  {!nativeMi && ` ${t("web.parola.epostaLinkiDevam")}`}
                 </div>
                 <div className="bt-form-butonlar">
                   <button
@@ -4606,7 +4605,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   } : secim === "bilinmiyor" ? {
     baslik: t("asistan.bilinmiyor.baslik"),
     metin: t("asistan.bilinmiyor.metin"),
-    aksiyon: "Görüş bildir",
+    aksiyon: t("web.geriBildirim.dugme"),
   } : yanit;
   const yanitSunumu = secim === "model" && modelYaniti?.answer
     ? asistanYanitiniSunumaDonustur(modelYaniti.answer)
@@ -4850,7 +4849,7 @@ function DavetKarti() {
     davetDurumunuGetir().then((veri) => {
       if (active) setDurum({ yukleniyor: false, hata: "", veri, mesaj: "" });
     }).catch(() => {
-      if (active) setDurum({ yukleniyor: false, hata: "Davet bilgilerin şu anda yüklenemedi.", veri: null, mesaj: "" });
+      if (active) setDurum({ yukleniyor: false, hata: t("web.davet.yuklenemedi"), veri: null, mesaj: "" });
     });
     return () => { active = false; };
   }, []);
@@ -4859,16 +4858,16 @@ function DavetKarti() {
     if (!durum.veri?.inviteUrl) return;
     try {
       await navigator.clipboard.writeText(durum.veri.inviteUrl);
-      setDurum((old) => ({ ...old, mesaj: "Davet bağlantın kopyalandı." }));
+      setDurum((old) => ({ ...old, mesaj: t("web.davet.kopyalandi") }));
     } catch {
-      setDurum((old) => ({ ...old, mesaj: "Bağlantı kopyalanamadı; kodu elle paylaşabilirsin." }));
+      setDurum((old) => ({ ...old, mesaj: t("web.davet.kopyalanamadi") }));
     }
   };
   const paylas = async () => {
     if (!durum.veri?.inviteUrl) return;
-    const text = "Borcama'ya davet bağlantımla katıl. E-postanı doğruladığında ikimiz de 30 gün Pro kazanalım.";
+    const text = t("web.davet.paylasimMetni");
     if (navigator.share) {
-      try { await navigator.share({ title: "Borcama daveti", text, url: durum.veri.inviteUrl }); return; } catch { return; }
+      try { await navigator.share({ title: t("web.davet.paylasimBaslik"), text, url: durum.veri.inviteUrl }); return; } catch { return; }
     }
     await kopyala();
   };
@@ -4876,16 +4875,16 @@ function DavetKarti() {
   return (
     <section className="bt-referral-card" id="arkadasini-davet-et">
       <div className="bt-referral-copy">
-        <span className="bt-premium-badge"><Gift size={13}/> Arkadaşını davet et</span>
-        <h2>İkiniz de 30 gün Pro kazanın.</h2>
-        <p>Arkadaşın kalıcı bağlantınla kayıt olup e-postasını doğruladığında ödül otomatik eklenir. Ücretli Pro kullanıyorsan sıradaki tahsilatın ödül süresi boyunca ertelenir, ardından aboneliğin otomatik devam eder.</p>
-        {!durum.yukleniyor && !durum.hata && <div className="bt-referral-stats"><span>{totals.waiting || 0} doğrulama bekliyor</span><span>{totals.rewarded || 0} başarılı davet</span><span>{totals.earnedDays || 0} gün kazanıldı</span>{totals.billingScheduledDays > 0 && <span>Sıradaki yenilemede {totals.billingScheduledDays} gün ücretsiz</span>}{totals.pendingDays > 0 && <span>{totals.pendingDays} gün hazırlanıyor</span>}{totals.review > 0 && <span>{totals.review} incelemede</span>}</div>}
+        <span className="bt-premium-badge"><Gift size={13}/> {t("web.davet.rozet")}</span>
+        <h2>{t("web.davet.baslik")}</h2>
+        <p>{t("web.davet.metin")}</p>
+        {!durum.yukleniyor && !durum.hata && <div className="bt-referral-stats"><span>{t("web.davet.bekliyor", { n: totals.waiting || 0 })}</span><span>{t("web.davet.basarili", { n: totals.rewarded || 0 })}</span><span>{t("web.davet.kazanildi", { n: totals.earnedDays || 0 })}</span>{totals.billingScheduledDays > 0 && <span>{t("web.davet.siradaki", { n: totals.billingScheduledDays })}</span>}{totals.pendingDays > 0 && <span>{t("web.davet.hazirlaniyor", { n: totals.pendingDays })}</span>}{totals.review > 0 && <span>{t("web.davet.incelemede", { n: totals.review })}</span>}</div>}
       </div>
       <div className="bt-referral-panel">
-        <div className="bt-referral-code"><span>{durum.yukleniyor ? "Kod hazırlanıyor…" : durum.hata ? "Kod yüklenemedi" : "Kalıcı kodun"}</span><strong>{durum.veri?.code || "—"}</strong></div>
+        <div className="bt-referral-code"><span>{durum.yukleniyor ? t("web.davet.kodHazirlaniyor") : durum.hata ? t("web.davet.kodYuklenemedi") : t("web.davet.kaliciKod")}</span><strong>{durum.veri?.code || "—"}</strong></div>
         <div className="bt-referral-actions">
-          <button className="bt-btn birincil" type="button" disabled={!durum.veri} onClick={kopyala}><Copy size={14}/> Bağlantıyı kopyala</button>
-          <button className="bt-btn ikincil" type="button" disabled={!durum.veri} onClick={paylas}><Share2 size={14}/> Paylaş</button>
+          <button className="bt-btn birincil" type="button" disabled={!durum.veri} onClick={kopyala}><Copy size={14}/> {t("web.davet.kopyala")}</button>
+          <button className="bt-btn ikincil" type="button" disabled={!durum.veri} onClick={paylas}><Share2 size={14}/> {t("web.davet.paylas")}</button>
         </div>
         {(durum.mesaj || durum.hata) && <div className={`bt-referral-message ${durum.hata ? "bt-referral-error" : ""}`}>{durum.hata || durum.mesaj}</div>}
       </div>
@@ -5216,8 +5215,9 @@ function Ayarlar({
         )}
         {/* Davet programi uygulama surumunde gosterilmiyor: App Store, kodla
             acilan Pro odulunu uygulama ici satin alma disi bir mekanizma
-            sayiyor. Tarayici surumunde program aynen devam ediyor. */}
-        {!misafir && !nativeMi && <DavetKarti />}
+            sayiyor. Tarayici surumunde program aynen devam ediyor. Odul Pro
+            oldugundan Pro'nun satilmadigi yerde (proSatisYok) da gizli. */}
+        {!misafir && !nativeMi && !proSatisYok && <DavetKarti />}
         {/* Hesap bolumu yalnizca hesabi olan kullanici icin anlamli. */}
         {!misafir && (
         <section className="bt-settings-card">
@@ -5260,13 +5260,13 @@ function Ayarlar({
           {!nativeMi && (
           <div className="bt-setting-row">
             <div>
-              <strong>E-posta linki</strong>
+              <strong>{t("web.ayarlar.epostaLinki")}</strong>
               <small>
-                Tek kullanımlık güvenli bağlantıyla parolasız giriş.
+                {t("web.ayarlar.epostaLinkiAciklama")}
               </small>
             </div>
             <span className="bt-yakinda" style={{ color: "#5D7A2E" }}>
-              Aktif
+              {t("web.ayarlar.aktif")}
             </span>
           </div>
           )}
@@ -5324,13 +5324,13 @@ function Ayarlar({
         </section>
         {!nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
-            <ShieldCheck size={18} /> Gizlilik ve ölçüm
+            <ShieldCheck size={18} /> {t("web.ayarlar.olcum.baslik")}
           </div>
           <div className="bt-setting-row">
             <div>
-              <strong>Google Analytics ve reklam ölçümü</strong>
+              <strong>{t("web.ayarlar.olcum.satir")}</strong>
               <small>
-                Site kullanımını ve reklam kaynaklı kayıtları ölçer; e-posta ve finansal kayıtlar gönderilmez.
+                {t("web.ayarlar.olcum.aciklama")}
               </small>
             </div>
             <button
@@ -5342,7 +5342,7 @@ function Ayarlar({
                 void googleAdsOlcumIzniAyarla(yeniIzin);
               }}
             >
-              {olcumIzni ? "Ölçümü kapat" : "Ölçüme izin ver"}
+              {olcumIzni ? t("web.ayarlar.olcum.kapat") : t("web.ayarlar.olcum.izinVer")}
             </button>
           </div>
         </section>}
@@ -5356,19 +5356,19 @@ function Ayarlar({
             <>
               <div className="bt-setting-row">
                 <div>
-                  <strong>Bankaları yönet</strong>
-                  <small>Özel banka adlarını düzenle veya kaldır.</small>
+                  <strong>{t("web.ayarlar.bankalar")}</strong>
+                  <small>{t("web.ayarlar.bankalarAciklama")}</small>
                 </div>
                 <span className="bt-yakinda">
-                  <Building2 size={11} /> Yakında
+                  <Building2 size={11} /> {t("web.ayarlar.yakinda")}
                 </span>
               </div>
               <div className="bt-setting-row">
                 <div>
-                  <strong>Verileri dışa aktar</strong>
-                  <small>Borcama kayıtlarının kişisel bir kopyasını indir.</small>
+                  <strong>{t("web.ayarlar.disaAktar")}</strong>
+                  <small>{t("web.ayarlar.disaAktarAciklama")}</small>
                 </div>
-                <span className="bt-yakinda">Yakında</span>
+                <span className="bt-yakinda">{t("web.ayarlar.yakinda")}</span>
               </div>
             </>
           )}
@@ -5733,6 +5733,7 @@ function Ozet({
   proAktif,
   trialKalanGun = 0,
   proAc,
+  proSatisYok = false,
 }) {
   const [haricTurler, setHaricTurler] = useState([]);
   // Senaryo kayit dizileriyle calisir; ana birime cevrilmis kopya (tek
@@ -6083,15 +6084,16 @@ function Ozet({
         </div>
       </section>
 
-      {!nativeMi && (
-      <section className="bt-referral-campaign" aria-label="Arkadaşını davet et kampanyası">
+      {/* Davet odulu Pro: Pro'nun satilmadigi yerde bant gosterilmez. */}
+      {!nativeMi && !proSatisYok && (
+      <section className="bt-referral-campaign" aria-label={t("web.davet.bant.aria")}>
         <span className="bt-referral-campaign-ikon" aria-hidden="true"><Gift size={19}/></span>
         <div>
-          <strong>Arkadaşını davet et, ikiniz de 30 gün Pro kazanın.</strong>
-          <small>Kalıcı bağlantını bir kez oluştur; doğrulanan her uygun davette ödülün eklensin.</small>
+          <strong>{t("web.davet.bant.baslik")}</strong>
+          <small>{t("web.davet.bant.metin")}</small>
         </div>
         <a className="bt-btn kucuk ikincil" href="/settings?source=referral-campaign#arkadasini-davet-et">
-          Davet et <ChevronRight size={15}/>
+          {t("web.davet.bant.dugme")} <ChevronRight size={15}/>
         </a>
       </section>
       )}
