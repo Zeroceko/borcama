@@ -25,6 +25,10 @@ export function proSatisDurumuBelirle({ paketler = null, hata = null } = {}) {
     durum = paketler.monthly || paketler.annual ? "var" : "yok";
   }
   if (durum === "yok" && TURKIYE_MAGAZALARI.has(magaza)) return null;
+  // Abonelikler yalniz Turkiye magazasinda satista. Sandbox, ulke kisitina
+  // ragmen urunleri dondurebiliyor; bu yuzden magaza ulkesi biliniyorsa ve
+  // Turkiye degilse urun listesine bakilmaksizin Pro satilmiyor sayilir.
+  if (magaza && !TURKIYE_MAGAZALARI.has(magaza)) return "yok";
   return durum;
 }
 

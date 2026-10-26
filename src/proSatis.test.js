@@ -7,7 +7,13 @@ const paket = { formattedPrice: "₺99,99" };
 
 test("ürün gelirse Pro satışta sayılır, mevcut akış sürer", () => {
   assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: null, storefront: "TUR" } }), "var");
-  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: null, annual: paket, storefront: "USA" } }), "var");
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: null, annual: paket, storefront: null } }), "var");
+});
+
+test("Türkiye dışı mağazada ürün gelse bile Pro satışta değil (sandbox ülke kısıtını uygulamıyor)", () => {
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: paket, storefront: "USA" } }), "yok");
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: null, storefront: "DEU" } }), "yok");
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: paket, storefront: "TUR" } }), "var");
 });
 
 test("teklif boşsa veya ürün mağazadan alınamazsa Pro satışta değil", () => {
