@@ -14,6 +14,12 @@ export const tr = {
   "web.yapilandirma.metin": "Güvenli bağlantı ayarları tamamlanmadı. Lütfen daha sonra tekrar deneyin.",
   "web.hata.ekranAcilamadi": "Bu ekran açılamadı. Verilerin silinmedi.",
   "web.hata.yenidenDene": "Yeniden dene",
+  "web.olcum.aria": "Analytics ve reklam ölçüm tercihi",
+  "web.olcum.baslik": "Ölçüm tercihin",
+  "web.olcum.metin": "Borcama, site kullanımını ve reklamların hesap kaydı getirip getirmediğini ölçmek için isteğe bağlı Google Analytics ve Google Ads ölçümü kullanır. E-posta ve finansal bilgiler bu ölçüme eklenmez. Ayrıntılar için {link}.",
+  "web.olcum.link": "Gizlilik ve KVKK",
+  "web.olcum.reddet": "Reddet",
+  "web.olcum.izin": "Ölçüme izin ver",
 };
 
 export const en = {
@@ -29,6 +35,12 @@ export const en = {
   "web.yapilandirma.metin": "Secure connection settings are incomplete. Please try again later.",
   "web.hata.ekranAcilamadi": "This screen couldn't be opened. Your data has not been deleted.",
   "web.hata.yenidenDene": "Try again",
+  "web.olcum.aria": "Analytics and ad measurement preference",
+  "web.olcum.baslik": "Your measurement choice",
+  "web.olcum.metin": "Borcama uses optional Google Analytics and Google Ads measurement to understand site usage and whether ads lead to sign-ups. Email and financial data are never included. Details in the {link}.",
+  "web.olcum.link": "Privacy Policy",
+  "web.olcum.reddet": "Decline",
+  "web.olcum.izin": "Allow measurement",
 };
 
 export const de = {
@@ -44,6 +56,12 @@ export const de = {
   "web.yapilandirma.metin": "Die Einstellungen für die sichere Verbindung sind unvollständig. Bitte versuche es später erneut.",
   "web.hata.ekranAcilamadi": "Diese Ansicht konnte nicht geöffnet werden. Deine Daten wurden nicht gelöscht.",
   "web.hata.yenidenDene": "Erneut versuchen",
+  "web.olcum.aria": "Einstellung zu Analyse und Werbemessung",
+  "web.olcum.baslik": "Deine Messeinstellung",
+  "web.olcum.metin": "Borcama nutzt optional Google Analytics und Google Ads, um die Nutzung der Website zu messen und ob Anzeigen zu Registrierungen führen. E-Mail und Finanzdaten werden nie einbezogen. Details in der {link}.",
+  "web.olcum.link": "Datenschutzerklärung",
+  "web.olcum.reddet": "Ablehnen",
+  "web.olcum.izin": "Messung erlauben",
 };
 
 export const fr = {
@@ -59,6 +77,12 @@ export const fr = {
   "web.yapilandirma.metin": "Les paramètres de connexion sécurisée ne sont pas finalisés. Veuillez réessayer plus tard.",
   "web.hata.ekranAcilamadi": "Impossible d'ouvrir cet écran. Vos données n'ont pas été supprimées.",
   "web.hata.yenidenDene": "Réessayer",
+  "web.olcum.aria": "Préférence de mesure d'audience et publicitaire",
+  "web.olcum.baslik": "Votre choix de mesure",
+  "web.olcum.metin": "Borcama utilise, si vous l'acceptez, Google Analytics et Google Ads pour mesurer l'utilisation du site et savoir si les publicités mènent à des inscriptions. L'e-mail et les données financières ne sont jamais inclus. Détails dans la {link}.",
+  "web.olcum.link": "Politique de confidentialité",
+  "web.olcum.reddet": "Refuser",
+  "web.olcum.izin": "Autoriser la mesure",
 };
 
 export const es = {
@@ -74,6 +98,12 @@ export const es = {
   "web.yapilandirma.metin": "La configuración de conexión segura no está completa. Vuelve a intentarlo más tarde.",
   "web.hata.ekranAcilamadi": "No se pudo abrir esta pantalla. Tus datos no se han eliminado.",
   "web.hata.yenidenDene": "Reintentar",
+  "web.olcum.aria": "Preferencia de medición analítica y publicitaria",
+  "web.olcum.baslik": "Tu preferencia de medición",
+  "web.olcum.metin": "Borcama usa de forma opcional Google Analytics y Google Ads para medir el uso del sitio y si los anuncios generan registros. Nunca se incluyen el correo ni los datos financieros. Detalles en la {link}.",
+  "web.olcum.link": "Política de privacidad",
+  "web.olcum.reddet": "Rechazar",
+  "web.olcum.izin": "Permitir medición",
 };
 
 export const it = {
@@ -89,4 +119,10 @@ export const it = {
   "web.yapilandirma.metin": "Le impostazioni di connessione sicura non sono complete. Riprova più tardi.",
   "web.hata.ekranAcilamadi": "Impossibile aprire questa schermata. I tuoi dati non sono stati eliminati.",
   "web.hata.yenidenDene": "Riprova",
+  "web.olcum.aria": "Preferenza di misurazione analitica e pubblicitaria",
+  "web.olcum.baslik": "La tua scelta sulla misurazione",
+  "web.olcum.metin": "Borcama usa facoltativamente Google Analytics e Google Ads per misurare l'uso del sito e se gli annunci portano a registrazioni. Email e dati finanziari non vengono mai inclusi. Dettagli nell'{link}.",
+  "web.olcum.link": "Informativa sulla privacy",
+  "web.olcum.reddet": "Rifiuta",
+  "web.olcum.izin": "Consenti misurazione",
 };

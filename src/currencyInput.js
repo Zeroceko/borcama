@@ -56,7 +56,7 @@ export function paraBirimiBelirle({ native = false, kayitli = null, dilKodu = "t
 // cok dilli yayinindan sonraya konmali (once olursa arada acilip TRY ile
 // veri girmis yabanci dilli kullanici baska birim gorur; sonra olursa arada
 // acilan yeni hesaplar yalniz TRY ile baslar ve Ayarlar'dan degistirebilir).
-export const WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI = "2026-11-10T00:00:00Z";
+export const WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI = "2026-10-28T00:00:00Z";
 
 // Web: tarayicidaki Supabase oturumu ve hesabin acilis zamani. Kisisel veri
 // okunmaz; yalniz created_at.
