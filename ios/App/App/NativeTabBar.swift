@@ -28,6 +28,13 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     private var cubuk: UITabBar?
     private var koyuTema = false
+    // Web "goster" mesajiyla cubugu gizleyebiliyor (giris ekrani, hukuki
+    // sayfalar). Klavye kapaninca cubuk bu tercihe gore geri gelir; aksi
+    // halde web'in gizledigi cubuk klavyeden sonra yeniden beliriyordu.
+    private var webGosterilsin = true
+    private var klavyeAcik = false
+    // Web'e en son bildirilen gorunur cubuk yuksekligi (nokta).
+    private var bildirilenYukseklik: CGFloat = -1
 
     // Cubuk uygulamanin kendi temasini izliyor; sistem temasini degil. Kullanici
     // uygulama icinden koyu temaya gecince cubuk da koyuya donuyor.
@@ -76,8 +83,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             case "tema":
                 self.temayiUygula(govde["koyu"] as? Bool ?? false)
             case "goster":
-                let gorunsun = govde["gorunsun"] as? Bool ?? true
-                self.cubuk?.isHidden = !gorunsun
+                self.webGosterilsin = govde["gorunsun"] as? Bool ?? true
+                self.gorunurluguUygula()
             default:
                 break
             }
@@ -112,6 +119,12 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             return oge
         }
         yeni.selectedItem = yeni.items?.first
+        // Genislik sabitlenmiyor; cubuk pencereyle birlikte uzayip kisaliyor.
+        // .automatic: dar pencerede (iPhone, Split View) ogeler genislige
+        // yayilir, genis pencerede (iPad, iPhone Duo ic ekrani; yatay size
+        // class regular) UIKit ogeleri sabit genislikte ortalar. Ozel bir
+        // maksimum genislik yerine sistemin iPad davranisi kullaniliyor.
+        yeni.itemPositioning = .automatic
 
         // Cubuk guvenli alanin ustune oturuyor. Altinda kalan serit webview'in
         // kendi arka planiyla doluyor; buraya ayri bir katman koyulursa sistem
@@ -123,12 +136,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             yeni.trailingAnchor.constraint(equalTo: pencere.trailingAnchor),
             yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor),
         ])
-        // UITabBar kendi icinde ev cubugu icin bosluk birakiyor; guvenli alana
-        // oturtuldugunda bu bosluk ustune binince cubuk ekranin cok
-        // yukarisinda kaliyordu. Yukseklige dokunmadan asagi kaydiriliyor ki
-        // ic yerlesim (simge ve etiket hizasi) bozulmasin.
-        yeni.transform = CGAffineTransform(translationX: 0, y: 33)
         pencere.bringSubviewToFront(yeni)
+        yerlesimiGuncelle()
 
         // Klavye acilinca cubuk klavyenin uzerinde asili kalmasin.
         NotificationCenter.default.addObserver(
@@ -152,14 +161,105 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     @objc private func klavyeAcildi() {
         DispatchQueue.main.async {
-            self.cubuk?.isHidden = true
+            self.klavyeAcik = true
+            self.gorunurluguUygula()
         }
     }
 
     @objc private func klavyeKapandi() {
         DispatchQueue.main.async {
-            self.cubuk?.isHidden = false
+            self.klavyeAcik = false
+            self.gorunurluguUygula()
         }
+    }
+
+    private func gorunurluguUygula() {
+        cubuk?.isHidden = !webGosterilsin || klavyeAcik
+        yuksekligiBildir()
+    }
+
+    // MARK: - Pencere boyutu ve guvenli alan
+    //
+    // Pencere boyutu sabit degil: iPhone Duo katlanip acilinca, yarim
+    // katlanmis durumda, Split View'de ve dondurmede degisir; guvenli alan
+    // kenarlari da asimetrik olabilir. Bu yuzden hicbir olcu sabit yazilmiyor,
+    // UIScreen.main ya da cihaz yonelimi okunmuyor. Her deger pencerenin o
+    // anki guvenli alanindan hesaplaniyor ve asagidaki her degisiklikte
+    // yeniden uygulaniyor.
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        yerlesimiGuncelle()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        yerlesimiGuncelle()
+    }
+
+    override func viewWillTransition(to size: CGSize,
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            self.yerlesimiGuncelle()
+        }, completion: { _ in
+            self.yerlesimiGuncelle()
+        })
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        if #available(iOS 17.0, *) {
+            registerForTraitChanges([UITraitHorizontalSizeClass.self,
+                                     UITraitVerticalSizeClass.self]) { (vc: BorcamaBridgeViewController, _: UITraitCollection) in
+                vc.yerlesimiGuncelle()
+            }
+        }
+    }
+
+    // iOS 17 oncesi icin; iOS 17+ yukaridaki registerForTraitChanges'i kullanir.
+    @available(iOS, deprecated: 17.0)
+    override func traitCollectionDidChange(_ previous: UITraitCollection?) {
+        super.traitCollectionDidChange(previous)
+        if #unavailable(iOS 17.0) { yerlesimiGuncelle() }
+    }
+
+    // Sahne geometrisi degisince (SceneDelegate) cagrilir.
+    func pencereGeometrisiDegisti() {
+        view.setNeedsLayout()
+        yerlesimiGuncelle()
+    }
+
+    private func yerlesimiGuncelle() {
+        guard let cubuk, let pencere = cubuk.window else { return }
+        // UITabBar kendi icinde ev cubugu icin bosluk birakiyor; guvenli alana
+        // oturtuldugunda bu bosluk ustune binince cubuk ekranin cok
+        // yukarisinda kaliyordu. Yukseklige dokunmadan alt guvenli alan
+        // kadar (1 nokta eksik) asagi kaydiriliyor ki ic yerlesim bozulmasin.
+        // Eskiden sabit 33'tu (dikey iPhone'da 34 - 1); artik pencerenin o
+        // anki alt boslugundan hesaplaniyor: yatay iPhone'da 21, iPad ve Duo
+        // ic ekraninda 20, ev cubugu olmayan pencerede 0.
+        let kayma = max(0, pencere.safeAreaInsets.bottom - 1)
+        if cubuk.transform.ty != kayma {
+            cubuk.transform = CGAffineTransform(translationX: 0, y: kayma)
+        }
+        yuksekligiBildir()
+    }
+
+    // Cubugun alt guvenli alanin ustunde kapladigi yukseklik web'e CSS
+    // degiskeni olarak bildirilir (--sekme-cubugu). Web, pencerelerin alt
+    // boslugunu buna gore birakir; boylece katlanabilir ekranda veya iPad
+    // duzeninde cubuk yuksekligi degisse de icerik altinda kalmaz.
+    private func yuksekligiBildir() {
+        guard let cubuk, let pencere = cubuk.window else { return }
+        let gorunur: CGFloat = cubuk.isHidden
+            ? 0
+            : max(0, (pencere.bounds.height - pencere.safeAreaInsets.bottom) - cubuk.frame.minY)
+        let yuvarlak = gorunur.rounded(.up)
+        guard yuvarlak != bildirilenYukseklik else { return }
+        bildirilenYukseklik = yuvarlak
+        let js = "document.documentElement.style.setProperty('--sekme-cubugu','\(Int(yuvarlak))px')"
+        webView?.evaluateJavaScript(js, completionHandler: nil)
     }
 
     // MARK: - UITabBarDelegate

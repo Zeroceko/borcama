@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- iOS uygulaması katlanabilir iPhone (iPhone Duo), iPad genişliği, Split View ve yatay konuma hazırlandı: alt sekme çubuğu sabit kaydırma yerine pencerenin o anki güvenli alanına göre yerleşiyor ve pencere boyutu, size class veya sahne geometrisi değişince yeniden hesaplanıyor (geniş pencerede öğeler iPad'deki gibi ortalanıyor) ve gerçek yüksekliğini web'e bildiriyor, pencereler bu kadar alt boşluk bırakıyor; sol/sağ güvenli alanlar asimetrik olabildiğinden uygulama ekranları, giriş/kayıt, pencereler ve hızlı işlem düğmeleri her kenarın kendi boşluğunu kullanıyor; karşılama ekranı geniş pencerede okunabilir bir sütunda ortalanıyor, kısa-geniş pencerede görsel ve metin yan yana diziliyor; ekrandan uzun pencereler artık kayıyor ve üstten kesilmiyor. Tarayıcı görünümü değişmedi.
+
 ## [1.70.0] - 2026-10-27
 
 ### Eklendi
