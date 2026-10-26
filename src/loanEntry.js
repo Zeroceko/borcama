@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 const degerVar = (value) => value !== "" && value !== null && value !== undefined;
 
 const pozitifSayi = (value) => Math.max(Number(value) || 0, 0);
@@ -18,7 +20,7 @@ export function krediTaksitIlerlemesi(kredi = {}) {
     return {
       girisYapildi: true,
       gecerli: false,
-      hata: "Toplam ve ödenen taksit sayısını birlikte gir.",
+      hata: t("borclar.krediGiris.birlikteGir"),
     };
   }
 
@@ -28,14 +30,14 @@ export function krediTaksitIlerlemesi(kredi = {}) {
     return {
       girisYapildi: true,
       gecerli: false,
-      hata: "Toplam taksit sayısı en az 1 olmalı.",
+      hata: t("borclar.krediGiris.toplamEnAz1"),
     };
   }
   if (odenenTaksit > toplamTaksit) {
     return {
       girisYapildi: true,
       gecerli: false,
-      hata: "Ödenen taksit sayısı toplam taksit sayısından büyük olamaz.",
+      hata: t("borclar.krediGiris.odenenBuyuk"),
     };
   }
 
@@ -60,12 +62,12 @@ export function krediKaydiniHazirla(kredi = {}) {
 
   if (ilerleme.gecerli) {
     if (pozitifSayi(kredi.taksit) <= 0) {
-      return { tamam: false, hata: "Bankanın aylık taksit tutarını gir.", kredi: null };
+      return { tamam: false, hata: t("borclar.krediGiris.taksitGir"), kredi: null };
     }
     if (ilerleme.kalanTaksit < 1) {
       return {
         tamam: false,
-        hata: "Tüm taksitleri ödenmiş kredi aktif borç olarak eklenemez.",
+        hata: t("borclar.krediGiris.tumuOdenmis"),
         kredi: null,
       };
     }
@@ -83,10 +85,10 @@ export function krediKaydiniHazirla(kredi = {}) {
   }
 
   if (tamSayi(kredi.kalanTaksit) < 1) {
-    return { tamam: false, hata: "Kalan taksit sayısını gir.", kredi: null };
+    return { tamam: false, hata: t("borclar.krediGiris.kalanTaksitGir"), kredi: null };
   }
   if (pozitifSayi(kredi.kalanBorc) <= 0) {
-    return { tamam: false, hata: "Kalan toplam ödeme tutarını gir.", kredi: null };
+    return { tamam: false, hata: t("borclar.krediGiris.kalanToplamGir"), kredi: null };
   }
   return { tamam: true, hata: "", kredi: { ...kredi } };
 }
