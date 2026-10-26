@@ -27,6 +27,12 @@ import {
 } from "./bolgeKurallari.js";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
 import {
+  kayitliProSatisDurumu,
+  proSatisDurumuBelirle,
+  proSatisDurumunuKaydet,
+  proSatistaDegil as proMagazadaSatistaDegil,
+} from "./proSatis.js";
+import {
   revenueCatHazir,
   revenueCatProKontrol,
   revenueCatProPaketleri,
@@ -1744,6 +1750,10 @@ export default function BorcTakip() {
     annual: null,
     hata: "",
   });
+  // Native: kullanicinin App Store ulkesinde Pro satista mi ("var" | "yok" |
+  // null). Son bilinen durum cihazda saklanir; acilista onunla baslanir ki
+  // teklifler yuklenirken Pro yuzeyleri gorunup kaybolmasin. Web'de daima "var".
+  const [proSatisDurumu, setProSatisDurumu] = useState(() => kayitliProSatisDurumu());
   const [proGeriYukleme, setProGeriYukleme] = useState({ yukleniyor: false, hata: "" });
   const [proSatinAlma, setProSatinAlma] = useState({
     yukleniyor: false,
@@ -1768,9 +1778,17 @@ export default function BorcTakip() {
       return "pro";
     return localStorage.getItem("borcama:demo-plan") === "free" ? "free" : "pro";
   });
+  // Pro satilmayan magazada (native) satin alma yuzeyleri gizlenir ve Pro'ya
+  // bagli ozellikler ucretsiz acilir; ucretli aboneligi olan kullanici (ör.
+  // Turkiye'de alip baska ulkeye gecen) normal Pro akisini gormeye devam eder.
+  const ucretliPro = reklamsiz.proAktif && !reklamsiz.trialAktif;
+  const proSatistaDegil = nativeMi && proSatisDurumu === "yok" && !ucretliPro;
+  // Satis durumu henuz bilinmiyorsa (ilk acilis) "Pro'ya Gec" teklifler
+  // yuklenene kadar bekler; gosterilip sonra kaybolmaz.
+  const proSatisBekleniyor = nativeMi && proSatisDurumu === null && proPaketler.yukleniyor;
   const etkinPro = planOnizlemesiAktif
     ? demoPlan === "pro"
-    : reklamsiz.proAktif;
+    : reklamsiz.proAktif || proSatistaDegil;
   const demoPlaniDegistir = (plan) => {
     setDemoPlan(plan);
     localStorage.setItem("borcama:demo-plan", plan);
@@ -2004,13 +2022,15 @@ export default function BorcTakip() {
         }
         try {
           const paketler = await revenueCatProPaketleri(kullanici.id);
+          proSatisKarariniUygula({ paketler });
           setProPaketler({
             yukleniyor: false,
             monthly: paketler.monthly || null,
             annual: paketler.annual || null,
             hata: "",
           });
-        } catch {
+        } catch (error) {
+          proSatisKarariniUygula({ hata: error });
           setProPaketler({
             yukleniyor: false,
             monthly: null,
@@ -2020,6 +2040,14 @@ export default function BorcTakip() {
         }
       });
   }, []);
+
+  function proSatisKarariniUygula(sonuc) {
+    if (!nativeMi) return;
+    const durum = proSatisDurumuBelirle(sonuc);
+    if (!durum) return;
+    proSatisDurumunuKaydet(durum);
+    setProSatisDurumu(durum);
+  }
 
   async function reklamsizKontrol() {
     // Yalniz ilk sorguda "yukleniyor" isaretlenir. Her yenilemede isaretlenince
@@ -3250,7 +3278,7 @@ export default function BorcTakip() {
               <Sparkles size={14} aria-hidden="true" />
               <span>{t("kabuk.sor")}</span>
             </button>
-            {reklamsiz.kontrolEdildi && !etkinPro && (
+            {reklamsiz.kontrolEdildi && !etkinPro && !proSatisBekleniyor && (
               <button
                 className="bt-upgrade-link"
                 type="button"
@@ -3379,7 +3407,7 @@ export default function BorcTakip() {
           return <RehberSeridi oneri={rehber.oneri} onAksiyon={rehberAksiyonu} onErtele={(id) => ayarKaydet({ rehber: rehberiErtele(veri.ayarlar?.rehber, id) })} onKapat={(id) => ayarKaydet({ rehber: rehberOnerisiniKapat(veri.ayarlar?.rehber, id) })} />;
         })()}
 
-        {trialHatirlaticiAcik && (
+        {trialHatirlaticiAcik && !proSatistaDegil && (
           <section className="bt-trial-son" aria-label={t("kabuk.trial.aria")}>
             <div className="bt-trial-son-ikon">
               <Sparkles size={19} aria-hidden="true" />
@@ -3446,7 +3474,7 @@ export default function BorcTakip() {
                 varlikOzeti={varlikOzeti}
                 oneriler={borcamaOnerileri}
                 proAktif={etkinPro}
-                trialKalanGun={reklamsiz.trialAktif ? reklamsiz.trialKalanGun : 0}
+                trialKalanGun={reklamsiz.trialAktif && !proSatistaDegil ? reklamsiz.trialKalanGun : 0}
                 proAc={() => setProPenceresiAcik(true)}
               />
             )}
@@ -3584,6 +3612,7 @@ export default function BorcTakip() {
                 eposta={kullaniciEposta}
                 isDark={isDark}
                 reklamsiz={{ ...reklamsiz, proAktif: etkinPro }}
+                proSatisYok={proSatistaDegil}
                 reklamsizKontrol={reklamsizKontrol}
                 manuelProIptal={manuelProIptal}
                 paddleProIptal={paddleProIptal}
@@ -3671,7 +3700,8 @@ export default function BorcTakip() {
         veri={veri}
         kalemler={kalemler}
         proAktif={etkinPro}
-        proAc={() => {
+        proSatisYok={proSatistaDegil}
+        proAc={proSatistaDegil ? undefined : () => {
           setAsistanPenceresi(false);
           setProPenceresiAcik(true);
         }}
@@ -3688,7 +3718,7 @@ export default function BorcTakip() {
         }}
       />
       <ProTanitimPenceresi
-        acik={proPenceresiAcik}
+        acik={proPenceresiAcik && !proSatistaDegil}
         kapat={() => setProPenceresiAcik(false)}
         proSatinAl={proSatinAl}
         proSatinAlma={proSatinAlma}
@@ -4240,7 +4270,7 @@ function IlkKullanimRehberi({
 // Günlük asistan soru hakkı; sunucudaki consume_financial_assistant_question ile aynı.
 const ASISTAN_UCRETSIZ_SORU = 5;
 const ASISTAN_PRO_SORU = 20;
-function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, veri, kalemler, git, gorusBildir, proAktif, proAc, yapayZekaIzni, yapayZekaIzniVer }) {
+function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, veri, kalemler, git, gorusBildir, proAktif, proAc, proSatisYok = false, yapayZekaIzni, yapayZekaIzniVer }) {
   const [secim, setSecim] = useState("durum");
   const [soru, setSoru] = useState("");
   const [modelYaniti, setModelYaniti] = useState(null);
@@ -4333,7 +4363,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       setModelDurumu({ yukleniyor: false, hata: "", kota: sonuc.quota || null });
     } catch (error) {
       const mesaj = error?.message === "DAILY_LIMIT"
-        ? (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif)
+        ? (proSatisYok || (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif))
           ? t("asistan.hata.limitPro", { limit: error.quota?.limit || ASISTAN_PRO_SORU })
           : t("asistan.hata.limitUcretsiz", { limit: error.quota?.limit || ASISTAN_UCRETSIZ_SORU, pro: ASISTAN_PRO_SORU })
         : error?.message === "DEMO_MODE"
@@ -4418,7 +4448,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           <small>{t("asistan.uyari")}</small>
           <div className="bt-assistant-answer-footer">
             {!(nativeMi && secim === "bilinmiyor") && !(secim === "model" && modelYaniti?.route === "none") && <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>}
-            {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : t("asistan.kota.ucretsiz")}</span><strong>{modelDurumu.kota.remaining}</strong><span>{modelDurumu.kota.remaining === 1 ? t("asistan.kota.kaldiTekil") : t("asistan.kota.kaldiCogul")}</span></div>}
+            {modelDurumu.kota && <div className="bt-assistant-quota">{!proSatisYok && <span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : t("asistan.kota.ucretsiz")}</span>}<strong>{modelDurumu.kota.remaining}</strong><span>{modelDurumu.kota.remaining === 1 ? t("asistan.kota.kaldiTekil") : t("asistan.kota.kaldiCogul")}</span></div>}
             {!asistanProKotasi && proAc && modelDurumu.kota && modelDurumu.kota.remaining <= 0 && (
               <div className="bt-assistant-upsell">
                 <span><b>{t("asistan.upsell.baslik")}</b> {t("asistan.upsell.metin", { n: ASISTAN_PRO_SORU })}</span>
@@ -4657,6 +4687,7 @@ function Ayarlar({
   rehberAc,
   cikisYap,
   hesabiSil,
+  proSatisYok = false,
 }) {
   const [proPlan, setProPlan] = useState("monthly");
   const [ucretsizOnayi, setUcretsizOnayi] = useState(false);
@@ -4761,7 +4792,8 @@ function Ayarlar({
         {/* Hesapsiz kullanimda abonelik satin alinamaz; App Store aboneligi
             hesaba baglandigi icin once hesap acilmasi gerekiyor. Satin alma
             arayuzu yerine ne yapilacagini soyleyen bir kart gosteriliyor. */}
-        {misafir ? (
+        {/* Pro'nun satilmadigi App Store ulkesinde abonelik karti hic yok. */}
+        {proSatisYok ? null : misafir ? (
           <section className="bt-premium-card">
             <div className="bt-premium-copy">
               <span className="bt-premium-badge">
@@ -5838,7 +5870,7 @@ function Ozet({
       {(gelir > 0 || proAktif) && (
         <section className={"bt-pro-senaryo " + (proAktif ? "aktif" : "kilitli")}>
           <div className="bt-pro-senaryo-ust">
-            <span className="bt-pro-senaryo-rozet"><Sparkles size={15} /> Borcama Pro</span>
+            {!proMagazadaSatistaDegil() && <span className="bt-pro-senaryo-rozet"><Sparkles size={15} /> Borcama Pro</span>}
             {proAktif && trialKalanGun > 0 && <span>{t(trialKalanGun === 1 ? "ozet.pro.denemeTekil" : "ozet.pro.denemeCogul", { n: trialKalanGun })}</span>}
           </div>
           {proAktif && borcsuzlukSenaryosu.status === "ok" ? (

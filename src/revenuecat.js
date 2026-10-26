@@ -161,12 +161,29 @@ export async function revenueCatProPaketleri(userId) {
     const hazir = await nativePurchasesForUser(userId);
     if (!hazir) return { unavailable: true };
     const { Purchases } = hazir;
-    const offerings = await Purchases.getOfferings();
+    // App Store ulkesi (ISO 3166-1 alpha-3, ör. "TUR"); Pro'nun bu ulkede
+    // satista olup olmadigina karar verirken guvenlik kontrolu olarak kullanilir.
+    const storefront = await Purchases.getStorefront()
+      .then((magaza) => magaza?.countryCode || null)
+      .catch(() => null);
+    let offerings;
+    try {
+      offerings = await Purchases.getOfferings();
+    } catch (error) {
+      if (error && typeof error === "object") error.storefront = storefront;
+      throw error;
+    }
     const offering = proOffering(offerings);
-    if (!offering) throw new Error("Borcama Pro teklifi bulunamadı.");
+    if (!offering) {
+      const error = new Error("Borcama Pro teklifi bulunamadı.");
+      error.bosTeklif = true;
+      error.storefront = storefront;
+      throw error;
+    }
     return {
       monthly: paketOzeti(planPackage(offering, "monthly")),
       annual: paketOzeti(planPackage(offering, "annual")),
+      storefront,
     };
   }
 
