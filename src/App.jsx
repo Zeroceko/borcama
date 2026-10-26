@@ -11003,6 +11003,8 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
     currentDate: bugun(),
   });
   const senaryoMetni = getFinancialScenarioCopy(finansalSenaryo);
+  // Ay sayısına göre tekil/çoğul anahtar (İngilizce "1 month / 2 months").
+  const ayli = (anahtar, n, degerler) => t(`${anahtar}${n === 1 ? "Tekil" : "Cogul"}`, { n, ...degerler });
   const onerilenButce = finansalSenaryo.recommendation?.recommendedLivingBudget;
   const onerilenSenaryo =
     finansalSenaryo.recommendation?.livingReductionNeeded > 1 && Number.isFinite(onerilenButce)
@@ -11076,11 +11078,16 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
     return (
       <div className="bt-card" style={{ textAlign: "center" }}>
         <div className="bt-bos">
-          Plan oluşturmak için önce{" "}
-          <button className="bt-link" onClick={() => setSekme("borclar")}>
-            Borçlar sekmesinden
-          </button>{" "}
-          borçlarınızı ekleyin.
+          <Ceviri
+            anahtar="plan.bos"
+            degerler={{
+              link: (
+                <button className="bt-link" onClick={() => setSekme("borclar")}>
+                  {t("plan.bosLink")}
+                </button>
+              ),
+            }}
+          />
         </div>
       </div>
     );
@@ -11091,22 +11098,18 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         <section className="bt-plan-giris">
           <div className="bt-plan-giris-ust">
             <button className="bt-link" type="button" onClick={() => setSekme("borclar")}>
-              <ChevronLeft size={15} /> Borçlara dön
+              <ChevronLeft size={15} /> {t("plan.borclaraDon")}
             </button>
           </div>
           <div className="bt-plan-giris-ana">
             <div>
-              <h1>Borç planından ilk sinyalin hazır</h1>
-              <p>
-                Ücretsiz planda borçlarını ve ödemelerini takip edebilirsin. Pro,
-                bu kayıtlardan hangi borca önce odaklanacağını ve harcama
-                değişikliklerinin olası sonucunu hesaplar.
-              </p>
+              <h1>{t("plan.kilit.baslik")}</h1>
+              <p>{t("plan.kilit.aciklama")}</p>
             </div>
             <div className="bt-plan-faiz-ozeti">
-              <span>Tahmini aylık faiz yükü</span>
+              <span>{t("plan.faizYuku")}</span>
               <strong>{fmt0(aylikFaiz)}</strong>
-              <small>{doner.length} değişken faizli borç kaydına göre</small>
+              <small>{t(doner.length === 1 ? "plan.kilit.kayitTekil" : "plan.kilit.kayitCogul", { n: doner.length })}</small>
             </div>
           </div>
         </section>
@@ -11116,21 +11119,17 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
           </div>
           <div className="bt-pro-senaryo-ana">
             <div>
-              <h2>Bu faiz yükünü azaltmak için kişisel sıranı gör</h2>
-              <p>
-                Pro; gelirini, sabit kredi taksitlerini ve yaşam harcamanı birlikte
-                değerlendirir. Çığ ve kartopu yöntemlerini, borçsuzluk süresini ve
-                harcama senaryolarını tek planda karşılaştırır.
-              </p>
+              <h2>{t("plan.kilit.proBaslik")}</h2>
+              <p>{t("plan.kilit.proAciklama")}</p>
             </div>
             <button className="bt-btn birincil" type="button" onClick={proAc}>
-              Pro planını incele <ChevronRight size={16} />
+              {t("plan.kilit.incele")} <ChevronRight size={16} />
             </button>
           </div>
           <div className="bt-pro-senaryo-metrikler">
-            <div><span>Ödeme önceliği</span><strong>Çığ / Kartopu</strong></div>
-            <div><span>Harcama senaryoları</span><strong>%10 · %20 · %30</strong></div>
-            <div><span>Kişisel sonuç</span><strong>Borçsuzluk süresi</strong></div>
+            <div><span>{t("plan.kilit.oncelik")}</span><strong>{t("plan.kilit.cigKartopu")}</strong></div>
+            <div><span>{t("plan.kilit.senaryolar")}</span><strong>{t("plan.kilit.yuzdeler")}</strong></div>
+            <div><span>{t("plan.kilit.sonuc")}</span><strong>{t("plan.kilit.borcsuzluk")}</strong></div>
           </div>
         </section>
       </div>
@@ -11141,73 +11140,72 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
       <section className="bt-plan-giris">
         <div className="bt-plan-giris-ust">
           <button className="bt-link" type="button" onClick={() => setSekme("borclar")}>
-            <ChevronLeft size={15} /> Borçlara dön
+            <ChevronLeft size={15} /> {t("plan.borclaraDon")}
           </button>
         </div>
         <div className="bt-plan-giris-ana">
           <div>
-            <h1>Bu ayın borç planı</h1>
-            <p>
-              Önce bu ayı dengele; sonra hangi borcu hangi sırayla kapatacağını gör.
-            </p>
+            <h1>{t("plan.baslik")}</h1>
+            <p>{t("plan.altBaslik")}</p>
           </div>
           <div className="bt-plan-faiz-ozeti">
-            <span>Tahmini aylık faiz yükü</span>
+            <span>{t("plan.faizYuku")}</span>
             <strong>{fmt0(aylikFaiz)}</strong>
-            <small>12 aylık sabit karşılığı ≈ {fmt0(aylikFaiz * 12)}</small>
+            <small>{t("plan.yillik", { tutar: fmt0(aylikFaiz * 12) })}</small>
           </div>
         </div>
         <div className="bt-plan-faiz-kirilim">
           {kartFaiz > 0 && (
             <div className="bt-chip">
               <span className="dot" style={{ background: LIME }} />
-              <span className="lbl">Kredi kartları</span>
+              <span className="lbl">{t("plan.kirilim.kart")}</span>
               <span className="amt">{fmt0(kartFaiz)}</span>
             </div>
           )}
           {ekFaiz > 0 && (
             <div className="bt-chip">
               <span className="dot" style={{ background: CORAL }} />
-              <span className="lbl">Ek hesap / KMH</span>
+              <span className="lbl">{t("plan.kirilim.ek")}</span>
               <span className="amt">{fmt0(ekFaiz)}</span>
             </div>
           )}
           {digerFaiz > 0 && (
             <div className="bt-chip">
               <span className="dot" style={{ background: "#55584c" }} />
-              <span className="lbl">Gecikmiş / diğer</span>
+              <span className="lbl">{t("plan.kirilim.diger")}</span>
               <span className="amt">{fmt0(digerFaiz)}</span>
             </div>
           )}
         </div>
         {gecikmisler.length > 0 && (
           <div className="bt-plan-gecikme">
-            {gecikmisler.length} kart vadesi geçmiş, bunlardan ayda{" "}
-            {fmt0(gecikmisFaiz)} gecikme faizi işliyor
+            {t(gecikmisler.length === 1 ? "plan.gecikmeTekil" : "plan.gecikmeCogul", {
+              n: gecikmisler.length,
+              tutar: fmt0(gecikmisFaiz),
+            })}
           </div>
         )}
       </section>
 
       <section className={`bt-plan-senaryo ${finansalSenaryo.status === "structural_gap" ? "oncelikli" : ""}`}>
         <div className="bt-plan-senaryo-not" style={{ display: "none" }}>
-          <strong>Bu bir aylık plan tahminidir.</strong>
-          <span>Bankadaki kullanılabilir bakiyen veya bugünden kalan ödeme listen değildir.
-            Yaşam harcaması {finansalSenaryo.living.monthsUsed.join(", ") || "henüz bulunmayan"} dönemlerinin kayıtlarından hesaplanır; taksitler aylık paylarıyla alınır.
-            {finansalSenaryo.living.partialMonthOnly && " Yalnızca bu ayın eksik kayıtları var; görünen harcama tutarı güvenli bir günlük limit değildir."}
+          <strong>{t("plan.not.baslik")}</strong>
+          <span>{t("plan.not.metin", { aylar: finansalSenaryo.living.monthsUsed.join(", ") || t("plan.not.henuzYok") })}
+            {finansalSenaryo.living.partialMonthOnly && t("plan.not.eksikAy")}
           </span>
         </div>
         <div className="bt-plan-senaryo-ust">
           <div>
-            <span className="bt-plan-senaryo-kicker">ÖNCE BU AY</span>
-            <h2>{finansalSenaryo.status === "structural_gap" ? "Planını dengeye getirelim" : senaryoMetni.title}</h2>
-            <p>{finansalSenaryo.status === "structural_gap" ? "Aşağıdaki iki rakam, bu ay vereceğin kararı özetliyor." : senaryoMetni.reason}</p>
+            <span className="bt-plan-senaryo-kicker">{t("plan.kicker")}</span>
+            <h2>{finansalSenaryo.status === "structural_gap" ? t("plan.dengeBaslik") : senaryoMetni.title}</h2>
+            <p>{finansalSenaryo.status === "structural_gap" ? t("plan.dengeAciklama") : senaryoMetni.reason}</p>
           </div>
           <span className="bt-plan-senaryo-durum">
             {finansalSenaryo.status === "ok"
-              ? `${finansalSenaryo.months} ay`
+              ? ayli("plan.durumAy", finansalSenaryo.months)
               : onerilenSenaryo?.status === "ok"
-                ? `Hedef: ${onerilenSenaryo.months} ay`
-                : "Ek plan gerekir"}
+                ? ayli("plan.hedefAy", onerilenSenaryo.months)
+                : t("plan.ekPlan")}
           </span>
         </div>
 
@@ -11216,99 +11214,94 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             {finansalSenaryo.status === "structural_gap" && (
               <div className="bt-plan-karar">
                 <div className="bt-plan-karar-ana">
-                  <span>AYLIK BÜTÇE AÇIĞIN</span>
+                  <span>{t("plan.acik.baslik")}</span>
                   <strong>{fmt0(finansalSenaryo.monthlyGap)}</strong>
-                  <small>Zorunlu ödemeleri aksatmamak için gelir, harcama veya ödeme planında bu kadar alan açmalısın.</small>
+                  <small>{t("plan.acik.aciklama")}</small>
                 </div>
                 <div className="bt-plan-karar-yan">
-                  <span>GÜVENLİ HARCAMA SINIRIN</span>
+                  <span>{t("plan.sinir.baslik")}</span>
                   <strong>{fmt0(Math.max(0, zorunluOdemelerSonrasiYasamButcesi))}</strong>
-                  <small>Mevcut kayıtlarına göre zorunlu ödemeleri aksatmayan yaklaşık sınır.</small>
+                  <small>{t("plan.sinir.aciklama")}</small>
                 </div>
               </div>
             )}
             <details className="bt-plan-detay">
-              <summary>Rakamlar nasıl hesaplandı?</summary>
+              <summary>{t("plan.detay.nasil")}</summary>
               <div className="bt-plan-senaryo-grid">
-              <div><span>Aylık gelir</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
-              <div><span>Sabit kredi taksitleri</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
-              <div><span>Mevcut yaşam harcaması</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
+              <div><span>{t("plan.aylikGelir")}</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
+              <div><span>{t("plan.sabitTaksit")}</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
+              <div><span>{t("plan.yasamHarcamasi")}</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
               {finansalSenaryo.status === "structural_gap" ? (
                 <>
                   <div>
-                    <span>Planda kart ve KMH için gereken en az ödeme</span>
+                    <span>{t("plan.enAzOdeme")}</span>
                     <strong>{fmt0(finansalSenaryo.requiredMinimum)}</strong>
                   </div>
                   <div>
-                    <span>Kredi ve yaşam giderinden sonra kalan</span>
+                    <span>{t("plan.kalan")}</span>
                     <strong>{fmt0(finansalSenaryo.initialDebtBudget)}</strong>
-                    <small>Eksi tutar, kart ödemelerinden önce de açık olduğunu gösterir</small>
+                    <small>{t("plan.kalanNot")}</small>
                   </div>
                   <div>
-                    <span>Toplam aylık bütçe açığı</span>
+                    <span>{t("plan.toplamAcik")}</span>
                     <strong>{fmt0(finansalSenaryo.monthlyGap)}</strong>
-                    <small>Yaşam giderleri, kredi taksitleri ve kart/KMH asgarileri birlikte</small>
+                    <small>{t("plan.toplamAcikNot")}</small>
                   </div>
                 </>
               ) : (
                 <>
                   <div>
-                    <span>Önerilen aylık yaşam harcaması</span>
+                    <span>{t("plan.onerilenAylik")}</span>
                     <strong>{fmt0(onerilenButce)}</strong>
                   </div>
                   <div>
-                    <span>Bu bütçenin günlük karşılığı</span>
+                    <span>{t("plan.gunluk")}</span>
                     <strong>{fmt0(finansalSenaryo.recommendation.recommendedDailyLiving)}</strong>
                   </div>
                   <div>
-                    <span>Bu bütçeyle tahmini sonuç</span>
+                    <span>{t("plan.tahminiSonuc")}</span>
                     <strong>
                       {onerilenSenaryo?.status === "ok"
-                        ? `Kart ve KMH yaklaşık ${onerilenSenaryo.months} ayda kapanabilir`
-                        : `Kart ve KMH borcunun kapanması ${finansalSenaryo.months} ayı aşıyor`}
+                        ? ayli("plan.kapanabilir", onerilenSenaryo.months)
+                        : ayli("plan.asiyor", finansalSenaryo.months)}
                     </strong>
                   </div>
                 </>
               )}
               </div>
               <div className="bt-plan-senaryo-not">
-              <strong>{finansalSenaryo.status === "structural_gap" ? "Açık neden oluşuyor?" : "Plan nasıl hesaplandı?"}</strong>
+              <strong>{finansalSenaryo.status === "structural_gap" ? t("plan.acikNeden") : t("plan.planNasil")}</strong>
               {finansalSenaryo.status === "structural_gap" ? (
                 <span>
-                  {fmt0(finansalSenaryo.monthlyIncome)} gelirden {fmt0(finansalSenaryo.fixedMonthly)} kredi taksiti ve
-                  {" "}{fmt0(finansalSenaryo.livingBudget)} mevcut yaşam harcaması çıkınca kart ve KMH için
-                  {" "}{fmt0(finansalSenaryo.initialDebtBudget)} kalıyor. Eksi tutar varsa bu da açığa dahildir. Planda en az
-                  {" "}{fmt0(finansalSenaryo.requiredMinimum)} ödenmesi gerektiği için
-                  {" "}{fmt0(finansalSenaryo.monthlyGap)} eksik oluşuyor. Güvenlik tamponu yalnızca bu zorunlu
-                  ödemeler karşılandıktan sonra biriktirilir; bu açığa dahil değildir.
+                  {t("plan.acikAciklama", {
+                    gelir: fmt0(finansalSenaryo.monthlyIncome),
+                    taksit: fmt0(finansalSenaryo.fixedMonthly),
+                    yasam: fmt0(finansalSenaryo.livingBudget),
+                    kalan: fmt0(finansalSenaryo.initialDebtBudget),
+                    enAz: fmt0(finansalSenaryo.requiredMinimum),
+                    acik: fmt0(finansalSenaryo.monthlyGap),
+                  })}
                 </span>
               ) : (
-                <span>
-                  Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart/KMH faizi vergi ve fonlarla birlikte
-                  ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik
-                  tamponu bir kez birikir ve yeni kart/KMH borcu eklenmediği varsayılır.
-                </span>
+                <span>{t("plan.planAciklama")}</span>
               )}
               </div>
             </details>
             {finansalSenaryo.status === "structural_gap" && (
               <div className="bt-plan-cozum">
-                <h3>Şimdi yapacağın 2 adım</h3>
-                <p>
-                  Amaç, açığı büyütmeden zorunlu ödemeleri karşılamak ve yeni borç oluşmasını durdurmak.
-                </p>
+                <h3>{t("plan.cozum.baslik")}</h3>
+                <p>{t("plan.cozum.amac")}</p>
                 <ol className="bt-plan-cozum-adimlar">
                   <li>
                     <b>1</b>
-                    <span><strong>Yeni kart ve KMH borcu oluşturma.</strong> Yeni harcama, bu ayki açığı doğrudan büyütür.</span>
+                    <span><strong>{t("plan.cozum.adim1Baslik")}</strong>{" "}{t("plan.cozum.adim1")}</span>
                   </li>
                   {harcamasizKalanAcik > 0 ? (
                     <li>
                       <b>2</b>
                       <span>
-                        <strong>Harcama kısıntısı tek başına yeterli değil.</strong> Yaşam harcaması ayrılmasa bile
-                        zorunlu ödemeler için ayda {fmt0(harcamasizKalanAcik)} eksik kalıyor. En az bu tutarda ek
-                        gelir gerekir veya bankanla ödeme planı ve yapılandırma seçeneklerini görüşmelisin.
+                        <strong>{t("plan.cozum.yetersizBaslik")}</strong>{" "}
+                        {t("plan.cozum.yetersiz", { tutar: fmt0(harcamasizKalanAcik) })}
                       </span>
                     </li>
                   ) : (
@@ -11316,18 +11309,19 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                       <li>
                         <b>2</b>
                         <span>
-                          <strong>Yaşam harcamasını bu ay en fazla {fmt0(zorunluOdemelerSonrasiYasamButcesi)} seviyesinde tut.</strong>{" "}
-                          Bu, mevcut düzeyden {fmt0(gerekenYasamAzaltimi)} yani yaklaşık %{gerekenAzaltimYuzdesi} azaltım demek.
+                          <strong>{t("plan.cozum.sinirBaslik", { tutar: fmt0(zorunluOdemelerSonrasiYasamButcesi) })}</strong>{" "}
+                          {t("plan.cozum.sinir", { tutar: fmt0(gerekenYasamAzaltimi), yuzde: gerekenAzaltimYuzdesi })}
                         </span>
                       </li>
                       {yuzdeOtuzSenaryosu?.monthlyGap > 0 && gerekenAzaltimYuzdesi > 30 && (
                         <li>
                           <b>3</b>
                           <span>
-                            <strong>%30 azaltım daha gerçekçiyse</strong>, aylık yaşam bütçen
-                            {" "}{fmt0(yuzdeOtuzSenaryosu.livingBudget)} olur; zorunlu ödemeler için yine
-                            {" "}{fmt0(yuzdeOtuzSenaryosu.monthlyGap)} eksik kalır. Bu fark için ek gelir yaratman veya
-                            bankanla ödeme planı ve yapılandırma seçeneklerini görüşmen gerekir.
+                            <strong>{t("plan.cozum.otuzBaslik")}</strong>
+                            {t("plan.cozum.otuz", {
+                              butce: fmt0(yuzdeOtuzSenaryosu.livingBudget),
+                              acik: fmt0(yuzdeOtuzSenaryosu.monthlyGap),
+                            })}
                           </span>
                         </li>
                       )}
@@ -11336,28 +11330,28 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                 </ol>
                 <div className="bt-plan-cozum-actions">
                   <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
-                    Harcamaları incele <ChevronRight size={16} />
+                    {t("plan.harcamalariIncele")} <ChevronRight size={16} />
                   </button>
                   <button className="bt-btn ikincil" type="button" onClick={() => setSekme("odemeler")}>
-                    Zorunlu ödemeleri aç
+                    {t("plan.zorunluAc")}
                   </button>
                 </div>
               </div>
             )}
             {finansalSenaryo.spendingScenarios?.length > 1 && (
               <details className="bt-plan-detay">
-                <summary>Farklı harcama senaryolarını karşılaştır</summary>
+                <summary>{t("plan.senaryoKarsilastir")}</summary>
                 <div className="bt-plan-senaryo-grid">
                   {finansalSenaryo.spendingScenarios.slice(1).map((scenario) => (
                     <div key={scenario.reductionRate}>
-                      <span>Yaşam harcaması %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
-                      <strong>Aylık bütçe {fmt0(scenario.livingBudget)}</strong>
+                      <span>{t("plan.senaryo.azalirsa", { yuzde: Math.round(scenario.reductionRate * 100) })}</span>
+                      <strong>{t("plan.senaryo.aylikButce", { tutar: fmt0(scenario.livingBudget) })}</strong>
                       <small>
                         {scenario.status === "ok"
-                          ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
+                          ? ayli("plan.senaryo.kapanir", scenario.months, { faiz: fmt0(scenario.totalInterest) })
                           : scenario.status === "long_horizon"
-                            ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
-                            : `Zorunlu ödemeler için ayda ${fmt0(scenario.monthlyGap)} açık kalır.`}
+                            ? t("plan.senaryo.altmis")
+                            : t("plan.senaryo.acik", { tutar: fmt0(scenario.monthlyGap) })}
                       </small>
                     </div>
                   ))}
@@ -11367,7 +11361,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             {finansalSenaryo.status !== "structural_gap" && (
               <div className="bt-plan-senaryo-actions">
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
-                  Harcamaları incele <ChevronRight size={16} />
+                  {t("plan.harcamalariIncele")} <ChevronRight size={16} />
                 </button>
               </div>
             )}
@@ -11375,39 +11369,35 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         ) : finansalSenaryo.status === "ok" ? (
           <>
             <div className="bt-plan-senaryo-grid">
-              <div><span>Aylık gelir</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
-              <div><span>Sabit kredi taksitleri</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
-              <div><span>Mevcut yaşam harcaması</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
-              <div><span>Mevcut plan</span><strong>Yaklaşık {finansalSenaryo.months} ay</strong></div>
+              <div><span>{t("plan.aylikGelir")}</span><strong>{fmt0(finansalSenaryo.monthlyIncome)}</strong></div>
+              <div><span>{t("plan.sabitTaksit")}</span><strong>{fmt0(finansalSenaryo.fixedMonthly)}</strong></div>
+              <div><span>{t("plan.yasamHarcamasi")}</span><strong>{fmt0(finansalSenaryo.livingBudget)}</strong></div>
+              <div><span>{t("plan.mevcutPlan")}</span><strong>{ayli("plan.yaklasik", finansalSenaryo.months)}</strong></div>
               <div>
-                <span>Harcama hedefiyle</span>
-                <strong>{onerilenSenaryo?.status === "ok" ? `Yaklaşık ${onerilenSenaryo.months} ay` : "—"}</strong>
+                <span>{t("plan.hedefle")}</span>
+                <strong>{onerilenSenaryo?.status === "ok" ? ayli("plan.yaklasik", onerilenSenaryo.months) : "—"}</strong>
               </div>
               <div>
-                <span>Önerilen yaşam harcaması</span>
+                <span>{t("plan.onerilenYasam")}</span>
                 <strong>{onerilenSenaryo?.status === "ok" ? fmt0(onerilenButce) : fmt0(finansalSenaryo.livingBudget)}</strong>
               </div>
             </div>
             <div className="bt-plan-senaryo-not">
-              <strong>{kazanilanAy > 0 ? `${kazanilanAy} ay daha erken kapanabilir` : "Senaryonun şartları"}</strong>
-              <span>
-                Yeni kart/KMH borcu hedefi ₺0. Yaşam harcaması gelirden karşılanır;
-                asgari ödemelerden sonra artan tutar en yüksek maliyetli kart ve KMH borcuna gider.
-                Faiz oranları kullanıcı değiştirmedikçe sabit tutulur; enflasyon ve gelir artışı varsayılmaz.
-              </span>
+              <strong>{kazanilanAy > 0 ? ayli("plan.erken", kazanilanAy) : t("plan.sartlar")}</strong>
+              <span>{t("plan.sartlarMetin")}</span>
             </div>
             {finansalSenaryo.spendingScenarios?.length > 1 && (
               <div className="bt-plan-senaryo-grid">
                 {finansalSenaryo.spendingScenarios.slice(1).map((scenario) => (
                   <div key={scenario.reductionRate}>
-                    <span>Yaşam harcaması %{Math.round(scenario.reductionRate * 100)} azalırsa</span>
-                    <strong>Bu senaryoda aylık yaşam bütçesi {fmt0(scenario.livingBudget)}</strong>
+                    <span>{t("plan.senaryo.azalirsa", { yuzde: Math.round(scenario.reductionRate * 100) })}</span>
+                    <strong>{t("plan.senaryo.yasamButcesi", { tutar: fmt0(scenario.livingBudget) })}</strong>
                     <small>
                       {scenario.status === "ok"
-                        ? `Kart ve KMH yaklaşık ${scenario.months} ayda kapanır; tahmini faiz ${fmt0(scenario.totalInterest)}.`
+                        ? ayli("plan.senaryo.kapanir", scenario.months, { faiz: fmt0(scenario.totalInterest) })
                         : scenario.status === "long_horizon"
-                          ? "Kart ve KMH borcunun kapanması 60 ayı aşar."
-                          : `Giderler ve zorunlu borç ödemeleri için ayda ${fmt0(scenario.monthlyGap)} açık kalır.`}
+                          ? t("plan.senaryo.altmis")
+                          : t("plan.senaryo.acikGider", { tutar: fmt0(scenario.monthlyGap) })}
                     </small>
                   </div>
                 ))}
@@ -11416,7 +11406,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             {onerilenSenaryo?.status === "ok" && (
               <div className="bt-plan-senaryo-actions">
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("harcamalar")}>
-                  Harcamaları incele <ChevronRight size={16} />
+                  {t("plan.harcamalariIncele")} <ChevronRight size={16} />
                 </button>
               </div>
             )}
@@ -11428,7 +11418,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
               type="button"
               onClick={() => setSekme(finansalSenaryo.status === "missing_income" ? "gelir" : "borclar")}
             >
-              {finansalSenaryo.status === "missing_income" ? "Gelir ekle" : "Kayıtları tamamla"}
+              {finansalSenaryo.status === "missing_income" ? t("plan.gelirEkle") : t("plan.kayitlariTamamla")}
               <ChevronRight size={16} />
             </button>
           </div>
@@ -11438,36 +11428,39 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
       <div className="bt-ipucu">
         <Lightbulb size={16} />
         <div>
-          <b>Çığ yöntemi</b> önce en yüksek faizli borcu kapatır — en az faiz
-          ödersiniz. <b>Kartopu yöntemi</b> önce en küçük borcu kapatır — hızlı
-          kapanan borçlar motivasyon verir. Diğer borçların asgarisini
-          aksatmadan, artan her kuruşu sıradaki tek hedefe yığın.
+          <Ceviri
+            anahtar="plan.ipucu"
+            degerler={{
+              cig: <b>{t("plan.cigYontemi")}</b>,
+              kartopu: <b>{t("plan.kartopuYontemi")}</b>,
+            }}
+          />
         </div>
       </div>
 
       <div className="bt-card">
         <div className="bt-cardhead">
           <div className="bt-h2" style={{ margin: 0 }}>
-            <Target size={16} /> Kapatma sıranız
+            <Target size={16} /> {t("plan.siraniz")}
           </div>
           <div className="bt-secici">
             <button
               className={strateji === "cig" ? "aktif" : ""}
               onClick={() => setStrateji("cig")}
             >
-              <Flame size={14} color={CORAL} /> Çığ
+              <Flame size={14} color={CORAL} /> {t("plan.cig")}
             </button>
             <button
               className={strateji === "kartopu" ? "aktif" : ""}
               onClick={() => setStrateji("kartopu")}
             >
-              <Snowflake size={14} /> Kartopu
+              <Snowflake size={14} /> {t("plan.kartopu")}
             </button>
           </div>
         </div>
 
         {doner.length === 0 ? (
-          <div className="bt-bos">Faiz işleyen (kart / KMH) borcunuz yok.</div>
+          <div className="bt-bos">{t("plan.faizYok")}</div>
         ) : (
           <div className="bt-stack" style={{ gap: 12, marginTop: 22 }}>
             {sirali.map((k, i) => {
@@ -11476,21 +11469,17 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                   ? k.gecikmis
                     ? k.asgariEksigi > 0
                       ? (k.yapilanOdeme > 0
-                          ? fmt0(k.yapilanOdeme) + " ödeme kaydedildi. "
-                          : "Ödeme kaydı yok. ") +
-                        "Asgari ödeme " +
-                        fmt0(k.asgariEksigi) +
-                        " eksik görünüyor. Bankanız bu kısma gecikme faizi, kalan borca normal kart faizi uygulayabilir"
+                          ? t("plan.kart.odemeKaydedildi", { tutar: fmt0(k.yapilanOdeme) })
+                          : t("plan.kart.odemeKaydiYok")) +
+                        t("plan.kart.asgariEksik", { tutar: fmt0(k.asgariEksigi) })
                       : (k.yapilanOdeme > 0
-                          ? fmt0(k.yapilanOdeme) + " ödeme kaydedildi. "
-                          : "Asgari ödeme karşılandı. ") +
-                        "Kalan borç " +
-                        fmt0(k.bakiye) +
-                        ". Bankanız bu tutara normal kart faizi uygulayabilir"
+                          ? t("plan.kart.odemeKaydedildi", { tutar: fmt0(k.yapilanOdeme) })
+                          : t("plan.kart.asgariKarsilandi")) +
+                        t("plan.kart.kalanBorc", { tutar: fmt0(k.bakiye) })
                     : (k.yapilanOdeme > 0
-                        ? fmt0(k.yapilanOdeme) + " ödeme kaydedildi. "
-                        : "Ödeme kaydı yok. ") +
-                      "Kalan borcun tamamı son ödeme tarihine kadar kapanmazsa faiz oluşabilir"
+                        ? t("plan.kart.odemeKaydedildi", { tutar: fmt0(k.yapilanOdeme) })
+                        : t("plan.kart.odemeKaydiYok")) +
+                      t("plan.kart.vadesiGelmedi")
                   : null;
               return (
                 <div
@@ -11537,23 +11526,22 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                       {k.ad}{" "}
                       {i === 0 && (
                         <span style={{ color: "#5D7A2E", fontWeight: 700 }}>
-                          ← önce bunu kapatın
+                          {t("plan.onceBunu")}
                         </span>
                       )}
                     </div>
                     <div className="bt-satir-meta">
                       {kartFaizAciklamasi
                         ? kartFaizAciklamasi
-                        : "Aylık %" +
-                          k.faiz.toFixed(2) +
-                          (k.faizTahmini
-                            ? k.gecikmis
-                              ? " (TCMB yasal azami GECİKME oranı)"
-                              : " (TCMB yasal azami oranı)"
-                            : "") +
-                          " · ayda ≈ " +
-                          fmt0(k.faizTutari) +
-                          " faiz"}
+                        : t("plan.faizMeta", {
+                            oran: k.faiz.toFixed(2),
+                            kaynak: k.faizTahmini
+                              ? k.gecikmis
+                                ? t("plan.tcmbGecikme")
+                                : t("plan.tcmb")
+                              : "",
+                            tutar: fmt0(k.faizTutari),
+                          })}
                     </div>
                   </div>
                   <div className="bt-satir-tutar">{fmt(k.bakiye)}</div>
@@ -11572,8 +11560,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                 margin: "18px 0 10px",
               }}
             >
-              Sıralamanın dışındakiler (sabit taksitli krediler / faiz
-              girilmemiş borçlar):
+              {t("plan.disindakiler")}
             </div>
             <div className="bt-stack" style={{ gap: 10 }}>
               {sabit.map((k, i) => (
@@ -11597,12 +11584,12 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
 
       {hedef && (
         <div className="bt-card">
-          <div className="bt-h2">Ekstra ödeme simülasyonu</div>
+          <div className="bt-h2">{t("plan.ekstra.baslik")}</div>
           <label className="bt-alan" style={{ maxWidth: 240 }}>
-            Elinize geçen ekstra tutar (₺)
+            {t("plan.ekstra.alan")}
             <ParaInput
               className="bt-input"
-              placeholder="Örn. 5.000"
+              placeholder={t("plan.ekstra.ornek")}
               value={ekstra}
               onValueChange={setEkstra}
             />
@@ -11611,12 +11598,14 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             <div className="bt-ipucu" style={{ marginTop: 16 }}>
               <Target size={16} />
               <div>
-                Bu parayı <b>{hedef.ad}</b> borcuna yatırın → her ay yaklaşık{" "}
-                <b>{fmt0(kurtarilan)}</b> faiz ödemekten kurtulursunuz
+                <Ceviri
+                  anahtar="plan.ekstra.sonuc"
+                  degerler={{ ad: <b>{hedef.ad}</b>, tutar: <b>{fmt0(kurtarilan)}</b> }}
+                />
                 {ekstraTutar >= hedef.bakiye && (
                   <>
                     {" "}
-                    ve bu borç <b>tamamen kapanır</b>
+                    <Ceviri anahtar="plan.ekstra.kapanir" degerler={{ b: <b>{t("plan.ekstra.tamamen")}</b> }} />
                   </>
                 )}
                 .
