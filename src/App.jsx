@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
-import { dil, locale, t, tDeger } from "./i18n.js";
+import { dil, isoTarihGoster, locale, t, tDeger } from "./i18n.js";
 import Ceviri from "./Ceviri.jsx";
 import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
 import { misafirModuAcik } from "./misafirModu.js";
@@ -7622,7 +7622,7 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
               <div className="bt-loan-plan-preview">
                 {result.schedule.slice(0, 5).map((row) => (
                   <div key={`${row.number}-${row.dueDate}`}>
-                    <span>{t("ekstre.plan.taksitNo", { n: row.number })} · {row.dueDate ? row.dueDate.split("-").reverse().join(".") : t("ekstre.tarihOkunamadi")}</span>
+                    <span>{t("ekstre.plan.taksitNo", { n: row.number })} · {row.dueDate ? isoTarihGoster(row.dueDate) : t("ekstre.tarihOkunamadi")}</span>
                     <strong>{fmt(row.installment)}</strong>
                     <small>{t("ekstre.plan.satirKalan", { tutar: fmt(row.remainingPrincipal) })}</small>
                   </div>
@@ -10341,8 +10341,8 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
                     <div className="bt-satir-ad">{kartGorunenAdi(k)}</div>
                     <div className="bt-satir-meta">
                       {t("borcSatir.kontrol.donemIci", {
-                        baslangic: donem.baslangic.split("-").reverse().join("."),
-                        bitis: donem.bitis.split("-").reverse().join("."),
+                        baslangic: isoTarihGoster(donem.baslangic),
+                        bitis: isoTarihGoster(donem.bitis),
                       })}
                     </div>
                   </div>
@@ -10603,7 +10603,7 @@ function BorclarSatiri({
         : t("borcSatir.kredi.taksitHerAyin", { taksit: fmt(k.taksit), gun: k.odemeGunu }) +
           (+k.kalanTaksit > 0 ? t("borcSatir.kredi.taksitKaldi", { n: krediPlanOzeti.remainingInstallments }) : "") +
           (buAyKrediOdendi ? t("borcSatir.kredi.buAykiOdendi") : "");
-    if (k.ilkOdemeTarihi) altMeta += t("borcSatir.kredi.ilkTaksit", { tarih: k.ilkOdemeTarihi.split("-").reverse().join(".") });
+    if (k.ilkOdemeTarihi) altMeta += t("borcSatir.kredi.ilkTaksit", { tarih: isoTarihGoster(k.ilkOdemeTarihi) });
     if (!arsiv && !k._gelecek && krediPlanOzeti.remainingPaymentTotal > 0) {
       tutarEtiketi = t("borcSatir.kredi.toplamKalanOdeme");
       altYazi = krediPlanOzeti.financingCostIsKnown
@@ -12816,7 +12816,7 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
                     {g.tekrar === "Tek seferlik"
                       ? t("gelirGider.gelir.tekSeferlik") +
                         (g.tarih
-                          ? " · " + g.tarih.split("-").reverse().join(".")
+                          ? " · " + isoTarihGoster(g.tarih)
                           : "")
                       : t("gelirGider.gelir.herAyTekrarlaniyor")}
                   </div>
@@ -13307,7 +13307,7 @@ function Harcamalar({
                     {odeme.yapilandirma ? t("gelirGider.harcama.yapilandirma") : t("gelirGider.harcama.krediTaksiti")}
                     {odeme.kalanTaksit > 0 && <> · {t("gelirGider.harcama.taksitKaldi", { n: odeme.kalanTaksit })}</>}
                     {!odeme.buAyOdenecek && odeme.ilkOdemeTarihi && (
-                      <> · {t("gelirGider.harcama.tarihindeBaslar", { tarih: odeme.ilkOdemeTarihi.split("-").reverse().join(".") })}</>
+                      <> · {t("gelirGider.harcama.tarihindeBaslar", { tarih: isoTarihGoster(odeme.ilkOdemeTarihi) })}</>
                     )}
                   </div>
                 </div>
@@ -13434,7 +13434,7 @@ function Harcamalar({
                           )}
                         </div>
                         <div className="bt-satir-meta">
-                          {sabit ? tDeger("Her ay") : h.tarih && h.tarih.split("-").reverse().join(".")}
+                          {sabit ? tDeger("Her ay") : h.tarih && isoTarihGoster(h.tarih)}
                           {h.kaynak && <> · {tDeger(h.kaynak)}</>}
                           {harcamaEkstreAyi && (
                             <> · {t("gelirGider.harcama.ekstre", { ay: ayEtiketi(harcamaEkstreAyi) })}</>
