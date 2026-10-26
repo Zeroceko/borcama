@@ -15,7 +15,10 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     // Web tarafindaki sekme anahtarlari ile cubuk sirasi ayni olmali.
     private static let anahtarlar = ["ozet", "borclar", "hareketler", "varliklar"]
-    private static let basliklar = ["Bugün", "Borçlar", "Hareketler", "Varlıklar"]
+    private static let varsayilanBasliklar = ["Bugün", "Borçlar", "Hareketler", "Varlıklar"]
+    // Etiketler web tarafindan secili dilde gelir (hazirla mesajindaki
+    // "basliklar"); gelmezse Turkce varsayilanlar kullanilir.
+    private var basliklar = BorcamaBridgeViewController.varsayilanBasliklar
     private static let simgeler = [
         "chart.bar.fill",
         "creditcard.fill",
@@ -62,6 +65,11 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         DispatchQueue.main.async {
             switch tip {
             case "hazirla":
+                if let gelen = govde["basliklar"] as? [String],
+                   gelen.count == Self.anahtarlar.count,
+                   !gelen.contains(where: { $0.isEmpty }) {
+                    self.basliklar = gelen
+                }
                 self.cubuguKur()
             case "sec":
                 if let anahtar = govde["anahtar"] as? String { self.secileniAyarla(anahtar) }
@@ -96,11 +104,11 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
         yeni.items = Self.anahtarlar.indices.map { sira in
             let oge = UITabBarItem(
-                title: Self.basliklar[sira],
+                title: self.basliklar[sira],
                 image: UIImage(systemName: Self.simgeler[sira]),
                 tag: sira
             )
-            oge.accessibilityLabel = Self.basliklar[sira]
+            oge.accessibilityLabel = self.basliklar[sira]
             return oge
         }
         yeni.selectedItem = yeni.items?.first

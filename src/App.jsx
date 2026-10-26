@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
-import { locale } from "./i18n.js";
+import { dil, locale, t, tDeger } from "./i18n.js";
+import Ceviri from "./Ceviri.jsx";
 import { kodBazliFiyatlariBirlestir, piyasaFiyatlariniBirlestir } from "./piyasaFiyatBirlestir.js";
 import { misafirModuAcik } from "./misafirModu.js";
 import {
@@ -866,6 +867,8 @@ const parseParaGirisi = (deger) => {
     .trim()
     .replace(/[₺\s]/g, "");
   if (!temiz) return 0;
+  // Ingilizcede virgul binlik, nokta ondalik ayiricidir (1,234.56).
+  if (dil() === "en") return Number(temiz.replace(/[$€£]/g, "").replace(/,/g, "")) || 0;
   const standart = temiz.includes(",")
     ? temiz.replace(/\./g, "").replace(",", ".")
     : /^\d{1,3}(\.\d{3})+$/.test(temiz)
@@ -998,23 +1001,13 @@ function varlikOzetiHesapla(varliklar = [], fiyatlar = {}) {
   })));
   return { kalemler, toplam: ozet.total, maliyet: ozet.cost, kazanc: ozet.gain, karsilastirilabilirDeger: ozet.comparableValue, maliyetBilinenKalemSayisi: ozet.comparableCount, maliyetEksikKalemSayisi: ozet.missingCostCount };
 }
-const AYLAR = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
-];
+// Ay adlari secili dilden gelir; tr-TR ciktisi eski sabit listeyle ayni
+// ("Ekim 2026").
 const ayEtiketi = (ay) => {
   const [y, m] = String(ay || "").split("-");
-  return y && m ? AYLAR[(+m || 1) - 1] + " " + y : ay;
+  if (!y || !m) return ay;
+  return new Intl.DateTimeFormat(locale(), { month: "long", year: "numeric" })
+    .format(new Date(Number(y), (+m || 1) - 1, 1));
 };
 const ayEkle = (ay, adet) => {
   const [y, m] = String(ay).split("-").map(Number);
@@ -3205,7 +3198,7 @@ export default function BorcTakip() {
               </div>
             )}
             <div className="bt-date">
-              {s.getDate()} {AYLAR[s.getMonth()]} {s.getFullYear()}
+              {s.toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" })}
               {kaydediliyor && (
                 <span style={{ marginLeft: 8 }}>● kaydediliyor</span>
               )}

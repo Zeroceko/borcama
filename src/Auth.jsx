@@ -26,13 +26,9 @@ import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } fr
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
 import { appleGirisiVarMi, appleHataMesaji, appleIleGirisYap } from "./appleGiris.js";
-import { dil, t, tOgeler } from "./i18n.js";
+import { dil, t } from "./i18n.js";
+import Ceviri from "./Ceviri.jsx";
 import DilDugmesi from "./DilDugmesi.jsx";
-
-// Ogeli ceviri: yer tutuculara React ogesi (kalin metin, dugme) yerlestirir.
-function Ceviri({ anahtar, degerler }) {
-  return tOgeler(anahtar, degerler).map((parca, i) => <React.Fragment key={i}>{parca}</React.Fragment>);
-}
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 const TURNSTILE_SCRIPT_ID = "borcama-turnstile-script";

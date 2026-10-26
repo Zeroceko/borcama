@@ -76,21 +76,24 @@ test("Türkçe anahtarların tamamının İngilizce karşılığı var", () => {
   }
 });
 
-test("çevrilmiş ekranlarda kullanılan her anahtar sözlükte var", async () => {
-  const { readFile } = await import("node:fs/promises");
-  for (const dosya of ["Onboarding.jsx", "Auth.jsx", "DilDugmesi.jsx", "DilAyari.jsx"]) {
+test("kaynakta t()/tOgeler()/Ceviri ile kullanılan her anahtar iki sözlükte de var", async () => {
+  const { readFile, readdir } = await import("node:fs/promises");
+  const dosyalar = (await readdir(new URL("./", import.meta.url)))
+    .filter((d) => /\.(jsx?|mjs)$/.test(d) && !d.includes(".test."));
+  let toplam = 0;
+  for (const dosya of dosyalar) {
     const kaynak = await readFile(new URL(`./${dosya}`, import.meta.url), "utf8");
     const anahtarlar = [
-      ...kaynak.matchAll(/\bt(?:Ogeler)?\("([\w.]+)"/g),
-      ...kaynak.matchAll(/anahtar=\{?"([\w.]+)"/g),
-      ...kaynak.matchAll(/"((?:onboarding|auth|dil)\.[\w.]+)"/g),
+      ...kaynak.matchAll(/\bt(?:Ogeler)?\(\s*"([\w.-]+\.[\w.-]+)"/g),
+      ...kaynak.matchAll(/anahtar=\{?"([\w.-]+\.[\w.-]+)"/g),
     ].map((m) => m[1]);
-    assert.ok(anahtarlar.length > 0, dosya);
+    toplam += anahtarlar.length;
     for (const anahtar of anahtarlar) {
-      assert.ok(anahtar in tr, `${dosya}: tr.js'te yok: ${anahtar}`);
-      assert.ok(anahtar in en, `${dosya}: en.js'te yok: ${anahtar}`);
+      assert.ok(anahtar in tr, `${dosya}: tr sözlüğünde yok: ${anahtar}`);
+      assert.ok(anahtar in en, `${dosya}: en sözlüğünde yok: ${anahtar}`);
     }
   }
+  assert.ok(toplam > 100);
 });
 
 test("dil düğmesi karşı dili kendi adıyla gösterir", () => {
@@ -140,4 +143,29 @@ test("dil düğmesi ve ayarı yalnız native'de çizilir, açılış lang'i ayar
   assert.match(await oku("Auth.jsx"), /<DilDugmesi className="auth-dil" \/>/);
   assert.match(await oku("App.jsx"), /<DilAyari \/>/);
   assert.match(await oku("main.jsx"), /^belgeDiliniAyarla\(\);$/m);
+});
+
+test("tDeger veriyi değiştirmeden yalnız gösterimi çevirir, bilinmeyeni aynen döndürür", async () => {
+  const { tDeger } = await import("./i18n.js");
+  assert.equal(tDeger("Kredi kartı"), "Kredi kartı");
+  assert.equal(tDeger("Bilinmeyen değer"), "Bilinmeyen değer");
+  assert.equal(tDeger(""), "");
+  assert.equal(tDeger(undefined), undefined);
+});
+
+test("bölüm sözlüklerinde aynı anahtar farklı Türkçe metinle tanımlanmamış", async () => {
+  const { readdir } = await import("node:fs/promises");
+  const dosyalar = (await readdir(new URL("./locales/bolumler/", import.meta.url))).filter((d) => d.endsWith(".js"));
+  const gorulen = new Map();
+  for (const dosya of dosyalar) {
+    const bolum = await import(`./locales/bolumler/${dosya}`);
+    for (const [anahtar, metin] of Object.entries(bolum.tr)) {
+      if (gorulen.has(anahtar)) {
+        assert.equal(metin, gorulen.get(anahtar).metin, `${anahtar}: ${dosya} ile ${gorulen.get(anahtar).dosya} çakışıyor`);
+      } else gorulen.set(anahtar, { metin, dosya });
+    }
+    for (const anahtar of Object.keys(bolum.en)) {
+      assert.ok(anahtar in bolum.tr, `${dosya}: en'de olup tr'de olmayan anahtar ${anahtar}`);
+    }
+  }
 });

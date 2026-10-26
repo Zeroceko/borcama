@@ -1,6 +1,43 @@
+import { en as ortak } from "./bolumler/ortak.js";
+import { en as bilesenler } from "./bolumler/bilesenler.js";
+import { en as pro } from "./bolumler/pro.js";
+import { en as uygulamaCekirdek } from "./bolumler/uygulama-cekirdek.js";
+import { en as uygulamaGiris } from "./bolumler/uygulama-giris.js";
+import { en as asistan } from "./bolumler/asistan.js";
+import { en as ayarlar } from "./bolumler/ayarlar.js";
+import { en as ozet } from "./bolumler/ozet.js";
+import { en as odemeler } from "./bolumler/odemeler.js";
+import { en as ekstre } from "./bolumler/ekstre.js";
+import { en as borclar } from "./bolumler/borclar.js";
+import { en as borcSatirlari } from "./bolumler/borc-satirlari.js";
+import { en as plan } from "./bolumler/plan.js";
+import { en as varliklar } from "./bolumler/varliklar.js";
+import { en as gelirGider } from "./bolumler/gelir-gider.js";
+import { en as hatalarSss } from "./bolumler/hatalar-sss.js";
+import { en as yasal } from "./bolumler/yasal.js";
+
 // English dictionary. Shown only in the native (iOS) app; the web stays Turkish.
 // Missing keys fall back to Turkish (src/locales/tr.js).
 const en = {
+  // Bölüm sözlükleri (src/locales/bolumler/*.js)
+  ...ortak,
+  ...bilesenler,
+  ...pro,
+  ...uygulamaCekirdek,
+  ...uygulamaGiris,
+  ...asistan,
+  ...ayarlar,
+  ...ozet,
+  ...odemeler,
+  ...ekstre,
+  ...borclar,
+  ...borcSatirlari,
+  ...plan,
+  ...varliklar,
+  ...gelirGider,
+  ...hatalarSss,
+  ...yasal,
+
   // Onboarding
   "onboarding.atla": "Skip",
   "onboarding.sonraki": "Next",

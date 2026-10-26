@@ -1,7 +1,44 @@
+import { tr as ortak } from "./bolumler/ortak.js";
+import { tr as bilesenler } from "./bolumler/bilesenler.js";
+import { tr as pro } from "./bolumler/pro.js";
+import { tr as uygulamaCekirdek } from "./bolumler/uygulama-cekirdek.js";
+import { tr as uygulamaGiris } from "./bolumler/uygulama-giris.js";
+import { tr as asistan } from "./bolumler/asistan.js";
+import { tr as ayarlar } from "./bolumler/ayarlar.js";
+import { tr as ozet } from "./bolumler/ozet.js";
+import { tr as odemeler } from "./bolumler/odemeler.js";
+import { tr as ekstre } from "./bolumler/ekstre.js";
+import { tr as borclar } from "./bolumler/borclar.js";
+import { tr as borcSatirlari } from "./bolumler/borc-satirlari.js";
+import { tr as plan } from "./bolumler/plan.js";
+import { tr as varliklar } from "./bolumler/varliklar.js";
+import { tr as gelirGider } from "./bolumler/gelir-gider.js";
+import { tr as hatalarSss } from "./bolumler/hatalar-sss.js";
+import { tr as yasal } from "./bolumler/yasal.js";
+
 // Türkçe sözlük: uygulamanın kaynak dili. Her anahtarın metni ekranda
 // bugün görünen metnin birebir aynısıdır; eksik İngilizce anahtar buraya düşer.
 // {ad} biçimindeki yer tutucular t()/tOgeler() ile doldurulur.
 const tr = {
+  // Bölüm sözlükleri (src/locales/bolumler/*.js)
+  ...ortak,
+  ...bilesenler,
+  ...pro,
+  ...uygulamaCekirdek,
+  ...uygulamaGiris,
+  ...asistan,
+  ...ayarlar,
+  ...ozet,
+  ...odemeler,
+  ...ekstre,
+  ...borclar,
+  ...borcSatirlari,
+  ...plan,
+  ...varliklar,
+  ...gelirGider,
+  ...hatalarSss,
+  ...yasal,
+
   // Onboarding
   "onboarding.atla": "Atla",
   "onboarding.sonraki": "Sonraki",

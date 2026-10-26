@@ -119,3 +119,13 @@ export function cevirOgeler(kod, anahtar, degiskenler = {}) {
 export function tOgeler(anahtar, degiskenler) {
   return cevirOgeler(dil(), anahtar, degiskenler);
 }
+
+// Veride saklanan Turkce degerler (borc turu, kategori, banka disi etiketler)
+// hic degistirilmez; yalniz ekranda gosterilirken cevrilir. Sozlukte
+// "deger.<Turkce metin>" anahtari varsa o, yoksa metnin kendisi doner.
+export function tDeger(metin) {
+  if (metin === null || metin === undefined || metin === "") return metin;
+  const anahtar = `deger.${metin}`;
+  const sozluk = SOZLUKLER[dil()] || tr;
+  return sozluk[anahtar] ?? metin;
+}
