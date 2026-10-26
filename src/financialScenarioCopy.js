@@ -1,73 +1,46 @@
+import { t } from "./i18n.js";
+
+// Metinler sözlükte (locales/bolumler/plan.js); dil oturum boyunca değişmez.
 export const FINANCIAL_SCENARIO_COPY = {
   missing_income: {
-    titles: [
-      "Borç planını hesaplamak için aylık gelirini ekle",
-      "Kapanış süresi için gelir bilgisi gerekiyor",
-    ],
-    reason: "Gelir olmadan güvenli bir harcama veya ödeme hedefi hesaplanamaz.",
+    titles: [t("plan.senaryoMetni.missing_income.baslik1"), t("plan.senaryoMetni.missing_income.baslik2")],
+    reason: t("plan.senaryoMetni.missing_income.neden"),
   },
   no_revolving_debt: {
-    titles: [
-      "Kart ve ek hesap borcun görünmüyor",
-      "Şu anda planlanacak kart veya KMH borcu yok",
-    ],
-    reason: "Sabit vadeli krediler ödeme takviminde ayrıca izlenir.",
+    titles: [t("plan.senaryoMetni.no_revolving_debt.baslik1"), t("plan.senaryoMetni.no_revolving_debt.baslik2")],
+    reason: t("plan.senaryoMetni.no_revolving_debt.neden"),
   },
   missing_spending_history: {
-    titles: [
-      "Gerçekçi bir hedef için harcama geçmişin gerekiyor",
-      "Harcama hedefini hesaplamak için birkaç kayıt daha ekle",
-    ],
-    reason: "Borcama rastgele günlük limit üretmez; kayıtlı ekstre ve harcamaları kullanır.",
+    titles: [t("plan.senaryoMetni.missing_spending_history.baslik1"), t("plan.senaryoMetni.missing_spending_history.baslik2")],
+    reason: t("plan.senaryoMetni.missing_spending_history.neden"),
   },
   structural_gap: {
-    titles: [
-      "Gelir, mevcut giderler ve zorunlu borç ödemelerine yetmiyor",
-      "Bu ayın zorunlu ödemelerinde bütçe açığı var",
-    ],
-    reason: "Kredi taksitleri, mevcut yaşam harcaması ve kart/KMH için gereken en az ödeme aynı ayda geliri aşıyor.",
+    titles: [t("plan.senaryoMetni.structural_gap.baslik1"), t("plan.senaryoMetni.structural_gap.baslik2")],
+    reason: t("plan.senaryoMetni.structural_gap.neden"),
   },
   interest_only: {
-    titles: [
-      "Kartlara kalan bütçe faizi ancak karşılıyor",
-      "Ödeme var, ancak ana para yeterince küçülmüyor",
-    ],
-    reason: "Borcu azaltmak için aylık faizin üzerinde ana para ödemesi gerekir.",
+    titles: [t("plan.senaryoMetni.interest_only.baslik1"), t("plan.senaryoMetni.interest_only.baslik2")],
+    reason: t("plan.senaryoMetni.interest_only.neden"),
   },
   spending_cut: {
-    titles: [
-      "Harcama bütçeni düşürürsen kart borcun küçülmeye başlar",
-      "Kart borcunu azaltmak için aylık harcamada alan aç",
-    ],
-    reason: "Önerilen hedef; sabit taksit, güvenlik payı, faiz ve ana para azaltımını birlikte ayırır.",
+    titles: [t("plan.senaryoMetni.spending_cut.baslik1"), t("plan.senaryoMetni.spending_cut.baslik2")],
+    reason: t("plan.senaryoMetni.spending_cut.neden"),
   },
   loan_relief: {
-    titles: [
-      "Kredi taksitleri bittikçe kartlara daha fazla bütçe kalacak",
-      "Sabit taksitlerin bitişi borç planını hızlandıracak",
-    ],
-    reason: "Biten kredi taksitleri yeni harcamaya değil kart ve KMH borcuna aktarılmıştır.",
+    titles: [t("plan.senaryoMetni.loan_relief.baslik1"), t("plan.senaryoMetni.loan_relief.baslik2")],
+    reason: t("plan.senaryoMetni.loan_relief.neden"),
   },
   fast_payoff: {
-    titles: [
-      "Mevcut plan kart ve KMH borcunu bir yıl içinde bitirebilir",
-      "Kart ve ek hesap borcun için kısa vadeli bir kapanış planın var",
-    ],
-    reason: "Gelir, sabit taksitler, yaşam harcaması ve faiz birlikte hesaplanmıştır.",
+    titles: [t("plan.senaryoMetni.fast_payoff.baslik1"), t("plan.senaryoMetni.fast_payoff.baslik2")],
+    reason: t("plan.senaryoMetni.fast_payoff.neden"),
   },
   steady_payoff: {
-    titles: [
-      "Kart ve KMH borcun düzenli biçimde azalıyor",
-      "Mevcut ödeme düzenin borcu küçültüyor",
-    ],
-    reason: "Plan borcu kapatıyor; ek ödeme kapanış süresini daha da kısaltabilir.",
+    titles: [t("plan.senaryoMetni.steady_payoff.baslik1"), t("plan.senaryoMetni.steady_payoff.baslik2")],
+    reason: t("plan.senaryoMetni.steady_payoff.neden"),
   },
   long_payoff: {
-    titles: [
-      "Plan çalışıyor, ancak borcun kapanması uzun sürecek",
-      "Borç azalıyor; küçük bir ek ödeme süreyi kısaltabilir",
-    ],
-    reason: "Mevcut bütçe faizin üzerinde ödeme sağlıyor ancak ana para yavaş azalıyor.",
+    titles: [t("plan.senaryoMetni.long_payoff.baslik1"), t("plan.senaryoMetni.long_payoff.baslik2")],
+    reason: t("plan.senaryoMetni.long_payoff.neden"),
   },
 };
 
