@@ -65,10 +65,27 @@ export function asistanBaglamiOlustur({
   // TRY disinda oran girilmemis kart/ek hesapta kullanilan ulke ortalamasinin
   // aciklamasi (ör. "Almanya için tipik yıllık oranlar: kart %17, ek hesap %11,5").
   bolgeOrtalamasi = null,
+  // Borc bazinda para birimi: { anaBirim, kayitBirimi(kayit) -> kod,
+  // cevir(tutar, kod) -> ana birim tutari ya da kur yoksa null }. Butun borclar
+  // ana birimdeyse (ya da verilmezse) baglam eskisiyle birebir aynidir.
+  paraBirimleri = null,
 }) {
   const kartlar = veri?.cards || [];
   const krediler = veri?.loans || [];
   const ekHesaplar = veri?.overdrafts || [];
+  const borcKayitlari = [...kartlar, ...krediler, ...ekHesaplar, ...(veri?.others || [])];
+  const karma = Boolean(paraBirimleri?.anaBirim && typeof paraBirimleri.kayitBirimi === "function" &&
+    borcKayitlari.some((kayit) => kayit && paraBirimleri.kayitBirimi(kayit) !== paraBirimleri.anaBirim));
+  const kayitBirimi = (kayit) => (karma ? paraBirimleri.kayitBirimi(kayit) : null);
+  // Kaydin biriminden ana birime; kur yoksa 0 (kayit ayrica sayilir).
+  const anaBirimde = (tutar, kayit) => {
+    if (!karma) return tutar;
+    const birim = kayitBirimi(kayit);
+    if (birim === paraBirimleri.anaBirim) return tutar;
+    const sonuc = paraBirimleri.cevir?.(tutar, birim);
+    return Number.isFinite(sonuc) ? sonuc : 0;
+  };
+  const birimAlani = (kayit) => (karma ? { paraBirimi: kayitBirimi(kayit) } : {});
   const gelirler = veri?.incomes || [];
   const giderler = veri?.expenses || [];
   const varliklar = veri?.assets || [];
@@ -114,6 +131,25 @@ export function asistanBaglamiOlustur({
     ...Object.values(veri?.loanPaymentHistory || {}).flat(),
     ...(veri?.overdrafts || []).flatMap((hesap) => hesap.odemeGecmisi || []),
   ].filter(Boolean);
+  // Karma birimde odeme tutarlari ait olduklari borcun biriminden cevrilir.
+  const odemeTutariAnaBirimde = (() => {
+    if (!karma) return (odeme) => sayi(odeme.tutar);
+    const sahip = new Map();
+    Object.entries(veri?.cardPaymentHistory || {}).forEach(([anahtar, kayitlar]) => {
+      const kart = kartlar.find((aday) => String(anahtar).startsWith(`kart-${aday.id}-`));
+      (Array.isArray(kayitlar) ? kayitlar : [kayitlar]).forEach((odeme) => odeme && sahip.set(odeme, kart));
+    });
+    Object.values(veri?.loanPaymentHistory || {}).forEach((ayKayitlari) => {
+      Object.entries(ayKayitlari || {}).forEach(([krediId, odeme]) => {
+        if (odeme && typeof odeme === "object") sahip.set(odeme, krediler.find((kredi) => String(kredi.id) === String(krediId)));
+      });
+    });
+    ekHesaplar.forEach((hesap) => (hesap.odemeGecmisi || []).forEach((odeme) => odeme && sahip.set(odeme, hesap)));
+    return (odeme) => {
+      const kayit = sahip.get(odeme);
+      return kayit ? sayi(anaBirimde(sayi(odeme.tutar), kayit)) : sayi(odeme.tutar);
+    };
+  })();
   const kalemFaizi = (tur, id) => {
     const kalem = kalemler.find((aday) => aday.id === `${tur}-${id}`);
     const oran = opsiyonelSayi(kalem?.faiz);
@@ -125,7 +161,8 @@ export function asistanBaglamiOlustur({
       ? { oran: kayitli, tahmini: false, kaynak: "kullanıcı kaydı" }
       : (() => {
           const hesaplanan = kalemFaizi("kart", kart.id);
-          return hesaplanan ? { ...hesaplanan, kaynak: turkiyeKurallari ? "TCMB azami oranı" : "ürün referans oranı" } : null;
+          const trKurali = karma ? kayitBirimi(kart) === "TRY" : turkiyeKurallari;
+          return hesaplanan ? { ...hesaplanan, kaynak: trKurali ? "TCMB azami oranı" : "ürün referans oranı" } : null;
         })();
   });
   const ekHesapFaizBilgileri = ekHesaplar.map((hesap) => {
@@ -153,12 +190,12 @@ export function asistanBaglamiOlustur({
   const kartAylikFaizTahmini = kartlar.reduce((toplam, kart, index) => {
     const faiz = kartFaizBilgileri[index];
     if (!aktifKartMi(kart) || !faiz) return toplam;
-    return toplam + (cardRestructurableBalance(kart) * faiz.oran) / 100;
+    return toplam + anaBirimde((cardRestructurableBalance(kart) * faiz.oran) / 100, kart);
   }, 0);
   const ekHesapAylikFaizTahmini = ekHesaplar.reduce((toplam, hesap, index) => {
     const faiz = ekHesapFaizBilgileri[index];
     if (!aktifEkHesapMi(hesap) || !faiz) return toplam;
-    return toplam + (ekHesapKalanBorc(hesap) * faiz.oran) / 100;
+    return toplam + anaBirimde((ekHesapKalanBorc(hesap) * faiz.oran) / 100, hesap);
   }, 0);
   const krediPlanMaliyetleri = krediler.map((kredi) => {
     const kalanBorc = opsiyonelSayi(kredi.kalanBorc);
@@ -183,12 +220,19 @@ export function asistanBaglamiOlustur({
       remainingInstallments: kalanTaksit,
     });
     return {
-      kalanOdemeToplami: plan.remainingPaymentTotal,
-      kalanFinansmanMaliyeti: plan.remainingFinancingCost,
+      kalanOdemeToplami: anaBirimde(plan.remainingPaymentTotal, kredi),
+      kalanFinansmanMaliyeti: anaBirimde(plan.remainingFinancingCost, kredi),
       finansmanMaliyetiBiliniyor: plan.financingCostIsKnown,
     };
   }).filter(Boolean);
   const degiskenBorcAylikFaizi = kartAylikFaizTahmini + ekHesapAylikFaizTahmini;
+  // Karma birimde KKDF/BSMV yalniz TRY kayitlarin faizine eklenir.
+  const tryDegiskenFaiz = karma
+    ? [...kartlar.map((kart, index) => [kart, kartFaizBilgileri[index], aktifKartMi(kart) ? cardRestructurableBalance(kart) : 0]),
+      ...ekHesaplar.map((hesap, index) => [hesap, ekHesapFaizBilgileri[index], aktifEkHesapMi(hesap) ? ekHesapKalanBorc(hesap) : 0])]
+      .filter(([kayit, faiz]) => faiz && kayitBirimi(kayit) === "TRY")
+      .reduce((toplam, [kayit, faiz, bakiye]) => toplam + anaBirimde((bakiye * faiz.oran) / 100, kayit), 0)
+    : 0;
   const veriEksikleri = new Set([
     !gelirler.length && "gelir",
     !giderler.length && "gider",
@@ -228,6 +272,7 @@ export function asistanBaglamiOlustur({
       return sonuc;
     }, { kart: 0, kredi: 0, ek: 0, diger: 0 }),
     krediler: krediler.slice(0, 30).map((kredi, index) => ({
+      ...birimAlani(kredi),
       banka: String(kredi.banka || "Banka").slice(0, 40),
       tur: String(kredi.ad || "Kredi").slice(0, 50),
       krediTutari: opsiyonelSayi(kredi.anaPara),
@@ -251,6 +296,7 @@ export function asistanBaglamiOlustur({
       const kayitlar = Array.isArray(kart.yapilandirmaKayitlari) ? kart.yapilandirmaKayitlari : [];
       const yapilandirma = kayitlar[kayitlar.length - 1];
       return {
+        ...birimAlani(kart),
         banka: String(kart.banka || "Banka").slice(0, 40),
         urun: String(kart.ad || "Kredi kartı").slice(0, 50),
         ekstreBorcu: opsiyonelSayi(kart.toplamEkstreBorcu ?? kart.borc),
@@ -274,6 +320,7 @@ export function asistanBaglamiOlustur({
       };
     }),
     ekHesaplar: ekHesaplar.slice(0, 30).map((hesap, index) => ({
+      ...birimAlani(hesap),
       banka: String(hesap.banka || "Banka").slice(0, 40),
       kullanilan: opsiyonelSayi(hesap.kullanilan),
       yapilanOdeme: opsiyonelSayi(hesap.yapilanOdeme),
@@ -283,6 +330,7 @@ export function asistanBaglamiOlustur({
       aktifBorc: aktifEkHesapMi(hesap),
     })),
     digerBorclar: digerBorclar.slice(0, 30).map(({ borc, faiz }) => ({
+      ...birimAlani(borc),
       banka: String(borc.banka || "").slice(0, 40),
       tur: String(borc.ad || "Diğer borç").slice(0, 50),
       bakiye: opsiyonelSayi(borc.tutar),
@@ -305,15 +353,19 @@ export function asistanBaglamiOlustur({
       toplamKayit: odemeKaydi.length,
       buAyKayit: odemeKaydi.filter((odeme) => ay(odeme.tarih) === buAy).length,
       buAyOdenen: odemeKaydi.filter((odeme) => ay(odeme.tarih) === buAy)
-        .reduce((toplam, odeme) => toplam + sayi(odeme.tutar), 0),
+        .reduce((toplam, odeme) => toplam + odemeTutariAnaBirimde(odeme), 0),
     },
     faizMaliyetOzeti: {
       kartAylikFaizVergiHaricTahmin: paraYuvarla(kartAylikFaizTahmini),
       ekHesapAylikFaizVergiHaricTahmin: paraYuvarla(ekHesapAylikFaizTahmini),
       kartVeEkHesapAylikFaizVergiHaricTahmin: paraYuvarla(degiskenBorcAylikFaizi),
-      kartVeEkHesapAylikFaizVergiDahilTahmin: paraYuvarla(degiskenBorcAylikFaizi * (turkiyeKurallari ? 1.3 : 1)),
+      kartVeEkHesapAylikFaizVergiDahilTahmin: paraYuvarla(karma
+        ? degiskenBorcAylikFaizi + tryDegiskenFaiz * 0.3
+        : degiskenBorcAylikFaizi * (turkiyeKurallari ? 1.3 : 1)),
       vergiToplamYuzde: turkiyeKurallari ? 30 : 0,
-      vergiVarsayimi: turkiyeKurallari
+      vergiVarsayimi: karma
+        ? "Yalnız TRY kart ve ek hesapların faizine toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir; diğer para birimlerinde vergi-fon eklenmemiştir."
+        : turkiyeKurallari
         ? "Faiz tutarına toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir."
         : "Para birimi TRY değil; Türkiye'ye özgü BSMV/KKDF vergi-fon varsayımı eklenmemiştir.",
       ...(!turkiyeKurallari && bolgeOrtalamasi ? { referansOranAciklamasi: bolgeOrtalamasi } : {}),
@@ -330,6 +382,18 @@ export function asistanBaglamiOlustur({
       pahaliBorcVar: bilinenFaizler.length ? bilinenFaizler.some((oran) => oran >= 3) : null,
       veriEksikleri: [...veriEksikleri],
     },
+    ...(karma ? {
+      paraBirimleri: {
+        anaBirim: paraBirimleri.anaBirim,
+        kullanilanBirimler: [...new Set(borcKayitlari.filter(Boolean).map(kayitBirimi))],
+        kurBekleyenKayitSayisi: borcKayitlari.filter((kayit) => {
+          if (!kayit) return false;
+          const birim = kayitBirimi(kayit);
+          return birim !== paraBirimleri.anaBirim && !Number.isFinite(paraBirimleri.cevir?.(1, birim));
+        }).length,
+        aciklama: `Kart, kredi, ek hesap ve diğer borç kalemlerindeki tutarlar her kalemin kendi para birimindedir (paraBirimi alanı). ozet, borcDagilimi, faizMaliyetOzeti ve odemeOzeti ana birime (${paraBirimleri.anaBirim}) son bilinen kurla çevrilmiştir; kuru olmayan kayıt toplamlara katılmamıştır. TRY kayıtlarda Türkiye kuralları (TCMB azami faiz, BDDK asgari, KKDF/BSMV), diğer birimlerde o ülkenin tipik oranları geçerlidir.`,
+      },
+    } : {}),
     veriKapsami: {
       kartSayisi: kartlar.length,
       krediSayisi: krediler.length,
