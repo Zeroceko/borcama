@@ -8636,16 +8636,16 @@ function Borclar({
 
   return (
     <div className="bt-stack">
-      <section className="bt-plan-kisayol" aria-label="Borç kapatma planı">
+      <section className="bt-plan-kisayol" aria-label={t("borclar.plan.aria")}>
         <span className="bt-plan-kisayol-ikon" aria-hidden="true">
           <Target size={20} />
         </span>
         <div className="bt-plan-kisayol-metin">
-          <strong>Borç kapatma planın</strong>
-          <span>Gelirini, faiz yükünü ve borçlarını hangi sırayla kapatacağını birlikte gör.</span>
+          <strong>{t("borclar.plan.baslik")}</strong>
+          <span>{t("borclar.plan.aciklama")}</span>
         </div>
         <button className="bt-btn kucuk birincil" type="button" onClick={planaGit}>
-          Planı aç <ChevronRight size={15} />
+          {t("borclar.plan.ac")} <ChevronRight size={15} />
         </button>
       </section>
       {kategori === "kontrol" && (
@@ -8654,11 +8654,11 @@ function Borclar({
             <div className="bt-borc-araclari-baslik">
               <div className="bt-borc-araclari-ikon"><ReceiptText size={17} /></div>
               <div>
-                <strong>Ekstre kontrolü</strong>
+                <strong>{t("borclar.kontrol.baslik")}</strong>
               </div>
             </div>
             <div className="bt-borc-araclari-aciklama">
-              Bankadan gelen gerçek ekstreyi, bu dönemde manuel kaydettiğin harcamalarla karşılaştır.
+              {t("borclar.kontrol.aciklama")}
             </div>
           </div>
           <div className="bt-borc-araclari-actions">
@@ -8669,17 +8669,15 @@ function Borclar({
                 setForm(null);
               }}
             >
-              Kartlara dön
+              {t("borclar.kontrol.kartlaraDon")}
             </button>
             <details className="bt-ekstre-bilgi">
-              <summary aria-label="Ekstre kontrolü hakkında bilgi">
+              <summary aria-label={t("borclar.kontrol.bilgiAria")}>
                 <Info size={17} aria-hidden="true" />
               </summary>
               <div className="bt-ekstre-bilgi-kutu" role="note">
-                <strong>Ekstre kontrolü nasıl çalışır?</strong>
-                Yalnızca Harcamalar bölümünde kredi kartına manuel kaydettiğin
-                işlemlerle banka ekstresini karşılaştırabilir. Harcama hareketi
-                girmediysen manuel toplam 0 TL görünür.
+                <strong>{t("borclar.kontrol.nasil")}</strong>
+                {t("borclar.kontrol.nasilMetin")}
               </div>
             </details>
           </div>
@@ -8690,10 +8688,10 @@ function Borclar({
           <div>
             <div className="bt-borc-araclari-baslik">
               <div className="bt-borc-araclari-ikon"><AlertTriangle size={17} /></div>
-              <div><strong>Gecikenler</strong></div>
+              <div><strong>{t("borclar.gecikenler.baslik")}</strong></div>
             </div>
             <div className="bt-borc-araclari-aciklama">
-              {devredenSayisi} devreden · {gecikmisSayisi} gecikmiş kayıt. Bu liste kart ve kredilerinden otomatik oluşur.
+              {t("borclar.gecikenler.aciklama", { devreden: devredenSayisi, gecikmis: gecikmisSayisi })}
             </div>
           </div>
         </div>
@@ -8716,19 +8714,21 @@ function Borclar({
                 <div className="bt-kart-ust-baslik">
                   <span className="bt-kart-ust-ikon"><Wallet size={17} /></span>
                   <div>
-                    <strong>Kredi kartların</strong>
-                    <span>{kayitlar.length ? `${kayitlar.length} kart kayıtlı` : "Henüz kart yok"}</span>
+                    <strong>{t("borclar.kart.baslik")}</strong>
+                    <span>{kayitlar.length
+                      ? t(kayitlar.length === 1 ? "borclar.kart.kayitliTekil" : "borclar.kart.kayitliCogul", { n: kayitlar.length })
+                      : t("borclar.kart.henuzYok")}</span>
                   </div>
                 </div>
                 <div className="bt-kart-borc">
                   {kayitlar.length ? (
                     <>
-                      <span>Bu dönemin kalan kart borcu</span>
+                      <span>{t("borclar.kart.kalanBorc")}</span>
                       <strong>{fmt(toplamHesapla())}</strong>
                     </>
                   ) : (
                     <span className="bt-kart-bos-metin">
-                      Kart eklediğinde borcun ve ödeme durumun burada görünecek.
+                      {t("borclar.kart.bosMetin")}
                     </span>
                   )}
                   <button
@@ -8736,25 +8736,25 @@ function Borclar({
                     type="button"
                     onClick={() => setForm({ liste: meta.liste, veri: {} })}
                   >
-                    <Plus size={14} /> Kart ekle
+                    <Plus size={14} /> {t("borclar.kart.ekle")}
                   </button>
                 </div>
               </div>
               {!acik && !saltOkunurGorunum && (
                 <div className="bt-kart-ust-islemler">
                   <div className="bt-kart-islem-baslik">
-                    <strong>Ekstre işlemleri</strong>
-                    <span>Ekstreni cihazında okut veya bilgileri manuel ekle.</span>
+                    <strong>{t("borclar.ekstre.islemler")}</strong>
+                    <span>{t("borclar.ekstre.islemlerAciklama")}</span>
                   </div>
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
                       onClick={genelEkstreAkisiniAc}
                     >
-                      <Plus size={14} /> Ekstre ekle
+                      <Plus size={14} /> {t("borclar.ekstre.ekle")}
                     </button>
                   </div>
-                  <div className="bt-kart-ust-araclar" aria-label="Ekstre araçları">
+                  <div className="bt-kart-ust-araclar" aria-label={t("borclar.ekstre.araclarAria")}>
                     <button
                       className="bt-btn kucuk hayalet"
                       onClick={() => {
@@ -8762,7 +8762,7 @@ function Borclar({
                         setForm(null);
                       }}
                     >
-                      <ScanSearch size={14} /> Ekstre kontrolü
+                      <ScanSearch size={14} /> {t("borclar.kontrol.baslik")}
                     </button>
                     <button
                       className="bt-btn kucuk hayalet"
@@ -8771,7 +8771,7 @@ function Borclar({
                         setEkstreArsiviAcik(true);
                       }}
                     >
-                      <BookOpen size={14} /> Ekstre arşivi
+                      <BookOpen size={14} /> {t("borclar.arsiv.baslik")}
                       {yuklenenEkstreler.length > 0 ? ` (${yuklenenEkstreler.length})` : ""}
                     </button>
                   </div>
@@ -8784,7 +8784,7 @@ function Borclar({
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 <div className="bt-strip-total-block">
                   <span className="bt-strip-total-label">
-                    {kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu ? "Kalan toplam ödeme" : "Toplam"}
+                    {kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu ? t("borclar.serit.kalanToplam") : t("ortak.toplam")}
                   </span>
                   <div className="bt-strip-total bt-mono">
                     {fmt(toplamHesapla())}
@@ -8802,7 +8802,7 @@ function Borclar({
                       setForm({ liste: meta.liste, veri: {} });
                     }}
                   >
-                    <Plus size={14} /> {kategori === "loans" ? "Yeni kredi" : "Yeni ek hesap ekle"}
+                    <Plus size={14} /> {kategori === "loans" ? t("borclar.serit.yeniKredi") : t("borclar.serit.yeniEkHesap")}
                   </button>
                 )}
               </div>
@@ -8812,8 +8812,8 @@ function Borclar({
           {kategori === "cards" && veri.cards.length > 0 && (
             <div className="bt-borc-donem-satiri">
               <div>
-                <strong>Gösterilen ekstre dönemi</strong>
-                <span>Güncel veya geçmiş bir aya geç.</span>
+                <strong>{t("borclar.donem.ekstreBaslik")}</strong>
+                <span>{t("borclar.donem.ekstreAciklama")}</span>
               </div>
               <select
                 className="bt-input"
@@ -8823,7 +8823,7 @@ function Borclar({
                   setForm(null);
                 }}
               >
-                <option value="guncel">{ayEtiketi(guncelEkstreAyi)} (Güncel)</option>
+                <option value="guncel">{t("borclar.donem.guncel", { ay: ayEtiketi(guncelEkstreAyi) })}</option>
                 {ekstreAylar
                   .filter((ay) => ay !== guncelEkstreAyi)
                   .map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}
@@ -8834,8 +8834,8 @@ function Borclar({
           {kategori === "loans" && veri.loans.length > 0 && (
             <div className="bt-borc-donem-satiri">
               <div>
-                <strong>Gösterilen kredi taksiti dönemi</strong>
-                <span>Güncel, gelecek veya geçmiş bir aya geç.</span>
+                <strong>{t("borclar.donem.krediBaslik")}</strong>
+                <span>{t("borclar.donem.krediAciklama")}</span>
               </div>
               <select
                 className="bt-input"
@@ -8845,9 +8845,9 @@ function Borclar({
                   setForm(null);
                 }}
               >
-                <option value="guncel">{ayEtiketi(ayAnahtari())} (Güncel)</option>
-                {gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Gelecek)</option>)}
-                {krediAylar.map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)} (Geçmiş)</option>)}
+                <option value="guncel">{t("borclar.donem.guncel", { ay: ayEtiketi(ayAnahtari()) })}</option>
+                {gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{t("borclar.donem.gelecek", { ay: ayEtiketi(ay) })}</option>)}
+                {krediAylar.map((ay) => <option key={ay} value={ay}>{t("borclar.donem.gecmis", { ay: ayEtiketi(ay) })}</option>)}
               </select>
             </div>
           )}
@@ -8866,9 +8866,9 @@ function Borclar({
                 <div className="bt-ipucu" style={{ marginBottom: 14 }}>
                   <Lightbulb size={16} />
                   <div>
-                    <b>{form.veri.banka} için yeni borç ekle.</b> Yalnız yeniden kullandığın ek tutarı gir; önceki ödemelerin korunacak.
-                    <br />Güncel kalan borç: <b>{fmt(ekHesapHesabi(form.veri).kalan)}</b>
-                    {Number(f.yeniBorcTutari) > 0 && <> · Ekleme sonrası: <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari))}</b></>}
+                    <b>{t("borclar.form.yeniBorcBaslik", { banka: form.veri.banka })}</b> {t("borclar.form.yeniBorcAciklama")}
+                    <br />{t("borclar.form.guncelKalan")} <b>{fmt(ekHesapHesabi(form.veri).kalan)}</b>
+                    {Number(f.yeniBorcTutari) > 0 && <> · {t("borclar.form.eklemeSonrasi")} <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari))}</b></>}
                   </div>
                 </div>
               )}
@@ -8877,11 +8877,10 @@ function Borclar({
                 <div className="bt-ipucu" style={{ marginBottom: 14 }}>
                   <Lightbulb size={16} />
                   <div>
-                    <b>
-                      {kartGorunenAdi(form.veri)}
-                    </b>{" "}
-                    için yeni dönem ekstresi giriliyor. Mevcut ekstre geçmişe
-                    taşınacak; silinmeyecek.
+                    <Ceviri
+                      anahtar="borclar.form.yeniEkstre"
+                      degerler={{ kart: <b>{kartGorunenAdi(form.veri)}</b> }}
+                    />
                   </div>
                 </div>
               )}
@@ -8889,11 +8888,10 @@ function Borclar({
                 <div className="bt-ipucu" style={{ marginBottom: 14 }}>
                   <Lightbulb size={16} />
                   <div>
-                    <b>
-                      {kartGorunenAdi(form.veri)}
-                    </b>{" "}
-                    güncel ekstresi düzenleniyor. Burada yalnızca ekstre
-                    bilgilerini değiştir; ödeme kayıtlarını Ödemeler ekranından yönet.
+                    <Ceviri
+                      anahtar="borclar.form.ekstreDuzenle"
+                      degerler={{ kart: <b>{kartGorunenAdi(form.veri)}</b> }}
+                    />
                   </div>
                 </div>
               )}
@@ -8907,12 +8905,18 @@ function Borclar({
                         <b>
                           {form.veri.banka} ·{" "}
                           {form.odemeDuzenle
-                            ? "Ödeme kaydını düzenle"
-                            : "Ek hesap"}
+                            ? t("borclar.form.odemeKaydiDuzenle")
+                            : t("borclar.form.ekHesap")}
                         </b>
                         <br />
-                        Kullanılan {fmt(h.kullanilan)} · toplam ödenen{" "}
-                        {fmt(h.odeme)} · kalan <b>{fmt(h.kalan)}</b>
+                        <Ceviri
+                          anahtar="borclar.form.ekHesapOzet"
+                          degerler={{
+                            kullanilan: fmt(h.kullanilan),
+                            odenen: fmt(h.odeme),
+                            kalan: <b>{fmt(h.kalan)}</b>,
+                          }}
+                        />
                       </div>
                     </div>
                   );
@@ -8932,13 +8936,13 @@ function Borclar({
                           else setF({ ...f, banka: e.target.value });
                         }}
                       >
-                        <option value="">Banka seçin…</option>
+                        <option value="">{t("borclar.alan.bankaSecin")}</option>
                         {bankalar.map((b) => (
                           <option key={b} value={b}>
                             {b}
                           </option>
                         ))}
-                        <option value="__diger__">Diğer…</option>
+                        <option value="__diger__">{t("borclar.alan.diger")}</option>
                       </select>
                     ) : (
                       <input
@@ -8980,7 +8984,7 @@ function Borclar({
               </div>
               {alanlar.some((a) => a.ek) && (
                 <details className="bt-alan-ek">
-                  <summary>Daha fazla bilgi (isteğe bağlı)</summary>
+                  <summary>{t("borclar.alan.dahaFazla")}</summary>
                   <div className="bt-alanlar">
                     {alanlar.filter((a) => a.ek).map((a) => (
                       <label key={a.k} className="bt-alan">
@@ -8996,13 +9000,13 @@ function Borclar({
                           else setF({ ...f, banka: e.target.value });
                         }}
                       >
-                        <option value="">Banka seçin…</option>
+                        <option value="">{t("borclar.alan.bankaSecin")}</option>
                         {bankalar.map((b) => (
                           <option key={b} value={b}>
                             {b}
                           </option>
                         ))}
-                        <option value="__diger__">Diğer…</option>
+                        <option value="__diger__">{t("borclar.alan.diger")}</option>
                       </select>
                     ) : (
                       <input
@@ -9059,16 +9063,28 @@ function Borclar({
                       krediGirisHatasi || krediIlerlemesi.hata
                     ) : krediIlerlemesi?.gecerli ? (
                       <>
-                        <b>Otomatik plan:</b> {krediIlerlemesi.kalanTaksit} taksit kaldı · kalan toplam ödeme <b>{fmt(krediIlerlemesi.kalanToplamOdeme)}</b>.
+                        <b>{t("borclar.form.otomatikPlan")}</b>{" "}
+                        <Ceviri
+                          anahtar="borclar.form.taksitKaldi"
+                          degerler={{
+                            n: krediIlerlemesi.kalanTaksit,
+                            tutar: <b>{fmt(krediIlerlemesi.kalanToplamOdeme)}</b>,
+                          }}
+                        />
                       </>
                     ) : !f.id && +f.taksit > 0 && +f.kalanTaksit > 0 ? (
                       <>
-                        <b>Kalan toplam ödeme:</b> {fmt((+f.taksit || 0) * (+f.kalanTaksit || 0))} ({f.kalanTaksit} taksit × {fmt(+f.taksit || 0)}).
+                        <b>{t("borclar.form.kalanToplamEtiket")}</b>{" "}
+                        {t("borclar.form.kalanToplamCarpim", {
+                          toplam: fmt((+f.taksit || 0) * (+f.kalanTaksit || 0)),
+                          n: f.kalanTaksit,
+                          taksit: fmt(+f.taksit || 0),
+                        })}
                       </>
                     ) : (
-                      <>Aylık taksiti ve kalan taksit sayısını yazman yeterli; kalan toplam ödeme otomatik hesaplanır.</>
+                      <>{t("borclar.form.krediIpucu")}</>
                     )}
-                    <br />Aylık faiz, bankanın bildirdiği taksiti değiştirmez; maliyet ve borç önceliği için ayrıca saklanır.
+                    <br />{t("borclar.form.faizNotu")}
                   </div>
                 </div>
               )}
@@ -9081,14 +9097,21 @@ function Borclar({
                     <div className="bt-ipucu" style={{ marginTop: 14 }}>
                       <Lightbulb size={16} />
                       <div>
-                        <b>Otomatik hesap:</b> Güncel dönem {fmt(h.yeni)} +
-                        devreden {fmt(h.oncekiDevreden)} ={" "}
-                        <b>{fmt(h.onceki)} toplam borç</b>. Toplam ödenen{" "}
-                        {fmt(h.odeme)} sonrası <b>{fmt(h.devreden)} kalır</b>.
-                        Tahmini aylık faiz {fmt(h.faiz)} (%{h.oran.toFixed(2)}).
-                        Yasal minimum ödeme: <b>{fmt(h.asgari)}</b> (
-                        %{Math.round(krediKartiAsgariOrani(f.limit) * 100)}, kart
-                        limitine göre).
+                        <Ceviri
+                          anahtar="borclar.form.kartHesabi"
+                          degerler={{
+                            baslik: <b>{t("borclar.form.otomatikHesap")}</b>,
+                            yeni: fmt(h.yeni),
+                            devreden: fmt(h.oncekiDevreden),
+                            toplam: <b>{t("borclar.form.toplamBorc", { tutar: fmt(h.onceki) })}</b>,
+                            odenen: fmt(h.odeme),
+                            kalan: <b>{t("borclar.form.kalir", { tutar: fmt(h.devreden) })}</b>,
+                            faiz: fmt(h.faiz),
+                            oran: h.oran.toFixed(2),
+                            asgari: <b>{fmt(h.asgari)}</b>,
+                            asgariOran: Math.round(krediKartiAsgariOrani(f.limit) * 100),
+                          }}
+                        />
                       </div>
                     </div>
                   );
@@ -9113,9 +9136,15 @@ function Borclar({
                     <div className="bt-ipucu" style={{ marginTop: 14 }}>
                       <Lightbulb size={16} />
                       <div>
-                        <b>Ödeme sonrası:</b> Kalan borç <b>{fmt(kalan)}</b> ·
-                        tahmini aylık faiz {fmt((kalan * h.oran) / 100)} (%
-                        {h.oran.toFixed(2)}).
+                        <Ceviri
+                          anahtar="borclar.form.odemeSonrasiMetin"
+                          degerler={{
+                            baslik: <b>{t("borclar.form.odemeSonrasi")}</b>,
+                            kalan: <b>{fmt(kalan)}</b>,
+                            faiz: fmt((kalan * h.oran) / 100),
+                            oran: h.oran.toFixed(2),
+                          }}
+                        />
                       </div>
                     </div>
                   );
@@ -9124,26 +9153,26 @@ function Borclar({
                 <button className="bt-btn birincil" onClick={gonder}>
                   <Check size={14} />{" "}
                   {ekHesapBorcModu
-                    ? "Yeni borcu ekle"
+                    ? t("borclar.buton.yeniBorcEkle")
                     : ekHesapOdemeModu
                     ? form.odemeDuzenle
-                      ? "Ödemeyi güncelle"
+                      ? t("borclar.buton.odemeGuncelle")
                       : form.kapat
-                        ? "Borcu kapat"
-                        : "Ödemeyi kaydet"
+                        ? t("borclar.buton.borcuKapat")
+                        : t("borclar.buton.odemeKaydet")
                     : yeniEkstreModu
-                      ? "Yeni ekstreyi kaydet"
+                      ? t("borclar.buton.yeniEkstreKaydet")
                       : ekstreDuzenleModu
-                        ? "Ekstreyi güncelle"
+                        ? t("borclar.buton.ekstreGuncelle")
                         : f.id
-                          ? "Güncelle"
-                          : "Kaydet"}
+                          ? t("ortak.guncelle")
+                          : t("ortak.kaydet")}
                 </button>
                 <button
                   className="bt-btn ikincil"
                   onClick={() => setForm(null)}
                 >
-                  Vazgeç
+                  {t("ortak.vazgec")}
                 </button>
               </div>
               </div>
@@ -9159,9 +9188,7 @@ function Borclar({
                   marginBottom: 12,
                 }}
               >
-                Asgarisi ödenen kart bakiyesi devreden borç, asgarisi
-                karşılanmayan bakiye gecikmiş borç olarak gösterilir. Faizler
-                yaklaşık değerdir.
+                {t("borclar.gecikenler.not")}
               </div>
               <div className="bt-stack" style={{ gap: 10 }}>
                 {otomatikGecikenler.map((g, i) => (
@@ -9177,20 +9204,20 @@ function Borclar({
             kategori === "cards" && !arsivGorunumu ? null : (
               <div className="bt-bos">
                 {arsivGorunumu
-                  ? ayEtiketi(seciliEkstreAyi) + " için arşivlenmiş ekstre yok."
+                  ? t("borclar.bos.arsivEkstre", { ay: ayEtiketi(seciliEkstreAyi) })
                   : krediArsivGorunumu
-                    ? ayEtiketi(seciliKrediAyi) + " için ödenmiş kredi taksiti kaydı yok."
+                    ? t("borclar.bos.odenmisTaksit", { ay: ayEtiketi(seciliKrediAyi) })
                     : krediGelecekGorunumu
-                      ? ayEtiketi(seciliKrediAyi) + " döneminde planlanan kredi taksiti yok."
+                      ? t("borclar.bos.planlananTaksit", { ay: ayEtiketi(seciliKrediAyi) })
                       : kategori === "loans"
                         ? kapatilanKrediler.length > 0
-                          ? "Aktif kredi borcun kalmadı. Tamamlanan kredilerin aşağıda duruyor."
-                          : "Henüz kredi kaydı yok. İlk kredini ekleyerek aylık taksitlerini takip edebilirsin."
+                          ? t("borclar.bos.aktifKrediYok")
+                          : t("borclar.bos.krediYok")
                         : kategori === "od"
                           ? kapananEkHesaplar.length > 0
-                            ? "Açık ek hesap borcun kalmadı. Kapattığın borçlar aşağıda."
-                            : "Henüz ek hesap / KMH kaydı yok."
-                          : "Geciken kayıt yok. Kart ve kredi ödeme tarihleri geçtiğinde burada otomatik görünür."}
+                            ? t("borclar.bos.acikEkHesapYok")
+                            : t("borclar.bos.ekHesapYok")
+                          : t("borclar.bos.gecikenYok")}
               </div>
             )
           ) : (
@@ -9198,10 +9225,10 @@ function Borclar({
               {kategori === "others" && gorunenKayitlar.length > 0 && (
                 <div>
                   <div className="bt-h2" style={{ marginBottom: 5 }}>
-                    Diğer kayıtlı borçlar
+                    {t("borclar.diger.baslik")}
                   </div>
                   <div style={{ fontSize: 11.5, color: "var(--dim)" }}>
-                    Daha önce manuel eklenmiş borçlar.
+                    {t("borclar.diger.aciklama")}
                   </div>
                 </div>
               )}
@@ -9217,9 +9244,9 @@ function Borclar({
               <div className="bt-kapatilan-krediler-baslik">
                 <span aria-hidden="true"><Check size={18} /></span>
                 <div>
-                  <strong id="kapatilan-krediler-baslik">Kapatılan krediler</strong>
+                  <strong id="kapatilan-krediler-baslik">{t("borclar.kapatilan.baslik")}</strong>
                   <small>
-                    {kapatilanKrediler.length} tamamlanan kredi geçmişte tutuluyor.
+                    {t(kapatilanKrediler.length === 1 ? "borclar.kapatilan.aciklamaTekil" : "borclar.kapatilan.aciklamaCogul", { n: kapatilanKrediler.length })}
                   </small>
                 </div>
               </div>
@@ -9241,9 +9268,9 @@ function Borclar({
               <div className="bt-kapatilan-krediler-baslik">
                 <span aria-hidden="true"><Check size={18} /></span>
                 <div>
-                  <strong id="kapanan-ek-hesaplar-baslik">Kapattığın borçlar</strong>
+                  <strong id="kapanan-ek-hesaplar-baslik">{t("borclar.kapanan.baslik")}</strong>
                   <small>
-                    {kapananEkHesaplar.length} ek hesabın borcu kapandı. Yeniden kullanırsan "Yeni borç ekle" ile güncelle.
+                    {t(kapananEkHesaplar.length === 1 ? "borclar.kapanan.aciklamaTekil" : "borclar.kapanan.aciklamaCogul", { n: kapananEkHesaplar.length })}
                   </small>
                 </div>
               </div>
@@ -9254,48 +9281,48 @@ function Borclar({
           {kategori === "cards" && !saltOkunurGorunum && !aktivasyon.tamam && (
             <div className="bt-baslangic-plani kisa">
               <div>
-                <h3>İlk planını tamamla</h3>
-                <p>Her adım tamamlandığında ödeme gücün ve borç planın netleşecek.</p>
+                <h3>{t("borclar.baslangic.baslik")}</h3>
+                <p>{t("borclar.baslangic.aciklama")}</p>
                 <div className="bt-baslangic-adimlar">
                   <div className={`bt-baslangic-adim ${aktivasyonGorevleri.debt?.tamam ? "tamam" : ""}`}>
                     <b>{aktivasyonGorevleri.debt?.tamam ? <Check size={14} /> : "1"}</b>
                     <span>
-                      <strong>Kartını veya ekstreni ekle</strong>
-                      <small>Borcunu ve ödeme tarihlerini oluşturalım.</small>
+                      <strong>{t("borclar.baslangic.adim1")}</strong>
+                      <small>{t("borclar.baslangic.adim1Aciklama")}</small>
                     </span>
                     {aktivasyonGorevleri.debt?.tamam ? (
-                      <span className="bt-adim-tamam"><Check size={13} /> Tamam</span>
+                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
                     ) : (
                       <button className="bt-btn kucuk birincil" type="button" onClick={genelEkstreAkisiniAc}>
-                        Ekle <ChevronRight size={14} />
+                        {t("ortak.ekle")} <ChevronRight size={14} />
                       </button>
                     )}
                   </div>
                   <div className={`bt-baslangic-adim ${aktivasyonGorevleri.income?.tamam ? "tamam" : ""}`}>
                     <b>{aktivasyonGorevleri.income?.tamam ? <Check size={14} /> : "2"}</b>
                     <span>
-                      <strong>Aylık gelirini yaz</strong>
-                      <small>Ödeme gücünü doğru hesaplayalım.</small>
+                      <strong>{t("borclar.baslangic.adim2")}</strong>
+                      <small>{t("borclar.baslangic.adim2Aciklama")}</small>
                     </span>
                     {aktivasyonGorevleri.income?.tamam ? (
-                      <span className="bt-adim-tamam"><Check size={13} /> Tamam</span>
+                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
                     ) : (
                       <button className="bt-btn kucuk ikincil" type="button" onClick={gelirEkle}>
-                        Gelir ekle <ChevronRight size={14} />
+                        {t("borclar.baslangic.gelirEkle")} <ChevronRight size={14} />
                       </button>
                     )}
                   </div>
                   <div className={`bt-baslangic-adim ${aktivasyonGorevleri.activity?.tamam ? "tamam" : ""}`}>
                     <b>{aktivasyonGorevleri.activity?.tamam ? <Check size={14} /> : "3"}</b>
                     <span>
-                      <strong>İlk hareketini kaydet</strong>
-                      <small>Gerçek harcamalarınla planını kişiselleştirelim.</small>
+                      <strong>{t("borclar.baslangic.adim3")}</strong>
+                      <small>{t("borclar.baslangic.adim3Aciklama")}</small>
                     </span>
                     {aktivasyonGorevleri.activity?.tamam ? (
-                      <span className="bt-adim-tamam"><Check size={13} /> Tamam</span>
+                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
                     ) : (
                       <button className="bt-btn kucuk ikincil" type="button" onClick={hareketEkle}>
-                        Harcama ekle <ChevronRight size={14} />
+                        {t("borclar.baslangic.harcamaEkle")} <ChevronRight size={14} />
                       </button>
                     )}
                   </div>
@@ -9344,16 +9371,16 @@ function Borclar({
             <div className="bt-modalbaslik">
               <div>
                 <div id="bt-baslangic-secim-baslik" className="bt-h2">
-                  Ekstreyi nasıl eklemek istersin?
+                  {t("borclar.yontem.baslik")}
                 </div>
                 <p className="bt-baslangic-secim-aciklama">
-                  Dosyayı cihazında okutabilir veya özet rakamları kendin girebilirsin.
+                  {t("borclar.yontem.aciklama")}
                 </p>
               </div>
               <button
                 className="bt-btn hayalet kucuk"
                 type="button"
-                aria-label="Kapat"
+                aria-label={t("ortak.kapat")}
                 onClick={ekstreYontemSeciminiKapat}
               >
                 <X size={18} />
@@ -9370,8 +9397,8 @@ function Borclar({
               >
                 <span><Upload size={19} /></span>
                 <span>
-                  <strong>Cihazında okut</strong>
-                  <small>Dosya Borcama'ya yüklenmeden özet rakamları çıkaralım.</small>
+                  <strong>{t("borclar.yontem.okut")}</strong>
+                  <small>{t("borclar.yontem.okutAciklama")}</small>
                 </span>
               </button>
               <button
@@ -9383,8 +9410,8 @@ function Borclar({
               >
                 <span><Pencil size={18} /></span>
                 <span>
-                  <strong>Manuel ekle</strong>
-                  <small>Ekstre tarihlerini ve özet rakamları kendin gir.</small>
+                  <strong>{t("borclar.yontem.manuel")}</strong>
+                  <small>{t("borclar.yontem.manuelAciklama")}</small>
                 </span>
               </button>
             </div>
@@ -9393,7 +9420,7 @@ function Borclar({
               type="button"
               onClick={ekstreYontemSeciminiKapat}
             >
-              Daha sonra
+              {t("borclar.yontem.sonra")}
             </button>
           </div>
         </div>
@@ -9429,16 +9456,16 @@ function Borclar({
             <div className="bt-modalbaslik">
               <div>
                 <div id="bt-kredi-ekleme-secim-baslik" className="bt-h2">
-                  Krediyi nasıl eklemek istersin?
+                  {t("borclar.krediYontem.baslik")}
                 </div>
                 <p className="bt-baslangic-secim-aciklama">
-                  Bilgileri kendin girebilir veya bankanın ödeme planını cihazında okutabilirsin.
+                  {t("borclar.krediYontem.aciklama")}
                 </p>
               </div>
               <button
                 className="bt-btn hayalet kucuk"
                 type="button"
-                aria-label="Kapat"
+                aria-label={t("ortak.kapat")}
                 onClick={() => setKrediEklemeSecimiAcik(false)}
               >
                 <X size={18} />
@@ -9455,8 +9482,8 @@ function Borclar({
               >
                 <span><Pencil size={18} /></span>
                 <span>
-                  <strong>Manuel gir</strong>
-                  <small>Kredi, faiz ve taksit bilgilerini kendin yaz.</small>
+                  <strong>{t("borclar.krediYontem.manuel")}</strong>
+                  <small>{t("borclar.krediYontem.manuelAciklama")}</small>
                 </span>
               </button>
               <button
@@ -9469,8 +9496,8 @@ function Borclar({
               >
                 <span><Upload size={19} /></span>
                 <span>
-                  <strong>Ödeme planı yükle</strong>
-                  <small>Bankanın PDF'ini cihazında okut ve bilgileri kontrol et.</small>
+                  <strong>{t("borclar.krediYontem.plan")}</strong>
+                  <small>{t("borclar.krediYontem.planAciklama")}</small>
                 </span>
               </button>
             </div>
@@ -9479,7 +9506,7 @@ function Borclar({
               type="button"
               onClick={() => setKrediEklemeSecimiAcik(false)}
             >
-              Vazgeç
+              {t("ortak.vazgec")}
             </button>
           </div>
         </div>
@@ -9510,16 +9537,16 @@ function Borclar({
             <div className="bt-modalbaslik">
               <div>
                 <div id="bt-manuel-ekstre-baslik" className="bt-h2">
-                  Hangi kartın ekstresini ekleyeceksin?
+                  {t("borclar.manuelSecim.baslik")}
                 </div>
                 <p className="bt-baslangic-secim-aciklama">
-                  Seçtiğin kartın yeni dönem ekstre formunu açacağız.
+                  {t("borclar.manuelSecim.aciklama")}
                 </p>
               </div>
               <button
                 className="bt-btn hayalet kucuk"
                 type="button"
-                aria-label="Kapat"
+                aria-label={t("ortak.kapat")}
                 onClick={() => setManuelEkstreSecimiAcik(false)}
               >
                 <X size={18} />
@@ -9544,7 +9571,7 @@ function Borclar({
                   />
                   <span>
                     <strong>{kartGorunenAdi(kart)}</strong>
-                    <small>Yeni dönem ekstresini manuel ekle</small>
+                    <small>{t("borclar.manuelSecim.kart")}</small>
                   </span>
                 </button>
               ))}
@@ -9557,7 +9584,7 @@ function Borclar({
                 setForm({ liste: "cards", veri: {} });
               }}
             >
-              <Plus size={14} /> Önce yeni kart ekle
+              <Plus size={14} /> {t("borclar.manuelSecim.yeniKart")}
             </button>
           </div>
         </div>
@@ -9579,13 +9606,12 @@ function Borclar({
           >
             <div className="bt-modalbaslik">
               <div>
-                <div id="bt-ekstre-arsiv-baslik" className="bt-h2">Ekstre arşivi</div>
+                <div id="bt-ekstre-arsiv-baslik" className="bt-h2">{t("borclar.arsiv.baslik")}</div>
                 <p className="bt-ekstre-arsiv-aciklama">
-                  Daha önce PDF veya ekran görüntüsünden aktardığın ekstreleri gör,
-                  yanlış karta bağlanan kaydı doğru karta taşı.
+                  {t("borclar.arsiv.aciklama")}
                 </p>
               </div>
-              <button className="bt-btn hayalet kucuk" type="button" aria-label="Kapat" onClick={() => setEkstreArsiviAcik(false)}>
+              <button className="bt-btn hayalet kucuk" type="button" aria-label={t("ortak.kapat")} onClick={() => setEkstreArsiviAcik(false)}>
                 <X size={18} />
               </button>
             </div>
@@ -9593,14 +9619,13 @@ function Borclar({
             {arsivMesaji && <div className="bt-ipucu bt-ekstre-arsiv-mesaj"><Info size={16} /><span>{arsivMesaji}</span></div>}
 
             <div className="bt-ekstre-arsiv-gizlilik">
-              Borcama belgenin kendisini saklamaz. Burada yalnızca onaylayarak
-              kaydettiğin ekstre özeti gösterilir.
+              {t("borclar.arsiv.gizlilik")}
             </div>
 
             {yuklenenEkstreler.length === 0 ? (
               <div className="bt-arac-bos">
-                <h3>Henüz arşivlenmiş ekstre yok</h3>
-                <p>İlk ekstreni yüklediğinde geçmiş kayıtların burada görünecek.</p>
+                <h3>{t("borclar.arsiv.bosBaslik")}</h3>
+                <p>{t("borclar.arsiv.bosAciklama")}</p>
                 <div className="bt-arac-bos-actions">
                   <button
                     className="bt-btn birincil"
@@ -9610,7 +9635,7 @@ function Borclar({
                       genelEkstreAkisiniAc();
                     }}
                   >
-                    <Plus size={14} /> Ekstre ekle
+                    <Plus size={14} /> {t("borclar.ekstre.ekle")}
                   </button>
                 </div>
               </div>
@@ -9625,16 +9650,16 @@ function Borclar({
                   return (
                     <div className="bt-ekstre-arsiv-satir" key={`${yukleme.cardId}-${yukleme.period}`}>
                       <div className="bt-ekstre-arsiv-bilgi">
-                        <strong>{yukleme.cardBank} · {yukleme.cardName || "Kredi kartı"}{yukleme.cardLast4 ? ` • ${yukleme.cardLast4}` : ""}</strong>
+                        <strong>{yukleme.cardBank} · {tDeger(yukleme.cardName) || t("borclar.krediKarti")}{yukleme.cardLast4 ? ` • ${yukleme.cardLast4}` : ""}</strong>
                         <span>{ayEtiketi(yukleme.period)} · {fmt(toplam)}</span>
                         <small>
-                          {ozet.yuklenmeTarihi ? `${tarihSaatEtiketi(ozet.yuklenmeTarihi)} tarihinde aktarıldı` : "Geçmiş ekstre"}
+                          {ozet.yuklenmeTarihi ? t("borclar.arsiv.aktarildi", { tarih: tarihSaatEtiketi(ozet.yuklenmeTarihi) }) : t("borclar.arsiv.gecmisEkstre")}
                           {ozet.kaynak ? ` · ${String(ozet.kaynak).toUpperCase()}` : ""}
                         </small>
                       </div>
                       <div className="bt-ekstre-arsiv-islemler">
                         <label>
-                          <span>Bağlı kart</span>
+                          <span>{t("borclar.arsiv.bagliKart")}</span>
                           <select
                             className="bt-input"
                             value={yukleme.cardId}
@@ -9648,7 +9673,7 @@ function Borclar({
                           </select>
                         </label>
                         <button className="bt-btn kucuk hayalet bt-tehlike-yazi" type="button" onClick={() => setSilinecekYukleme(yukleme)}>
-                          <Trash2 size={14} /> Sil
+                          <Trash2 size={14} /> {t("ortak.sil")}
                         </button>
                       </div>
                     </div>
@@ -9665,22 +9690,24 @@ function Borclar({
           <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="bt-ekstre-sil-baslik">
             <div className="bt-sil-ikon"><Trash2 size={20} /></div>
             <div id="bt-ekstre-sil-baslik" className="bt-h2" style={{ marginBottom: 8 }}>
-              Bağlı ekstre kaydı da silinsin mi?
+              {t("borclar.silYukleme.baslik")}
             </div>
             <p className="bt-ekstre-sil-aciklama">
-              {silinecekYukleme.cardBank} · {silinecekYukleme.cardName || "Kredi kartı"} için
-              {` ${ayEtiketi(silinecekYukleme.period)} `}yüklemesini kaldırıyorsun.
-              Borç ve ödeme kayıtlarının da silinip silinmeyeceğini seç.
+              {t("borclar.silYukleme.aciklama", {
+                banka: silinecekYukleme.cardBank,
+                kart: tDeger(silinecekYukleme.cardName) || t("borclar.krediKarti"),
+                ay: ayEtiketi(silinecekYukleme.period),
+              })}
             </p>
             <div className="bt-ekstre-sil-secenekler">
               <button className="bt-btn birincil bt-tehlike" type="button" onClick={() => yuklemeyiSil(true)}>
-                <Trash2 size={14} /> Evet, kaydı da sil
+                <Trash2 size={14} /> {t("borclar.silYukleme.evet")}
               </button>
               <button className="bt-btn ikincil" type="button" onClick={() => yuklemeyiSil(false)}>
-                Hayır, finansal kaydı koru
+                {t("borclar.silYukleme.hayir")}
               </button>
               <button className="bt-btn hayalet" type="button" onClick={() => setSilinecekYukleme(null)}>
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </div>
@@ -9704,20 +9731,28 @@ function Borclar({
           >
             <div className="bt-sil-ikon"><Trash2 size={20} /></div>
             <div id="bt-kredi-sil-baslik" className="bt-h2" style={{ marginBottom: 8 }}>
-              Kredi kaydı silinsin mi?
+              {t("borclar.krediSil.baslik")}
             </div>
             <p id="bt-kredi-sil-aciklama" className="bt-ekstre-sil-aciklama">
-              <b>{silinecekBorc.kayit.banka || "Banka"}</b>
-              {silinecekBorc.kayit.ad ? ` · ${silinecekBorc.kayit.ad}` : ""} kaydı,
-              ödeme planı ve kalan <b>{fmt(summarizeLoanRecord(silinecekBorc.kayit, veri.loanPaymentHistory).remainingPaymentTotal)}</b> tutarı
-              borçlar ekranından kaldırılacak. Yanlışlıkla silersen son işlemlerden geri alabilirsin.
+              <Ceviri
+                anahtar="borclar.krediSil.aciklama"
+                degerler={{
+                  kayit: (
+                    <>
+                      <b>{silinecekBorc.kayit.banka || t("ortak.banka")}</b>
+                      {silinecekBorc.kayit.ad ? ` · ${tDeger(silinecekBorc.kayit.ad)}` : ""}
+                    </>
+                  ),
+                  tutar: <b>{fmt(summarizeLoanRecord(silinecekBorc.kayit, veri.loanPaymentHistory).remainingPaymentTotal)}</b>,
+                }}
+              />
             </p>
             <div className="bt-ekstre-sil-secenekler">
               <button className="bt-btn birincil bt-tehlike" type="button" onClick={krediSilmeyiOnayla}>
-                <Trash2 size={14} /> Evet, krediyi sil
+                <Trash2 size={14} /> {t("borclar.krediSil.evet")}
               </button>
               <button className="bt-btn ikincil" type="button" autoFocus onClick={() => setSilinecekBorc(null)}>
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </div>
@@ -9744,24 +9779,23 @@ function Borclar({
               className="bt-h2"
               style={{ marginBottom: 8 }}
             >
-              Yeni banka ekle
+              {t("borclar.banka.baslik")}
             </div>
             <div
               style={{ fontSize: 12.5, color: "var(--dim)", marginBottom: 16 }}
             >
-              Banka adı bir kez kaydedilir ve bundan sonra tüm banka
-              listelerinde görünür.
+              {t("borclar.banka.aciklama")}
             </div>
             <input
               className="bt-input"
               autoFocus
-              placeholder="Banka veya finans kurumu adı"
+              placeholder={t("borclar.banka.placeholder")}
               value={yeniBanka}
               onChange={(e) => setYeniBanka(e.target.value)}
             />
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" type="submit">
-                <Plus size={14} /> Ekle ve seç
+                <Plus size={14} /> {t("borclar.banka.ekleSec")}
               </button>
               <button
                 className="bt-btn ikincil"
@@ -9771,7 +9805,7 @@ function Borclar({
                   setYeniBanka("");
                 }}
               >
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </form>
@@ -9810,24 +9844,29 @@ function Borclar({
               className="bt-h2"
               style={{ marginBottom: 8 }}
             >
-              Ödeme kaydı silinsin mi?
+              {t("borclar.odemeSil.baslik")}
             </div>
             <div
               style={{ fontSize: 12.5, color: "var(--dim)", lineHeight: 1.55 }}
             >
-              Bu işlem{" "}
-              <b style={{ color: "var(--text)" }}>
-                {silinecekEkHesapOdemesi.kart.banka}
-              </b>{" "}
-              ek hesabındaki{" "}
-              <b style={{ color: "var(--text)" }}>
-                {fmt(silinecekEkHesapOdemesi.odeme.tutar)}
-              </b>{" "}
-              tutarındaki ödeme kaydını kaldıracak. Kalan borç ve faiz yeniden
-              hesaplanacak.
+              <Ceviri
+                anahtar="borclar.odemeSil.aciklama"
+                degerler={{
+                  banka: (
+                    <b style={{ color: "var(--text)" }}>
+                      {silinecekEkHesapOdemesi.kart.banka}
+                    </b>
+                  ),
+                  tutar: (
+                    <b style={{ color: "var(--text)" }}>
+                      {fmt(silinecekEkHesapOdemesi.odeme.tutar)}
+                    </b>
+                  ),
+                }}
+              />
             </div>
             <div className="bt-metric" style={{ padding: 11, marginTop: 14 }}>
-              <div className="bt-metric-lbl">Kayıt tarihi</div>
+              <div className="bt-metric-lbl">{t("borclar.odemeSil.kayitTarihi")}</div>
               <div style={{ fontWeight: 700, marginTop: 3 }}>
                 {tarihSaatEtiketi(silinecekEkHesapOdemesi.odeme.tarih)}
               </div>
@@ -9839,14 +9878,14 @@ function Borclar({
                 type="button"
                 onClick={ekHesapOdemesiSilmeyiOnayla}
               >
-                <Trash2 size={14} /> Evet, sil
+                <Trash2 size={14} /> {t("borclar.odemeSil.evet")}
               </button>
               <button
                 className="bt-btn ikincil"
                 type="button"
                 onClick={() => setSilinecekEkHesapOdemesi(null)}
               >
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </div>

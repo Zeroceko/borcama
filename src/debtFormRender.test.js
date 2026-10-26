@@ -8,7 +8,7 @@ const fields = source.match(/const ALAN_TANIMLARI = (\{[\s\S]*?\n  \});/)[1];
 
 test("borç alanları form kapalıyken de güvenle oluşturulur", () => {
   for (const form of [null, undefined, { veri: {} }, { veri: { id: "existing" } }]) {
-    const definitions = vm.runInNewContext(`(${fields})`, { form, f: {} });
+    const definitions = vm.runInNewContext(`(${fields})`, { form, f: {}, t: (anahtar) => anahtar });
     const date = definitions.loans.find(field => field.k === "ilkOdemeTarihi");
     // Hızlı kredi: yeni kredide ilk taksit tarihi isteğe bağlı ("Daha fazla bilgi"), düzenlemede de zorunlu değil.
     assert.ok(!date.z);
