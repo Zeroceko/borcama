@@ -66,19 +66,77 @@ test("kullanıcı para birimi seçilmemişse TRY ve Türkçe biçim kullanılır
   assert.equal(kullaniciParaFormatla(1234567.8), turkLirasiFormatla(1234567.8));
 });
 
-test("web'de kayıtlı seçim ne olursa olsun para birimi TRY kalır", async () => {
-  const { kullaniciParaBirimi, kullaniciParaFormatla, paraBirimiAyarla } = await import("./currencyInput.js");
+test("web'de kayıtlı seçim kullanılır ve Ayarlar'dan değiştirilebilir (native ile aynı)", async () => {
+  const { kullaniciParaBirimi, paraBirimiAyarla } = await import("./currencyInput.js");
   const depo = new Map();
   const onceki = globalThis.localStorage;
   globalThis.localStorage = { getItem: (k) => depo.get(k) ?? null, setItem: (k, v) => depo.set(k, v), key: () => null, length: 0 };
   try {
     depo.set("borcama_para_birimi", "USD");
-    assert.equal(kullaniciParaBirimi(), "TRY");
-    assert.equal(kullaniciParaFormatla(1234.56), "₺1.234,56");
-    assert.equal(paraBirimiAyarla("EUR"), "TRY");
-    assert.equal(depo.get("borcama_para_birimi"), "USD", "web seçim yazmaz");
+    assert.equal(kullaniciParaBirimi(), "USD");
+    assert.equal(paraBirimiAyarla("EUR"), "EUR");
+    assert.equal(depo.get("borcama_para_birimi"), "EUR");
+    assert.equal(kullaniciParaBirimi(), "EUR");
   } finally {
     globalThis.localStorage = onceki;
+  }
+});
+
+test("web'de mevcut hesap TRY'de kalır, yeni hesap ve Türkçe dışı dilde IP ülkesi kullanılır", async () => {
+  const { paraBirimiBelirle, webYeniHesapMi, WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI } = await import("./currencyInput.js");
+  // Türkçe arayüz (tarayıcı dili tr): her koşulda TRY — eski web davranışı.
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "tr", ulke: "DE", yerelAyar: "de-DE" }), "TRY");
+  // Mevcut hesap: dil ne olursa olsun TRY.
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "en", ulke: "US", mevcutKurulum: true }), "TRY");
+  // Yeni hesap: IP ülkesi tarayıcı bölgesinden önce gelir.
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "en", ulke: "DE", yerelAyar: "en-US" }), "EUR");
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "en", ulke: "TR", yerelAyar: "en-US" }), "TRY");
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "en", ulke: null, yerelAyar: "en-GB" }), "GBP");
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "en", ulke: "BR", yerelAyar: "en-US" }), "USD");
+  // Native IP ülkesine bakmaz; cihaz bölgesi esastır.
+  assert.equal(paraBirimiBelirle({ native: true, dilKodu: "en", ulke: "DE", yerelAyar: "en-US" }), "USD");
+  // Hesap açılış tarihi sınırı.
+  assert.equal(webYeniHesapMi("2026-01-01T00:00:00Z"), false);
+  assert.equal(webYeniHesapMi(WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI), true);
+  assert.equal(webYeniHesapMi(null), false);
+  assert.equal(webYeniHesapMi("geçersiz"), false);
+});
+
+test("web'de oturumlu eski hesap TRY'ye kaydedilir, oturumsuz ekranda karar kaydedilmez", async () => {
+  const { kullaniciParaBirimi } = await import("./currencyInput.js");
+  const { dilBelleginiSifirla } = await import("./i18n.js");
+  const depo = new Map();
+  const oncekiDepo = globalThis.localStorage;
+  const oncekiKonum = Object.getOwnPropertyDescriptor(globalThis, "location");
+  const oncekiGezgin = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  globalThis.localStorage = {
+    getItem: (k) => depo.get(k) ?? null,
+    setItem: (k, v) => depo.set(k, String(v)),
+    key: (i) => [...depo.keys()][i] ?? null,
+    get length() { return depo.size; },
+  };
+  Object.defineProperty(globalThis, "location", { value: { pathname: "/summary", hostname: "borcama.com" }, configurable: true });
+  Object.defineProperty(globalThis, "navigator", { value: { language: "en-US", languages: ["en-US"], userAgent: "" }, configurable: true });
+  try {
+    dilBelleginiSifirla();
+    // Oturum yok (giriş öncesi): yeni ziyaretçi için bölgesel birim gösterilir ama kaydedilmez.
+    assert.equal(kullaniciParaBirimi(), "USD");
+    assert.equal(depo.has("borcama_para_birimi"), false);
+    // Eski hesapla oturum: TRY kaydedilir.
+    depo.set("sb-proje-auth-token", JSON.stringify({ user: { created_at: "2026-03-01T10:00:00Z" } }));
+    assert.equal(kullaniciParaBirimi(), "TRY");
+    assert.equal(depo.get("borcama_para_birimi"), "TRY");
+    // Yeni hesap: bölgesel birim kaydedilir.
+    depo.delete("borcama_para_birimi");
+    depo.set("sb-proje-auth-token", JSON.stringify({ user: { created_at: "2027-01-01T10:00:00Z" } }));
+    assert.equal(kullaniciParaBirimi(), "USD");
+    assert.equal(depo.get("borcama_para_birimi"), "USD");
+  } finally {
+    globalThis.localStorage = oncekiDepo;
+    if (oncekiKonum) Object.defineProperty(globalThis, "location", oncekiKonum);
+    else delete globalThis.location;
+    if (oncekiGezgin) Object.defineProperty(globalThis, "navigator", oncekiGezgin);
+    dilBelleginiSifirla();
   }
 });
 
@@ -107,7 +165,8 @@ test("native'de varsayılan birim cihaz bölgesinden gelir, desteklenmeyen bölg
 
 test("para birimi kararı: kayıtlı seçim önce, mevcut kurulum ve Türkçe TRY'de kalır", async () => {
   const { paraBirimiBelirle } = await import("./currencyInput.js");
-  assert.equal(paraBirimiBelirle({ native: false, kayitli: "USD", dilKodu: "en", yerelAyar: "en-US" }), "TRY");
+  assert.equal(paraBirimiBelirle({ native: false, kayitli: "USD", dilKodu: "en", yerelAyar: "en-US" }), "USD");
+  assert.equal(paraBirimiBelirle({ native: false, dilKodu: "tr", yerelAyar: "en-US" }), "TRY");
   assert.equal(paraBirimiBelirle({ native: true, kayitli: "EUR", dilKodu: "en", yerelAyar: "en-US" }), "EUR");
   assert.equal(paraBirimiBelirle({ native: true, kayitli: "XYZ", dilKodu: "en", yerelAyar: "en-GB" }), "GBP");
   assert.equal(paraBirimiBelirle({ native: true, dilKodu: "en", yerelAyar: "en-US" }), "USD");
