@@ -101,6 +101,7 @@ export const tr = {
   "asistan.proTanitim.proyaGec": "Pro'ya geç · {fiyat}",
   "asistan.proTanitim.fiyatAlinamadi": "Fiyat alınamadı",
   "asistan.proTanitim.guvence": "Güvenli ödeme ekranı açılır. Aboneliğini daha sonra Ayarlar’dan yönetebilir veya iptal edebilirsin.",
+  "asistan.placeholderTutarli": "Örn. {tutar} ile önce hangi borcu kapatmalıyım?",
 };
 
 export const en = {
@@ -199,4 +200,5 @@ export const en = {
   "asistan.proTanitim.proyaGec": "Upgrade to Pro · {fiyat}",
   "asistan.proTanitim.fiyatAlinamadi": "Price unavailable",
   "asistan.proTanitim.guvence": "A secure payment screen will open. You can manage or cancel your subscription later in Settings.",
+  "asistan.placeholderTutarli": "E.g. Which debt should I pay off first with {tutar}?",
 };

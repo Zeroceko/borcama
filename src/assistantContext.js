@@ -62,6 +62,9 @@ export function asistanBaglamiOlustur({
   // TRY disinda TCMB/urun referans oranlari ve KKDF/BSMV vergi-fon yuku yok;
   // oran girilmemis kart ve ek hesaplarda faiz bilinmiyor sayilir.
   turkiyeKurallari = true,
+  // TRY disinda oran girilmemis kart/ek hesapta kullanilan ulke ortalamasinin
+  // aciklamasi (ör. "Almanya için tipik yıllık oranlar: kart %17, ek hesap %11,5").
+  bolgeOrtalamasi = null,
 }) {
   const kartlar = veri?.cards || [];
   const krediler = veri?.loans || [];
@@ -120,16 +123,16 @@ export function asistanBaglamiOlustur({
     const kayitli = opsiyonelSayi(kart.faiz ?? kart.aylikFaiz);
     return kayitli !== null && kayitli > 0
       ? { oran: kayitli, tahmini: false, kaynak: "kullanıcı kaydı" }
-      : !turkiyeKurallari ? null : (() => {
+      : (() => {
           const hesaplanan = kalemFaizi("kart", kart.id);
-          return hesaplanan ? { ...hesaplanan, kaynak: "TCMB azami oranı" } : null;
+          return hesaplanan ? { ...hesaplanan, kaynak: turkiyeKurallari ? "TCMB azami oranı" : "ürün referans oranı" } : null;
         })();
   });
   const ekHesapFaizBilgileri = ekHesaplar.map((hesap) => {
     const kayitli = opsiyonelSayi(hesap.faiz);
     return kayitli !== null && kayitli > 0
       ? { oran: kayitli, tahmini: false, kaynak: "kullanıcı kaydı" }
-      : !turkiyeKurallari ? null : (() => {
+      : (() => {
           const hesaplanan = kalemFaizi("ek", hesap.id);
           return hesaplanan ? { ...hesaplanan, kaynak: "ürün referans oranı" } : null;
         })();
@@ -313,6 +316,7 @@ export function asistanBaglamiOlustur({
       vergiVarsayimi: turkiyeKurallari
         ? "Faiz tutarına toplam yüzde 30 BSMV ve KKDF varsayımı eklenmiştir."
         : "Para birimi TRY değil; Türkiye'ye özgü BSMV/KKDF vergi-fon varsayımı eklenmemiştir.",
+      ...(!turkiyeKurallari && bolgeOrtalamasi ? { referansOranAciklamasi: bolgeOrtalamasi } : {}),
       planiBilinenKredilerKalanOdemeToplami: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanOdemeToplami, 0)),
       planiBilinenKredilerKalanFinansmanMaliyeti: paraYuvarla(krediPlanMaliyetleri.reduce((toplam, plan) => toplam + plan.kalanFinansmanMaliyeti, 0)),
       planiBilinenKrediSayisi: krediPlanMaliyetleri.length,

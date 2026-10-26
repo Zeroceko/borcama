@@ -6,6 +6,7 @@ import { t } from "./i18n.js";
 import DilDugmesi from "./DilDugmesi.jsx";
 import ParaBirimiSecici from "./ParaBirimiSecici.jsx";
 import { kullaniciParaBirimi, paraBiriminiFormatla } from "./currencyInput.js";
+import { ornekTutar } from "./bolgeKurallari.js";
 import "./onboarding.css";
 
 // iOS onboarding: dort ekran. Ilk uc ekran urunun ne yaptigini anlatir,
@@ -31,8 +32,9 @@ const ADIMLAR = [
 ];
 
 // Temsili tutarlar kullanicinin para birimi ve diliyle, kurussuz gosterilir.
+// Temsili tutarlar TRY icin yazildi; diger birimlerde olceklenir (14.000 $ gibi).
 const temsiliTutar = (n) =>
-  paraBiriminiFormatla(n, kullaniciParaBirimi(), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  paraBiriminiFormatla(ornekTutar(n), kullaniciParaBirimi(), { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 // Tanitim gorselleri temsili tutarlar kullanir; gercek kullanici verisi degildir.
 function BorcKartlari() {

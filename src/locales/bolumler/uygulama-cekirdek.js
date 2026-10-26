@@ -117,6 +117,7 @@ export const tr = {
   "deger.Vadeli / vadesiz mevduat": "Vadeli / vadesiz mevduat",
   "deger.Gayrimenkul": "Gayrimenkul",
   "deger.Araç": "Araç",
+  "cekirdek.oneri.faiz.etkiTutarli": "Aylık yaklaşık %{oran} · her {ornek} ek ödeme sonraki ay yaklaşık {tutar} faiz oluşmasını önleyebilir",
 };
 
 export const en = {
@@ -226,4 +227,5 @@ export const en = {
   "deger.Vadeli / vadesiz mevduat": "Time / demand deposit",
   "deger.Gayrimenkul": "Real estate",
   "deger.Araç": "Vehicle",
+  "cekirdek.oneri.faiz.etkiTutarli": "About {oran}% a month · every extra {ornek} you pay can prevent about {tutar} of interest next month",
 };

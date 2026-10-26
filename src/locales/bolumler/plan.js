@@ -77,7 +77,7 @@ export const tr = {
   "plan.planAciklama":
     "Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart/KMH faizi vergi ve fonlarla birlikte ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik tamponu bir kez birikir ve yeni kart/KMH borcu eklenmediği varsayılır.",
   "plan.planAciklamaVergisiz":
-    "Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart ve ek hesap faizi girdiğin aylık oranla ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik tamponu bir kez birikir ve yeni kart/ek hesap borcu eklenmediği varsayılır.",
+    "Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart ve ek hesap faizi girdiğin aylık oranla, girmediysen ülke ortalamasıyla ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik tamponu bir kez birikir ve yeni kart/ek hesap borcu eklenmediği varsayılır.",
 
   "plan.cozum.baslik": "Şimdi yapacağın 2 adım",
   "plan.cozum.amac":
@@ -265,7 +265,7 @@ export const en = {
   "plan.planAciklama":
     "Loan installments and living expenses are subtracted from income. Card/overdraft interest is calculated month by month, including taxes and fees; minimums are paid first and the rest goes to the most expensive debt. The safety buffer is built once, and no new card/overdraft debt is assumed.",
   "plan.planAciklamaVergisiz":
-    "Loan installments and living expenses are subtracted from income. Card and overdraft interest is calculated month by month at the monthly rate you entered; minimums are paid first and the rest goes to the most expensive debt. The safety buffer is built once, and no new card/overdraft debt is assumed.",
+    "Loan installments and living expenses are subtracted from income. Card and overdraft interest is calculated month by month at the monthly rate you entered, or the country average if you left it blank; minimums are paid first and the rest goes to the most expensive debt. The safety buffer is built once, and no new card/overdraft debt is assumed.",
 
   "plan.cozum.baslik": "2 steps to take now",
   "plan.cozum.amac":

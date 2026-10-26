@@ -27,6 +27,7 @@ export const tr = {
   "ortak.banka": "Banka",
   "ortak.not": "Not",
   "ortak.istegeBagli": "(isteğe bağlı)",
+  "ortak.ornekTutar": "Örn. {tutar}",
 };
 
 export const en = {
@@ -55,4 +56,5 @@ export const en = {
   "ortak.banka": "Bank",
   "ortak.not": "Note",
   "ortak.istegeBagli": "(optional)",
+  "ortak.ornekTutar": "e.g. {tutar}",
 };

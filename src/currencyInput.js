@@ -72,7 +72,7 @@ function mevcutKurulumMu() {
   return false;
 }
 
-function cihazYerelAyari() {
+export function cihazYerelAyari() {
   try {
     return Intl.DateTimeFormat().resolvedOptions().locale || globalThis.navigator?.language || "";
   } catch {
@@ -218,4 +218,9 @@ export function paraGirdisiniFormatla(value, dilKodu = dil()) {
   const gruplu = tam.replace(/\B(?=(\d{3})+(?!\d))/g, binlik);
 
   return kurusVar ? `${gruplu}${ondalik}${kurus}` : gruplu;
+}
+
+// Cihazin bolge kodu ("US", "DE"); bilinmiyorsa "". Web'de kullanilmaz.
+export function cihazBolgesi() {
+  return bolgeKodu(cihazYerelAyari());
 }

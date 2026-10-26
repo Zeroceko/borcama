@@ -168,6 +168,7 @@ export const tr = {
   "deger.Devreden kart borcu": "Devreden kart borcu",
   "deger.Gecikmiş kart borcu": "Gecikmiş kart borcu",
   "deger.Kredi taksiti": "Kredi taksiti",
+  "borcSatir.od.ucretle": "Bu ülkede ek hesap genelde faiz yerine ücretle işler; faiz hesaplanmıyor. Faiz oranın varsa ekle.",
 };
 
 export const en = {
@@ -339,4 +340,5 @@ export const en = {
   "deger.Devreden kart borcu": "Carried-over card debt",
   "deger.Gecikmiş kart borcu": "Overdue card debt",
   "deger.Kredi taksiti": "Loan installment",
+  "borcSatir.od.ucretle": "Overdrafts here usually charge fees rather than interest, so no interest is calculated. Add your rate if you have one.",
 };

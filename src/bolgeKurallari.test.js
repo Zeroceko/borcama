@@ -2,6 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   bankaSecenekleri,
+  bolgeAsgariOdemesi,
+  bolgeProfili,
+  esikTutar,
+  ornekTutar,
+  profilUlkeAdi,
   belgeOkumaAcik,
   ekHesapFaizOrani,
   kartFaizOranlari,
@@ -19,22 +24,61 @@ test("web (varsayılan TRY) Türkiye kurallarını uygular", () => {
 });
 
 test("TRY'de kart oranı TCMB azami diliminden gelir, girilen oran değiştirmez", () => {
-  assert.deepEqual(kartFaizOranlari(10000, 2, "TRY"), { akdi: 3.25, gecikme: 3.55, referans: true, bilinmiyor: false });
+  assert.deepEqual(kartFaizOranlari(10000, 2, "TRY"), { akdi: 3.25, gecikme: 3.55, referans: true, varsayilan: false, bilinmiyor: false });
   assert.equal(kartFaizOranlari(50000, "", "TRY").akdi, 3.75);
   assert.equal(kartFaizOranlari(200000, "", "TRY").gecikme, 4.55);
 });
 
-test("TRY dışında kart için yalnız girilen oran kullanılır; yoksa faiz varsayılmaz", () => {
-  assert.deepEqual(kartFaizOranlari(200000, "1.75", "USD"), { akdi: 1.75, gecikme: 1.75, referans: false, bilinmiyor: false });
-  assert.deepEqual(kartFaizOranlari(200000, "", "EUR"), { akdi: 0, gecikme: 0, referans: false, bilinmiyor: true });
+test("TRY dışında girilen oran geçerli, girilmemişse ülke ortalaması (yıllık / 12) kullanılır", () => {
+  assert.deepEqual(kartFaizOranlari(200000, "1.75", "USD"), { akdi: 1.75, gecikme: 1.75, referans: false, varsayilan: false, bilinmiyor: false });
+  const abd = kartFaizOranlari(5000, "", "USD", bolgeProfili("USD", "US"));
+  assert.equal(abd.varsayilan, true);
+  assert.ok(Math.abs(abd.akdi - 22 / 12) < 0.001);
+  assert.ok(Math.abs(kartFaizOranlari(5000, "", "EUR", bolgeProfili("EUR", "DE")).akdi - 17 / 12) < 0.001);
+  assert.ok(Math.abs(kartFaizOranlari(5000, "", "JPY", bolgeProfili("JPY", "JP")).akdi - 20 / 12) < 0.001);
   assert.equal(vergiFonOrani("USD"), 0);
 });
 
-test("ek hesap: TRY'de %4,25 referans, TRY dışında varsayım yok", () => {
-  assert.deepEqual(ekHesapFaizOrani("", "TRY"), { oran: 4.25, tahmini: true, bilinmiyor: false });
-  assert.deepEqual(ekHesapFaizOrani("3", "TRY"), { oran: 3, tahmini: false, bilinmiyor: false });
-  assert.deepEqual(ekHesapFaizOrani("", "GBP"), { oran: 0, tahmini: false, bilinmiyor: true });
-  assert.deepEqual(ekHesapFaizOrani("1.5", "GBP"), { oran: 1.5, tahmini: false, bilinmiyor: false });
+test("ek hesap: TRY'de %4,25 referans, TRY dışında ülke ortalaması; ABD'de ücretle işler", () => {
+  assert.deepEqual(ekHesapFaizOrani("", "TRY"), { oran: 4.25, tahmini: true, varsayilan: false, ucretle: false });
+  assert.deepEqual(ekHesapFaizOrani("3", "TRY"), { oran: 3, tahmini: false, varsayilan: false, ucretle: false });
+  assert.deepEqual(ekHesapFaizOrani("1.5", "GBP"), { oran: 1.5, tahmini: false, varsayilan: false, ucretle: false });
+  assert.ok(Math.abs(ekHesapFaizOrani("", "GBP", bolgeProfili("GBP", "GB")).oran - 39.9 / 12) < 0.001);
+  assert.ok(Math.abs(ekHesapFaizOrani("", "EUR", bolgeProfili("EUR", "DE")).oran - 11.5 / 12) < 0.001);
+  assert.deepEqual(ekHesapFaizOrani("", "USD", bolgeProfili("USD", "US")), { oran: 0, tahmini: false, varsayilan: true, ucretle: true });
+});
+
+test("profil: cihaz bölgesi para birimiyle uyuşursa o ülke, yoksa para biriminden", () => {
+  assert.equal(bolgeProfili("TRY", "TR"), null);
+  assert.equal(bolgeProfili("EUR", "DE").kod, "DE");
+  assert.deepEqual([bolgeProfili("EUR", "NL").kod, bolgeProfili("EUR", "NL").ulke], ["EURO", "NL"]);
+  assert.deepEqual([bolgeProfili("EUR", "US").kod, bolgeProfili("EUR", "US").ulke], ["EURO", "EU"]);
+  assert.equal(bolgeProfili("USD", "DE").kod, "US");
+  assert.equal(bolgeProfili("GBP", "").kod, "GB");
+  assert.deepEqual([bolgeProfili("SEK", "SE").kod, bolgeProfili("SEK", "SE").ulke], ["VARSAYILAN", null]);
+  assert.equal(profilUlkeAdi(bolgeProfili("USD", "US"), "en-US"), "United States");
+  assert.equal(profilUlkeAdi(bolgeProfili("SEK", "SE"), "en-US"), null);
+});
+
+test("asgari ödeme ülke kuralına göre tahmin edilir", () => {
+  const abd = bolgeProfili("USD", "US");
+  assert.equal(bolgeAsgariOdemesi(1000, 2, abd), 30); // %1 + faiz %2 = 30 > 25
+  assert.equal(bolgeAsgariOdemesi(500, 2, abd), 25); // taban
+  assert.equal(bolgeAsgariOdemesi(10, 2, abd), 10); // borcu aşmaz
+  assert.equal(bolgeAsgariOdemesi(10000, 1.4, bolgeProfili("EUR", "DE")), 300);
+  assert.equal(bolgeAsgariOdemesi(500, 1.4, bolgeProfili("EUR", "ES")), 30);
+  assert.equal(bolgeAsgariOdemesi(1000, 1.4, bolgeProfili("EUR", "FR")), 30);
+  assert.equal(bolgeAsgariOdemesi(0, 1, abd), 0);
+});
+
+test("örnek tutar ve eşikler para birimine göre ölçeklenir, TRY aynen kalır", () => {
+  assert.equal(ornekTutar(284750, "TRY"), 284750);
+  assert.equal(ornekTutar(284750, "USD"), 14000);
+  assert.equal(ornekTutar(10000, "EUR"), 500);
+  assert.equal(ornekTutar(19300, "GBP"), 970);
+  assert.equal(ornekTutar(10000, "JPY"), 75000);
+  assert.equal(esikTutar(1000, "TRY"), 1000);
+  assert.equal(esikTutar(1000, "USD"), 50);
 });
 
 test("belge okuma yalnız TRY'de açık", () => {

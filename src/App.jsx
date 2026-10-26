@@ -20,8 +20,13 @@ import ParaBirimiAyari from "./ParaBirimiAyari.jsx";
 import {
   bankaSecenekleri,
   belgeOkumaAcik,
+  bolgeAsgariOdemesi,
+  bolgeProfili,
   ekHesapFaizOrani,
+  esikTutar,
   kartFaizOranlari,
+  ornekTutar,
+  profilUlkeAdi,
   turkiyeKurallariGecerli,
   vergiFonOrani,
 } from "./bolgeKurallari.js";
@@ -820,6 +825,28 @@ const CSS = `
 /* ---------------- Yardımcılar (iş mantığı — değişmedi) ---------------- */
 const fmt = (n) => kullaniciParaFormatla(n);
 const fmt0 = (n) => kullaniciParaFormatla(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+// TRY disinda oran girilmemis borclarda kullanilan ulke ortalamasinin kisa
+// aciklamasi: "ABD ortalamasi, degistirebilirsin".
+function ortalamaEtiketi() {
+  const ulke = profilUlkeAdi();
+  return ulke ? t("bolge.ortalama", { ulke }) : t("bolge.tipik");
+}
+function ortalamaKaynagi() {
+  const ulke = profilUlkeAdi();
+  return ulke ? t("bolge.kaynakUlke", { ulke }) : t("bolge.kaynakTipik");
+}
+// TRY disinda faiz alani bos birakilirsa kullanilacak aylik oran ipucu.
+function varsayilanFaizIpucu(yillik) {
+  if (turkiyeKurallariGecerli()) return undefined;
+  const aylikOran = (Number(yillik) || 0) / 12;
+  return t("bolge.alanIpucu", { oran: aylikOran.toLocaleString(locale(), { maximumFractionDigits: 2 }), kaynak: ortalamaKaynagi() });
+}
+// Ornek tutarlar TRY icin yazildi; diger birimlerde yasam maliyeti olcegine
+// gore kuculturulur. TRY'de sozluk metni aynen kalir.
+const ornekTutarMetni = (anahtar, tryTutari) =>
+  turkiyeKurallariGecerli() ? t(anahtar) : fmt0(ornekTutar(tryTutari));
+const ornekSayiMetni = (anahtar, tryTutari) =>
+  turkiyeKurallariGecerli() ? t(anahtar) : t("ortak.ornekTutar", { tutar: ornekTutar(tryTutari).toLocaleString(locale()) });
 const fmtBirim = (n) => kullaniciParaFormatla(n, { minimumFractionDigits: 2, maximumFractionDigits: 8 });
 
 function ParaInput({ value, onValueChange, ...props }) {
@@ -1138,7 +1165,7 @@ const kartOdemeAnahtari = (kart) =>
 // kullanici kendi aylik oranini girer; girmezse faiz varsayilmaz.
 function kartFaizAlani(ek) {
   if (turkiyeKurallariGecerli()) return [];
-  return [{ k: "faiz", e: t("borclar.alan.kartFaizi"), t: "number", p: t("borclar.alan.kartFaiziIpucu"), ...(ek ? { ek: true } : {}) }];
+  return [{ k: "faiz", e: t("borclar.alan.kartFaizi"), t: "number", p: varsayilanFaizIpucu(bolgeProfili()?.kartYillikFaiz), ...(ek ? { ek: true } : {}) }];
 }
 const KATEGORILER = [
   "Market",
@@ -1229,7 +1256,10 @@ function kartHesabi(k) {
     asgari: Math.min(
       +k.asgari > 0
         ? +k.asgari
-        : yasalAsgariUygulanir(kullaniciParaBirimi()) ? (onceki * asgariOran) / 100 : 0,
+        : yasalAsgariUygulanir(kullaniciParaBirimi())
+          ? (onceki * asgariOran) / 100
+          // TRY disinda asgari girilmemisse ulke kuralina gore tahmin.
+          : bolgeAsgariOdemesi(onceki, oran),
       devreden,
     ),
   };
@@ -1333,8 +1363,8 @@ function ekHesapHesabi(k) {
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), kullanilan);
   const kalan = Math.max(kullanilan - odeme, 0);
   // TRY'de oran girilmemisse %4,25 referans; TRY disinda varsayim yok.
-  const { oran, tahmini, bilinmiyor } = ekHesapFaizOrani(k.faiz);
-  return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100, tahmini, bilinmiyor };
+  const { oran, tahmini, varsayilan, ucretle } = ekHesapFaizOrani(k.faiz);
+  return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100, tahmini, varsayilan, ucretle };
 }
 // Borcu süren ek hesaplar listede, kapananlar (kalan 0) "Kapattığın borçlar" başlığı altında.
 function ekHesaplariAyir(liste) {
@@ -1423,7 +1453,7 @@ function borcKalemleri(veri) {
         faizTutari,
         // TRY disinda TCMB referansi yok: oran ya kullanicinindir ya da hic yoktur.
         faizTahmini: !ozelFaizVar && oranlar.referans,
-        faizBilinmiyor: oranlar.bilinmiyor,
+        faizVarsayilan: oranlar.varsayilan,
         gecikmis,
         yapilanOdeme: hesap.odeme,
         asgari: hesap.asgari,
@@ -1451,7 +1481,7 @@ function borcKalemleri(veri) {
         faiz,
         faizTutari: (bakiye * faiz) / 100,
         faizTahmini: hesap.tahmini,
-        faizBilinmiyor: hesap.bilinmiyor,
+        faizVarsayilan: hesap.varsayilan,
         minimumOdeme: 0,
         minimumOran: 0,
         vergiFonOrani: vergiFonOrani(),
@@ -1570,7 +1600,9 @@ function borcamaOnerileriniHesapla({
     .sort((a, b) => b.faiz - a.faiz || b.faizTutari - a.faizTutari);
   if (faizliBorclar.length) {
     const hedef = faizliBorclar[0];
-    const binLiraEtki = (1000 * hedef.faiz) / 100;
+    // "Her 1.000 TL ek odeme" ornegi; TRY disinda para birimine gore olceklenir.
+    const ornekEkOdeme = ornekTutar(1000);
+    const binLiraEtki = (ornekEkOdeme * hedef.faiz) / 100;
     oneriler.push({
       id: "faiz-onceligi-" + hedef.id,
       modlar: ["faiz"],
@@ -1579,9 +1611,10 @@ function borcamaOnerileriniHesapla({
       etiket: t("cekirdek.oneri.faiz.etiket"),
       baslik: t("cekirdek.oneri.faiz.baslik", { ad: hedef.ad }),
       aciklama: t("cekirdek.oneri.faiz.aciklama"),
-      etki: t("cekirdek.oneri.faiz.etki", {
+      etki: t(turkiyeKurallariGecerli() ? "cekirdek.oneri.faiz.etki" : "cekirdek.oneri.faiz.etkiTutarli", {
         oran: hedef.faiz.toLocaleString(locale(), { maximumFractionDigits: 2 }),
         tutar: fmt(binLiraEtki),
+        ornek: fmt0(ornekEkOdeme),
       }),
       hedef: "plan",
       aksiyon: t("cekirdek.oneri.faiz.aksiyon"),
@@ -1639,7 +1672,7 @@ function borcamaOnerileriniHesapla({
       const onceki = oncekiKategoriler[kategori] || 0;
       return { kategori, tutar, onceki, fark: tutar - onceki };
     })
-    .filter((x) => x.onceki >= 500 && x.fark >= 500 && x.tutar >= x.onceki * 1.25)
+    .filter((x) => x.onceki >= esikTutar(500) && x.fark >= esikTutar(500) && x.tutar >= x.onceki * 1.25)
     .sort((a, b) => b.fark - a.fark);
   if (artislar.length) {
     const artis = artislar[0];
@@ -1660,7 +1693,7 @@ function borcamaOnerileriniHesapla({
     const [kategori, tutar] = Object.entries(buAyHarcama.kategoriler || {}).sort(
       (a, b) => b[1] - a[1],
     )[0] || ["", 0];
-    if (kategori && tutar >= 1000 && tutar / buAyHarcama.toplam >= 0.35) {
+    if (kategori && tutar >= esikTutar(1000) && tutar / buAyHarcama.toplam >= 0.35) {
       oneriler.push({
         id: "yogun-kategori-" + kategori,
         modlar: ["nakit"],
@@ -2561,7 +2594,7 @@ export default function BorcTakip() {
           ? yasalAsgari ? h.onceki * yasalOran : h.asgari
           : +k.asgari > 0
             ? +k.asgari
-            : yasalAsgari ? anaBorc * yasalOran : 0;
+            : yasalAsgari ? anaBorc * yasalOran : bolgeAsgariOdemesi(anaBorc, h.oran);
         const odemeAnahtari = kartOdemeAnahtari(k);
         const elleOdendi = !!veri.paid[odemeAnahtari];
         const odemeBilgisiYok = !yeniModel && !elleOdendi;
@@ -4091,8 +4124,8 @@ const REHBER_ADIMLARI = [
     kartDeger: t("kabuk.rehber.1.kartDeger"),
     kartAlt: t("kabuk.rehber.1.kartAlt"),
     satirlar: [
-      [t("kabuk.rehber.1.satir1"), t("kabuk.rehber.1.satir1Deger")],
-      [t("kabuk.rehber.1.satir2"), t("kabuk.rehber.1.satir2Deger")],
+      [t("kabuk.rehber.1.satir1"), ornekTutarMetni("kabuk.rehber.1.satir1Deger", 42600)],
+      [t("kabuk.rehber.1.satir2"), ornekTutarMetni("kabuk.rehber.1.satir2Deger", 18400)],
     ],
   },
   {
@@ -4109,8 +4142,8 @@ const REHBER_ADIMLARI = [
     kartDeger: t("kabuk.rehber.2.kartDeger"),
     kartAlt: t("kabuk.rehber.2.kartAlt"),
     satirlar: [
-      [t("kabuk.rehber.2.satir1"), t("kabuk.rehber.2.satir1Deger")],
-      [t("kabuk.rehber.2.satir2"), t("kabuk.rehber.2.satir2Deger")],
+      [t("kabuk.rehber.2.satir1"), ornekTutarMetni("kabuk.rehber.2.satir1Deger", 12840)],
+      [t("kabuk.rehber.2.satir2"), ornekTutarMetni("kabuk.rehber.2.satir2Deger", 24200)],
     ],
   },
 ];
@@ -4351,6 +4384,11 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
         ...asistanBaglamiOlustur({
           veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
           turkiyeKurallari: turkiyeKurallariGecerli(),
+          bolgeOrtalamasi: (() => {
+            const profil = bolgeProfili();
+            if (!profil) return null;
+            return `Oranı girilmemiş kart ve ek hesaplarda ${profil.ulke || "bilinmeyen bölge"} için tipik yıllık oranlar kullanıldı: kart %${profil.kartYillikFaiz}, ek hesap %${profil.ekHesapYillikFaiz} (aylık oran = yıllık / 12). Kesin banka oranı değildir.`;
+          })(),
         }),
         // Web'de (tr + TRY) bos; baglam bugunkuyle birebir ayni kalir.
         ...asistanKullaniciTercihleri({ dilKodu: dil(), paraBirimi: kullaniciParaBirimi() }),
@@ -4410,7 +4448,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
         <div className="bt-assistant-composer">
           <span className="bt-assistant-section-label">{t("asistan.soruEtiketi")}</span>
           <form className="bt-assistant-custom" onSubmit={soruSor}>
-            <input className="bt-input" value={soru} maxLength={500} onChange={(e) => setSoru(e.target.value)} placeholder={konusmaGecmisi.length ? t("asistan.placeholderDevam") : t("asistan.placeholder")} aria-label={t("asistan.soruAria")} disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
+            <input className="bt-input" value={soru} maxLength={500} onChange={(e) => setSoru(e.target.value)} placeholder={konusmaGecmisi.length ? t("asistan.placeholderDevam") : turkiyeKurallariGecerli() ? t("asistan.placeholder") : t("asistan.placeholderTutarli", { tutar: fmt0(ornekTutar(10000)) })} aria-label={t("asistan.soruAria")} disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
             <button className="bt-btn birincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < (konusmaGecmisi.length ? 1 : 3) || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> {t("asistan.bakiyorum")}</span> : <>{t("asistan.sor")} <Send size={14}/></>}</button>
           </form>
           <small>{t("asistan.baglamNotu", { n: MAX_ASSISTANT_EXCHANGES })}</small>
@@ -5815,12 +5853,10 @@ function Ozet({
                     <span>
                       <strong>{item.ad}</strong>
                       <small>
-                        {item.faizBilinmiyor
-                          ? t("plan.faizGirilmedi")
-                          : t("ozet.plan.siraFaiz", {
-                              oran: Number(item.faiz || 0).toLocaleString(locale(), { maximumFractionDigits: 2 }),
-                              tutar: tutarGoster(item.faizTutari),
-                            })}
+                        {t("ozet.plan.siraFaiz", {
+                          oran: Number(item.faiz || 0).toLocaleString(locale(), { maximumFractionDigits: 2 }),
+                          tutar: tutarGoster(item.faizTutari),
+                        })}
                       </small>
                     </span>
                     <span className="bt-bugun-sira-tutar">{tutarGoster(item.bakiye)}</span>
@@ -6792,7 +6828,7 @@ function Odemeler({
                 <span />
                 <ParaInput
                   className="bt-input"
-                  placeholder={t("odemeler.modal.tutarOrnek")}
+                  placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
                   value={kismiOdemeTutari}
                   onValueChange={setKismiOdemeTutari}
                   style={{ gridColumn: "1/-1", width: "100%" }}
@@ -6897,7 +6933,7 @@ function Odemeler({
                 <span />
                 <ParaInput
                   className="bt-input"
-                  placeholder={t("odemeler.modal.tutarOrnek")}
+                  placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
                   value={kismiOdemeTutari}
                   onValueChange={setKismiOdemeTutari}
                   style={{ gridColumn: "1/-1", width: "100%" }}
@@ -7026,7 +7062,7 @@ function BorcUzerindenOdemeModal({
             <span />
             <ParaInput
               className="bt-input"
-              placeholder={t("odemeler.modal.tutarOrnek")}
+              placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
               value={kismiTutar}
               onValueChange={setKismiTutar}
               style={{ gridColumn: "1/-1", width: "100%" }}
@@ -8231,7 +8267,7 @@ function Borclar({
         para: true,
       },
       { k: "yapilanOdeme", e: t("borclar.alan.yapilanOdeme"), t: "number", para: true },
-      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number" },
+      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number", p: varsayilanFaizIpucu(bolgeProfili()?.ekHesapYillikFaiz) },
     ],
     others: [
       { k: "banka", e: t("borclar.alan.alacakli"), t: "text", z: true },
@@ -9223,7 +9259,7 @@ function Borclar({
                       <Lightbulb size={16} />
                       <div>
                         <Ceviri
-                          anahtar={yasalAsgariUygulanir(kullaniciParaBirimi()) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiSerbest"}
+                          anahtar={yasalAsgariUygulanir(kullaniciParaBirimi()) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiBolge"}
                           degerler={{
                             baslik: <b>{t("borclar.form.otomatikHesap")}</b>,
                             yeni: fmt(h.yeni),
@@ -9235,6 +9271,7 @@ function Borclar({
                             oran: h.oran.toFixed(2),
                             asgari: <b>{fmt(h.asgari)}</b>,
                             asgariOran: Math.round(krediKartiAsgariOrani(f.limit) * 100),
+                            kaynak: turkiyeKurallariGecerli() ? "" : ortalamaKaynagi(),
                           }}
                         />
                       </div>
@@ -10636,9 +10673,10 @@ function BorclarSatiri({
     tutarEtiketi = hesap.kalan > 0 ? t("borcSatir.kalanBorc") : t("borcSatir.od.borcKapandi");
     altYazi =
       hesap.kalan > 0
-        ? hesap.bilinmiyor
-          ? t("borcSatir.od.faizGirilmedi")
-          : t("borcSatir.od.tahminiFaiz", { faiz: fmt(hesap.faiz), oran: hesap.oran.toFixed(2) })
+        ? hesap.ucretle
+          ? t("borcSatir.od.ucretle")
+          : t("borcSatir.od.tahminiFaiz", { faiz: fmt(hesap.faiz), oran: hesap.oran.toFixed(2) }) +
+            (hesap.varsayilan ? ` · ${ortalamaEtiketi()}` : "")
         : null;
   } else {
     tutar = +k.tutar || 0;
@@ -11282,7 +11320,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         </div>
         {gecikmisler.length > 0 && (
           <div className="bt-plan-gecikme">
-            {gecikmisler.every((k) => k.faizBilinmiyor)
+            {gecikmisler.every((k) => !(k.faiz > 0))
               ? t(gecikmisler.length === 1 ? "plan.gecikmeFaizsizTekil" : "plan.gecikmeFaizsizCogul", { n: gecikmisler.length })
               : t(gecikmisler.length === 1 ? "plan.gecikmeTekil" : "plan.gecikmeCogul", {
                   n: gecikmisler.length,
@@ -11638,14 +11676,14 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                     <div className="bt-satir-meta">
                       {kartFaizAciklamasi
                         ? kartFaizAciklamasi
-                        : k.faizBilinmiyor
-                        ? t("plan.faizGirilmedi")
                         : t("plan.faizMeta", {
                             oran: k.faiz.toFixed(2),
                             kaynak: k.faizTahmini
                               ? k.gecikmis
                                 ? t("plan.tcmbGecikme")
                                 : t("plan.tcmb")
+                              : k.faizVarsayilan
+                              ? ` (${ortalamaEtiketi()})`
                               : "",
                             tutar: fmt0(k.faizTutari),
                           })}
@@ -11696,7 +11734,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             {t("plan.ekstra.alan")}
             <ParaInput
               className="bt-input"
-              placeholder={t("plan.ekstra.ornek")}
+              placeholder={ornekSayiMetni("plan.ekstra.ornek", 5000)}
               value={ekstra}
               onValueChange={setEkstra}
             />
