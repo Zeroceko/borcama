@@ -14,7 +14,8 @@ const CSS = `
 
 const sade = (id) => [t(`sss.${id}.soru`), t(`sss.${id}.cevap`)];
 
-const questions = [
+// Sorular cizim aninda uretilir (secili dilde).
+const sorular = () => [
   sade("ne"),
   sade("banka"),
   [t("sss.odemeGorunuyor.soru"), <Ceviri anahtar="sss.odemeGorunuyor.cevap" degerler={{ ekran: <strong>{t("sss.odemeGorunuyor.ekran")}</strong> }} />],
@@ -37,7 +38,7 @@ const questions = [
     nativeMi ? (
       <Ceviri anahtar="sss.iptal.cevapNative" degerler={{ yol: <strong>{t("sss.iptal.yol")}</strong> }} />
     ) : (
-      <>Borcama'da <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolunu kullan. Otomatik yenilemeyi Borcama içinden durdurabilirsin; Pro erişimin ödediğin dönemin sonuna kadar sürer. Kart ve fatura işlemleri Paddle'ın güvenli müşteri portalında yönetilir.</>
+      <Ceviri anahtar="web.sss.iptal.cevap" degerler={{ yol: <strong>{t("web.sss.iptal.yol")}</strong> }} />
     ),
   ],
   sade("iptalHemen"),
@@ -56,14 +57,14 @@ export default function Faq() {
         {nativeMi ? (
           <button className="faq-back" type="button" onClick={() => window.history.back()}><ArrowLeft size={15} /> {t("ortak.geri")}</button>
         ) : (
-          <a className="faq-back" href="/"><ArrowLeft size={15} /> Ana sayfaya dön</a>
+          <a className="faq-back" href="/"><ArrowLeft size={15} /> {t("web.anaSayfayaDon")}</a>
         )}
       </header>
       <main className="faq-shell faq-main">
         <h1>{t("sss.baslik")}</h1>
         <p className="faq-intro">{t("sss.giris")}</p>
         <div className="faq-list">
-          {questions.map(([title, answer]) => (
+          {sorular().map(([title, answer]) => (
             <details className="faq-item" key={title}>
               <summary>{title}</summary>
               <div className="faq-answer"><p>{answer}</p></div>

@@ -1,3 +1,4 @@
+import { t, tOgeler } from "./i18n.js";
 import React, { useState } from "react";
 import {
   googleAdsOlcumIzniAyarla,
@@ -19,23 +20,19 @@ export default function GoogleAdsConsent() {
   return (
     <>
       <style>{CSS}</style>
-      <aside className="gac" aria-label="Analytics ve reklam ölçüm tercihi">
+      <aside className="gac" aria-label={t("web.olcum.aria")}>
       <div className="gac-text">
-        <strong>Ölçüm tercihin</strong>
+        <strong>{t("web.olcum.baslik")}</strong>
         <span>
-          Borcama, site kullanımını ve reklamların hesap kaydı getirip
-          getirmediğini ölçmek için isteğe bağlı Google Analytics ve Google Ads
-          ölçümü kullanır. E-posta ve finansal bilgiler bu ölçüme eklenmez.
-          Ayrıntılar için{" "}
-          <a href="/privacy">Gizlilik ve KVKK</a>.
+          {tOgeler("web.olcum.metin", { link: <a key="l" href="/privacy">{t("web.olcum.link")}</a> })}
         </span>
       </div>
       <div className="gac-actions">
         <button type="button" className="gac-reject" onClick={() => sec(false)}>
-          Reddet
+          {t("web.olcum.reddet")}
         </button>
         <button type="button" className="gac-accept" onClick={() => sec(true)}>
-          Ölçüme izin ver
+          {t("web.olcum.izin")}
         </button>
       </div>
     </aside>

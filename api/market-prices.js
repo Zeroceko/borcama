@@ -103,7 +103,7 @@ export default async function handler(req, res) {
   const sources = [];
   const errors = [];
 
-  const [tcmb, kripto, altin, gumus, platin, emtia] = await Promise.allSettled([
+  const [tcmb, kripto, altin, gumus, platin, emtia, ecb] = await Promise.allSettled([
     fetch("https://www.tcmb.gov.tr/kurlar/today.xml", {
       headers: { "User-Agent": "Borcama/1.0 (https://borcama.com)" },
       signal: AbortSignal.timeout(8000),
@@ -116,6 +116,9 @@ export default async function handler(req, res) {
     jsonGet("https://api.gold-api.com/price/XAG"),
     jsonGet("https://api.gold-api.com/price/XPT"),
     yahooEmtiaFiyatlari(),
+    // ECB referans kurlari (1 EUR karsiligi): borc bazinda para biriminde
+    // TCMB'de olmayan birimler (JPY, CAD, AUD, NZD, SEK, NOK, DKK) icin.
+    jsonGet("https://api.frankfurter.app/latest?from=EUR"),
   ]);
 
   if (tcmb.status === "fulfilled") {
@@ -166,7 +169,23 @@ export default async function handler(req, res) {
     sources.push(emtia.value.kaynak);
   } else errors.push("Petrol ve bakır fiyatları alınamadı");
 
+  if (ecb.status === "fulfilled") {
+    const eur = { EUR: 1 };
+    Object.entries(ecb.value?.rates || {}).forEach(([kod, oran]) => {
+      const deger = sayi(oran);
+      if (/^[A-Z]{3}$/.test(kod) && deger > 0) eur[kod] = Number(deger.toFixed(6));
+    });
+    if (Object.keys(eur).length > 1) {
+      prices.fx = { tarih: String(ecb.value?.date || "").slice(0, 10) || null, eur };
+      sources.push("ECB");
+    }
+  }
+  // ECB yaniti gelmezse yanit "partial" sayilmaz: varlik ekraninda TRY
+  // kullanicisina kismi veri uyarisi cikmasin. Uygulama son bilinen kuru
+  // ayrica sakladigi icin cevrim surer.
+
   Object.keys(prices).forEach((anahtar) => {
+    if (anahtar === "fx") return;
     if (anahtar === "crypto") {
       Object.keys(prices.crypto || {}).forEach((coinId) => {
         if (!Number.isFinite(prices.crypto[coinId]) || prices.crypto[coinId] <= 0)

@@ -1,7 +1,9 @@
 // TASLAK — hukuk kontrolü bekliyor (Legal review pending). Yayından önce avukat onayı gerekir.
 //
-// Yalnız native (iOS) uygulamada, dil İngilizce iken Legal.jsx bu
-// içerikleri gösterir. Web ve Türkçe metinler Legal.jsx'te olduğu gibi kalır.
+// Dil Türkçe değilken Legal.jsx bu içerikleri gösterir (native ve web).
+// web=true iken metin borcama.com'u da kapsar: web satın alımları Paddle
+// (Merchant of Record) üzerinden yapılır ve web'de Pro yalnız Türkiye'de
+// satılır. web=false (iOS) çıktısı değişmez. Türkçe metinler Legal.jsx'te.
 // Kimlik App Store satici kaydindan (Ozer Ocek, Istanbul); saklama sureleri
 // ve 16 yas siniri 1.69.0 icin secildi, hukuk kontrolunde teyit edilmeli.
 import React from "react";
@@ -11,6 +13,9 @@ const ILETISIM = "zero@borcama.com";
 function Mail() {
   return <a href={`mailto:${ILETISIM}`}>{ILETISIM}</a>;
 }
+
+const PADDLE_ALICI_SARTLARI = "https://www.paddle.com/legal/invoiced-consumer-terms";
+const PADDLE_IADE = "https://www.paddle.com/legal/refund-policy";
 
 function Dis({ href, children }) {
   return (
@@ -26,13 +31,64 @@ export const EN_BASLIKLAR = {
   refund: { title: "Cancellation and Refund Policy", tarih: "27 October 2026", surum: "1.0" },
 };
 
+// Web Terms, bölüm 7: Pro web'de Paddle üzerinden ve yalnız Türkiye'de satılır.
+function WebProKosullari() {
+  return (
+    <>
+      <h2>7. Borcama Pro subscriptions</h2>
+      <ul>
+        <li>
+          Borcama Pro is an auto-renewing digital subscription offered on a
+          monthly or yearly basis. The price and period shown on the purchase
+          screen apply.
+        </li>
+        <li>
+          <b>Where Pro is sold on the web:</b> on borcama.com, Borcama Pro is
+          currently sold only to customers in Türkiye. Outside Türkiye the web
+          app does not offer Pro for purchase. Any Pro features made available
+          to you there are provided free of charge, without a subscription,
+          and we may change or withdraw them at any time.
+        </li>
+        <li>
+          <b>Web purchases are made through Paddle:</b> our order process on
+          borcama.com is conducted by our online reseller Paddle.com. Paddle.com
+          is the Merchant of Record for all our web orders and handles payment,
+          billing, invoices, applicable sales taxes, and returns. Paddle's{" "}
+          <Dis href={PADDLE_ALICI_SARTLARI}>Buyer Terms</Dis> apply to your
+          purchase in addition to these Terms.
+        </li>
+        <li>
+          A web subscription renews automatically at the end of each period
+          and the renewal is charged to the payment method you used, unless
+          you cancel before the renewal date. You can cancel at any time in
+          Borcama under Settings → “Manage subscription”, or with the “Manage
+          subscription” link in the receipt email Paddle sent you.
+          Cancellation takes effect at the end of the current paid period and
+          does not by itself refund past payments.
+        </li>
+        <li>
+          <b>iOS purchases:</b> in the iOS app, Pro is sold by Apple through
+          the App Store as an in-app purchase. Apple is the seller and handles
+          payment, billing and subscription management; manage or cancel it in
+          iOS Settings → Apple Account → Subscriptions.
+        </li>
+        <li>
+          Refunds are described in our{" "}
+          <a href="/refund-policy">Cancellation and Refund Policy</a>.
+        </li>
+      </ul>
+    </>
+  );
+}
+
 // TASLAK — hukuk kontrolü bekliyor (Legal review pending). Yayından önce avukat onayı gerekir.
-export function TermsOfUseEn() {
+export function TermsOfUseEn({ web = false }) {
   return (
     <>
       <p>
-        These Terms of Use (“Terms”) govern your use of the Borcama iOS app
-        and the Borcama service. By creating an account or using the app, you
+        These Terms of Use (“Terms”) govern your use of{" "}
+        {web ? "the Borcama web app at borcama.com, the Borcama iOS app" : "the Borcama iOS app"}
+        {" "}and the Borcama service. By creating an account or using the app, you
         agree to these Terms. The Borcama service is provided by Özer Öcek (sole proprietor), Istanbul, Türkiye (“Borcama”, “we”, “us”).
       </p>
       <h2>1. What Borcama is</h2>
@@ -90,7 +146,8 @@ export function TermsOfUseEn() {
         All rights in the Borcama brand, interface, software and original
         content are reserved. Subject to these Terms, you receive a personal,
         non-exclusive, non-transferable, revocable license to use the app on
-        Apple devices you own or control, as permitted by the App Store Terms.
+        Apple devices you own or control, as permitted by the App Store Terms
+        {web ? ", and to use the web app in your browser" : ""}.
       </p>
       <h2>6. Availability and liability</h2>
       <p>
@@ -102,6 +159,8 @@ export function TermsOfUseEn() {
         Nothing in these Terms limits liability that cannot be limited under
         applicable law.
       </p>
+      {web ? <WebProKosullari /> : (
+      <>
       <h2>7. Borcama Pro subscriptions on iOS</h2>
       <ul>
         <li>
@@ -130,6 +189,8 @@ export function TermsOfUseEn() {
           <a href="/refund-policy">Cancellation and Refund Policy</a>.
         </li>
       </ul>
+      </>
+      )}
       <h2>8. Apple's terms</h2>
       <p>
         If you downloaded the app from the App Store, Apple's{" "}
@@ -151,8 +212,19 @@ export function TermsOfUseEn() {
       <p>
         You can permanently delete your account and its Borcama data at any
         time in the app under Settings → “Delete my account”, or by contacting
-        support. Deleting your account does not cancel an App Store
-        subscription; cancel it in your Apple Account settings. We may
+        support. {web ? (
+          <>
+            Deleting your account does not by itself cancel a subscription:
+            cancel a web subscription in Settings → “Manage subscription” and
+            an App Store subscription in your Apple Account settings before
+            deleting your account.
+          </>
+        ) : (
+          <>
+            Deleting your account does not cancel an App Store
+            subscription; cancel it in your Apple Account settings.
+          </>
+        )} We may
         temporarily suspend access or close an account in case of unlawful use
         or a security risk.
       </p>
@@ -173,12 +245,12 @@ export function TermsOfUseEn() {
 }
 
 // TASLAK — hukuk kontrolü bekliyor (Legal review pending). Yayından önce avukat onayı gerekir.
-export function PrivacyPolicyEn() {
+export function PrivacyPolicyEn({ web = false }) {
   return (
     <>
       <p>
         This Privacy Policy explains how personal data is processed when you
-        use the Borcama iOS app. It is written to meet the EU and UK General
+        use {web ? "the Borcama web app (borcama.com) or the Borcama iOS app" : "the Borcama iOS app"}. It is written to meet the EU and UK General
         Data Protection Regulation (“GDPR”) and the Turkish Personal Data
         Protection Law No. 6698 (“KVKK”).
       </p>
@@ -202,13 +274,23 @@ export function PrivacyPolicyEn() {
         <li>
           <b>Subscription data:</b> whether you have Borcama Pro, the product,
           purchase and renewal status, and an anonymous purchase identifier
-          provided via Apple and RevenueCat. We do not receive your card or
+          provided via {web ? "Paddle (web purchases), Apple (iOS purchases) and RevenueCat" : "Apple and RevenueCat"}. We do not receive your card or
           payment details.
         </li>
         <li>
           <b>Technical and security data:</b> session, device and app version
           information and limited logs needed to prevent abuse.
         </li>
+        {web && (
+          <li>
+            <b>Approximate country (web):</b> our host Vercel derives your
+            country from your IP address. The web app uses only the two-letter
+            country code to decide whether Borcama Pro is offered in your
+            country and to choose a default currency for new accounts. The
+            code is kept in your browser; we do not store it or your IP
+            address on our servers for this purpose.
+          </li>
+        )}
         <li>
           <b>Support communications:</b> messages you send us.
         </li>
@@ -219,7 +301,22 @@ export function PrivacyPolicyEn() {
         handled by your device; we never receive biometric data. Please do not
         type such information into free-text fields.
       </p>
+      {web ? (
+        <>
+          <h2>3. Optional measurement on the website; none in the iOS app</h2>
+          <p>
+            On the website, Google Analytics and Google Ads conversion
+            measurement are loaded only if you consent in the measurement
+            banner, to see in aggregate whether visits and ads lead to sign-ups
+            or purchases. Your email address and the financial records you
+            enter are never included. You can change this choice at any time
+            in Settings. We do not sell or rent your personal data and do not
+            show ads in Borcama.
+          </p>
+        </>
+      ) : (
       <h2>3. No tracking or advertising in the iOS app</h2>
+      )}
       <p>
         The iOS app does not load Google Analytics, Google Ads or any other
         advertising or cross-app tracking tools, does not track you across
@@ -253,7 +350,8 @@ export function PrivacyPolicyEn() {
           requests from authorities) — legal obligation (Art. 6(1)(c)).
         </li>
         <li>
-          <b>Optional features or notifications that require it</b> — your
+          <b>Optional features or notifications that require it</b>
+          {web ? <b>, and optional analytics and ad measurement on the website</b> : null} — your
           consent (Art. 6(1)(a)), which you can withdraw at any time without
           affecting processing before withdrawal.
         </li>
@@ -283,6 +381,19 @@ export function PrivacyPolicyEn() {
         <li>
           <b>Apple</b> — App Store purchases and Sign in with Apple.
         </li>
+        {web && (
+          <>
+            <li>
+              <b>Paddle</b> — payment processing for purchases on borcama.com;
+              Paddle is the Merchant of Record and processes your payment
+              details under its own privacy policy.
+            </li>
+            <li>
+              <b>Google (Analytics and Ads)</b> — only on the website and only
+              with your consent (see section 3).
+            </li>
+          </>
+        )}
         <li>
           <b>RevenueCat</b> — managing and verifying in-app subscriptions.
         </li>
@@ -334,16 +445,27 @@ export function PrivacyPolicyEn() {
       </ul>
       <p>
         When a retention period ends, data is deleted, destroyed or
-        anonymized. Purchase records held by Apple are governed by Apple's
-        privacy policy.
+        anonymized. Purchase records held by Apple
+        {web ? " or Paddle are governed by their privacy policies" : " are governed by Apple's privacy policy"}.
       </p>
       <h2>9. Deleting your account</h2>
       <p>
         You can permanently delete your account and associated Borcama data at
         any time in the app under Settings → “Delete my account”, or by
-        emailing <Mail />. Deleting your account does not cancel an App Store
-        subscription; manage that in iOS Settings → Apple Account →
-        Subscriptions.
+        emailing <Mail />. {web ? (
+          <>
+            Deleting your account does not by itself cancel a subscription:
+            cancel a web subscription in Settings → “Manage subscription” and an
+            App Store subscription in iOS Settings → Apple Account →
+            Subscriptions.
+          </>
+        ) : (
+          <>
+            Deleting your account does not cancel an App Store
+            subscription; manage that in iOS Settings → Apple Account →
+            Subscriptions.
+          </>
+        )}
       </p>
       <h2>10. Security</h2>
       <p>
@@ -400,8 +522,113 @@ export function PrivacyPolicyEn() {
   );
 }
 
+// Web iade politikası: web satın alımları Paddle, iOS satın alımları Apple.
+function WebIadePolitikasi() {
+  return (
+    <>
+      <p>
+        This policy explains how cancellations and refunds work for Borcama
+        Pro monthly and yearly subscriptions. Borcama Pro is a digital
+        subscription. Purchases on borcama.com are processed by our online
+        reseller Paddle.com, which is the Merchant of Record for all our web
+        orders. Purchases in the iOS app are sold by Apple through the App
+        Store. On the web, Borcama Pro is currently sold only to customers in
+        Türkiye; outside Türkiye it is not offered for purchase on the web.
+      </p>
+      <h2>1. Renewal</h2>
+      <p>
+        Borcama Pro renews automatically at the end of the monthly or yearly
+        period you chose. The renewal price and frequency are shown on the
+        purchase screen. Unless you cancel, the renewal is charged to the
+        payment method you used: through Paddle for web purchases, or to your
+        Apple Account (within 24 hours before the period ends) for App Store
+        purchases.
+      </p>
+      <h2>2. Cancellation</h2>
+      <ul>
+        <li>
+          <b>Web purchases:</b> cancel at any time in Borcama under Settings →
+          “Manage subscription”, or with the “Manage subscription” link in the
+          receipt email Paddle sent you.
+        </li>
+        <li>
+          <b>App Store purchases:</b> cancel in iOS Settings → Apple Account →
+          Subscriptions at least 24 hours before the current period ends.
+        </li>
+      </ul>
+      <p>
+        Cancellation takes effect at the end of the current billing period:
+        you are not charged again and keep Pro features until then.
+        Cancelling does not automatically refund any amount already charged.
+      </p>
+      <h2>3. Refunds for web purchases (Paddle)</h2>
+      <p>
+        Under Paddle's buyer refund policy in force, consumers can withdraw
+        from eligible digital purchases and request a full refund within 14
+        days of the transaction. Wider rights under mandatory consumer law in
+        your country take priority. To request a refund:
+      </p>
+      <ul>
+        <li>
+          use the “View receipt” or “Manage subscription” link in Paddle's
+          purchase confirmation email, or
+        </li>
+        <li>
+          request a refund through{" "}
+          <Dis href="https://paddle.net">Paddle's buyer support (paddle.net)</Dis>, or
+        </li>
+        <li>
+          contact us at <Mail /> with your purchase email and, if possible, the
+          receipt number; we will help pass your request to Paddle.
+        </li>
+      </ul>
+      <p>
+        Refunds approved under Paddle's policy are processed within 14 days and
+        sent, where possible, to the original payment method; the time it
+        takes to appear depends on your bank or card issuer. Borcama Pro
+        access may end once the refund is completed.
+      </p>
+      <h2>4. Refunds for App Store purchases (Apple)</h2>
+      <p>
+        Apple processes all App Store payments, so refunds for purchases made
+        in the iOS app are decided by Apple under its own policies. Request
+        one at{" "}
+        <Dis href="https://reportaproblem.apple.com">
+          reportaproblem.apple.com
+        </Dis>{" "}
+        or with the “Report a Problem” link in Apple's purchase receipt.
+      </p>
+      <h2>5. Technical problems and abuse</h2>
+      <p>
+        If a persistent technical problem prevents you from using the Pro
+        features you paid for, please contact Borcama support first. If we
+        cannot fix it, your refund request is assessed under applicable
+        consumer law and Paddle's or Apple's policy. Requests involving fraud
+        or abuse of refund rights may be refused or reviewed.
+      </p>
+      <h2>6. Your statutory rights</h2>
+      <p>
+        This policy does not limit any consumer rights that cannot be waived
+        under the law of your country of residence. Where Paddle's{" "}
+        <Dis href={PADDLE_IADE}>refund policy</Dis> or Apple's{" "}
+        <Dis href="https://www.apple.com/legal/internet-services/itunes/">
+          terms
+        </Dis>{" "}
+        in force at the time of the transaction, or mandatory law, provide
+        greater protection, that protection applies.
+      </p>
+      <div className="legal-callout">
+        <p>
+          Help with cancellations or refunds: <Mail />
+        </p>
+      </div>
+    </>
+  );
+}
+
 // TASLAK — hukuk kontrolü bekliyor (Legal review pending). Yayından önce avukat onayı gerekir.
-export function RefundPolicyEn() {
+export function RefundPolicyEn({ web = false }) {
+  if (web) return <WebIadePolitikasi />;
   return (
     <>
       <p>

@@ -22,7 +22,7 @@ test("manuel kredi formu başlangıç tutarı ve plan alanlarını doğru sırad
     "Ödeme günü",
     "İlk taksit tarihi",
   ];
-  const anahtarlar = [...fields.matchAll(/e: t\("([\w.]+)"\)/g)].map((m) => m[1]);
+  const anahtarlar = [...fields.matchAll(/e: t\("([\w.]+)"(?:, formSimge)?\)/g)].map((m) => m[1]);
   let previous = -1;
   labels.forEach((label) => {
     const position = anahtarlar.findIndex((anahtar, i) => i > previous && cevir("tr", anahtar) === label);

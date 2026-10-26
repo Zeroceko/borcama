@@ -1,14 +1,12 @@
 import React from "react";
 import { Coins } from "lucide-react";
-import { nativeMi } from "./platform.js";
 import { t } from "./i18n.js";
 import { DESTEKLENEN_PARA_BIRIMLERI, kullaniciParaBirimi, paraBirimiAdi, paraBirimiAyarla } from "./currencyInput.js";
 
-// Ayarlar > Para birimi. Yalniz native'de gorunur; web daima TRY.
-// Tum tutar gosterimleri yeniden okunsun diye secimden sonra uygulama
-// yeniden yuklenir. Kur cevirisi yapilmaz.
+// Ayarlar > Para birimi (native ve web). Tum tutar gosterimleri yeniden
+// okunsun diye secimden sonra uygulama yeniden yuklenir. Kur cevirisi
+// yapilmaz.
 export default function ParaBirimiAyari() {
-  if (!nativeMi) return null;
   const secili = kullaniciParaBirimi();
   return (
     <section className="bt-settings-card">

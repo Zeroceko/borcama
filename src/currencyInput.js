@@ -1,5 +1,6 @@
-import { dil, locale, ortakDegiskenleriAyarla } from "./i18n.js";
+import { dil, locale, ortakDegiskenleriAyarla, webUygulamaYoluMu } from "./i18n.js";
 import { nativeMi } from "./platform.js";
+import { bilinenUlke } from "./ulke.js";
 
 const sadeceRakam = (value) => String(value ?? "").replace(/\D/g, "");
 
@@ -39,14 +40,48 @@ export function bolgedenParaBirimi(yerelAyar) {
   return BOLGE_PARA_BIRIMI[bolge] || "USD";
 }
 
-// Saf karar fonksiyonu. Web daima TRY. Native'de gecerli kayit varsa o;
-// yoksa mevcut kurulum (eski surumden gelen, verisi TRY olan kullanici)
-// veya Turkce dil TRY'de kalir, yeni kurulum cihaz bolgesini kullanir.
-export function paraBirimiBelirle({ native = false, kayitli = null, dilKodu = "tr", yerelAyar = "", mevcutKurulum = false } = {}) {
-  if (!native) return "TRY";
+// Saf karar fonksiyonu. Gecerli kayit varsa o; yoksa mevcut kullanici
+// (eski surumden gelen, verisi TRY olan) veya Turkce dil TRY'de kalir.
+// Yeni kullanici: native'de cihaz bolgesi; web'de IP ulkesi, o yoksa
+// tarayici bolgesi.
+export function paraBirimiBelirle({ native = false, kayitli = null, dilKodu = "tr", yerelAyar = "", mevcutKurulum = false, ulke = null } = {}) {
   if (DESTEKLENEN_PARA_BIRIMLERI.includes(kayitli)) return kayitli;
   if (mevcutKurulum || dilKodu === "tr") return "TRY";
+  if (!native && /^[A-Z]{2}$/.test(String(ulke || ""))) return bolgedenParaBirimi(`und-${ulke}`);
   return bolgedenParaBirimi(yerelAyar);
+}
+
+// Web'de bolgesel varsayilan yalniz bu tarihten sonra acilan hesaplara
+// uygulanir; oncesindeki hesaplarin verisi TRY ile girildi. Tarih web
+// cok dilli yayinindan sonraya konmali (once olursa arada acilip TRY ile
+// veri girmis yabanci dilli kullanici baska birim gorur; sonra olursa arada
+// acilan yeni hesaplar yalniz TRY ile baslar ve Ayarlar'dan degistirebilir).
+export const WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI = "2026-10-28T00:00:00Z";
+
+// Web: tarayicidaki Supabase oturumu ve hesabin acilis zamani. Kisisel veri
+// okunmaz; yalniz created_at.
+function webOturumHesapTarihi() {
+  try {
+    const depo = globalThis.localStorage;
+    if (!depo) return { oturumVar: false, olusturma: null };
+    for (let i = 0; i < depo.length; i += 1) {
+      const anahtar = depo.key(i) || "";
+      if (!anahtar.startsWith("sb-") || !anahtar.endsWith("-auth-token")) continue;
+      const oturum = JSON.parse(depo.getItem(anahtar) || "null");
+      const kullanici = oturum?.user || oturum?.currentSession?.user;
+      return { oturumVar: true, olusturma: kullanici?.created_at || null };
+    }
+  } catch {
+    // Okunamazsa oturum yok say.
+  }
+  return { oturumVar: false, olusturma: null };
+}
+
+// Saf karar: bu web hesabi bolgesel varsayilan icin "yeni" mi? Acilis zamani
+// okunamayan oturum mevcut (TRY) sayilir.
+export function webYeniHesapMi(olusturma, baslangic = WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI) {
+  const zaman = Date.parse(String(olusturma || ""));
+  return Number.isFinite(zaman) && zaman >= Date.parse(baslangic);
 }
 
 function depoOku(anahtar) {
@@ -80,11 +115,42 @@ export function cihazYerelAyari() {
   }
 }
 
-// Kullanicinin gosterim para birimi. Web'de daima TRY. Native'de ilk
-// cagrida belirlenen varsayilan kaydedilir; boylece cihaz bolgesi sonradan
-// degisse de kullanicinin tutarlari baska birimle gosterilmez.
+// Web: tarayici dil tercihlerinden bolge iceren ilki ("en-GB"); yoksa Intl.
+// Tarayicida Intl varsayilani isletim sistemi dilini (bolgesiz "tr") verebilir.
+function tarayiciYerelAyari() {
+  const diller = globalThis.navigator?.languages || [globalThis.navigator?.language];
+  return (diller || []).find((etiket) => bolgeKodu(etiket)) || cihazYerelAyari();
+}
+
+// Web: kayitli secim -> (yeni hesap ve dil Turkce degilse) IP ulkesi/tarayici
+// bolgesi -> TRY. Karar yalniz oturum acikken ve uygulama ici bir ekranda
+// kaydedilir; giris/kayit ekraninda (oturum yok) yalniz gosterilir. Mevcut
+// hesaplar (WEB_BOLGESEL_PARA_BIRIMI_BASLANGICI oncesi) TRY'de kalir.
+function webParaBirimi() {
+  const kayitli = depoOku(PARA_BIRIMI_ANAHTARI);
+  if (DESTEKLENEN_PARA_BIRIMLERI.includes(kayitli)) return kayitli;
+  const { oturumVar, olusturma } = webOturumHesapTarihi();
+  const birim = paraBirimiBelirle({
+    native: false,
+    dilKodu: dil(),
+    yerelAyar: tarayiciYerelAyari(),
+    mevcutKurulum: oturumVar && !webYeniHesapMi(olusturma),
+    ulke: bilinenUlke(),
+  });
+  if (oturumVar && webUygulamaYoluMu(globalThis.location?.pathname || "", { oturumVar })) {
+    try {
+      globalThis.localStorage?.setItem(PARA_BIRIMI_ANAHTARI, birim);
+    } catch {
+      // Yazilamazsa her cagrida yeniden hesaplanir.
+    }
+  }
+  return birim;
+}
+
+// Kullanicinin gosterim para birimi. Ilk karar kaydedilir; boylece cihaz
+// bolgesi/ulke sonradan degisse de tutarlar baska birimle gosterilmez.
 export function kullaniciParaBirimi() {
-  if (!nativeMi) return "TRY";
+  if (!nativeMi) return webParaBirimi();
   const kayitli = depoOku(PARA_BIRIMI_ANAHTARI);
   const birim = paraBirimiBelirle({
     native: true,
@@ -104,13 +170,21 @@ export function kullaniciParaBirimi() {
 }
 
 export function paraBirimiAyarla(kod) {
-  if (!nativeMi || !DESTEKLENEN_PARA_BIRIMLERI.includes(kod)) return kullaniciParaBirimi();
+  if (!DESTEKLENEN_PARA_BIRIMLERI.includes(kod)) return kullaniciParaBirimi();
   try {
     globalThis.localStorage?.setItem(PARA_BIRIMI_ANAHTARI, kod);
   } catch {
     // Gizli mod: secim bu oturumda kalmaz.
   }
   return kod;
+}
+
+// Borc kaydinin para birimi. Kayitta gecerli `paraBirimi` yoksa (eski
+// veriler, web) kullanicinin ana birimi sayilir; boylece eski kayitlar
+// degismeden ayni birimde kalir.
+export function kayitParaBirimi(kayit, ana = kullaniciParaBirimi()) {
+  const kod = kayit?.paraBirimi;
+  return DESTEKLENEN_PARA_BIRIMLERI.includes(kod) ? kod : ana;
 }
 
 // Para biriminin secili dildeki adi ("US Dollar", "ABD Doları").
@@ -220,7 +294,8 @@ export function paraGirdisiniFormatla(value, dilKodu = dil()) {
   return kurusVar ? `${gruplu}${ondalik}${kurus}` : gruplu;
 }
 
-// Cihazin bolge kodu ("US", "DE"); bilinmiyorsa "". Web'de kullanilmaz.
+// Cihazin bolge kodu ("US", "DE"); bilinmiyorsa "". Web'de once IP ulkesi.
 export function cihazBolgesi() {
+  if (!nativeMi) return bilinenUlke() || bolgeKodu(tarayiciYerelAyari());
   return bolgeKodu(cihazYerelAyari());
 }
