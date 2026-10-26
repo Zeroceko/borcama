@@ -262,7 +262,7 @@ function kartSon4Eki(kart) {
   return son4 ? ` · •••• ${son4}` : "";
 }
 function kartGorunenAdi(kart) {
-  return `${kart?.banka || "Banka"} · ${kart?.ad || "Kredi kartı"}${kartSon4Eki(kart)}`;
+  return `${kart?.banka || t("ortak.banka")} · ${kart?.ad || t("cekirdek.krediKarti")}${kartSon4Eki(kart)}`;
 }
 function rozetStil(bg, rot, boyut = 42) {
   return {
@@ -877,9 +877,9 @@ const parseParaGirisi = (deger) => {
   return Number(standart) || 0;
 };
 const PARA_BIRIMLERI = [
-  { id: "TRY", ad: "Türk lirası (₺)", fiyat: null },
-  { id: "USD", ad: "ABD doları ($)", fiyat: "usdTry" },
-  { id: "EUR", ad: "Euro (€)", fiyat: "eurTry" },
+  { id: "TRY", ad: t("cekirdek.paraBirimi.TRY"), fiyat: null },
+  { id: "USD", ad: t("cekirdek.paraBirimi.USD"), fiyat: "usdTry" },
+  { id: "EUR", ad: t("cekirdek.paraBirimi.EUR"), fiyat: "eurTry" },
 ];
 const fmtPara = (n, id = "TRY") =>
   paraBiriminiFormatla(n, PARA_BIRIMLERI.some((birim) => birim.id === id) ? id : "TRY", {
@@ -917,16 +917,16 @@ const VARLIK_TURLERI = [
   { id: "eur", kategori: "doviz", ad: "Euro", birim: "EUR", otomatik: true, fiyat: "eurTry" },
   { id: "gbp", kategori: "doviz", ad: "Sterlin", birim: "GBP", otomatik: true, fiyat: "gbpTry" },
   { id: "chf", kategori: "doviz", ad: "İsviçre frangı", birim: "CHF", otomatik: true, fiyat: "chfTry" },
-  { id: "gram_altin", kategori: "emtia", ad: "Gram altın (24 ayar)", birim: "gram", otomatik: true, fiyat: "goldGramTry", carpan: 1 },
-  { id: "gram_altin_22", kategori: "emtia", ad: "Gram altın (22 ayar)", birim: "gram", otomatik: true, fiyat: "goldGramTry", carpan: 0.9167, tahmini: true },
-  { id: "ceyrek_altin", kategori: "emtia", ad: "Çeyrek altın", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 1.6065, tahmini: true },
-  { id: "yarim_altin", kategori: "emtia", ad: "Yarım altın", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 3.213, tahmini: true },
-  { id: "tam_altin", kategori: "emtia", ad: "Tam altın", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 6.426, tahmini: true },
-  { id: "cumhuriyet_altini", kategori: "emtia", ad: "Cumhuriyet altını", birim: "adet", otomatik: true, fiyat: "goldGramTry", carpan: 6.614, tahmini: true },
-  { id: "gram_gumus", kategori: "emtia", ad: "Gram gümüş", birim: "gram", otomatik: true, fiyat: "silverGramTry" },
-  { id: "platin", kategori: "emtia", ad: "Platin (ons)", birim: "ons", otomatik: true, fiyat: "platinumOunceTry" },
-  { id: "petrol", kategori: "emtia", ad: "Petrol (WTI)", birim: "varil", otomatik: true, fiyat: "oilBarrelTry" },
-  { id: "bakir", kategori: "emtia", ad: "Bakır", birim: "libre", otomatik: true, fiyat: "copperPoundTry" },
+  { id: "gram_altin", kategori: "emtia", ad: "Gram altın (24 ayar)", birim: t("cekirdek.birim.gram"), otomatik: true, fiyat: "goldGramTry", carpan: 1 },
+  { id: "gram_altin_22", kategori: "emtia", ad: "Gram altın (22 ayar)", birim: t("cekirdek.birim.gram"), otomatik: true, fiyat: "goldGramTry", carpan: 0.9167, tahmini: true },
+  { id: "ceyrek_altin", kategori: "emtia", ad: "Çeyrek altın", birim: t("cekirdek.birim.adet"), otomatik: true, fiyat: "goldGramTry", carpan: 1.6065, tahmini: true },
+  { id: "yarim_altin", kategori: "emtia", ad: "Yarım altın", birim: t("cekirdek.birim.adet"), otomatik: true, fiyat: "goldGramTry", carpan: 3.213, tahmini: true },
+  { id: "tam_altin", kategori: "emtia", ad: "Tam altın", birim: t("cekirdek.birim.adet"), otomatik: true, fiyat: "goldGramTry", carpan: 6.426, tahmini: true },
+  { id: "cumhuriyet_altini", kategori: "emtia", ad: "Cumhuriyet altını", birim: t("cekirdek.birim.adet"), otomatik: true, fiyat: "goldGramTry", carpan: 6.614, tahmini: true },
+  { id: "gram_gumus", kategori: "emtia", ad: "Gram gümüş", birim: t("cekirdek.birim.gram"), otomatik: true, fiyat: "silverGramTry" },
+  { id: "platin", kategori: "emtia", ad: "Platin (ons)", birim: t("cekirdek.birim.ons"), otomatik: true, fiyat: "platinumOunceTry" },
+  { id: "petrol", kategori: "emtia", ad: "Petrol (WTI)", birim: t("cekirdek.birim.varil"), otomatik: true, fiyat: "oilBarrelTry" },
+  { id: "bakir", kategori: "emtia", ad: "Bakır", birim: t("cekirdek.birim.libre"), otomatik: true, fiyat: "copperPoundTry" },
   ...KRIPTO_LISTESI.map((coin) => ({
     id: coin.coinId === "bitcoin" ? "bitcoin" : "kripto_" + coin.coinId,
     kategori: "kripto",
@@ -937,10 +937,10 @@ const VARLIK_TURLERI = [
     coinId: coin.coinId,
   })),
   { id: "kripto_diger", kategori: "kripto", ad: "Diğer (ekleyin)", birim: "", otomatik: false, kripto: true },
-  { id: "bes", kategori: "bes", ad: "Bireysel emeklilik fonu", birim: "pay", otomatik: true, fon: true, kaynak: "BEFAS" },
-  { id: "fon", kategori: "fon", ad: "Yatırım fonu", birim: "pay", otomatik: true, fon: true, kaynak: "TEFAS" },
-  { id: "hisse", kategori: "hisse", ad: "Borsa İstanbul hissesi", birim: "adet", otomatik: true, hisse: true, piyasa: "BIST", kaynak: "Yahoo Finance" },
-  { id: "hisse_abd", kategori: "hisse", ad: "ABD borsası hissesi", birim: "adet", otomatik: true, hisse: true, piyasa: "US", kaynak: "Yahoo Finance" },
+  { id: "bes", kategori: "bes", ad: "Bireysel emeklilik fonu", birim: t("cekirdek.birim.pay"), otomatik: true, fon: true, kaynak: "BEFAS" },
+  { id: "fon", kategori: "fon", ad: "Yatırım fonu", birim: t("cekirdek.birim.pay"), otomatik: true, fon: true, kaynak: "TEFAS" },
+  { id: "hisse", kategori: "hisse", ad: "Borsa İstanbul hissesi", birim: t("cekirdek.birim.adet"), otomatik: true, hisse: true, piyasa: "BIST", kaynak: "Yahoo Finance" },
+  { id: "hisse_abd", kategori: "hisse", ad: "ABD borsası hissesi", birim: t("cekirdek.birim.adet"), otomatik: true, hisse: true, piyasa: "US", kaynak: "Yahoo Finance" },
   { id: "nakit", kategori: "nakit", ad: "Nakit", birim: "", otomatik: false },
   { id: "mevduat", kategori: "nakit", ad: "Vadeli / vadesiz mevduat", birim: "", otomatik: false },
   { id: "gayrimenkul", kategori: "diger", ad: "Gayrimenkul", birim: "", otomatik: false },
@@ -948,14 +948,14 @@ const VARLIK_TURLERI = [
   { id: "diger", kategori: "diger", ad: "Diğer (ekleyin)", birim: "", otomatik: false },
 ];
 const VARLIK_KATEGORILERI = [
-  { id: "nakit", ad: "Nakit", turler: ["nakit", "mevduat"] },
-  { id: "doviz", ad: "Döviz", turler: ["usd", "eur", "gbp", "chf"] },
-  { id: "emtia", ad: "Emtia", turler: ["gram_altin", "gram_altin_22", "ceyrek_altin", "yarim_altin", "tam_altin", "cumhuriyet_altini", "gram_gumus", "platin", "petrol", "bakir"] },
-  { id: "kripto", ad: "Kripto", turler: [...KRIPTO_LISTESI.map((coin) => coin.coinId === "bitcoin" ? "bitcoin" : "kripto_" + coin.coinId), "kripto_diger"] },
-  { id: "bes", ad: "Bireysel emeklilik", turler: ["bes"] },
-  { id: "fon", ad: "Fonlar", turler: ["fon"] },
-  { id: "hisse", ad: "Hisseler", turler: ["hisse", "hisse_abd"] },
-  { id: "diger", ad: "Diğer", turler: ["gayrimenkul", "arac", "diger"] },
+  { id: "nakit", ad: t("cekirdek.varlikKategori.nakit"), turler: ["nakit", "mevduat"] },
+  { id: "doviz", ad: t("cekirdek.varlikKategori.doviz"), turler: ["usd", "eur", "gbp", "chf"] },
+  { id: "emtia", ad: t("cekirdek.varlikKategori.emtia"), turler: ["gram_altin", "gram_altin_22", "ceyrek_altin", "yarim_altin", "tam_altin", "cumhuriyet_altini", "gram_gumus", "platin", "petrol", "bakir"] },
+  { id: "kripto", ad: t("cekirdek.varlikKategori.kripto"), turler: [...KRIPTO_LISTESI.map((coin) => coin.coinId === "bitcoin" ? "bitcoin" : "kripto_" + coin.coinId), "kripto_diger"] },
+  { id: "bes", ad: t("cekirdek.varlikKategori.bes"), turler: ["bes"] },
+  { id: "fon", ad: t("cekirdek.varlikKategori.fon"), turler: ["fon"] },
+  { id: "hisse", ad: t("cekirdek.varlikKategori.hisse"), turler: ["hisse", "hisse_abd"] },
+  { id: "diger", ad: t("cekirdek.varlikKategori.diger"), turler: ["gayrimenkul", "arac", "diger"] },
 ];
 const varlikTuru = (id) =>
   VARLIK_TURLERI.find((tur) => tur.id === id) || VARLIK_TURLERI.at(-1);
@@ -1024,7 +1024,7 @@ const ayAnahtari = (d = bugun()) =>
 const tarihSaatEtiketi = (deger) => {
   const d = new Date(deger);
   return Number.isNaN(d.getTime())
-    ? "Tarih bilgisi yok"
+    ? t("cekirdek.tarihYok")
     : d.toLocaleString(locale(), { dateStyle: "medium", timeStyle: "short" });
 };
 const yerelTarihSaatDegeri = (deger = new Date()) => {
@@ -1325,11 +1325,11 @@ const BOS_VERI = {
 };
 
 const KATEGORI_META = {
-  cards: { ad: "Kredi kartları", liste: "cards", rozetBg: LIME },
-  loans: { ad: "Krediler", liste: "loans", rozetBg: "#c8c9be" },
-  od: { ad: "Ek hesap / KMH", liste: "overdrafts", rozetBg: CORAL },
+  cards: { ad: t("cekirdek.borcKategori.cards"), liste: "cards", rozetBg: LIME },
+  loans: { ad: t("cekirdek.borcKategori.loans"), liste: "loans", rozetBg: "#c8c9be" },
+  od: { ad: t("cekirdek.borcKategori.od"), liste: "overdrafts", rozetBg: CORAL },
   others: {
-    ad: "Gecikenler",
+    ad: t("cekirdek.borcKategori.others"),
     liste: "others",
     rozetBg: "#d8c9a0",
   },
@@ -1407,7 +1407,7 @@ function borcKalemleri(veri) {
         id: "ek-" + k.id,
         tur: "ek",
         banka: (k.banka || "").trim(),
-        ad: k.banka + " · Ek hesap (KMH)",
+        ad: t("cekirdek.kalem.ekHesap", { banka: k.banka }),
         bakiye,
         faiz,
         faizTutari: (bakiye * faiz) / 100,
@@ -1426,7 +1426,7 @@ function borcKalemleri(veri) {
         id: "kredi-" + k.id,
         tur: "kredi",
         banka: (k.banka || "").trim(),
-        ad: k.banka + (k.ad ? " · " + k.ad : " · Kredi"),
+        ad: k.ad ? k.banka + " · " + k.ad : t("cekirdek.kalem.kredi", { banka: k.banka }),
         bakiye,
         faiz,
         faizTutari: (bakiye * faiz) / 100,
@@ -1443,7 +1443,7 @@ function borcKalemleri(veri) {
         id: "diger-" + k.id,
         tur: "diger",
         banka: (k.banka || "").trim(),
-        ad: k.banka + (k.ad ? " · " + k.ad : " · Gecikmiş borç"),
+        ad: k.ad ? k.banka + " · " + k.ad : t("cekirdek.kalem.gecikmisBorc", { banka: k.banka }),
         bakiye,
         faiz,
         faizTutari: (bakiye * faiz) / 100,
@@ -1480,13 +1480,12 @@ function borcamaOnerileriniHesapla({
       modlar: ["nakit", "faiz"],
       oncelik: 100,
       tur: "acil",
-      etiket: "Önce bunu çöz",
-      baslik: gecikmisler.length + " gecikmiş ödeme bekliyor",
-      aciklama:
-        "Yeni bir borca ekstra ödeme yapmadan önce gecikmiş kayıtları kontrol et. Gecikme maliyeti ve kredi geçmişi açısından ilk sırada bunlar olmalı.",
-      etki: "Bekleyen zorunlu tutar: " + fmt(gecikmisToplam),
+      etiket: t("cekirdek.oneri.gecikmis.etiket"),
+      baslik: t("cekirdek.oneri.gecikmis.baslik", { adet: gecikmisler.length }),
+      aciklama: t("cekirdek.oneri.gecikmis.aciklama"),
+      etki: t("cekirdek.oneri.gecikmis.etki", { tutar: fmt(gecikmisToplam) }),
       hedef: "odemeler",
-      aksiyon: "Ödemeleri aç",
+      aksiyon: t("cekirdek.oneri.gecikmis.aksiyon"),
     });
   }
 
@@ -1507,21 +1506,17 @@ function borcamaOnerileriniHesapla({
       modlar: ["nakit"],
       oncelik: 86 + Math.min(fark / 10000, 5),
       tur: "firsat",
-      etiket: "Aylık yük senaryosu",
-      baslik: (kart.banka || "Kart") + " limitini gözden geçir",
-      aciklama:
-        "Kart limitin 100.000 TL veya altına indirilebilirse yasal minimum oranı sonraki ekstrelerde yaklaşık %40'tan %20'ye düşebilir.",
-      etki:
-        "Tahmini minimum " +
-        fmt(mevcutMinimum) +
-        " yerine " +
-        fmt(dusukLimitMinimumu) +
-        " · aylık fark " +
-        fmt(fark),
-      uyari:
-        "Bu işlem borcu ya da faizi azaltmaz. Daha az ödeme yaparsan devreden borç ve sonraki ayın faizi artabilir; banka limit değişikliğini ayrıca değerlendirir.",
+      etiket: t("cekirdek.oneri.limit.etiket"),
+      baslik: t("cekirdek.oneri.limit.baslik", { banka: kart.banka || t("cekirdek.oneri.kart") }),
+      aciklama: t("cekirdek.oneri.limit.aciklama"),
+      etki: t("cekirdek.oneri.limit.etki", {
+        mevcut: fmt(mevcutMinimum),
+        dusuk: fmt(dusukLimitMinimumu),
+        fark: fmt(fark),
+      }),
+      uyari: t("cekirdek.oneri.limit.uyari"),
       hedef: "borclar",
-      aksiyon: "Kartı incele",
+      aksiyon: t("cekirdek.oneri.kartiIncele"),
     });
   });
 
@@ -1539,18 +1534,15 @@ function borcamaOnerileriniHesapla({
       modlar: ["faiz"],
       oncelik: 92,
       tur: "firsat",
-      etiket: "Faiz önceliği",
-      baslik: "Ekstra ödemeyi önce " + hedef.ad + " borcuna yönlendir",
-      aciklama:
-        "Tüm zorunlu ödemeler ve gecikmiş kayıtlar tamamlandıktan sonra kalan bütçeyi, değişken faizli borçların içinde oranı en yüksek olana yönlendirmek toplam maliyeti daha hızlı düşürür.",
-      etki:
-        "Aylık yaklaşık %" +
-        hedef.faiz.toLocaleString("tr-TR", { maximumFractionDigits: 2 }) +
-        " · her 1.000 TL ek ödeme sonraki ay yaklaşık " +
-        fmt(binLiraEtki) +
-        " faiz oluşmasını önleyebilir",
+      etiket: t("cekirdek.oneri.faiz.etiket"),
+      baslik: t("cekirdek.oneri.faiz.baslik", { ad: hedef.ad }),
+      aciklama: t("cekirdek.oneri.faiz.aciklama"),
+      etki: t("cekirdek.oneri.faiz.etki", {
+        oran: hedef.faiz.toLocaleString(locale(), { maximumFractionDigits: 2 }),
+        tutar: fmt(binLiraEtki),
+      }),
       hedef: "plan",
-      aksiyon: "Borç planını aç",
+      aksiyon: t("cekirdek.oneri.faiz.aksiyon"),
     });
   }
 
@@ -1564,13 +1556,15 @@ function borcamaOnerileriniHesapla({
       modlar: ["nakit", "faiz"],
       oncelik: 74 + Math.min(kullanim * 10, 10),
       tur: kullanim >= 1 ? "acil" : "dikkat",
-      etiket: "Limit kullanımı",
-      baslik: (kart.banka || "Kart") + " limitinin %" + Math.round(kullanim * 100) + "'i dolu",
-      aciklama:
-        "Bu karttaki yeni harcamaları yavaşlatmak, minimum ödemenin ve devreden borcun büyümesini engellemeye yardımcı olur.",
-      etki: "Kalan borç " + fmt(hesap.toplam) + " · limit " + fmt(limit),
+      etiket: t("cekirdek.oneri.kullanim.etiket"),
+      baslik: t("cekirdek.oneri.kullanim.baslik", {
+        banka: kart.banka || t("cekirdek.oneri.kart"),
+        yuzde: Math.round(kullanim * 100),
+      }),
+      aciklama: t("cekirdek.oneri.kullanim.aciklama"),
+      etki: t("cekirdek.oneri.kullanim.etki", { borc: fmt(hesap.toplam), limit: fmt(limit) }),
       hedef: "borclar",
-      aksiyon: "Kartı incele",
+      aksiyon: t("cekirdek.oneri.kartiIncele"),
     });
   });
 
@@ -1580,13 +1574,12 @@ function borcamaOnerileriniHesapla({
       modlar: ["nakit"],
       oncelik: 90,
       tur: "dikkat",
-      etiket: "Aylık denge",
-      baslik: "Bu ayın planında " + fmt(Math.abs(netNakit)) + " açık var",
-      aciklama:
-        "Kayıtlı gelir, harcama ve zorunlu borç ödemelerine göre ay sonu eksiye düşüyor. Önce esnek harcamalardan bu tutar kadar alan açmayı hedefle.",
-      etki: "Hedef: aylık nakit akışını en az ₺0 seviyesine getirmek",
+      etiket: t("cekirdek.oneri.nakit.etiket"),
+      baslik: t("cekirdek.oneri.nakit.baslik", { tutar: fmt(Math.abs(netNakit)) }),
+      aciklama: t("cekirdek.oneri.nakit.aciklama"),
+      etki: t("cekirdek.oneri.nakit.etki"),
       hedef: "harcamalar",
-      aksiyon: "Harcamaları incele",
+      aksiyon: t("cekirdek.oneri.harcamalariIncele"),
     });
   }
 
@@ -1614,13 +1607,12 @@ function borcamaOnerileriniHesapla({
       modlar: ["nakit"],
       oncelik: 78,
       tur: "dikkat",
-      etiket: "Harcama sinyali",
-      baslik: artis.kategori + " harcamaları geçen aya göre %" + yuzde + " arttı",
-      aciklama:
-        "Bu kategoriyi geçen ayki seviyesine yaklaştırabilirsen borç ödemeleri için ek alan oluşturabilirsin.",
-      etki: "Olası aylık alan: " + fmt(artis.fark),
+      etiket: t("cekirdek.oneri.artis.etiket"),
+      baslik: t("cekirdek.oneri.artis.baslik", { kategori: tDeger(artis.kategori), yuzde }),
+      aciklama: t("cekirdek.oneri.artis.aciklama"),
+      etki: t("cekirdek.oneri.artis.etki", { tutar: fmt(artis.fark) }),
       hedef: "harcamalar",
-      aksiyon: "Kayıtları gör",
+      aksiyon: t("cekirdek.oneri.artis.aksiyon"),
     });
   } else if (buAyHarcama.toplam > 0) {
     const [kategori, tutar] = Object.entries(buAyHarcama.kategoriler || {}).sort(
@@ -1632,15 +1624,14 @@ function borcamaOnerileriniHesapla({
         modlar: ["nakit"],
         oncelik: 64,
         tur: "bilgi",
-        etiket: "Harcama dağılımı",
-        baslik: "Bu ay en büyük harcama alanın: " + kategori,
-        aciklama:
-          "Toplam harcamanın %" +
-          Math.round((tutar / buAyHarcama.toplam) * 100) +
-          "'i bu kategoride. Küçük bir hedef bile ödeme bütçeni görünür biçimde artırabilir.",
-        etki: "Bu ay " + fmt(tutar),
+        etiket: t("cekirdek.oneri.yogun.etiket"),
+        baslik: t("cekirdek.oneri.yogun.baslik", { kategori: tDeger(kategori) }),
+        aciklama: t("cekirdek.oneri.yogun.aciklama", {
+          yuzde: Math.round((tutar / buAyHarcama.toplam) * 100),
+        }),
+        etki: t("cekirdek.oneri.yogun.etki", { tutar: fmt(tutar) }),
         hedef: "harcamalar",
-        aksiyon: "Harcamaları aç",
+        aksiyon: t("cekirdek.oneri.yogun.aksiyon"),
       });
     }
   }
@@ -1651,12 +1642,11 @@ function borcamaOnerileriniHesapla({
       modlar: ["nakit", "faiz"],
       oncelik: 20,
       tur: "bilgi",
-      etiket: "İlk önerini oluştur",
-      baslik: "Borç ve harcamalarını ekledikçe öneriler kişiselleşir",
-      aciklama:
-        "Borcama yalnızca kaydettiğin rakamlardan hareket eder. İlk kartını ve birkaç harcamanı eklediğinde önceliklerini hesaplamaya başlar.",
+      etiket: t("cekirdek.oneri.ilk.etiket"),
+      baslik: t("cekirdek.oneri.ilk.baslik"),
+      aciklama: t("cekirdek.oneri.ilk.aciklama"),
       hedef: "borclar",
-      aksiyon: "Borç ekle",
+      aksiyon: t("cekirdek.oneri.ilk.aksiyon"),
     });
   }
 
