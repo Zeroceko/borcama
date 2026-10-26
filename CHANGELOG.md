@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Borcama Pro fiyatı ayda 39,90 TL, yılda 399 TL oldu (yıllık plan 2 ay bedava); site ve demo metinleri yeni fiyatla güncellendi. Ödeme ekranındaki fiyat RevenueCat ve App Store'dan geliyor.
+
 ## [1.69.2] - 2026-10-27
 
 ### Değiştirildi
