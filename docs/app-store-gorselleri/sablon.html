@@ -100,6 +100,23 @@ document.getElementById("kok").innerHTML =
   `<div class="ust"><span class="etiket">${s.etiket}</span><h1>${s.baslik}</h1><p>${s.alt}</p></div>` +
   `<div class="telefon"><div class="cerceve"><img src="${s.ekran}"></div></div>` +
   `<div class="rozet" style="left:${s.rozet.x}px;top:${s.rozet.y}px;--rozetBg:${s.rozet.bg}">${s.rozet.metin}</div>`;
+// Uzun basliklar telefonun ustune binmesin: once yaziyi kucult, sonra
+// telefonu metnin altina it.
+document.fonts.ready.then(function yerlestir() {
+  const ust = document.querySelector(".ust");
+  const h1 = ust.querySelector("h1");
+  const p = ust.querySelector("p");
+  const tel = document.querySelector(".telefon");
+  const istenen = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--telTop")) || 980;
+  let boyut = 132;
+  while (ust.getBoundingClientRect().bottom > istenen - 50 && boyut > 96) {
+    boyut -= 6;
+    h1.style.fontSize = boyut + "px";
+    p.style.fontSize = Math.max(42, Math.round(boyut * 0.38)) + "px";
+  }
+  const alt = ust.getBoundingClientRect().bottom;
+  if (alt > istenen - 50) document.documentElement.style.setProperty("--telTop", Math.round(alt + 60) + "px");
+});
 </script>
 </body>
 </html>
