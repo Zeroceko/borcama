@@ -42,3 +42,10 @@ test("landing CTA tıklaması ve kaydırma ölçülür", async () => {
   assert.match(olcum, /"landing_cta_click"/);
   assert.match(olcum, /"landing_scroll_half"/);
 });
+
+test("araç sayfalarında reklam satış kutusu yok; reklam iletişimi alt bilgide", async () => {
+  const [seo, css, landing] = await Promise.all([oku("./SeoPages.jsx"), oku("./SeoPages.css"), oku("./LandingAlt.jsx")]);
+  assert.doesNotMatch(seo, /AdSlot|showAd|Markanızı burada tanıtın/);
+  assert.doesNotMatch(css, /seo-ad-slot/);
+  for (const sayfa of [seo, landing]) assert.match(sayfa, /<a href="mailto:zero@borcama\.com\?subject=[^"]+">Reklam ve işbirliği<\/a>/);
+});
