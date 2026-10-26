@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { nativeMi } from "./platform.js";
+import { t } from "./i18n.js";
 import { biyometriKullanilabilir, kilidiAyarla, kilitAcikMi, kimlikDogrula } from "./biometrik.js";
 
 const CSS = `
@@ -67,15 +68,13 @@ export default function BiyometrikKilit({ children }) {
   if (!nativeMi || !kilitli) return children;
 
   return (
-    <div className="bk-ekran" role="dialog" aria-modal="true" aria-label="Uygulama kilidi">
+    <div className="bk-ekran" role="dialog" aria-modal="true" aria-label={t("bilesen.kilit.ariaEtiket")}>
       <style>{CSS}</style>
       <div className="bk-kutu">
         <img className="bk-logo" src="/borcama-logo.png" alt="Borcama" />
-        <p className="bk-metin">
-          Finansal verilerini görmek için kimliğini doğrula.
-        </p>
+        <p className="bk-metin">{t("bilesen.kilit.metin")}</p>
         <button className="bk-btn" type="button" onClick={kilidiAcmayiDene}>
-          Kilidi aç
+          {t("bilesen.kilit.kilidiAc")}
         </button>
       </div>
     </div>
@@ -125,19 +124,19 @@ export function BiyometrikAyar() {
   return (
     <section className="bt-settings-card">
       <div className="bt-settings-title">
-        <ShieldCheck size={18} /> Güvenlik
+        <ShieldCheck size={18} /> {t("bilesen.biyometrik.guvenlik")}
       </div>
       <div className="bt-setting-row">
         <div>
-          <strong>{ad} ile uygulama kilidi</strong>
+          <strong>{t("bilesen.biyometrik.baslik", { ad })}</strong>
           <small>
             {acik
-              ? `Borcama her açıldığında ve arka plandan her dönüşte ${ad} sorulur.`
-              : `Açarsan Borcama her açıldığında ${ad} sorulur.`}
+              ? t("bilesen.biyometrik.acikAciklama", { ad })
+              : t("bilesen.biyometrik.kapaliAciklama", { ad })}
           </small>
         </div>
         <button className="bt-btn kucuk ikincil" type="button" disabled={islemde} onClick={degistir}>
-          {acik ? "Kilidi kapat" : "Kilidi aç"}
+          {acik ? t("bilesen.biyometrik.kapat") : t("bilesen.biyometrik.ac")}
         </button>
       </div>
     </section>

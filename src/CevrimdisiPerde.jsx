@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 import { nativeMi } from "./platform.js";
+import { t } from "./i18n.js";
 
 const CSS = `
 .cd-ekran{position:fixed;inset:0;z-index:1900;display:grid;place-items:center;
@@ -59,15 +60,9 @@ export default function CevrimdisiPerde({ children }) {
         <div className="cd-ikon">
           <WifiOff size={28} />
         </div>
-        <h1 className="cd-baslik">Bağlantı gerekiyor</h1>
-        <p className="cd-metin">
-          Borcama finansal kayıtlarını hesabından okur. İnternet bağlantısı
-          olmadan güncel tutarları gösteremez.
-        </p>
-        <p className="cd-guvence">
-          Kayıtların silinmedi. Bağlantı geri geldiğinde kaldığın yerden devam
-          edeceksin.
-        </p>
+        <h1 className="cd-baslik">{t("bilesen.cevrimdisi.baslik")}</h1>
+        <p className="cd-metin">{t("bilesen.cevrimdisi.metin")}</p>
+        <p className="cd-guvence">{t("bilesen.cevrimdisi.guvence")}</p>
       </div>
     </div>
   );
