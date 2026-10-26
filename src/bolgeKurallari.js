@@ -1,6 +1,12 @@
-import { bolgedenParaBirimi, cihazBolgesi, kullaniciParaBirimi } from "./currencyInput.js";
+import { bolgedenParaBirimi, cihazBolgesi, kayitParaBirimi, kullaniciParaBirimi } from "./currencyInput.js";
 import { locale } from "./i18n.js";
 
+// Kurallar borc bazindadir: her borc kaydinin kendi para birimi
+// (`kayitParaBirimi`) bu fonksiyonlara `birim` olarak verilir. TRY kayitta
+// Turkiye kurallari, diger birimlerde o birimin ulke ortalamasi gecerli
+// (ana birim cihaz bolgesinin birimiyse o ulke; GBP -> Ingiltere, EUR ->
+// cihaz bolgesi euro ulkesiyse o ulke, degilse euro bolgesi ortalamasi).
+//
 // Turkiye'ye ozgu finans kurallari (TCMB azami kart faizi ve gecikme faizi,
 // KKDF/BSMV vergi-fon yuku, KMH varsayilan faizi, Turk bankasi belgesi okuma)
 // yalniz TRY ile kullanilan hesaplarda gecerlidir. Web daima TRY oldugu icin
@@ -167,9 +173,16 @@ export function ornekTutar(tryTutari, birim = kullaniciParaBirimi()) {
 }
 
 // Ekstre ve kredi odeme plani okuyucusu yalniz Turk bankalarinin belgelerini
-// taniyor; TRY disinda giris gizlenir, elle giris kalir.
-export function belgeOkumaAcik(birim = kullaniciParaBirimi()) {
-  return turkiyeKurallariGecerli(birim);
+// taniyor. Ana birim TRY ise ya da kullanicinin en az bir TRY borcu varsa
+// (ör. Ingiltere'de yasayip Turk kartini da takip eden kullanici) acik;
+// aksi halde giris gizlenir, elle giris kalir.
+export function belgeOkumaAcik(birim = kullaniciParaBirimi(), kayitlar = []) {
+  return turkiyeKurallariGecerli(birim) || tryKaydiVar(kayitlar, birim);
+}
+
+// Kayitlardan biri TRY mi? Birimi yazili olmayan kayit ana birimdedir.
+export function tryKaydiVar(kayitlar = [], ana = kullaniciParaBirimi()) {
+  return (kayitlar || []).some((kayit) => kayit && turkiyeKurallariGecerli(kayitParaBirimi(kayit, ana)));
 }
 
 // Banka secim listesi. TRY'de Turk bankalari + kullanicinin ekledikleri.

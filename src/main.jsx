@@ -18,7 +18,7 @@ import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
-import { belgeDiliniAyarla } from "./i18n.js";
+import { belgeDiliniAyarla, t } from "./i18n.js";
 import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
 import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
@@ -44,7 +44,7 @@ const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ defau
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
 nativeGorunumuHazirla();
-// <html lang> secili dile esitlenir; web'de dil "tr" oldugundan degismez.
+// <html lang> secili dile esitlenir; web'de Turkce kalan sayfalarda "tr".
 belgeDiliniAyarla();
 // Native sekme cubugu uygulama penceresinde yasiyor, sayfayla birlikte
 // silinmiyor. Giris/kayit gibi tam sayfa yenileyen ekranlara gecince React
@@ -401,10 +401,10 @@ function KimlikliWelcome() {
       >
         <div style={{ fontSize: 46, marginBottom: 12 }}>✦</div>
         <h1 style={{ margin: "0 0 12px", fontSize: "clamp(30px, 7vw, 48px)" }}>
-          Borcama Pro hazır.
+          {t("web.hosgeldin.baslik")}
         </h1>
         <p style={{ margin: "0 auto 24px", maxWidth: 430, color: "#5d6054", lineHeight: 1.65 }}>
-          Satın alma tamamlandı. Tüm kişisel finansal sinyaller ve gelişmiş analizler hesabında aktif.
+          {t("web.hosgeldin.metin")}
         </p>
         <a
           href="/summary"
@@ -422,7 +422,7 @@ function KimlikliWelcome() {
             textDecoration: "none",
           }}
         >
-          Özetime git →
+          {t("web.hosgeldin.ozeteGit")}
         </a>
       </section>
     </main>
@@ -443,7 +443,7 @@ function Yukleniyor() {
         fontSize: 14,
       }}
     >
-      Yükleniyor…
+      {t("ortak.yukleniyor")}
     </div>
   );
 }
@@ -471,11 +471,10 @@ function YapilandirmaEksik() {
         }}
       >
         <h1 style={{ marginTop: 0, fontSize: 22 }}>
-          Uygulama geçici olarak kullanılamıyor
+          {t("web.yapilandirma.baslik")}
         </h1>
         <p style={{ marginBottom: 0, color: "#55584c", lineHeight: 1.6 }}>
-          Güvenli bağlantı ayarları tamamlanmadı. Lütfen daha sonra tekrar
-          deneyin.
+          {t("web.yapilandirma.metin")}
         </p>
       </div>
     </div>
@@ -565,7 +564,7 @@ function KimlikliKok() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>Bu ekran açılamadı. Verilerin silinmedi. <button onClick={() => window.location.reload()}>Yeniden dene</button></div>}>
+    <ErrorBoundary fallback={<div role="alert" style={{padding:32}}>{t("web.hata.ekranAcilamadi")} <button onClick={() => window.location.reload()}>{t("web.hata.yenidenDene")}</button></div>}>
     <React.Suspense fallback={<Yukleniyor />}>
       <BiyometrikKilit>
         <CevrimdisiPerde>

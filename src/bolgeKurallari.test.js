@@ -136,10 +136,10 @@ test("asistan bağlamı TRY dışında TCMB kaynağı ve vergi çarpanı eklemez
   assert.ok(JSON.stringify(turkiye).includes("TCMB azami oranı"));
 });
 
-test("ekstre ve kredi planı okuma girişleri TRY dışında açılmaz", async () => {
+test("ekstre ve kredi planı okuma girişleri TRY dışında (TRY borcu yoksa) açılmaz", async () => {
   const { readFileSync } = await import("node:fs");
   const app = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
-  assert.match(app, /\{baslangicSecimiAcik && belgeOkumaAcik\(\) && \(/);
-  assert.match(app, /if \(baslangicSecimiAcik && !belgeOkumaAcik\(\)\) manuelEkstreAkisiniAc\(\);/);
-  assert.match(app, /if \(belgeOkumaAcik\(\)\) setKrediEklemeSecimiAcik\(true\);\s*else setForm\(\{ liste: "loans", veri: \{\} \}\);/);
+  assert.match(app, /\{baslangicSecimiAcik && belgeOkumaAcik\(undefined, tumBorcKayitlari\(veri\)\) && \(/);
+  assert.match(app, /if \(baslangicSecimiAcik && !belgeOkumaAcik\(undefined, tumBorcKayitlari\(veri\)\)\) manuelEkstreAkisiniAc\(\);/);
+  assert.match(app, /if \(belgeOkumaAcik\(undefined, tumBorcKayitlari\(veri\)\)\) setKrediEklemeSecimiAcik\(true\);\s*else setForm\(\{ liste: "loans", veri: \{\} \}\);/);
 });

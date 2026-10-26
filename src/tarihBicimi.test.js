@@ -3,9 +3,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { isoTarihGoster } from "./i18n.js";
 
-test("web'de kayıt tarihleri bugünkü GG.AA.YYYY biçiminde kalır", () => {
+test("web'de Türkçe arayüzde kayıt tarihleri bugünkü GG.AA.YYYY biçiminde kalır", () => {
   assert.equal(isoTarihGoster("2026-10-05"), "05.10.2026");
-  assert.equal(isoTarihGoster("2026-10-05", { native: false, yerel: "en-US" }), "05.10.2026");
+  assert.equal(isoTarihGoster("2026-10-05", { native: false, yerel: "tr-TR" }), "05.10.2026");
+});
+
+test("web'de diğer dillerde tarih seçili dilin yerel biçimine uyar (native ile aynı)", () => {
+  assert.equal(isoTarihGoster("2026-10-05", { native: false, yerel: "en-US" }), "10/5/2026");
+  assert.equal(isoTarihGoster("2026-10-05", { native: false, yerel: "de-DE" }), "5.10.2026");
 });
 
 test("native'de tarih seçili dilin yerel biçimine uyar", () => {

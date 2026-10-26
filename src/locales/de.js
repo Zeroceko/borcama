@@ -1,6 +1,9 @@
 // de sozlugu (1.69.0). Eksik anahtarlar Ingilizceye (src/locales/en.js) duser.
 // Kaynak: en.js; yer tutucular {x} birebir korunur.
+import { de as web } from "./bolumler/web.js";
+
 const de_ = {
+  ...web,
   "sekme.ozet": "Heute",
   "sekme.borclar": "Schulden",
   "sekme.hareketler": "Aktivität",
@@ -1628,7 +1631,7 @@ const de_ = {
   "deger.Kredi ödeme planından eklendi": "Aus Kredit-Tilgungsplan hinzugefügt",
   "paraBirimi.baslik": "Währung",
   "paraBirimi.satir": "Anzeigewährung",
-  "paraBirimi.aciklama": "Beträge werden in dieser Währung eingegeben und angezeigt; es wird nichts umgerechnet. Nach einer Änderung lädt die App neu.",
+  "paraBirimi.aciklama": "Summen werden in dieser Währung angezeigt; Schulden in anderen Währungen werden zum Wechselkurs umgerechnet. Die App wird beim Ändern neu geladen.",
   "paraBirimi.secici": "Währung: {kod}",
   "paraBirimi.seciciEtiket": "Währung wählen",
   "paraBirimi.varlikUyari": "Marktpreise basieren auf TRY, daher ist die automatische Bewertung in {birim} deaktiviert. Gib den aktuellen Wert deines Vermögens manuell ein.",
@@ -1788,6 +1791,10 @@ const de_ = {
   "bolge.kaynakUlke": "Durchschnitt {ulke}",
   "bolge.kaynakTipik": "typischer Satz",
   "bolge.alanIpucu": "Leer gelassen: {oran} ({kaynak})",
+  "paraBirimi.borc.etiket": "Währung",
+  "paraBirimi.kur.cevrildi": "≈ zum Wechselkurs umgerechnet",
+  "paraBirimi.kur.cevrildiTarih": "≈ zum Kurs vom {tarih} umgerechnet",
+  "paraBirimi.kur.bekliyor": "{n} Einträge warten auf Wechselkurs",
   "paraBirimi.kartHesabiBolge": "{baslik} Aktueller Zeitraum {yeni} + Übertrag {devreden} = {toplam}. Nach insgesamt {odenen} gezahlt: {kalan}. Geschätzte Monatszinsen {faiz} ({oran} %). Mindestzahlung: {asgari}. Wenn du Zinssatz oder Mindestbetrag leer lässt, wird der {kaynak} verwendet.",
   "ortak.ornekTutar": "z. B. {tutar}",
   "asistan.placeholderTutarli": "z. B. Welche Schuld soll ich mit {tutar} zuerst tilgen?",

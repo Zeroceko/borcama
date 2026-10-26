@@ -3,13 +3,15 @@ import tr from "./locales/tr.js";
 import en from "./locales/en.js";
 
 // Uygulama ici dil secimi. Harici kutuphane yok: sozlukler duz nesne,
-// eksik anahtar Turkce metne duser. Web surumu simdilik daima Turkce;
-// Ingilizce yalniz native kabukta (iOS) devreye girer.
+// eksik anahtar Turkce metne duser. Native (iOS) kabukta tum ekranlar cok
+// dilli. Web'de yalniz uygulama ici ekranlar (giris/kayit, uygulama, ayarlar,
+// SSS, yasal metinler) cok dilli; landing, SEO/arac/sozluk/rehber sayfalari ve
+// CRM/yonetim ekranlari daima Turkce kalir.
 
 export const DIL_ANAHTARI = "borcama_dil";
 export const DESTEKLENEN_DILLER = ["tr", "en", "de", "fr", "es", "it"];
 // tr ve en pakete gomulu; diger diller yalniz gerektiginde yuklenir ki
-// web (daima Turkce) bu sozlukleri hic indirmesin.
+// Turkce/Ingilizce kullanan ziyaretci bu sozlukleri hic indirmesin.
 const SOZLUKLER = { tr, en };
 const YUKLEYICILER = {
   de: () => import("./locales/de.js"),
@@ -46,30 +48,132 @@ function guvenliYaz(anahtar, deger) {
   }
 }
 
-// Saf karar fonksiyonu; testler ortamdan bagimsiz cagirir.
-export function dilBelirle({ native = false, kayitli = null, tarayiciDili = "" } = {}) {
-  if (!native) return "tr";
-  if (DESTEKLENEN_DILLER.includes(kayitli)) return kayitli;
-  // Cihaz dili desteklenen dillerden biriyse o; degilse Ingilizce.
-  const onek = String(tarayiciDili || "").toLowerCase().slice(0, 2);
-  return DESTEKLENEN_DILLER.includes(onek) ? onek : "en";
+// Web'de cok dilli olan uygulama ici yollar. Burada olmayan her yol
+// (landing, /araclar, /rehber, /finansal-sozluk, /classic, CRM...) Turkce.
+const WEB_UYGULAMA_YOLLARI = new Set([
+  "/login",
+  "/register",
+  "/auth-callback",
+  "/reset-password",
+  "/welcome",
+  "/upgrade",
+  "/terms",
+  "/privacy",
+  "/refund-policy",
+  "/faq",
+  "/summary",
+  "/debts",
+  "/payments",
+  "/debt-plan",
+  "/income",
+  "/fixed-income",
+  "/expenses",
+  "/fixed-expenses",
+  "/assets",
+  "/settings",
+]);
+
+// Arama motoru botlari tarayici dili olarak cogunlukla en-US bildirir;
+// indekslenen SSS ve yasal sayfalar onlara Turkce (bugunku haliyle) cizilir.
+const BOT_DESENI = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|embedly|quora link preview|lighthouse|headlesschrome\/.*pagespeed/i;
+
+function normalYol(yol) {
+  return String(yol || "").replace(/\/+$/, "") || "/";
 }
 
+// "/" yalniz oturum acmis kullaniciya uygulamayi gosterir; oturumsuz
+// ziyaretci orada Turkce landing'i gorur.
+export function webUygulamaYoluMu(yol, { oturumVar = false } = {}) {
+  const temiz = normalYol(yol);
+  return WEB_UYGULAMA_YOLLARI.has(temiz) || (temiz === "/" && oturumVar);
+}
+
+function desteklenenTarayiciDili(tarayiciDilleri) {
+  for (const etiket of tarayiciDilleri) {
+    const onek = String(etiket || "").toLowerCase().slice(0, 2);
+    if (DESTEKLENEN_DILLER.includes(onek)) return onek;
+  }
+  return null;
+}
+
+// Saf karar fonksiyonu; testler ortamdan bagimsiz cagirir.
+// Native: kayitli secim -> cihaz dili (desteklenen ise) -> Ingilizce.
+// Web: Turkce kalan sayfalar, CRM ve botlar daima "tr"; uygulama ici yollarda
+// kayitli secim -> tarayici dili (tercih listesinde ilk desteklenen) -> "tr".
+// Tarayici dili Turkce olan ziyaretci web'i birebir eskisi gibi gorur.
+export function dilBelirle({
+  native = false,
+  kayitli = null,
+  tarayiciDili = "",
+  tarayiciDilleri = null,
+  yol = "",
+  oturumVar = false,
+  crm = false,
+  bot = false,
+} = {}) {
+  const diller = tarayiciDilleri?.length ? tarayiciDilleri : [tarayiciDili];
+  if (native) {
+    if (DESTEKLENEN_DILLER.includes(kayitli)) return kayitli;
+    // Cihaz dili desteklenen dillerden biriyse o; degilse Ingilizce.
+    const onek = String(diller[0] || "").toLowerCase().slice(0, 2);
+    return DESTEKLENEN_DILLER.includes(onek) ? onek : "en";
+  }
+  if (crm || bot || !webUygulamaYoluMu(yol, { oturumVar })) return "tr";
+  if (DESTEKLENEN_DILLER.includes(kayitli)) return kayitli;
+  return desteklenenTarayiciDili(diller) || "tr";
+}
+
+// Tarayicida Supabase oturumu var mi (yalniz anahtarin varligina bakilir).
+export function webOturumuVar() {
+  try {
+    const depo = globalThis.localStorage;
+    if (!depo) return false;
+    for (let i = 0; i < depo.length; i += 1) {
+      const anahtar = depo.key(i) || "";
+      if (anahtar.startsWith("sb-") && anahtar.endsWith("-auth-token")) return true;
+    }
+  } catch {
+    // Depolama kapali: oturum yok say.
+  }
+  return false;
+}
+
+function ortamDili() {
+  const konum = globalThis.location;
+  const gezgin = globalThis.navigator;
+  return dilBelirle({
+    native: nativeMi,
+    kayitli: guvenliOku(DIL_ANAHTARI),
+    tarayiciDili: gezgin?.language || "",
+    tarayiciDilleri: nativeMi ? null : gezgin?.languages || null,
+    yol: konum?.pathname || "",
+    oturumVar: !nativeMi && normalYol(konum?.pathname) === "/" && webOturumuVar(),
+    crm: String(konum?.hostname || "").toLowerCase() === "crm.borcama.com",
+    bot: BOT_DESENI.test(String(gezgin?.userAgent || "")),
+  });
+}
+
+// Bir sayfa yuklemesi boyunca dil sabittir: ilk karar saklanir. Web'de
+// "/" -> "/summary" gibi istemci tarafi yol degisimleri dili degistirmez.
 let oturumDili = null;
 
 export function dil() {
   if (oturumDili) return oturumDili;
-  return dilBelirle({
-    native: nativeMi,
-    kayitli: guvenliOku(DIL_ANAHTARI),
-    tarayiciDili: globalThis.navigator?.language || "",
-  });
+  const kod = ortamDili();
+  // Node testlerinde (tarayici yok) her cagri yeniden hesaplanir.
+  if (globalThis.location) oturumDili = kod;
+  return kod;
+}
+
+// Testler icin: sayfa yuklemesi boyunca saklanan dil kararini sifirlar.
+export function dilBelleginiSifirla() {
+  oturumDili = null;
 }
 
 export function dilAyarla(kod) {
   if (!DESTEKLENEN_DILLER.includes(kod)) return dil();
   guvenliYaz(DIL_ANAHTARI, kod);
-  oturumDili = nativeMi ? kod : "tr";
+  oturumDili = kod;
   if (globalThis.document?.documentElement) {
     globalThis.document.documentElement.lang = oturumDili;
   }
@@ -85,16 +189,17 @@ export function digerDil(kod = dil()) {
 }
 
 // Acilista <html lang> secili dile esitlenir; ekran okuyucu ve yazim
-// denetimi dogru dili kullanir. Web'de dil daima "tr" (index.html ile ayni).
+// denetimi dogru dili kullanir. Turkce kalan web sayfalarinda "tr"
+// (index.html ile ayni) oldugundan degismez.
 export function belgeDiliniAyarla() {
   const kok = globalThis.document?.documentElement;
   if (kok && kok.lang !== dil()) kok.lang = dil();
 }
 
 // Dil degisince tum metinler yeniden okunmali; en guvenli yol sayfayi
-// yeniden yuklemek. Web'de dil secimi yok, hicbir sey yapmaz.
+// yeniden yuklemek.
 export function diliDegistirVeYenile(kod) {
-  if (!nativeMi || kod === dil()) return;
+  if (kod === dil()) return;
   dilAyarla(kod);
   globalThis.location?.reload();
 }
@@ -169,12 +274,12 @@ export function tDeger(metin) {
   return sozlukMetni(kod, `deger.${metin}`) ?? metin;
 }
 
-// "YYYY-MM-DD" bicimindeki kayit tarihini ekranda gosterir. Web'de bugunku
-// "GG.AA.YYYY" ciktisi birebir korunur; native'de secili dilin yerel tarih
-// bicimi kullanilir (en: 10/5/2026, de: 5.10.2026).
+// "YYYY-MM-DD" bicimindeki kayit tarihini ekranda gosterir. Web'de Turkce
+// arayuzde bugunku "GG.AA.YYYY" ciktisi birebir korunur; diger durumlarda
+// secili dilin yerel tarih bicimi kullanilir (en: 10/5/2026, de: 5.10.2026).
 export function isoTarihGoster(iso, { native = nativeMi, yerel = locale() } = {}) {
   const metin = String(iso ?? "");
   const parca = /^(\d{4})-(\d{2})-(\d{2})/.exec(metin);
-  if (!native || !parca) return metin.split("-").reverse().join(".");
+  if (!parca || (!native && yerel === LOCALELER.tr)) return metin.split("-").reverse().join(".");
   return new Date(Number(parca[1]), Number(parca[2]) - 1, Number(parca[3])).toLocaleDateString(yerel);
 }

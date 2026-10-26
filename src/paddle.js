@@ -1,4 +1,5 @@
 import { initializePaddle } from "@paddle/paddle-js";
+import { dil } from "./i18n.js";
 
 const token = String(import.meta.env.VITE_PADDLE_CLIENT_TOKEN || "").trim();
 const environment = String(import.meta.env.VITE_PADDLE_ENVIRONMENT || "").trim();
@@ -44,7 +45,8 @@ export async function paddleKartGuncellemeEkraniAc(transactionId, onCompleted) {
     settings: {
       displayMode: "overlay",
       variant: "one-page",
-      locale: "tr",
+      // Paddle penceresi uygulamanin secili dilinde (tr, en, de, fr, es, it).
+      locale: dil(),
       theme: "light",
       allowLogout: false,
     },

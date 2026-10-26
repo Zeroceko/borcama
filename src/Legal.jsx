@@ -4,10 +4,12 @@ import { nativeMi } from "./platform.js";
 import { dil, t } from "./i18n.js";
 import { EN_BASLIKLAR, PrivacyPolicyEn, RefundPolicyEn, TermsOfUseEn } from "./LegalEn.jsx";
 
-// Ingilizce taslak metinler yalniz native kabukta ve dil Ingilizce iken
-// gosterilir; web ve Turkce cikti degismez.
-// Yasal metinlerin yalniz Turkce ve Ingilizce surumu var; diger diller Ingilizceyi gorur.
-const ingilizceMi = () => nativeMi && dil() !== "tr";
+// Dil Turkce degilse (native ve web) Ingilizce taslak metinler gosterilir;
+// Turkce cikti degismez. Yasal metinlerin yalniz Turkce ve Ingilizce surumu
+// var; diger diller Ingilizceyi gorur. Web'de Ingilizce metin Paddle (web
+// satin alimi) bolumlerini de icerir.
+const ingilizceMi = () => dil() !== "tr";
+const webMi = !nativeMi;
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -46,7 +48,7 @@ function LegalLayout({
               </button>
             ) : (
               <a className="legal-back" href="/">
-                <ArrowLeft size={15} /> Ana sayfaya dön
+                <ArrowLeft size={15} /> {t("web.anaSayfayaDon")}
               </a>
             )}
           </nav>
@@ -80,7 +82,7 @@ export function KullaniciSozlesmesi({ embedded = false }) {
   if (ingilizceMi()) {
     return (
       <LegalLayout tur="terms" {...EN_BASLIKLAR.terms} embedded={embedded}>
-        <TermsOfUseEn />
+        <TermsOfUseEn web={webMi} />
       </LegalLayout>
     );
   }
@@ -209,7 +211,7 @@ export function IadePolitikasi({ embedded = false }) {
   if (ingilizceMi()) {
     return (
       <LegalLayout tur="refund" {...EN_BASLIKLAR.refund} embedded={embedded}>
-        <RefundPolicyEn />
+        <RefundPolicyEn web={webMi} />
       </LegalLayout>
     );
   }
@@ -428,7 +430,7 @@ export function GizlilikMetni({ embedded = false }) {
   if (ingilizceMi()) {
     return (
       <LegalLayout tur="privacy" {...EN_BASLIKLAR.privacy} embedded={embedded}>
-        <PrivacyPolicyEn />
+        <PrivacyPolicyEn web={webMi} />
       </LegalLayout>
     );
   }

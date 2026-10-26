@@ -1,6 +1,9 @@
 // it sozlugu (1.69.0). Eksik anahtarlar Ingilizceye (src/locales/en.js) duser.
 // Kaynak: en.js; yer tutucular {x} birebir korunur.
+import { it as web } from "./bolumler/web.js";
+
 const it_ = {
+  ...web,
   "sekme.ozet": "Oggi",
   "sekme.borclar": "Debiti",
   "sekme.hareketler": "Movimenti",
@@ -1628,7 +1631,7 @@ const it_ = {
   "deger.Kredi ödeme planından eklendi": "Aggiunto dal piano di rimborso del prestito",
   "paraBirimi.baslik": "Valuta",
   "paraBirimi.satir": "Valuta di visualizzazione",
-  "paraBirimi.aciklama": "Gli importi vengono inseriti e mostrati in questa valuta; non viene fatta alcuna conversione. L'app si riavvia quando la cambi.",
+  "paraBirimi.aciklama": "I totali sono mostrati in questa valuta; i debiti in altre valute sono convertiti al tasso di cambio. L’app si riavvia quando la cambi.",
   "paraBirimi.secici": "Valuta: {kod}",
   "paraBirimi.seciciEtiket": "Scegli valuta",
   "paraBirimi.varlikUyari": "I prezzi di mercato sono in TRY, quindi la valutazione automatica è disattivata in {birim}. Inserisci a mano il valore attuale dei tuoi beni.",
@@ -1788,6 +1791,10 @@ const it_ = {
   "bolge.kaynakUlke": "media {ulke}",
   "bolge.kaynakTipik": "tasso tipico",
   "bolge.alanIpucu": "Se vuoto: {oran} ({kaynak})",
+  "paraBirimi.borc.etiket": "Valuta",
+  "paraBirimi.kur.cevrildi": "≈ convertito al tasso di cambio",
+  "paraBirimi.kur.cevrildiTarih": "≈ convertito al tasso del {tarih}",
+  "paraBirimi.kur.bekliyor": "{n} voce/i in attesa del tasso di cambio",
   "paraBirimi.kartHesabiBolge": "{baslik} Periodo attuale {yeni} + riporto {devreden} = {toplam}. Dopo {odenen} pagati in totale: {kalan}. Interessi mensili stimati {faiz} ({oran}%). Pagamento minimo: {asgari}. Se lasci vuoti tasso o minimo, viene usata la {kaynak}.",
   "ortak.ornekTutar": "es. {tutar}",
   "asistan.placeholderTutarli": "Es. Quale debito estinguo prima con {tutar}?",

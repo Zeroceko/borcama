@@ -86,9 +86,10 @@ test("İngilizce iade politikası iadeyi Apple'a yönlendirir", () => {
   assert.ok(html.includes("Borcama cannot issue refunds for App Store purchases"));
 });
 
-test("İngilizce yalnız native ve dil Türkçe değilken seçilir", () => {
+test("İngilizce dil Türkçe değilken seçilir (native ve web); web Paddle bölümlerini alır", () => {
   const kaynak = readFileSync(new URL("./Legal.jsx", import.meta.url), "utf8");
-  assert.match(kaynak, /const ingilizceMi = \(\) => nativeMi && dil\(\) !== "tr";/);
+  assert.match(kaynak, /const ingilizceMi = \(\) => dil\(\) !== "tr";/);
+  assert.match(kaynak, /const webMi = !nativeMi;/);
   for (const [ad, bilesen] of [
     ["KullaniciSozlesmesi", "TermsOfUseEn"],
     ["IadePolitikasi", "RefundPolicyEn"],
@@ -96,7 +97,7 @@ test("İngilizce yalnız native ve dil Türkçe değilken seçilir", () => {
   ]) {
     assert.match(
       kaynak,
-      new RegExp(`export function ${ad}\\(\\{ embedded = false \\}\\) \\{\\n  if \\(ingilizceMi\\(\\)\\) \\{[\\s\\S]{0,160}embedded=\\{embedded\\}>\\n        <${bilesen} />`),
+      new RegExp(`export function ${ad}\\(\\{ embedded = false \\}\\) \\{\\n  if \\(ingilizceMi\\(\\)\\) \\{[\\s\\S]{0,160}embedded=\\{embedded\\}>\\n        <${bilesen} web=\\{webMi\\} />`),
     );
   }
 });
@@ -142,4 +143,26 @@ test("yasal sözlük tr değerleri eski metinle aynı, en dolu", () => {
 test("İngilizce yasal metinlerde doldurulmamış yer tutucu kalmaz", async () => {
   const kaynak = readFileSync(new URL("./LegalEn.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(kaynak, /\[(LEGAL ENTITY|COMPANY ADDRESS|DPO|RETENTION|EFFECTIVE DATE|MINIMUM AGE)/);
+});
+
+test("web İngilizce şartlar ve iade politikası Paddle (Merchant of Record) ve yalnız Türkiye satışını anlatır", () => {
+  const sartlar = ciz(legalEn.TermsOfUseEn, { web: true });
+  const iade = ciz(legalEn.RefundPolicyEn, { web: true });
+  const gizlilik = ciz(legalEn.PrivacyPolicyEn, { web: true });
+  for (const html of [sartlar, iade]) {
+    assert.ok(html.includes("Merchant of Record"), "Merchant of Record");
+    assert.ok(html.includes("Paddle.com"), "Paddle.com");
+    assert.ok(html.includes("only to customers in Türkiye"), "yalnız Türkiye");
+  }
+  assert.ok(sartlar.includes("Buyer Terms"));
+  assert.ok(sartlar.includes("borcama.com"));
+  assert.ok(iade.includes("within 14"));
+  assert.ok(iade.includes("reportaproblem.apple.com"));
+  assert.ok(gizlilik.includes("<b>Paddle</b>"));
+  assert.ok(gizlilik.includes("Approximate country"));
+  assert.ok(gizlilik.includes("only if you consent"));
+  // iOS çıktısı Paddle'dan söz etmez.
+  for (const Bilesen of [legalEn.TermsOfUseEn, legalEn.RefundPolicyEn, legalEn.PrivacyPolicyEn]) {
+    assert.ok(!ciz(Bilesen).includes("Paddle"), Bilesen.name);
+  }
 });
