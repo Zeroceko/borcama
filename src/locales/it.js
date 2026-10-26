@@ -1631,7 +1631,6 @@ const it_ = {
   "paraBirimi.secici": "Valuta: {kod}",
   "paraBirimi.seciciEtiket": "Scegli valuta",
   "paraBirimi.varlikUyari": "I prezzi di mercato sono in TRY, quindi la valutazione automatica è disattivata in {birim}. Inserisci a mano il valore attuale dei tuoi beni.",
-  "paraBirimi.kartHesabiSerbest": "{baslik} Periodo corrente {yeni} + riportato {devreden} = {toplam}. Dopo {odenen} pagati in totale, {kalan}. Interessi mensili stimati {faiz} ({oran}%). Pagamento minimo: {asgari} (l'importo che hai inserito).",
   "onboarding.atla": "Salta",
   "onboarding.sonraki": "Avanti",
   "onboarding.adim1.baslik": "Tutti i tuoi debiti in un unico posto.",
@@ -1780,11 +1779,19 @@ const it_ = {
   "borcSatir.kontrol.ekstreEkleManuel": "Aggiungi estratto conto",
   "borcSatir.kart.gecikmeFaizsizTekil": "{n} giorno di ritardo",
   "borcSatir.kart.gecikmeFaizsizCogul": "{n} giorni di ritardo",
-  "borcSatir.od.faizGirilmedi": "Nessun tasso inserito, quindi non vengono calcolati interessi.",
   "plan.gecikmeFaizsizTekil": "{n} carta è scaduta; nessun tasso inserito, quindi gli interessi di mora non vengono calcolati",
   "plan.gecikmeFaizsizCogul": "{n} carte sono scadute; nessun tasso inserito, quindi gli interessi di mora non vengono calcolati",
-  "plan.planAciklamaVergisiz": "Le rate dei prestiti e le spese di vita vengono sottratte dalle entrate. Gli interessi di carte e scoperti sono calcolati mese per mese al tasso mensile che hai inserito; prima si pagano i minimi e il resto va al debito più caro. Il fondo di sicurezza si costituisce una volta e non si ipotizzano nuovi debiti su carta o scoperto.",
-  "plan.faizGirilmedi": "Nessun tasso inserito · aggiungi il tasso mensile a questo debito per includere gli interessi"
+  "plan.planAciklamaVergisiz": "Le rate dei prestiti e le spese di vita vengono sottratte dalle entrate. Gli interessi di carte e scoperti sono calcolati mese per mese al tasso mensile inserito, oppure alla media del paese se l'hai lasciato vuoto; prima si pagano i minimi e il resto va al debito più caro. Il fondo di sicurezza si costituisce una volta e non si ipotizzano nuovi debiti su carta o scoperto.",
+  "bolge.ortalama": "media {ulke}, modificabile",
+  "bolge.tipik": "tasso tipico, modificabile",
+  "bolge.kaynakUlke": "media {ulke}",
+  "bolge.kaynakTipik": "tasso tipico",
+  "bolge.alanIpucu": "Se vuoto: {oran} ({kaynak})",
+  "paraBirimi.kartHesabiBolge": "{baslik} Periodo attuale {yeni} + riporto {devreden} = {toplam}. Dopo {odenen} pagati in totale: {kalan}. Interessi mensili stimati {faiz} ({oran}%). Pagamento minimo: {asgari}. Se lasci vuoti tasso o minimo, viene usata la {kaynak}.",
+  "ortak.ornekTutar": "es. {tutar}",
+  "asistan.placeholderTutarli": "Es. Quale debito estinguo prima con {tutar}?",
+  "cekirdek.oneri.faiz.etkiTutarli": "Circa {oran}% al mese · ogni {ornek} in più che paghi può evitare circa {tutar} di interessi il mese prossimo",
+  "borcSatir.od.ucretle": "Qui gli scoperti di solito prevedono commissioni anziché interessi, quindi non vengono calcolati interessi. Aggiungi il tuo tasso se ne hai uno."
 };
 
 export default it_;

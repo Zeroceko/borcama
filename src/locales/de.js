@@ -1631,7 +1631,6 @@ const de_ = {
   "paraBirimi.secici": "Währung: {kod}",
   "paraBirimi.seciciEtiket": "Währung wählen",
   "paraBirimi.varlikUyari": "Marktpreise basieren auf TRY, daher ist die automatische Bewertung in {birim} deaktiviert. Gib den aktuellen Wert deines Vermögens manuell ein.",
-  "paraBirimi.kartHesabiSerbest": "{baslik} Aktueller Zeitraum {yeni} + übertragen {devreden} = {toplam}. Nach insgesamt {odenen} bezahlt: {kalan}. Geschätzte Monatszinsen {faiz} ({oran} %). Mindestzahlung: {asgari} (dein eingegebener Betrag).",
   "onboarding.atla": "Überspringen",
   "onboarding.sonraki": "Weiter",
   "onboarding.adim1.baslik": "Alle Schulden an einem Ort.",
@@ -1780,11 +1779,19 @@ const de_ = {
   "borcSatir.kontrol.ekstreEkleManuel": "Abrechnung hinzufügen",
   "borcSatir.kart.gecikmeFaizsizTekil": "{n} Tag überfällig",
   "borcSatir.kart.gecikmeFaizsizCogul": "{n} Tage überfällig",
-  "borcSatir.od.faizGirilmedi": "Kein Zinssatz eingetragen, daher werden keine Zinsen berechnet.",
   "plan.gecikmeFaizsizTekil": "{n} Karte ist überfällig; kein Zinssatz eingetragen, daher werden keine Verzugszinsen berechnet",
   "plan.gecikmeFaizsizCogul": "{n} Karten sind überfällig; kein Zinssatz eingetragen, daher werden keine Verzugszinsen berechnet",
-  "plan.planAciklamaVergisiz": "Kreditraten und Lebenshaltungskosten werden vom Einkommen abgezogen. Karten- und Dispozinsen werden Monat für Monat mit dem von dir eingetragenen Monatszins berechnet; zuerst werden die Mindestbeträge gezahlt, der Rest geht an die teuerste Schuld. Der Notgroschen wird einmal aufgebaut, neue Karten- oder Dispo-Schulden werden nicht angenommen.",
-  "plan.faizGirilmedi": "Kein Zinssatz eingetragen · trag den Monatszins bei dieser Schuld ein, um Zinsen einzubeziehen"
+  "plan.planAciklamaVergisiz": "Kreditraten und Lebenshaltungskosten werden vom Einkommen abgezogen. Karten- und Dispozinsen werden Monat für Monat mit deinem Monatszins berechnet – oder mit dem Landesdurchschnitt, wenn du nichts eingetragen hast; zuerst werden die Mindestbeträge gezahlt, der Rest geht an die teuerste Schuld. Der Notgroschen wird einmal aufgebaut, neue Karten- oder Dispo-Schulden werden nicht angenommen.",
+  "bolge.ortalama": "Durchschnitt {ulke}, änderbar",
+  "bolge.tipik": "typischer Satz, änderbar",
+  "bolge.kaynakUlke": "Durchschnitt {ulke}",
+  "bolge.kaynakTipik": "typischer Satz",
+  "bolge.alanIpucu": "Leer gelassen: {oran} ({kaynak})",
+  "paraBirimi.kartHesabiBolge": "{baslik} Aktueller Zeitraum {yeni} + Übertrag {devreden} = {toplam}. Nach insgesamt {odenen} gezahlt: {kalan}. Geschätzte Monatszinsen {faiz} ({oran} %). Mindestzahlung: {asgari}. Wenn du Zinssatz oder Mindestbetrag leer lässt, wird der {kaynak} verwendet.",
+  "ortak.ornekTutar": "z. B. {tutar}",
+  "asistan.placeholderTutarli": "z. B. Welche Schuld soll ich mit {tutar} zuerst tilgen?",
+  "cekirdek.oneri.faiz.etkiTutarli": "Etwa {oran} % pro Monat · jede zusätzlich gezahlten {ornek} können nächsten Monat rund {tutar} Zinsen sparen",
+  "borcSatir.od.ucretle": "Überziehungen kosten hier meist Gebühren statt Zinsen, daher werden keine Zinsen berechnet. Trag deinen Satz ein, falls du einen hast."
 };
 
 export default de_;

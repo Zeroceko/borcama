@@ -1631,7 +1631,6 @@ const es_ = {
   "paraBirimi.secici": "Moneda: {kod}",
   "paraBirimi.seciciEtiket": "Elegir moneda",
   "paraBirimi.varlikUyari": "Los precios de mercado están en TRY, así que la valoración automática está desactivada en {birim}. Introduce manualmente el valor actual de tus activos.",
-  "paraBirimi.kartHesabiSerbest": "{baslik} Periodo actual {yeni} + aplazado {devreden} = {toplam}. Tras {odenen} pagados en total, {kalan}. Intereses mensuales estimados {faiz} ({oran} %). Pago mínimo: {asgari} (el importe que introdujiste).",
   "onboarding.atla": "Saltar",
   "onboarding.sonraki": "Siguiente",
   "onboarding.adim1.baslik": "Todas tus deudas en un solo lugar.",
@@ -1780,11 +1779,19 @@ const es_ = {
   "borcSatir.kontrol.ekstreEkleManuel": "Añadir extracto",
   "borcSatir.kart.gecikmeFaizsizTekil": "{n} día de retraso",
   "borcSatir.kart.gecikmeFaizsizCogul": "{n} días de retraso",
-  "borcSatir.od.faizGirilmedi": "No has introducido un tipo de interés, así que no se calculan intereses.",
   "plan.gecikmeFaizsizTekil": "{n} tarjeta está vencida; sin tipo de interés introducido, no se calculan intereses de demora",
   "plan.gecikmeFaizsizCogul": "{n} tarjetas están vencidas; sin tipo de interés introducido, no se calculan intereses de demora",
-  "plan.planAciklamaVergisiz": "Las cuotas de préstamos y los gastos de vida se restan de los ingresos. Los intereses de tarjetas y descubiertos se calculan mes a mes con el tipo mensual que introdujiste; primero se pagan los mínimos y el resto va a la deuda más cara. El colchón de seguridad se crea una vez y no se suponen nuevas deudas de tarjeta o descubierto.",
-  "plan.faizGirilmedi": "Sin tipo de interés · añade el tipo mensual a esta deuda para incluir intereses"
+  "plan.planAciklamaVergisiz": "Las cuotas de préstamos y los gastos de vida se restan de los ingresos. Los intereses de tarjetas y descubiertos se calculan mes a mes con el tipo mensual que introdujiste, o con la media del país si lo dejaste vacío; primero se pagan los mínimos y el resto va a la deuda más cara. El colchón de seguridad se crea una vez y no se suponen nuevas deudas de tarjeta o descubierto.",
+  "bolge.ortalama": "media de {ulke}, puedes cambiarla",
+  "bolge.tipik": "tipo habitual, puedes cambiarlo",
+  "bolge.kaynakUlke": "media de {ulke}",
+  "bolge.kaynakTipik": "tipo habitual",
+  "bolge.alanIpucu": "Si lo dejas vacío: {oran} ({kaynak})",
+  "paraBirimi.kartHesabiBolge": "{baslik} Periodo actual {yeni} + aplazado {devreden} = {toplam}. Tras pagar {odenen} en total: {kalan}. Interés mensual estimado {faiz} ({oran} %). Pago mínimo: {asgari}. Si dejas vacío el tipo de interés o el mínimo, se usa la {kaynak}.",
+  "ortak.ornekTutar": "p. ej. {tutar}",
+  "asistan.placeholderTutarli": "Ej. ¿Qué deuda pago primero con {tutar}?",
+  "cekirdek.oneri.faiz.etkiTutarli": "Unos {oran} % al mes · cada {ornek} extra que pagues puede evitar unos {tutar} de intereses el mes que viene",
+  "borcSatir.od.ucretle": "Aquí los descubiertos suelen cobrar comisiones en lugar de intereses, así que no se calculan intereses. Añade tu tipo si lo tienes."
 };
 
 export default es_;

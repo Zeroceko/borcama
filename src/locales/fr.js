@@ -1631,7 +1631,6 @@ const fr_ = {
   "paraBirimi.secici": "Devise : {kod}",
   "paraBirimi.seciciEtiket": "Choisir la devise",
   "paraBirimi.varlikUyari": "Les cours du marché sont en TRY, la valorisation automatique est donc désactivée en {birim}. Saisissez manuellement la valeur actuelle de vos actifs.",
-  "paraBirimi.kartHesabiSerbest": "{baslik} Période en cours {yeni} + report {devreden} = {toplam}. Après {odenen} payés au total, {kalan}. Intérêts mensuels estimés {faiz} ({oran} %). Paiement minimum : {asgari} (le montant saisi).",
   "onboarding.atla": "Passer",
   "onboarding.sonraki": "Suivant",
   "onboarding.adim1.baslik": "Toutes vos dettes au même endroit.",
@@ -1780,11 +1779,19 @@ const fr_ = {
   "borcSatir.kontrol.ekstreEkleManuel": "Ajouter un relevé",
   "borcSatir.kart.gecikmeFaizsizTekil": "{n} jour de retard",
   "borcSatir.kart.gecikmeFaizsizCogul": "{n} jours de retard",
-  "borcSatir.od.faizGirilmedi": "Aucun taux saisi, aucun intérêt n'est donc calculé.",
   "plan.gecikmeFaizsizTekil": "{n} carte est en retard ; aucun taux saisi, les intérêts de retard ne sont donc pas calculés",
   "plan.gecikmeFaizsizCogul": "{n} cartes sont en retard ; aucun taux saisi, les intérêts de retard ne sont donc pas calculés",
-  "plan.planAciklamaVergisiz": "Les mensualités de crédit et les dépenses courantes sont déduites des revenus. Les intérêts des cartes et du découvert sont calculés mois par mois au taux mensuel que vous avez saisi ; les minimums sont payés en premier et le reste va à la dette la plus chère. L'épargne de précaution est constituée une fois, et aucune nouvelle dette de carte ou de découvert n'est supposée.",
-  "plan.faizGirilmedi": "Aucun taux saisi · ajoutez le taux mensuel de cette dette pour inclure les intérêts"
+  "plan.planAciklamaVergisiz": "Les mensualités de crédit et les dépenses courantes sont déduites des revenus. Les intérêts des cartes et du découvert sont calculés mois par mois au taux mensuel saisi, ou à la moyenne du pays si vous l'avez laissé vide ; les minimums sont payés en premier et le reste va à la dette la plus chère. L'épargne de précaution est constituée une fois, et aucune nouvelle dette de carte ou de découvert n'est supposée.",
+  "bolge.ortalama": "moyenne {ulke}, modifiable",
+  "bolge.tipik": "taux typique, modifiable",
+  "bolge.kaynakUlke": "moyenne {ulke}",
+  "bolge.kaynakTipik": "taux typique",
+  "bolge.alanIpucu": "Si vide : {oran} ({kaynak})",
+  "paraBirimi.kartHesabiBolge": "{baslik} Période en cours {yeni} + report {devreden} = {toplam}. Après {odenen} payés au total : {kalan}. Intérêts mensuels estimés {faiz} ({oran} %). Paiement minimum : {asgari}. Si vous laissez le taux ou le minimum vide, la {kaynak} est utilisée.",
+  "ortak.ornekTutar": "ex. {tutar}",
+  "asistan.placeholderTutarli": "Ex. Quelle dette rembourser en premier avec {tutar} ?",
+  "cekirdek.oneri.faiz.etkiTutarli": "Environ {oran} % par mois · chaque {ornek} payé en plus peut éviter environ {tutar} d'intérêts le mois prochain",
+  "borcSatir.od.ucretle": "Ici, les découverts entraînent généralement des frais plutôt que des intérêts ; aucun intérêt n'est donc calculé. Ajoutez votre taux si vous en avez un."
 };
 
 export default fr_;
