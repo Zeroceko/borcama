@@ -4,6 +4,18 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Tarayıcı sürümünün uygulama içi ekranları (giriş, kayıt, uygulama, Ayarlar, SSS ve yasal metinler) iOS'taki gibi Türkçe, İngilizce, Almanca, Fransızca, İspanyolca ve İtalyanca açılıyor: dil kayıtlı seçimden, yoksa tarayıcı dilinden (desteklenen ilk dil), o da yoksa Türkçe belirleniyor; giriş/kayıt ekranının sağ üstünden ve Ayarlar > Dil satırından değiştirilebiliyor, `<html lang>` seçili dile eşitleniyor. Landing, araç/rehber/sözlük sayfaları ve CRM Türkçe kalıyor; tarayıcı dili Türkçe olan ziyaretçi web'i birebir eskisi gibi görüyor.
+- Tarayıcı sürümünde Ayarlar > Para birimi satırı var. Yeni hesapta (Türkçe dışı dilde) varsayılan birim ziyaretçinin ülkesinden, o bilinmiyorsa tarayıcı bölgesinden geliyor ve ülke ortalaması faiz/asgari ödeme kuralları buna göre uygulanıyor; mevcut hesaplar ve Türkçe arayüz TRY'de kalıyor.
+- `/api/ulke` uç noktası eklendi: Vercel'in `x-vercel-ip-country` başlığından yalnız iki harfli ülke kodunu döner, önbelleğe alınmaz (`private, no-store`), hiçbir şey saklamaz veya loglamaz.
+- Tarayıcı sürümünde İngilizce (ve diğer diller için İngilizce) Kullanım Şartları, Gizlilik Politikası ve İade Politikası gösteriliyor; web satın alımlarının Paddle (Merchant of Record) üzerinden yapıldığı, Paddle iade süreci ve web'de Pro'nun yalnız Türkiye'de satıldığı bölümleri içeriyor. Taslak, hukuk kontrolü bekliyor.
+
+### Değiştirildi
+
+- Tarayıcı sürümünde Pro satışı iOS ile aynı karar fonksiyonundan besleniyor: ziyaretçinin ülkesi Türkiye ise Paddle akışı aynen sürüyor; Türkiye dışındaysa "Pro'ya Geç", Pro penceresi, Ayarlar'daki abonelik kartı, deneme hatırlatıcısı ve /upgrade gizleniyor, Pro özellikleri yalnız tarayıcıda ücretsiz açılıyor (sunucuya hak yazılmıyor). Ücretli aboneliği olan kullanıcı her yerde normal akışı görüyor; ülke alınamazsa Pro satışta sayılıyor.
+- Paddle ödeme penceresi uygulamanın seçili dilinde açılıyor.
+
 ## [1.69.2] - 2026-10-27
 
 ### Değiştirildi

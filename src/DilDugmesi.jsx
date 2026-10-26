@@ -1,14 +1,11 @@
 import React from "react";
 import { Globe } from "lucide-react";
-import { nativeMi } from "./platform.js";
 import { DESTEKLENEN_DILLER, DIL_ADLARI, dil, diliDegistirVeYenile, t } from "./i18n.js";
 
-// Giris yapmadan dil degistirme. Yalniz native'de gorunur; tarayici surumu
-// Turkce kalir ve dugme hic cizilmez. Dugme secili dilin kendi adini
-// gosterir; ustune serilmis gorunmez <select> sistemin secim tekerini acar,
-// secim kaydedilir ve uygulama yenilenir.
+// Giris yapmadan dil degistirme (native ve web giris/kayit ekranlari). Dugme
+// secili dilin kendi adini gosterir; ustune serilmis gorunmez <select>
+// sistemin secim tekerini/listesini acar, secim kaydedilir ve sayfa yenilenir.
 export default function DilDugmesi({ className = "" }) {
-  if (!nativeMi) return null;
   const secili = dil();
   return (
     <label className={`dil-dugmesi ${className}`.trim()} lang={secili}>

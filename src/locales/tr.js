@@ -17,6 +17,7 @@ import { tr as hatalarSss } from "./bolumler/hatalar-sss.js";
 import { tr as yasal } from "./bolumler/yasal.js";
 import { tr as islemler } from "./bolumler/islemler.js";
 import { tr as paraBirimi } from "./bolumler/para-birimi.js";
+import { tr as web } from "./bolumler/web.js";
 
 // Türkçe sözlük: uygulamanın kaynak dili. Her anahtarın metni ekranda
 // bugün görünen metnin birebir aynısıdır; eksik İngilizce anahtar buraya düşer.
@@ -42,6 +43,7 @@ const tr = {
   ...yasal,
   ...islemler,
   ...paraBirimi,
+  ...web,
 
   // Onboarding
   "onboarding.atla": "Atla",

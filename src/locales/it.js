@@ -1,6 +1,9 @@
 // it sozlugu (1.69.0). Eksik anahtarlar Ingilizceye (src/locales/en.js) duser.
 // Kaynak: en.js; yer tutucular {x} birebir korunur.
+import { it as web } from "./bolumler/web.js";
+
 const it_ = {
+  ...web,
   "sekme.ozet": "Oggi",
   "sekme.borclar": "Debiti",
   "sekme.hareketler": "Movimenti",
