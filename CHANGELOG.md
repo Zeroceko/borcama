@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.69.1] - 2026-10-27
+
+### Kaldırıldı
+
+- Hesaplama araçlarının sonuç alanındaki "Markanızı burada tanıtın" reklam satış kutusu kaldırıldı; reklam ve işbirliği iletişimi artık araç, sözlük, rehber ve ana sayfa alt bilgisindeki bağlantıdan yapılıyor.
+
+### Düzeltildi
+
+- Hesaplama araçlarının sonuç kartında tutarlar artık ikiye bölünmüyor; dar ekranda kutular alt alta diziliyor ve çok uzun tutarlarda yazı tek satıra sığacak kadar küçülüyor.
+- Kart veya kredi ekleme/düzenleme formu açıkken üstteki "Gösterilen dönem" seçicisi gizleniyor; seçici artık formun bir alanı gibi görünmüyor.
+
 ## [1.69.0] - 2026-10-26
 
 ### Eklendi
