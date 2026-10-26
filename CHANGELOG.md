@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Her borç (kart, kredi, ek hesap, diğer borç) kendi para biriminde kaydedilebiliyor: formdaki para birimi seçicisiyle örneğin İngiltere'de yaşayan kullanıcı GBP kartının yanında Türk kartını ve kredisini TRY olarak takip ediyor. Kurallar borç bazında (TRY borçta TCMB azami faizi, BDDK asgari oranı, KKDF/BSMV ve Türk bankası listesi; diğer birimlerde o ülkenin ortalaması), en az bir TRY borcu olan kullanıcıda Türk bankası ekstre/kredi planı okuma açık. Toplam borç, zorunlu ödeme, plan, Bugün ve öneriler ana birime TCMB/ECB kuruyla çevriliyor ("≈ kur tarihi" notuyla); kuru olmayan kayıt toplama katılmıyor, "kur bekliyor" diye ayrıca gösteriliyor. Tek birimli TRY kullanıcısının ekranları değişmedi.
+
 ## [1.69.0] - 2026-10-26
 
 ### Eklendi
