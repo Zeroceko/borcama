@@ -11670,15 +11670,15 @@ function Varliklar({
   const [digerFormu, setDigerFormu] = useState({ ad: "", kurum: "", guncelDeger: "", paraBirimi: "TRY" });
   const [digerHata, setDigerHata] = useState("");
   const filtreler = [
-    ["tumu", "Tümü"],
-    ["nakit", "Nakit"],
-    ["doviz", "Döviz"],
-    ["emtia", "Emtia"],
-    ["kripto", "Kripto"],
-    ["bes", "BES"],
-    ["fon", "Fonlar"],
-    ["hisse", "Hisseler"],
-    ["diger", "Diğer"],
+    ["tumu", t("varliklar.filtre.tumu")],
+    ["nakit", t("varliklar.filtre.nakit")],
+    ["doviz", t("varliklar.filtre.doviz")],
+    ["emtia", t("varliklar.filtre.emtia")],
+    ["kripto", t("varliklar.filtre.kripto")],
+    ["bes", t("varliklar.filtre.bes")],
+    ["fon", t("varliklar.filtre.fon")],
+    ["hisse", t("varliklar.filtre.hisse")],
+    ["diger", t("varliklar.filtre.diger")],
   ];
   const varlikGrubu = (tur) => varlikTuru(tur).kategori || "diger";
   const gorunenKalemler = ozet.kalemler.filter(
@@ -11709,7 +11709,7 @@ function Varliklar({
   async function fonBilgisiniGetir(kod) {
     const temizKod = String(kod || "").trim().toUpperCase();
     if (!/^[A-Z0-9]{2,8}$/.test(temizKod))
-      throw new Error("Geçerli bir fon kodu girin.");
+      throw new Error(t("varliklar.hata.fonKodu"));
     const onbellek = piyasa.prices?.funds?.[temizKod];
     if (onbellek) return onbellek;
     const yanit = await fetch(
@@ -11719,7 +11719,7 @@ function Varliklar({
     const sonuc = await yanit.json().catch(() => ({}));
     const bilgi = sonuc?.funds?.[temizKod];
     if (!yanit.ok || !bilgi)
-      throw new Error(sonuc?.errors?.[0]?.message || "Fon bulunamadı.");
+      throw new Error(sonuc?.errors?.[0]?.message || t("varliklar.hata.fonYok"));
     return bilgi;
   }
 
@@ -11737,7 +11737,7 @@ function Varliklar({
         fonKategori: bilgi.category,
       });
     } catch (hata) {
-      setFonHata(hata.message || "Fon fiyatı alınamadı.");
+      setFonHata(hata.message || t("varliklar.hata.fonFiyat"));
     } finally {
       setFonAraniyor(false);
     }
@@ -11749,7 +11749,7 @@ function Varliklar({
       .toUpperCase()
       .replace(/\.IS$/, "");
     if (!/^[A-Z0-9]{2,10}$/.test(temizKod))
-      throw new Error(`Geçerli bir ${piyasaTuru === "US" ? "ABD" : "BIST"} hisse kodu girin.`);
+      throw new Error(piyasaTuru === "US" ? t("varliklar.hata.hisseKoduAbd") : t("varliklar.hata.hisseKoduBist"));
     const onbellek = piyasa.prices?.stocks?.[temizKod];
     if (onbellek) return onbellek;
     const yanit = await fetch(
@@ -11759,7 +11759,7 @@ function Varliklar({
     const sonuc = await yanit.json().catch(() => ({}));
     const bilgi = sonuc?.stocks?.[temizKod];
     if (!yanit.ok || !bilgi)
-      throw new Error(sonuc?.errors?.[0]?.message || "Hisse bulunamadı.");
+      throw new Error(sonuc?.errors?.[0]?.message || t("varliklar.hata.hisseYok"));
     return bilgi;
   }
 
@@ -11781,7 +11781,7 @@ function Varliklar({
         hisseFiyatTarihi: bilgi.priceAt,
       });
     } catch (hata) {
-      setHisseHata(hata.message || "Hisse fiyatı alınamadı.");
+      setHisseHata(hata.message || t("varliklar.hata.hisseFiyat"));
     } finally {
       setHisseAraniyor(false);
     }
@@ -11800,7 +11800,7 @@ function Varliklar({
       try {
         fonBilgisi = await fonBilgisiniGetir(f.fonKodu);
       } catch (hata) {
-        setFonHata(hata.message || "Fon fiyatı alınamadı.");
+        setFonHata(hata.message || t("varliklar.hata.fonFiyat"));
         setFonAraniyor(false);
         return;
       }
@@ -11812,7 +11812,7 @@ function Varliklar({
       try {
         hisseBilgisi = await hisseBilgisiniGetir(f.hisseKodu, tur.piyasa);
       } catch (hata) {
-        setHisseHata(hata.message || "Hisse fiyatı alınamadı.");
+        setHisseHata(hata.message || t("varliklar.hata.hisseFiyat"));
         setHisseAraniyor(false);
         return;
       }
@@ -11903,18 +11903,18 @@ function Varliklar({
     <div className="bt-stack">
       <div className="bt-varlik-hero" data-tour="varliklar">
         <div>
-          <div className="bt-metric-lbl">Toplam varlıklarınız</div>
+          <div className="bt-metric-lbl">{t("varliklar.toplamVarliklar")}</div>
           <div className="bt-varlik-toplam">{fmt(ozet.toplam)}</div>
           <div style={{ color: "#bfc1b4", fontSize: 12, marginTop: 8 }}>
-            {ozet.kalemler.length} kayıt · Borçlardan bağımsız varlık toplamı
+            {t(ozet.kalemler.length === 1 ? "varliklar.kayitOzetiTekil" : "varliklar.kayitOzetiCogul", { n: ozet.kalemler.length })}
           </div>
         </div>
         <div className="bt-varlik-mini">
-          <div className="bt-metric-lbl">Otomatik değerlenen</div>
+          <div className="bt-metric-lbl">{t("varliklar.otomatikDegerlenen")}</div>
           <strong>{fmt(otomatikToplam)}</strong>
         </div>
         <div className="bt-varlik-mini">
-          <div className="bt-metric-lbl">Toplam kazanç / kayıp</div>
+          <div className="bt-metric-lbl">{t("varliklar.toplamKazancKayip")}</div>
           <strong style={{ color: ozet.kazanc < 0 ? CORAL : LIME }}>
             {ozet.maliyetBilinenKalemSayisi > 0
               ? (ozet.kazanc >= 0 ? "+" : "") + fmt(ozet.kazanc)
@@ -11926,7 +11926,7 @@ function Varliklar({
       {ozet.maliyetEksikKalemSayisi > 0 && (
         <div className="bt-ipucu">
           <Info size={16} />
-          <div><b>Kazanç/kayıp kısmi kapsamda:</b> alış maliyeti girilmiş {ozet.maliyetBilinenKalemSayisi}/{ozet.kalemler.length} varlık karşılaştırılıyor. {ozet.maliyetEksikKalemSayisi} varlık toplam değere dahil, ancak maliyeti bilinmediği için kazanç/kayıp hesabına dahil değil.</div>
+          <div><b>{t("varliklar.kismiBaslik")}</b> {t("varliklar.kismiMetin", { bilinen: ozet.maliyetBilinenKalemSayisi, toplam: ozet.kalemler.length, eksik: ozet.maliyetEksikKalemSayisi })}</div>
         </div>
       )}
 
@@ -11934,16 +11934,16 @@ function Varliklar({
         <div className="bt-cardhead" style={{ marginBottom: 0 }}>
           <div>
             <div className="bt-h2" style={{ marginBottom: 5 }}>
-              <PiggyBank size={20} /> Varlıklarım
+              <PiggyBank size={20} /> {t("varliklar.baslik")}
             </div>
             <div className={"bt-varlik-kaynak " + (piyasa.hata ? "hata" : "")}>
               <RefreshCw size={13} />
               {piyasa.yukleniyor
-                ? "Piyasa fiyatları güncelleniyor…"
+                ? t("varliklar.fiyatGuncelleniyor")
                 : piyasa.hata ||
                   (fiyatTarihi
-                    ? "Son fiyat güncellemesi: " + fiyatTarihi
-                    : "Otomatik fiyatlar henüz alınmadı")}
+                    ? t("varliklar.sonFiyatGuncellemesi", { tarih: fiyatTarihi })
+                    : t("varliklar.otomatikFiyatYok"))}
             </div>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -11953,7 +11953,7 @@ function Varliklar({
               onClick={piyasaYenile}
               disabled={piyasa.yukleniyor}
             >
-              <RefreshCw size={14} /> Fiyatları yenile
+              <RefreshCw size={14} /> {t("varliklar.fiyatlariYenile")}
             </button>
             {!acik && (
               <>
@@ -11966,7 +11966,7 @@ function Varliklar({
                     })
                   }
                 >
-                  <Wallet size={15} /> Nakit ekle
+                  <Wallet size={15} /> {t("varliklar.nakitEkle")}
                 </button>
                 <button
                   className="bt-btn birincil"
@@ -11977,7 +11977,7 @@ function Varliklar({
                     })
                   }
                 >
-                  <Plus size={16} /> Varlık ekle
+                  <Plus size={16} /> {t("varliklar.varlikEkle")}
                 </button>
               </>
             )}
@@ -11988,7 +11988,7 @@ function Varliklar({
       <nav
         className="bt-nav bt-nav-alt"
         style={{ margin: 0 }}
-        aria-label="Varlık türleri"
+        aria-label={t("varliklar.turlerAria")}
       >
         {filtreler.map(([k, ad]) => (
           <button
@@ -12004,11 +12004,11 @@ function Varliklar({
       {acik && (
         <form className="bt-form" onSubmit={kaydet}>
           <div className="bt-h2" style={{ marginBottom: 16 }}>
-            {f.id ? "Varlığı düzenle" : "Yeni varlık ekle"}
+            {f.id ? t("varliklar.form.duzenleBaslik") : t("varliklar.form.yeniBaslik")}
           </div>
           <div className="bt-alanlar">
             <label className="bt-alan">
-              <span>Varlık kategorisi *</span>
+              <span>{t("varliklar.form.kategori")}</span>
               <select
                 className="bt-input"
                 value={seciliKategori.id}
@@ -12034,13 +12034,13 @@ function Varliklar({
               >
                 {VARLIK_KATEGORILERI.map((kategori) => (
                   <option key={kategori.id} value={kategori.id}>
-                    {kategori.ad}
+                    {tDeger(kategori.ad)}
                   </option>
                 ))}
               </select>
             </label>
             <label className="bt-alan">
-              <span>{seciliKategori.ad} türü *</span>
+              <span>{t("varliklar.form.turEtiketi", { kategori: tDeger(seciliKategori.ad) })}</span>
               <select
                 className="bt-input"
                 value={seciliTur.id}
@@ -12074,14 +12074,14 @@ function Varliklar({
               >
                 {kategoriTurleri.map((tur) => (
                   <option key={tur.id} value={tur.id}>
-                    {tur.ad}
+                    {tDeger(tur.ad)}
                   </option>
                 ))}
               </select>
             </label>
             {seciliTur.fon && (
               <label className="bt-alan">
-                <span>{seciliTur.kaynak} fon kodu *</span>
+                <span>{t("varliklar.form.fonKodu", { kaynak: seciliTur.kaynak })}</span>
                 <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
                   <input
                     className="bt-input"
@@ -12089,7 +12089,7 @@ function Varliklar({
                     required
                     maxLength={8}
                     value={f.fonKodu || ""}
-                    placeholder={seciliTur.id === "bes" ? "Örn. AEA" : "Örn. TI2"}
+                    placeholder={seciliTur.id === "bes" ? t("varliklar.form.ornekBes") : t("varliklar.form.ornekFon")}
                     onChange={(e) => {
                       fSet({
                         fonKodu: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
@@ -12104,14 +12104,14 @@ function Varliklar({
                     onClick={fonuBul}
                     disabled={fonAraniyor || !f.fonKodu}
                   >
-                    <RefreshCw size={14} /> {fonAraniyor ? "Aranıyor" : "Fiyatı bul"}
+                    <RefreshCw size={14} /> {fonAraniyor ? t("varliklar.form.araniyor") : t("varliklar.form.fiyatiBul")}
                   </button>
                 </div>
               </label>
             )}
             {seciliTur.hisse && (
               <label className="bt-alan">
-                <span>{seciliTur.piyasa === "US" ? "ABD borsası hisse kodu *" : "Borsa İstanbul hisse kodu *"}</span>
+                <span>{seciliTur.piyasa === "US" ? t("varliklar.form.abdHisseKodu") : t("varliklar.form.bistHisseKodu")}</span>
                 <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
                   <input
                     className="bt-input"
@@ -12119,7 +12119,7 @@ function Varliklar({
                     required
                     maxLength={10}
                     value={f.hisseKodu || ""}
-                    placeholder={seciliTur.piyasa === "US" ? "Örn. AAPL" : "Örn. THYAO"}
+                    placeholder={seciliTur.piyasa === "US" ? t("varliklar.form.ornekAbd") : t("varliklar.form.ornekBist")}
                     onChange={(e) => {
                       fSet({
                         hisseKodu: e.target.value
@@ -12137,83 +12137,83 @@ function Varliklar({
                     onClick={hisseyiBul}
                     disabled={hisseAraniyor || !f.hisseKodu}
                   >
-                    <RefreshCw size={14} /> {hisseAraniyor ? "Aranıyor" : "Fiyatı bul"}
+                    <RefreshCw size={14} /> {hisseAraniyor ? t("varliklar.form.araniyor") : t("varliklar.form.fiyatiBul")}
                   </button>
                 </div>
               </label>
             )}
             {seciliTur.kripto && seciliTur.coinId && (
               <label className="bt-alan">
-                <span>Güncel {seciliTur.birim} fiyatı ({formParaBirimi})</span>
+                <span>{t("varliklar.form.guncelKriptoFiyati", { birim: seciliTur.birim, para: formParaBirimi })}</span>
                 <input
                   className="bt-input"
                   readOnly
-                  value={seciliKriptoFiyati > 0 ? fmtPara(seciliKriptoFiyati, formParaBirimi) : "Fiyat yükleniyor…"}
+                  value={seciliKriptoFiyati > 0 ? fmtPara(seciliKriptoFiyati, formParaBirimi) : t("varliklar.form.fiyatYukleniyor")}
                 />
               </label>
             )}
             {(seciliTur.id === "diger" || seciliTur.id === "kripto_diger") && <label className="bt-alan">
-              <span>Varlık adı</span>
+              <span>{t("varliklar.form.varlikAdi")}</span>
               <input
                 className="bt-input"
                 value={f.ad || ""}
-                placeholder={seciliTur.ad}
+                placeholder={tDeger(seciliTur.ad)}
                 onChange={(e) => fSet({ ad: e.target.value })}
               />
             </label>}
             {seciliTur.fon ? (
               <label className="bt-alan">
-                <span>Fonun tam adı</span>
+                <span>{t("varliklar.form.fonTamAdi")}</span>
                 <input
                   className="bt-input"
                   readOnly
                   value={f.ad || ""}
-                  placeholder="Fon kodunu girip fiyatı bul'a basın"
+                  placeholder={t("varliklar.form.fonAdiIpucu")}
                 />
               </label>
             ) : (
               <label className="bt-alan">
-                <span>Banka / kurum</span>
+                <span>{t("varliklar.form.bankaKurum")}</span>
                 <input
                   className="bt-input"
                   value={f.kurum || ""}
-                  placeholder="Örn. İş Bankası"
+                  placeholder={t("varliklar.form.ornekKurum")}
                   onChange={(e) => fSet({ kurum: e.target.value })}
                 />
               </label>
             )}
             {!seciliTur.fon && <label className="bt-alan">
-              <span>Para birimi *</span>
+              <span>{t("varliklar.form.paraBirimi")}</span>
               <select className="bt-input" value={formParaBirimi} onChange={(e) => fSet({ paraBirimi: e.target.value })}>
-                {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{birim.ad}</option>)}
+                {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{tDeger(birim.ad)}</option>)}
               </select>
             </label>}
             {seciliTur.fon && (
               <label className="bt-alan">
-                <span>Son pay fiyatı (₺)</span>
+                <span>{t("varliklar.form.sonPayFiyati")}</span>
                 <input
                   className="bt-input"
                   readOnly
-                  value={f.fonBirimFiyati ? fmtBirim(f.fonBirimFiyati) : "Fiyatı bul'a basın"}
+                  value={f.fonBirimFiyati ? fmtBirim(f.fonBirimFiyati) : t("varliklar.form.fiyatiBulaBasin")}
                 />
               </label>
             )}
             {seciliTur.hisse && (
               <label className="bt-alan">
-                <span>Son hisse fiyatı ({f.hisseParaBirimi || (seciliTur.piyasa === "US" ? "USD" : "₺")})</span>
+                <span>{t("varliklar.form.sonHisseFiyati", { para: f.hisseParaBirimi || (seciliTur.piyasa === "US" ? "USD" : "₺") })}</span>
                 <input
                   className="bt-input"
                   readOnly
                   value={f.hisseBirimFiyati
                     ? (f.hisseParaBirimi && f.hisseParaBirimi !== "TRY" ? fmtPara(f.hisseBirimFiyati, f.hisseParaBirimi) : fmtBirim(f.hisseBirimFiyati))
-                    : "Fiyatı bul'a basın"}
+                    : t("varliklar.form.fiyatiBulaBasin")}
                 />
               </label>
             )}
             {seciliTur.id === "bes" ? (
               <>
                 <label className="bt-alan">
-                  <span>Toplam BES tutarı (₺) *</span>
+                  <span>{t("varliklar.form.besToplam")}</span>
                   <ParaInput
                     className="bt-input"
                     required
@@ -12222,17 +12222,17 @@ function Varliklar({
                   />
                 </label>
                 <label className="bt-alan">
-                  <span>Tahmini pay adedi</span>
+                  <span>{t("varliklar.form.tahminiPayAdedi")}</span>
                   <input
                     className="bt-input"
                     readOnly
-                    value={besPayAdedi > 0 ? besPayAdedi.toLocaleString("tr-TR", { maximumFractionDigits: 6 }) + " pay" : "Fon fiyatı bulunduktan sonra hesaplanır"}
+                    value={besPayAdedi > 0 ? t("varliklar.form.payAdediDeger", { n: besPayAdedi.toLocaleString(locale(), { maximumFractionDigits: 6 }) }) : t("varliklar.form.payHesaplanacak")}
                   />
                 </label>
               </>
             ) : seciliTur.otomatik ? (
               <label className="bt-alan">
-                <span>{seciliTur.fon ? "Pay adedi" : seciliTur.hisse ? "Hisse adedi" : `Miktar (${seciliTur.birim})`} *</span>
+                <span>{seciliTur.fon ? t("varliklar.form.payAdedi") : seciliTur.hisse ? t("varliklar.form.hisseAdedi") : t("varliklar.form.miktar", { birim: tDeger(seciliTur.birim) })} *</span>
                 <input
                   className="bt-input"
                   type="number"
@@ -12245,7 +12245,7 @@ function Varliklar({
               </label>
             ) : (
               <label className="bt-alan">
-                <span>Güncel toplam değer ({formParaBirimi}) *</span>
+                <span>{t("varliklar.form.guncelToplamDeger", { para: formParaBirimi })}</span>
                 <ParaInput
                   className="bt-input"
                   required
@@ -12255,7 +12255,7 @@ function Varliklar({
               </label>
             )}
             <label className="bt-alan">
-              <span>Toplam alış maliyeti ({formParaBirimi})</span>
+              <span>{t("varliklar.form.alisMaliyeti", { para: formParaBirimi })}</span>
               <ParaInput
                 className="bt-input"
                 value={f.maliyetBiliniyor === true ? f.toplamMaliyet ?? "" : ""}
@@ -12274,7 +12274,7 @@ function Varliklar({
                   fonHata
                 ) : (
                   <>
-                    <b>{f.ad || f.fonKodu}</b> · Son pay fiyatı {fmtBirim(f.fonBirimFiyati)} · {f.fonKaynagi || seciliTur.kaynak}
+                    <b>{f.ad || f.fonKodu}</b> · {t("varliklar.form.sonPayFiyatiDeger", { fiyat: fmtBirim(f.fonBirimFiyati) })} · {f.fonKaynagi || seciliTur.kaynak}
                   </>
                 )}
               </div>
@@ -12291,7 +12291,7 @@ function Varliklar({
                   hisseHata
                 ) : (
                   <>
-                    <b>{f.ad || f.hisseKodu}</b> · Son fiyat {fmtBirim(f.hisseBirimFiyati)} · Borsa İstanbul
+                    <b>{f.ad || f.hisseKodu}</b> · {t("varliklar.form.hisseSonFiyat", { fiyat: fmtBirim(f.hisseBirimFiyati) })}
                   </>
                 )}
               </div>
@@ -12302,12 +12302,12 @@ function Varliklar({
               <Lightbulb size={16} />
               <div>
                 {seciliTur.fon
-                  ? `${seciliTur.kaynak} tarafından açıklanan son pay fiyatı kullanılır. Fon fiyatları çoğunlukla iş günü sonunda güncellenir.`
+                  ? t("varliklar.form.ipucuFon", { kaynak: seciliTur.kaynak })
                   : seciliTur.hisse
-                    ? "Borsa İstanbul fiyatı otomatik güncellenir. Gösterilen fiyat gecikmeli olabilir; alım-satım kararı için aracı kurum ekranınızı kullanın."
+                    ? t("varliklar.form.ipucuHisse")
                   : seciliTur.tahmini
-                  ? `${seciliTur.ad} değeri gram altının içerdiği saf altın miktarı üzerinden yaklaşık hesaplanır. Kuyumcu alış/satış farkı dahil değildir.`
-                  : `${seciliTur.ad} fiyatı otomatik güncellenir. Siz yalnızca sahip olduğunuz miktarı değiştirirsiniz.`}
+                  ? t("varliklar.form.ipucuTahmini", { ad: tDeger(seciliTur.ad) })
+                  : t("varliklar.form.ipucuOtomatik", { ad: tDeger(seciliTur.ad) })}
               </div>
             </div>
           )}
@@ -12315,12 +12315,12 @@ function Varliklar({
             seciliOtomatikBirimFiyati > 0 && (
               <div className="bt-card" style={{ marginTop: 14, padding: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 13 }}>
-                  <span>Güncel yaklaşık değer</span>
+                  <span>{t("varliklar.form.guncelYaklasikDeger")}</span>
                   <strong>{fmtPara(gosterimMiktari * seciliGosterimBirimFiyati, formParaBirimi)}</strong>
                 </div>
                 {+f.toplamMaliyet > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 13, marginTop: 7, color: (+f.miktar || 0) * seciliGosterimBirimFiyati - (+f.toplamMaliyet || 0) >= 0 ? "#5D7A2E" : CORAL }}>
-                    <span>Tahmini kâr / zarar</span>
+                    <span>{t("varliklar.form.tahminiKarZarar")}</span>
                     <strong>{fmtPara(gosterimMiktari * seciliGosterimBirimFiyati - (+f.toplamMaliyet || 0), formParaBirimi)}</strong>
                   </div>
                 )}
@@ -12328,14 +12328,14 @@ function Varliklar({
             )}
           <div className="bt-form-butonlar">
             <button className="bt-btn birincil" type="submit">
-              <Check size={15} /> Kaydet
+              <Check size={15} /> {t("ortak.kaydet")}
             </button>
             <button
               className="bt-btn ikincil"
               type="button"
               onClick={() => setForm(null)}
             >
-              Vazgeç
+              {t("ortak.vazgec")}
             </button>
           </div>
         </form>
@@ -12343,15 +12343,14 @@ function Varliklar({
 
       {ozet.kalemler.length === 0 && !acik ? (
         <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
-          Henüz varlık eklemediniz. Nakit, döviz, altın, Bitcoin veya BES kaydınızı
-          ekleyerek başlayın.
-          <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}><Plus size={15} /> Varlık ekle</button>
+          {t("varliklar.bos.hic")}
+          <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}><Plus size={15} /> {t("varliklar.varlikEkle")}</button>
         </div>
       ) : gorunenKalemler.length === 0 && !acik ? (
         <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
-          Bu kategoride henüz varlık kaydı yok.
+          {t("varliklar.bos.kategori")}
           <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}>
-            <Plus size={15} /> {filtre === "nakit" ? "Nakit ekle" : filtre === "hisse" ? "Hisse ekle" : filtre === "fon" ? "Fon ekle" : filtre === "kripto" ? "Kripto ekle" : "Varlık ekle"}
+            <Plus size={15} /> {filtre === "nakit" ? t("varliklar.nakitEkle") : filtre === "hisse" ? t("varliklar.hisseEkle") : filtre === "fon" ? t("varliklar.fonEkle") : filtre === "kripto" ? t("varliklar.kriptoEkle") : t("varliklar.varlikEkle")}
           </button>
         </div>
       ) : (
@@ -12382,16 +12381,16 @@ function Varliklar({
                       ? "₿"
                         : tur.kategori === "emtia"
                         ? "Au"
-                        : tur.birim || tur.ad.slice(0, 2).toUpperCase()}
+                        : tDeger(tur.birim) || tDeger(tur.ad).slice(0, 2).toUpperCase()}
                   </div>
                   <div style={{ flex: 1, minWidth: 170 }}>
-                    <div className="bt-satir-ad">{k.ad || tur.ad}</div>
+                    <div className="bt-satir-ad">{tDeger(k.ad || tur.ad)}</div>
                     <div className="bt-satir-meta">
                       {k.kurum ? k.kurum + " · " : ""}
                       {tur.fon && k.fonKodu ? k.fonKodu + " · " : ""}
                       {tur.hisse && k.hisseKodu ? k.hisseKodu + " · " : ""}
                       {tur.otomatik
-                        ? (+k.miktar || 0).toLocaleString("tr-TR", {
+                        ? (+k.miktar || 0).toLocaleString(locale(), {
                             maximumFractionDigits:
                               tur.kategori === "kripto"
                                 ? 8
@@ -12400,29 +12399,30 @@ function Varliklar({
                                   : 4,
                           }) +
                           " " +
-                          tur.birim
-                        : tur.ad}
+                          tDeger(tur.birim)
+                        : tDeger(tur.ad)}
                     </div>
                     {tur.otomatik && (
                       <div className="bt-satir-meta">
                         {birimFiyat > 0
-                          ? "Birim fiyat " +
-                            (tur.fon || tur.hisse
-                              ? (tur.hisse && k.hisseParaBirimi && k.hisseParaBirimi !== "TRY"
-                                ? fmtPara(birimFiyat, k.hisseParaBirimi)
-                                : fmtBirim(birimFiyat))
-                              : fmt(birimFiyat)) +
+                          ? t("varliklar.satir.birimFiyat", {
+                              fiyat: tur.fon || tur.hisse
+                                ? (tur.hisse && k.hisseParaBirimi && k.hisseParaBirimi !== "TRY"
+                                  ? fmtPara(birimFiyat, k.hisseParaBirimi)
+                                  : fmtBirim(birimFiyat))
+                                : fmt(birimFiyat),
+                            }) +
                             (tur.hisse
-                              ? " · gecikmeli"
+                              ? " · " + t("varliklar.satir.gecikmeli")
                               : tur.fon
                               ? " · " +
                                 (piyasa.prices?.funds?.[k.fonKodu]?.source ||
                                   k.fonKaynagi ||
                                   tur.kaynak)
                               : tur.tahmini
-                                ? " · yaklaşık"
-                                : " · otomatik")
-                          : "Manuel yedek değer kullanılıyor"}
+                                ? " · " + t("varliklar.satir.yaklasik")
+                                : " · " + t("varliklar.satir.otomatikEk"))
+                          : t("varliklar.satir.manuelYedek")}
                       </div>
                     )}
                   </div>
@@ -12430,7 +12430,7 @@ function Varliklar({
                     <div className="bt-satir-tutar">
                       {/* Fiyati hic alinamamis otomatik varlikta 0 TL yaziyorduk;
                           kullanici bunu "varligim degersiz" diye okuyor. */}
-                      {tur.otomatik && !birimFiyat ? "Fiyat alınamadı" : fmt(k.hesaplananDeger)}
+                      {tur.otomatik && !birimFiyat ? t("varliklar.satir.fiyatAlinamadi") : fmt(k.hesaplananDeger)}
                     </div>
                     {fark !== null && (
                       <div
@@ -12448,19 +12448,19 @@ function Varliklar({
                       "bt-varlik-rozet " + (tur.otomatik ? "otomatik" : "")
                     }
                   >
-                    {tur.otomatik ? "Otomatik" : "Manuel"}
+                    {tur.otomatik ? t("varliklar.satir.otomatik") : t("varliklar.satir.manuel")}
                   </span>
                   <div style={{ display: "flex", gap: 2 }}>
                     <button
                       className="bt-btn hayalet"
-                      title="Düzenle"
+                      title={t("ortak.duzenle")}
                       onClick={() => setForm({ liste: "assets", veri: k })}
                     >
                       <Pencil size={15} />
                     </button>
                     <button
                       className="bt-btn hayalet tehlike"
-                      title="Sil"
+                      title={t("ortak.sil")}
                       onClick={() => setSilinecek(k)}
                     >
                       <Trash2 size={15} />
@@ -12475,12 +12475,12 @@ function Varliklar({
       {dagilim.length > 1 && (
         <div className="bt-card">
           <div className="bt-h2">
-            <BarChart3 size={19} /> Varlık dağılımı
+            <BarChart3 size={19} /> {t("varliklar.dagilim")}
           </div>
           <div className="bt-varlik-dagilim">
             {dagilim.map(([ad, tutar]) => (
               <div className="bt-varlik-dagilim-satir" key={ad}>
-                <span>{ad}</span>
+                <span>{tDeger(ad)}</span>
                 <div className="bt-varlik-dagilim-bar">
                   <div
                     style={{
@@ -12490,7 +12490,7 @@ function Varliklar({
                     }}
                   />
                 </div>
-                <strong className="bt-mono">%{Math.round((tutar / ozet.toplam) * 100)}</strong>
+                <strong className="bt-mono">{t("varliklar.yuzde", { n: Math.round((tutar / ozet.toplam) * 100) })}</strong>
               </div>
             ))}
           </div>
@@ -12500,10 +12500,9 @@ function Varliklar({
       {silinecek && (
         <div className="bt-modal-arka" role="presentation">
           <div className="bt-modal" role="dialog" aria-modal="true">
-            <div className="bt-h2">Varlık silinsin mi?</div>
+            <div className="bt-h2">{t("varliklar.silBaslik")}</div>
             <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.6 }}>
-              <b style={{ color: "var(--text)" }}>{silinecek.ad}</b> kaydı
-              silinecek. Bu işlem toplam varlık değerinizi de günceller.
+              <Ceviri anahtar="varliklar.silMetin" degerler={{ ad: <b style={{ color: "var(--text)" }}>{tDeger(silinecek.ad)}</b> }} />
             </p>
             <div className="bt-form-butonlar">
               <button
@@ -12514,13 +12513,13 @@ function Varliklar({
                   setSilinecek(null);
                 }}
               >
-                <Trash2 size={14} /> Evet, sil
+                <Trash2 size={14} /> {t("varliklar.evetSil")}
               </button>
               <button
                 className="bt-btn ikincil"
                 onClick={() => setSilinecek(null)}
               >
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </div>
@@ -12530,30 +12529,30 @@ function Varliklar({
         <div className="bt-modal-arka" role="presentation">
           <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="diger-varlik-baslik">
             <div className="bt-h2" id="diger-varlik-baslik">
-              {digerPopupTuru === "kripto_diger" ? "Diğer kripto ekle" : "Diğer varlık ekle"}
+              {digerPopupTuru === "kripto_diger" ? t("varliklar.diger.kriptoBaslik") : t("varliklar.diger.baslik")}
             </div>
             <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.6 }}>
               {digerPopupTuru === "kripto_diger"
-                ? "Listede olmayan kripto varlığın adını ve bugünkü yaklaşık değerini gir."
-                : "Listede olmayan varlığın adını ve bugünkü yaklaşık değerini gir."}
+                ? t("varliklar.diger.kriptoAciklama")
+                : t("varliklar.diger.aciklama")}
             </p>
             <div className="bt-alanlar" style={{ marginTop: 14 }}>
               <label className="bt-alan">
-                <span>Varlık adı *</span>
-                <input className="bt-input" autoFocus value={digerFormu.ad} placeholder="Örn. Koleksiyon" onChange={(e) => setDigerFormu((eski) => ({ ...eski, ad: e.target.value }))} />
+                <span>{t("varliklar.diger.varlikAdi")}</span>
+                <input className="bt-input" autoFocus value={digerFormu.ad} placeholder={t("varliklar.diger.ornekAd")} onChange={(e) => setDigerFormu((eski) => ({ ...eski, ad: e.target.value }))} />
               </label>
               <label className="bt-alan">
-                <span>Kurum / not</span>
-                <input className="bt-input" value={digerFormu.kurum} placeholder="Örn. Evde" onChange={(e) => setDigerFormu((eski) => ({ ...eski, kurum: e.target.value }))} />
+                <span>{t("varliklar.diger.kurumNot")}</span>
+                <input className="bt-input" value={digerFormu.kurum} placeholder={t("varliklar.diger.ornekKurum")} onChange={(e) => setDigerFormu((eski) => ({ ...eski, kurum: e.target.value }))} />
               </label>
               <label className="bt-alan">
-                <span>Güncel değer ({paraBirimi(digerFormu.paraBirimi).id}) *</span>
+                <span>{t("varliklar.diger.guncelDeger", { para: paraBirimi(digerFormu.paraBirimi).id })}</span>
                 <ParaInput className="bt-input" value={digerFormu.guncelDeger} onValueChange={(value) => setDigerFormu((eski) => ({ ...eski, guncelDeger: value }))} />
               </label>
               <label className="bt-alan">
-                <span>Para birimi *</span>
+                <span>{t("varliklar.form.paraBirimi")}</span>
                 <select className="bt-input" value={paraBirimi(digerFormu.paraBirimi).id} onChange={(e) => setDigerFormu((eski) => ({ ...eski, paraBirimi: e.target.value }))}>
-                  {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{birim.ad}</option>)}
+                  {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{tDeger(birim.ad)}</option>)}
                 </select>
               </label>
             </div>
@@ -12561,13 +12560,13 @@ function Varliklar({
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" type="button" onClick={() => {
                 if (!digerFormu.ad.trim() || !(+digerFormu.guncelDeger > 0)) {
-                  setDigerHata("Varlık adı ve güncel değer gerekli.");
+                  setDigerHata(t("varliklar.hata.digerEksik"));
                   return;
                 }
                 fSet({ tur: digerPopupTuru, ad: digerFormu.ad.trim(), kurum: digerFormu.kurum.trim(), guncelDeger: digerFormu.guncelDeger, paraBirimi: digerFormu.paraBirimi });
                 setDigerPenceresi(false);
-              }}><Check size={15} /> Ekle</button>
-              <button className="bt-btn ikincil" type="button" onClick={() => { fSet({ tur: digerPopupTuru === "kripto_diger" ? "bitcoin" : "mevduat" }); setDigerPenceresi(false); }}>Vazgeç</button>
+              }}><Check size={15} /> {t("ortak.ekle")}</button>
+              <button className="bt-btn ikincil" type="button" onClick={() => { fSet({ tur: digerPopupTuru === "kripto_diger" ? "bitcoin" : "mevduat" }); setDigerPenceresi(false); }}>{t("ortak.vazgec")}</button>
             </div>
           </div>
         </div>
