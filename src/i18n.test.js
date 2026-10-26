@@ -36,9 +36,10 @@ test("native'de kayıt yoksa cihaz diline bakar; desteklenmeyen dil İngilizce",
   assert.equal(dilBelirle({ native: true, kayitli: "xx", tarayiciDili: "" }), "en");
 });
 
-test("yeni dillerde eksik anahtar Türkçeye değil İngilizceye düşer", () => {
-  assert.equal(cevir("de", "dil.degistir"), cevir("en", "dil.degistir"));
-  assert.notEqual(cevir("de", "dil.degistir"), cevir("tr", "dil.degistir"));
+test("yüklenmemiş/eksik yeni dil Türkçeye değil İngilizceye düşer", () => {
+  assert.equal(cevir("it", "__yalnizEn__"), "__yalnizEn__");
+  assert.equal(cevir("fr", "dil.degistir"), cevir("en", "dil.degistir"));
+  assert.notEqual(cevir("fr", "dil.degistir"), cevir("tr", "dil.degistir"));
 });
 
 test("locale dil koduna karşılık gelir", () => {

@@ -1,10 +1,6 @@
 import { nativeMi } from "./platform.js";
 import tr from "./locales/tr.js";
 import en from "./locales/en.js";
-import de from "./locales/de.js";
-import fr from "./locales/fr.js";
-import es from "./locales/es.js";
-import it from "./locales/it.js";
 
 // Uygulama ici dil secimi. Harici kutuphane yok: sozlukler duz nesne,
 // eksik anahtar Turkce metne duser. Web surumu simdilik daima Turkce;
@@ -12,7 +8,26 @@ import it from "./locales/it.js";
 
 export const DIL_ANAHTARI = "borcama_dil";
 export const DESTEKLENEN_DILLER = ["tr", "en", "de", "fr", "es", "it"];
-const SOZLUKLER = { tr, en, de, fr, es, it };
+// tr ve en pakete gomulu; diger diller yalniz gerektiginde yuklenir ki
+// web (daima Turkce) bu sozlukleri hic indirmesin.
+const SOZLUKLER = { tr, en };
+const YUKLEYICILER = {
+  de: () => import("./locales/de.js"),
+  fr: () => import("./locales/fr.js"),
+  es: () => import("./locales/es.js"),
+  it: () => import("./locales/it.js"),
+};
+
+// Secili dilin sozlugunu yukler. Uygulama modulleri degerlendirilmeden once
+// (src/giris.js) cagrilir; yuklenemezse metinler Ingilizceye duser.
+export async function dilSozlugunuYukle(kod = dil()) {
+  if (SOZLUKLER[kod] || !YUKLEYICILER[kod]) return;
+  try {
+    SOZLUKLER[kod] = (await YUKLEYICILER[kod]()).default;
+  } catch {
+    // Ag/paket hatasi: Ingilizce yedek kullanilir.
+  }
+}
 const LOCALELER = { tr: "tr-TR", en: "en-US", de: "de-DE", fr: "fr-FR", es: "es-ES", it: "it-IT" };
 
 function guvenliOku(anahtar) {
@@ -112,8 +127,7 @@ function yerlestir(metin, hamDegiskenler) {
 // Yedek zinciri: secili dil -> (Turkce degilse) Ingilizce -> Turkce -> anahtar.
 // Yeni bir dilde eksik kalan anahtar Turkce degil Ingilizce gorunur.
 function sozlukMetni(kod, anahtar) {
-  const sozluk = SOZLUKLER[kod] || tr;
-  return sozluk[anahtar] ?? (kod !== "tr" ? en[anahtar] : undefined) ?? tr[anahtar];
+  return SOZLUKLER[kod]?.[anahtar] ?? (kod !== "tr" ? en[anahtar] : undefined) ?? tr[anahtar];
 }
 
 export function cevir(kod, anahtar, degiskenler) {
