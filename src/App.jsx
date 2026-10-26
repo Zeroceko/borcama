@@ -1855,7 +1855,7 @@ export default function BorcTakip() {
           (fonKodlari.length && !fonYanit?.ok) ||
           (hisseKodlari.length && !hisseYanit?.ok) ||
           (hisseAbdKodlari.length && !hisseAbdYanit?.ok)
-            ? "Bazı otomatik fiyatlar şu anda alınamadı."
+            ? t("kabuk.piyasa.kismi")
             : "",
       };
       setPiyasa(yeni);
@@ -1865,8 +1865,8 @@ export default function BorcTakip() {
         ...eski,
         yukleniyor: false,
         hata: Object.keys(eski.prices || {}).length
-          ? "Canlı fiyatlar yenilenemedi; son alınan değerler gösteriliyor."
-          : "Canlı fiyatlar alınamadı. Varlıklardaki manuel değerler kullanılıyor.",
+          ? t("kabuk.piyasa.eskiDegerler")
+          : t("kabuk.piyasa.alinamadi"),
       }));
     }
   }
@@ -1923,7 +1923,7 @@ export default function BorcTakip() {
         }
       } catch (e) {
         setHata(
-          `Verileriniz yüklenemedi. Lütfen bağlantınızı kontrol edip ${yenilemeYonergesiKucuk}.`,
+          t("kabuk.hata.yuklenemedi", { yonerge: yenilemeYonergesiKucuk }),
         );
       } finally {
         setYukleniyor(false);
@@ -1972,7 +1972,7 @@ export default function BorcTakip() {
             yukleniyor: false,
             monthly: null,
             annual: null,
-            hata: "Pro fiyatları şu anda alınamıyor.",
+            hata: t("kabuk.pro.fiyatYok"),
           });
           return;
         }
@@ -1989,7 +1989,7 @@ export default function BorcTakip() {
             yukleniyor: false,
             monthly: null,
             annual: null,
-            hata: "Pro fiyatları şu anda alınamıyor.",
+            hata: t("kabuk.pro.fiyatYok"),
           });
         }
       });
@@ -2062,7 +2062,7 @@ export default function BorcTakip() {
         trialBaslangic: null,
         trialBitis: null,
         trialKalanGun: 0,
-        hata: "Satın alma durumu şu anda kontrol edilemedi.",
+        hata: t("kabuk.pro.durumKontrol"),
       });
     }
   }
@@ -2106,7 +2106,7 @@ export default function BorcTakip() {
         ...eski,
         yukleniyor: false,
         kontrolEdildi: true,
-        hata: "Ücretsiz pakete geçiş tamamlanamadı. Lütfen tekrar deneyin.",
+        hata: t("kabuk.pro.ucretsizGecis"),
       }));
     }
   }
@@ -2186,12 +2186,12 @@ export default function BorcTakip() {
       }
       setProGeriYukleme({
         yukleniyor: false,
-        hata: "Bu Apple hesabında geri yüklenecek bir Borcama Pro aboneliği bulunamadı.",
+        hata: t("kabuk.pro.geriYuklenecekYok"),
       });
     } catch {
       setProGeriYukleme({
         yukleniyor: false,
-        hata: "Satın alımlar geri yüklenemedi. Lütfen tekrar dene.",
+        hata: t("kabuk.pro.geriYuklenemedi"),
       });
     }
   }
@@ -2200,7 +2200,7 @@ export default function BorcTakip() {
     if (!revenueCatHazir) {
       setProSatinAlma({
         yukleniyor: false,
-        hata: "Ödeme sistemi şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+        hata: t("kabuk.pro.odemeSistemiYok"),
         plan: null,
       });
       return;
@@ -2235,7 +2235,7 @@ export default function BorcTakip() {
     } catch (error) {
       setProSatinAlma({
         yukleniyor: false,
-        hata: "Ödeme ekranı açılamadı. Lütfen tekrar deneyin.",
+        hata: t("kabuk.pro.odemeEkrani"),
         plan: null,
       });
     } finally {
@@ -2376,8 +2376,8 @@ export default function BorcTakip() {
     } catch (e) {
       setHata(
         e?.message === "VERI_CAKISMASI"
-          ? `Verileriniz başka bir cihazda değiştirilmiş. Kayıp yaşanmaması için ${yenilemeYonergesi.toLocaleLowerCase("tr")} tekrar deneyin.`
-          : "Kayıt sırasında bir sorun oluştu. Değişiklikler bu oturumda duruyor; bir sonraki işlemde tekrar denenecek.",
+          ? t("kabuk.hata.cakisma", { yonerge: yenilemeYonergesi.toLocaleLowerCase("tr") })
+          : t("kabuk.hata.kayit"),
       );
     } finally {
       setKaydediliyor(false);
@@ -2395,26 +2395,26 @@ export default function BorcTakip() {
   );
   const temaAnahtarlarSwitch = () =>
     ayarKaydet({ tema: isDark ? "light" : "dark" });
-  const t = isDark ? KOYU_TEMA : ACIK_TEMA;
+  const temaRenkleri = isDark ? KOYU_TEMA : ACIK_TEMA;
   const rootStyle = {
-    "--bg": t.bg,
-    "--panel": t.panel,
-    "--panel2": t.panel2,
-    "--text": t.text,
-    "--dim": t.dim,
-    "--faint": t.faint,
-    "--line": t.line,
-    "--line-soft": t.lineSoft,
-    "--summary-bg": t.summaryBg,
-    "--summary-soft": t.summarySoft,
-    "--summary-text": t.summaryText,
-    "--summary-muted": t.summaryMuted,
-    "--summary-amount": t.summaryAmount,
-    "--summary-shadow": t.summaryShadow,
-    "--debt-card": t.debtCard,
-    "--debt-loan": t.debtLoan,
-    "--debt-account": t.debtAccount,
-    "--debt-other": t.debtOther,
+    "--bg": temaRenkleri.bg,
+    "--panel": temaRenkleri.panel,
+    "--panel2": temaRenkleri.panel2,
+    "--text": temaRenkleri.text,
+    "--dim": temaRenkleri.dim,
+    "--faint": temaRenkleri.faint,
+    "--line": temaRenkleri.line,
+    "--line-soft": temaRenkleri.lineSoft,
+    "--summary-bg": temaRenkleri.summaryBg,
+    "--summary-soft": temaRenkleri.summarySoft,
+    "--summary-text": temaRenkleri.summaryText,
+    "--summary-muted": temaRenkleri.summaryMuted,
+    "--summary-amount": temaRenkleri.summaryAmount,
+    "--summary-shadow": temaRenkleri.summaryShadow,
+    "--debt-card": temaRenkleri.debtCard,
+    "--debt-loan": temaRenkleri.debtLoan,
+    "--debt-account": temaRenkleri.debtAccount,
+    "--debt-other": temaRenkleri.debtOther,
   };
 
   const kalemler = useMemo(() => borcKalemleri(veri), [veri]);
@@ -2525,7 +2525,7 @@ export default function BorcTakip() {
           yapilanOdeme,
           odemeKayitSayisi: odemeKayitlari.length,
           odemeBilgisiYok,
-          not: "kalan minimum ödeme",
+          not: t("kabuk.odeme.kalanMinimum"),
           tarih: kartGecikmeTarihi(k),
           odendi: minimumTamam,
           minimumTamam,
@@ -2553,7 +2553,7 @@ export default function BorcTakip() {
           hedefTutar: taksit,
           yapilanOdeme,
           kalanKrediBorcu: +k.kalanBorc || 0,
-          not: "Bu ayki taksit",
+          not: t("kabuk.odeme.buAykiTaksit"),
           tarih: buAyOdemeTarihi(k.odemeGunu),
           odendi: elleOdendi,
           anahtar,
@@ -2583,7 +2583,7 @@ export default function BorcTakip() {
           hedefTutar: +k.taksit || 0,
           yapilanOdeme: 0,
           kalanKrediBorcu: +k.kalanBorc || 0,
-          not: "gelecek ay taksiti",
+          not: t("kabuk.odeme.gelecekAyTaksiti"),
           tarih: new Date(yil, ay, gun),
           odendi: false,
           anahtar: "kredi-" + k.id + "-" + ayAnahtari(new Date(yil, ay, 1)),
@@ -3060,13 +3060,13 @@ export default function BorcTakip() {
     if (parolaFormu.parola.length < 8)
       return setParolaDurumu({
         kaydediliyor: false,
-        hata: "Parolanız en az 8 karakter olmalı.",
+        hata: t("kabuk.parola.enAz8"),
         tamam: false,
       });
     if (parolaFormu.parola !== parolaFormu.tekrar)
       return setParolaDurumu({
         kaydediliyor: false,
-        hata: "Parolalar birbiriyle eşleşmiyor.",
+        hata: t("kabuk.parola.eslesmiyor"),
         tamam: false,
       });
     setParolaDurumu({ kaydediliyor: true, hata: "", tamam: false });
@@ -3077,7 +3077,7 @@ export default function BorcTakip() {
       error
         ? {
             kaydediliyor: false,
-            hata: "Parola kaydedilemedi. Lütfen tekrar deneyin.",
+            hata: t("kabuk.parola.kaydedilemedi"),
             tamam: false,
           }
         : { kaydediliyor: false, hata: "", tamam: true },
@@ -3177,15 +3177,15 @@ export default function BorcTakip() {
           </div>
           <div className="bt-headright">
             {planOnizlemesiAktif && (
-              <div className="bt-demo-plan" aria-label="Paket görünümü önizlemesi">
-                <span>{yeniUyelikOnizlemesi ? "Yeni üyelik" : "Demo görünümü"}</span>
+              <div className="bt-demo-plan" aria-label={t("kabuk.demo.aria")}>
+                <span>{yeniUyelikOnizlemesi ? t("kabuk.demo.yeniUyelik") : t("kabuk.demo.gorunum")}</span>
                 <button
                   type="button"
                   className={demoPlan === "free" ? "aktif" : ""}
                   onClick={() => demoPlaniDegistir("free")}
                   aria-pressed={demoPlan === "free"}
                 >
-                  Ücretsiz
+                  {t("kabuk.demo.ucretsiz")}
                 </button>
                 <button
                   type="button"
@@ -3200,7 +3200,7 @@ export default function BorcTakip() {
             <div className="bt-date">
               {s.toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" })}
               {kaydediliyor && (
-                <span style={{ marginLeft: 8 }}>● kaydediliyor</span>
+                <span style={{ marginLeft: 8 }}>{t("kabuk.kaydediliyor")}</span>
               )}
             </div>
             <button
@@ -3211,10 +3211,10 @@ export default function BorcTakip() {
                   ? window.location.assign("/register")
                   : setAsistanPenceresi(true)
               }
-              aria-label="Borcama'ya sor"
+              aria-label={t("kabuk.sor")}
             >
               <Sparkles size={14} aria-hidden="true" />
-              <span>Borcama'ya sor</span>
+              <span>{t("kabuk.sor")}</span>
             </button>
             {reklamsiz.kontrolEdildi && !etkinPro && (
               <button
@@ -3224,7 +3224,7 @@ export default function BorcTakip() {
                   window.location.assign(misafir ? "/register" : "/upgrade?plan=monthly")
                 }
               >
-                <Sparkles size={14} /> Pro'ya Geç
+                <Sparkles size={14} /> {t("kabuk.proyaGec")}
               </button>
             )}
             <button
@@ -3236,17 +3236,17 @@ export default function BorcTakip() {
                 setForm(null);
               }}
             >
-              <Settings size={14} /> Ayarlar
+              <Settings size={14} /> {t("kabuk.ayarlar")}
             </button>
           </div>
         </header>
 
         <nav className={"bt-nav bt-nav-ana" + (nativeSekmeCubuguVarMi ? " bt-nav-gizli" : "")}>
           {[
-            ["ozet", "Bugün", BarChart3],
-            ["borclar", "Borçlar", Wallet],
-            ["hareketler", "Hareketler", ArrowLeftRight],
-            ["varliklar", "Varlıklar", PiggyBank],
+            ["ozet", t("sekme.ozet"), BarChart3],
+            ["borclar", t("sekme.borclar"), Wallet],
+            ["hareketler", t("sekme.hareketler"), ArrowLeftRight],
+            ["varliklar", t("sekme.varliklar"), PiggyBank],
           ].map(([k, ad, Ikon]) => (
             <button
               key={k}
@@ -3269,21 +3269,21 @@ export default function BorcTakip() {
               if (misafir) window.location.assign("/register");
               else setAsistanPenceresi(true);
             }}
-            aria-label="Borcama'ya sor"
+            aria-label={t("kabuk.sor")}
           >
             <Sparkles aria-hidden="true" />
-            <span>Borcama'ya sor</span>
+            <span>{t("kabuk.sor")}</span>
           </button>
         </nav>
 
 
         {anaSekme === "borclar" && (
-          <nav className="bt-nav bt-nav-alt" aria-label="Borç bölümleri">
+          <nav className="bt-nav bt-nav-alt" aria-label={t("kabuk.borcNav.aria")}>
             {[
-              ["cards", "Kartlar"],
-              ["loans", "Krediler"],
-              ["od", "Ek Hesap"],
-              ["plan", "Borç Planı"],
+              ["cards", t("kabuk.borcNav.kartlar")],
+              ["loans", t("kabuk.borcNav.krediler")],
+              ["od", t("kabuk.borcNav.ekHesap")],
+              ["plan", t("kabuk.borcNav.plan")],
             ].map(([k, ad]) => {
               const aktif =
                 k === "plan"
@@ -3312,12 +3312,12 @@ export default function BorcTakip() {
         )}
 
         {anaSekme === "hareketler" && (
-          <nav className="bt-nav bt-nav-alt" aria-label="Para hareketleri">
+          <nav className="bt-nav bt-nav-alt" aria-label={t("kabuk.hareketNav.aria")}>
             {[
-              ["odemeler", "Ödemeler"],
-              ["sabit-giderler", "Sabit Giderler"],
-              ["harcamalar", "Harcamalar"],
-              ["sabit-gelirler", "Sabit Gelirler"],
+              ["odemeler", t("kabuk.hareketNav.odemeler")],
+              ["sabit-giderler", t("kabuk.hareketNav.sabitGiderler")],
+              ["harcamalar", t("kabuk.hareketNav.harcamalar")],
+              ["sabit-gelirler", t("kabuk.hareketNav.sabitGelirler")],
             ].map(([k, ad]) => (
               <button
                 key={k}
@@ -3346,18 +3346,20 @@ export default function BorcTakip() {
         })()}
 
         {trialHatirlaticiAcik && (
-          <section className="bt-trial-son" aria-label="Pro denemesi bitiş hatırlatması">
+          <section className="bt-trial-son" aria-label={t("kabuk.trial.aria")}>
             <div className="bt-trial-son-ikon">
               <Sparkles size={19} aria-hidden="true" />
             </div>
             <div>
               <strong>
-                Pro denemenin bitmesine {reklamsiz.trialKalanGun} gün kaldı
+                {t(
+                  reklamsiz.trialKalanGun === 1
+                    ? "kabuk.trial.baslikTekil"
+                    : "kabuk.trial.baslikCogul",
+                  { gun: reklamsiz.trialKalanGun },
+                )}
               </strong>
-              <p>
-                Kişisel önerileri ve gelişmiş analizleri kullanmaya devam etmek
-                istersen planını şimdi seçebilirsin.
-              </p>
+              <p>{t("kabuk.trial.aciklama")}</p>
             </div>
             <div className="bt-trial-son-actions">
               <button
@@ -3365,21 +3367,21 @@ export default function BorcTakip() {
                 type="button"
                 onClick={() => setProPenceresiAcik(true)}
               >
-                Pro ile devam et
+                {t("kabuk.trial.devam")}
               </button>
               <button
                 className="bt-trial-son-kapat"
                 type="button"
                 onClick={trialHatirlaticiyiKapat}
               >
-                Şimdilik değil
+                {t("kabuk.trial.simdilikDegil")}
               </button>
             </div>
           </section>
         )}
 
         {yukleniyor ? (
-          <div className="bt-bos">Verileriniz yükleniyor…</div>
+          <div className="bt-bos">{t("kabuk.yukleniyor")}</div>
         ) : (
           <>
             {hata && (
@@ -3574,7 +3576,7 @@ export default function BorcTakip() {
             setForm({ liste: "expenses", veri: {} });
             setHizliMenuAcik(false);
           }}>
-            <Plus /><span><strong>Harcama ekle</strong><small>Tutarı ve ödeme kaynağını kaydet.</small></span>
+            <Plus /><span><strong>{t("kabuk.hizli.harcama")}</strong><small>{t("kabuk.hizli.harcamaAlt")}</small></span>
           </button>
           <button type="button" role="menuitem" onClick={() => {
             setOdemeFiltresi("bekleyen");
@@ -3582,7 +3584,7 @@ export default function BorcTakip() {
             setForm(null);
             setHizliMenuAcik(false);
           }}>
-            <CalendarCheck /><span><strong>Ödeme gir</strong><small>Bekleyen kart veya kredi ödemesini seç.</small></span>
+            <CalendarCheck /><span><strong>{t("kabuk.hizli.odeme")}</strong><small>{t("kabuk.hizli.odemeAlt")}</small></span>
           </button>
           <button type="button" role="menuitem" onClick={() => {
             setBorcKategori("cards");
@@ -3590,7 +3592,7 @@ export default function BorcTakip() {
             setForm(null);
             setHizliMenuAcik(false);
           }}>
-            <ReceiptText /><span><strong>Ekstre ekle</strong><small>Kartını seçip yeni dönem ekstresini gir.</small></span>
+            <ReceiptText /><span><strong>{t("kabuk.hizli.ekstre")}</strong><small>{t("kabuk.hizli.ekstreAlt")}</small></span>
           </button>
           <button type="button" role="menuitem" onClick={() => {
             setBorcKategori("cards");
@@ -3598,20 +3600,20 @@ export default function BorcTakip() {
             setForm(null);
             setHizliMenuAcik(false);
           }}>
-            <Wallet /><span><strong>Yeni borç ekle</strong><small>Kart, kredi veya ek hesap türünü seç.</small></span>
+            <Wallet /><span><strong>{t("kabuk.hizli.yeniBorc")}</strong><small>{t("kabuk.hizli.yeniBorcAlt")}</small></span>
           </button>
         </div>
       )}
       <button
         className="bt-quick-add"
         type="button"
-        aria-label={hizliMenuAcik ? "Hızlı işlemleri kapat" : "Hızlı işlem ekle"}
+        aria-label={hizliMenuAcik ? t("kabuk.hizli.kapat") : t("kabuk.hizli.ekle")}
         aria-expanded={hizliMenuAcik}
         aria-controls="bt-hizli-islemler"
-        title="Hızlı işlem ekle"
+        title={t("kabuk.hizli.ekle")}
         onClick={() => setHizliMenuAcik((acik) => !acik)}
       >
-        {hizliMenuAcik ? <X size={18} /> : <Plus size={18} />} <span>Hızlı işlem</span>
+        {hizliMenuAcik ? <X size={18} /> : <Plus size={18} />} <span>{t("kabuk.hizli.etiket")}</span>
       </button>
       {/* Geri bildirim dugmesi beta testi ozelligi olarak degerlendirildigi
           icin uygulama surumunde gosterilmiyor (Guideline 2.2). Tarayici
@@ -3853,7 +3855,7 @@ export default function BorcTakip() {
                   className="bt-h2"
                   style={{ marginBottom: 8 }}
                 >
-                  Parolan hazır.
+                  {t("kabuk.parola.hazir")}
                 </div>
                 <div
                   style={{
@@ -3862,8 +3864,7 @@ export default function BorcTakip() {
                     lineHeight: 1.55,
                   }}
                 >
-                  Bundan sonra giriş ekranından e-posta ve parolanla giriş
-                  yapabilirsin.
+                  {t("kabuk.parola.hazirAciklama")}
                   {!nativeMi && " E-posta linki seçeneği de kullanılmaya devam edecek."}
                 </div>
                 <div className="bt-form-butonlar">
@@ -3872,7 +3873,7 @@ export default function BorcTakip() {
                     type="button"
                     onClick={parolaPenceresiniKapat}
                   >
-                    Tamam
+                    {t("ortak.tamam")}
                   </button>
                 </div>
               </>
@@ -3883,7 +3884,7 @@ export default function BorcTakip() {
                   className="bt-h2"
                   style={{ marginBottom: 8 }}
                 >
-                  <KeyRound size={19} /> Parola belirle veya değiştir
+                  <KeyRound size={19} /> {t("kabuk.parola.baslik")}
                 </div>
                 <div
                   style={{
@@ -3893,8 +3894,7 @@ export default function BorcTakip() {
                     marginBottom: 16,
                   }}
                 >
-                  En az 8 karakterli bir parola belirle. Parolan Supabase
-                  tarafından güvenli biçimde saklanır.
+                  {t("kabuk.parola.aciklama")}
                 </div>
                 {parolaDurumu.hata && (
                   <div
@@ -3911,7 +3911,7 @@ export default function BorcTakip() {
                   </div>
                 )}
                 <label className="bt-alan" style={{ display: "grid" }}>
-                  Yeni parola
+                  {t("kabuk.parola.yeni")}
                   <div style={{ position: "relative" }}>
                     <input
                       className="bt-input"
@@ -3933,8 +3933,8 @@ export default function BorcTakip() {
                       type="button"
                       aria-label={
                         parolaFormu.gorunur
-                          ? "Parolayı gizle"
-                          : "Parolayı göster"
+                          ? t("kabuk.parola.gizle")
+                          : t("kabuk.parola.goster")
                       }
                       onClick={() =>
                         setParolaFormu({
@@ -3955,7 +3955,7 @@ export default function BorcTakip() {
                   className="bt-alan"
                   style={{ display: "grid", marginTop: 12 }}
                 >
-                  Yeni parola tekrar
+                  {t("kabuk.parola.yeniTekrar")}
                   <input
                     className="bt-input"
                     type={parolaFormu.gorunur ? "text" : "password"}
@@ -3974,15 +3974,15 @@ export default function BorcTakip() {
                   >
                     <KeyRound size={14} />
                     {parolaDurumu.kaydediliyor
-                      ? "Kaydediliyor…"
-                      : "Parolayı kaydet"}
+                      ? t("ortak.kaydediliyor")
+                      : t("kabuk.parola.kaydet")}
                   </button>
                   <button
                     className="bt-btn ikincil"
                     type="button"
                     onClick={parolaPenceresiniKapat}
                   >
-                    Vazgeç
+                    {t("ortak.vazgec")}
                   </button>
                 </div>
               </>
@@ -3997,56 +3997,56 @@ export default function BorcTakip() {
 const REHBER_ADIMLARI = [
   {
     hedef: "ozet",
-    etiket: "Başlangıç",
-    baslik: "Finansal durumun tek bir yerde.",
+    etiket: t("kabuk.rehber.0.etiket"),
+    baslik: t("kabuk.rehber.0.baslik"),
     aciklama:
-      "Borcama; borçlarını, ödeme takvimini, hareketlerini ve varlıklarını aynı görünümde toplar. Rehber boyunca gerçek ekranlar arasında ilerleyeceksin.",
+      t("kabuk.rehber.0.aciklama"),
     maddeler: [
-      "Toplam borcunu ve bu ay ödenecekleri gör",
-      "Kalan borç ile varlıklarını birlikte takip et",
+      t("kabuk.rehber.0.madde1"),
+      t("kabuk.rehber.0.madde2"),
     ],
-    kartBaslik: "Bugünkü görünüm",
-    kartDeger: "Tek net tablo",
-    kartAlt: "Borçlar · Ödemeler · Varlıklar",
+    kartBaslik: t("kabuk.rehber.0.kartBaslik"),
+    kartDeger: t("kabuk.rehber.0.kartDeger"),
+    kartAlt: t("kabuk.rehber.0.kartAlt"),
     satirlar: [
-      ["Yaklaşan ödemeler", "Takvimde"],
-      ["Finansal ilerleme", "Görünür"],
+      [t("kabuk.rehber.0.satir1"), t("kabuk.rehber.0.satir1Deger")],
+      [t("kabuk.rehber.0.satir2"), t("kabuk.rehber.0.satir2Deger")],
     ],
   },
   {
     hedef: "borclar",
-    etiket: "Borçlar",
-    baslik: "Önce borç kaynaklarını ekle.",
+    etiket: t("kabuk.rehber.1.etiket"),
+    baslik: t("kabuk.rehber.1.baslik"),
     aciklama:
-      "Kredi kartı, kredi ve ek hesap bilgilerini bir kez tanımla. Sonraki aylarda yalnızca yeni ekstreyi ve yaptığın ödemeyi girmen yeterli.",
+      t("kabuk.rehber.1.aciklama"),
     maddeler: [
-      "Kart limiti, kesim günü ve son ödeme gününü kaydet",
-      "Yeni ekstreleri dönem dönem ekle ve geçmişe dön",
+      t("kabuk.rehber.1.madde1"),
+      t("kabuk.rehber.1.madde2"),
     ],
-    kartBaslik: "Kredi kartı",
-    kartDeger: "Yeni ekstre",
-    kartAlt: "Dönem ve kalan borç birlikte",
+    kartBaslik: t("kabuk.rehber.1.kartBaslik"),
+    kartDeger: t("kabuk.rehber.1.kartDeger"),
+    kartAlt: t("kabuk.rehber.1.kartAlt"),
     satirlar: [
-      ["Gerçek ekstre", "₺ 42.600"],
-      ["Kalan borç", "₺ 18.400"],
+      [t("kabuk.rehber.1.satir1"), t("kabuk.rehber.1.satir1Deger")],
+      [t("kabuk.rehber.1.satir2"), t("kabuk.rehber.1.satir2Deger")],
     ],
   },
   {
     hedef: "odemeler",
-    etiket: "Ödemeler",
-    baslik: "İlk planın ödeme kaydıyla güncellensin.",
+    etiket: t("kabuk.rehber.2.etiket"),
+    baslik: t("kabuk.rehber.2.baslik"),
     aciklama:
-      "Bekleyen ödemeleri tek listede gör. Kart ödemeni minimum, kısmi veya tamamı olarak gir; kalan tutarlar kendiliğinden güncellensin.",
+      t("kabuk.rehber.2.aciklama"),
     maddeler: [
-      "Toplam borç ile zorunlu minimumu ayrı gör",
-      "Ödeme kayıtlarını geçmişte dönem bazında kontrol et",
+      t("kabuk.rehber.2.madde1"),
+      t("kabuk.rehber.2.madde2"),
     ],
-    kartBaslik: "Aylık ödeme listesi",
-    kartDeger: "%50 tamamlandı",
-    kartAlt: "Yapılan ve kalan ödeme",
+    kartBaslik: t("kabuk.rehber.2.kartBaslik"),
+    kartDeger: t("kabuk.rehber.2.kartDeger"),
+    kartAlt: t("kabuk.rehber.2.kartAlt"),
     satirlar: [
-      ["Toplam minimum", "₺ 12.840"],
-      ["Kalan ödeme", "₺ 24.200"],
+      [t("kabuk.rehber.2.satir1"), t("kabuk.rehber.2.satir1Deger")],
+      [t("kabuk.rehber.2.satir2"), t("kabuk.rehber.2.satir2Deger")],
     ],
   },
 ];
