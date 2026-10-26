@@ -39,6 +39,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
+    // iPhone Duo katlanip acilinca, yarim katliyken, Split View'de ve
+    // dondurmede pencere geometrisi degisir. Sekme cubugu pencereye bagli
+    // kisitlarla zaten yeniden yerlesiyor; burada guvenli alana bagli
+    // kaymanin ve web'e bildirilen yuksekligin de hemen guncellenmesi
+    // saglaniyor. Cihaz yonelimine bakilmiyor; yalniz pencere olculeri.
+    @available(iOS 26.0, *)
+    func windowScene(_ windowScene: UIWindowScene,
+                     didUpdateEffectiveGeometry previousEffectiveGeometry: UIWindowScene.Geometry) {
+        (window?.rootViewController as? BorcamaBridgeViewController)?.pencereGeometrisiDegisti()
+    }
+
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
     }
