@@ -30,6 +30,8 @@ export const tr = {
   "plan.kirilim.diger": "Gecikmiş / diğer",
   "plan.gecikmeTekil": "{n} kart vadesi geçmiş, bunlardan ayda {tutar} gecikme faizi işliyor",
   "plan.gecikmeCogul": "{n} kart vadesi geçmiş, bunlardan ayda {tutar} gecikme faizi işliyor",
+  "plan.gecikmeFaizsizTekil": "{n} kart vadesi geçmiş; faiz oranı girilmediği için gecikme faizi hesaplanmıyor",
+  "plan.gecikmeFaizsizCogul": "{n} kart vadesi geçmiş; faiz oranı girilmediği için gecikme faizi hesaplanmıyor",
 
   "plan.not.baslik": "Bu bir aylık plan tahminidir.",
   "plan.not.metin":
@@ -217,6 +219,8 @@ export const en = {
   "plan.kirilim.diger": "Overdue / other",
   "plan.gecikmeTekil": "{n} card is past due and accrues {tutar} in late-payment interest per month",
   "plan.gecikmeCogul": "{n} cards are past due and accrue {tutar} in late-payment interest per month",
+  "plan.gecikmeFaizsizTekil": "{n} card is past due; no interest rate entered, so late-payment interest isn't calculated",
+  "plan.gecikmeFaizsizCogul": "{n} cards are past due; no interest rate entered, so late-payment interest isn't calculated",
 
   "plan.not.baslik": "This is a monthly plan estimate.",
   "plan.not.metin":

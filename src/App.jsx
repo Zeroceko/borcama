@@ -1787,7 +1787,7 @@ export default function BorcTakip() {
   // yuklenene kadar bekler; gosterilip sonra kaybolmaz.
   const proSatisBekleniyor = nativeMi && proSatisDurumu === null && proPaketler.yukleniyor;
   const etkinPro = planOnizlemesiAktif
-    ? demoPlan === "pro"
+    ? demoPlan === "pro" || proSatistaDegil
     : reklamsiz.proAktif || proSatistaDegil;
   const demoPlaniDegistir = (plan) => {
     setDemoPlan(plan);
@@ -10552,10 +10552,13 @@ function BorclarSatiri({
         gecikmeOrani,
         gecikenGun,
       );
-      altYazi = t(
-        gecikenGun === 1 ? "borcSatir.kart.gecikmeTekil" : "borcSatir.kart.gecikmeCogul",
-        { n: gecikenGun, faiz: fmt(birikenFaiz) },
-      );
+      // TRY disinda oran girilmemisse faiz tutari gosterilmez (varsayim yok).
+      altYazi = gecikmeOrani > 0
+        ? t(
+            gecikenGun === 1 ? "borcSatir.kart.gecikmeTekil" : "borcSatir.kart.gecikmeCogul",
+            { n: gecikenGun, faiz: fmt(birikenFaiz) },
+          )
+        : t(gecikenGun === 1 ? "borcSatir.kart.gecikmeFaizsizTekil" : "borcSatir.kart.gecikmeFaizsizCogul", { n: gecikenGun });
     }
     tutarEtiketi = ekstreVar ? durumMetni : null;
     kartDetay = ekstreVar
@@ -11073,7 +11076,11 @@ function GecikmisBorcSatiri({ g, i }) {
           {t("borcSatir.kalanBorc")}
         </div>
         <div className="bt-satir-alt">
-          {g.durum === "devreden"
+          {g.oran === 0 && g.id.startsWith("kart-")
+            ? g.durum === "devreden"
+              ? t("borcSatir.kart.asgariOdendi")
+              : t(g.gun === 1 ? "borcSatir.kart.gecikmeFaizsizTekil" : "borcSatir.kart.gecikmeFaizsizCogul", { n: g.gun })
+            : g.durum === "devreden"
             ? t("borcSatir.gecikmis.asgariOdendi", { faiz: fmt(g.faiz) })
             : t(g.gun === 1 ? "borcSatir.gecikmis.gecikmeTekil" : "borcSatir.gecikmis.gecikmeCogul", {
                 n: g.gun,
@@ -11275,10 +11282,12 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
         </div>
         {gecikmisler.length > 0 && (
           <div className="bt-plan-gecikme">
-            {t(gecikmisler.length === 1 ? "plan.gecikmeTekil" : "plan.gecikmeCogul", {
-              n: gecikmisler.length,
-              tutar: fmt0(gecikmisFaiz),
-            })}
+            {gecikmisler.every((k) => k.faizBilinmiyor)
+              ? t(gecikmisler.length === 1 ? "plan.gecikmeFaizsizTekil" : "plan.gecikmeFaizsizCogul", { n: gecikmisler.length })
+              : t(gecikmisler.length === 1 ? "plan.gecikmeTekil" : "plan.gecikmeCogul", {
+                  n: gecikmisler.length,
+                  tutar: fmt0(gecikmisFaiz),
+                })}
           </div>
         )}
       </section>
