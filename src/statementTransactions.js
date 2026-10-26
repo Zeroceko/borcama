@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 function normalizeStatementText(value = "") {
   return String(value).replace(/İ/g, "I").replace(/ı/g, "i").normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "").replace(/[‐‑‒–—]/g, "-").replace(/\u00a0/g, " ").toLowerCase();
@@ -52,7 +54,7 @@ function isoDate(raw) {
 
 export function formatStatementTransactionDate(value = "") {
   const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return "Tarih okunamadı";
+  if (!match) return t("ekstre.tarihOkunamadi");
   return `${match[3]}.${match[2]}.${match[1]}`;
 }
 

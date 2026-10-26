@@ -1,4 +1,5 @@
 import { parseStatementText } from "./statementParser.js";
+import { t } from "./i18n.js";
 
 const MAX_FILE_SIZE = 12 * 1024 * 1024;
 const OCR_WORKER = "https://cdn.jsdelivr.net/npm/tesseract.js@v7.0.0/dist/worker.min.js";
@@ -9,18 +10,18 @@ const OCR_CORE = "https://cdn.jsdelivr.net/npm/tesseract.js-core@v7.0.0";
 const PDF_ASSET_ROOT = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38";
 
 function assertFile(file) {
-  if (!file) throw new Error("Bir ekstre dosyası seçin.");
-  if (file.size > MAX_FILE_SIZE) throw new Error("Dosya en fazla 12 MB olabilir.");
+  if (!file) throw new Error(t("ekstre.hata.dosyaSecin"));
+  if (file.size > MAX_FILE_SIZE) throw new Error(t("ekstre.hata.boyut"));
   const acceptedTypes = ["application/pdf", "image/png", "image/jpeg"];
   const acceptedExtension = /\.(pdf|png|jpe?g)$/i.test(file.name || "");
   if (!acceptedTypes.includes(file.type) && !acceptedExtension)
-    throw new Error("PDF, PNG veya JPG formatında bir dosya seçin.");
+    throw new Error(t("ekstre.hata.format"));
 }
 
 async function canvasBlob(canvas) {
   return new Promise((resolve, reject) =>
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Sayfa görüntüsü hazırlanamadı."))),
+      (blob) => (blob ? resolve(blob) : reject(new Error(t("ekstre.hata.sayfaGoruntusu")))),
       "image/png",
       0.94,
     ),

@@ -7078,9 +7078,9 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
         );
       setError(
         isPdfCompatibilityError
-          ? `PDF bu ${ortamSozcugu} hazırlanamadı. ${yenilemeYonergesi} tekrar deneyin.`
+          ? t("ekstre.pdfHazirlanamadi", { ortam: ortamSozcugu, yenileme: yenilemeYonergesi })
           : technicalMessage ||
-              "Ekstre okunamadı. Lütfen başka bir dosya deneyin.",
+              t("ekstre.okunamadi"),
       );
     } finally {
       setBusy(false);
@@ -7099,12 +7099,12 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
     : 0;
   const stageLabel =
     progress?.stage === "render"
-      ? `PDF sayfası hazırlanıyor (${progress.page}/${progress.pages})`
+      ? t("ekstre.asama.render", { sayfa: progress.page, toplam: progress.pages })
       : progress?.stage === "done"
-        ? "Ekstre okundu"
+        ? t("ekstre.asama.bitti")
         : progress?.stage === "prepare"
-          ? "Dosya hazırlanıyor"
-          : `Ekstre okunuyor (${progress?.page || 1}/${progress?.pages || 1})`;
+          ? t("ekstre.asama.hazirlik")
+          : t("ekstre.asama.okuma", { sayfa: progress?.page || 1, toplam: progress?.pages || 1 });
 
   const canUse =
     result &&
@@ -7132,17 +7132,17 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
         <div className="bt-extract-head">
           <div>
             <div id="ekstre-yukle-baslik" className="bt-h2" style={{ margin: "4px 0 6px" }}>
-              Ekstreni cihazında güvenle oku
+              {t("ekstre.baslik")}
             </div>
             <div style={{ color: "var(--dim)", fontSize: 12, lineHeight: 1.5 }}>
-              Borcama yalnızca onayladığın özet rakamlarını ve harcama kalemlerini hesabına kaydeder.
+              {t("ekstre.aciklama")}
             </div>
           </div>
           {result && (
             <div className={`bt-confidence${result.blockingErrors?.length ? " hata" : ""}`}>
               {result.blockingErrors?.length
-                ? "Kontrol gerekli"
-                : `Alan eşleşmesi %${result.confidence}`}
+                ? t("ekstre.kontrolGerekli")
+                : t("ekstre.alanEslesmesi", { oran: result.confidence })}
             </div>
           )}
         </div>
@@ -7152,15 +7152,14 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
             <div className="bt-privacy-first" role="note">
               <span><ShieldCheck size={22} /></span>
               <div>
-                <strong>Dosyan Borcama'ya yüklenmez</strong>
+                <strong>{t("ekstre.gizlilik.baslik")}</strong>
                 <p>
-                  PDF veya görsel bu {ortamSozcugu} okunur. Belgenin kendisi, tam
-                  kart numarası ve belgenin ham hali sunucuda saklanmaz.
+                  {t("ekstre.gizlilik.metin", { ortam: ortamSozcugu })}
                 </p>
-                <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
-                  <span>Cihazında okunur</span>
-                  <span>Ham belge saklanmaz</span>
-                  <span>Kaydetmeden önce sen onaylarsın</span>
+                <div className="bt-privacy-first-list" aria-label={t("ekstre.gizlilik.ozet")}>
+                  <span>{t("ekstre.gizlilik.cihazda")}</span>
+                  <span>{t("ekstre.gizlilik.hamSaklanmaz")}</span>
+                  <span>{t("ekstre.gizlilik.onay")}</span>
                 </div>
               </div>
             </div>
@@ -7172,15 +7171,15 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
                 onChange={(event) => handleFile(event.target.files?.[0])}
               />
               <span className="bt-upload-icon"><Upload size={24} /></span>
-              <strong>{busy ? stageLabel : "Cihazından PDF, JPG veya PNG seç"}</strong>
+              <strong>{busy ? stageLabel : t("ekstre.dosyaSec")}</strong>
               <span style={{ marginTop: 6, color: "var(--dim)", fontSize: 11.5 }}>
-                En fazla 12 MB. PDF'lerde özet için ilk iki sayfa cihazında okunur.
+                {t("ekstre.dosyaSinir")}
               </span>
             </label>
             {onManual && (
               <div className="bt-upload-manual">
                 <button className="bt-btn ikincil kucuk" type="button" onClick={onManual}>
-                  <Pencil size={14} /> Dosya seçmeden manuel gir
+                  <Pencil size={14} /> {t("ekstre.manuel")}
                 </button>
               </div>
             )}
@@ -7189,7 +7188,7 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
 
         {(busy || progress) && !result && (
           <div>
-            <div className="bt-upload-progress" aria-label={`Yüzde ${totalProgress}`}>
+            <div className="bt-upload-progress" aria-label={t("ekstre.yuzde", { oran: totalProgress })}>
               <div style={{ width: `${Math.max(totalProgress, busy ? 4 : 0)}%` }} />
             </div>
             <div style={{ color: "var(--dim)", fontSize: 10.5 }}>{stageLabel}</div>
@@ -7213,91 +7212,91 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
                       {kartGorunenAdi(automaticCardMatch.card)}
                     </strong>
                     <small>
-                      Ekstre bu kartla otomatik eşleşti
+                      {t("ekstre.otomatikEslesti")}
                       {result.cardLast4 ? ` · •••• ${result.cardLast4}` : ""}
                     </small>
                   </span>
                   <button type="button" onClick={() => setAutomaticCardMatch(null)}>
-                    Değiştir
+                    {t("ekstre.degistir")}
                   </button>
                 </div>
               ) : (
                 <label className="genis">
-                  Hangi karta kaydedilecek?
+                  {t("ekstre.hangiKart")}
                   <select
                     className="bt-input"
                     value={selectedCard}
                     onChange={(event) => setSelectedCard(event.target.value)}
                   >
-                    <option value="">Kart seçin…</option>
+                    <option value="">{t("ekstre.kartSecin")}</option>
                     {cards.map((card) => (
                       <option key={card.id} value={card.id}>
                         {kartGorunenAdi(card)}
                       </option>
                     ))}
-                    <option value="__new__">Yeni kart oluştur</option>
+                    <option value="__new__">{t("ekstre.yeniKart")}</option>
                   </select>
                 </label>
               )}
               <label>
-                Banka
+                {t("ortak.banka")}
                 <input className="bt-input" value={result.bank || ""} onChange={(e) => update("bank", e.target.value)} />
               </label>
               <label>
-                Kart
+                {t("ekstre.alan.kart")}
                 <input className="bt-input" value={result.cardBrand || ""} onChange={(e) => update("cardBrand", e.target.value)} />
               </label>
               <label>
-                Ekstre dönemi
+                {t("ekstre.alan.donem")}
                 <input className="bt-input" type="month" value={result.statementPeriod || ""} onChange={(e) => update("statementPeriod", e.target.value)} />
               </label>
               <label>
-                Ekstre kesim tarihi
+                {t("ekstre.alan.kesim")}
                 <input className="bt-input" type="date" value={result.statementDate || ""} onChange={(e) => update("statementDate", e.target.value)} />
               </label>
               <label>
-                Son ödeme tarihi
+                {t("ekstre.alan.sonOdeme")}
                 <input className="bt-input" type="date" value={result.dueDate || ""} onChange={(e) => update("dueDate", e.target.value)} />
               </label>
               <label>
-                Kart limiti (₺)
+                {t("ekstre.alan.limit")}
                 <ParaInput className="bt-input" value={result.creditLimit ?? ""} onValueChange={(value) => update("creditLimit", value)} />
               </label>
               <label className="yarim">
-                Toplam ekstre borcu (₺)
+                {t("ekstre.alan.toplam")}
                 <ParaInput className="bt-input" value={result.statementTotal ?? ""} onValueChange={(value) => update("statementTotal", value)} />
               </label>
               <label className="yarim">
-                Asgari ödeme (₺)
+                {t("ekstre.alan.asgari")}
                 <ParaInput className="bt-input" value={result.minimumPayment ?? ""} onValueChange={(value) => update("minimumPayment", value)} />
               </label>
             </div>
 
             <details className="bt-extract-details">
-              <summary>Geçmişten devreden ve bu ekstreye ait borcu kontrol et</summary>
+              <summary>{t("ekstre.devreden.ozet")}</summary>
               <div className="bt-extract-grid">
                 <label>
-                  Önceki ekstre bakiyesi (₺)
+                  {t("ekstre.alan.onceki")}
                   <ParaInput className="bt-input" value={result.previousBalance ?? ""} onValueChange={(value) => update("previousBalance", value)} />
                 </label>
                 <label>
-                  Dönem içi ödemeler / iadeler (₺)
+                  {t("ekstre.alan.odemeler")}
                   <ParaInput className="bt-input" value={result.periodPayments ?? ""} onValueChange={(value) => update("periodPayments", value)} />
                 </label>
                 <label>
-                  Yeni harcama ve taksitler (₺)
+                  {t("ekstre.alan.yeniHarcama")}
                   <ParaInput className="bt-input" value={result.currentPurchases ?? ""} onValueChange={(value) => update("currentPurchases", value)} />
                 </label>
                 <label>
-                  Faiz, vergi ve ücretler (₺)
+                  {t("ekstre.alan.ucretler")}
                   <ParaInput className="bt-input" value={result.fees ?? ""} onValueChange={(value) => update("fees", value)} />
                 </label>
                 <label>
-                  Borcama'da devreden gösterilecek (₺)
+                  {t("ekstre.alan.devreden")}
                   <ParaInput className="bt-input" value={result.carriedBalance ?? ""} onValueChange={(value) => update("carriedBalance", value)} />
                 </label>
                 <label>
-                  Bu ekstre döneminde oluşan borç (₺)
+                  {t("ekstre.alan.donemBorcu")}
                   <ParaInput className="bt-input" value={result.currentPeriodDebt ?? ""} onValueChange={(value) => update("currentPeriodDebt", value)} />
                 </label>
               </div>
@@ -7307,12 +7306,15 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
               <details className="bt-extract-details bt-transaction-review" open>
                 <summary>
                   <span>
-                    Harcama kalemlerini kontrol et
+                    {t("ekstre.kalemler.baslik")}
                     <small>
-                      {result.transactions.filter((item) => item.selected).length} kalem · {fmt(
-                        result.transactions.filter((item) => item.selected)
-                          .reduce((sum, item) => sum + (+item.amount || 0), 0),
-                      )}
+                      {(() => {
+                        const secilenler = result.transactions.filter((item) => item.selected);
+                        return t(secilenler.length === 1 ? "ekstre.kalemler.sayiTekil" : "ekstre.kalemler.sayiCogul", {
+                          n: secilenler.length,
+                          tutar: fmt(secilenler.reduce((sum, item) => sum + (+item.amount || 0), 0)),
+                        });
+                      })()}
                     </small>
                   </span>
                 </summary>
@@ -7320,24 +7322,24 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
                   {result.transactions.map((item) => (
                     <div className={`bt-transaction-row${item.selected ? "" : " disarida"}`} key={item.key}>
                       <input type="checkbox" checked={item.selected}
-                        aria-label={`${item.description} kalemini dahil et`}
+                        aria-label={t("ekstre.kalem.dahilEt", { ad: item.description })}
                         onChange={(event) => updateTransaction(item.key, { selected: event.target.checked })} />
                       <div><strong>{item.description}</strong><small>{formatStatementTransactionDate(item.date)}</small></div>
                       <select className="bt-input" value={item.category}
-                        aria-label={`${item.description} kategorisi`}
+                        aria-label={t("ekstre.kalem.kategori", { ad: item.description })}
                         onChange={(event) => updateTransaction(item.key, { category: event.target.value })}>
-                        {KATEGORILER.map((category) => <option key={category}>{category}</option>)}
+                        {KATEGORILER.map((category) => <option key={category} value={category}>{tDeger(category)}</option>)}
                       </select>
                       <strong>{fmt(item.amount)}</strong>
                     </div>
                   ))}
                   <div className={`bt-transaction-coverage${result.coverage !== null && Math.abs(result.coverage - 100) > 3 ? " kontrol" : ""}`}>
-                    <span>Bulunan: <strong>{fmt(result.detectedTotal)}</strong></span>
-                    {result.currentPurchases !== null && <span>Ekstre toplamı: <strong>{fmt(result.currentPurchases)}</strong></span>}
-                    {result.coverage !== null && <span>Eşleşme: <strong>%{result.coverage}</strong></span>}
+                    <span>{t("ekstre.kapsam.bulunan")} <strong>{fmt(result.detectedTotal)}</strong></span>
+                    {result.currentPurchases !== null && <span>{t("ekstre.kapsam.ekstreToplami")} <strong>{fmt(result.currentPurchases)}</strong></span>}
+                    {result.coverage !== null && <span>{t("ekstre.kapsam.eslesme")} <strong>{t("ekstre.kapsam.oran", { oran: result.coverage })}</strong></span>}
                   </div>
                   {result.coverage !== null && Math.abs(result.coverage - 100) > 3 && (
-                    <p className="bt-transaction-note">Tüm satırlar güvenle eşleşmedi. Listeyi kontrol et; emin olmadığın kalemleri kapatabilirsin.</p>
+                    <p className="bt-transaction-note">{t("ekstre.kapsam.not")}</p>
                   )}
                 </div>
               </details>
@@ -7355,7 +7357,7 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
 
             <div className="bt-privacy-note">
               <ShieldCheck size={15} />
-              <span>Belge bu cihazda okunur ve Borcama sunucusuna yüklenmez. Yalnızca onayladığın özet ve harcama kalemleri kaydedilir.</span>
+              <span>{t("ekstre.gizlilikNotu")}</span>
             </div>
 
             <div className="bt-form-butonlar">
@@ -7365,7 +7367,7 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
                 disabled={!canUse}
                 onClick={() => onUse(derive(result), selectedCard)}
               >
-                <Check size={14} /> Ekstreyi kaydet
+                <Check size={14} /> {t("ekstre.kaydet")}
               </button>
               <button
                 className="bt-btn ikincil"
@@ -7377,10 +7379,10 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
                   setAutomaticCardMatch(null);
                 }}
               >
-                Başka dosya seç
+                {t("ekstre.baskaDosya")}
               </button>
               <button className="bt-btn hayalet" type="button" onClick={onClose}>
-                <X size={14} /> Vazgeç
+                <X size={14} /> {t("ortak.vazgec")}
               </button>
             </div>
           </>
@@ -7388,7 +7390,7 @@ function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onMan
 
         {!busy && !result && (
           <button className="bt-btn hayalet" type="button" onClick={onClose} style={{ marginTop: 10 }}>
-            <X size={14} /> Vazgeç
+            <X size={14} /> {t("ortak.vazgec")}
           </button>
         )}
       </div>
@@ -7431,8 +7433,8 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
       const technicalMessage = String(caught?.message || "");
       setError(
         /getOrInsertComputed|Promise\.withResolvers|pdf\.worker/i.test(technicalMessage)
-          ? "PDF bu tarayıcıda hazırlanamadı. Sayfayı yenileyip tekrar deneyin."
-          : technicalMessage || "Ödeme planı okunamadı. Bankadan indirilen orijinal PDF'i deneyin.",
+          ? t("ekstre.plan.pdfHazirlanamadi")
+          : technicalMessage || t("ekstre.plan.okunamadi"),
       );
       setProgress(null);
     } finally {
@@ -7453,15 +7455,15 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
         <div className="bt-extract-head">
           <div>
             <div id="kredi-plani-yukle-baslik" className="bt-h2" style={{ margin: "4px 0 6px" }}>
-              Kredi ödeme planını cihazında oku
+              {t("ekstre.plan.baslik")}
             </div>
             <div style={{ color: "var(--dim)", fontSize: 12, lineHeight: 1.5 }}>
-              Bankayı ve kalan ödeme planını çıkarır; sen onaylamadan hiçbir kayıt oluşturmaz.
+              {t("ekstre.plan.aciklama")}
             </div>
           </div>
           {result && (
             <div className={`bt-confidence${result.blockingErrors?.length ? " hata" : ""}`}>
-              {result.blockingErrors?.length ? "Kontrol gerekli" : `Alan eşleşmesi %${result.confidence}`}
+              {result.blockingErrors?.length ? t("ekstre.kontrolGerekli") : t("ekstre.alanEslesmesi", { oran: result.confidence })}
             </div>
           )}
         </div>
@@ -7471,19 +7473,19 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
             <div className="bt-privacy-first" role="note">
               <span><ShieldCheck size={22} /></span>
               <div>
-                <strong>PDF Borcama'ya yüklenmez</strong>
-                <p>Belge bu tarayıcıda okunur. Ham PDF, hesap numarası ve kişisel bilgiler sunucuda saklanmaz.</p>
-                <div className="bt-privacy-first-list" aria-label="Gizlilik özeti">
-                  <span>Cihazında okunur</span><span>Ham belge saklanmaz</span><span>Kaydetmeden önce sen onaylarsın</span>
+                <strong>{t("ekstre.plan.gizlilikBaslik")}</strong>
+                <p>{t("ekstre.plan.gizlilikMetin")}</p>
+                <div className="bt-privacy-first-list" aria-label={t("ekstre.gizlilik.ozet")}>
+                  <span>{t("ekstre.gizlilik.cihazda")}</span><span>{t("ekstre.gizlilik.hamSaklanmaz")}</span><span>{t("ekstre.gizlilik.onay")}</span>
                 </div>
               </div>
             </div>
             <label className="bt-upload-zone">
               <input type="file" accept="application/pdf" disabled={busy} onChange={(event) => handleFile(event.target.files?.[0])} />
               <span className="bt-upload-icon"><Upload size={24} /></span>
-              <strong>{busy ? "Ödeme planı okunuyor" : "Cihazından ödeme planı PDF'i seç"}</strong>
+              <strong>{busy ? t("ekstre.plan.okunuyor") : t("ekstre.plan.dosyaSec")}</strong>
               <span style={{ marginTop: 6, color: "var(--dim)", fontSize: 11.5 }}>
-                En fazla 12 MB. Bankadan indirilen, metin içeren PDF kullan.
+                {t("ekstre.plan.dosyaSinir")}
               </span>
             </label>
           </>
@@ -7491,11 +7493,11 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
 
         {(busy || progress) && !result && (
           <div>
-            <div className="bt-upload-progress" aria-label={`Yüzde ${totalProgress}`}>
+            <div className="bt-upload-progress" aria-label={t("ekstre.yuzde", { oran: totalProgress })}>
               <div style={{ width: `${Math.max(totalProgress, busy ? 4 : 0)}%` }} />
             </div>
             <div style={{ color: "var(--dim)", fontSize: 10.5 }}>
-              {progress?.stage === "read" ? `PDF okunuyor (${progress.page}/${progress.pages})` : "Dosya hazırlanıyor"}
+              {progress?.stage === "read" ? t("ekstre.plan.pdfOkunuyor", { sayfa: progress.page, toplam: progress.pages }) : t("ekstre.asama.hazirlik")}
             </div>
           </div>
         )}
@@ -7506,42 +7508,42 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
           <>
             <div className="bt-extract-grid">
               <label className="genis">
-                Nereye kaydedilecek?
+                {t("ekstre.plan.nereye")}
                 <select className="bt-input" value={selectedLoan} onChange={(event) => setSelectedLoan(event.target.value)}>
-                  <option value="__new__">Yeni kredi oluştur</option>
-                  {loans.map((loan) => <option key={loan.id} value={loan.id}>{loan.banka} · {loan.ad || "Kredi"}</option>)}
+                  <option value="__new__">{t("ekstre.plan.yeniKredi")}</option>
+                  {loans.map((loan) => <option key={loan.id} value={loan.id}>{loan.banka} · {loan.ad || t("ekstre.plan.krediVarsayilan")}</option>)}
                 </select>
                 <small className="bt-field-help">
-                  Her yeni PDF ayrı kredi olarak eklenir. Yalnız mevcut bir krediyi güncellemek istiyorsan listeden onu seç.
+                  {t("ekstre.plan.hedefYardim")}
                 </small>
               </label>
-              <label>Banka<input className="bt-input" value={result.bank || ""} onChange={(event) => update("bank", event.target.value)} /></label>
-              <label>Kredi türü<input className="bt-input" value={result.productName || ""} onChange={(event) => update("productName", event.target.value)} /></label>
-              <label>Kalan anapara (₺)<ParaInput className="bt-input" value={result.remainingPrincipal ?? ""} onValueChange={(value) => update("remainingPrincipal", value)} /></label>
-              <label>Aylık taksit (₺)<ParaInput className="bt-input" value={result.installment ?? ""} onValueChange={(value) => update("installment", value)} /></label>
-              <label>Kalan taksit<input className="bt-input" type="number" value={result.remainingInstallments ?? ""} onChange={(event) => update("remainingInstallments", event.target.value)} /></label>
-              <label>Aylık faiz (%)<input className="bt-input" type="number" step="0.01" value={result.monthlyInterestRate ?? ""} onChange={(event) => update("monthlyInterestRate", event.target.value)} /></label>
-              <label>Sonraki taksit tarihi<input className="bt-input" type="date" value={result.firstPaymentDate || ""} onChange={(event) => update("firstPaymentDate", event.target.value)} /></label>
-              <label>İlk kredi tutarı (₺)<ParaInput className="bt-input" value={result.originalPrincipal ?? ""} onValueChange={(value) => update("originalPrincipal", value)} /></label>
+              <label>{t("ortak.banka")}<input className="bt-input" value={result.bank || ""} onChange={(event) => update("bank", event.target.value)} /></label>
+              <label>{t("ekstre.plan.krediTuru")}<input className="bt-input" value={result.productName || ""} onChange={(event) => update("productName", event.target.value)} /></label>
+              <label>{t("ekstre.plan.kalanAnapara")}<ParaInput className="bt-input" value={result.remainingPrincipal ?? ""} onValueChange={(value) => update("remainingPrincipal", value)} /></label>
+              <label>{t("ekstre.plan.aylikTaksit")}<ParaInput className="bt-input" value={result.installment ?? ""} onValueChange={(value) => update("installment", value)} /></label>
+              <label>{t("ekstre.plan.kalanTaksit")}<input className="bt-input" type="number" value={result.remainingInstallments ?? ""} onChange={(event) => update("remainingInstallments", event.target.value)} /></label>
+              <label>{t("ekstre.plan.aylikFaiz")}<input className="bt-input" type="number" step="0.01" value={result.monthlyInterestRate ?? ""} onChange={(event) => update("monthlyInterestRate", event.target.value)} /></label>
+              <label>{t("ekstre.plan.sonrakiTaksit")}<input className="bt-input" type="date" value={result.firstPaymentDate || ""} onChange={(event) => update("firstPaymentDate", event.target.value)} /></label>
+              <label>{t("ekstre.plan.ilkTutar")}<ParaInput className="bt-input" value={result.originalPrincipal ?? ""} onValueChange={(value) => update("originalPrincipal", value)} /></label>
             </div>
 
-            <div className="bt-loan-plan-totals" aria-label="Kalan kredi ödeme özeti">
-              <div><span>Kalan anapara</span><strong>{fmt(result.remainingPrincipal)}</strong></div>
-              <div><span>Plana göre kalan toplam ödeme</span><strong>{fmt(result.remainingPaymentTotal)}</strong></div>
-              <div><span>Kalan faiz ve masraf</span><strong>{fmt(result.remainingFinancingCost)}</strong><small>Erken kapama tutarı değildir.</small></div>
+            <div className="bt-loan-plan-totals" aria-label={t("ekstre.plan.ozetAria")}>
+              <div><span>{t("ekstre.plan.kalanAnaparaKisa")}</span><strong>{fmt(result.remainingPrincipal)}</strong></div>
+              <div><span>{t("ekstre.plan.kalanToplam")}</span><strong>{fmt(result.remainingPaymentTotal)}</strong></div>
+              <div><span>{t("ekstre.plan.kalanFaiz")}</span><strong>{fmt(result.remainingFinancingCost)}</strong><small>{t("ekstre.plan.erkenKapamaDegil")}</small></div>
             </div>
 
             <details className="bt-extract-details">
-              <summary>Okunan ödeme satırlarını incele ({result.schedule.length})</summary>
+              <summary>{t("ekstre.plan.satirlar", { n: result.schedule.length })}</summary>
               <div className="bt-loan-plan-preview">
                 {result.schedule.slice(0, 5).map((row) => (
                   <div key={`${row.number}-${row.dueDate}`}>
-                    <span>{row.number}. taksit · {row.dueDate ? row.dueDate.split("-").reverse().join(".") : "Tarih okunamadı"}</span>
+                    <span>{t("ekstre.plan.taksitNo", { n: row.number })} · {row.dueDate ? row.dueDate.split("-").reverse().join(".") : t("ekstre.tarihOkunamadi")}</span>
                     <strong>{fmt(row.installment)}</strong>
-                    <small>Kalan anapara {fmt(row.remainingPrincipal)}</small>
+                    <small>{t("ekstre.plan.satirKalan", { tutar: fmt(row.remainingPrincipal) })}</small>
                   </div>
                 ))}
-                {result.schedule.length > 5 && <p>Toplam {result.schedule.length} satır okundu. İlk 5 satır gösteriliyor.</p>}
+                {result.schedule.length > 5 && <p>{t("ekstre.plan.toplamSatir", { n: result.schedule.length })}</p>}
               </div>
             </details>
 
@@ -7553,19 +7555,19 @@ function LoanPlanImportModal({ loans, onClose, onUse }) {
                 </div>
               </div>
             )}
-            <div className="bt-privacy-note"><ShieldCheck size={15} /><span>Gelecek taksitler ödeme yapılmış gibi işaretlenmez; yalnız plan olarak kaydedilir.</span></div>
+            <div className="bt-privacy-note"><ShieldCheck size={15} /><span>{t("ekstre.plan.not")}</span></div>
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" type="button" disabled={!canUse} onClick={() => onUse(result, selectedLoan)}>
-                <Check size={14} /> Planı onayla ve kaydet
+                <Check size={14} /> {t("ekstre.plan.kaydet")}
               </button>
               <button className="bt-btn ikincil" type="button" onClick={() => { setResult(null); setProgress(null); setError(""); }}>
-                Başka PDF seç
+                {t("ekstre.plan.baskaPdf")}
               </button>
-              <button className="bt-btn hayalet" type="button" onClick={onClose}><X size={14} /> Vazgeç</button>
+              <button className="bt-btn hayalet" type="button" onClick={onClose}><X size={14} /> {t("ortak.vazgec")}</button>
             </div>
           </>
         )}
-        {!busy && !result && <button className="bt-btn hayalet" type="button" onClick={onClose} style={{ marginTop: 10 }}><X size={14} /> Vazgeç</button>}
+        {!busy && !result && <button className="bt-btn hayalet" type="button" onClick={onClose} style={{ marginTop: 10 }}><X size={14} /> {t("ortak.vazgec")}</button>}
       </div>
     </div>
   );
@@ -7606,18 +7608,18 @@ function BorcKapatmaKutlamasi({ kutlama, kapat, kredilereGit }) {
         <div className="bt-kutlama-ikon" aria-hidden="true">
           <Gift size={38} />
         </div>
-        <h2 id="bt-kutlama-baslik">Bir borç daha bitti!</h2>
+        <h2 id="bt-kutlama-baslik">{t("ekstre.kutlama.baslik")}</h2>
         <p>
-          <strong>{kutlama.baslik}</strong> için ödeme tamamlandı. {kutlama.tur === "Kredi"
-            ? "Kredi, sayfanın altındaki kapatılan kredilere taşındı."
-            : "Ek hesabın açık kalıyor; yeniden kullandığında aynı hesaba yeni borç ekleyebilirsin."}
+          <Ceviri anahtar="ekstre.kutlama.tamamlandi" degerler={{ baslik: <strong>{kutlama.baslik}</strong> }} />{" "}{kutlama.tur === "Kredi"
+            ? t("ekstre.kutlama.kredi")
+            : t("ekstre.kutlama.ekHesap")}
         </p>
         <div className="bt-kutlama-actions">
           <button className="bt-btn birincil" type="button" onClick={kredilereGit}>
-            <Check size={15} /> {kutlama.tur === "Kredi" ? "Kapatılan krediyi gör" : "Ek hesabı gör"}
+            <Check size={15} /> {kutlama.tur === "Kredi" ? t("ekstre.kutlama.krediyiGor") : t("ekstre.kutlama.ekHesabiGor")}
           </button>
           <button className="bt-btn ikincil" type="button" onClick={kapat} autoFocus>
-            Tamam
+            {t("ortak.tamam")}
           </button>
         </div>
       </section>
@@ -7628,7 +7630,7 @@ function BorcKapatmaKutlamasi({ kutlama, kapat, kredilereGit }) {
 function KapatilanKrediSatiri({ kredi, index }) {
   const kapanisEtiketi = kredi.kapatildiTarihi
     ? new Date(kredi.kapatildiTarihi).toLocaleDateString(locale())
-    : "Tamamlandı";
+    : t("ekstre.kapatilan.tamamlandi");
   return (
     <div className="bt-kapatilan-kredi">
       <BankaRozeti
@@ -7642,12 +7644,12 @@ function KapatilanKrediSatiri({ kredi, index }) {
           {kredi.banka}{kredi.ad ? ` · ${kredi.ad}` : ""}
         </strong>
         <small>
-          {kredi.taksit ? `Aylık taksit ${fmt(kredi.taksit)} · ` : ""}
+          {kredi.taksit ? t("ekstre.kapatilan.aylikTaksit", { tutar: fmt(kredi.taksit) }) : ""}
           {kapanisEtiketi}
         </small>
       </div>
       <span className="bt-kapatilan-kredi-durum">
-        <Check size={12} /> Borç kapandı
+        <Check size={12} /> {t("ekstre.kapatilan.durum")}
       </span>
     </div>
   );
