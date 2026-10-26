@@ -7918,10 +7918,10 @@ function Borclar({
           : tcmbKartAzamiGecikmeFaizi(h.onceki || h.toplam);
         liste.push({
           id: "kart-" + k.id,
-          tur: minimumTamam ? "Devreden kart borcu" : "Gecikmiş kart borcu",
+          tur: minimumTamam ? t("borclar.gecikme.devredenKart") : t("borclar.gecikme.gecikmisKart"),
           durum: minimumTamam ? "devreden" : "gecikmis",
           banka: k.banka,
-          ad: k.ad || "Kredi kartı",
+          ad: k.ad || t("borclar.krediKarti"),
           tarih,
           gun,
           bakiye: h.toplam,
@@ -7942,9 +7942,9 @@ function Borclar({
         const oran = +k.faiz || 0;
         liste.push({
           id: "kredi-" + k.id,
-          tur: "Kredi taksiti",
+          tur: t("borclar.gecikme.krediTaksiti"),
           banka: k.banka,
-          ad: k.ad || "Kredi",
+          ad: k.ad || t("borclar.kredi"),
           tarih,
           gun,
           bakiye,
@@ -8055,96 +8055,96 @@ function Borclar({
     // Yeni kartta yalnız borcu görmek için gerekenler zorunlu; kart ve bu ayın
     // ekstresi tek formda birlikte oluşur. Ayrıntılar "Daha fazla bilgi"de.
     cards: form?.veri?.id ? [
-      { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "ad", e: "Kart adı (Bonus, World…)", t: "text", z: true },
-      { k: "limit", e: "Toplam kart limiti (₺)", t: "number", z: true, para: true },
-      { k: "kesimGunu", e: "Ekstre kesim günü", t: "number", z: true },
+      { k: "banka", e: t("ortak.banka"), t: "text", z: true },
+      { k: "ad", e: t("borclar.alan.kartAdi"), t: "text", z: true },
+      { k: "limit", e: t("borclar.alan.kartLimiti"), t: "number", z: true, para: true },
+      { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number", z: true },
       {
         k: "sonOdemeGunu",
-        e: "Son ödeme günü (ayın kaçı)",
+        e: t("borclar.alan.sonOdemeGunu"),
         t: "number",
         z: true,
       },
     ] : [
-      { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "yeniDonemEkstreBorcu", e: "Bu ayki ekstre borcun (₺)", t: "number", z: true, para: true, p: "Ekstrende yazan dönem borcu" },
-      { k: "sonOdemeGunu", e: "Son ödeme günü (ayın kaçı)", t: "number", z: true, p: "Örn. 15" },
-      { k: "ad", e: "Kart adı (Bonus, World…)", t: "text", ek: true },
-      { k: "limit", e: "Toplam kart limiti (₺)", t: "number", para: true, ek: true },
-      { k: "kesimGunu", e: "Ekstre kesim günü", t: "number", ek: true },
-      { k: "oncekiAydanKalan", e: "Geçen aydan devreden (₺)", t: "number", para: true, ek: true },
+      { k: "banka", e: t("ortak.banka"), t: "text", z: true },
+      { k: "yeniDonemEkstreBorcu", e: t("borclar.alan.buAykiEkstre"), t: "number", z: true, para: true, p: t("borclar.alan.buAykiEkstreIpucu") },
+      { k: "sonOdemeGunu", e: t("borclar.alan.sonOdemeGunu"), t: "number", z: true, p: t("borclar.alan.ornek", { n: 15 }) },
+      { k: "ad", e: t("borclar.alan.kartAdi"), t: "text", ek: true },
+      { k: "limit", e: t("borclar.alan.kartLimiti"), t: "number", para: true, ek: true },
+      { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number", ek: true },
+      { k: "oncekiAydanKalan", e: t("borclar.alan.devreden"), t: "number", para: true, ek: true },
     ],
     // Yeni kredide yalnız kalan borcu ve ödeme gününü bulmaya yetenler zorunlu.
     loans: form?.veri?.id ? [
-      { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "ad", e: "Kredi adı", t: "text", z: true },
-      { k: "anaPara", e: "Kredi tutarı (₺)", t: "number", z: !form?.veri?.id, para: true },
-      { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
-      { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", z: !form?.veri?.id },
-      { k: "taksit", e: "Aylık taksit tutarı (₺)", t: "number", z: true, para: true },
-      { k: "odenenTaksit", e: "Ödenen taksit sayısı", t: "number", z: !form?.veri?.id },
-      { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number" },
-      { k: "odemeGunu", e: "Ödeme günü", t: "number", p: "İlk taksit tarihinden hesaplanır" },
-      { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", z: !form?.veri?.id },
+      { k: "banka", e: t("ortak.banka"), t: "text", z: true },
+      { k: "ad", e: t("borclar.alan.krediAdi"), t: "text", z: true },
+      { k: "anaPara", e: t("borclar.alan.krediTutari"), t: "number", z: !form?.veri?.id, para: true },
+      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number" },
+      { k: "toplamTaksit", e: t("borclar.alan.toplamTaksit"), t: "number", z: !form?.veri?.id },
+      { k: "taksit", e: t("borclar.alan.aylikTaksit"), t: "number", z: true, para: true },
+      { k: "odenenTaksit", e: t("borclar.alan.odenenTaksit"), t: "number", z: !form?.veri?.id },
+      { k: "kalanTaksit", e: t("borclar.alan.kalanTaksit"), t: "number" },
+      { k: "odemeGunu", e: t("borclar.alan.odemeGunu"), t: "number", p: t("borclar.alan.odemeGunuIpucu") },
+      { k: "ilkOdemeTarihi", e: t("borclar.alan.ilkTaksit"), t: "date", z: !form?.veri?.id },
     ] : [
-      { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "taksit", e: "Aylık taksit tutarı (₺)", t: "number", z: true, para: true },
-      { k: "kalanTaksit", e: "Kalan taksit sayısı", t: "number", z: true, p: "Örn. 18" },
-      { k: "odemeGunu", e: "Ödeme günü (ayın kaçı)", t: "number", z: true, p: "Örn. 5" },
-      { k: "ad", e: "Kredi adı (İhtiyaç, Taşıt…)", t: "text", ek: true },
-      { k: "faiz", e: "Aylık faiz oranı (%)", t: "number", ek: true },
-      { k: "anaPara", e: "Kredi tutarı (₺)", t: "number", para: true, ek: true },
-      { k: "toplamTaksit", e: "Toplam taksit sayısı", t: "number", ek: true },
-      { k: "odenenTaksit", e: "Ödenen taksit sayısı", t: "number", ek: true },
-      { k: "ilkOdemeTarihi", e: "İlk taksit tarihi", t: "date", ek: true },
+      { k: "banka", e: t("ortak.banka"), t: "text", z: true },
+      { k: "taksit", e: t("borclar.alan.aylikTaksit"), t: "number", z: true, para: true },
+      { k: "kalanTaksit", e: t("borclar.alan.kalanTaksit"), t: "number", z: true, p: t("borclar.alan.ornek", { n: 18 }) },
+      { k: "odemeGunu", e: t("borclar.alan.odemeGunuAyin"), t: "number", z: true, p: t("borclar.alan.ornek", { n: 5 }) },
+      { k: "ad", e: t("borclar.alan.krediAdiOrnek"), t: "text", ek: true },
+      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number", ek: true },
+      { k: "anaPara", e: t("borclar.alan.krediTutari"), t: "number", para: true, ek: true },
+      { k: "toplamTaksit", e: t("borclar.alan.toplamTaksit"), t: "number", ek: true },
+      { k: "odenenTaksit", e: t("borclar.alan.odenenTaksit"), t: "number", ek: true },
+      { k: "ilkOdemeTarihi", e: t("borclar.alan.ilkTaksit"), t: "date", ek: true },
     ],
     od: [
-      { k: "banka", e: "Banka", t: "text", z: true },
-      { k: "limit", e: "Ek hesap limiti (₺)", t: "number", para: true },
+      { k: "banka", e: t("ortak.banka"), t: "text", z: true },
+      { k: "limit", e: t("borclar.alan.ekHesapLimiti"), t: "number", para: true },
       {
         k: "kullanilan",
-        e: "Kullanılan toplam tutar (₺)",
+        e: t("borclar.alan.kullanilan"),
         t: "number",
         z: true,
         para: true,
       },
-      { k: "yapilanOdeme", e: "Bugüne kadar yapılan ödeme (₺)", t: "number", para: true },
-      { k: "faiz", e: "Aylık faiz oranı (%)", t: "number" },
+      { k: "yapilanOdeme", e: t("borclar.alan.yapilanOdeme"), t: "number", para: true },
+      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number" },
     ],
     others: [
-      { k: "banka", e: "Alacaklı (banka / kurum / kişi)", t: "text", z: true },
-      { k: "ad", e: "Açıklama (2023 kart borcu, icra…)", t: "text" },
-      { k: "tutar", e: "Güncel tutar (₺)", t: "number", z: true, para: true },
-      { k: "faiz", e: "Aylık faiz / gecikme oranı (%)", t: "number" },
+      { k: "banka", e: t("borclar.alan.alacakli"), t: "text", z: true },
+      { k: "ad", e: t("borclar.alan.aciklama"), t: "text" },
+      { k: "tutar", e: t("borclar.alan.guncelTutar"), t: "number", z: true, para: true },
+      { k: "faiz", e: t("borclar.alan.faizGecikme"), t: "number" },
     ],
   };
   const alanlar = ekHesapBorcModu
-    ? [{ k: "yeniBorcTutari", e: "Yeniden kullandığın ek tutar (₺)", t: "number", z: true, para: true }]
+    ? [{ k: "yeniBorcTutari", e: t("borclar.alan.yeniBorcTutari"), t: "number", z: true, para: true }]
     : ekHesapOdemeModu
     ? [
-        { k: "odemeTutari", e: "Ödeme tutarı (₺)", t: "number", z: true, para: true },
+        { k: "odemeTutari", e: t("borclar.alan.odemeTutari"), t: "number", z: true, para: true },
         {
           k: "odemeTarihi",
-          e: "Ödeme tarihi ve saati",
+          e: t("borclar.alan.odemeTarihi"),
           t: "datetime-local",
           z: true,
         },
       ]
     : ekstreFormu
       ? [
-          { k: "ekstreAyi", e: "Ekstre dönemi", t: "month", z: true },
+          { k: "ekstreAyi", e: t("borclar.alan.ekstreDonemi"), t: "month", z: true },
           ...(form.imported
             ? [
                 {
                   k: "belgedenToplamEkstreBorcu",
-                  e: "Bankanın bildirdiği toplam ekstre borcu (₺)",
+                  e: t("borclar.alan.bankaToplam"),
                   t: "number",
                   z: true,
                   para: true,
                 },
                 {
                   k: "asgari",
-                  e: "Bankanın bildirdiği asgari ödeme (₺)",
+                  e: t("borclar.alan.bankaAsgari"),
                   t: "number",
                   para: true,
                 },
@@ -8152,16 +8152,16 @@ function Borclar({
             : []),
           {
             k: "yeniDonemEkstreBorcu",
-            e: "Bu ekstre döneminde oluşan borç (₺)",
+            e: t("borclar.alan.buDonemBorc"),
             t: "number",
             z: true,
             para: true,
           },
-          { k: "oncekiAydanKalan", e: "Geçen aydan devreden (₺)", t: "number", para: true },
-          { k: "kesimGunu", e: "Ekstre kesim günü", t: "number" },
+          { k: "oncekiAydanKalan", e: t("borclar.alan.devreden"), t: "number", para: true },
+          { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number" },
           {
             k: "sonOdemeGunu",
-            e: "Son ödeme günü (ayın kaçı)",
+            e: t("borclar.alan.sonOdemeGunu"),
             t: "number",
             z: true,
           },
@@ -8219,16 +8219,18 @@ function Borclar({
   );
   function sayacHesapla() {
     const n = gorunenKayitlar.length;
-    if (kategori === "cards") return n + " kredi kartı";
+    const sayi = (ad, adet = n) =>
+      t(`borclar.sayac.${ad}${adet === 1 ? "Tekil" : "Cogul"}`, { n: adet });
+    if (kategori === "cards") return sayi("kart");
     if (kategori === "loans")
       return krediArsivGorunumu
-        ? n + " ödenmiş taksit"
+        ? sayi("odenmisTaksit")
         : krediGelecekGorunumu
-          ? n + " planlanan taksit"
-          : n + " kredi";
-    if (kategori === "od") return n + " ek hesap / KMH";
-    if (kategori === "others") return n + otomatikGecikenler.length + " borç";
-    return n + " kayıt";
+          ? sayi("planlananTaksit")
+          : sayi("kredi");
+    if (kategori === "od") return sayi("ekHesap");
+    if (kategori === "others") return sayi("borc", n + otomatikGecikenler.length);
+    return sayi("kayit");
   }
 
   const odemeOzeti = (() => {
@@ -8237,7 +8239,7 @@ function Borclar({
       kalan = 0,
       baslik = "";
     if (kategori === "cards" && !arsivGorunumu) {
-      baslik = "Kredi kartlarında ödeme ilerlemesi";
+      baslik = t("borclar.ilerleme.kart");
       veri.cards.forEach((k) => {
         const h = kartHesabi(k);
         toplam += h.onceki;
@@ -8249,7 +8251,7 @@ function Borclar({
       !krediArsivGorunumu &&
       !krediGelecekGorunumu
     ) {
-      baslik = "Kredilerde ödeme ilerlemesi";
+      baslik = t("borclar.ilerleme.kredi");
       veri.loans.forEach((k) => {
         const ozet = summarizeLoanRecord(k, veri.loanPaymentHistory);
         toplam += ozet.scheduledTotal;
@@ -8257,7 +8259,7 @@ function Borclar({
         kalan += ozet.remainingPaymentTotal;
       });
     } else if (kategori === "od") {
-      baslik = "Ek hesap / KMH ödeme ilerlemesi";
+      baslik = t("borclar.ilerleme.ekHesap");
       veri.overdrafts.forEach((k) => {
         const h = ekHesapHesabi(k);
         toplam += h.kullanilan;
@@ -8265,7 +8267,7 @@ function Borclar({
         kalan += h.kalan;
       });
     } else if (kategori === "others") {
-      baslik = "Devreden ve gecikmiş borçlarda ödeme ilerlemesi";
+      baslik = t("borclar.ilerleme.gecikmis");
       otomatikGecikenler.forEach((g) => {
         if (g.id.startsWith("kart-")) {
           const kart = veri.cards.find((k) => "kart-" + k.id === g.id);
@@ -8296,7 +8298,7 @@ function Borclar({
   function gonder() {
     for (const a of alanlar) {
       if (a.z && !String(f[a.k] ?? "").trim()) {
-        if (kategori === "loans") setKrediGirisHatasi(`${a.e} alanını doldur.`);
+        if (kategori === "loans") setKrediGirisHatasi(t("borclar.hata.alaniDoldur", { alan: a.e }));
         return;
       }
     }
@@ -8607,14 +8609,14 @@ function Borclar({
       targetCardId: hedefKartId,
     });
     if (hata === "TARGET_PERIOD_EXISTS") {
-      setArsivMesaji("Seçtiğin kartta bu döneme ait bir ekstre zaten var. Üzerine yazılmadı.");
+      setArsivMesaji(t("borclar.arsiv.donemVar"));
       return;
     }
     if (hata) {
-      setArsivMesaji(`Ekstre taşınamadı. ${yenilemeYonergesi} tekrar deneyin.`);
+      setArsivMesaji(t("borclar.arsiv.tasinamadi", { yonerge: yenilemeYonergesi }));
       return;
     }
-    setArsivMesaji("Ekstre doğru karta taşındı. İlgili ödeme kayıtları da kartla birlikte güncellendi.");
+    setArsivMesaji(t("borclar.arsiv.tasindi"));
   }
 
   function yuklemeyiSil(finansalKaydiSil) {
@@ -8626,10 +8628,10 @@ function Borclar({
     });
     setSilinecekYukleme(null);
     setArsivMesaji(hata
-      ? `Ekstre kaldırılamadı. ${yenilemeYonergesi} tekrar deneyin.`
+      ? t("borclar.arsiv.kaldirilamadi", { yonerge: yenilemeYonergesi })
       : finansalKaydiSil
-        ? "Yükleme ve bağlı ekstre kaydı silindi."
-        : "Yükleme bilgisi kaldırıldı; borç ve ödeme kaydı korunuyor.");
+        ? t("borclar.arsiv.kayitSilindi")
+        : t("borclar.arsiv.yuklemeKaldirildi"));
   }
 
   return (
