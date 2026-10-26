@@ -1,14 +1,15 @@
 import { parseLoanPlanText } from "./loanPlanParser.js";
 import { textContentToText } from "./statementImport.js";
+import { t } from "./i18n.js";
 
 const MAX_FILE_SIZE = 12 * 1024 * 1024;
 const PDF_ASSET_ROOT = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38";
 
 function assertFile(file) {
-  if (!file) throw new Error("Bir ödeme planı PDF'i seçin.");
-  if (file.size > MAX_FILE_SIZE) throw new Error("Dosya en fazla 12 MB olabilir.");
+  if (!file) throw new Error(t("ekstre.plan.hata.dosyaSecin"));
+  if (file.size > MAX_FILE_SIZE) throw new Error(t("ekstre.hata.boyut"));
   if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name || "")) {
-    throw new Error("Ödeme planı için PDF formatında bir dosya seçin.");
+    throw new Error(t("ekstre.plan.hata.format"));
   }
 }
 
@@ -74,7 +75,7 @@ export async function readLoanPlanFile(file, progress, options = {}) {
   }
   const text = texts.filter(Boolean).join("\n\n--- SAYFA ---\n\n");
   if (text.replace(/\s/g, "").length < 120) {
-    throw new Error("Bu PDF'de okunabilir metin bulunamadı. Taranmış belge yerine bankadan indirilen orijinal PDF'i deneyin.");
+    throw new Error(t("ekstre.plan.hata.metinYok"));
   }
   const result = parseLoanPlanText(text, { sourceType: "pdf", pagesRead: pageCount, ...options });
   progress?.({ stage: "done", page: pageCount, pages: pageCount, progress: 1 });

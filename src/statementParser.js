@@ -1,4 +1,5 @@
 import { parseStatementTransactions } from "./statementTransactions.js";
+import { t } from "./i18n.js";
 
 const BANK_PROFILES = [
   { bank: "Halkbank", brand: "Paraf", issuerTokens: ["halkbank"], brandTokens: ["paraf"] },
@@ -445,7 +446,7 @@ export function parseStatementText(text, options = {}) {
     const table = parseEnparaSummaryTable(text);
     if (table?.invalid) {
       profileErrors.push(
-        "Enpara özetindeki tutarlar birbiriyle uyuşmuyor; kaydetmeden önce ekstre rakamlarını kontrol edin.",
+        t("ekstre.hata.enparaUyusmuyor"),
       );
     } else if (table) {
       statementTotal = table.statementTotal ?? statementTotal;
@@ -545,16 +546,16 @@ export function parseStatementText(text, options = {}) {
   }
 
   const warnings = [];
-  if (!profile.bank) warnings.push("Banka otomatik tanınamadı.");
-  if (statementTotal === null) warnings.push("Toplam ekstre borcu bulunamadı.");
-  if (!statementDate) warnings.push("Ekstre kesim tarihi bulunamadı.");
-  if (!dueDate) warnings.push("Son ödeme tarihi bulunamadı.");
-  if (minimumPayment === null) warnings.push("Asgari ödeme tutarı bulunamadı.");
+  if (!profile.bank) warnings.push(t("ekstre.uyari.bankaYok"));
+  if (statementTotal === null) warnings.push(t("ekstre.uyari.toplamYok"));
+  if (!statementDate) warnings.push(t("ekstre.uyari.kesimYok"));
+  if (!dueDate) warnings.push(t("ekstre.uyari.sonOdemeYok"));
+  if (minimumPayment === null) warnings.push(t("ekstre.uyari.asgariYok"));
   if (previousBalance === null || periodPayments === null)
-    warnings.push("Devreden bakiye kırılımını kaydetmeden önce kontrol edin.");
+    warnings.push(t("ekstre.uyari.devreden"));
   if (recoveredFields.size)
     warnings.push(
-      "OCR bazı tutarlardaki kuruş ayıracını kaybetti; son iki hane kuruş kabul edilerek düzeltildi. Kaydetmeden önce rakamları kontrol edin.",
+      t("ekstre.uyari.ocrKurus"),
     );
 
   const blockingErrors = [
@@ -631,27 +632,27 @@ export function validateStatementResult(result = {}) {
   const minimum = number(result.minimumPayment);
   const limit = number(result.creditLimit);
   const amounts = [
-    ["Toplam ekstre borcu", total],
-    ["Asgari ödeme", minimum],
-    ["Kart limiti", limit],
-    ["Önceki ekstre bakiyesi", number(result.previousBalance)],
-    ["Dönem içi ödemeler", number(result.periodPayments)],
-    ["Yeni harcama ve taksitler", number(result.currentPurchases)],
-    ["Faiz, vergi ve ücretler", number(result.fees)],
+    [t("ekstre.etiket.toplam"), total],
+    [t("ekstre.etiket.asgari"), minimum],
+    [t("ekstre.etiket.limit"), limit],
+    [t("ekstre.etiket.onceki"), number(result.previousBalance)],
+    [t("ekstre.etiket.odemeler"), number(result.periodPayments)],
+    [t("ekstre.etiket.yeniHarcama"), number(result.currentPurchases)],
+    [t("ekstre.etiket.ucretler"), number(result.fees)],
   ];
   amounts.forEach(([label, value]) => {
-    if (value !== null && value < 0) errors.push(`${label} negatif olamaz.`);
+    if (value !== null && value < 0) errors.push(t("ekstre.hata.negatif", { alan: label }));
   });
   if (total !== null && minimum !== null && minimum > total)
-    errors.push("Asgari ödeme toplam ekstre borcundan büyük olamaz.");
+    errors.push(t("ekstre.hata.asgariBuyuk"));
   if (total !== null && limit !== null && limit > 0 && total > limit * 1.5)
-    errors.push("Toplam ekstre borcu kart limitine göre olağan dışı görünüyor.");
+    errors.push(t("ekstre.hata.limitDisi"));
   if (
     result.statementDate &&
     result.dueDate &&
     new Date(result.dueDate).getTime() < new Date(result.statementDate).getTime()
   )
-    errors.push("Son ödeme tarihi ekstre kesim tarihinden önce olamaz.");
+    errors.push(t("ekstre.hata.tarihSirasi"));
   return [...new Set(errors)];
 }
 
