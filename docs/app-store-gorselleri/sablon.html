@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Borcama App Store görseli</title>
+<style>
+  @font-face { font-family: "Archivo Black"; src: url("../../public/fonts/archivo-black-latin-ext.woff2") format("woff2"); unicode-range: U+0100-024F; }
+  @font-face { font-family: "Archivo Black"; src: url("../../public/fonts/archivo-black-latin.woff2") format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 300 700; src: url("../../public/fonts/space-grotesk-latin-ext.woff2") format("woff2"); unicode-range: U+0100-024F; }
+  @font-face { font-family: "Space Grotesk"; font-weight: 300 700; src: url("../../public/fonts/space-grotesk-latin.woff2") format("woff2"); }
+  :root { --ink:#14160f; --cream:#f4efe0; --lime:#cdf564; --coral:#ff6f59; --forest:#083a2b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1320px; height: 2868px; overflow: hidden; }
+  body { position: relative; font-family: "Space Grotesk", sans-serif; background: var(--bg); color: var(--fg); }
+  .sekil { position: absolute; border-radius: 50%; }
+  .ust { position: absolute; left: 96px; right: 96px; top: 150px; z-index: 3; }
+  .etiket { display: inline-block; padding: 18px 34px; border: 5px solid var(--ink); border-radius: 999px; background: var(--etiketBg); color: var(--etiketFg); font: 700 38px/1 "Space Grotesk"; letter-spacing: .06em; text-transform: uppercase; box-shadow: 8px 8px 0 var(--ink); }
+  h1 { margin-top: 64px; font: 400 132px/1.02 "Archivo Black", sans-serif; letter-spacing: -.035em; }
+  h1 em { font-style: normal; color: var(--vurgu); }
+  p { margin-top: 44px; max-width: 1060px; font: 500 50px/1.32 "Space Grotesk"; opacity: .82; }
+  .telefon { position: absolute; left: 50%; top: var(--telTop); width: var(--telW); transform: translateX(-50%) rotate(var(--aci)); z-index: 2; }
+  .cerceve { position: relative; padding: 26px; border-radius: 132px; background: var(--ink); box-shadow: 30px 30px 0 var(--golge); }
+  .cerceve img { display: block; width: 100%; border-radius: 108px; }
+  .rozet { position: absolute; z-index: 4; padding: 30px 40px; border: 5px solid var(--ink); border-radius: 36px; background: var(--rozetBg); color: var(--ink); font: 700 44px/1.15 "Space Grotesk"; box-shadow: 12px 12px 0 var(--ink); }
+  .rozet b { display: block; font: 400 64px/1 "Archivo Black"; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="kok"></div>
+<script>
+const SLAYTLAR = [
+  { ekran: "tr/02-bugun.png", bg: "#f4efe0", fg: "#14160f", vurgu: "#ff6f59", etiket: "Borç takibi", etiketBg: "#cdf564", etiketFg: "#14160f", golge: "#ff6f59",
+    baslik: "Borcunu <em>plana</em><br>dönüştür.", alt: "Kart, kredi ve ek hesabın tek ekranda. Bu ay ne ödeyeceğini hemen gör.", aci: "-2deg",
+    sekiller: [["#ff6f59", 760, 1640, 980], ["#cdf564", -260, 2300, 760]], rozet: { metin: "<b>3 cevap</b>her ay", x: 840, y: 2250, bg: "#cdf564" } },
+  { ekran: "tr/03-borclar.png", bg: "#cdf564", fg: "#14160f", vurgu: "#083a2b", etiket: "Tek tablo", etiketBg: "#f4efe0", etiketFg: "#14160f", golge: "#083a2b",
+    baslik: "Bütün kartların<br><em>tek yerde.</em>", alt: "Ekstreni cihazında okut. Dosyan sunucuya yüklenmez.", aci: "2deg",
+    sekiller: [["#ff6f59", -300, 1500, 900], ["#f4efe0", 900, 2350, 700]], rozet: { metin: "<b>0</b>banka şifresi", x: 70, y: 2320, bg: "#f4efe0" } },
+  { ekran: "tr/04-borc-plani.png", bg: "#083a2b", fg: "#f4efe0", vurgu: "#cdf564", etiket: "Borç planı", etiketBg: "#cdf564", etiketFg: "#14160f", golge: "#cdf564",
+    baslik: "Önce hangi borç?<br><em>Sıran hazır.</em>", alt: "Aylık faiz yükünü gör, kapatma sıranı kendi kayıtlarınla çıkar.", aci: "-2deg",
+    sekiller: [["#ff6f59", 820, 1580, 900], ["#14160f", -320, 2250, 820]], rozet: { metin: "<b>Pro</b>kişisel kapatma sırası", x: 760, y: 2330, bg: "#ff6f59" } },
+  { ekran: "tr/05-varliklar.png", bg: "#ff6f59", fg: "#14160f", vurgu: "#f4efe0", etiket: "Varlıklar", etiketBg: "#f4efe0", etiketFg: "#14160f", golge: "#14160f",
+    baslik: "Varlığın da<br><em>hesapta.</em>", alt: "Döviz, altın, kripto ve fonlarını borçlarınla yan yana takip et.", aci: "2deg",
+    sekiller: [["#cdf564", -280, 1560, 860], ["#f4efe0", 920, 2380, 680]], rozet: { metin: "<b>Güncel</b>kur ve fiyatlar", x: 70, y: 2330, bg: "#cdf564" } },
+  { ekran: "tr/06-karsilama.png", telW: "860px", telTop: "940px", bg: "#f4efe0", fg: "#14160f", vurgu: "#083a2b", etiket: "Ücretsiz", etiketBg: "#ff6f59", etiketFg: "#14160f", golge: "#cdf564",
+    baslik: "Hesap açmadan<br><em>hemen başla.</em>", alt: "Banka şifresi yok, kart bilgisi yok. İstersen Face ID ile kilitle.", aci: "-2deg",
+    sekiller: [["#cdf564", 800, 1600, 940], ["#ff6f59", -300, 2300, 760]], rozet: { metin: "<b>Face ID</b>uygulama kilidi", x: 860, y: 1180, bg: "#f4efe0" } },
+];
+const i = Number(new URLSearchParams(location.search).get("i") || 0);
+const s = SLAYTLAR[i];
+const k = document.documentElement.style;
+for (const [a, d] of Object.entries({ bg: s.bg, fg: s.fg, vurgu: s.vurgu, etiketBg: s.etiketBg, etiketFg: s.etiketFg, golge: s.golge, aci: s.aci, telTop: s.telTop || "980px", telW: s.telW || "1010px" })) k.setProperty("--" + a, d);
+document.getElementById("kok").innerHTML =
+  s.sekiller.map(([renk, x, y, r]) => `<div class="sekil" style="background:${renk};left:${x}px;top:${y - r / 2}px;width:${r}px;height:${r}px"></div>`).join("") +
+  `<div class="ust"><span class="etiket">${s.etiket}</span><h1>${s.baslik}</h1><p>${s.alt}</p></div>` +
+  `<div class="telefon"><div class="cerceve"><img src="${s.ekran}"></div></div>` +
+  `<div class="rozet" style="left:${s.rozet.x}px;top:${s.rozet.y}px;--rozetBg:${s.rozet.bg}">${s.rozet.metin}</div>`;
+</script>
+</body>
+</html>
