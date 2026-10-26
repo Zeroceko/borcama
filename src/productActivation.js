@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 const sayisalDegerVar = (kayit, alanlar) =>
   alanlar.some((alan) => Number(kayit?.[alan]) > 0);
 
@@ -36,22 +38,22 @@ export function getActivationState(veri = {}) {
   const gorevler = [
     {
       id: "debt",
-      baslik: "Borç veya ekstre ekle",
-      aciklama: "Toplam borcun ve ödeme tarihlerin oluşsun.",
+      baslik: t("ozet.aktivasyon.borcBaslik"),
+      aciklama: t("ozet.aktivasyon.borcAciklama"),
       hedef: "borclar",
       tamam: borcVerisiVar(veri),
     },
     {
       id: "income",
-      baslik: "Aylık gelirini yaz",
-      aciklama: "Ödeme gücünü doğru hesaplayabilelim.",
+      baslik: t("ozet.aktivasyon.gelirBaslik"),
+      aciklama: t("ozet.aktivasyon.gelirAciklama"),
       hedef: "gelir",
       tamam: (veri.incomes || []).some((gelir) => Number(gelir?.tutar) > 0),
     },
     {
       id: "activity",
-      baslik: "İlk hareketini kaydet",
-      aciklama: "Bir ödeme veya harcama planını kişiselleştirir.",
+      baslik: t("ozet.aktivasyon.hareketBaslik"),
+      aciklama: t("ozet.aktivasyon.hareketAciklama"),
       hedef: odemeKaydiVar(veri) ? "harcamalar" : "odemeler",
       tamam: odemeKaydiVar(veri) || (veri.expenses || []).length > 0,
     },
@@ -74,21 +76,21 @@ export function getMonthlyBalancePresentation({
 } = {}) {
   if (!(Number(income) > 0)) {
     return {
-      etiket: "Aylık denge",
+      etiket: t("ozet.denge.etiket"),
       tutar: null,
-      aciklama: "Gelir bilgisi eklenince hesaplanır.",
+      aciklama: t("ozet.denge.gelirYok"),
     };
   }
   if (!(Number(expenseCount) > 0)) {
     return {
-      etiket: "Aylık denge için veri eksik",
+      etiket: t("ozet.denge.veriEksikEtiket"),
       tutar: null,
-      aciklama: "En az bir harcama ekleyince kalan tutarı gösterebiliriz.",
+      aciklama: t("ozet.denge.veriEksikAciklama"),
     };
   }
   return {
-    etiket: "Kayıtlarına göre aylık fark",
+    etiket: t("ozet.denge.farkEtiket"),
     tutar: Number(income) - Number(mandatoryPayments) - Number(expenses),
-    aciklama: "Yalnızca kaydettiğin tutarlara göre; banka bakiyen veya harcama izni değildir.",
+    aciklama: t("ozet.denge.farkAciklama"),
   };
 }
