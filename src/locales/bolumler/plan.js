@@ -74,6 +74,8 @@ export const tr = {
     "{gelir} gelirden {taksit} kredi taksiti ve {yasam} mevcut yaşam harcaması çıkınca kart ve KMH için {kalan} kalıyor. Eksi tutar varsa bu da açığa dahildir. Planda en az {enAz} ödenmesi gerektiği için {acik} eksik oluşuyor. Güvenlik tamponu yalnızca bu zorunlu ödemeler karşılandıktan sonra biriktirilir; bu açığa dahil değildir.",
   "plan.planAciklama":
     "Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart/KMH faizi vergi ve fonlarla birlikte ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik tamponu bir kez birikir ve yeni kart/KMH borcu eklenmediği varsayılır.",
+  "plan.planAciklamaVergisiz":
+    "Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart ve ek hesap faizi girdiğin aylık oranla ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik tamponu bir kez birikir ve yeni kart/ek hesap borcu eklenmediği varsayılır.",
 
   "plan.cozum.baslik": "Şimdi yapacağın 2 adım",
   "plan.cozum.amac":
@@ -132,6 +134,7 @@ export const tr = {
   "plan.kart.vadesiGelmedi":
     "Kalan borcun tamamı son ödeme tarihine kadar kapanmazsa faiz oluşabilir",
   "plan.faizMeta": "Aylık %{oran}{kaynak} · ayda ≈ {tutar} faiz",
+  "plan.faizGirilmedi": "Faiz oranı girilmedi · faizi hesaba katmak için borca aylık oranı ekle",
   "plan.tcmbGecikme": " (TCMB yasal azami GECİKME oranı)",
   "plan.tcmb": " (TCMB yasal azami oranı)",
   "plan.disindakiler":
@@ -257,6 +260,8 @@ export const en = {
     "From {gelir} of income, after {taksit} in loan installments and {yasam} in current living expenses, {kalan} is left for cards and overdraft. A negative amount is part of the gap too. The plan needs at least {enAz} in payments, so you're short {acik}. The safety buffer is only built after these required payments are covered; it isn't part of this gap.",
   "plan.planAciklama":
     "Loan installments and living expenses are subtracted from income. Card/overdraft interest is calculated month by month, including taxes and fees; minimums are paid first and the rest goes to the most expensive debt. The safety buffer is built once, and no new card/overdraft debt is assumed.",
+  "plan.planAciklamaVergisiz":
+    "Loan installments and living expenses are subtracted from income. Card and overdraft interest is calculated month by month at the monthly rate you entered; minimums are paid first and the rest goes to the most expensive debt. The safety buffer is built once, and no new card/overdraft debt is assumed.",
 
   "plan.cozum.baslik": "2 steps to take now",
   "plan.cozum.amac":
@@ -314,6 +319,7 @@ export const en = {
   "plan.kart.kalanBorc": "Remaining debt {tutar}. Your bank may charge regular card interest on this amount",
   "plan.kart.vadesiGelmedi": "Interest may apply if the full balance isn't paid by the due date",
   "plan.faizMeta": "{oran}% monthly{kaynak} · ≈ {tutar} interest per month",
+  "plan.faizGirilmedi": "No interest rate entered · add the monthly rate to this debt to include interest",
   "plan.tcmbGecikme": " (Central Bank legal max LATE-PAYMENT rate)",
   "plan.tcmb": " (Central Bank legal max rate)",
   "plan.disindakiler": "Not in the order (fixed-installment loans / debts without an interest rate):",

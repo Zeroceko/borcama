@@ -4,10 +4,11 @@ import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tr } from "./locales/bolumler/borclar.js";
+import { ekHesapFaizOrani } from "./bolgeKurallari.js";
 
 const kaynak = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), "App.jsx"), "utf8");
-const parca = kaynak.slice(kaynak.indexOf("const VARSAYILAN_FAIZ_EK_HESAP"), kaynak.indexOf("const BOS_VERI"));
-const ekHesaplariAyir = new Function(`${parca}; return ekHesaplariAyir;`)();
+const parca = kaynak.slice(kaynak.indexOf("function ekHesapHesabi"), kaynak.indexOf("const BOS_VERI"));
+const ekHesaplariAyir = new Function("ekHesapFaizOrani", `${parca}; return ekHesaplariAyir;`)(ekHesapFaizOrani);
 
 test("kapanan ek hesaplar ayrı gruba ayrılır, sıra kendi içinde korunur", () => {
   const { acik, kapanan } = ekHesaplariAyir([
