@@ -1,6 +1,12 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { nativeMi } from "./platform.js";
+import { dil, t } from "./i18n.js";
+import { EN_BASLIKLAR, PrivacyPolicyEn, RefundPolicyEn, TermsOfUseEn } from "./LegalEn.jsx";
+
+// Ingilizce taslak metinler yalniz native kabukta ve dil Ingilizce iken
+// gosterilir; web ve Turkce cikti degismez.
+const ingilizceMi = () => nativeMi && dil() === "en";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -35,7 +41,7 @@ function LegalLayout({
                 Geri dugmesi bir onceki ekrana dondurur. */}
             {nativeMi ? (
               <button className="legal-back" type="button" onClick={() => window.history.back()}>
-                <ArrowLeft size={15} /> Geri
+                <ArrowLeft size={15} /> {t("yasal.geri")}
               </button>
             ) : (
               <a className="legal-back" href="/">
@@ -47,19 +53,19 @@ function LegalLayout({
         <article className="legal-card">
           <h1>{title}</h1>
           <div className="legal-date">
-            Yürürlük tarihi: {tarih} · Sürüm {surum}
+            {t("yasal.yururluk", { tarih, surum })}
           </div>
           {children}
           {!embedded && (
             <div className="legal-links">
               <a className={tur === "terms" ? "active" : ""} href="/terms">
-                Kullanıcı Sözleşmesi
+                {t("yasal.link.sozlesme")}
               </a>
               <a className={tur === "privacy" ? "active" : ""} href="/privacy">
-                Gizlilik ve KVKK
+                {t("yasal.link.gizlilik")}
               </a>
               <a className={tur === "refund" ? "active" : ""} href="/refund-policy">
-                İade Politikası
+                {t("yasal.link.iade")}
               </a>
             </div>
           )}
@@ -70,6 +76,13 @@ function LegalLayout({
 }
 
 export function KullaniciSozlesmesi({ embedded = false }) {
+  if (ingilizceMi()) {
+    return (
+      <LegalLayout tur="terms" {...EN_BASLIKLAR.terms} embedded={embedded}>
+        <TermsOfUseEn />
+      </LegalLayout>
+    );
+  }
   return (
     <LegalLayout
       tur="terms"
@@ -192,6 +205,13 @@ export function KullaniciSozlesmesi({ embedded = false }) {
 }
 
 export function IadePolitikasi({ embedded = false }) {
+  if (ingilizceMi()) {
+    return (
+      <LegalLayout tur="refund" {...EN_BASLIKLAR.refund} embedded={embedded}>
+        <RefundPolicyEn />
+      </LegalLayout>
+    );
+  }
   return (
     <LegalLayout
       tur="refund"
@@ -404,6 +424,13 @@ export function IadePolitikasi({ embedded = false }) {
 }
 
 export function GizlilikMetni({ embedded = false }) {
+  if (ingilizceMi()) {
+    return (
+      <LegalLayout tur="privacy" {...EN_BASLIKLAR.privacy} embedded={embedded}>
+        <PrivacyPolicyEn />
+      </LegalLayout>
+    );
+  }
   return (
     <LegalLayout
       tur="privacy"
