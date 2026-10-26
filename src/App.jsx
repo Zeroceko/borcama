@@ -27,9 +27,18 @@ import {
   kartFaizOranlari,
   ornekTutar,
   profilUlkeAdi,
+  tryKaydiVar,
   turkiyeKurallariGecerli,
   vergiFonOrani,
 } from "./bolgeKurallari.js";
+import {
+  aktifKurTablosu,
+  borcListesiniAnaBirimeCevir,
+  kurBekleyenKayitlar,
+  kurCarpani,
+  kurTablosuOlustur,
+  kurTablosunuAyarla,
+} from "./dovizKuru.js";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
 import {
   kayitliProSatisDurumu,
@@ -98,7 +107,7 @@ import {
   Copy,
   Share2,
 } from "lucide-react";
-import { readStatementFile } from "./statementImport.js";
+import { belgeKaydiParaBirimi, readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
 import { formatStatementTransactionDate } from "./statementTransactions.js";
 import { readLoanPlanFile } from "./loanPlanImport.js";
@@ -112,6 +121,9 @@ import {
   kullaniciParaBirimi,
   kullaniciParaFormatla,
   paraBirimiSimgesi,
+  kayitParaBirimi,
+  DESTEKLENEN_PARA_BIRIMLERI,
+  paraBirimiAdi,
 } from "./currencyInput.js";
 import {
   matchStatementToCard,
@@ -824,23 +836,125 @@ const CSS = `
 `;
 
 /* ---------------- Yardımcılar (iş mantığı — değişmedi) ---------------- */
-const fmt = (n) => kullaniciParaFormatla(n);
-const fmt0 = (n) => kullaniciParaFormatla(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+// `birim` verilirse ve ana birimden farkliysa tutar o birimde yazilir (borc
+// bazinda para birimi). Verilmezse ya da ana birimse cikti eskisiyle ayni.
+const fmt = (n, birim) =>
+  birim && birim !== kullaniciParaBirimi() ? paraBiriminiFormatla(n, birim) : kullaniciParaFormatla(n);
+const fmt0 = (n, birim) =>
+  birim && birim !== kullaniciParaBirimi()
+    ? paraBiriminiFormatla(n, birim, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    : kullaniciParaFormatla(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+/* ---------------- Borc bazinda para birimi ----------------
+   Kayitta `paraBirimi` yoksa ana birimdedir (eski veri, web). Ana birimden
+   farkli kayit kendi biriminde gosterilir; toplamlara ana birime kurla
+   cevrilerek girer. Kur bilinmiyorsa toplama katilmaz, ayrica sayilir. */
+const BORC_LISTELERI = ["cards", "loans", "overdrafts", "others"];
+// Kaydin birimi ana birimden farkliysa birim kodu, degilse undefined
+// (fmt(n, yabanciBirim(k)) ana birimde eski ciktiyi verir).
+const yabanciBirim = (kayit) => {
+  const birim = kayitParaBirimi(kayit);
+  return birim === kullaniciParaBirimi() ? undefined : birim;
+};
+// Kaydin tutarlarini ana birime ceviren carpan; kur yoksa null.
+const kayitKurCarpani = (kayit, tablo = aktifKurTablosu()) =>
+  kurCarpani(kayitParaBirimi(kayit), kullaniciParaBirimi(), tablo);
+// Ana birime cevrilmis tutar; kur yoksa 0 (cagiran kurBekliyor ile ayirir).
+const anaTutar = (tutar, kayit, tablo) => {
+  const carpan = kayitKurCarpani(kayit, tablo);
+  return carpan === null ? 0 : (Number(tutar) || 0) * carpan;
+};
+const kurBekliyor = (kayit, tablo) => kayitKurCarpani(kayit, tablo) === null;
+// Odeme satirlari (yaklasan, donem odemeleri) kaydin biriminde tutulur;
+// yabanci birimde `paraBirimi` tasir. Toplamlar icin ana birim tutari.
+const odemeKuru = (odeme, tablo = aktifKurTablosu()) =>
+  odeme?.paraBirimi ? kurCarpani(odeme.paraBirimi, kullaniciParaBirimi(), tablo) : 1;
+const odemeAnaBirimde = (odeme, tablo) => {
+  const kur = odemeKuru(odeme, tablo);
+  if (kur === 1) return odeme;
+  if (kur === null) return null;
+  const sonuc = { ...odeme };
+  ["tutar", "hedefTutar", "yapilanOdeme", "kalanToplam", "minimumOdeme", "kalanKrediBorcu", "bakiye"].forEach((alan) => {
+    if (sonuc[alan] !== undefined) sonuc[alan] = (+sonuc[alan] || 0) * kur;
+  });
+  return sonuc;
+};
+const odemeleriAnaBirimeCevir = (liste = [], tablo) => liste.map((o) => odemeAnaBirimde(o, tablo)).filter(Boolean);
+const tumBorcKayitlari = (veri) => BORC_LISTELERI.flatMap((liste) => veri?.[liste] || []);
+// Toplamlarin yanindaki "≈ kur tarihi" ve "{n} kayit kur bekliyor" notu icin.
+function kurDurumu(veri, tablo = aktifKurTablosu()) {
+  const ana = kullaniciParaBirimi();
+  const yabanci = tumBorcKayitlari(veri).filter((k) => k && kayitParaBirimi(k, ana) !== ana);
+  const bekleyen = kurBekleyenKayitlar(yabanci, { anaBirim: ana, kayitBirimi: (k) => kayitParaBirimi(k, ana), tablo });
+  return {
+    cevrildi: yabanci.length > bekleyen.length,
+    bekleyen: bekleyen.length,
+    tarih: tablo?.tarih || null,
+  };
+}
+// Senaryo ve asistan gibi kayit dizisi bekleyen hesaplar icin ana birime
+// cevrilmis borc listeleri. Tek birimli kullanicida ayni diziler doner.
+function anaBirimBorcVerisi(veri, tablo = aktifKurTablosu()) {
+  const ana = kullaniciParaBirimi();
+  if (!tumBorcKayitlari(veri).some((k) => k && kayitParaBirimi(k, ana) !== ana)) return veri;
+  const secenek = { anaBirim: ana, kayitBirimi: (k) => kayitParaBirimi(k, ana), tablo };
+  return {
+    ...veri,
+    ...Object.fromEntries(BORC_LISTELERI.map((liste) => [liste, borcListesiniAnaBirimeCevir(veri?.[liste] || [], liste, secenek)])),
+  };
+}
+function KurNotu({ durum, koyu = false }) {
+  if (!durum || (!durum.cevrildi && !durum.bekleyen)) return null;
+  const tarih = durum.tarih ? new Date(durum.tarih) : null;
+  const tarihMetni = tarih && !Number.isNaN(tarih.getTime())
+    ? tarih.toLocaleDateString(locale(), { day: "numeric", month: "short" })
+    : "";
+  return (
+    <small className="bt-kur-notu" style={{ display: "block", fontSize: 11.5, color: koyu ? "var(--summary-muted)" : "var(--dim)", marginTop: 4 }}>
+      {durum.cevrildi && (tarihMetni ? t("paraBirimi.kur.cevrildiTarih", { tarih: tarihMetni }) : t("paraBirimi.kur.cevrildi"))}
+      {durum.cevrildi && durum.bekleyen > 0 && " · "}
+      {durum.bekleyen > 0 && t("paraBirimi.kur.bekliyor", { n: durum.bekleyen })}
+    </small>
+  );
+}
+// Borc formundaki kucuk para birimi secici (web ve iOS ayni). Ana birim
+// secilirse alan kayda yazilmaz; eski kayitlar gibi ana birimde kalir.
+function BorcParaBirimiSecici({ deger, onChange }) {
+  const ana = kullaniciParaBirimi();
+  const secili = DESTEKLENEN_PARA_BIRIMLERI.includes(deger) ? deger : ana;
+  return (
+    <label className="bt-alan bt-borc-para-birimi">
+      <span>{t("paraBirimi.borc.etiket")}</span>
+      <select
+        className="bt-input"
+        aria-label={t("paraBirimi.borc.etiket")}
+        value={secili}
+        onChange={(e) => onChange(e.target.value === ana ? undefined : e.target.value)}
+      >
+        {DESTEKLENEN_PARA_BIRIMLERI.map((kod) => (
+          <option key={kod} value={kod}>
+            {kod} · {paraBirimiAdi(kod)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
 // TRY disinda oran girilmemis borclarda kullanilan ulke ortalamasinin kisa
 // aciklamasi: "ABD ortalamasi, degistirebilirsin".
-function ortalamaEtiketi() {
-  const ulke = profilUlkeAdi();
+function ortalamaEtiketi(birim = kullaniciParaBirimi()) {
+  const ulke = profilUlkeAdi(bolgeProfili(birim));
   return ulke ? t("bolge.ortalama", { ulke }) : t("bolge.tipik");
 }
-function ortalamaKaynagi() {
-  const ulke = profilUlkeAdi();
+function ortalamaKaynagi(birim = kullaniciParaBirimi()) {
+  const ulke = profilUlkeAdi(bolgeProfili(birim));
   return ulke ? t("bolge.kaynakUlke", { ulke }) : t("bolge.kaynakTipik");
 }
 // TRY disinda faiz alani bos birakilirsa kullanilacak aylik oran ipucu.
-function varsayilanFaizIpucu(yillik) {
-  if (turkiyeKurallariGecerli()) return undefined;
+function varsayilanFaizIpucu(yillik, birim = kullaniciParaBirimi()) {
+  if (turkiyeKurallariGecerli(birim)) return undefined;
   const aylikOran = (Number(yillik) || 0) / 12;
-  return t("bolge.alanIpucu", { oran: aylikOran.toLocaleString(locale(), { maximumFractionDigits: 2 }), kaynak: ortalamaKaynagi() });
+  return t("bolge.alanIpucu", { oran: aylikOran.toLocaleString(locale(), { maximumFractionDigits: 2 }), kaynak: ortalamaKaynagi(birim) });
 }
 // Ornek tutarlar TRY icin yazildi; diger birimlerde yasam maliyeti olcegine
 // gore kuculturulur. TRY'de sozluk metni aynen kalir.
@@ -848,6 +962,8 @@ const ornekTutarMetni = (anahtar, tryTutari) =>
   turkiyeKurallariGecerli() ? t(anahtar) : fmt0(ornekTutar(tryTutari));
 const ornekSayiMetni = (anahtar, tryTutari) =>
   turkiyeKurallariGecerli() ? t(anahtar) : t("ortak.ornekTutar", { tutar: ornekTutar(tryTutari).toLocaleString(locale()) });
+// Satir bilesenlerinde yerel `fmt` golgesi icin (kaydin kendi birimi).
+const fmtBirimli = (n, birim) => fmt(n, birim);
 const fmtBirim = (n) => kullaniciParaFormatla(n, { minimumFractionDigits: 2, maximumFractionDigits: 8 });
 
 function ParaInput({ value, onValueChange, ...props }) {
@@ -1164,9 +1280,9 @@ const kartOdemeAnahtari = (kart) =>
 
 // TRY'de kart faizi TCMB azami oranindan gelir, alan gosterilmez. TRY disinda
 // kullanici kendi aylik oranini girer; girmezse faiz varsayilmaz.
-function kartFaizAlani(ek) {
-  if (turkiyeKurallariGecerli()) return [];
-  return [{ k: "faiz", e: t("borclar.alan.kartFaizi"), t: "number", p: varsayilanFaizIpucu(bolgeProfili()?.kartYillikFaiz), ...(ek ? { ek: true } : {}) }];
+function kartFaizAlani(ek, birim = kullaniciParaBirimi()) {
+  if (turkiyeKurallariGecerli(birim)) return [];
+  return [{ k: "faiz", e: t("borclar.alan.kartFaizi"), t: "number", p: varsayilanFaizIpucu(bolgeProfili(birim)?.kartYillikFaiz, birim), ...(ek ? { ek: true } : {}) }];
 }
 const KATEGORILER = [
   "Market",
@@ -1206,6 +1322,9 @@ function gunlukBirikmisFaiz(bakiye, aylikOran, gecikenGun) {
   );
 }
 function kartHesabi(k) {
+  // Kurallar kaydin kendi birimine gore: TRY kartta TCMB/BDDK, digerinde
+  // o birimin ulke ortalamasi.
+  const birim = kayitParaBirimi(k);
   const yapilandirilan = cardRestructuredAmount(k);
   const yeniModel =
     k.yeniDonemEkstreBorcu !== undefined ||
@@ -1220,7 +1339,7 @@ function kartHesabi(k) {
       devreden: Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0),
       yeni: +k.donemIciEklenen || 0,
       faiz: 0,
-      oran: kartFaizOranlari(ana, k.faiz).akdi,
+      oran: kartFaizOranlari(ana, k.faiz, birim).akdi,
       toplam: Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0),
       asgari: Math.min(+k.asgari || 0, Math.max(ana + (+k.donemIciEklenen || 0) - yapilandirilan, 0)),
     };
@@ -1241,7 +1360,7 @@ function kartHesabi(k) {
       : +k.toplamEkstreBorcu || +k.oncekiDonemBorcu || 0;
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), onceki);
   const devreden = Math.max(onceki - odeme - yapilandirilan, 0);
-  const oran = kartFaizOranlari(onceki, k.faiz).akdi;
+  const oran = kartFaizOranlari(onceki, k.faiz, birim).akdi;
   const faiz = (devreden * oran) / 100;
   const toplam = devreden;
   const asgariOran = krediKartiAsgariOrani(k.limit) * 100;
@@ -1257,10 +1376,10 @@ function kartHesabi(k) {
     asgari: Math.min(
       +k.asgari > 0
         ? +k.asgari
-        : yasalAsgariUygulanir(kullaniciParaBirimi())
+        : yasalAsgariUygulanir(birim)
           ? (onceki * asgariOran) / 100
           // TRY disinda asgari girilmemisse ulke kuralina gore tahmin.
-          : bolgeAsgariOdemesi(onceki, oran),
+          : bolgeAsgariOdemesi(onceki, oran, bolgeProfili(birim)),
       devreden,
     ),
   };
@@ -1364,7 +1483,7 @@ function ekHesapHesabi(k) {
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), kullanilan);
   const kalan = Math.max(kullanilan - odeme, 0);
   // TRY'de oran girilmemisse %4,25 referans; TRY disinda varsayim yok.
-  const { oran, tahmini, varsayilan, ucretle } = ekHesapFaizOrani(k.faiz);
+  const { oran, tahmini, varsayilan, ucretle } = ekHesapFaizOrani(k.faiz, kayitParaBirimi(k));
   return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100, tahmini, varsayilan, ucretle };
 }
 // Borcu süren ek hesaplar listede, kapananlar (kalan 0) "Kapattığın borçlar" başlığı altında.
@@ -1418,14 +1537,34 @@ const YOL_SEKMELERI = Object.fromEntries(
 );
 
 /* Tüm borçları tek listede toplayan model — plan ve banka kırılımı bunun üstünde çalışır */
-function borcKalemleri(veri) {
+// Kalem tutarlari ana birimdedir: ana birim disindaki kayit kurla cevrilir
+// (kalemde `paraBirimi`, `kur` ve kendi birimindeki `kayitBakiye` kalir);
+// kuru bilinmeyen kayit kaleme girmez (kurDurumu ile ayrica sayilir). Faiz
+// oranlari aylik % oldugu icin siralama birimden bagimsizdir.
+function kalemiAnaBirimeCevir(kalem, kayit, tablo) {
+  const birim = yabanciBirim(kayit);
+  if (!birim) return kalem;
+  const kur = kayitKurCarpani(kayit, tablo);
+  if (kur === null) return null;
+  const cevrilmis = { ...kalem, paraBirimi: birim, kur, kayitBakiye: kalem.bakiye };
+  ["bakiye", "faizTutari", "yapilanOdeme", "asgari", "asgariEksigi", "minimumOdeme"].forEach((alan) => {
+    if (typeof cevrilmis[alan] === "number") cevrilmis[alan] *= kur;
+  });
+  return cevrilmis;
+}
+function borcKalemleri(veri, tablo = aktifKurTablosu()) {
   const kalemler = [];
+  const ekle = (kalem, kayit) => {
+    const sonuc = kalemiAnaBirimeCevir(kalem, kayit, tablo);
+    if (sonuc) kalemler.push(sonuc);
+  };
   veri.cards.forEach((k) => {
     const hesap = kartHesabi(k);
     const guncelBorc = hesap.toplam;
     if (guncelBorc > 0) {
+      const birim = kayitParaBirimi(k);
       const gecikmis = kalanGun(kartGecikmeTarihi(k)) < 0;
-      const oranlar = kartFaizOranlari(guncelBorc, k.faiz);
+      const oranlar = kartFaizOranlari(guncelBorc, k.faiz, birim);
       const akdiOran = oranlar.akdi;
       const gecikmeOran = oranlar.gecikme;
       const ozelFaizVar = +k.faiz > 0;
@@ -1437,7 +1576,7 @@ function borcKalemleri(veri) {
         ? (guncelBorc * +k.faiz) / 100
         : (asgariEksigi * gecikmeOran) / 100 +
           (akdiFaizBakiyesi * akdiOran) / 100;
-      kalemler.push({
+      ekle({
         id: "kart-" + k.id,
         tur: "kart",
         banka: (k.banka || "").trim(),
@@ -1464,8 +1603,8 @@ function borcKalemleri(veri) {
           hesap.onceki > 0 && hesap.asgari > 0
             ? Math.min(Math.max(hesap.asgari / hesap.onceki, 0), 1)
             : 0,
-        vergiFonOrani: vergiFonOrani(),
-      });
+        vergiFonOrani: vergiFonOrani(birim),
+      }, k);
     }
   });
   veri.overdrafts.forEach((k) => {
@@ -1473,7 +1612,7 @@ function borcKalemleri(veri) {
     if (hesap.kalan > 0) {
       const bakiye = hesap.kalan;
       const faiz = hesap.oran;
-      kalemler.push({
+      ekle({
         id: "ek-" + k.id,
         tur: "ek",
         banka: (k.banka || "").trim(),
@@ -1485,15 +1624,15 @@ function borcKalemleri(veri) {
         faizVarsayilan: hesap.varsayilan,
         minimumOdeme: 0,
         minimumOran: 0,
-        vergiFonOrani: vergiFonOrani(),
-      });
+        vergiFonOrani: vergiFonOrani(kayitParaBirimi(k)),
+      }, k);
     }
   });
   veri.loans.forEach((k) => {
     if ((+k.kalanBorc || 0) > 0) {
       const bakiye = +k.kalanBorc;
       const faiz = +k.faiz > 0 ? +k.faiz : 0;
-      kalemler.push({
+      ekle({
         id: "kredi-" + k.id,
         tur: "kredi",
         banka: (k.banka || "").trim(),
@@ -1503,14 +1642,14 @@ function borcKalemleri(veri) {
         faizTutari: (bakiye * faiz) / 100,
         faizTahmini: false,
         sabitTaksit: true,
-      });
+      }, k);
     }
   });
   (veri.others || []).forEach((k) => {
     if ((+k.tutar || 0) > 0) {
       const bakiye = +k.tutar;
       const faiz = +k.faiz > 0 ? +k.faiz : 0;
-      kalemler.push({
+      ekle({
         id: "diger-" + k.id,
         tur: "diger",
         banka: (k.banka || "").trim(),
@@ -1520,7 +1659,7 @@ function borcKalemleri(veri) {
         faizTutari: (bakiye * faiz) / 100,
         faizTahmini: false,
         sabitTaksit: !(+k.faiz > 0),
-      });
+      }, k);
     }
   });
   return kalemler;
@@ -1542,7 +1681,7 @@ function borcamaOnerileriniHesapla({
   );
 
   if (gecikmisler.length) {
-    const gecikmisToplam = gecikmisler.reduce(
+    const gecikmisToplam = odemeleriAnaBirimeCevir(gecikmisler).reduce(
       (toplam, odeme) => toplam + Math.max(+odeme.tutar || 0, 0),
       0,
     );
@@ -1562,7 +1701,8 @@ function borcamaOnerileriniHesapla({
 
   (veri.cards || []).forEach((kart) => {
     // Limit dusurme onerisi BDDK kuralina dayanir; yalniz TRY'de gosterilir.
-    if (!yasalAsgariUygulanir(kullaniciParaBirimi())) return;
+    if (!yasalAsgariUygulanir(kayitParaBirimi(kart))) return;
+    const kartBirimi = yabanciBirim(kart);
     const hesap = kartHesabi(kart);
     const limit = Math.max(+kart.limit || 0, 0);
     if (
@@ -1583,9 +1723,9 @@ function borcamaOnerileriniHesapla({
       baslik: t("cekirdek.oneri.limit.baslik", { banka: kart.banka || t("cekirdek.oneri.kart") }),
       aciklama: t("cekirdek.oneri.limit.aciklama"),
       etki: t("cekirdek.oneri.limit.etki", {
-        mevcut: fmt(mevcutMinimum),
-        dusuk: fmt(dusukLimitMinimumu),
-        fark: fmt(fark),
+        mevcut: fmt(mevcutMinimum, kartBirimi),
+        dusuk: fmt(dusukLimitMinimumu, kartBirimi),
+        fark: fmt(fark, kartBirimi),
       }),
       uyari: t("cekirdek.oneri.limit.uyari"),
       hedef: "borclar",
@@ -1638,7 +1778,7 @@ function borcamaOnerileriniHesapla({
         yuzde: Math.round(kullanim * 100),
       }),
       aciklama: t("cekirdek.oneri.kullanim.aciklama"),
-      etki: t("cekirdek.oneri.kullanim.etki", { borc: fmt(hesap.toplam), limit: fmt(limit) }),
+      etki: t("cekirdek.oneri.kullanim.etki", { borc: fmt(hesap.toplam, yabanciBirim(kart)), limit: fmt(limit, yabanciBirim(kart)) }),
       hedef: "borclar",
       aksiyon: t("cekirdek.oneri.kartiIncele"),
     });
@@ -2494,8 +2634,10 @@ export default function BorcTakip() {
       turkBankalari: BANKALAR,
       ozelBankalar,
       kayitliBankalar: [...(veri.cards || []), ...(veri.loans || []), ...(veri.overdrafts || [])].map((k) => k?.banka),
+      // TRY borcu olan kullaniciya (ana birimi ne olursa olsun) Turk bankalari da listelenir.
+      ...(tryKaydiVar(tumBorcKayitlari(veri)) ? { birim: "TRY" } : {}),
     }),
-    [ozelBankalar, veri.cards, veri.loans, veri.overdrafts],
+    [ozelBankalar, veri.cards, veri.loans, veri.overdrafts, veri.others],
   );
   const temaAnahtarlarSwitch = () =>
     ayarKaydet({ tema: isDark ? "light" : "dark" });
@@ -2521,7 +2663,14 @@ export default function BorcTakip() {
     "--debt-other": temaRenkleri.debtOther,
   };
 
-  const kalemler = useMemo(() => borcKalemleri(veri), [veri]);
+  // Borc bazinda para birimi: son bilinen kur (yerelde saklanir). Ana
+  // birimdeki kayitlarda carpan 1 oldugundan tek birimli kullanicida etkisiz.
+  const kurTablosu = useMemo(
+    () => kurTablosunuAyarla(kurTablosuOlustur(piyasa.prices, piyasa.updatedAt)),
+    [piyasa.prices, piyasa.updatedAt],
+  );
+  const kurNotuDurumu = useMemo(() => kurDurumu(veri, kurTablosu), [veri, kurTablosu]);
+  const kalemler = useMemo(() => borcKalemleri(veri, kurTablosu), [veri, kurTablosu]);
 
   const toplamlar = useMemo(() => {
     const kart = kalemler
@@ -2553,6 +2702,7 @@ export default function BorcTakip() {
   );
 
   const buAyOdenecek = useMemo(() => {
+    // Tutarlar kaydin biriminde; ana birime cevrilerek toplanir (kur yoksa disarida).
     const kartOdeme = veri.cards.reduce((t, k) => {
       if (kartOdemeAyi(k) !== ayAnahtari()) return t;
       const h = kartHesabi(k);
@@ -2564,7 +2714,7 @@ export default function BorcTakip() {
             : +k.borc > 0
               ? +k.borc
               : h.onceki;
-      return t + Math.max(hedef - h.odeme, 0);
+      return t + anaTutar(Math.max(hedef - h.odeme, 0), k, kurTablosu);
     }, 0);
     const ay = ayAnahtari();
     const taksit = veri.loans.reduce(
@@ -2573,11 +2723,11 @@ export default function BorcTakip() {
         ((+k.kalanBorc || 0) <= 0 ||
         veri.paid?.["kredi-" + k.id + "-" + ay]
           ? 0
-          : +k.taksit || 0),
+          : anaTutar(+k.taksit || 0, k, kurTablosu)),
       0,
     );
     return kartOdeme + taksit;
-  }, [veri]);
+  }, [veri, kurTablosu]);
 
   const gecenAyDelta = useMemo(() => {
     const buAy = ayAnahtari();
@@ -2600,12 +2750,13 @@ export default function BorcTakip() {
           k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
         const yasalOran = krediKartiAsgariOrani(k.limit);
         // TRY disi birimde BDDK orani uygulanmaz; girilen asgari kullanilir.
-        const yasalAsgari = yasalAsgariUygulanir(kullaniciParaBirimi());
+        const kartBirimi = kayitParaBirimi(k);
+        const yasalAsgari = yasalAsgariUygulanir(kartBirimi);
         const hedefTutar = yeniModel
           ? yasalAsgari ? h.onceki * yasalOran : h.asgari
           : +k.asgari > 0
             ? +k.asgari
-            : yasalAsgari ? anaBorc * yasalOran : bolgeAsgariOdemesi(anaBorc, h.oran);
+            : yasalAsgari ? anaBorc * yasalOran : bolgeAsgariOdemesi(anaBorc, h.oran, bolgeProfili(kartBirimi));
         const odemeAnahtari = kartOdemeAnahtari(k);
         const elleOdendi = !!veri.paid[odemeAnahtari];
         const odemeBilgisiYok = !yeniModel && !elleOdendi;
@@ -2637,6 +2788,7 @@ export default function BorcTakip() {
           minimumTamam,
           tamamiOdendi,
           anahtar: odemeAnahtari,
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
         });
       }
     });
@@ -2663,6 +2815,7 @@ export default function BorcTakip() {
           tarih: buAyOdemeTarihi(k.odemeGunu),
           odendi: elleOdendi,
           anahtar,
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
         });
       }
     });
@@ -2693,6 +2846,7 @@ export default function BorcTakip() {
           tarih: new Date(yil, ay, gun),
           odendi: false,
           anahtar: "kredi-" + k.id + "-" + ayAnahtari(new Date(yil, ay, 1)),
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
         };
       })
       .sort((a, b) => a.tarih - b.tarih);
@@ -2797,10 +2951,15 @@ export default function BorcTakip() {
       createdAt: new Date().toISOString(),
     });
     if (sonuc.error) return sonuc.error;
-    kaydet(islemEkle(sonuc.data, {
+    // Yapilandirma kredisi kartin para birimini devralir.
+    const kartBirimi = sonuc.cardBefore.paraBirimi;
+    const yeniVeri = kartBirimi
+      ? { ...sonuc.data, loans: sonuc.data.loans.map((kredi) => kredi.id === sonuc.loan.id ? { ...kredi, paraBirimi: kartBirimi } : kredi) }
+      : sonuc.data;
+    kaydet(islemEkle(yeniVeri, {
       tur: "guncelleme",
       baslik: t("islem.yapilandirmaBaslik", { banka: sonuc.cardBefore.banka || t("islem.kart") }),
-      detay: t("islem.yapilandirmaDetay", { tutar: fmt(plan.amount) }),
+      detay: t("islem.yapilandirmaDetay", { tutar: fmt(plan.amount, yabanciBirim(sonuc.cardBefore)) }),
       geriAl: {
         tip: "kart_yapilandirma",
         kartId: sonuc.cardBefore.id,
@@ -3517,6 +3676,7 @@ export default function BorcTakip() {
                 }
                 varlikOzeti={varlikOzeti}
                 oneriler={borcamaOnerileri}
+                kurNotu={kurNotuDurumu}
                 proAktif={etkinPro}
                 trialKalanGun={reklamsiz.trialAktif && !proSatistaDegil ? reklamsiz.trialKalanGun : 0}
                 proAc={() => setProPenceresiAcik(true)}
@@ -3561,6 +3721,7 @@ export default function BorcTakip() {
                   setForm({ liste: "expenses", veri: {} });
                 }}
                 borcKutla={setBorcKutlamasi}
+                kurNotu={kurNotuDurumu}
               />
             )}
             {sekme === "odemeler" && (
@@ -3575,11 +3736,13 @@ export default function BorcTakip() {
                 filtreDegistir={setOdemeFiltresi}
                 islemler={veri.activityHistory || []}
                 islemiGeriAl={islemiGeriAl}
+                kurNotu={kurNotuDurumu}
               />
             )}
             {sekme === "plan" && (
               <Plan
                 kalemler={kalemler}
+                kurNotu={kurNotuDurumu}
                 aylikFaiz={aylikFaiz}
                 setSekme={setSekme}
                 veri={veri}
@@ -4333,11 +4496,12 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   if (!acik) return null;
 
   const aylikKalan = gelir - zorunluOdeme - harcama;
+  const anaBirimVeri = anaBirimBorcVerisi(veri);
   const senaryo = calculateRevolvingDebtScenario({
     income: gelir,
     expenses: veri?.expenses || [],
-    cards: veri?.cards || [],
-    loans: veri?.loans || [],
+    cards: anaBirimVeri?.cards || [],
+    loans: anaBirimVeri?.loans || [],
     debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
     currentDate: bugun(),
   });
@@ -4400,6 +4564,14 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
             if (!profil) return null;
             return `Oranı girilmemiş kart ve ek hesaplarda ${profil.ulke || "bilinmeyen bölge"} için tipik yıllık oranlar kullanıldı: kart %${profil.kartYillikFaiz}, ek hesap %${profil.ekHesapYillikFaiz} (aylık oran = yıllık / 12). Kesin banka oranı değildir.`;
           })(),
+          paraBirimleri: {
+            anaBirim: kullaniciParaBirimi(),
+            kayitBirimi: (kayit) => kayitParaBirimi(kayit),
+            cevir: (tutar, birim) => {
+              const kur = kurCarpani(birim, kullaniciParaBirimi());
+              return kur === null ? null : (Number(tutar) || 0) * kur;
+            },
+          },
         }),
         // Web'de (tr + TRY) bos; baglam bugunkuyle birebir ayni kalir.
         ...asistanKullaniciTercihleri({ dilKodu: dil(), paraBirimi: kullaniciParaBirimi() }),
@@ -5554,11 +5726,15 @@ function Ozet({
   tutarlariGizle,
   varlikOzeti,
   oneriler,
+  kurNotu = null,
   proAktif,
   trialKalanGun = 0,
   proAc,
 }) {
   const [haricTurler, setHaricTurler] = useState([]);
+  // Senaryo kayit dizileriyle calisir; ana birime cevrilmis kopya (tek
+  // birimli kullanicida ayni veri).
+  const anaBirimVeri = useMemo(() => anaBirimBorcVerisi(veri), [veri]);
   const gelir = buAyGelir.toplam;
   const aktivasyon = getActivationState(veri);
   const aylikDenge = getMonthlyBalancePresentation({
@@ -5586,7 +5762,9 @@ function Ozet({
     () => buildTodayDebtPlan({ data: veri, debtItems: kalemler }),
     [veri, kalemler],
   );
-  const tutarGoster = (tutar) => (tutarlarGizli ? `${paraBirimiSimgesi()} ••••••` : fmt0(tutar));
+  // `birim`: yabanci birimdeki kaydin kendi birimi (yoksa ana birim).
+  const tutarGoster = (tutar, birim) =>
+    tutarlarGizli ? `${birim ? paraBirimiSimgesi(birim) : paraBirimiSimgesi()} ••••••` : fmt0(tutar, birim);
   const gunGecikti = (n) => t(n === 1 ? "ozet.gunGecikti.tekil" : "ozet.gunGecikti.cogul", { n });
   const gunKaldi = (n) => t(n === 1 ? "ozet.gunKaldi.tekil" : "ozet.gunKaldi.cogul", { n });
   const ayMetni = (n) => t(n === 1 ? "ozet.ayTekil" : "ozet.ayCogul", { n });
@@ -5625,17 +5803,17 @@ function Ozet({
       ? t("ozet.siradakiYaklasiyor")
       : t("ozet.bekleyenYok");
   const oncelikliAciklama = gecikmisler.length
-    ? `${gunGecikti(-oncelikliGun)} · ${tutarGoster(oncelikliOdeme.tutar)}`
+    ? `${gunGecikti(-oncelikliGun)} · ${tutarGoster(oncelikliOdeme.tutar, oncelikliOdeme.paraBirimi)}`
     : oncelikliOdeme
-      ? `${oncelikliGun === 0 ? t("ozet.bugunSonGun") : gunKaldi(oncelikliGun)} · ${tutarGoster(oncelikliOdeme.tutar)}`
+      ? `${oncelikliGun === 0 ? t("ozet.bugunSonGun") : gunKaldi(oncelikliGun)} · ${tutarGoster(oncelikliOdeme.tutar, oncelikliOdeme.paraBirimi)}`
       : t("ozet.yeniOdemeBilgi");
   const gorunenOdemeler = [...gorunenGecikmisler, ...gorunenYaklasanlar].slice(0, 3);
   const yeniKullanici = gosterilenToplam <= 0.01 && yaklasan.length === 0;
   const borcsuzlukSenaryosu = calculateRevolvingDebtScenario({
     income: gelir,
     expenses: veri?.expenses || [],
-    cards: veri?.cards || [],
-    loans: veri?.loans || [],
+    cards: anaBirimVeri?.cards || [],
+    loans: anaBirimVeri?.loans || [],
     debts: (kalemler || []).filter((kalem) =>
       ["kart", "ek"].includes(kalem.tur),
     ),
@@ -5652,8 +5830,8 @@ function Ozet({
       ? calculateRevolvingDebtScenario({
           income: gelir,
           expenses: veri?.expenses || [],
-          cards: veri?.cards || [],
-          loans: veri?.loans || [],
+          cards: anaBirimVeri?.cards || [],
+          loans: anaBirimVeri?.loans || [],
           debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
           currentDate: bugun(),
           livingBudgetOverride: onerilenYasamButcesi,
@@ -5708,6 +5886,7 @@ function Ozet({
             <div className="bt-hero-tutar">
               {tutarGoster(gosterilenToplam)}
             </div>
+            <KurNotu durum={kurNotu} koyu />
             <div
               aria-hidden={!haricTurler.length}
               style={{
@@ -5866,11 +6045,11 @@ function Ozet({
                       <small>
                         {t("ozet.plan.siraFaiz", {
                           oran: Number(item.faiz || 0).toLocaleString(locale(), { maximumFractionDigits: 2 }),
-                          tutar: tutarGoster(item.faizTutari),
+                          tutar: item.paraBirimi ? tutarGoster(item.faizTutari / item.kur, item.paraBirimi) : tutarGoster(item.faizTutari),
                         })}
                       </small>
                     </span>
-                    <span className="bt-bugun-sira-tutar">{tutarGoster(item.bakiye)}</span>
+                    <span className="bt-bugun-sira-tutar">{item.paraBirimi ? tutarGoster(item.kayitBakiye, item.paraBirimi) : tutarGoster(item.bakiye)}</span>
                   </div>
                 ))}
                 {bugunBorcPlani.priorityItems.length > 3 && (
@@ -6083,7 +6262,7 @@ function Ozet({
                     <small>{odemeZamani(odeme)}</small>
                   </span>
                   <span className="bt-bugun-odeme-tutar">
-                    <b>{tutarGoster(odeme.tutar)}</b>
+                    <b>{tutarGoster(odeme.tutar, odeme.paraBirimi)}</b>
                     <span>{odeme.tur === "kredi" ? t("ozet.odemeler.taksit") : t("ozet.odemeler.minimum")}</span>
                   </span>
                 </div>
@@ -6279,6 +6458,8 @@ function OdemeSatiri({
   krediOdemesiAc,
   saltOkunur = false,
 }) {
+  // Odeme satiri kaydin kendi biriminde.
+  const fmt = (n) => fmtBirimli(n, o.paraBirimi);
   const gun = kalanGun(o.tarih);
   const gercektenGecikmis =
     gun < 0 &&
@@ -6448,6 +6629,7 @@ function Odemeler({
   filtreDegistir,
   islemler = [],
   islemiGeriAl,
+  kurNotu = null,
 }) {
   const [kartOdemePenceresi, setKartOdemePenceresi] = useState(null);
   const [krediOdemePenceresi, setKrediOdemePenceresi] = useState(null);
@@ -6533,6 +6715,7 @@ function Odemeler({
             yapilandirmaIleKapandi,
             yapilandirilanTutar: yapilandirmaIleKapandi ? latestCardRestructuring(kart)?.tutar || 0 : 0,
             anahtar: odemeAnahtari,
+            ...(yabanciBirim(kart) ? { paraBirimi: yabanciBirim(kart) } : {}),
           });
         });
     });
@@ -6561,6 +6744,10 @@ function Odemeler({
           tarih,
           odendi: yapilanOdeme + 0.01 >= hedefTutar,
           anahtar: "kredi-" + odeme.krediId + "-" + donem,
+          ...(() => {
+            const kredi = (veri.loans || []).find((k) => k.id === odeme.krediId);
+            return kredi && yabanciBirim(kredi) ? { paraBirimi: yabanciBirim(kredi) } : {};
+          })(),
         });
       });
     }
@@ -6590,7 +6777,7 @@ function Odemeler({
     total: toplam,
     covered: odenen,
     remaining: kalan,
-  } = summarizeMandatoryPayments(sirali);
+  } = summarizeMandatoryPayments(odemeleriAnaBirimeCevir(sirali));
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
   return (
     <div className="bt-stack">
@@ -6671,6 +6858,7 @@ function Odemeler({
           <div className="bt-metric">
             <div className="bt-metric-lbl">{t("odemeler.metrik.zorunlu")}</div>
             <div className="bt-metric-amt">{fmt(toplam)}</div>
+            <KurNotu durum={kurNotu} />
             <div className="bt-metric-cap">
               {t("odemeler.metrik.zorunluAlt")}
             </div>
@@ -6814,11 +7002,11 @@ function Odemeler({
             <div className="bt-kart-odeme-ozet">
               <div>
                 <span>{t("odemeler.modal.kalanMinimum")}</span>
-                <strong>{fmt(kartOdemePenceresi.tutar)}</strong>
+                <strong>{fmt(kartOdemePenceresi.tutar, kartOdemePenceresi.paraBirimi)}</strong>
               </div>
               <div>
                 <span>{t("odemeler.kalanToplamBorc")}</span>
-                <strong>{fmt(kartOdemePenceresi.kalanToplam)}</strong>
+                <strong>{fmt(kartOdemePenceresi.kalanToplam, kartOdemePenceresi.paraBirimi)}</strong>
               </div>
             </div>
             <div className="bt-kart-odeme-secenekler">
@@ -6832,7 +7020,7 @@ function Odemeler({
                 }}
               >
                 <span><strong>{t("odemeler.modal.minimumuOdedim")}</strong><small>{t("odemeler.modal.minimumuOdedimAlt")}</small></span>
-                <b>{kartOdemePenceresi.tutar > 0 ? fmt(kartOdemePenceresi.tutar) : t("odemeler.modal.tamamlandi")}</b>
+                <b>{kartOdemePenceresi.tutar > 0 ? fmt(kartOdemePenceresi.tutar, kartOdemePenceresi.paraBirimi) : t("odemeler.modal.tamamlandi")}</b>
               </button>
               <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
                 <span><strong>{t("odemeler.modal.kismiYaptim")}</strong><small>{t("odemeler.modal.kismiYaptimAlt")}</small></span>
@@ -6877,7 +7065,7 @@ function Odemeler({
                 }}
               >
                 <span><strong>{t("odemeler.modal.tamaminiOdedim")}</strong><small>{t("odemeler.modal.tamaminiOdedimAlt")}</small></span>
-                <b>{fmt(kartOdemePenceresi.kalanToplam)}</b>
+                <b>{fmt(kartOdemePenceresi.kalanToplam, kartOdemePenceresi.paraBirimi)}</b>
               </button>
             </div>
           </div>
@@ -6909,11 +7097,11 @@ function Odemeler({
                     donem: krediOdemePenceresi.donemEtiketi || t("odemeler.modal.buAy"),
                   })}
                 </span>
-                <strong>{fmt(krediOdemePenceresi.tutar)}</strong>
+                <strong>{fmt(krediOdemePenceresi.tutar, krediOdemePenceresi.paraBirimi)}</strong>
               </div>
               <div>
                 <span>{t("odemeler.modal.kalanKrediBorcu")}</span>
-                <strong>{fmt(krediOdemePenceresi.kalanKrediBorcu)}</strong>
+                <strong>{fmt(krediOdemePenceresi.kalanKrediBorcu, krediOdemePenceresi.paraBirimi)}</strong>
               </div>
             </div>
             <div className="bt-kart-odeme-secenekler">
@@ -6937,7 +7125,7 @@ function Odemeler({
                   </strong>
                   <small>{t("odemeler.modal.taksitiOdedimAlt")}</small>
                 </span>
-                <b>{fmt(krediOdemePenceresi.tutar)}</b>
+                <b>{fmt(krediOdemePenceresi.tutar, krediOdemePenceresi.paraBirimi)}</b>
               </button>
               <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
                 <span><strong>{t("odemeler.modal.farkliTutar")}</strong><small>{t("odemeler.modal.farkliTutarAlt")}</small></span>
@@ -6982,7 +7170,7 @@ function Odemeler({
                 }}
               >
                 <span><strong>{t("odemeler.modal.krediKapattim")}</strong><small>{t("odemeler.modal.krediKapattimAlt")}</small></span>
-                <b>{fmt(krediOdemePenceresi.kalanKrediBorcu)}</b>
+                <b>{fmt(krediOdemePenceresi.kalanKrediBorcu, krediOdemePenceresi.paraBirimi)}</b>
               </button>
             </div>
           </div>
@@ -6999,6 +7187,7 @@ function BorcUzerindenOdemeModal({
   krediOdemesiKaydet,
 }) {
   const [kismiTutar, setKismiTutar] = useState("");
+  const fmt = (n) => fmtBirimli(n, odeme?.paraBirimi);
   const kartMi = odeme?.tur === "kart";
   useEffect(() => {
     const oncekiOverflow = document.body.style.overflow;
@@ -7775,7 +7964,7 @@ function KapatilanKrediSatiri({ kredi, index }) {
           {kredi.banka}{kredi.ad ? ` · ${kredi.ad}` : ""}
         </strong>
         <small>
-          {kredi.taksit ? t("ekstre.kapatilan.aylikTaksit", { tutar: fmt(kredi.taksit) }) : ""}
+          {kredi.taksit ? t("ekstre.kapatilan.aylikTaksit", { tutar: fmt(kredi.taksit, yabanciBirim(kredi)) }) : ""}
           {kapanisEtiketi}
         </small>
       </div>
@@ -7811,6 +8000,7 @@ function Borclar({
   gelirEkle,
   hareketEkle,
   borcKutla,
+  kurNotu = null,
 }) {
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
@@ -7872,7 +8062,7 @@ function Borclar({
   // Ekstre okuyucu yalniz Turk bankalarinin belgelerini taniyor. TRY disinda
   // "okut / elle gir" secimi gosterilmez; istek dogrudan elle girise gider.
   useEffect(() => {
-    if (baslangicSecimiAcik && !belgeOkumaAcik()) manuelEkstreAkisiniAc();
+    if (baslangicSecimiAcik && !belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) manuelEkstreAkisiniAc();
   }, [baslangicSecimiAcik]);
   function ekstreYontemSeciminiKapat() {
     setBaslangicSecimiAcik(false);
@@ -8081,7 +8271,7 @@ function Borclar({
       const odendi = !!veri.paid?.[kartOdemeAnahtari(k)];
       if (gun > 0 && h.toplam > 0) {
         const minimumTamam = asgariTamam || odendi;
-        const oranlar = kartFaizOranlari(h.onceki || h.toplam, k.faiz);
+        const oranlar = kartFaizOranlari(h.onceki || h.toplam, k.faiz, kayitParaBirimi(k));
         const oran = minimumTamam ? oranlar.akdi : oranlar.gecikme;
         liste.push({
           id: "kart-" + k.id,
@@ -8096,6 +8286,7 @@ function Borclar({
           faiz: minimumTamam
             ? (h.toplam * oran) / 100
             : gunlukBirikmisFaiz(h.toplam, oran, gun),
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
         });
       }
     });
@@ -8117,6 +8308,7 @@ function Borclar({
           bakiye,
           oran,
           faiz: gunlukBirikmisFaiz(bakiye, oran, gun),
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
         });
       }
     });
@@ -8149,6 +8341,7 @@ function Borclar({
       if (form.imported) {
         const imported = form.imported;
         setF({
+          ...belgeKaydiParaBirimi(kullaniciParaBirimi()),
           ekstreAyi: imported.statementPeriod || guncelEkstreAyi,
           yeniDonemEkstreBorcu: imported.currentPeriodDebt ?? imported.statementTotal ?? "",
           oncekiAydanKalan: imported.carriedBalance ?? 0,
@@ -8232,7 +8425,7 @@ function Borclar({
         t: "number",
         z: true,
       },
-      ...kartFaizAlani(false),
+      ...kartFaizAlani(false, f?.paraBirimi),
     ] : [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
       { k: "yeniDonemEkstreBorcu", e: t("borclar.alan.buAykiEkstre"), t: "number", z: true, para: true, p: t("borclar.alan.buAykiEkstreIpucu") },
@@ -8241,7 +8434,7 @@ function Borclar({
       { k: "limit", e: t("borclar.alan.kartLimiti"), t: "number", para: true, ek: true },
       { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number", ek: true },
       { k: "oncekiAydanKalan", e: t("borclar.alan.devreden"), t: "number", para: true, ek: true },
-      ...kartFaizAlani(true),
+      ...kartFaizAlani(true, f?.paraBirimi),
     ],
     // Yeni kredide yalnız kalan borcu ve ödeme gününü bulmaya yetenler zorunlu.
     loans: form?.veri?.id ? [
@@ -8278,7 +8471,7 @@ function Borclar({
         para: true,
       },
       { k: "yapilanOdeme", e: t("borclar.alan.yapilanOdeme"), t: "number", para: true },
-      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number", p: varsayilanFaizIpucu(bolgeProfili()?.ekHesapYillikFaiz) },
+      { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number", p: varsayilanFaizIpucu(bolgeProfili(f?.paraBirimi)?.ekHesapYillikFaiz, f?.paraBirimi) },
     ],
     others: [
       { k: "banka", e: t("borclar.alan.alacakli"), t: "text", z: true },
@@ -8338,24 +8531,25 @@ function Borclar({
       : ALAN_TANIMLARI[kategori];
   const krediIlerlemesi = kategori === "loans" ? krediTaksitIlerlemesi(f) : null;
 
+  // Toplamlar ana birimde: her kayit kendi biriminden kurla cevrilir.
   function toplamHesapla() {
     if (kategori === "cards")
-      return kayitlar.reduce((t, k) => t + kartHesabi(k).toplam, 0);
+      return kayitlar.reduce((t, k) => t + anaTutar(kartHesabi(k).toplam, k), 0);
     if (kategori === "loans")
       return gorunenKayitlar.reduce(
         (t, k) =>
           t +
-          (krediArsivGorunumu || krediGelecekGorunumu
+          anaTutar(krediArsivGorunumu || krediGelecekGorunumu
             ? +k.taksit || 0
-            : summarizeLoanRecord(k, veri.loanPaymentHistory).remainingPaymentTotal),
+            : summarizeLoanRecord(k, veri.loanPaymentHistory).remainingPaymentTotal, k),
         0,
       );
     if (kategori === "od")
-      return kayitlar.reduce((t, k) => t + ekHesapHesabi(k).kalan, 0);
+      return kayitlar.reduce((t, k) => t + anaTutar(ekHesapHesabi(k).kalan, k), 0);
     return (
-      kayitlar.reduce((t, k) => t + (+k.tutar || 0), 0) +
+      kayitlar.reduce((t, k) => t + anaTutar(+k.tutar || 0, k), 0) +
       (kategori === "others"
-        ? otomatikGecikenler.reduce((t, k) => t + (+k.bakiye || 0), 0)
+        ? odemeleriAnaBirimeCevir(otomatikGecikenler).reduce((t, k) => t + (+k.bakiye || 0), 0)
         : 0)
     );
   }
@@ -8411,9 +8605,9 @@ function Borclar({
       baslik = t("borclar.ilerleme.kart");
       veri.cards.forEach((k) => {
         const h = kartHesabi(k);
-        toplam += h.onceki;
-        odenen += h.odeme;
-        kalan += h.toplam;
+        toplam += anaTutar(h.onceki, k);
+        odenen += anaTutar(h.odeme, k);
+        kalan += anaTutar(h.toplam, k);
       });
     } else if (
       kategori === "loans" &&
@@ -8423,35 +8617,37 @@ function Borclar({
       baslik = t("borclar.ilerleme.kredi");
       veri.loans.forEach((k) => {
         const ozet = summarizeLoanRecord(k, veri.loanPaymentHistory);
-        toplam += ozet.scheduledTotal;
-        odenen += ozet.paidSinceBaseline;
-        kalan += ozet.remainingPaymentTotal;
+        toplam += anaTutar(ozet.scheduledTotal, k);
+        odenen += anaTutar(ozet.paidSinceBaseline, k);
+        kalan += anaTutar(ozet.remainingPaymentTotal, k);
       });
     } else if (kategori === "od") {
       baslik = t("borclar.ilerleme.ekHesap");
       veri.overdrafts.forEach((k) => {
         const h = ekHesapHesabi(k);
-        toplam += h.kullanilan;
-        odenen += h.odeme;
-        kalan += h.kalan;
+        toplam += anaTutar(h.kullanilan, k);
+        odenen += anaTutar(h.odeme, k);
+        kalan += anaTutar(h.kalan, k);
       });
     } else if (kategori === "others") {
       baslik = t("borclar.ilerleme.gecikmis");
       otomatikGecikenler.forEach((g) => {
+        const kur = odemeKuru(g);
+        if (kur === null) return;
         if (g.id.startsWith("kart-")) {
           const kart = veri.cards.find((k) => "kart-" + k.id === g.id);
           const h = kart ? kartHesabi(kart) : null;
-          toplam += h?.onceki || g.bakiye;
-          odenen += h?.odeme || 0;
-          kalan += h?.toplam || g.bakiye;
+          toplam += (h?.onceki || g.bakiye) * kur;
+          odenen += (h?.odeme || 0) * kur;
+          kalan += (h?.toplam || g.bakiye) * kur;
         } else {
-          toplam += +g.bakiye || 0;
-          kalan += +g.bakiye || 0;
+          toplam += (+g.bakiye || 0) * kur;
+          kalan += (+g.bakiye || 0) * kur;
         }
       });
       veri.others.forEach((k) => {
-        toplam += +k.tutar || 0;
-        kalan += +k.tutar || 0;
+        toplam += anaTutar(+k.tutar || 0, k);
+        kalan += anaTutar(+k.tutar || 0, k);
       });
     }
     if (!baslik || toplam <= 0) return null;
@@ -8614,6 +8810,7 @@ function Borclar({
     const yeni = imported.currentPeriodDebt ?? imported.statementTotal ?? "";
     const devreden = imported.carriedBalance ?? 0;
     return {
+      ...belgeKaydiParaBirimi(kullaniciParaBirimi()),
       ekstreAyi: imported.statementPeriod || guncelEkstreAyi,
       yeniDonemEkstreBorcu: yeni,
       oncekiAydanKalan: devreden,
@@ -8722,6 +8919,7 @@ function Borclar({
     const plan = {
       ...(mevcut || {}),
       id: mevcut?.id || uid(),
+      ...belgeKaydiParaBirimi(kullaniciParaBirimi()),
       banka: imported.bank,
       ad: imported.productName || mevcut?.ad || "Kredi",
       anaPara: +imported.originalPrincipal || mevcut?.anaPara || "",
@@ -8894,6 +9092,7 @@ function Borclar({
                     <>
                       <span>{t("borclar.kart.kalanBorc")}</span>
                       <strong>{fmt(toplamHesapla())}</strong>
+                      <KurNotu durum={kurNotu} />
                     </>
                   ) : (
                     <span className="bt-kart-bos-metin">
@@ -8913,14 +9112,14 @@ function Borclar({
                 <div className="bt-kart-ust-islemler">
                   <div className="bt-kart-islem-baslik">
                     <strong>{t("borclar.ekstre.islemler")}</strong>
-                    <span>{t(belgeOkumaAcik() ? "borclar.ekstre.islemlerAciklama" : "borclar.ekstre.islemlerAciklamaManuel")}</span>
+                    <span>{t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.islemlerAciklama" : "borclar.ekstre.islemlerAciklamaManuel")}</span>
                   </div>
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
                       onClick={genelEkstreAkisiniAc}
                     >
-                      <Plus size={14} /> {t(belgeOkumaAcik() ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
+                      <Plus size={14} /> {t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
                     </button>
                   </div>
                   <div className="bt-kart-ust-araclar" aria-label={t("borclar.ekstre.araclarAria")}>
@@ -8958,6 +9157,7 @@ function Borclar({
                   <div className="bt-strip-total bt-mono">
                     {fmt(toplamHesapla())}
                   </div>
+                  <KurNotu durum={kurNotu} />
                 </div>
                 {!acik && !saltOkunurGorunum && kategori !== "others" && (
                   <button
@@ -8967,7 +9167,7 @@ function Borclar({
                       if (kategori === "loans") {
                         // Odeme plani okuyucusu yalniz Turk bankalarini taniyor;
                         // TRY disinda dogrudan elle giris formu acilir.
-                        if (belgeOkumaAcik()) setKrediEklemeSecimiAcik(true);
+                        if (belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) setKrediEklemeSecimiAcik(true);
                         else setForm({ liste: "loans", veri: {} });
                         return;
                       }
@@ -9039,8 +9239,8 @@ function Borclar({
                   <Lightbulb size={16} />
                   <div>
                     <b>{t("borclar.form.yeniBorcBaslik", { banka: form.veri.banka })}</b> {t("borclar.form.yeniBorcAciklama")}
-                    <br />{t("borclar.form.guncelKalan")} <b>{fmt(ekHesapHesabi(form.veri).kalan)}</b>
-                    {Number(f.yeniBorcTutari) > 0 && <> · {t("borclar.form.eklemeSonrasi")} <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari))}</b></>}
+                    <br />{t("borclar.form.guncelKalan")} <b>{fmt(ekHesapHesabi(form.veri).kalan, yabanciBirim(form.veri))}</b>
+                    {Number(f.yeniBorcTutari) > 0 && <> · {t("borclar.form.eklemeSonrasi")} <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari), yabanciBirim(form.veri))}</b></>}
                   </div>
                 </div>
               )}
@@ -9084,9 +9284,9 @@ function Borclar({
                         <Ceviri
                           anahtar="borclar.form.ekHesapOzet"
                           degerler={{
-                            kullanilan: fmt(h.kullanilan),
-                            odenen: fmt(h.odeme),
-                            kalan: <b>{fmt(h.kalan)}</b>,
+                            kullanilan: fmt(h.kullanilan, yabanciBirim(form.veri)),
+                            odenen: fmt(h.odeme, yabanciBirim(form.veri)),
+                            kalan: <b>{fmt(h.kalan, yabanciBirim(form.veri))}</b>,
                           }}
                         />
                       </div>
@@ -9109,7 +9309,7 @@ function Borclar({
                         }}
                       >
                         <option value="">{t("borclar.alan.bankaSecin")}</option>
-                        {bankalar.map((b) => (
+                        {(f?.paraBirimi === "TRY" ? [...new Set([...BANKALAR, ...bankalar])] : bankalar).map((b) => (
                           <option key={b} value={b}>
                             {b}
                           </option>
@@ -9153,6 +9353,12 @@ function Borclar({
                     )}
                   </label>
                 ))}
+                {!ekHesapBorcModu && !ekHesapOdemeModu && !ekstreFormu && (
+                  <BorcParaBirimiSecici
+                    deger={f?.paraBirimi}
+                    onChange={(kod) => setF({ ...f, paraBirimi: kod })}
+                  />
+                )}
               </div>
               {alanlar.some((a) => a.ek) && (
                 <details className="bt-alan-ek">
@@ -9240,7 +9446,7 @@ function Borclar({
                           anahtar="borclar.form.taksitKaldi"
                           degerler={{
                             n: krediIlerlemesi.kalanTaksit,
-                            tutar: <b>{fmt(krediIlerlemesi.kalanToplamOdeme)}</b>,
+                            tutar: <b>{fmt(krediIlerlemesi.kalanToplamOdeme, yabanciBirim(f))}</b>,
                           }}
                         />
                       </>
@@ -9248,9 +9454,9 @@ function Borclar({
                       <>
                         <b>{t("borclar.form.kalanToplamEtiket")}</b>{" "}
                         {t("borclar.form.kalanToplamCarpim", {
-                          toplam: fmt((+f.taksit || 0) * (+f.kalanTaksit || 0)),
+                          toplam: fmt((+f.taksit || 0) * (+f.kalanTaksit || 0), yabanciBirim(f)),
                           n: f.kalanTaksit,
-                          taksit: fmt(+f.taksit || 0),
+                          taksit: fmt(+f.taksit || 0, yabanciBirim(f)),
                         })}
                       </>
                     ) : (
@@ -9270,19 +9476,19 @@ function Borclar({
                       <Lightbulb size={16} />
                       <div>
                         <Ceviri
-                          anahtar={yasalAsgariUygulanir(kullaniciParaBirimi()) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiBolge"}
+                          anahtar={yasalAsgariUygulanir(kayitParaBirimi(f)) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiBolge"}
                           degerler={{
                             baslik: <b>{t("borclar.form.otomatikHesap")}</b>,
-                            yeni: fmt(h.yeni),
-                            devreden: fmt(h.oncekiDevreden),
-                            toplam: <b>{t("borclar.form.toplamBorc", { tutar: fmt(h.onceki) })}</b>,
-                            odenen: fmt(h.odeme),
-                            kalan: <b>{t("borclar.form.kalir", { tutar: fmt(h.devreden) })}</b>,
-                            faiz: fmt(h.faiz),
+                            yeni: fmt(h.yeni, yabanciBirim(f)),
+                            devreden: fmt(h.oncekiDevreden, yabanciBirim(f)),
+                            toplam: <b>{t("borclar.form.toplamBorc", { tutar: fmt(h.onceki, yabanciBirim(f)) })}</b>,
+                            odenen: fmt(h.odeme, yabanciBirim(f)),
+                            kalan: <b>{t("borclar.form.kalir", { tutar: fmt(h.devreden, yabanciBirim(f)) })}</b>,
+                            faiz: fmt(h.faiz, yabanciBirim(f)),
                             oran: h.oran.toFixed(2),
-                            asgari: <b>{fmt(h.asgari)}</b>,
+                            asgari: <b>{fmt(h.asgari, yabanciBirim(f))}</b>,
                             asgariOran: Math.round(krediKartiAsgariOrani(f.limit) * 100),
-                            kaynak: turkiyeKurallariGecerli() ? "" : ortalamaKaynagi(),
+                            kaynak: turkiyeKurallariGecerli(kayitParaBirimi(f)) ? "" : ortalamaKaynagi(kayitParaBirimi(f)),
                           }}
                         />
                       </div>
@@ -9313,8 +9519,8 @@ function Borclar({
                           anahtar="borclar.form.odemeSonrasiMetin"
                           degerler={{
                             baslik: <b>{t("borclar.form.odemeSonrasi")}</b>,
-                            kalan: <b>{fmt(kalan)}</b>,
-                            faiz: fmt((kalan * h.oran) / 100),
+                            kalan: <b>{fmt(kalan, yabanciBirim(form.veri))}</b>,
+                            faiz: fmt((kalan * h.oran) / 100, yabanciBirim(form.veri)),
                             oran: h.oran.toFixed(2),
                           }}
                         />
@@ -9527,7 +9733,7 @@ function Borclar({
         />
       )}
 
-      {baslangicSecimiAcik && belgeOkumaAcik() && (
+      {baslangicSecimiAcik && belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) && (
         <div
           className="bt-modal-arka"
           role="presentation"
@@ -9808,7 +10014,7 @@ function Borclar({
                       genelEkstreAkisiniAc();
                     }}
                   >
-                    <Plus size={14} /> {t(belgeOkumaAcik() ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
+                    <Plus size={14} /> {t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
                   </button>
                 </div>
               </div>
@@ -9824,7 +10030,7 @@ function Borclar({
                     <div className="bt-ekstre-arsiv-satir" key={`${yukleme.cardId}-${yukleme.period}`}>
                       <div className="bt-ekstre-arsiv-bilgi">
                         <strong>{yukleme.cardBank} · {tDeger(yukleme.cardName) || t("borclar.krediKarti")}{yukleme.cardLast4 ? ` • ${yukleme.cardLast4}` : ""}</strong>
-                        <span>{ayEtiketi(yukleme.period)} · {fmt(toplam)}</span>
+                        <span>{ayEtiketi(yukleme.period)} · {fmt(toplam, yabanciBirim((veri.cards || []).find((kart) => kart.id === yukleme.cardId)))}</span>
                         <small>
                           {ozet.yuklenmeTarihi ? t("borclar.arsiv.aktarildi", { tarih: tarihSaatEtiketi(ozet.yuklenmeTarihi) }) : t("borclar.arsiv.gecmisEkstre")}
                           {ozet.kaynak ? ` · ${String(ozet.kaynak).toUpperCase()}` : ""}
@@ -9916,7 +10122,7 @@ function Borclar({
                       {silinecekBorc.kayit.ad ? ` · ${tDeger(silinecekBorc.kayit.ad)}` : ""}
                     </>
                   ),
-                  tutar: <b>{fmt(summarizeLoanRecord(silinecekBorc.kayit, veri.loanPaymentHistory).remainingPaymentTotal)}</b>,
+                  tutar: <b>{fmt(summarizeLoanRecord(silinecekBorc.kayit, veri.loanPaymentHistory).remainingPaymentTotal, yabanciBirim(silinecekBorc.kayit))}</b>,
                 }}
               />
             </p>
@@ -10032,7 +10238,7 @@ function Borclar({
                   ),
                   tutar: (
                     <b style={{ color: "var(--text)" }}>
-                      {fmt(silinecekEkHesapOdemesi.odeme.tutar)}
+                      {fmt(silinecekEkHesapOdemesi.odeme.tutar, yabanciBirim(silinecekEkHesapOdemesi.kart))}
                     </b>
                   ),
                 }}
@@ -10300,13 +10506,13 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
     return (
       <div className="bt-arac-bos">
         <h3>{t("borcSatir.kontrol.bosBaslik")}</h3>
-        <p>{t(belgeOkumaAcik() ? "borcSatir.kontrol.bosAciklama" : "borcSatir.kontrol.bosAciklamaManuel")}</p>
+        <p>{t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borcSatir.kontrol.bosAciklama" : "borcSatir.kontrol.bosAciklamaManuel")}</p>
         <div className="bt-arac-bos-actions">
           <button className="bt-btn birincil" type="button" onClick={onKartEkle}>
             <Plus size={14} /> {t("borcSatir.kontrol.kartEkle")}
           </button>
           <button className="bt-btn ikincil" type="button" onClick={onEkstreYukle}>
-            <Plus size={14} /> {t(belgeOkumaAcik() ? "borcSatir.kontrol.ekstreEkle" : "borcSatir.kontrol.ekstreEkleManuel")}
+            <Plus size={14} /> {t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borcSatir.kontrol.ekstreEkle" : "borcSatir.kontrol.ekstreEkleManuel")}
           </button>
         </div>
       </div>
@@ -10486,7 +10692,7 @@ function KartYapilandirmaModal({ kart, onClose, onSave }) {
         <label className="bt-alan">{t("borcSatir.yap.ilkOdeme")}<input className="bt-input" type="date" value={f.firstPaymentDate} onChange={(e) => setF({ ...f, firstPaymentDate: e.target.value })}/></label>
         <label className="bt-alan">{t("borcSatir.yap.toplamGeriOdeme")} <ParaInput className="bt-input" value={f.totalRepayment} onValueChange={(value) => setF({ ...f, totalRepayment: value })}/><small>{t("borcSatir.yap.bosBirak")}</small></label>
       </div>
-      <details className="bt-yapilandirma-oranlar"><summary>{t("borcSatir.yap.oranlar")} <span>{t("ortak.istegeBagli")}</span></summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">{t("borcSatir.yap.nominalFaiz")}<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label>{/* KKDF ve BSMV Turk vergi-fon kalemleri; TRY disinda alan yok, hesaba 0 girer. */}{turkiyeKurallariGecerli() && <><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></>}</div></details>
+      <details className="bt-yapilandirma-oranlar"><summary>{t("borcSatir.yap.oranlar")} <span>{t("ortak.istegeBagli")}</span></summary><div className="bt-alanlar" style={{ marginTop: 12 }}><label className="bt-alan">{t("borcSatir.yap.nominalFaiz")}<input className="bt-input" type="number" min="0" step="0.01" value={f.monthlyInterest} onChange={(e) => setF({ ...f, monthlyInterest: e.target.value })}/></label>{/* KKDF ve BSMV Turk vergi-fon kalemleri; TRY disinda alan yok, hesaba 0 girer. */}{turkiyeKurallariGecerli(kayitParaBirimi(kart)) && <><label className="bt-alan">KKDF (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.kkdfRate} onChange={(e) => setF({ ...f, kkdfRate: e.target.value })}/></label><label className="bt-alan">BSMV (%)<input className="bt-input" type="number" min="0" step="0.01" value={f.bsmvRate} onChange={(e) => setF({ ...f, bsmvRate: e.target.value })}/></label></>}</div></details>
       {tutar > 0 && adet > 0 && <div className="bt-ipucu" style={{ marginTop: 14 }}><Check size={16}/><div><b>{t("borcSatir.yap.onizlemeBaslik")}</b> {t("borcSatir.yap.onizleme", { tutar: fmt(tutar), adet, dusen: fmt(Math.min(tutar, kalan)), toplam: fmt(toplam) })}{tutar > kalan && <> {t("borcSatir.yap.onizlemeFazla", { fazla: fmt(tutar - kalan) })}</>}</div></div>}
       {hata && <div className="bt-ipucu" role="alert" style={{ marginTop: 12, borderColor: CORAL }}>{hata}</div>}
       <div className="bt-form-butonlar"><button className="bt-btn birincil" type="button" onClick={kaydet}><Check size={14}/> {t("borcSatir.yap.kaydet")}</button><button className="bt-btn ikincil" type="button" onClick={onClose}>{t("ortak.vazgec")}</button></div>
@@ -10515,6 +10721,9 @@ function BorclarSatiri({
   yeniEkstreAc,
   arsiv = false,
 }) {
+  // Satirdaki butun tutarlar kaydin kendi biriminde (ana birimse eskisi gibi).
+  const satirBirimi = yabanciBirim(k);
+  const fmt = (n) => fmtBirimli(n, satirBirimi);
   const [kartGecmisiAcik, setKartGecmisiAcik] = useState(false);
   const [duzenlenenKartOdemesi, setDuzenlenenKartOdemesi] = useState(null);
   let baslik = k.banka,
@@ -10594,6 +10803,7 @@ function BorclarSatiri({
       const gecikmeOrani = kartFaizOranlari(
         hesap.onceki || hesap.toplam,
         k.faiz,
+        kayitParaBirimi(k),
       ).gecikme;
       const birikenFaiz = gunlukBirikmisFaiz(
         hesap.toplam,
@@ -10611,6 +10821,7 @@ function BorclarSatiri({
     tutarEtiketi = ekstreVar ? durumMetni : null;
     kartDetay = ekstreVar
       ? {
+          paraBirimi: satirBirimi,
           donem,
           guncel: hesap.yeni,
           devreden: hesap.oncekiDevreden || 0,
@@ -10629,6 +10840,7 @@ function BorclarSatiri({
       : null;
     if (ekstreVar && hesap.toplam > 0) {
       odemeNesnesi = {
+        ...(satirBirimi ? { paraBirimi: satirBirimi } : {}),
         tur: "kart",
         ad: kartGorunenAdi(k),
         anahtar: kartOdemeAnahtari({ ...k, ekstreAyi: donem }),
@@ -10665,6 +10877,7 @@ function BorclarSatiri({
       const odemeKaydi = krediOdemeGecmisi?.[krediOdemeDonemi]?.[k.id];
       const yapilanOdeme = loanPaymentAmount(odemeKaydi);
       odemeNesnesi = {
+        ...(satirBirimi ? { paraBirimi: satirBirimi } : {}),
         tur: "kredi",
         ad: k.banka + (k.ad ? " · " + k.ad : ""),
         anahtar: krediOdemeAnahtari,
@@ -10687,7 +10900,7 @@ function BorclarSatiri({
         ? hesap.ucretle
           ? t("borcSatir.od.ucretle")
           : t("borcSatir.od.tahminiFaiz", { faiz: fmt(hesap.faiz), oran: hesap.oran.toFixed(2) }) +
-            (hesap.varsayilan ? ` · ${ortalamaEtiketi()}` : "")
+            (hesap.varsayilan ? ` · ${ortalamaEtiketi(kayitParaBirimi(k))}` : "")
         : null;
   } else {
     tutar = +k.tutar || 0;
@@ -11004,6 +11217,7 @@ function BorclarSatiri({
 }
 
 function EkstreSatirDetayi({ detay, arsivSayisi = 0 }) {
+  const fmt = (n) => fmtBirimli(n, detay?.paraBirimi);
   return (
     <details style={{ marginTop: 10 }}>
       <summary
@@ -11120,7 +11334,7 @@ function GecikmisBorcSatiri({ g, i }) {
         </div>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div className="bt-satir-tutar">{fmt(g.bakiye)}</div>
+        <div className="bt-satir-tutar">{fmt(g.bakiye, g.paraBirimi)}</div>
         <div className="bt-satirD-tur" style={{ fontWeight: 800 }}>
           {t("borcSatir.kalanBorc")}
         </div>
@@ -11130,10 +11344,10 @@ function GecikmisBorcSatiri({ g, i }) {
               ? t("borcSatir.kart.asgariOdendi")
               : t(g.gun === 1 ? "borcSatir.kart.gecikmeFaizsizTekil" : "borcSatir.kart.gecikmeFaizsizCogul", { n: g.gun })
             : g.durum === "devreden"
-            ? t("borcSatir.gecikmis.asgariOdendi", { faiz: fmt(g.faiz) })
+            ? t("borcSatir.gecikmis.asgariOdendi", { faiz: fmt(g.faiz, g.paraBirimi) })
             : t(g.gun === 1 ? "borcSatir.gecikmis.gecikmeTekil" : "borcSatir.gecikmis.gecikmeCogul", {
                 n: g.gun,
-                faiz: fmt(g.faiz),
+                faiz: fmt(g.faiz, g.paraBirimi),
               })}
         </div>
       </div>
@@ -11142,15 +11356,17 @@ function GecikmisBorcSatiri({ g, i }) {
 }
 
 /* ---------------- Borç Planı ---------------- */
-function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
+function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc, kurNotu = null }) {
   const [strateji, setStrateji] = useState("cig");
   const [ekstra, setEkstra] = useState("");
+  // Plan tutarlari ana birimde; senaryo kayitlari ana birime cevrilmis kopya.
+  const anaBirimVeri = useMemo(() => anaBirimBorcVerisi(veri), [veri]);
 
   const finansalSenaryo = calculateRevolvingDebtScenario({
     income: gelir,
     expenses: veri?.expenses || [],
-    cards: veri?.cards || [],
-    loans: veri?.loans || [],
+    cards: anaBirimVeri?.cards || [],
+    loans: anaBirimVeri?.loans || [],
     debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
     currentDate: bugun(),
   });
@@ -11163,8 +11379,8 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
       ? calculateRevolvingDebtScenario({
           income: gelir,
           expenses: veri?.expenses || [],
-          cards: veri?.cards || [],
-          loans: veri?.loans || [],
+          cards: anaBirimVeri?.cards || [],
+          loans: anaBirimVeri?.loans || [],
           debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
           currentDate: bugun(),
           livingBudgetOverride: onerilenButce,
@@ -11304,6 +11520,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
             <span>{t("plan.faizYuku")}</span>
             <strong>{fmt0(aylikFaiz)}</strong>
             <small>{t("plan.yillik", { tutar: fmt0(aylikFaiz * 12) })}</small>
+            <KurNotu durum={kurNotu} />
           </div>
         </div>
         <div className="bt-plan-faiz-kirilim">
@@ -11700,7 +11917,10 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                           })}
                     </div>
                   </div>
-                  <div className="bt-satir-tutar">{fmt(k.bakiye)}</div>
+                  <div className="bt-satir-tutar">
+                    {fmt(k.bakiye)}
+                    {k.paraBirimi && <small style={{ display: "block", fontSize: 11, color: "var(--dim)", fontWeight: 600 }}>{fmt(k.kayitBakiye, k.paraBirimi)}</small>}
+                  </div>
                 </div>
               );
             })}
@@ -11730,7 +11950,10 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc }) {
                   <div style={{ flex: 1 }} className="bt-satir-ad">
                     {k.ad}
                   </div>
-                  <div className="bt-satir-tutar">{fmt(k.bakiye)}</div>
+                  <div className="bt-satir-tutar">
+                    {fmt(k.bakiye)}
+                    {k.paraBirimi && <small style={{ display: "block", fontSize: 11, color: "var(--dim)", fontWeight: 600 }}>{fmt(k.kayitBakiye, k.paraBirimi)}</small>}
+                  </div>
                 </div>
               ))}
             </div>
