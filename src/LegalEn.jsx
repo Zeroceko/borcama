@@ -2,8 +2,8 @@
 //
 // Yalnız native (iOS) uygulamada, dil İngilizce iken Legal.jsx bu
 // içerikleri gösterir. Web ve Türkçe metinler Legal.jsx'te olduğu gibi kalır.
-// Köşeli parantezli alanlar ([COMPANY ADDRESS] vb.) Türkçe metinde bulunmayan
-// şirket bilgileridir; tahmin edilmedi, hukuk kontrolünde doldurulmalı.
+// Kimlik App Store satici kaydindan (Ozer Ocek, Istanbul); saklama sureleri
+// ve 16 yas siniri 1.69.0 icin secildi, hukuk kontrolunde teyit edilmeli.
 import React from "react";
 
 const ILETISIM = "zero@borcama.com";
@@ -21,9 +21,9 @@ function Dis({ href, children }) {
 }
 
 export const EN_BASLIKLAR = {
-  terms: { title: "Terms of Use", tarih: "[EFFECTIVE DATE]", surum: "1.0" },
-  privacy: { title: "Privacy Policy", tarih: "[EFFECTIVE DATE]", surum: "1.0" },
-  refund: { title: "Cancellation and Refund Policy", tarih: "[EFFECTIVE DATE]", surum: "1.0" },
+  terms: { title: "Terms of Use", tarih: "27 October 2026", surum: "1.0" },
+  privacy: { title: "Privacy Policy", tarih: "27 October 2026", surum: "1.0" },
+  refund: { title: "Cancellation and Refund Policy", tarih: "27 October 2026", surum: "1.0" },
 };
 
 // TASLAK — hukuk kontrolü bekliyor (Legal review pending). Yayından önce avukat onayı gerekir.
@@ -33,8 +33,7 @@ export function TermsOfUseEn() {
       <p>
         These Terms of Use (“Terms”) govern your use of the Borcama iOS app
         and the Borcama service. By creating an account or using the app, you
-        agree to these Terms. The Borcama service is provided by [LEGAL ENTITY
-        NAME], [COMPANY ADDRESS] (“Borcama”, “we”, “us”).
+        agree to these Terms. The Borcama service is provided by Özer Öcek (sole proprietor), Istanbul, Türkiye (“Borcama”, “we”, “us”).
       </p>
       <h2>1. What Borcama is</h2>
       <p>
@@ -185,9 +184,7 @@ export function PrivacyPolicyEn() {
       </p>
       <h2>1. Data controller</h2>
       <p>
-        The data controller is the Borcama service, operated by [LEGAL ENTITY
-        NAME], [COMPANY ADDRESS]. Contact: <Mail />. Data protection contact /
-        EU representative, if required: [DPO / EU REPRESENTATIVE].
+        The data controller is the Borcama service, operated by Özer Öcek (sole proprietor), Istanbul, Türkiye. Contact: <Mail />. For any data protection request, write to the same address.
       </p>
       <h2>2. Data we process</h2>
       <ul>
@@ -329,11 +326,10 @@ export function PrivacyPolicyEn() {
         </li>
         <li>
           Security and legal records are kept only for the limited period
-          needed for their purpose or required by law: [RETENTION PERIODS].
+          needed for their purpose: security logs for up to 12 months, and records we must keep by law (such as tax records) for the period the law requires.
         </li>
         <li>
-          Support messages are kept as long as needed to resolve your request:
-          [RETENTION PERIOD].
+          Support messages are kept for up to 24 months after your request is resolved.
         </li>
       </ul>
       <p>
@@ -385,7 +381,7 @@ export function PrivacyPolicyEn() {
       <p>
         Borcama is not directed to children and is intended for adults
         managing their own finances. We do not knowingly collect personal data
-        from children under 16 [MINIMUM AGE — confirm]. If you believe a child
+        from children under 16. If you believe a child
         has given us data, contact us and we will delete it.
       </p>
       <h2>13. Changes</h2>

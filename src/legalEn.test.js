@@ -60,7 +60,7 @@ test("İngilizce gizlilik politikası GDPR bölümlerini içerir", () => {
     "does not load Google Analytics, Google Ads",
     "We do not sell",
     "Children",
-    "[COMPANY ADDRESS]",
+    "Özer Öcek (sole proprietor), Istanbul, Türkiye",
   ]) {
     assert.ok(html.includes(parca), `eksik: ${parca}`);
   }
@@ -137,4 +137,9 @@ test("yasal sözlük tr değerleri eski metinle aynı, en dolu", () => {
     "yasal.link.iade": "İade Politikası",
   });
   assert.deepEqual(Object.keys(yasalEn).sort(), Object.keys(yasalTr).sort());
+});
+
+test("İngilizce yasal metinlerde doldurulmamış yer tutucu kalmaz", async () => {
+  const kaynak = readFileSync(new URL("./LegalEn.jsx", import.meta.url), "utf8");
+  assert.doesNotMatch(kaynak, /\[(LEGAL ENTITY|COMPANY ADDRESS|DPO|RETENTION|EFFECTIVE DATE|MINIMUM AGE)/);
 });
