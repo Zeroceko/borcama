@@ -4702,10 +4702,10 @@ function Ayarlar({
           className="bt-display"
           style={{ fontSize: "clamp(28px,5vw,42px)" }}
         >
-          Ayarlar
+          {t("ayarlar.baslik")}
         </div>
         <div style={{ color: "var(--dim)", fontSize: 13, marginTop: 7 }}>
-          Hesap, giriş, görünüm ve veri tercihlerini buradan yönet.
+          {t("ayarlar.altBaslik")}
         </div>
       </div>
       <div className="bt-settings-grid">
@@ -4716,21 +4716,18 @@ function Ayarlar({
           <section className="bt-premium-card">
             <div className="bt-premium-copy">
               <span className="bt-premium-badge">
-                <Sparkles size={13} /> AYLIK VE YILLIK PLAN
+                <Sparkles size={13} /> {t("ayarlar.pro.rozetPlan")}
               </span>
-              <h2>Pro için önce hesap aç.</h2>
+              <h2>{t("ayarlar.pro.misafirBaslik")}</h2>
               <p>
-                Borcama'yı hesapsız kullanmaya devam edebilirsin; kayıtların bu
-                cihazda duruyor. Pro aboneliği, kayıtlarının cihazlar arasında
-                eşlenmesi ve yedeklenmesi için hesap gerekir. Hesap açtığında bu
-                cihazdaki kayıtların hesabına taşınır.
+                {t("ayarlar.pro.misafirMetin")}
               </p>
               <button
                 className="bt-btn birincil"
                 type="button"
                 onClick={() => window.location.assign("/register")}
               >
-                <Sparkles size={15} /> Hesap aç
+                <Sparkles size={15} /> {t("ayarlar.pro.hesapAc")}
               </button>
             </div>
           </section>
@@ -4739,39 +4736,42 @@ function Ayarlar({
           <div className="bt-premium-copy">
             <span className="bt-premium-badge">
               <Sparkles size={13} />
-              {denemeAktif ? "PRO DENEMESİ" : reklamsiz.proAktif ? "PRO AKTİF" : "AYLIK VE YILLIK PLAN"}
+              {denemeAktif ? t("ayarlar.pro.rozetDeneme") : reklamsiz.proAktif ? t("ayarlar.pro.rozetAktif") : t("ayarlar.pro.rozetPlan")}
             </span>
             <h2>
               {denemeAktif
-                ? `Pro denemende ${reklamsiz.trialKalanGun} gün kaldı`
+                ? t(Number(reklamsiz.trialKalanGun) === 1 ? "ayarlar.pro.denemeBaslikTekil" : "ayarlar.pro.denemeBaslikCogul", { gun: reklamsiz.trialKalanGun })
                 : reklamsiz.proAktif
-                ? "Borcama Pro aktif"
-                : "Borcama Pro ile tüm planını aç."}
+                ? t("ayarlar.pro.aktifBaslik")
+                : t("ayarlar.pro.ucretsizBaslik")}
             </h2>
             <p>
               {denemeAktif
-                ? "Tüm kişisel öneriler ve gelişmiş analizler açık. Kart bilgisi istemedik; deneme bitince hesabın ve verilerin korunarak otomatik olarak Ücretsiz plana döner."
+                ? t("ayarlar.pro.denemeMetin")
                 : reklamsiz.proAktif
-                ? "Tüm kişisel öneriler ve gelişmiş finansal analizler hesabında açık."
-                : "Aylık veya yıllık planı seç. Tüm kişisel öneriler, faiz ve aylık yük analizleri ile gelişmiş senaryolar dahil."}
+                ? t("ayarlar.pro.aktifMetin")
+                : t("ayarlar.pro.ucretsizMetin")}
               {reklamsiz.proAktif &&
               reklamsiz.proYonetimUrl &&
               !reklamsiz.proYenilenecek
-                ? " Yenileme kapalı; mevcut dönem bitince hesabın otomatik olarak Ücretsiz pakete geçecek."
+                ? t("ayarlar.pro.yenilemeKapali")
                 : ""}
               {!reklamsiz.proAktif && proPaketler?.hata ? ` ${proPaketler.hata}` : ""}
               {reklamsiz.hata ? ` ${reklamsiz.hata}` : ""}
               {proSatinAlma.hata ? ` ${proSatinAlma.hata}` : ""}
             </p>
             {reklamsiz.proAktif && (
-              <div className="bt-premium-meta" aria-label="Abonelik durumu">
-                <span className="vurgu">{denemeAktif ? "Kart gerektirmeyen deneme" : "Pro erişimi açık"}</span>
+              <div className="bt-premium-meta" aria-label={t("ayarlar.pro.durumEtiketi")}>
+                <span className="vurgu">{denemeAktif ? t("ayarlar.pro.kartsizDeneme") : t("ayarlar.pro.erisimAcik")}</span>
                 {reklamsiz.proBitis && (
                   <span>
-                    {denemeAktif ? "Deneme bitişi" : reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: {new Date(reklamsiz.proBitis).toLocaleDateString(locale(), {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
+                    {t("ayarlar.pro.tarihSatiri", {
+                      etiket: denemeAktif ? t("ayarlar.pro.denemeBitisi") : reklamsiz.proYenilenecek ? t("ayarlar.pro.sonrakiYenileme") : t("ayarlar.pro.erisimBitisi"),
+                      tarih: new Date(reklamsiz.proBitis).toLocaleDateString(locale(), {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }),
                     })}
                   </span>
                 )}
@@ -4781,20 +4781,20 @@ function Ayarlar({
           <div className="bt-premium-actions">
             {(!reklamsiz.proAktif || denemeAktif) && (
               <div className="bt-pro-choice">
-                <div className="bt-pro-toggle" role="group" aria-label="Pro faturalama dönemi">
+                <div className="bt-pro-toggle" role="group" aria-label={t("ayarlar.pro.donemEtiketi")}>
                   <button
                     type="button"
                     className={proPlan === "monthly" ? "aktif" : ""}
                     onClick={() => setProPlan("monthly")}
                   >
-                    Aylık
+                    {t("ayarlar.pro.aylik")}
                   </button>
                   <button
                     type="button"
                     className={proPlan === "annual" ? "aktif" : ""}
                     onClick={() => setProPlan("annual")}
                   >
-                    Yıllık
+                    {t("ayarlar.pro.yillik")}
                   </button>
                 </div>
                 <button
@@ -4804,12 +4804,12 @@ function Ayarlar({
                   onClick={() => proSatinAl(proPlan)}
                 >
                   {proSatinAlma.yukleniyor
-                    ? "Ödeme açılıyor…"
+                    ? t("ayarlar.pro.odemeAciliyor")
                     : proPaketler?.yukleniyor
-                      ? "Fiyat yükleniyor…"
+                      ? t("ayarlar.pro.fiyatYukleniyor")
                       : denemeAktif
-                        ? `Deneme sonrası Pro'yu sürdür · ${seciliFiyat || "Fiyat alınamadı"}`
-                        : `Pro'ya geç · ${seciliFiyat || "Fiyat alınamadı"}`}
+                        ? t("ayarlar.pro.denemeSonrasiSurdur", { fiyat: seciliFiyat || t("ayarlar.pro.fiyatAlinamadi") })
+                        : t("ayarlar.pro.proyaGec", { fiyat: seciliFiyat || t("ayarlar.pro.fiyatAlinamadi") })}
                 </button>
                 {/* App Store Guideline 3.1.2: satin alma ekraninda abonelik
                     adi, suresi ve fiyati ile kullanim sartlari ve gizlilik
@@ -4817,23 +4817,23 @@ function Ayarlar({
                 <div className="bt-pro-sartlar">
                   <div className="bt-pro-sartlar-ust">
                     <strong>
-                      {proPlan === "annual" ? "Borcama Pro Yıllık" : "Borcama Pro Aylık"}
+                      {proPlan === "annual" ? t("ayarlar.pro.planYillik") : t("ayarlar.pro.planAylik")}
                     </strong>
                     <span>
-                      {proPlan === "annual" ? "1 yıl" : "1 ay"}
+                      {proPlan === "annual" ? t("ayarlar.pro.sure1Yil") : t("ayarlar.pro.sure1Ay")}
                       {seciliFiyat ? ` · ${seciliFiyat}` : ""}
                     </span>
                   </div>
                   <p>
-                    Abonelik dönem sonunda otomatik yenilenir.{" "}
+                    {t("ayarlar.pro.otomatikYenilenir")}{" "}
                     {nativeMi
-                      ? "Yenilemeyi App Store hesap ayarlarından istediğin zaman kapatabilirsin."
+                      ? t("ayarlar.pro.yenilemeAppStore")
                       : "Yenilemeyi istediğin zaman kapatabilirsin."}
                   </p>
                   <div className="bt-pro-sartlar-baglantilar">
-                    <a href="/terms" target="_blank" rel="noreferrer">Kullanım Şartları</a>
-                    <a href="/privacy" target="_blank" rel="noreferrer">Gizlilik Politikası</a>
-                    <a href="/refund-policy" target="_blank" rel="noreferrer">İade Politikası</a>
+                    <a href="/terms" target="_blank" rel="noreferrer">{t("ayarlar.pro.kullanimSartlari")}</a>
+                    <a href="/privacy" target="_blank" rel="noreferrer">{t("ayarlar.pro.gizlilikPolitikasi")}</a>
+                    <a href="/refund-policy" target="_blank" rel="noreferrer">{t("ayarlar.pro.iadePolitikasi")}</a>
                   </div>
                   {nativeMi && (
                     <>
@@ -4844,8 +4844,8 @@ function Ayarlar({
                         onClick={proGeriYukle}
                       >
                         {proGeriYukleme?.yukleniyor
-                          ? "Geri yükleniyor…"
-                          : "Satın alımları geri yükle"}
+                          ? t("ayarlar.pro.geriYukleniyor")
+                          : t("ayarlar.pro.geriYukle")}
                       </button>
                       {proGeriYukleme?.hata && (
                         <p className="bt-pro-sartlar-hata">{proGeriYukleme.hata}</p>
@@ -4861,7 +4861,7 @@ function Ayarlar({
                 type="button"
                 onClick={() => setPaketYonetimiAcik(true)}
               >
-                Paketimi yönet / iptal et
+                {t("ayarlar.pro.paketimiYonet")}
               </button>
             )}
             {reklamsiz.proAktif && !denemeAktif &&
@@ -4881,8 +4881,8 @@ function Ayarlar({
                   }}
                 >
                   {ucretsizOnayi
-                    ? "Ücretsiz pakete geçişi onayla"
-                    : "Ücretsiz pakete geç"}
+                    ? t("ayarlar.pro.ucretsizeGecOnayla")
+                    : t("ayarlar.pro.ucretsizeGec")}
                 </button>
               )}
             <button
@@ -4893,17 +4893,17 @@ function Ayarlar({
             >
               <RefreshCw size={14} />
               {reklamsiz.yukleniyor
-                ? "Kontrol ediliyor…"
+                ? t("ayarlar.pro.kontrolEdiliyor")
                 : reklamsiz.proAktif
-                  ? "Durumu yenile"
-                  : "Pro aldım, kontrol et"}
+                  ? t("ayarlar.pro.durumuYenile")
+                  : t("ayarlar.pro.proAldim")}
             </button>
             {reklamsiz.proAktif && !denemeAktif && (
               <p className="bt-premium-help">
                 {reklamsiz.proYonetimUrl
-                  ? "İptal edersen sonraki yenileme durur; Pro erişimin mevcut döneminin sonuna kadar sürer. "
-                  : "Bu paket ödeme sistemi dışında tanımlandı; Ücretsiz pakete geçtiğinde Pro erişimi hemen kapanır. "}
-                <a href="/faq" target="_blank" rel="noreferrer">Yardım</a>
+                  ? t("ayarlar.pro.iptalYardim")
+                  : t("ayarlar.pro.manuelYardim")}
+                <a href="/faq" target="_blank" rel="noreferrer">{t("ayarlar.pro.yardim")}</a>
               </p>
             )}
           </div>
@@ -4917,30 +4917,30 @@ function Ayarlar({
         {!misafir && (
         <section className="bt-settings-card">
           <div className="bt-settings-title">
-            <AtSign size={18} /> Hesap
+            <AtSign size={18} /> {t("ayarlar.hesap.baslik")}
           </div>
           <div className="bt-setting-row">
             <div>
-              <strong>E-posta adresi</strong>
-              <small>{eposta || "Yükleniyor…"}</small>
+              <strong>{t("ayarlar.hesap.eposta")}</strong>
+              <small>{eposta || t("ortak.yukleniyor")}</small>
             </div>
           </div>
           <div className="bt-setting-row">
             <div>
-              <strong>Parola</strong>
-              <small>Parola belirle veya mevcut parolanı değiştir.</small>
+              <strong>{t("ayarlar.hesap.parola")}</strong>
+              <small>{t("ayarlar.hesap.parolaAciklama")}</small>
             </div>
             <button className="bt-btn kucuk ikincil" onClick={parolaAc}>
-              <KeyRound size={14} /> Parolayı yönet
+              <KeyRound size={14} /> {t("ayarlar.hesap.parolaYonet")}
             </button>
           </div>
           <div className="bt-setting-row">
             <div>
-              <strong>Oturum</strong>
-              <small>Bu cihazdaki Borcama oturumunu kapat.</small>
+              <strong>{t("ayarlar.hesap.oturum")}</strong>
+              <small>{t("ayarlar.hesap.oturumAciklama")}</small>
             </div>
             <button className="bt-btn kucuk ikincil" onClick={cikisYap}>
-              <LogOut size={14} /> Çıkış yap
+              <LogOut size={14} /> {t("ayarlar.hesap.cikisYap")}
             </button>
           </div>
         </section>
@@ -4948,7 +4948,7 @@ function Ayarlar({
         {!misafir && (
         <section className="bt-settings-card">
           <div className="bt-settings-title">
-            <KeyRound size={18} /> Giriş yöntemleri
+            <KeyRound size={18} /> {t("ayarlar.giris.baslik")}
           </div>
           {/* E-posta linkiyle giris uygulama surumunden kaldirilmisti; satir
               uygulamada artik gosterilmiyor. Tarayici surumunde duruyor. */}
@@ -4967,13 +4967,13 @@ function Ayarlar({
           )}
           <div className="bt-setting-row">
             <div>
-              <strong>Parola ile giriş</strong>
+              <strong>{t("ayarlar.giris.parolaIle")}</strong>
               <small>
-                Parola belirledikten sonra e-posta ve parolanı kullan.
+                {t("ayarlar.giris.parolaIleAciklama")}
               </small>
             </div>
             <span className="bt-yakinda" style={{ color: "#5D7A2E" }}>
-              Kullanılabilir
+              {t("ayarlar.giris.kullanilabilir")}
             </span>
           </div>
         </section>
@@ -4983,14 +4983,14 @@ function Ayarlar({
         <DilAyari />
         <section className="bt-settings-card">
           <div className="bt-settings-title">
-            <Palette size={18} /> Görünüm
+            <Palette size={18} /> {t("ayarlar.gorunum.baslik")}
           </div>
           <div className="bt-setting-row">
             <div>
-              <strong>Tema</strong>
-              <small>Borcama'yı açık ya da koyu renklerle kullan.</small>
+              <strong>{t("ayarlar.gorunum.tema")}</strong>
+              <small>{t("ayarlar.gorunum.temaAciklama")}</small>
             </div>
-            <div className="bt-tema-secim" role="group" aria-label="Tema">
+            <div className="bt-tema-secim" role="group" aria-label={t("ayarlar.gorunum.tema")}>
               {[["Açık", false], ["Koyu", true]].map(([ad, koyu]) => (
                 <button
                   key={ad}
@@ -5001,18 +5001,18 @@ function Ayarlar({
                     if (isDark !== koyu) temaDegistir();
                   }}
                 >
-                  {ad}
+                  {koyu ? t("ayarlar.gorunum.koyu") : t("ayarlar.gorunum.acik")}
                 </button>
               ))}
             </div>
           </div>
           <div className="bt-setting-row">
             <div>
-              <strong>Kullanım rehberi</strong>
-              <small>Borcama'nın temel akışını adım adım yeniden gör.</small>
+              <strong>{t("ayarlar.gorunum.rehber")}</strong>
+              <small>{t("ayarlar.gorunum.rehberAciklama")}</small>
             </div>
             <button className="bt-btn kucuk ikincil" onClick={rehberAc}>
-              <BookOpen size={14} /> Rehberi aç
+              <BookOpen size={14} /> {t("ayarlar.gorunum.rehberiAc")}
             </button>
           </div>
         </section>
@@ -5044,7 +5044,7 @@ function Ayarlar({
         {!(nativeMi && misafir) && (
         <section className="bt-settings-card wide">
           <div className="bt-settings-title">
-            <Database size={18} /> Veri ve yönetim
+            <Database size={18} /> {t("ayarlar.veri.baslik")}
           </div>
           {!nativeMi && (
             <>
@@ -5069,15 +5069,15 @@ function Ayarlar({
           {!misafir && (
           <div className="bt-setting-row">
             <div>
-              <strong>Hesabı ve verileri sil</strong>
-              <small>Hesabını ve Borcama'daki kişisel kayıtlarını kalıcı olarak kaldır.</small>
+              <strong>{t("ayarlar.veri.hesabiSil")}</strong>
+              <small>{t("ayarlar.veri.hesabiSilAciklama")}</small>
             </div>
             <button
               className="bt-btn kucuk bt-danger"
               type="button"
               onClick={() => setHesapSilmeAcik(true)}
             >
-              <Trash2 size={14} /> Hesabımı sil
+              <Trash2 size={14} /> {t("ayarlar.veri.hesabimiSil")}
             </button>
           </div>
           )}
@@ -5101,13 +5101,13 @@ function Ayarlar({
             <div className="bt-modalbaslik">
               <div>
                 <div id="paket-yonetimi-baslik" className="bt-h2">
-                  Paketini yönet
+                  {t("ayarlar.paket.baslik")}
                 </div>
               </div>
               <button
                 className="bt-btn ikon hayalet"
                 type="button"
-                aria-label="Pencereyi kapat"
+                aria-label={t("ayarlar.paket.pencereyiKapat")}
                 onClick={paketPenceresiniKapat}
               >
                 <X size={18} />
@@ -5115,7 +5115,7 @@ function Ayarlar({
             </div>
             <p style={{ color: "var(--dim)", fontSize: 13, lineHeight: 1.55 }}>
               {nativeMi
-                ? "Aboneliğin App Store üzerinden yürüyor. Yenilemeyi durdurmak ya da planını değiştirmek için App Store abonelik ekranını kullan."
+                ? t("ayarlar.paket.appStoreAciklama")
                 : "Yenilemeyi durdurabilir veya ödeme kartını Borcama'dan ayrılmadan güncelleyebilirsin. Kart ekranı Paddle tarafından güvenli biçimde açılır; Borcama kart bilgilerini görmez veya saklamaz."}
             </p>
             <div
@@ -5128,12 +5128,12 @@ function Ayarlar({
               }}
             >
               <strong style={{ display: "block", fontSize: 13 }}>
-                Borcama Pro · aktif
+                {t("ayarlar.paket.aktif")}
               </strong>
               <span style={{ display: "block", marginTop: 5, color: "var(--dim)", fontSize: 11 }}>
                 {reklamsiz.proBitis
-                  ? `${reklamsiz.proYenilenecek ? "Sonraki yenileme" : "Erişim bitişi"}: ${new Date(reklamsiz.proBitis).toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" })}`
-                  : "Paket bilgilerin güvenli ödeme portalında görüntülenir."}
+                  ? t("ayarlar.pro.tarihSatiri", { etiket: reklamsiz.proYenilenecek ? t("ayarlar.pro.sonrakiYenileme") : t("ayarlar.pro.erisimBitisi"), tarih: new Date(reklamsiz.proBitis).toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" }) })
+                  : t("ayarlar.paket.portalBilgisi")}
               </span>
             </div>
             {iptalOnayi && !iptalDurumu.tamam && (
@@ -5212,12 +5212,12 @@ function Ayarlar({
                       type="button"
                       onClick={() => window.open(reklamsiz.proYonetimUrl, "_system")}
                     >
-                      App Store'da aboneliği yönet
+                      {t("ayarlar.paket.appStoreYonet")}
                       <ArrowRight size={15} />
                     </button>
                   )}
                   <button className="bt-btn hayalet" type="button" onClick={paketPenceresiniKapat}>
-                    Kapat
+                    {t("ortak.kapat")}
                   </button>
                 </>
               ) : (
@@ -5266,11 +5266,11 @@ function Ayarlar({
             aria-describedby="hesap-silme-aciklama"
           >
             <div className="bt-modalbaslik">
-              <div id="hesap-silme-baslik" className="bt-h2">Hesabını kalıcı olarak sil</div>
+              <div id="hesap-silme-baslik" className="bt-h2">{t("ayarlar.silme.baslik")}</div>
               <button
                 className="bt-btn ikon hayalet"
                 type="button"
-                aria-label="Pencereyi kapat"
+                aria-label={t("ayarlar.paket.pencereyiKapat")}
                 disabled={hesapSilmeDurumu.yukleniyor}
                 onClick={hesapSilmePenceresiniKapat}
               >
@@ -5278,16 +5278,16 @@ function Ayarlar({
               </button>
             </div>
             <div id="hesap-silme-aciklama" className="bt-account-delete-warning">
-              <strong>Bu işlem geri alınamaz.</strong>
+              <strong>{t("ayarlar.silme.geriAlinamaz")}</strong>
               <ul className="bt-account-delete-list">
-                <li>Borç, ekstre, gelir, gider, ödeme, varlık ve asistan kayıtların silinir.</li>
-                <li>Aktif ücretli aboneliğin varsa gelecekteki tahsilat durdurulur.</li>
-                <li>Silme tamamlandığında oturumun kapatılır.</li>
+                <li>{t("ayarlar.silme.madde1")}</li>
+                <li>{t("ayarlar.silme.madde2")}</li>
+                <li>{t("ayarlar.silme.madde3")}</li>
               </ul>
             </div>
             <div className="bt-account-delete-confirm">
               <label htmlFor="hesap-silme-onayi">
-                Devam etmek için <code>{HESAP_SILME_ONAYI}</code> yaz
+                <Ceviri anahtar="ayarlar.silme.onayYaz" degerler={{ ifade: <code>{t("ayarlar.silme.onayIfadesi")}</code> }} />
               </label>
               <input
                 id="hesap-silme-onayi"
@@ -5298,7 +5298,7 @@ function Ayarlar({
                   if (hesapSilmeDurumu.hata)
                     setHesapSilmeDurumu({ yukleniyor: false, hata: "" });
                 }}
-                placeholder={HESAP_SILME_ONAYI}
+                placeholder={t("ayarlar.silme.onayIfadesi")}
                 autoComplete="off"
                 autoFocus
                 disabled={hesapSilmeDurumu.yukleniyor}
@@ -5317,7 +5317,7 @@ function Ayarlar({
                 disabled={!hesapSilmeOnayiGecerli(hesapSilmeMetni) || hesapSilmeDurumu.yukleniyor}
                 onClick={hesabiKaliciSil}
               >
-                {hesapSilmeDurumu.yukleniyor ? "Hesap siliniyor…" : "Hesabımı kalıcı olarak sil"}
+                {hesapSilmeDurumu.yukleniyor ? t("ayarlar.silme.siliniyor") : t("ayarlar.silme.kaliciSil")}
               </button>
               <button
                 className="bt-btn ikincil"
@@ -5325,7 +5325,7 @@ function Ayarlar({
                 disabled={hesapSilmeDurumu.yukleniyor}
                 onClick={hesapSilmePenceresiniKapat}
               >
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </div>

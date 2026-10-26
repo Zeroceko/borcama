@@ -8,6 +8,7 @@ import {
   borcamaYerelVerileriniTemizle,
   hesapSilmeBasarisiVar,
   hesapSilmeHataMesaji,
+  hesapSilmeOnayIfadesi,
   hesapSilmeOnayiGecerli,
 } from "./accountDeletion.js";
 
@@ -22,8 +23,39 @@ function bellekDeposu(kayitlar) {
 }
 
 test("hesap silme ifadesi Türkçe karakter ve boşluklarla doğrulanır", () => {
-  assert.equal(hesapSilmeOnayiGecerli("  hesabımı sil "), true);
-  assert.equal(hesapSilmeOnayiGecerli("hesabı sil"), false);
+  assert.equal(hesapSilmeOnayIfadesi("tr"), "HESABIMI SİL");
+  assert.equal(hesapSilmeOnayiGecerli("  hesabımı sil ", "tr"), true);
+  assert.equal(hesapSilmeOnayiGecerli("hesabı sil", "tr"), false);
+  // Türkçe modda İngilizce ifade kabul edilmez; davranış önceki gibi kalır.
+  assert.equal(hesapSilmeOnayiGecerli("DELETE", "tr"), false);
+  assert.equal(hesapSilmeOnayiGecerli("delete", "tr"), false);
+});
+
+test("İngilizce modda hesap silme ifadesi DELETE olarak doğrulanır", () => {
+  assert.equal(hesapSilmeOnayIfadesi("en"), "DELETE");
+  assert.equal(hesapSilmeOnayiGecerli("  delete ", "en"), true);
+  assert.equal(hesapSilmeOnayiGecerli("DELETE", "en"), true);
+  assert.equal(hesapSilmeOnayiGecerli("delet", "en"), false);
+  assert.equal(hesapSilmeOnayiGecerli("", "en"), false);
+});
+
+test("İngilizce onayla silme isteği yine sabit sunucu onay metnini gönderir", async () => {
+  let govde;
+  await borcamaHesabiniSil({
+    supabase: { auth: { getSession: async () => ({ data: { session: { access_token: "token" } } }) } },
+    supabaseUrl: "https://example.supabase.co",
+    onay: "delete",
+    dilKodu: "en",
+    fetchImpl: async (url, options) => {
+      govde = JSON.parse(options.body);
+      return { ok: true, json: async () => ({ ok: true }) };
+    },
+  });
+  assert.deepEqual(govde, { confirmation: HESAP_SILME_ONAYI });
+  await assert.rejects(
+    borcamaHesabiniSil({ supabase: {}, supabaseUrl: "x", onay: "delete", dilKodu: "tr", fetchImpl: async () => { throw new Error("çağrılmamalı"); } }),
+    /CONFIRMATION_REQUIRED/,
+  );
 });
 
 test("hesap silme başarısı yalnız doğru sorgu değeriyle gösterilir", () => {
@@ -39,6 +71,7 @@ test("hesap silme isteği kimlikli ve sabit onay metniyle gönderilir", async ()
     supabase: { auth: { getSession: async () => ({ data: { session: { access_token: "token" } } }) } },
     supabaseUrl: "https://example.supabase.co",
     onay: HESAP_SILME_ONAYI,
+    dilKodu: "tr",
     fetchImpl: async (url, options) => {
       istek = { url, options };
       return { ok: true, json: async () => ({ ok: true }) };
@@ -74,7 +107,15 @@ test("derin baglanti isareti hesap silmede korunur", () => {
 });
 
 test("abonelik hatası kullanıcıya silmenin gerçekleşmediğini açıklar", () => {
-  assert.match(hesapSilmeHataMesaji("SUBSCRIPTION_CANCELLATION_FAILED"), /hesabın silinmedi/i);
+  assert.match(hesapSilmeHataMesaji("SUBSCRIPTION_CANCELLATION_FAILED", "tr"), /hesabın silinmedi/i);
+  assert.match(hesapSilmeHataMesaji("SUBSCRIPTION_CANCELLATION_FAILED", "en"), /account wasn't deleted/i);
+});
+
+test("hesap silme hata mesajları Türkçede önceki metinlerle aynıdır", () => {
+  assert.equal(hesapSilmeHataMesaji("UNAUTHORIZED", "tr"), "Oturumun sona ermiş. Yeniden giriş yapıp tekrar dene.");
+  assert.equal(hesapSilmeHataMesaji("CONFIRMATION_REQUIRED", "tr"), "Silme onayı doğrulanamadı.");
+  assert.equal(hesapSilmeHataMesaji("X", "tr"), "Hesabın silinemedi. Hiçbir verin kaldırılmadı; lütfen tekrar dene.");
+  assert.equal(hesapSilmeHataMesaji("X", "en"), "Your account couldn't be deleted. None of your data was removed; please try again.");
 });
 
 test("sunucu silme akışı aboneliği durdurur ve yalnız service role RPC kullanır", () => {
