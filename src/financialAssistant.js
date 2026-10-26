@@ -1,6 +1,7 @@
 import { demoModu, supabase } from "./supabaseClient.js";
 import { normalizeAssistantHistory } from "../supabase/functions/_shared/financialAssistantConversation.js";
 import { kullaniciParaFormatla } from "./currencyInput.js";
+import { dil } from "./i18n.js";
 
 const tl = (value) => kullaniciParaFormatla(value);
 
@@ -44,7 +45,8 @@ function demoYaniti(question, context) {
   };
 }
 
-export async function finansalAsistanaSor({ question, context, history = [] }) {
+// Sunucu "language" alanini (yoksa Turkce) sistem talimatina cevirir.
+export async function finansalAsistanaSor({ question, context, history = [], language = dil() }) {
   const safeHistory = normalizeAssistantHistory(history);
   if (demoModu) return demoYaniti(question, context);
   const { data } = await supabase.auth.getSession();
@@ -53,7 +55,7 @@ export async function finansalAsistanaSor({ question, context, history = [] }) {
   const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/financial-assistant`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ question, context, history: safeHistory }),
+    body: JSON.stringify({ question, context, history: safeHistory, language }),
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {

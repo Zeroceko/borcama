@@ -21,3 +21,14 @@ export function asistanYanitiniSunumaDonustur(answer) {
 
   return { kisaCevap, maddeler: maddeler.slice(0, 3), sonrakiAdim };
 }
+
+// Konusma gecmisinde ham yanit gosterilir. Turkce disinda "Kısa cevap:"
+// makine isareti kaldirilir, "Yapman gereken:" secili dildeki etiketle
+// degistirilir. Turkcede metin aynen kalir.
+export function yanitIsaretleriniCevir(answer, dilKodu = "tr", sonrakiAdimEtiketi = "Yapman gereken:") {
+  const metin = String(answer ?? "");
+  if (dilKodu === "tr") return metin;
+  return metin
+    .replace(/(^|\n)\s*kısa cevap\s*:\s*/gi, "$1")
+    .replace(/(^|\n)\s*(?:senden gereken|yapman gereken)\s*:\s*/gi, `$1${sonrakiAdimEtiketi} `);
+}

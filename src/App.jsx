@@ -173,9 +173,9 @@ import {
 } from "./cardRestructuring.js";
 import { BANK_LOGOS } from "./bankLogos.js";
 import { davetDurumunuGetir } from "./referrals.js";
-import { asistanBaglamiOlustur } from "./assistantContext.js";
+import { asistanBaglamiOlustur, asistanKullaniciTercihleri } from "./assistantContext.js";
 import { finansalAsistanaSor } from "./financialAssistant.js";
-import { asistanYanitiniSunumaDonustur } from "./assistantPresentation.js";
+import { asistanYanitiniSunumaDonustur, yanitIsaretleriniCevir } from "./assistantPresentation.js";
 import { appendAssistantExchange, MAX_ASSISTANT_EXCHANGES } from "../supabase/functions/_shared/financialAssistantConversation.js";
 import {
   harcamaKaynagiSecimDegeri,
@@ -4317,10 +4317,14 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
     setModelYaniti(null);
     setModelDurumu({ yukleniyor: true, hata: "", kota: null });
     try {
-      const context = asistanBaglamiOlustur({
-        veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
-        turkiyeKurallari: turkiyeKurallariGecerli(),
-      });
+      const context = {
+        ...asistanBaglamiOlustur({
+          veri, gelir, zorunluOdeme, harcama, planAcigi, kalemler, tarih: bugun(),
+          turkiyeKurallari: turkiyeKurallariGecerli(),
+        }),
+        // Web'de (tr + TRY) bos; baglam bugunkuyle birebir ayni kalir.
+        ...asistanKullaniciTercihleri({ dilKodu: dil(), paraBirimi: kullaniciParaBirimi() }),
+      };
       const sonuc = await finansalAsistanaSor({ question: metin, context, history: konusmaGecmisi });
       setModelYaniti(sonuc);
       setKonusmaGecmisi((gecmis) => appendAssistantExchange(gecmis, { question: metin, answer: sonuc.answer }));
@@ -4398,7 +4402,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           <summary style={{ cursor: "pointer", fontSize: 12 }}>{t("asistan.gecmis", { n: konusmaGecmisi.length })}</summary>
           {konusmaGecmisi.map((tur, index) => <div key={index} style={{ padding: "12px 0", borderBottom: "1px solid var(--line-soft)", fontSize: 12, lineHeight: 1.5 }}>
             <strong>{t("asistan.sen", { soru: tur.question })}</strong>
-            <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", color: "var(--dim)" }}>{tur.answer}</p>
+            <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", color: "var(--dim)" }}>{yanitIsaretleriniCevir(tur.answer, dil(), t("asistan.yapmanGereken"))}</p>
           </div>)}
         </details>}
         <div className="bt-assistant-answer" aria-live="polite">

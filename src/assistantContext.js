@@ -337,3 +337,18 @@ export function asistanBaglamiOlustur({
     },
   };
 }
+
+// Asistan istegi "language" alanini ayrica gonderir. Sunucu henuz
+// guncellenmemisse dil ve para birimi bilgisi baglamdaki
+// kullaniciTercihleri alaninda da modele ulasir; soru metnine ek yapilmaz
+// (kayitli konusmayi ve sunucu dogrulamasini bozmamak icin).
+export function asistanKullaniciTercihleri({ dilKodu = "tr", paraBirimi = "TRY" } = {}) {
+  if (dilKodu === "tr" && paraBirimi === "TRY") return {};
+  return {
+    kullaniciTercihleri: {
+      yanitDili: dilKodu,
+      not: `Kullanıcının uygulama dili "${dilKodu}". Yanıtı bu dilde yaz; "Kısa cevap: ", "• " ve "Yapman gereken: " işaretlerini değiştirme.`,
+      paraBirimi,
+    },
+  };
+}

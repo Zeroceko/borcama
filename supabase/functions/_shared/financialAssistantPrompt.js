@@ -32,3 +32,49 @@ Gelir veya gider kayıtlı değilken "ne kadar taksit ödeyebilirim" gibi ödeme
 Döviz, altın, gümüş veya bitcoin çevirisi sorulursa BORCAMA_HESAP_OZETI.guncelPiyasaKurlari alanındaki kuru kullan: tutarı kura bölerek veya çarparak hesapla, kısa cevapta sonucu ve kullandığın kuru yaz (ör. "1 USD = 49,39 TL"), maddelerde güncellenme tarihini ve bankaların alış/satış kurunun bu rakamdan farklı olabileceğini belirt. Bu alan yoksa güncel kuru bilmediğini söyle; kur uydurma. Çeviri sorusunda yatırım tavsiyesi verme.
 route alanında gidilecek anlamlı bir Borcama ekranı yoksa (ör. kur çevirisi veya genel bilgi sorusu) route="none" seç; actionLabel'a ekran adı uydurma, "Tamam" yaz.
 Yanıt dili Türkçe olsun.`;
+
+// Kullanici dili (iOS uygulamasi alti dil destekliyor). Istek "language"
+// alanini gondermezse (eski istemci, web) Turkce kabul edilir; Turkce icin
+// talimat birebir eskisiyle aynidir.
+export const FINANCIAL_ASSISTANT_LANGUAGES = {
+  tr: "Türkçe",
+  en: "English",
+  de: "Deutsch",
+  fr: "Français",
+  es: "Español",
+  it: "Italiano",
+};
+
+export function financialAssistantLanguage(value) {
+  const code = String(value || "").trim().toLowerCase().slice(0, 2);
+  return Object.prototype.hasOwnProperty.call(FINANCIAL_ASSISTANT_LANGUAGES, code) ? code : "tr";
+}
+
+export function buildFinancialAssistantSystemInstruction(language = "tr") {
+  const code = financialAssistantLanguage(language);
+  if (code === "tr") return FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION;
+  const name = FINANCIAL_ASSISTANT_LANGUAGES[code];
+  return `${FINANCIAL_ASSISTANT_SYSTEM_INSTRUCTION}
+KULLANICI DİLİ: Kullanıcının dili ${name} (${code}). Kullanıcının dilinde yanıt ver: title, answer, actionLabel ve disclaimer alanlarını ${name} yaz. Bu kural yukarıdaki "Yanıt dili Türkçe olsun" ve "günlük Türkçe" kurallarının yerine geçer; sade dil kuralı ${name} için de geçerlidir.
+Yanıt yapısının makine işaretleri değişmez ve çevrilmez: answer alanının ilk satırı tam olarak "Kısa cevap: " ile, maddeler "• " ile, varsa son satır tam olarak "Yapman gereken: " ile başlar; bu işaretlerden sonraki metin ${name} olur. Uygulama işaretleri kullanıcının diline kendisi çevirir.
+Para birimi: BORCAMA_HESAP_OZETI.kullaniciTercihleri.paraBirimi varsa tutarları bu birimle yaz, "TL" yazma. Para birimi TRY değilse TCMB, BDDK, KKDF, BSMV gibi Türkiye'ye özgü kuralları ve oranları uygulama, anma.`;
+}
+
+// Model isaretleri kullanicinin diline cevirmisse ("Short answer:") Turkce
+// makine isaretine geri cevrilir; dogrulama ve istemci sunumu bu isaretleri bekler.
+const SHORT_ANSWER_LABELS = /^(?:short answer|in short|kurze antwort|kurz gesagt|réponse courte|en bref|respuesta corta|en resumen|risposta breve|in breve)\s*:\s*/i;
+const NEXT_STEP_LABELS = /^(?:what (?:you should|to) do|next step|was du tun solltest|was zu tun ist|nächster schritt|ce que tu dois faire|ce que vous devez faire|prochaine étape|lo que debes hacer|qué hacer|siguiente paso|cosa devi fare|cosa fare|prossimo passo)\s*:\s*/i;
+
+export function normalizeFinancialAssistantMarkers(response, language = "tr") {
+  if (financialAssistantLanguage(language) === "tr" || !response || typeof response.answer !== "string") return response;
+  const answer = response.answer
+    .split(/\r?\n/)
+    .map((line) => {
+      const trimmed = line.trim();
+      if (SHORT_ANSWER_LABELS.test(trimmed)) return `Kısa cevap: ${trimmed.replace(SHORT_ANSWER_LABELS, "")}`;
+      if (NEXT_STEP_LABELS.test(trimmed)) return `Yapman gereken: ${trimmed.replace(NEXT_STEP_LABELS, "")}`;
+      return line;
+    })
+    .join("\n");
+  return { ...response, answer };
+}
