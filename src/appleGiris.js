@@ -1,5 +1,6 @@
 import { iosMu } from "./platform.js";
 import { supabase } from "./supabaseClient.js";
+import { t } from "./i18n.js";
 
 // Apple ile giris yalniz iOS uygulamasinda sunuluyor. Tarayici surumunde ve
 // Android'de dugme hic cizilmiyor; akis orada e-posta ve parola ile surer.
@@ -25,8 +26,8 @@ export function appleHataMesaji(hata) {
   // Kullanici Apple sayfasini kapattiginda hata gostermeye gerek yok.
   if (/cancel/i.test(metin) || hata?.code === "1001") return "";
   if (/network|internet|connection/i.test(metin))
-    return "Apple ile giriş için bağlantı kurulamadı. Bağlantını kontrol edip tekrar dene.";
-  return "Apple ile giriş tamamlanamadı. Lütfen tekrar dene ya da parolanla giriş yap.";
+    return t("hata.appleBaglanti");
+  return t("hata.appleTamamlanamadi");
 }
 
 // Apple'dan kimlik belirtecini alir ve Supabase oturumunu kurar. Basarili
