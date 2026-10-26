@@ -4,6 +4,7 @@ import { onboardingTamamla } from "./onboardingDurumu.js";
 import { misafirModunuAc } from "./misafirModu.js";
 import { t } from "./i18n.js";
 import DilDugmesi from "./DilDugmesi.jsx";
+import ParaBirimiSecici from "./ParaBirimiSecici.jsx";
 import { kullaniciParaBirimi, paraBiriminiFormatla } from "./currencyInput.js";
 import "./onboarding.css";
 
@@ -193,6 +194,8 @@ export default function Onboarding({ baslangic = 0 }) {
             <Diamond size={15} />
             {t("onboarding.karar.guvence")}
           </p>
+          {/* Para birimi secimi yalniz native'de; kur cevirisi yok. */}
+          <ParaBirimiSecici className="ob-para-birimi" />
           <div className="ob-dugmeler">
             <button className="ob-dugme birincil" type="button" onClick={() => bitir("/register")}>
               {t("onboarding.karar.ucretsizBasla")}

@@ -16,6 +16,7 @@ import { en as gelirGider } from "./bolumler/gelir-gider.js";
 import { en as hatalarSss } from "./bolumler/hatalar-sss.js";
 import { en as yasal } from "./bolumler/yasal.js";
 import { en as islemler } from "./bolumler/islemler.js";
+import { en as paraBirimi } from "./bolumler/para-birimi.js";
 
 // English dictionary. Shown only in the native (iOS) app; the web stays Turkish.
 // Missing keys fall back to Turkish (src/locales/tr.js).
@@ -39,6 +40,7 @@ const en = {
   ...hatalarSss,
   ...yasal,
   ...islemler,
+  ...paraBirimi,
 
   // Onboarding
   "onboarding.atla": "Skip",

@@ -17,7 +17,7 @@ export const tr = {
   "deger.Eğitim": "Eğitim",
   "deger.Diğer": "Diğer",
 
-  "gelirGider.tutarTl": "Tutar (₺)",
+  "gelirGider.tutarTl": "Tutar ({simge})",
 
   // Gelirler
   "gelirGider.gelir.sabitBaslik": "Sabit gelirler",
@@ -103,11 +103,11 @@ export const tr = {
   "gelirGider.kaynak.kartAdiOrnek": "Bonus, World…",
   "gelirGider.kaynak.hesapAdiOrnek": "Maaş hesabı…",
   "gelirGider.kaynak.kartSon4": "Kartın son 4 hanesi",
-  "gelirGider.kaynak.kartLimiti": "Toplam kart limiti (₺)",
+  "gelirGider.kaynak.kartLimiti": "Toplam kart limiti ({simge})",
   "gelirGider.kaynak.istegeBagli": "İsteğe bağlı",
   "gelirGider.kaynak.kesimGunu": "Ekstre kesim günü",
   "gelirGider.kaynak.sonOdemeGunu": "Son ödeme günü",
-  "gelirGider.kaynak.guncelBakiye": "Güncel bakiye (₺)",
+  "gelirGider.kaynak.guncelBakiye": "Güncel bakiye ({simge})",
   "gelirGider.kaynak.kaydetVeSec": "Kaydet ve seç",
   "gelirGider.kaynak.hataBankaAd": "Banka ve kaynak adı gerekli.",
   "gelirGider.kaynak.hataKesimGunu": "Ekstre kesim gününü 1–31 arasında girin.",
@@ -138,7 +138,7 @@ export const en = {
   "deger.Eğitim": "Education",
   "deger.Diğer": "Other",
 
-  "gelirGider.tutarTl": "Amount (₺)",
+  "gelirGider.tutarTl": "Amount ({simge})",
 
   "gelirGider.gelir.sabitBaslik": "Fixed income",
   "gelirGider.gelir.baslik": "Income sources",
@@ -221,11 +221,11 @@ export const en = {
   "gelirGider.kaynak.kartAdiOrnek": "Bonus, World…",
   "gelirGider.kaynak.hesapAdiOrnek": "Salary account…",
   "gelirGider.kaynak.kartSon4": "Last 4 digits of card",
-  "gelirGider.kaynak.kartLimiti": "Total credit limit (₺)",
+  "gelirGider.kaynak.kartLimiti": "Total credit limit ({simge})",
   "gelirGider.kaynak.istegeBagli": "Optional",
   "gelirGider.kaynak.kesimGunu": "Statement day",
   "gelirGider.kaynak.sonOdemeGunu": "Due day",
-  "gelirGider.kaynak.guncelBakiye": "Current balance (₺)",
+  "gelirGider.kaynak.guncelBakiye": "Current balance ({simge})",
   "gelirGider.kaynak.kaydetVeSec": "Save and select",
   "gelirGider.kaynak.hataBankaAd": "Bank and source name are required.",
   "gelirGider.kaynak.hataKesimGunu": "Enter a statement day between 1 and 31.",

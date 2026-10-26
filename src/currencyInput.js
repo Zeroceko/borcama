@@ -1,25 +1,159 @@
-import { dil, locale } from "./i18n.js";
+import { dil, locale, ortakDegiskenleriAyarla } from "./i18n.js";
+import { nativeMi } from "./platform.js";
 
 const sadeceRakam = (value) => String(value ?? "").replace(/\D/g, "");
 
 const PARA_FORMATLARI = new Map();
 
 export const PARA_BIRIMI_ANAHTARI = "borcama_para_birimi";
-const GECERLI_PARA_BIRIMI = /^[A-Z]{3}$/;
 
-// Kullanicinin gosterim para birimi. Secim yoksa (web dahil) TRY.
-export function kullaniciParaBirimi() {
+// Uygulamada secilebilen para birimleri. Kur cevirisi yok: tutarlar
+// kullanicinin kendi biriminde girilir ve gosterilir.
+export const DESTEKLENEN_PARA_BIRIMLERI = ["TRY", "USD", "EUR", "GBP", "CAD", "AUD", "CHF", "JPY", "NZD", "SEK", "NOK", "DKK"];
+
+const EURO_BOLGESI = new Set([
+  "AT", "BE", "HR", "CY", "EE", "FI", "FR", "DE", "GR", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK", "SI", "ES",
+  "AD", "MC", "SM", "VA", "ME", "XK",
+]);
+const BOLGE_PARA_BIRIMI = {
+  TR: "TRY", US: "USD", GB: "GBP", CA: "CAD", AU: "AUD", CH: "CHF", LI: "CHF", JP: "JPY",
+  NZ: "NZD", SE: "SEK", NO: "NOK", DK: "DKK",
+};
+
+// "en-US", "tr_TR", "de-DE-u-ca-gregory" gibi bir yerel ayardan bolge kodu.
+export function bolgeKodu(yerelAyar) {
+  const parcalar = String(yerelAyar || "").replace(/_/g, "-").split("-");
+  for (const parca of parcalar.slice(1)) {
+    if (/^[A-Za-z]{2}$/.test(parca)) return parca.toUpperCase();
+    if (parca.length === 1) break; // uzanti (-u-, -x-) basladi
+  }
+  return "";
+}
+
+// Cihaz bolgesinden varsayilan birim. Bolge bilinmiyorsa dil Turkce ise
+// TRY, degilse USD; desteklenmeyen bolge de USD'ye duser.
+export function bolgedenParaBirimi(yerelAyar) {
+  const bolge = bolgeKodu(yerelAyar);
+  if (!bolge) return String(yerelAyar || "").toLowerCase().startsWith("tr") ? "TRY" : "USD";
+  if (EURO_BOLGESI.has(bolge)) return "EUR";
+  return BOLGE_PARA_BIRIMI[bolge] || "USD";
+}
+
+// Saf karar fonksiyonu. Web daima TRY. Native'de gecerli kayit varsa o;
+// yoksa mevcut kurulum (eski surumden gelen, verisi TRY olan kullanici)
+// veya Turkce dil TRY'de kalir, yeni kurulum cihaz bolgesini kullanir.
+export function paraBirimiBelirle({ native = false, kayitli = null, dilKodu = "tr", yerelAyar = "", mevcutKurulum = false } = {}) {
+  if (!native) return "TRY";
+  if (DESTEKLENEN_PARA_BIRIMLERI.includes(kayitli)) return kayitli;
+  if (mevcutKurulum || dilKodu === "tr") return "TRY";
+  return bolgedenParaBirimi(yerelAyar);
+}
+
+function depoOku(anahtar) {
   try {
-    const kayitli = globalThis.localStorage?.getItem(PARA_BIRIMI_ANAHTARI);
-    return GECERLI_PARA_BIRIMI.test(kayitli || "") ? kayitli : "TRY";
+    return globalThis.localStorage?.getItem(anahtar) ?? null;
   } catch {
-    return "TRY";
+    return null;
+  }
+}
+
+function mevcutKurulumMu() {
+  try {
+    const depo = globalThis.localStorage;
+    if (!depo) return false;
+    if (depo.getItem("borcama:onboarding:v1") === "1" || depo.getItem("borcama:misafir") === "1") return true;
+    for (let i = 0; i < depo.length; i += 1) {
+      const anahtar = depo.key(i) || "";
+      if (anahtar.startsWith("sb-") || anahtar.startsWith("borcama:misafir")) return true;
+    }
+  } catch {
+    // Depolama yoksa yeni kurulum say.
+  }
+  return false;
+}
+
+function cihazYerelAyari() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().locale || globalThis.navigator?.language || "";
+  } catch {
+    return globalThis.navigator?.language || "";
+  }
+}
+
+// Kullanicinin gosterim para birimi. Web'de daima TRY. Native'de ilk
+// cagrida belirlenen varsayilan kaydedilir; boylece cihaz bolgesi sonradan
+// degisse de kullanicinin tutarlari baska birimle gosterilmez.
+export function kullaniciParaBirimi() {
+  if (!nativeMi) return "TRY";
+  const kayitli = depoOku(PARA_BIRIMI_ANAHTARI);
+  const birim = paraBirimiBelirle({
+    native: true,
+    kayitli,
+    dilKodu: dil(),
+    yerelAyar: cihazYerelAyari(),
+    mevcutKurulum: mevcutKurulumMu(),
+  });
+  if (birim !== kayitli) {
+    try {
+      globalThis.localStorage?.setItem(PARA_BIRIMI_ANAHTARI, birim);
+    } catch {
+      // Yazilamazsa her acilista yeniden hesaplanir.
+    }
+  }
+  return birim;
+}
+
+export function paraBirimiAyarla(kod) {
+  if (!nativeMi || !DESTEKLENEN_PARA_BIRIMLERI.includes(kod)) return kullaniciParaBirimi();
+  try {
+    globalThis.localStorage?.setItem(PARA_BIRIMI_ANAHTARI, kod);
+  } catch {
+    // Gizli mod: secim bu oturumda kalmaz.
+  }
+  return kod;
+}
+
+// Para biriminin secili dildeki adi ("US Dollar", "ABD Doları").
+export function paraBirimiAdi(kod, yerel = locale()) {
+  try {
+    return new Intl.DisplayNames([yerel], { type: "currency" }).of(kod) || kod;
+  } catch {
+    return kod;
+  }
+}
+
+// Etiketlerdeki "(₺)" gibi birim simgesi. tr-TR + TRY icin "₺".
+export function paraBirimiSimgesi(kod = kullaniciParaBirimi(), yerel = locale()) {
+  try {
+    const parca = new Intl.NumberFormat(yerel, {
+      style: "currency",
+      currency: kod,
+      ...(yerel === "tr-TR" ? {} : { currencyDisplay: "narrowSymbol" }),
+    }).formatToParts(0).find((p) => p.type === "currency");
+    return parca?.value || kod;
+  } catch {
+    return kod;
+  }
+}
+
+// Sozluk metinlerindeki {simge} yer tutucusu her t() cagrisinda secili
+// birimin simgesiyle doldurulur.
+ortakDegiskenleriAyarla(() => ({ simge: paraBirimiSimgesi() }));
+
+// Para biriminin varsayilan ondalik hanesi (JPY icin 0). TRY/USD/EUR 2.
+function varsayilanOndalik(currency) {
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency }).resolvedOptions().maximumFractionDigits;
+  } catch {
+    return 2;
   }
 }
 
 export function paraBiriminiFormatla(value, currency = "TRY", options = {}) {
-  const minimumFractionDigits = options.minimumFractionDigits ?? 2;
-  const maximumFractionDigits = options.maximumFractionDigits ?? 2;
+  // JPY gibi kurussuz birimlerde ondalik gosterilmez; diger birimlerde
+  // istenen hane aynen kullanilir (TRY ciktisi degismez).
+  const maximumFractionDigits = varsayilanOndalik(currency) === 0 ? 0 : (options.maximumFractionDigits ?? 2);
+  const minimumFractionDigits = Math.min(options.minimumFractionDigits ?? 2, maximumFractionDigits);
   const yerel = options.locale || locale();
   const anahtar = `${yerel}:${currency}:${minimumFractionDigits}:${maximumFractionDigits}`;
   if (!PARA_FORMATLARI.has(anahtar)) {

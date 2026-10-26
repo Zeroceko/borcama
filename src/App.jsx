@@ -16,6 +16,7 @@ import {
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
 import DilAyari from "./DilAyari.jsx";
+import ParaBirimiAyari from "./ParaBirimiAyari.jsx";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
 import {
   revenueCatHazir,
@@ -88,7 +89,9 @@ import {
   paraBiriminiFormatla,
   paraGirdisiniCoz,
   paraGirdisiniFormatla,
+  kullaniciParaBirimi,
   kullaniciParaFormatla,
+  paraBirimiSimgesi,
 } from "./currencyInput.js";
 import {
   matchStatementToCard,
@@ -173,6 +176,7 @@ import {
 import {
   KREDI_KARTI_ASGARI_LIMIT_ESIGI,
   krediKartiAsgariOrani,
+  yasalAsgariUygulanir,
 } from "./creditCardMinimum.js";
 import { demoVerisiOlustur } from "./demoAccount.js";
 
@@ -889,6 +893,8 @@ const fmtPara = (n, id = "TRY") =>
 const paraBirimi = (id) =>
   PARA_BIRIMLERI.find((birim) => birim.id === id) || PARA_BIRIMLERI[0];
 const paraBirimiKuru = (kayit, fiyatlar = {}) => {
+  // TRY disi kullanici biriminde kur cevirisi yapilmaz; tutar oldugu gibi.
+  if (!piyasaDegerlemesiAcik()) return 1;
   if (varlikTuru(kayit.tur).fon) return 1;
   return +fiyatlar[paraBirimi(kayit.paraBirimi).fiyat] ||
     (paraBirimi(kayit.paraBirimi).id === "TRY" ? 1 : 0);
@@ -959,6 +965,20 @@ const VARLIK_KATEGORILERI = [
 ];
 const varlikTuru = (id) =>
   VARLIK_TURLERI.find((tur) => tur.id === id) || VARLIK_TURLERI.at(-1);
+// Piyasa fiyatlari (doviz, altin, fon, hisse, kripto) TRY bazli geliyor ve
+// kur cevirisi yapmiyoruz. Bu yuzden kullanici birimi TRY degilse otomatik
+// degerleme kapanir: yalniz elle deger girilen turler sunulur ve tum
+// varliklar girilen guncel degerle, kullanicinin biriminde hesaplanir.
+// Web'de birim daima TRY oldugundan davranis degismez.
+function piyasaDegerlemesiAcik() {
+  return kullaniciParaBirimi() === "TRY";
+}
+const kategoriTurIdleri = (kategori) =>
+  piyasaDegerlemesiAcik()
+    ? kategori.turler
+    : kategori.turler.filter((id) => !varlikTuru(id).otomatik);
+const gorunurVarlikKategorileri = () =>
+  VARLIK_KATEGORILERI.filter((kategori) => kategoriTurIdleri(kategori).length > 0);
 const varlikKategorisi = (id) =>
   VARLIK_KATEGORILERI.find((kategori) => kategori.id === id) ||
   VARLIK_KATEGORILERI.at(-1);
@@ -981,6 +1001,7 @@ function varlikBirimFiyati(kayit, fiyatlar = {}) {
   return (+fiyatlar[tur.fiyat] || 0) * (tur.carpan || 1);
 }
 function varlikDegeri(kayit, fiyatlar = {}) {
+  if (!piyasaDegerlemesiAcik()) return Math.max(+kayit.guncelDeger || 0, 0);
   const tur = varlikTuru(kayit.tur);
   const kur = paraBirimiKuru(kayit, fiyatlar);
   if (!tur.otomatik)
@@ -1195,7 +1216,12 @@ function kartHesabi(k) {
     faiz,
     oran,
     toplam,
-    asgari: Math.min(+k.asgari > 0 ? +k.asgari : (onceki * asgariOran) / 100, devreden),
+    asgari: Math.min(
+      +k.asgari > 0
+        ? +k.asgari
+        : yasalAsgariUygulanir(kullaniciParaBirimi()) ? (onceki * asgariOran) / 100 : 0,
+      devreden,
+    ),
   };
 }
 function ekstreSnapshot(k, ekstreAyi = k.ekstreAyi) {
@@ -1490,6 +1516,8 @@ function borcamaOnerileriniHesapla({
   }
 
   (veri.cards || []).forEach((kart) => {
+    // Limit dusurme onerisi BDDK kuralina dayanir; yalniz TRY'de gosterilir.
+    if (!yasalAsgariUygulanir(kullaniciParaBirimi())) return;
     const hesap = kartHesabi(kart);
     const limit = Math.max(+kart.limit || 0, 0);
     if (
@@ -2485,11 +2513,13 @@ export default function BorcTakip() {
         const yeniModel =
           k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
         const yasalOran = krediKartiAsgariOrani(k.limit);
+        // TRY disi birimde BDDK orani uygulanmaz; girilen asgari kullanilir.
+        const yasalAsgari = yasalAsgariUygulanir(kullaniciParaBirimi());
         const hedefTutar = yeniModel
-          ? h.onceki * yasalOran
+          ? yasalAsgari ? h.onceki * yasalOran : h.asgari
           : +k.asgari > 0
             ? +k.asgari
-            : anaBorc * yasalOran;
+            : yasalAsgari ? anaBorc * yasalOran : 0;
         const odemeAnahtari = kartOdemeAnahtari(k);
         const elleOdendi = !!veri.paid[odemeAnahtari];
         const odemeBilgisiYok = !yeniModel && !elleOdendi;
@@ -4981,6 +5011,7 @@ function Ayarlar({
         <BiyometrikAyar />
         <OdemeHatirlatmaAyari />
         <DilAyari />
+        <ParaBirimiAyari />
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <Palette size={18} /> {t("ayarlar.gorunum.baslik")}
@@ -5455,7 +5486,7 @@ function Ozet({
     () => buildTodayDebtPlan({ data: veri, debtItems: kalemler }),
     [veri, kalemler],
   );
-  const tutarGoster = (tutar) => (tutarlarGizli ? "₺ ••••••" : fmt0(tutar));
+  const tutarGoster = (tutar) => (tutarlarGizli ? `${paraBirimiSimgesi()} ••••••` : fmt0(tutar));
   const gunGecikti = (n) => t(n === 1 ? "ozet.gunGecikti.tekil" : "ozet.gunGecikti.cogul", { n });
   const gunKaldi = (n) => t(n === 1 ? "ozet.gunKaldi.tekil" : "ozet.gunKaldi.cogul", { n });
   const ayMetni = (n) => t(n === 1 ? "ozet.ayTekil" : "ozet.ayCogul", { n });
@@ -9130,7 +9161,7 @@ function Borclar({
                       <Lightbulb size={16} />
                       <div>
                         <Ceviri
-                          anahtar="borclar.form.kartHesabi"
+                          anahtar={yasalAsgariUygulanir(kullaniciParaBirimi()) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiSerbest"}
                           degerler={{
                             baslik: <b>{t("borclar.form.otomatikHesap")}</b>,
                             yeni: fmt(h.yeni),
@@ -11631,12 +11662,12 @@ function Varliklar({
 }) {
   const acik = form?.liste === "assets";
   const f = acik ? form.veri || {} : {};
-  const seciliTur = varlikTuru(f.tur || "usd");
+  const seciliTur = varlikTuru(f.tur || (piyasaDegerlemesiAcik() ? "usd" : "nakit"));
   const formParaBirimi = seciliTur.fon ? "TRY" : paraBirimi(f.paraBirimi).id;
   const seciliKategori = varlikKategorisi(
     seciliTur.kategori || f.kategori || "nakit",
   );
-  const kategoriTurleri = seciliKategori.turler.map(varlikTuru);
+  const kategoriTurleri = kategoriTurIdleri(seciliKategori).map(varlikTuru);
   const seciliKriptoTryFiyati = seciliTur.kripto && seciliTur.coinId
     ? +piyasa.prices?.crypto?.[seciliTur.coinId] || 0
     : 0;
@@ -11879,7 +11910,7 @@ function Varliklar({
 
   function bosKategoriEkle() {
     const kategori = varlikKategorisi(filtre === "tumu" ? "nakit" : filtre);
-    const ilkTur = varlikTuru(kategori.turler[0]);
+    const ilkTur = varlikTuru(kategoriTurIdleri(kategori)[0] || "nakit");
     setForm({
       liste: "assets",
       veri: {
@@ -11909,10 +11940,12 @@ function Varliklar({
             {t(ozet.kalemler.length === 1 ? "varliklar.kayitOzetiTekil" : "varliklar.kayitOzetiCogul", { n: ozet.kalemler.length })}
           </div>
         </div>
-        <div className="bt-varlik-mini">
-          <div className="bt-metric-lbl">{t("varliklar.otomatikDegerlenen")}</div>
-          <strong>{fmt(otomatikToplam)}</strong>
-        </div>
+        {piyasaDegerlemesiAcik() && (
+          <div className="bt-varlik-mini">
+            <div className="bt-metric-lbl">{t("varliklar.otomatikDegerlenen")}</div>
+            <strong>{fmt(otomatikToplam)}</strong>
+          </div>
+        )}
         <div className="bt-varlik-mini">
           <div className="bt-metric-lbl">{t("varliklar.toplamKazancKayip")}</div>
           <strong style={{ color: ozet.kazanc < 0 ? CORAL : LIME }}>
@@ -11936,25 +11969,34 @@ function Varliklar({
             <div className="bt-h2" style={{ marginBottom: 5 }}>
               <PiggyBank size={20} /> {t("varliklar.baslik")}
             </div>
-            <div className={"bt-varlik-kaynak " + (piyasa.hata ? "hata" : "")}>
-              <RefreshCw size={13} />
-              {piyasa.yukleniyor
-                ? t("varliklar.fiyatGuncelleniyor")
-                : piyasa.hata ||
-                  (fiyatTarihi
-                    ? t("varliklar.sonFiyatGuncellemesi", { tarih: fiyatTarihi })
-                    : t("varliklar.otomatikFiyatYok"))}
-            </div>
+            {piyasaDegerlemesiAcik() ? (
+              <div className={"bt-varlik-kaynak " + (piyasa.hata ? "hata" : "")}>
+                <RefreshCw size={13} />
+                {piyasa.yukleniyor
+                  ? t("varliklar.fiyatGuncelleniyor")
+                  : piyasa.hata ||
+                    (fiyatTarihi
+                      ? t("varliklar.sonFiyatGuncellemesi", { tarih: fiyatTarihi })
+                      : t("varliklar.otomatikFiyatYok"))}
+              </div>
+            ) : (
+              <div className="bt-varlik-kaynak">
+                <Info size={13} />
+                {t("paraBirimi.varlikUyari", { birim: kullaniciParaBirimi() })}
+              </div>
+            )}
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="bt-btn kucuk ikincil"
-              onClick={piyasaYenile}
-              disabled={piyasa.yukleniyor}
-            >
-              <RefreshCw size={14} /> {t("varliklar.fiyatlariYenile")}
-            </button>
+            {piyasaDegerlemesiAcik() && (
+              <button
+                type="button"
+                className="bt-btn kucuk ikincil"
+                onClick={piyasaYenile}
+                disabled={piyasa.yukleniyor}
+              >
+                <RefreshCw size={14} /> {t("varliklar.fiyatlariYenile")}
+              </button>
+            )}
             {!acik && (
               <>
                 <button
@@ -12014,9 +12056,10 @@ function Varliklar({
                 value={seciliKategori.id}
                 onChange={(e) => {
                   const kategori = varlikKategorisi(e.target.value);
+                  const ilkTurId = kategoriTurIdleri(kategori)[0];
                   fSet({
                     kategori: kategori.id,
-                    tur: kategori.turler[0],
+                    tur: ilkTurId,
                     ad: "",
                     miktar: "",
                     guncelDeger: "",
@@ -12026,13 +12069,13 @@ function Varliklar({
                     hisseKodu: "",
                     hisseBirimFiyati: "",
                     hisseParaBirimi: "",
-                    paraBirimi: varlikTuru(kategori.turler[0]).kripto && varlikTuru(kategori.turler[0]).coinId ? "USD" : f.paraBirimi || "TRY",
+                    paraBirimi: varlikTuru(ilkTurId).kripto && varlikTuru(ilkTurId).coinId ? "USD" : f.paraBirimi || "TRY",
                   });
                   setFonHata("");
                   setHisseHata("");
                 }}
               >
-                {VARLIK_KATEGORILERI.map((kategori) => (
+                {gorunurVarlikKategorileri().map((kategori) => (
                   <option key={kategori.id} value={kategori.id}>
                     {tDeger(kategori.ad)}
                   </option>
@@ -12182,7 +12225,7 @@ function Varliklar({
                 />
               </label>
             )}
-            {!seciliTur.fon && <label className="bt-alan">
+            {!seciliTur.fon && piyasaDegerlemesiAcik() && <label className="bt-alan">
               <span>{t("varliklar.form.paraBirimi")}</span>
               <select className="bt-input" value={formParaBirimi} onChange={(e) => fSet({ paraBirimi: e.target.value })}>
                 {PARA_BIRIMLERI.map((birim) => <option key={birim.id} value={birim.id}>{tDeger(birim.ad)}</option>)}

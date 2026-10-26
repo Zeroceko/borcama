@@ -110,7 +110,7 @@ export const tr = {
   "plan.erkenCogul": "{n} ay daha erken kapanabilir",
   "plan.sartlar": "Senaryonun şartları",
   "plan.sartlarMetin":
-    "Yeni kart/KMH borcu hedefi ₺0. Yaşam harcaması gelirden karşılanır; asgari ödemelerden sonra artan tutar en yüksek maliyetli kart ve KMH borcuna gider. Faiz oranları kullanıcı değiştirmedikçe sabit tutulur; enflasyon ve gelir artışı varsayılmaz.",
+    "Yeni kart/KMH borcu hedefi {simge}0. Yaşam harcaması gelirden karşılanır; asgari ödemelerden sonra artan tutar en yüksek maliyetli kart ve KMH borcuna gider. Faiz oranları kullanıcı değiştirmedikçe sabit tutulur; enflasyon ve gelir artışı varsayılmaz.",
   "plan.gelirEkle": "Gelir ekle",
   "plan.kayitlariTamamla": "Kayıtları tamamla",
 
@@ -138,7 +138,7 @@ export const tr = {
     "Sıralamanın dışındakiler (sabit taksitli krediler / faiz girilmemiş borçlar):",
 
   "plan.ekstra.baslik": "Ekstra ödeme simülasyonu",
-  "plan.ekstra.alan": "Elinize geçen ekstra tutar (₺)",
+  "plan.ekstra.alan": "Elinize geçen ekstra tutar ({simge})",
   "plan.ekstra.ornek": "Örn. 5.000",
   "plan.ekstra.sonuc": "Bu parayı {ad} borcuna yatırın → her ay yaklaşık {tutar} faiz ödemekten kurtulursunuz",
   "plan.ekstra.kapanir": "ve bu borç {b}",
@@ -293,7 +293,7 @@ export const en = {
   "plan.erkenCogul": "Could be paid off {n} months sooner",
   "plan.sartlar": "Scenario assumptions",
   "plan.sartlarMetin":
-    "Goal for new card/overdraft debt: ₺0. Living expenses are paid from income; whatever is left after minimum payments goes to the most expensive card and overdraft debt. Interest rates stay fixed unless you change them; no inflation or income growth is assumed.",
+    "Goal for new card/overdraft debt: {simge}0. Living expenses are paid from income; whatever is left after minimum payments goes to the most expensive card and overdraft debt. Interest rates stay fixed unless you change them; no inflation or income growth is assumed.",
   "plan.gelirEkle": "Add income",
   "plan.kayitlariTamamla": "Complete your records",
 
@@ -319,7 +319,7 @@ export const en = {
   "plan.disindakiler": "Not in the order (fixed-installment loans / debts without an interest rate):",
 
   "plan.ekstra.baslik": "Extra payment simulator",
-  "plan.ekstra.alan": "Extra amount you have (₺)",
+  "plan.ekstra.alan": "Extra amount you have ({simge})",
   "plan.ekstra.ornek": "e.g. 5,000",
   "plan.ekstra.sonuc": "Put this money toward {ad} → you'll avoid about {tutar} in interest every month",
   "plan.ekstra.kapanir": "and this debt is {b}",

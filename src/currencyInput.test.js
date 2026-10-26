@@ -66,24 +66,86 @@ test("kullanıcı para birimi seçilmemişse TRY ve Türkçe biçim kullanılır
   assert.equal(kullaniciParaFormatla(1234567.8), turkLirasiFormatla(1234567.8));
 });
 
-test("kullanıcı para birimi localStorage'dan okunur, geçersiz değer TRY'ye düşer", async () => {
-  const { kullaniciParaBirimi, kullaniciParaFormatla } = await import("./currencyInput.js");
+test("web'de kayıtlı seçim ne olursa olsun para birimi TRY kalır", async () => {
+  const { kullaniciParaBirimi, kullaniciParaFormatla, paraBirimiAyarla } = await import("./currencyInput.js");
   const depo = new Map();
   const onceki = globalThis.localStorage;
-  globalThis.localStorage = { getItem: (k) => depo.get(k) ?? null, setItem: (k, v) => depo.set(k, v) };
+  globalThis.localStorage = { getItem: (k) => depo.get(k) ?? null, setItem: (k, v) => depo.set(k, v), key: () => null, length: 0 };
   try {
     depo.set("borcama_para_birimi", "USD");
-    assert.equal(kullaniciParaBirimi(), "USD");
-    assert.equal(kullaniciParaFormatla(1234.56), "$1.234,56");
-    depo.set("borcama_para_birimi", "dolar");
     assert.equal(kullaniciParaBirimi(), "TRY");
+    assert.equal(kullaniciParaFormatla(1234.56), "₺1.234,56");
+    assert.equal(paraBirimiAyarla("EUR"), "TRY");
+    assert.equal(depo.get("borcama_para_birimi"), "USD", "web seçim yazmaz");
   } finally {
     globalThis.localStorage = onceki;
   }
+});
+
+test("native'de varsayılan birim cihaz bölgesinden gelir, desteklenmeyen bölge USD olur", async () => {
+  const { bolgedenParaBirimi, bolgeKodu } = await import("./currencyInput.js");
+  assert.equal(bolgeKodu("en-US"), "US");
+  assert.equal(bolgeKodu("tr_TR"), "TR");
+  assert.equal(bolgeKodu("zh-Hant-TW"), "TW");
+  assert.equal(bolgeKodu("de-u-ca-gregory"), "");
+  assert.equal(bolgedenParaBirimi("tr-TR"), "TRY");
+  assert.equal(bolgedenParaBirimi("en-TR"), "TRY");
+  assert.equal(bolgedenParaBirimi("en-US"), "USD");
+  assert.equal(bolgedenParaBirimi("en-GB"), "GBP");
+  assert.equal(bolgedenParaBirimi("de-DE"), "EUR");
+  assert.equal(bolgedenParaBirimi("fr-FR"), "EUR");
+  assert.equal(bolgedenParaBirimi("es-ES"), "EUR");
+  assert.equal(bolgedenParaBirimi("en-CA"), "CAD");
+  assert.equal(bolgedenParaBirimi("en-AU"), "AUD");
+  assert.equal(bolgedenParaBirimi("de-CH"), "CHF");
+  assert.equal(bolgedenParaBirimi("ja-JP"), "JPY");
+  assert.equal(bolgedenParaBirimi("pt-BR"), "USD");
+  assert.equal(bolgedenParaBirimi("en"), "USD");
+  assert.equal(bolgedenParaBirimi("tr"), "TRY");
+  assert.equal(bolgedenParaBirimi(""), "USD");
+});
+
+test("para birimi kararı: kayıtlı seçim önce, mevcut kurulum ve Türkçe TRY'de kalır", async () => {
+  const { paraBirimiBelirle } = await import("./currencyInput.js");
+  assert.equal(paraBirimiBelirle({ native: false, kayitli: "USD", dilKodu: "en", yerelAyar: "en-US" }), "TRY");
+  assert.equal(paraBirimiBelirle({ native: true, kayitli: "EUR", dilKodu: "en", yerelAyar: "en-US" }), "EUR");
+  assert.equal(paraBirimiBelirle({ native: true, kayitli: "XYZ", dilKodu: "en", yerelAyar: "en-GB" }), "GBP");
+  assert.equal(paraBirimiBelirle({ native: true, dilKodu: "en", yerelAyar: "en-US" }), "USD");
+  assert.equal(paraBirimiBelirle({ native: true, dilKodu: "en", yerelAyar: "en-US", mevcutKurulum: true }), "TRY");
+  assert.equal(paraBirimiBelirle({ native: true, dilKodu: "tr", yerelAyar: "tr-DE" }), "TRY");
+});
+
+test("seçilen birim biçime ve {simge} içeren etiketlere yansır", async () => {
+  const { paraBirimiSimgesi } = await import("./currencyInput.js");
+  const { cevir, t } = await import("./i18n.js");
+  assert.equal(paraBiriminiFormatla(1234.5, "USD", { locale: "en-US" }), "$1,234.50");
+  assert.equal(paraBiriminiFormatla(1234.5, "EUR", { locale: "en-US" }), "€1,234.50");
+  assert.equal(paraBiriminiFormatla(1234.5, "JPY", { locale: "en-US" }), "¥1,235");
+  assert.equal(paraBirimiSimgesi("USD", "en-US"), "$");
+  assert.equal(paraBirimiSimgesi("TRY", "tr-TR"), "₺");
+  // Web'de {simge} ₺ ile dolar; açık verilen değer önceliklidir.
+  assert.equal(cevir("tr", "borclar.alan.kartLimiti"), "Toplam kart limiti (₺)");
+  assert.equal(cevir("en", "borclar.alan.kartLimiti", { simge: "$" }), "Total credit limit ($)");
+  assert.equal(t("borclar.alan.kartLimiti"), "Toplam kart limiti (₺)");
 });
 
 test("para biçimi locale seçeneğiyle İngilizce gösterilebilir, TL biçimi sabit kalır", () => {
   assert.equal(paraBiriminiFormatla(1234.56, "USD", { locale: "en-US" }), "$1,234.56");
   assert.equal(turkLirasiFormatla(1234.56, { locale: "en-US" }), "₺1,234.56");
   assert.equal(turkLirasiFormatla(1234.56), "₺1.234,56");
+});
+
+test("BDDK asgari oranı yalnız TRY'de uygulanır", async () => {
+  const { yasalAsgariUygulanir } = await import("./creditCardMinimum.js");
+  assert.equal(yasalAsgariUygulanir("TRY"), true);
+  assert.equal(yasalAsgariUygulanir("USD"), false);
+  assert.equal(yasalAsgariUygulanir("EUR"), false);
+  assert.equal(yasalAsgariUygulanir(), true);
+});
+
+test("para birimi adı seçili dilde verilir", async () => {
+  const { paraBirimiAdi, DESTEKLENEN_PARA_BIRIMLERI } = await import("./currencyInput.js");
+  assert.equal(paraBirimiAdi("USD", "en-US"), "US Dollar");
+  assert.match(paraBirimiAdi("TRY", "tr-TR"), /Türk Lirası/i);
+  assert.ok(DESTEKLENEN_PARA_BIRIMLERI.includes("TRY") && DESTEKLENEN_PARA_BIRIMLERI.includes("USD"));
 });

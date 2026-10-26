@@ -59,6 +59,8 @@ test("İngilizce sözlükte Türkçede olmayan anahtar ya da değişken yok", ()
     assert.equal(typeof metin, "string", `metin değil: ${anahtar}`);
     assert.ok(metin.trim(), `boş çeviri: ${anahtar}`);
     for (const ad of degiskenler(metin)) {
+      // {simge} her çeviride kendiliğinden sağlanan ortak değişkendir.
+      if (ad === "simge") continue;
       assert.ok(degiskenler(tr[anahtar]).includes(ad), `${anahtar}: {${ad}} Türkçede yok`);
     }
   }
@@ -136,12 +138,13 @@ test("açılışta <html lang> seçili dile eşitlenir", () => {
 test("dil düğmesi ve ayarı yalnız native'de çizilir, açılış lang'i ayarlar", async () => {
   const { readFile } = await import("node:fs/promises");
   const oku = (d) => readFile(new URL(`./${d}`, import.meta.url), "utf8");
-  for (const dosya of ["DilDugmesi.jsx", "DilAyari.jsx"]) {
+  for (const dosya of ["DilDugmesi.jsx", "DilAyari.jsx", "ParaBirimiSecici.jsx", "ParaBirimiAyari.jsx"]) {
     assert.match(await oku(dosya), /if \(!nativeMi\) return null;/, dosya);
   }
   assert.match(await oku("Onboarding.jsx"), /<DilDugmesi /);
   assert.match(await oku("Auth.jsx"), /<DilDugmesi className="auth-dil" \/>/);
-  assert.match(await oku("App.jsx"), /<DilAyari \/>/);
+  assert.match(await oku("App.jsx"), /<DilAyari \/>\s*<ParaBirimiAyari \/>/);
+  assert.match(await oku("Onboarding.jsx"), /<ParaBirimiSecici /);
   assert.match(await oku("main.jsx"), /^belgeDiliniAyarla\(\);$/m);
 });
 

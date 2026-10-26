@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import tr from "./locales/tr.js";
+import { cevir } from "./i18n.js";
+import "./currencyInput.js";
 
 const source = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
 const start = source.indexOf("loans: form?.veri?.id ? [");
@@ -24,7 +25,7 @@ test("manuel kredi formu başlangıç tutarı ve plan alanlarını doğru sırad
   const anahtarlar = [...fields.matchAll(/e: t\("([\w.]+)"\)/g)].map((m) => m[1]);
   let previous = -1;
   labels.forEach((label) => {
-    const position = anahtarlar.findIndex((anahtar, i) => i > previous && tr[anahtar] === label);
+    const position = anahtarlar.findIndex((anahtar, i) => i > previous && cevir("tr", anahtar) === label);
     assert.ok(position > previous, `${label} alanı eksik veya yanlış sırada`);
     previous = position;
   });

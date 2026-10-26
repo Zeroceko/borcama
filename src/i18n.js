@@ -82,7 +82,20 @@ export function locale(kod = dil()) {
   return LOCALELER[kod] || LOCALELER.tr;
 }
 
-function yerlestir(metin, degiskenler) {
+// Her ceviride kendiliginden saglanan degiskenler (ornegin {simge}: secili
+// para biriminin simgesi). Saglayici currencyInput.js tarafindan kaydedilir;
+// cagiranin verdigi degiskenler onceliklidir.
+let ortakDegiskenSaglayici = null;
+export function ortakDegiskenleriAyarla(saglayici) {
+  ortakDegiskenSaglayici = typeof saglayici === "function" ? saglayici : null;
+}
+function ortakDegiskenler(metin, degiskenler) {
+  if (!ortakDegiskenSaglayici || !metin.includes("{simge}")) return degiskenler;
+  return { ...ortakDegiskenSaglayici(), ...(degiskenler || {}) };
+}
+
+function yerlestir(metin, hamDegiskenler) {
+  const degiskenler = ortakDegiskenler(metin, hamDegiskenler);
   if (!degiskenler) return metin;
   return metin.replace(/\{(\w+)\}/g, (tum, ad) =>
     Object.prototype.hasOwnProperty.call(degiskenler, ad) ? String(degiskenler[ad]) : tum,
@@ -107,6 +120,7 @@ export function t(anahtar, degiskenler) {
 export function cevirOgeler(kod, anahtar, degiskenler = {}) {
   const sozluk = SOZLUKLER[kod] || tr;
   const metin = sozluk[anahtar] ?? tr[anahtar] ?? anahtar;
+  degiskenler = ortakDegiskenler(metin, degiskenler) || {};
   return metin
     .split(/(\{\w+\})/)
     .filter((parca) => parca !== "")
