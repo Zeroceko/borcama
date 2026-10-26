@@ -352,6 +352,7 @@ const es_ = {
   "asistan.hizli.duzelt.baslik": "Corregir un registro",
   "asistan.hizli.duzelt.aciklama": "Ir a la pantalla adecuada",
   "asistan.hata.limitPro": "Has usado las {limit} preguntas de hoy. Podrás volver a preguntar mañana.",
+  "asistan.hata.limitProAy": "Has usado las {limit} preguntas de este mes. Se renuevan el día 1.",
   "asistan.hata.limitUcretsiz": "Has usado las {limit} preguntas gratuitas de hoy. Con Pro puedes hacer {pro} preguntas al día; tus preguntas gratuitas se renuevan mañana.",
   "asistan.hata.demo": "Las respuestas con IA solo funcionan con una sesión iniciada. En esta vista previa puedes usar las respuestas predefinidas.",
   "asistan.hata.genel": "Ahora mismo no he podido preparar una respuesta fiable. Inténtalo de nuevo en un momento.",

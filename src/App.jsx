@@ -4314,6 +4314,7 @@ function IlkKullanimRehberi({
 // Günlük asistan soru hakkı; sunucudaki consume_financial_assistant_question ile aynı.
 const ASISTAN_UCRETSIZ_SORU = 5;
 const ASISTAN_PRO_SORU = 20;
+const ASISTAN_PRO_AYLIK_SORU = 80;
 function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, veri, kalemler, git, gorusBildir, proAktif, proAc, proSatisYok = false, yapayZekaIzni, yapayZekaIzniVer }) {
   const [secim, setSecim] = useState("durum");
   const [soru, setSoru] = useState("");
@@ -4412,7 +4413,9 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       setModelDurumu({ yukleniyor: false, hata: "", kota: sonuc.quota || null });
     } catch (error) {
       const mesaj = error?.message === "DAILY_LIMIT"
-        ? (proSatisYok || (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif))
+        ? error.quota?.period === "month"
+          ? t("asistan.hata.limitProAy", { limit: error.quota?.monthly_limit || ASISTAN_PRO_AYLIK_SORU })
+          : (proSatisYok || (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif))
           ? t("asistan.hata.limitPro", { limit: error.quota?.limit || ASISTAN_PRO_SORU })
           : t("asistan.hata.limitUcretsiz", { limit: error.quota?.limit || ASISTAN_UCRETSIZ_SORU, pro: ASISTAN_PRO_SORU })
         : error?.message === "DEMO_MODE"

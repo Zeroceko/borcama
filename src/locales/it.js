@@ -352,6 +352,7 @@ const it_ = {
   "asistan.hizli.duzelt.baslik": "Correggi un dato",
   "asistan.hizli.duzelt.aciklama": "Vai subito alla schermata giusta",
   "asistan.hata.limitPro": "Hai usato tutte le {limit} domande di oggi. Potrai chiedere di nuovo domani.",
+  "asistan.hata.limitProAy": "Hai usato tutte le {limit} domande di questo mese. Si rinnovano il giorno 1.",
   "asistan.hata.limitUcretsiz": "Hai usato le {limit} domande gratuite di oggi. Con Pro puoi fare {pro} domande al giorno; le domande gratuite si rinnovano domani.",
   "asistan.hata.demo": "Le risposte dell'IA funzionano solo con un account a cui hai effettuato l'accesso. In questa anteprima puoi usare le risposte predefinite.",
   "asistan.hata.genel": "Al momento non sono riuscito a preparare una risposta affidabile. Riprova tra poco.",

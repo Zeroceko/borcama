@@ -30,3 +30,11 @@ test("Pro günlük 20 soru, ücretsiz kullanımdan ayrı sayılır", () => {
   assert.match(ayri, /pro_question_count < question_limit/);
   assert.match(ayri, /question_count - public\.financial_assistant_daily_usage\.pro_question_count < question_limit/);
 });
+
+test("Pro asistanda aylık 80 soru sınırı; dolunca aylık mesaj", () => {
+  const ay = readFileSync(resolve(kok, "supabase/migrations/20261027120000_financial_assistant_pro_monthly_cap.sql"), "utf8");
+  assert.match(ay, /monthly_limit constant integer := 80;/);
+  assert.match(ay, /'period', 'month'/);
+  assert.match(app, /const ASISTAN_PRO_AYLIK_SORU = 80;/);
+  assert.match(app, /error\.quota\?\.period === "month"/);
+});

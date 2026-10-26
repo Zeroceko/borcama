@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.69.2] - 2026-10-27
+
+### Değiştirildi
+
+- Borcama Asistanı'nda Pro için aylık 80 soru üst sınırı eklendi; günlük 20 soru hakkı aynı. Aylık hak dolunca asistan "Bu ayki 80 soru hakkını kullandın" diyor ve hak ayın 1'inde yenileniyor.
+
 ## [1.69.1] - 2026-10-27
 
 ### Kaldırıldı

@@ -72,6 +72,7 @@ export const tr = {
 
   // Model durumu ve hata mesajları (arayüz metni; model yanıtı değil)
   "asistan.hata.limitPro": "Bugünkü {limit} soru hakkını kullandın. Yarın yeniden sorabilirsin.",
+  "asistan.hata.limitProAy": "Bu ayki {limit} soru hakkını kullandın. Hakların ayın 1'inde yenilenir.",
   "asistan.hata.limitUcretsiz": "Bugünkü {limit} ücretsiz soru hakkını kullandın. Pro ile günde {pro} soru sorabilirsin; ücretsiz hakların yarın yenilenir.",
   "asistan.hata.demo": "Yapay zekâ yanıtları yalnız giriş yapılmış gerçek hesapta çalışır. Hazır cevapları bu önizlemede kullanabilirsin.",
   "asistan.hata.genel": "Şu anda güvenilir bir yanıt oluşturamadım. Biraz sonra tekrar deneyebilirsin.",
@@ -172,6 +173,7 @@ export const en = {
   "asistan.hizli.duzelt.aciklama": "Jump to the right screen",
 
   "asistan.hata.limitPro": "You've used all {limit} of today's questions. You can ask again tomorrow.",
+  "asistan.hata.limitProAy": "You've used all {limit} of this month's questions. They reset on the 1st.",
   "asistan.hata.limitUcretsiz": "You've used today's {limit} free questions. With Pro you can ask {pro} questions a day; your free questions reset tomorrow.",
   "asistan.hata.demo": "AI answers only work in a signed-in account. You can use the ready-made answers in this preview.",
   "asistan.hata.genel": "I couldn't put together a reliable answer right now. Please try again in a moment.",
