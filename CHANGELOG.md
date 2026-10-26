@@ -8,6 +8,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Her borç (kart, kredi, ek hesap, diğer borç) kendi para biriminde kaydedilebiliyor: formdaki para birimi seçicisiyle örneğin İngiltere'de yaşayan kullanıcı GBP kartının yanında Türk kartını ve kredisini TRY olarak takip ediyor. Kurallar borç bazında (TRY borçta TCMB azami faizi, BDDK asgari oranı, KKDF/BSMV ve Türk bankası listesi; diğer birimlerde o ülkenin ortalaması), en az bir TRY borcu olan kullanıcıda Türk bankası ekstre/kredi planı okuma açık. Toplam borç, zorunlu ödeme, plan, Bugün ve öneriler ana birime TCMB/ECB kuruyla çevriliyor ("≈ kur tarihi" notuyla); kuru olmayan kayıt toplama katılmıyor, "kur bekliyor" diye ayrıca gösteriliyor. Tek birimli TRY kullanıcısının ekranları değişmedi.
 
+## [1.69.1] - 2026-10-27
+
+### Kaldırıldı
+
+- Hesaplama araçlarının sonuç alanındaki "Markanızı burada tanıtın" reklam satış kutusu kaldırıldı; reklam ve işbirliği iletişimi artık araç, sözlük, rehber ve ana sayfa alt bilgisindeki bağlantıdan yapılıyor.
+
+### Düzeltildi
+
+- Hesaplama araçlarının sonuç kartında tutarlar artık ikiye bölünmüyor; dar ekranda kutular alt alta diziliyor ve çok uzun tutarlarda yazı tek satıra sığacak kadar küçülüyor.
+- Kart veya kredi ekleme/düzenleme formu açıkken üstteki "Gösterilen dönem" seçicisi gizleniyor; seçici artık formun bir alanı gibi görünmüyor.
+
 ## [1.69.0] - 2026-10-26
 
 ### Eklendi

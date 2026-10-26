@@ -93,6 +93,8 @@ Her departman tamamladığı çalışmada aşağıdaki bilgileri bu dosyanın �
 
 ## Son devirler
 
+- 2026-10-27 · Ürün ve Mühendislik · Baz `1.69.0`, sürüm `1.69.1`, dal `claude/gece-ekibi-1-69-1`: Gece ekibinin #22 (araç reklam kutusu kaldırıldı, alt bilgide reklam/işbirliği mailto), #27 (araç sonuç tutarları tek satır, `BuyukTutar`) ve #28 (form açıkken dönem seçicisi gizli) PR'ları #35 sonrası main'e göre tek dalda birleştirildi; çakışmalar main tarafı korunarak çözüldü (App Store bağlantıları + reklam bağlantısı birlikte).
+
 - 2026-10-24 · Ürün ve Mühendislik · Baz `1.68.0`, sürüm `1.68.1`, dal `claude/rozet-hiza`: Özer bildirimi; `.la-final-box .la-btn` üst boşluğu `.la-final-actions` içinde sıfırlandı, boşluk kapsayıcıya taşındı. Masaüstü ve 375px kontrol.
 
 - 2026-10-24 · Ürün ve Mühendislik · Baz `1.67.2`, sürüm `1.68.0`, dal `claude/app-store-rozeti`: iOS App Store yayını (id 6817634876). `src/appStore.js` sabitleri; `LandingAlt.jsx` `AppStoreRozeti` (hero + final), alt bilgi bağlantıları (`LandingAlt`, `SeoPages`), `index.html` `apple-itunes-app` meta ve statik içerikte bağlantı; rozet Apple Marketing Tools'tan (`public/app-store-rozet-tr.svg`). Tıklama ölçümü App Store Connect web yönlendiren raporundan izlenir (yeni analitik olayı yok). Test/build; masaüstü + 375px kontrol.
