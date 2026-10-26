@@ -2655,8 +2655,8 @@ export default function BorcTakip() {
     };
     kaydet(islemEkle(yeniVeri, {
       tur: varMi ? "guncelleme" : "ekleme",
-      baslik: kayit.banka || kayit.ad || "Finansal kayıt",
-      detay: varMi ? "Kayıt güncellendi" : "Yeni kayıt eklendi",
+      baslik: kayit.banka || kayit.ad || t("islem.finansalKayit"),
+      detay: varMi ? t("islem.kayitGuncellendi") : t("islem.yeniKayit"),
       geriAl: { tip: "liste", liste, id: kayit.id, oncekiKayit },
     }));
     if (!secenekler.formuKoru) setForm(null);
@@ -2667,8 +2667,8 @@ export default function BorcTakip() {
     const yeniVeri = { ...veri, [liste]: veri[liste].filter((x) => x.id !== id) };
     kaydet(islemEkle(yeniVeri, {
       tur: "silme",
-      baslik: oncekiKayit.banka || oncekiKayit.ad || "Finansal kayıt",
-      detay: "Kayıt silindi",
+      baslik: oncekiKayit.banka || oncekiKayit.ad || t("islem.finansalKayit"),
+      detay: t("islem.kayitSilindi"),
       geriAl: { tip: "liste", liste, id, oncekiKayit },
     }));
   };
@@ -2683,8 +2683,8 @@ export default function BorcTakip() {
     if (sonuc.error) return sonuc.error;
     kaydet(islemEkle(sonuc.data, {
       tur: "guncelleme",
-      baslik: `${sonuc.cardBefore.banka || "Kart"} · borç yapılandırması`,
-      detay: `${fmt(plan.amount)} kart borcu yapılandırma kredisine taşındı`,
+      baslik: t("islem.yapilandirmaBaslik", { banka: sonuc.cardBefore.banka || t("islem.kart") }),
+      detay: t("islem.yapilandirmaDetay", { tutar: fmt(plan.amount) }),
       geriAl: {
         tip: "kart_yapilandirma",
         kartId: sonuc.cardBefore.id,
@@ -2706,13 +2706,13 @@ export default function BorcTakip() {
     const kaynakKart = veri.cards.find((kart) => kart.id === islem.cardId);
     const hedefKart = veri.cards.find((kart) => kart.id === islem.targetCardId);
     const detay = islem.tip === "tasi"
-      ? `${ayEtiketi(islem.period)} ekstresi ${hedefKart?.banka || "diğer karta"} taşındı`
+      ? t("islem.ekstreTasindi", { ay: ayEtiketi(islem.period), hedef: hedefKart?.banka || t("islem.digerKarta") })
       : islem.tip === "kaydi_sil"
-        ? `${ayEtiketi(islem.period)} ekstresi ve bağlı kayıt silindi`
-        : `${ayEtiketi(islem.period)} yükleme bilgisi kaldırıldı; finansal kayıt korundu`;
+        ? t("islem.ekstreVeKayitSilindi", { ay: ayEtiketi(islem.period) })
+        : t("islem.yuklemeKaldirildi", { ay: ayEtiketi(islem.period) });
     kaydet(islemEkle(sonuc.data, {
       tur: islem.tip === "tasi" ? "guncelleme" : "silme",
-      baslik: `${kaynakKart?.banka || "Kart"} ekstre arşivi`,
+      baslik: t("islem.ekstreArsivi", { banka: kaynakKart?.banka || t("islem.kart") }),
       detay,
     }));
     return null;
@@ -2856,8 +2856,8 @@ export default function BorcTakip() {
       tur: "odeme",
       baslik: oncekiKart
         ? oncekiKart.banka + (oncekiKart.ad ? " · " + oncekiKart.ad : "")
-        : "Kredi kartı ödemesi",
-      detay: `${fmt(temizTutar)} kart ödemesi kaydedildi`,
+        : t("islem.krediKartiOdemesi"),
+      detay: t("islem.kartOdemesiKaydedildi", { tutar: fmt(temizTutar) }),
       geriAl: {
         tip: "kart_odeme",
         kartId,
@@ -2963,8 +2963,8 @@ export default function BorcTakip() {
       tur: "odeme",
       baslik: kredi.banka + (kredi.ad ? " · " + kredi.ad : ""),
       detay: kapandi
-        ? "Kredi tamamen kapatıldı"
-        : `${fmt(temizTutar)} kredi ödemesi kaydedildi`,
+        ? t("islem.krediKapatildi")
+        : t("islem.krediOdemesiKaydedildi", { tutar: fmt(temizTutar) }),
       geriAl: {
         tip: "kredi_odeme",
         krediId,
@@ -6615,8 +6615,8 @@ function Odemeler({
               {islemler.map((islem) => (
                 <div className="bt-islem-satiri" key={islem.id}>
                   <div>
-                    <strong>{islem.baslik}</strong>
-                    <span>{islem.detay} · {tarihSaatEtiketi(islem.tarih)}</span>
+                    <strong>{tDeger(islem.baslik)}</strong>
+                    <span>{tDeger(islem.detay)} · {tarihSaatEtiketi(islem.tarih)}</span>
                   </div>
                   {islem.geriAlindi ? (
                     <span className="bt-islem-durum">{t("odemeler.geriAlindi")}</span>
@@ -8566,8 +8566,8 @@ function Borclar({
       tur: eskiKart ? "guncelleme" : "ekleme",
       baslik: kartGorunenAdi(kart),
       detay: aktarilanlar.length
-        ? `Ekstre ve ${aktarilanlar.length} onaylı harcama kalemi kaydedildi`
-        : "Ekstre kaydedildi",
+        ? t("islem.ekstreVeHarcamalar", { n: aktarilanlar.length })
+        : t("islem.ekstreKaydedildi"),
       geriAl: null,
     }));
     setEkstreYuklemePenceresi(false);
@@ -8626,7 +8626,7 @@ function Borclar({
     kaydet(islemEkle({ ...veri, loans }, {
       tur: mevcut ? "guncelleme" : "ekleme",
       baslik: `${plan.banka} · ${plan.ad}`,
-      detay: mevcut ? "Kredi ödeme planından güncellendi" : "Kredi ödeme planından eklendi",
+      detay: mevcut ? t("islem.planGuncellendi") : t("islem.planEklendi"),
       geriAl: null,
     }));
     setKrediPlaniYuklemePenceresi(false);

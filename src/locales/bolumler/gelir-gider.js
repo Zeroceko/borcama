@@ -119,6 +119,7 @@ export const tr = {
   "gelirGider.kaynak.yedekKart": "Kredi kartı",
   "gelirGider.kaynak.yedekBankaHesabi": "Banka hesabı",
   "gelirGider.kaynak.yedekHesap": "Hesap",
+  "deger.Banka hesabı": "Banka hesabı",
 };
 
 export const en = {
@@ -235,4 +236,5 @@ export const en = {
   "gelirGider.kaynak.yedekKart": "Credit card",
   "gelirGider.kaynak.yedekBankaHesabi": "Bank account",
   "gelirGider.kaynak.yedekHesap": "Account",
+  "deger.Banka hesabı": "Bank account",
 };
