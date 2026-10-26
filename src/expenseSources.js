@@ -1,32 +1,39 @@
+import { t } from "./i18n.js";
+
 function temizMetin(deger) {
   return String(deger || "").trim();
 }
 
+// kayitEtiketi harcamaya kaydedilir ve kart eşleştirmesinde karşılaştırılır;
+// bu yüzden Türkçe yedek adlarla kalır. gorunenEtiket yalnız ekranda görünür.
 export function kartHarcamaKaynagi(kart = {}) {
   const banka = temizMetin(kart.banka) || "Banka";
   const ad = temizMetin(kart.ad) || "Kredi kartı";
+  const gorunenBanka = temizMetin(kart.banka) || t("gelirGider.kaynak.yedekBanka");
+  const gorunenAd = temizMetin(kart.ad) || t("gelirGider.kaynak.yedekKart");
   const son4 = temizMetin(kart.kartSon4);
   return {
     id: kart.id,
     tur: "card",
     secimDegeri: `card:${kart.id}`,
     kayitEtiketi: `${banka} · ${ad}`,
-    gorunenEtiket: `${banka} · ${ad}${son4 ? ` •••• ${son4}` : ""}`,
+    gorunenEtiket: `${gorunenBanka} · ${gorunenAd}${son4 ? ` •••• ${son4}` : ""}`,
   };
 }
 
 export function hesapHarcamaKaynagi(hesap = {}) {
   const kurum = temizMetin(hesap.kurum) || "Banka hesabı";
   const ad = temizMetin(hesap.ad) || "Hesap";
-  const etiket = kurum.toLocaleLowerCase("tr-TR") === ad.toLocaleLowerCase("tr-TR")
-    ? kurum
-    : `${kurum} · ${ad}`;
+  const ayni = kurum.toLocaleLowerCase("tr-TR") === ad.toLocaleLowerCase("tr-TR");
+  const etiket = ayni ? kurum : `${kurum} · ${ad}`;
+  const gorunenKurum = temizMetin(hesap.kurum) || t("gelirGider.kaynak.yedekBankaHesabi");
+  const gorunenAd = temizMetin(hesap.ad) || t("gelirGider.kaynak.yedekHesap");
   return {
     id: hesap.id,
     tur: "account",
     secimDegeri: `account:${hesap.id}`,
     kayitEtiketi: etiket,
-    gorunenEtiket: etiket,
+    gorunenEtiket: ayni ? gorunenKurum : `${gorunenKurum} · ${gorunenAd}`,
   };
 }
 

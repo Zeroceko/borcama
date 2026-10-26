@@ -12595,15 +12595,15 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
   const enBuyuk = Math.max(...Object.values(buAyGelir.kaynaklar), 1);
 
   const alanlar = [
-    { k: "ad", e: "Kaynak adı (Maaş, Kira geliri…)", t: "text", z: true },
-    { k: "tutar", e: "Tutar (₺)", t: "number", z: true, para: true },
+    { k: "ad", e: t("gelirGider.gelir.kaynakAdi"), t: "text", z: true },
+    { k: "tutar", e: t("gelirGider.tutarTl"), t: "number", z: true, para: true },
     {
       k: "tekrar",
-      e: "Tekrar",
+      e: t("gelirGider.gelir.tekrar"),
       t: "select",
       options: ["Her ay", "Tek seferlik"],
     },
-    { k: "tarih", e: "Tarih (sadece tek seferlikse)", t: "date" },
+    { k: "tarih", e: t("gelirGider.gelir.tarihTekSeferlik"), t: "date" },
   ];
   function gonder() {
     for (const a of alanlar) if (a.z && !String(f[a.k] ?? "").trim()) return;
@@ -12619,21 +12619,21 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
       <div className="bt-card">
         <div className="bt-cardhead">
           <div className="bt-h2" style={{ margin: 0 }}>
-            <TrendingUp size={16} /> {sabit ? "Sabit gelirler" : "Gelir kaynakları"}
+            <TrendingUp size={16} /> {sabit ? t("gelirGider.gelir.sabitBaslik") : t("gelirGider.gelir.baslik")}
           </div>
           {!acik && (
             <button
               className="bt-btn kucuk ikincil"
               onClick={() => setForm({ liste: "incomes", veri: {} })}
             >
-              <Plus size={14} /> Ekle
+              <Plus size={14} /> {t("ortak.ekle")}
             </button>
           )}
         </div>
         <div style={{ fontSize: 12.5, color: "var(--dim)", marginBottom: 16 }}>
           {sabit
-            ? "Maaş, kira ve her ay düzenli aldığın gelirleri burada takip et. Bu tutarlar her ay ödeme gücüne otomatik eklenir."
-            : "Maaş, ek iş, kira geliri gibi tüm gelir kaynaklarınızı ekleyin. Düzenli olanlar her ay otomatik sayılır; tek seferlik olanlar yalnızca o ay için sayılır."}
+            ? t("gelirGider.gelir.sabitAciklama")
+            : t("gelirGider.gelir.aciklama")}
         </div>
         {acik && (
           <div className="bt-form">
@@ -12650,7 +12650,7 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
                     >
                       {a.options.map((o) => (
                         <option key={o} value={o}>
-                          {o}
+                          {tDeger(o)}
                         </option>
                       ))}
                     </select>
@@ -12674,16 +12674,16 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
             </div>
             <div className="bt-form-butonlar">
               <button className="bt-btn birincil" onClick={gonder}>
-                <Check size={14} /> {f.id ? "Güncelle" : "Kaydet"}
+                <Check size={14} /> {f.id ? t("ortak.guncelle") : t("ortak.kaydet")}
               </button>
               <button className="bt-btn ikincil" onClick={() => setForm(null)}>
-                Vazgeç
+                {t("ortak.vazgec")}
               </button>
             </div>
           </div>
         )}
         {gorunenGelirler.length === 0 && !acik ? (
-          <div className="bt-bos">Henüz sabit gelir yok. Maaş veya düzenli gelirini ekleyerek başlayabilirsin.</div>
+          <div className="bt-bos">{t("gelirGider.gelir.bos")}</div>
         ) : (
           <div className="bt-stack" style={{ gap: 12 }}>
             {gorunenGelirler.map((g, i) => (
@@ -12697,11 +12697,11 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
                   <div className="bt-satir-ad">{g.ad}</div>
                   <div className="bt-satir-meta">
                     {g.tekrar === "Tek seferlik"
-                      ? "Tek seferlik" +
+                      ? t("gelirGider.gelir.tekSeferlik") +
                         (g.tarih
                           ? " · " + g.tarih.split("-").reverse().join(".")
                           : "")
-                      : "Her ay tekrarlanıyor"}
+                      : t("gelirGider.gelir.herAyTekrarlaniyor")}
                   </div>
                 </div>
                 <div className="bt-satir-tutar">{fmt(g.tutar)}</div>
@@ -12728,7 +12728,7 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
       {kaynaklar.length > 0 && (
         <div className="bt-card">
           <div className="bt-h2">
-            <PieChart size={16} /> Bu ay gelir dağılımı
+            <PieChart size={16} /> {t("gelirGider.gelir.dagilim")}
           </div>
           {kaynaklar.map(([ad, tutar]) => (
             <div key={ad} className="bt-kat">
@@ -12869,7 +12869,7 @@ function Harcamalar({
     setKaynakFormu({
       banka: "",
       ozelBanka: "",
-      ad: tur === "account" ? "Vadesiz hesap" : "",
+      ad: tur === "account" ? t("gelirGider.kaynak.vadesizHesap") : "",
       kesimGunu: "",
       sonOdemeGunu: "",
       kartSon4: "",
@@ -12890,25 +12890,25 @@ function Harcamalar({
       : kaynakFormu.banka).trim();
     const ad = kaynakFormu.ad.trim();
     if (!banka || !ad) {
-      setKaynakHatasi("Banka ve kaynak adı gerekli.");
+      setKaynakHatasi(t("gelirGider.kaynak.hataBankaAd"));
       return;
     }
     if (kaynakEklemeTuru === "card") {
       const kesimGunu = Number(kaynakFormu.kesimGunu);
       if (!Number.isInteger(kesimGunu) || kesimGunu < 1 || kesimGunu > 31) {
-        setKaynakHatasi("Ekstre kesim gününü 1–31 arasında girin.");
+        setKaynakHatasi(t("gelirGider.kaynak.hataKesimGunu"));
         return;
       }
       const sonOdemeGunu = kaynakFormu.sonOdemeGunu === ""
         ? ""
         : Number(kaynakFormu.sonOdemeGunu);
       if (sonOdemeGunu !== "" && (!Number.isInteger(sonOdemeGunu) || sonOdemeGunu < 1 || sonOdemeGunu > 31)) {
-        setKaynakHatasi("Son ödeme gününü 1–31 arasında girin.");
+        setKaynakHatasi(t("gelirGider.kaynak.hataSonOdemeGunu"));
         return;
       }
       const kartSon4 = kaynakFormu.kartSon4.trim();
       if (kartSon4 && !/^\d{4}$/.test(kartSon4)) {
-        setKaynakHatasi("Kartın son dört hanesini 4 rakam olarak girin.");
+        setKaynakHatasi(t("gelirGider.kaynak.hataSon4"));
         return;
       }
       const kart = {
@@ -12978,7 +12978,7 @@ function Harcamalar({
     <div className="bt-form">
       <div className="bt-alanlar">
         <label className="bt-alan">
-          Tutar (₺) *
+          {t("gelirGider.tutarTl")} *
           <ParaInput
             className="bt-input"
             value={f.tutar ?? ""}
@@ -12986,7 +12986,7 @@ function Harcamalar({
           />
         </label>
         <label className="bt-alan">
-          {sabit ? "Başlangıç tarihi" : "Tarih"} *
+          {sabit ? t("gelirGider.harcama.baslangicTarihi") : t("ortak.tarih")} *
           <input
             className="bt-input"
             type="date"
@@ -12995,7 +12995,7 @@ function Harcamalar({
           />
         </label>
         <label className="bt-alan">
-          Ödeme kaynağı
+          {t("gelirGider.harcama.odemeKaynagi")}
           <select
             className="bt-input"
             value={harcamaKaynagiSecimDegeri(f, harcamaKaynaklari)}
@@ -13023,9 +13023,9 @@ function Harcamalar({
               });
             }}
           >
-            <option value="">Seçin…</option>
-            <option value="cash">Nakit</option>
-            <optgroup label="Kredi kartları">
+            <option value="">{t("gelirGider.harcama.secin")}</option>
+            <option value="cash">{t("gelirGider.harcama.nakit")}</option>
+            <optgroup label={t("gelirGider.harcama.krediKartlari")}>
               {harcamaKaynaklari.kartlar.length > 0 ? (
                 harcamaKaynaklari.kartlar.map((kaynak) => (
                   <option key={kaynak.id} value={kaynak.secimDegeri}>
@@ -13033,10 +13033,10 @@ function Harcamalar({
                   </option>
                 ))
               ) : (
-                <option disabled>Henüz kart yok</option>
+                <option disabled>{t("gelirGider.harcama.kartYok")}</option>
               )}
             </optgroup>
-            <optgroup label="Banka hesabı">
+            <optgroup label={t("gelirGider.harcama.bankaHesabi")}>
               {harcamaKaynaklari.hesaplar.length > 0 ? (
                 harcamaKaynaklari.hesaplar.map((kaynak) => (
                   <option key={kaynak.id} value={kaynak.secimDegeri}>
@@ -13044,29 +13044,29 @@ function Harcamalar({
                   </option>
                 ))
               ) : (
-                <option disabled>Henüz hesap yok</option>
+                <option disabled>{t("gelirGider.harcama.hesapYok")}</option>
               )}
             </optgroup>
-            <optgroup label="Yeni ödeme kaynağı">
-              <option value="action:add-card">＋ Kart ekle</option>
-              <option value="action:add-account">＋ Hesap ekle</option>
+            <optgroup label={t("gelirGider.harcama.yeniKaynak")}>
+              <option value="action:add-card">{t("gelirGider.harcama.kartEkle")}</option>
+              <option value="action:add-account">{t("gelirGider.harcama.hesapEkle")}</option>
             </optgroup>
           </select>
         </label>
         <label className="bt-alan">
-          Kategori
+          {t("gelirGider.harcama.kategori")}
           <select
             className="bt-input"
             value={f.kategori ?? "Market"}
             onChange={(e) => setF({ ...f, kategori: e.target.value })}
           >
             {KATEGORILER.map((k) => (
-              <option key={k}>{k}</option>
+              <option key={k} value={k}>{tDeger(k)}</option>
             ))}
           </select>
         </label>
         {!sabit && <label className="bt-alan">
-          Taksit sayısı
+          {t("gelirGider.harcama.taksitSayisi")}
           <input
             className="bt-input"
             type="number"
@@ -13080,22 +13080,23 @@ function Harcamalar({
           />
           <small style={{ color: "var(--dim)" }}>
             {!seciliKart
-              ? "Taksit için önce kredi kartı seçin"
+              ? t("gelirGider.harcama.taksitIcinKart")
               : Math.max(parseInt(f.taksitSayisi) || 1, 1) === 1
-                ? "Tek çekim"
-                : "Aylık yaklaşık " +
-                  fmt(
-                    (+f.tutar || 0) /
-                      Math.max(parseInt(f.taksitSayisi) || 1, 1),
-                  )}
+                ? t("gelirGider.harcama.tekCekim")
+                : t("gelirGider.harcama.aylikYaklasik", {
+                    tutar: fmt(
+                      (+f.tutar || 0) /
+                        Math.max(parseInt(f.taksitSayisi) || 1, 1),
+                    ),
+                  })}
           </small>
         </label>}
         <label className="bt-alan">
-          Açıklama
+          {t("gelirGider.harcama.aciklama")}
           <input
             className="bt-input"
             type="text"
-            placeholder="ör. haftalık market"
+            placeholder={t("gelirGider.harcama.aciklamaOrnek")}
             value={f.aciklama ?? ""}
             onChange={(e) => setF({ ...f, aciklama: e.target.value })}
           />
@@ -13105,19 +13106,19 @@ function Harcamalar({
         <div className="bt-ipucu" style={{ marginTop: 12 }}>
           <Info size={16} />
           <div>
-            <b>Bu harcama {ayEtiketi(seciliEkstreAyi)} ekstresinden başlayacak.</b>{" "}
+            <b>{t("gelirGider.harcama.ekstredenBaslar", { ay: ayEtiketi(seciliEkstreAyi) })}</b>{" "}
             {Math.max(parseInt(f.taksitSayisi) || 1, 1) > 1
-              ? `${Math.max(parseInt(f.taksitSayisi) || 1, 1)} taksit, aylara yaklaşık ${fmt((+f.tutar || 0) / Math.max(parseInt(f.taksitSayisi) || 1, 1))} olarak dağılacak.`
-              : `İşlem tarihi ${ayEtiketi((f.tarih || "").slice(0, 7))} olarak kalacak.`}
+              ? t("gelirGider.harcama.taksitDagilim", { n: Math.max(parseInt(f.taksitSayisi) || 1, 1), tutar: fmt((+f.tutar || 0) / Math.max(parseInt(f.taksitSayisi) || 1, 1)) })
+              : t("gelirGider.harcama.islemTarihiKalir", { ay: ayEtiketi((f.tarih || "").slice(0, 7)) })}
           </div>
         </div>
       )}
       <div className="bt-form-butonlar">
         <button className="bt-btn birincil" onClick={gonder}>
-          <Check size={14} /> {f.id ? "Güncelle" : "Kaydet"}
+          <Check size={14} /> {f.id ? t("ortak.guncelle") : t("ortak.kaydet")}
         </button>
         <button className="bt-btn ikincil" onClick={() => setForm(null)}>
-          Vazgeç
+          {t("ortak.vazgec")}
         </button>
       </div>
     </div>
@@ -13128,14 +13129,14 @@ function Harcamalar({
       <div className="bt-card" data-tour="harcamalar">
         <div className="bt-cardhead">
           <div className="bt-h2" style={{ margin: 0 }}>
-            <Wallet size={16} /> {sabit ? "Sabit giderler" : "Harcamalar"}
+            <Wallet size={16} /> {sabit ? t("gelirGider.harcama.sabitBaslik") : t("gelirGider.harcama.baslik")}
           </div>
           {!acik && (
             <button
               className="bt-btn kucuk birincil"
               onClick={() => setForm({ liste: "expenses", veri: {} })}
             >
-              <Plus size={14} /> {sabit ? "Sabit gider ekle" : "Yeni harcama"}
+              <Plus size={14} /> {sabit ? t("gelirGider.harcama.sabitEkle") : t("gelirGider.harcama.yeni")}
             </button>
           )}
         </div>
@@ -13143,8 +13144,8 @@ function Harcamalar({
         {!acik && sirali.length === 0 && (!sabit || otomatikBorcOdemeleri.length === 0) && (
           <div className="bt-bos">
             {sabit
-              ? "Henüz sabit gider yok. Kira, abonelik, aidat veya düzenli faturalarını ekleyebilirsin."
-              : "Henüz harcama kaydı yok."}
+              ? t("gelirGider.harcama.sabitBos")
+              : t("gelirGider.harcama.bos")}
           </div>
         )}
       </div>
@@ -13152,11 +13153,11 @@ function Harcamalar({
       {sabit && (sirali.length > 0 || otomatikBorcOdemeleri.length > 0) && (
         <div className="bt-card bt-sabit-gider-ozet">
           <div>
-            <span>Bu ay düzenli ödeme yükü</span>
+            <span>{t("gelirGider.harcama.duzenliYuk")}</span>
             <strong>{fmt(sabitToplam + buAyOtomatikBorcToplami)}</strong>
           </div>
           <p>
-            {fmt(sabitToplam)} senin eklediğin sabit giderler, {fmt(buAyOtomatikBorcToplami)} kredi ve yapılandırma taksitleri. Borç taksitleri bütçede yalnızca bir kez sayılır.
+            {t("gelirGider.harcama.duzenliYukAciklama", { sabit: fmt(sabitToplam), borc: fmt(buAyOtomatikBorcToplami) })}
           </p>
         </div>
       )}
@@ -13166,15 +13167,15 @@ function Harcamalar({
           <div className="bt-cardhead">
             <div>
               <div className="bt-h2" style={{ margin: 0 }}>
-                <ReceiptText size={16} /> Borçlardan otomatik gelenler
+                <ReceiptText size={16} /> {t("gelirGider.harcama.borclardanOtomatik")}
               </div>
               <div className="bt-satir-meta" style={{ marginTop: 5 }}>
-                Kredi ve yapılandırma kayıtlarından gelir; burada yeniden eklemen gerekmez.
+                {t("gelirGider.harcama.borclardanOtomatikAciklama")}
               </div>
             </div>
             {kredilereGit && (
               <button className="bt-btn kucuk ikincil" onClick={kredilereGit}>
-                Kredileri aç <ChevronRight size={14} />
+                {t("gelirGider.harcama.kredileriAc")} <ChevronRight size={14} />
               </button>
             )}
           </div>
@@ -13186,17 +13187,17 @@ function Harcamalar({
                     {odeme.banka} · {odeme.ad}
                   </div>
                   <div className="bt-satir-meta">
-                    {odeme.yapilandirma ? "Yapılandırma" : "Kredi taksiti"}
-                    {odeme.kalanTaksit > 0 && <> · {odeme.kalanTaksit} taksit kaldı</>}
+                    {odeme.yapilandirma ? t("gelirGider.harcama.yapilandirma") : t("gelirGider.harcama.krediTaksiti")}
+                    {odeme.kalanTaksit > 0 && <> · {t("gelirGider.harcama.taksitKaldi", { n: odeme.kalanTaksit })}</>}
                     {!odeme.buAyOdenecek && odeme.ilkOdemeTarihi && (
-                      <> · {odeme.ilkOdemeTarihi.split("-").reverse().join(".")} tarihinde başlar</>
+                      <> · {t("gelirGider.harcama.tarihindeBaslar", { tarih: odeme.ilkOdemeTarihi.split("-").reverse().join(".") })}</>
                     )}
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div className="bt-satir-tutar">{fmt(odeme.taksit)}</div>
                   <div className="bt-satir-meta">
-                    {odeme.buAyOdenecek ? "Bu ay ödenecek" : "Henüz başlamadı"}
+                    {odeme.buAyOdenecek ? t("gelirGider.harcama.buAyOdenecek") : t("gelirGider.harcama.henuzBaslamadi")}
                   </div>
                 </div>
               </div>
@@ -13209,7 +13210,7 @@ function Harcamalar({
         <div className="bt-card">
           <div className="bt-cardhead">
             <div className="bt-h2" style={{ margin: 0 }}>
-              <PieChart size={16} /> Bu ay kategori dağılımı
+              <PieChart size={16} /> {t("gelirGider.harcama.kategoriDagilimi")}
             </div>
             <div className="bt-mono" style={{ fontSize: 13 }}>
               {fmt(buAyHarcama.toplam)}
@@ -13219,7 +13220,7 @@ function Harcamalar({
             .sort((a, b) => b[1] - a[1])
             .map(([kat, tutar]) => (
               <div key={kat} className="bt-kat">
-                <div className="bt-kat-ad">{kat}</div>
+                <div className="bt-kat-ad">{tDeger(kat)}</div>
                 <div className="bt-kat-bar">
                   <div
                     style={{
@@ -13237,7 +13238,7 @@ function Harcamalar({
       {!sabit && Object.keys(buAyHarcama.kaynaklar).length > 0 && (
         <div className="bt-card">
           <div className="bt-h2">
-            <Wallet size={16} /> Bu ay hangi bankadan ne kadar harcadınız
+            <Wallet size={16} /> {t("gelirGider.harcama.bankaDagilimi")}
           </div>
           {Object.entries(buAyHarcama.kaynaklar)
             .sort((a, b) => b[1] - a[1])
@@ -13246,7 +13247,7 @@ function Harcamalar({
               return (
                 <div key={kaynak} className="bt-kat">
                   <div className="bt-kat-ad" style={{ width: 150 }}>
-                    {kaynak}
+                    {tDeger(kaynak)}
                   </div>
                   <div className="bt-kat-bar">
                     <div
@@ -13267,11 +13268,11 @@ function Harcamalar({
         <div className="bt-card">
           <div className="bt-cardhead">
             <div className="bt-h2" style={{ margin: 0 }}>
-              {sabit ? "Senin eklediğin sabit giderler" : `İşlem tarihi: ${ayEtiketi(gorunenAy)}`}
+              {sabit ? t("gelirGider.harcama.eklenenSabitler") : t("gelirGider.harcama.islemTarihi", { ay: ayEtiketi(gorunenAy) })}
             </div>
             {!sabit && <select
               className="bt-input"
-              aria-label="Harcama dönemi"
+              aria-label={t("gelirGider.harcama.donem")}
               value={gorunenAy}
               onChange={(e) => setGorunenAy(e.target.value)}
               style={{ width: 170 }}
@@ -13284,7 +13285,7 @@ function Harcamalar({
             </select>}
           </div>
           {gorunenHarcamalar.length === 0 ? (
-            <div className="bt-bos">Bu ay için harcama kaydı yok.</div>
+            <div className="bt-bos">{t("gelirGider.harcama.buAyBos")}</div>
           ) : (
             <div className="bt-stack" style={{ gap: 10 }}>
               {gorunenHarcamalar.map((h) => {
@@ -13305,7 +13306,7 @@ function Harcamalar({
                     <div className="bt-satir">
                       <div style={{ flex: 1, minWidth: 150 }}>
                         <div className="bt-satir-ad">
-                          {h.kategori}
+                          {tDeger(h.kategori)}
                           {h.aciklama && (
                             <span
                               style={{ color: "var(--dim)", fontWeight: 500 }}
@@ -13316,15 +13317,14 @@ function Harcamalar({
                           )}
                         </div>
                         <div className="bt-satir-meta">
-                          {sabit ? "Her ay" : h.tarih && h.tarih.split("-").reverse().join(".")}
-                          {h.kaynak && <> · {h.kaynak}</>}
+                          {sabit ? tDeger("Her ay") : h.tarih && h.tarih.split("-").reverse().join(".")}
+                          {h.kaynak && <> · {tDeger(h.kaynak)}</>}
                           {harcamaEkstreAyi && (
-                            <> · Ekstre: {ayEtiketi(harcamaEkstreAyi)}</>
+                            <> · {t("gelirGider.harcama.ekstre", { ay: ayEtiketi(harcamaEkstreAyi) })}</>
                           )}
                           {(+h.taksitSayisi || 1) > 1 && (
                             <>
-                              {" "}· {h.taksitSayisi} taksit · aylık{" "}
-                              {fmt((+h.tutar || 0) / +h.taksitSayisi)}
+                              {" "}· {t("gelirGider.harcama.taksitAylik", { n: h.taksitSayisi, tutar: fmt((+h.tutar || 0) / +h.taksitSayisi) })}
                             </>
                           )}
                         </div>
@@ -13333,7 +13333,7 @@ function Harcamalar({
                       <div style={{ display: "flex", gap: 2 }}>
                         <button
                           className="bt-btn hayalet"
-                          aria-label="Harcamayı düzenle"
+                          aria-label={t("gelirGider.harcama.duzenle")}
                           onClick={() =>
                             setForm({ liste: "expenses", veri: h })
                           }
@@ -13342,7 +13342,7 @@ function Harcamalar({
                         </button>
                         <button
                           className="bt-btn hayalet tehlike"
-                          aria-label="Harcamayı sil"
+                          aria-label={t("gelirGider.harcama.sil")}
                           onClick={() => sil("expenses", h.id)}
                         >
                           <Trash2 size={15} />
@@ -13355,9 +13355,9 @@ function Harcamalar({
                         className="bt-harcama-inline-edit"
                       >
                         <div className="bt-harcama-inline-edit-baslik">
-                          <strong>Harcamayı düzenle</strong>
+                          <strong>{t("gelirGider.harcama.duzenle")}</strong>
                           <span>
-                            {h.kategori}
+                            {tDeger(h.kategori)}
                             {h.aciklama ? ` · ${h.aciklama}` : ""}
                           </span>
                         </div>
@@ -13393,19 +13393,19 @@ function Harcamalar({
             <div className="bt-modalbaslik">
               <div>
                 <div id="harcama-kaynak-modal-baslik" className="bt-h2">
-                  {kaynakEklemeTuru === "card" ? "Yeni kart ekle" : "Yeni hesap ekle"}
+                  {kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.yeniKart") : t("gelirGider.kaynak.yeniHesap")}
                 </div>
                 <p className="bt-kaynak-modal-aciklama">
-                  Kaynak kaydedildiğinde bu harcamada otomatik seçilir; girdiğin harcama bilgileri korunur.
+                  {t("gelirGider.kaynak.modalAciklama")}
                 </p>
               </div>
-              <button className="bt-btn hayalet" type="button" onClick={kaynakEklemeKapat} aria-label="Kapat">
+              <button className="bt-btn hayalet" type="button" onClick={kaynakEklemeKapat} aria-label={t("ortak.kapat")}>
                 <X size={17} />
               </button>
             </div>
             <div className="bt-kaynak-modal-form">
               <label className="bt-alan">
-                <span>Banka *</span>
+                <span>{t("ortak.banka")} *</span>
                 <select
                   className="bt-input"
                   autoFocus
@@ -13416,35 +13416,35 @@ function Harcamalar({
                     ...(e.target.value !== "__other__" ? { ozelBanka: "" } : {}),
                   })}
                 >
-                  <option value="">Banka seçin…</option>
+                  <option value="">{t("gelirGider.kaynak.bankaSecin")}</option>
                   {bankalar.map((banka) => <option key={banka} value={banka}>{banka}</option>)}
-                  <option value="__other__">Diğer banka…</option>
+                  <option value="__other__">{t("gelirGider.kaynak.digerBanka")}</option>
                 </select>
               </label>
               {kaynakFormu.banka === "__other__" && (
                 <label className="bt-alan">
-                  <span>Banka adı *</span>
+                  <span>{t("gelirGider.kaynak.bankaAdi")} *</span>
                   <input
                     className="bt-input"
                     value={kaynakFormu.ozelBanka}
-                    placeholder="Banka veya kurum adı"
+                    placeholder={t("gelirGider.kaynak.bankaAdiOrnek")}
                     onChange={(e) => setKaynakFormu({ ...kaynakFormu, ozelBanka: e.target.value })}
                   />
                 </label>
               )}
               <label className="bt-alan">
-                <span>{kaynakEklemeTuru === "card" ? "Kart adı" : "Hesap adı"} *</span>
+                <span>{kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.kartAdi") : t("gelirGider.kaynak.hesapAdi")} *</span>
                 <input
                   className="bt-input"
                   value={kaynakFormu.ad}
-                  placeholder={kaynakEklemeTuru === "card" ? "Bonus, World…" : "Maaş hesabı…"}
+                  placeholder={kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.kartAdiOrnek") : t("gelirGider.kaynak.hesapAdiOrnek")}
                   onChange={(e) => setKaynakFormu({ ...kaynakFormu, ad: e.target.value })}
                 />
               </label>
               {kaynakEklemeTuru === "card" ? (
                 <>
                   <label className="bt-alan">
-                    <span>Kartın son 4 hanesi</span>
+                    <span>{t("gelirGider.kaynak.kartSon4")}</span>
                     <input
                       className="bt-input"
                       inputMode="numeric"
@@ -13455,16 +13455,16 @@ function Harcamalar({
                     />
                   </label>
                   <label className="bt-alan">
-                    <span>Toplam kart limiti (₺)</span>
+                    <span>{t("gelirGider.kaynak.kartLimiti")}</span>
                     <ParaInput
                       className="bt-input"
                       value={kaynakFormu.limit}
-                      placeholder="İsteğe bağlı"
+                      placeholder={t("gelirGider.kaynak.istegeBagli")}
                       onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, limit: value })}
                     />
                   </label>
                   <label className="bt-alan">
-                    <span>Ekstre kesim günü *</span>
+                    <span>{t("gelirGider.kaynak.kesimGunu")} *</span>
                     <input
                       className="bt-input"
                       type="number"
@@ -13476,7 +13476,7 @@ function Harcamalar({
                     />
                   </label>
                   <label className="bt-alan">
-                    <span>Son ödeme günü</span>
+                    <span>{t("gelirGider.kaynak.sonOdemeGunu")}</span>
                     <input
                       className="bt-input"
                       type="number"
@@ -13484,18 +13484,18 @@ function Harcamalar({
                       max="31"
                       inputMode="numeric"
                       value={kaynakFormu.sonOdemeGunu}
-                      placeholder="İsteğe bağlı"
+                      placeholder={t("gelirGider.kaynak.istegeBagli")}
                       onChange={(e) => setKaynakFormu({ ...kaynakFormu, sonOdemeGunu: e.target.value })}
                     />
                   </label>
                 </>
               ) : (
                 <label className="bt-alan genis">
-                  <span>Güncel bakiye (₺)</span>
+                  <span>{t("gelirGider.kaynak.guncelBakiye")}</span>
                   <ParaInput
                     className="bt-input"
                     value={kaynakFormu.bakiye}
-                    placeholder="İsteğe bağlı"
+                    placeholder={t("gelirGider.kaynak.istegeBagli")}
                     onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, bakiye: value })}
                   />
                 </label>
@@ -13503,10 +13503,10 @@ function Harcamalar({
               {kaynakHatasi && <span className="bt-kaynak-ekle-hata" role="alert">{kaynakHatasi}</span>}
               <div className="bt-kaynak-modal-actions">
                 <button className="bt-btn birincil" type="submit">
-                  <Check size={14} /> Kaydet ve seç
+                  <Check size={14} /> {t("gelirGider.kaynak.kaydetVeSec")}
                 </button>
                 <button className="bt-btn ikincil" type="button" onClick={kaynakEklemeKapat}>
-                  Vazgeç
+                  {t("ortak.vazgec")}
                 </button>
               </div>
             </div>
