@@ -8411,13 +8411,16 @@ function Borclar({
     } else setF(form.veri || {});
   }, [acik, form, kategori, guncelEkstreAyi]);
 
+  // Tutar alani etiketlerindeki {simge} formdaki kaydin biriminden gelir
+  // (GBP kartta "(£)", TL kartta "(₺)"); ana birimde ortak simgeyle ayni.
+  const formSimge = { simge: paraBirimiSimgesi(kayitParaBirimi(f?.paraBirimi ? f : form?.veri)) };
   const ALAN_TANIMLARI = {
     // Yeni kartta yalnız borcu görmek için gerekenler zorunlu; kart ve bu ayın
     // ekstresi tek formda birlikte oluşur. Ayrıntılar "Daha fazla bilgi"de.
     cards: form?.veri?.id ? [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
       { k: "ad", e: t("borclar.alan.kartAdi"), t: "text", z: true },
-      { k: "limit", e: t("borclar.alan.kartLimiti"), t: "number", z: true, para: true },
+      { k: "limit", e: t("borclar.alan.kartLimiti", formSimge), t: "number", z: true, para: true },
       { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number", z: true },
       {
         k: "sonOdemeGunu",
@@ -8428,63 +8431,63 @@ function Borclar({
       ...kartFaizAlani(false, f?.paraBirimi),
     ] : [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
-      { k: "yeniDonemEkstreBorcu", e: t("borclar.alan.buAykiEkstre"), t: "number", z: true, para: true, p: t("borclar.alan.buAykiEkstreIpucu") },
+      { k: "yeniDonemEkstreBorcu", e: t("borclar.alan.buAykiEkstre", formSimge), t: "number", z: true, para: true, p: t("borclar.alan.buAykiEkstreIpucu") },
       { k: "sonOdemeGunu", e: t("borclar.alan.sonOdemeGunu"), t: "number", z: true, p: t("borclar.alan.ornek", { n: 15 }) },
       { k: "ad", e: t("borclar.alan.kartAdi"), t: "text", ek: true },
-      { k: "limit", e: t("borclar.alan.kartLimiti"), t: "number", para: true, ek: true },
+      { k: "limit", e: t("borclar.alan.kartLimiti", formSimge), t: "number", para: true, ek: true },
       { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number", ek: true },
-      { k: "oncekiAydanKalan", e: t("borclar.alan.devreden"), t: "number", para: true, ek: true },
+      { k: "oncekiAydanKalan", e: t("borclar.alan.devreden", formSimge), t: "number", para: true, ek: true },
       ...kartFaizAlani(true, f?.paraBirimi),
     ],
     // Yeni kredide yalnız kalan borcu ve ödeme gününü bulmaya yetenler zorunlu.
     loans: form?.veri?.id ? [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
       { k: "ad", e: t("borclar.alan.krediAdi"), t: "text", z: true },
-      { k: "anaPara", e: t("borclar.alan.krediTutari"), t: "number", z: !form?.veri?.id, para: true },
+      { k: "anaPara", e: t("borclar.alan.krediTutari", formSimge), t: "number", z: !form?.veri?.id, para: true },
       { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number" },
       { k: "toplamTaksit", e: t("borclar.alan.toplamTaksit"), t: "number", z: !form?.veri?.id },
-      { k: "taksit", e: t("borclar.alan.aylikTaksit"), t: "number", z: true, para: true },
+      { k: "taksit", e: t("borclar.alan.aylikTaksit", formSimge), t: "number", z: true, para: true },
       { k: "odenenTaksit", e: t("borclar.alan.odenenTaksit"), t: "number", z: !form?.veri?.id },
       { k: "kalanTaksit", e: t("borclar.alan.kalanTaksit"), t: "number" },
       { k: "odemeGunu", e: t("borclar.alan.odemeGunu"), t: "number", p: t("borclar.alan.odemeGunuIpucu") },
       { k: "ilkOdemeTarihi", e: t("borclar.alan.ilkTaksit"), t: "date", z: !form?.veri?.id },
     ] : [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
-      { k: "taksit", e: t("borclar.alan.aylikTaksit"), t: "number", z: true, para: true },
+      { k: "taksit", e: t("borclar.alan.aylikTaksit", formSimge), t: "number", z: true, para: true },
       { k: "kalanTaksit", e: t("borclar.alan.kalanTaksit"), t: "number", z: true, p: t("borclar.alan.ornek", { n: 18 }) },
       { k: "odemeGunu", e: t("borclar.alan.odemeGunuAyin"), t: "number", z: true, p: t("borclar.alan.ornek", { n: 5 }) },
       { k: "ad", e: t("borclar.alan.krediAdiOrnek"), t: "text", ek: true },
       { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number", ek: true },
-      { k: "anaPara", e: t("borclar.alan.krediTutari"), t: "number", para: true, ek: true },
+      { k: "anaPara", e: t("borclar.alan.krediTutari", formSimge), t: "number", para: true, ek: true },
       { k: "toplamTaksit", e: t("borclar.alan.toplamTaksit"), t: "number", ek: true },
       { k: "odenenTaksit", e: t("borclar.alan.odenenTaksit"), t: "number", ek: true },
       { k: "ilkOdemeTarihi", e: t("borclar.alan.ilkTaksit"), t: "date", ek: true },
     ],
     od: [
       { k: "banka", e: t("ortak.banka"), t: "text", z: true },
-      { k: "limit", e: t("borclar.alan.ekHesapLimiti"), t: "number", para: true },
+      { k: "limit", e: t("borclar.alan.ekHesapLimiti", formSimge), t: "number", para: true },
       {
         k: "kullanilan",
-        e: t("borclar.alan.kullanilan"),
+        e: t("borclar.alan.kullanilan", formSimge),
         t: "number",
         z: true,
         para: true,
       },
-      { k: "yapilanOdeme", e: t("borclar.alan.yapilanOdeme"), t: "number", para: true },
+      { k: "yapilanOdeme", e: t("borclar.alan.yapilanOdeme", formSimge), t: "number", para: true },
       { k: "faiz", e: t("borclar.alan.aylikFaiz"), t: "number", p: varsayilanFaizIpucu(bolgeProfili(f?.paraBirimi)?.ekHesapYillikFaiz, f?.paraBirimi) },
     ],
     others: [
       { k: "banka", e: t("borclar.alan.alacakli"), t: "text", z: true },
       { k: "ad", e: t("borclar.alan.aciklama"), t: "text" },
-      { k: "tutar", e: t("borclar.alan.guncelTutar"), t: "number", z: true, para: true },
+      { k: "tutar", e: t("borclar.alan.guncelTutar", formSimge), t: "number", z: true, para: true },
       { k: "faiz", e: t("borclar.alan.faizGecikme"), t: "number" },
     ],
   };
   const alanlar = ekHesapBorcModu
-    ? [{ k: "yeniBorcTutari", e: t("borclar.alan.yeniBorcTutari"), t: "number", z: true, para: true }]
+    ? [{ k: "yeniBorcTutari", e: t("borclar.alan.yeniBorcTutari", formSimge), t: "number", z: true, para: true }]
     : ekHesapOdemeModu
     ? [
-        { k: "odemeTutari", e: t("borclar.alan.odemeTutari"), t: "number", z: true, para: true },
+        { k: "odemeTutari", e: t("borclar.alan.odemeTutari", formSimge), t: "number", z: true, para: true },
         {
           k: "odemeTarihi",
           e: t("borclar.alan.odemeTarihi"),
@@ -8499,14 +8502,14 @@ function Borclar({
             ? [
                 {
                   k: "belgedenToplamEkstreBorcu",
-                  e: t("borclar.alan.bankaToplam"),
+                  e: t("borclar.alan.bankaToplam", formSimge),
                   t: "number",
                   z: true,
                   para: true,
                 },
                 {
                   k: "asgari",
-                  e: t("borclar.alan.bankaAsgari"),
+                  e: t("borclar.alan.bankaAsgari", formSimge),
                   t: "number",
                   para: true,
                 },
@@ -8514,12 +8517,12 @@ function Borclar({
             : []),
           {
             k: "yeniDonemEkstreBorcu",
-            e: t("borclar.alan.buDonemBorc"),
+            e: t("borclar.alan.buDonemBorc", formSimge),
             t: "number",
             z: true,
             para: true,
           },
-          { k: "oncekiAydanKalan", e: t("borclar.alan.devreden"), t: "number", para: true },
+          { k: "oncekiAydanKalan", e: t("borclar.alan.devreden", formSimge), t: "number", para: true },
           { k: "kesimGunu", e: t("borclar.alan.kesimGunu"), t: "number" },
           {
             k: "sonOdemeGunu",

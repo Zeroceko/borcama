@@ -158,3 +158,10 @@ test("App: kalemler ana birime çevrilir, kuru olmayan kayıt toplama sessizce 0
   assert.match(app, /if \(kur === null\) return null;/);
   assert.match(app, /t\("paraBirimi\.kur\.bekliyor", \{ n: durum\.bekleyen \}\)/);
 });
+
+test("form simgesi kaydın biriminden: GBP £, TRY ₺; birimsiz kayıt ana birim", async () => {
+  const { paraBirimiSimgesi } = await import("./currencyInput.js");
+  assert.equal(paraBirimiSimgesi(kayitParaBirimi({ paraBirimi: "GBP" }, "TRY"), "tr-TR"), "£");
+  assert.equal(paraBirimiSimgesi(kayitParaBirimi({ paraBirimi: "TRY" }, "GBP"), "en-GB"), "₺");
+  assert.equal(paraBirimiSimgesi(kayitParaBirimi({}, "TRY"), "tr-TR"), "₺");
+});
