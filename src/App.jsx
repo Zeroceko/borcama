@@ -2415,9 +2415,15 @@ export default function BorcTakip() {
   const misafir = misafirModuAcik();
   const isDark = (veri.ayarlar || {}).tema === "dark";
   const ozelBankalar = (veri.ayarlar || {}).ozelBankalar || [];
+  // TRY disinda Turk banka listesi gosterilmez; kullanicinin ekledigi ve
+  // kayitlarinda gecen bankalar kalir, "Diger" ile serbest metin girilir.
   const bankalar = useMemo(
-    () => [...new Set([...BANKALAR, ...ozelBankalar])],
-    [ozelBankalar],
+    () => bankaSecenekleri({
+      turkBankalari: BANKALAR,
+      ozelBankalar,
+      kayitliBankalar: [...(veri.cards || []), ...(veri.loans || []), ...(veri.overdrafts || [])].map((k) => k?.banka),
+    }),
+    [ozelBankalar, veri.cards, veri.loans, veri.overdrafts],
   );
   const temaAnahtarlarSwitch = () =>
     ayarKaydet({ tema: isDark ? "light" : "dark" });
@@ -7780,6 +7786,11 @@ function Borclar({
     setEkstreAkisKarti(null);
     setBaslangicSecimiAcik(true);
   }
+  // Ekstre okuyucu yalniz Turk bankalarinin belgelerini taniyor. TRY disinda
+  // "okut / elle gir" secimi gosterilmez; istek dogrudan elle girise gider.
+  useEffect(() => {
+    if (baslangicSecimiAcik && !belgeOkumaAcik()) manuelEkstreAkisiniAc();
+  }, [baslangicSecimiAcik]);
   function ekstreYontemSeciminiKapat() {
     setBaslangicSecimiAcik(false);
     setEkstreAkisKarti(null);
@@ -8819,14 +8830,14 @@ function Borclar({
                 <div className="bt-kart-ust-islemler">
                   <div className="bt-kart-islem-baslik">
                     <strong>{t("borclar.ekstre.islemler")}</strong>
-                    <span>{t("borclar.ekstre.islemlerAciklama")}</span>
+                    <span>{t(belgeOkumaAcik() ? "borclar.ekstre.islemlerAciklama" : "borclar.ekstre.islemlerAciklamaManuel")}</span>
                   </div>
                   <div className="bt-kart-ust-ana tek">
                     <button
                       className="bt-btn kucuk birincil"
                       onClick={genelEkstreAkisiniAc}
                     >
-                      <Plus size={14} /> {t("borclar.ekstre.ekle")}
+                      <Plus size={14} /> {t(belgeOkumaAcik() ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
                     </button>
                   </div>
                   <div className="bt-kart-ust-araclar" aria-label={t("borclar.ekstre.araclarAria")}>
@@ -8871,7 +8882,10 @@ function Borclar({
                     type="button"
                     onClick={() => {
                       if (kategori === "loans") {
-                        setKrediEklemeSecimiAcik(true);
+                        // Odeme plani okuyucusu yalniz Turk bankalarini taniyor;
+                        // TRY disinda dogrudan elle giris formu acilir.
+                        if (belgeOkumaAcik()) setKrediEklemeSecimiAcik(true);
+                        else setForm({ liste: "loans", veri: {} });
                         return;
                       }
                       setForm({ liste: meta.liste, veri: {} });
@@ -9429,7 +9443,7 @@ function Borclar({
         />
       )}
 
-      {baslangicSecimiAcik && (
+      {baslangicSecimiAcik && belgeOkumaAcik() && (
         <div
           className="bt-modal-arka"
           role="presentation"
@@ -9710,7 +9724,7 @@ function Borclar({
                       genelEkstreAkisiniAc();
                     }}
                   >
-                    <Plus size={14} /> {t("borclar.ekstre.ekle")}
+                    <Plus size={14} /> {t(belgeOkumaAcik() ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
                   </button>
                 </div>
               </div>
@@ -10202,13 +10216,13 @@ function EkstreKontrol({ veri, onKartEkle, onEkstreYukle }) {
     return (
       <div className="bt-arac-bos">
         <h3>{t("borcSatir.kontrol.bosBaslik")}</h3>
-        <p>{t("borcSatir.kontrol.bosAciklama")}</p>
+        <p>{t(belgeOkumaAcik() ? "borcSatir.kontrol.bosAciklama" : "borcSatir.kontrol.bosAciklamaManuel")}</p>
         <div className="bt-arac-bos-actions">
           <button className="bt-btn birincil" type="button" onClick={onKartEkle}>
             <Plus size={14} /> {t("borcSatir.kontrol.kartEkle")}
           </button>
           <button className="bt-btn ikincil" type="button" onClick={onEkstreYukle}>
-            <Plus size={14} /> {t("borcSatir.kontrol.ekstreEkle")}
+            <Plus size={14} /> {t(belgeOkumaAcik() ? "borcSatir.kontrol.ekstreEkle" : "borcSatir.kontrol.ekstreEkleManuel")}
           </button>
         </div>
       </div>

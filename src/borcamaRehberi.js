@@ -1,5 +1,6 @@
 import { getActivationState } from "./productActivation.js";
 import { t } from "./i18n.js";
+import { belgeOkumaAcik } from "./bolgeKurallari.js";
 
 // Borcama rehberi: kullanıcıya her an tek bir "sıradaki en faydalı adım"
 // gösterir. Kurallar deterministiktir; kullanıcı aylık rutini öğrendiğinde
@@ -99,7 +100,7 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
     adaylar.push({
       id: `ekstre-${kart.id}-${buAy}`, tur: "ekstre", hedef: "borclar",
       baslik: t("ozet.rehber.ekstreBaslik", { kart: kartAdi(kart) }),
-      aciklama: t("ozet.rehber.ekstreAciklama"),
+      aciklama: t(belgeOkumaAcik() ? "ozet.rehber.ekstreAciklama" : "ozet.rehber.ekstreAciklamaManuel"),
       aksiyonEtiketi: t("ozet.rehber.ekstreEkle"), ertelenebilir: true,
     });
   }

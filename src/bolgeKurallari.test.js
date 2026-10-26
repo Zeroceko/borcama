@@ -91,3 +91,11 @@ test("asistan bağlamı TRY dışında TCMB kaynağı ve vergi çarpanı eklemez
   assert.equal(turkiye.faizMaliyetOzeti.vergiToplamYuzde, 30);
   assert.ok(JSON.stringify(turkiye).includes("TCMB azami oranı"));
 });
+
+test("ekstre ve kredi planı okuma girişleri TRY dışında açılmaz", async () => {
+  const { readFileSync } = await import("node:fs");
+  const app = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(app, /\{baslangicSecimiAcik && belgeOkumaAcik\(\) && \(/);
+  assert.match(app, /if \(baslangicSecimiAcik && !belgeOkumaAcik\(\)\) manuelEkstreAkisiniAc\(\);/);
+  assert.match(app, /if \(belgeOkumaAcik\(\)\) setKrediEklemeSecimiAcik\(true\);\s*else setForm\(\{ liste: "loans", veri: \{\} \}\);/);
+});

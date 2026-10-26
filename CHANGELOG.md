@@ -25,6 +25,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
+- iOS uygulamasında para birimi TRY değilse ekstre ve kredi ödeme planı okuma seçenekleri gösterilmiyor (okuyucu yalnız Türk bankalarının belgelerini tanıyor); "Ekstre ekle" ve "Yeni kredi" doğrudan elle giriş formunu açıyor. Banka listesinde Türk bankaları yerine kullanıcının eklediği ve kayıtlarında geçen bankalar ile "Diğer" seçeneği yer alıyor. TRY kullanıcıları ve tarayıcı sürümü değişmedi.
 - iOS uygulamasında para birimi TRY değilse Türkiye'ye özgü faiz kuralları uygulanmıyor: kart faizi TCMB azami oranı yerine kartta girilen aylık orandan, ek hesap faizi %4,25 varsayımı yerine girilen orandan hesaplanıyor, plan ve asistan KKDF/BSMV vergi-fon yükü eklemiyor, yapılandırma formunda KKDF/BSMV alanları gösterilmiyor; oran girilmemiş borçta faiz varsayılmıyor ve bu durum belirtiliyor. TRY kullanıcıları ve tarayıcı sürümü değişmedi.
 - iOS uygulamasının alt gezinme çubuğu artık iOS'un kendi sekme çubuğu; simgeler sistem simge kütüphanesinden geliyor, çubuk ev çubuğunun üstüne oturuyor ve klavye açılınca gizleniyor. Tarayıcı sürümündeki çubuk değişmedi.
 - iOS uygulamasının giriş ekranından tek kullanımlık e-posta linkiyle giriş kaldırıldı; uygulamada giriş Apple ile ya da parolayla yapılıyor. Tarayıcı sürümünde iki seçenek de duruyor.

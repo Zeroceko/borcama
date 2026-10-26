@@ -118,6 +118,8 @@ export const tr = {
   "borclar.ekstre.islemler": "Ekstre işlemleri",
   "borclar.ekstre.islemlerAciklama": "Ekstreni cihazında okut veya bilgileri manuel ekle.",
   "borclar.ekstre.ekle": "Ekstre ekle",
+  "borclar.ekstre.islemlerAciklamaManuel": "Ekstre bilgilerini manuel ekle.",
+  "borclar.ekstre.ekleManuel": "Ekstre ekle",
   "borclar.ekstre.araclarAria": "Ekstre araçları",
 
   // Şerit
@@ -369,6 +371,8 @@ export const en = {
   "borclar.ekstre.islemler": "Statements",
   "borclar.ekstre.islemlerAciklama": "Import a statement from a Turkish bank on your device, or add the details manually.",
   "borclar.ekstre.ekle": "Add statement (Turkish banks)",
+  "borclar.ekstre.islemlerAciklamaManuel": "Add your statement details manually.",
+  "borclar.ekstre.ekleManuel": "Add statement",
   "borclar.ekstre.araclarAria": "Statement tools",
 
   "borclar.serit.kalanToplam": "Total remaining payments",
