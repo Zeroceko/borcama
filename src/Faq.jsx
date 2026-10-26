@@ -1,6 +1,8 @@
 import { nativeMi } from "./platform.js";
 import React from "react";
 import { ArrowLeft } from "lucide-react";
+import { t } from "./i18n.js";
+import Ceviri from "./Ceviri.jsx";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -10,53 +12,37 @@ const CSS = `
 .faq h1{margin-top:0}
 `;
 
+const sade = (id) => [t(`sss.${id}.soru`), t(`sss.${id}.cevap`)];
+
 const questions = [
+  sade("ne"),
+  sade("banka"),
+  [t("sss.odemeGorunuyor.soru"), <Ceviri anahtar="sss.odemeGorunuyor.cevap" degerler={{ ekran: <strong>{t("sss.odemeGorunuyor.ekran")}</strong> }} />],
+  sade("asgari"),
+  sade("yapilandirma"),
+  sade("ekstreAyi"),
+  sade("tahmin"),
   [
-    "Borcama ne yapar?",
-    <>Borçlarını, ödemelerini, gelir-harcamalarını ve varlıklarını tek yerde takip etmene yardımcı olur. Pro; girdiğin bilgilere göre borç ödeme önceliği, faiz yükü ve harcama eğilimleri hakkında kişiselleştirilmiş öneriler sunar.</>,
+    t("sss.kaynak.soru"),
+    <Ceviri
+      anahtar="sss.kaynak.cevap"
+      degerler={{ ekran: <strong>{t("sss.kaynak.ekran")}</strong>, eposta: <a href="mailto:zero@borcama.com">zero@borcama.com</a> }}
+    />,
   ],
+  sade("paketFark"),
+  sade("deneme"),
+  sade("yenileme"),
   [
-    "Banka hesaplarım otomatik olarak bağlanıyor mu?",
-    <>Hayır. Şimdilik bilgileri sen girersin; Borcama internet bankacılığı parolanı istemez. Yeni ekstreleri ve yaptığın ödemeleri aylık olarak güncellersin.</>,
-  ],
-  ["Ödeme yaptığım halde neden borç görünüyor?", <>Ödeme kaydı ilgili borcun bakiyesinden ve ekstre döneminden ayrı izlenebilir. <strong>Ödemeler</strong> ekranından kaydın doğru borca ve aya bağlı olduğunu kontrol et; düzelmiyorsa bize yaz.</>],
-  ["Asgari ödeme ile tam ödeme arasındaki fark nedir?", <>Asgari ödeme ekstrede belirtilen minimum tutardır; tam ödeme ise o dönemki borcun tamamını kapatmayı hedefler. Kesin hesap özeti için bankanı kontrol et.</>],
-  ["Yapılandırma ödeme sayılır mı?", <>Yapılandırma, ödeme kaydıyla aynı şey değildir. Plan koşullarını bankanla doğrula ve Borcama'daki kayıtlarını buna göre güncel tut.</>],
-  ["Ekstre ayı ile ödeme ayı neden farklı?", <>Ekstre harcamaların hesaplandığı dönemi, ödeme ise borcun kapatıldığı tarihi anlatır. İlgili ekstreyi ve ödeme kaydını ayrı ayrı kontrol et.</>],
-  ["Borcama'daki tahmin ile banka bakiyem neden farklı?", <>Tahminler senin girdiğin kayıtlara dayanır; banka bakiyesi değildir. Güncel tutar için bankanı kontrol et ve eksik kayıtları uygulamada düzelt.</>],
-  ["Hesap kaynağımı nasıl kontrol eder veya düzeltirim?", <>Kayıt kaynağını <strong>Ayarlar</strong> ekranından kontrol edebilirsin. Yanlışsa değişiklik yapmadan önce <a href="mailto:zero@borcama.com">zero@borcama.com</a> adresine yaz.</>],
-  [
-    "Ücretsiz paket ile Pro arasındaki fark nedir?",
-    <>Ücretsiz paket temel borç, ödeme, harcama ve varlık takibiyle her ay bir kişisel öneri içerir. Pro; tüm kişisel finansal sinyalleri, faiz ve ödeme önceliği analizlerini ve gelişmiş senaryoları açar.</>,
-  ],
-  [
-    "30 günlük Pro denemesi nasıl çalışır?",
-    <>Yeni hesabında Pro özellikleri 30 gün boyunca kart bilgisi istemeden açılır. Süre sonunda ödeme alınmaz; hesabın ve verilerin korunarak otomatik olarak Ücretsiz plana döner.</>,
-  ],
-  [
-    "Pro aboneliği otomatik yenilenir mi?",
-    <>Evet. Aylık veya yıllık seçtiğin dönem sonunda aboneliğin otomatik yenilenir. Yenilemeyi durdurmak için bir sonraki faturalandırma tarihinden önce aboneliğini iptal edebilirsin.</>,
-  ],
-  [
-    "Pro paketimi nasıl iptal ederim?",
+    t("sss.iptal.soru"),
     nativeMi ? (
-      <>Uygulamadaki aboneliğin App Store üzerinden yürür. <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolundan App Store abonelik ekranını açıp yenilemeyi durdurabilirsin; Pro erişimin ödediğin dönemin sonuna kadar sürer.</>
+      <Ceviri anahtar="sss.iptal.cevapNative" degerler={{ yol: <strong>{t("sss.iptal.yol")}</strong> }} />
     ) : (
       <>Borcama'da <strong>Ayarlar → Paketimi yönet / iptal et</strong> yolunu kullan. Otomatik yenilemeyi Borcama içinden durdurabilirsin; Pro erişimin ödediğin dönemin sonuna kadar sürer. Kart ve fatura işlemleri Paddle'ın güvenli müşteri portalında yönetilir.</>
     ),
   ],
-  [
-    "İptal edince Pro hemen kapanır mı?",
-    <>Hayır. İptal sonraki yenilemeyi durdurur; Pro özelliklerini ödediğin mevcut faturalandırma döneminin sonuna kadar kullanmaya devam edersin.</>,
-  ],
-  [
-    "İptal ile iade aynı şey mi?",
-    <>Hayır. İptal gelecek yenilemeyi durdurur, geçmiş ödemeyi otomatik iade etmez. Ayrıntılar için <a href="/refund-policy">İade Politikası</a>'na bakabilirsin.</>,
-  ],
-  [
-    "Finansal bilgilerim kimlerle paylaşılır?",
-    <>Veri işleme ve saklama açıklamaları <a href="/privacy">Gizlilik ve KVKK Aydınlatma Metni</a>'nde yer alır. Abonelik kart bilgileri Borcama tarafından saklanmaz; bu, uygulamaya kendi eklediğin borç ve ödeme kayıtlarından ayrıdır.</>,
-  ],
+  sade("iptalHemen"),
+  [t("sss.iade.soru"), <Ceviri anahtar="sss.iade.cevap" degerler={{ baglanti: <a href="/refund-policy">{t("sss.iade.baglanti")}</a> }} />],
+  [t("sss.paylasim.soru"), <Ceviri anahtar="sss.paylasim.cevap" degerler={{ baglanti: <a href="/privacy">{t("sss.paylasim.baglanti")}</a> }} />],
 ];
 
 export default function Faq() {
@@ -64,18 +50,18 @@ export default function Faq() {
     <div className="faq">
       <style>{CSS}</style>
       <header className="faq-shell faq-nav">
-        <a className="faq-logo" href="/" aria-label="Borcama ana sayfa">
+        <a className="faq-logo" href="/" aria-label={t("sss.logoEtiket")}>
           <img src="/borcama-logo.png" alt="Borcama" />
         </a>
         {nativeMi ? (
-          <button className="faq-back" type="button" onClick={() => window.history.back()}><ArrowLeft size={15} /> Geri</button>
+          <button className="faq-back" type="button" onClick={() => window.history.back()}><ArrowLeft size={15} /> {t("ortak.geri")}</button>
         ) : (
           <a className="faq-back" href="/"><ArrowLeft size={15} /> Ana sayfaya dön</a>
         )}
       </header>
       <main className="faq-shell faq-main">
-        <h1>Merak ettiğin şeyler. Net cevaplar.</h1>
-        <p className="faq-intro">Kullanım, Pro üyeliği, iptal, iade ve veriler hakkında sık sorulan sorular.</p>
+        <h1>{t("sss.baslik")}</h1>
+        <p className="faq-intro">{t("sss.giris")}</p>
         <div className="faq-list">
           {questions.map(([title, answer]) => (
             <details className="faq-item" key={title}>
@@ -85,14 +71,14 @@ export default function Faq() {
           ))}
         </div>
         <div className="faq-contact">
-          <p>Aradığın cevabı bulamadın mı?</p>
+          <p>{t("sss.iletisim")}</p>
           <a href="mailto:zero@borcama.com">zero@borcama.com</a>
         </div>
       </main>
       <footer className="faq-footer">
         <div className="faq-shell">
           <span>© Borcama</span>
-          <span><a href="/terms">Kullanıcı Sözleşmesi</a> · <a href="/privacy">Gizlilik ve KVKK</a> · <a href="/refund-policy">İade Politikası</a></span>
+          <span><a href="/terms">{t("sss.altSozlesme")}</a> · <a href="/privacy">{t("sss.altGizlilik")}</a> · <a href="/refund-policy">{t("sss.altIade")}</a></span>
         </div>
       </footer>
     </div>
