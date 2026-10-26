@@ -5345,7 +5345,7 @@ function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
       <span className="bt-siradaki-ikon" aria-hidden="true"><Sparkles size={17} /></span>
       <div className="bt-siradaki-metin">
         <b>{oneri.baslik}</b>
-        <span>{oneri.adim ? `Adım ${oneri.adim} · ` : ""}{oneri.aciklama}</span>
+        <span>{oneri.adim ? t("ozet.rehber.adim", { adim: oneri.adim }) : ""}{oneri.aciklama}</span>
       </div>
       <div className={"bt-siradaki-aksiyon" + (secimAcik && oneri.secenekler ? " secim" : "")}>
         {secimAcik && oneri.secenekler ? (
@@ -5356,13 +5356,13 @@ function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
           </div>
         ) : (
           <button className="bt-btn birincil kucuk" type="button" onClick={() => (oneri.secenekler ? setSecimAcik(true) : onAksiyon(oneri))}>
-            {oneri.aksiyonEtiketi || "Devam et"} {oneri.tur !== "mezuniyet" && <ChevronRight size={14} />}
+            {oneri.aksiyonEtiketi || t("ortak.devamEt")} {oneri.tur !== "mezuniyet" && <ChevronRight size={14} />}
           </button>
         )}
         {(oneri.kapatEtiketi || oneri.ertelenebilir) && (
           <span className="bt-siradaki-baglantilar">
             {oneri.kapatEtiketi && <button className="bt-siradaki-ikincil" type="button" onClick={() => onKapat(oneri.id)}>{oneri.kapatEtiketi}</button>}
-            {oneri.ertelenebilir && <button className="bt-siradaki-ikincil" type="button" title="3 gün sonra yeniden gösterilir" onClick={() => onErtele(oneri.id)}>Kapat</button>}
+            {oneri.ertelenebilir && <button className="bt-siradaki-ikincil" type="button" title={t("ozet.rehber.erteleIpucu")} onClick={() => onErtele(oneri.id)}>{t("ortak.kapat")}</button>}
           </span>
         )}
       </div>
@@ -5374,16 +5374,16 @@ function AktivasyonKutusu({ durum, onBaslat }) {
   if (durum.tamam || !durum.siradaki) return null;
   const aktifAdim = Math.min(durum.tamamlanan + 1, durum.toplam);
   return (
-    <section className="bt-aktivasyon" aria-label="İlk plan kurulum adımları">
+    <section className="bt-aktivasyon" aria-label={t("ozet.aktivasyon.aria")}>
       <div className="bt-aktivasyon-kopya">
         <span className="bt-aktivasyon-sayac">
-          Adım {aktifAdim}/{durum.toplam}
+          {t("ozet.aktivasyon.sayac", { aktif: aktifAdim, toplam: durum.toplam })}
         </span>
         <h2>{durum.siradaki.baslik}</h2>
         <p>{durum.siradaki.aciklama}</p>
         <div
           className="bt-aktivasyon-ilerleme"
-          aria-label={`${durum.tamamlanan}/${durum.toplam} adım tamamlandı`}
+          aria-label={t("ozet.aktivasyon.ilerlemeAria", { tamam: durum.tamamlanan, toplam: durum.toplam })}
         >
           {durum.gorevler.map((gorev, index) => (
             <span
@@ -5400,7 +5400,7 @@ function AktivasyonKutusu({ durum, onBaslat }) {
           type="button"
           onClick={() => onBaslat(durum.siradaki)}
         >
-          {durum.tamamlanan === 0 ? "Başla" : "Devam et"} <ChevronRight size={16} />
+          {durum.tamamlanan === 0 ? t("ozet.aktivasyon.basla") : t("ortak.devamEt")} <ChevronRight size={16} />
         </button>
       </div>
     </section>
@@ -5438,12 +5438,12 @@ function Ozet({
   });
 
   const parcalar = [
-    { tur: "kart", ad: "Kredi kartları", tutar: toplamlar.kart, renk: "var(--debt-card)" },
-    { tur: "kredi", ad: "Krediler", tutar: toplamlar.kredi, renk: "var(--debt-loan)" },
-    { tur: "ek", ad: "Ek hesap / KMH", tutar: toplamlar.ek, renk: "var(--debt-account)" },
+    { tur: "kart", ad: t("ozet.parca.kart"), tutar: toplamlar.kart, renk: "var(--debt-card)" },
+    { tur: "kredi", ad: t("ozet.parca.kredi"), tutar: toplamlar.kredi, renk: "var(--debt-loan)" },
+    { tur: "ek", ad: t("ozet.parca.ek"), tutar: toplamlar.ek, renk: "var(--debt-account)" },
     {
       tur: "diger",
-      ad: "Gecikmiş / diğer",
+      ad: t("ozet.parca.diger"),
       tutar: toplamlar.diger,
       renk: "var(--debt-other)",
     },
@@ -5456,6 +5456,9 @@ function Ozet({
     [veri, kalemler],
   );
   const tutarGoster = (tutar) => (tutarlarGizli ? "₺ ••••••" : fmt0(tutar));
+  const gunGecikti = (n) => t(n === 1 ? "ozet.gunGecikti.tekil" : "ozet.gunGecikti.cogul", { n });
+  const gunKaldi = (n) => t(n === 1 ? "ozet.gunKaldi.tekil" : "ozet.gunKaldi.cogul", { n });
+  const ayMetni = (n) => t(n === 1 ? "ozet.ayTekil" : "ozet.ayCogul", { n });
   const turDegistir = (tur) =>
     setHaricTurler((eski) =>
       eski.includes(tur) ? eski.filter((x) => x !== tur) : [...eski, tur],
@@ -5486,15 +5489,15 @@ function Ozet({
   const oncelikliOdeme = gecikmisler[0] || yaklasanlar[0] || null;
   const oncelikliGun = oncelikliOdeme ? kalanGun(oncelikliOdeme.tarih) : null;
   const oncelikliBaslik = gecikmisler.length
-    ? `${gecikmisler.length} ödeme gecikmiş`
+    ? t(gecikmisler.length === 1 ? "ozet.gecikmisTekil" : "ozet.gecikmisCogul", { n: gecikmisler.length })
     : oncelikliOdeme
-      ? "Sıradaki ödemen yaklaşıyor"
-      : "Bugün bekleyen işlem yok";
+      ? t("ozet.siradakiYaklasiyor")
+      : t("ozet.bekleyenYok");
   const oncelikliAciklama = gecikmisler.length
-    ? `${-oncelikliGun} gün gecikti · ${tutarGoster(oncelikliOdeme.tutar)}`
+    ? `${gunGecikti(-oncelikliGun)} · ${tutarGoster(oncelikliOdeme.tutar)}`
     : oncelikliOdeme
-      ? `${oncelikliGun === 0 ? "Bugün son gün" : `${oncelikliGun} gün kaldı`} · ${tutarGoster(oncelikliOdeme.tutar)}`
-      : "Yeni bir ödeme oluştuğunda burada ilk sırada göstereceğiz.";
+      ? `${oncelikliGun === 0 ? t("ozet.bugunSonGun") : gunKaldi(oncelikliGun)} · ${tutarGoster(oncelikliOdeme.tutar)}`
+      : t("ozet.yeniOdemeBilgi");
   const gorunenOdemeler = [...gorunenGecikmisler, ...gorunenYaklasanlar].slice(0, 3);
   const yeniKullanici = gosterilenToplam <= 0.01 && yaklasan.length === 0;
   const borcsuzlukSenaryosu = calculateRevolvingDebtScenario({
@@ -5531,17 +5534,17 @@ function Ozet({
       : 0;
   const odemeZamani = (odeme) => {
     const gun = kalanGun(odeme.tarih);
-    if (gun < 0) return `${-gun} gün gecikti`;
-    if (gun === 0) return "Bugün son gün";
-    return `${gun} gün kaldı`;
+    if (gun < 0) return gunGecikti(-gun);
+    if (gun === 0) return t("ozet.bugunSonGun");
+    return gunKaldi(gun);
   };
 
   if (yeniKullanici) {
     return (
       <div className="bt-bugun-bos" data-tour="ozet">
         <span className="bt-bugun-bos-ikon"><ReceiptText size={25} /></span>
-        <h1>İlk planını oluşturalım.</h1>
-        <p>Ekstreni veya borcunu ekle; kalan adımları birlikte tamamlayalım.</p>
+        <h1>{t("ozet.bos.baslik")}</h1>
+        <p>{t("ozet.bos.aciklama")}</p>
         <AktivasyonKutusu durum={aktivasyon} onBaslat={aktivasyonAdiminiBaslat} />
       </div>
     );
@@ -5559,13 +5562,13 @@ function Ozet({
           <div>
             <div className="bt-hero-label-row">
               <div className="bt-hero-label">
-                Borç toplamın
+                {t("ozet.borcToplamin")}
               </div>
               <button
                 className="bt-btn hayalet bt-tutar-toggle"
                 type="button"
-                title={tutarlarGizli ? "Tutarları göster" : "Tutarları gizle"}
-                aria-label={tutarlarGizli ? "Tutarları göster" : "Tutarları gizle"}
+                title={tutarlarGizli ? t("ozet.tutarlariGoster") : t("ozet.tutarlariGizle")}
+                aria-label={tutarlarGizli ? t("ozet.tutarlariGoster") : t("ozet.tutarlariGizle")}
                 onClick={() => tutarlariGizle(!tutarlarGizli)}
               >
                 {tutarlarGizli ? <Eye size={17} /> : <EyeOff size={17} />}
@@ -5584,29 +5587,29 @@ function Ozet({
                 visibility: haricTurler.length ? "visible" : "hidden",
               }}
             >
-              {haricTurler.length || 0} kategori toplamdan çıkarıldı ·{" "}
+              {t("ozet.haricSayisi", { n: haricTurler.length || 0 })}{" "}
               <button className="bt-link" onClick={() => setHaricTurler([])} tabIndex={haricTurler.length ? 0 : -1}>
-                Tümünü geri ekle
+                {t("ozet.tumunuGeriEkle")}
               </button>
             </div>
             {gecenAyDelta && (
               <div className="bt-hero-delta-grup">
                 <div className={"bt-hero-delta " + (gecenAyDelta.fark <= 0 ? "azaldi" : "artti")}>
                   {tutarlarGizli
-                    ? "Geçen aya göre değişim gizli"
+                    ? t("ozet.delta.gizli")
                     : gecenAyDelta.fark === 0
-                      ? "Geçen aydan bu yana değişmedi"
-                      : (gecenAyDelta.fark < 0
-                          ? fmt0(-gecenAyDelta.fark) + " azaldı"
-                          : fmt0(gecenAyDelta.fark) + " arttı") + " (geçen aya göre)"}
+                      ? t("ozet.delta.degismedi")
+                      : gecenAyDelta.fark < 0
+                        ? t("ozet.delta.azaldi", { tutar: fmt0(-gecenAyDelta.fark) })
+                        : t("ozet.delta.artti", { tutar: fmt0(gecenAyDelta.fark) })}
                 </div>
                 <small className="bt-hero-delta-kaynak">
-                  Kayıtlı kart, kredi ve hesap bakiyeleri · {ayEtiketi(gecenAyDelta.ay)} karşılaştırması
+                  {t("ozet.delta.kaynak", { ay: ayEtiketi(gecenAyDelta.ay) })}
                 </small>
               </div>
             )}
           </div>
-          <aside className="bt-onemli-panel" aria-label="Bugünün aksiyonları">
+          <aside className="bt-onemli-panel" aria-label={t("ozet.aksiyonlarAria")}>
             <div className="bt-onemli-liste">
               {oncelikliOdeme && (
                 <button
@@ -5619,7 +5622,7 @@ function Ozet({
                   </span>
                   <span>
                     <strong>{oncelikliOdeme.ad}</strong>
-                    <small>{gecikmisler.length ? oncelikliBaslik : "Sıradaki ödeme"} · {oncelikliAciklama}</small>
+                    <small>{gecikmisler.length ? oncelikliBaslik : t("ozet.siradakiOdeme")} · {oncelikliAciklama}</small>
                   </span>
                   <ChevronRight size={17} aria-hidden="true" />
                 </button>
@@ -5630,52 +5633,52 @@ function Ozet({
                   <span>
                     <strong>
                       {borcsuzlukSenaryosu.status === "structural_gap"
-                        ? `Aylık açık ${tutarGoster(borcsuzlukSenaryosu.monthlyGap)}`
-                        : "Borç planına geç"}
+                        ? t("ozet.aylikAcik", { tutar: tutarGoster(borcsuzlukSenaryosu.monthlyGap) })
+                        : t("ozet.borcPlaninaGec")}
                     </strong>
                     <small>
                       {borcsuzlukSenaryosu.status === "structural_gap"
-                        ? "Nasıl kapatacağını gör"
+                        ? t("ozet.nasilKapatacagin")
                         : aylikFaiz > 0
-                          ? `${fmt0(aylikFaiz)} tahmini aylık faiz · kapatma sırasını gör`
-                          : "Kapatma sıranı ve aylık hedefini gör"}
+                          ? t("ozet.faizSiraGor", { tutar: fmt0(aylikFaiz) })
+                          : t("ozet.siraHedefGor")}
                     </small>
                   </span>
                   <ChevronRight size={17} aria-hidden="true" />
                 </button>
               )}
               {!oncelikliOdeme && !["ok", "long_horizon", "structural_gap"].includes(borcsuzlukSenaryosu.status) && (
-                <div className="bt-onemli-bos">Bu ay için kritik bir durum görünmüyor.</div>
+                <div className="bt-onemli-bos">{t("ozet.kritikYok")}</div>
               )}
             </div>
           </aside>
         </div>
-        <div className="bt-ozet-kisa" aria-label="Bu ayın özeti">
+        <div className="bt-ozet-kisa" aria-label={t("ozet.buAyOzetAria")}>
           <div>
-            <span>Kalan zorunlu ödeme</span>
+            <span>{t("ozet.kalanZorunlu")}</span>
             <strong>{tutarGoster(buAyOdenecek)}</strong>
           </div>
           <div>
-            <span>Aylık plan</span>
+            <span>{t("ozet.aylikPlan")}</span>
             <strong>
               {borcsuzlukSenaryosu.status === "structural_gap"
-                ? `${tutarGoster(borcsuzlukSenaryosu.monthlyGap)} açık`
+                ? t("ozet.acikTutar", { tutar: tutarGoster(borcsuzlukSenaryosu.monthlyGap) })
                 : aylikDenge.tutar !== null
                   ? `${aylikDenge.tutar >= 0 ? "+" : ""}${tutarGoster(aylikDenge.tutar)}`
-                  : "Veri eksik"}
+                  : t("ozet.veriEksik")}
             </strong>
             <small>
               {borcsuzlukSenaryosu.status === "structural_gap"
-                ? "Gelir, harcama ve zorunlu ödemelere göre"
+                ? t("ozet.acikAciklama")
                 : aylikDenge.aciklama}
             </small>
           </div>
           <div>
-            <span>Ay içindeki harcama</span>
+            <span>{t("ozet.ayIciHarcama")}</span>
             <strong>{tutarGoster(buAyHarcama.toplam)}</strong>
           </div>
         </div>
-        <div className="bt-borc-dagilim" aria-label="Borç dağılımı">
+        <div className="bt-borc-dagilim" aria-label={t("ozet.dagilimAria")}>
           <div className="bt-borc-dagilim-icerik">
             <div className="bt-serit">
               {gosterilenToplam > 0 && parcalar
@@ -5689,7 +5692,7 @@ function Ozet({
                 <button
                   key={p.ad}
                   className={"bt-chip secilebilir " + (haricTurler.includes(p.tur) ? "haric" : "")}
-                  title={haricTurler.includes(p.tur) ? "Toplama geri ekle" : "Toplamdan çıkar"}
+                  title={haricTurler.includes(p.tur) ? t("ozet.toplamaGeriEkle") : t("ozet.toplamdanCikar")}
                   onClick={() => turDegistir(p.tur)}
                 >
                   <span className="dot" style={{ background: p.renk }} />
@@ -5706,19 +5709,19 @@ function Ozet({
       <section className="bt-bugun-plan" aria-labelledby="bugun-borc-plani-baslik">
         <div className="bt-bugun-plan-head">
           <div>
-            <h2 id="bugun-borc-plani-baslik">Borç kapatma sıran</h2>
-            <p>Değişken faizli borçların içinde en yüksek aylık maliyet önce gösterilir.</p>
+            <h2 id="bugun-borc-plani-baslik">{t("ozet.plan.baslik")}</h2>
+            <p>{t("ozet.plan.aciklama")}</p>
           </div>
           <button className="bt-link" type="button" onClick={() => setSekme("plan")}>
-            Tüm borç planı <ChevronRight size={14} />
+            {t("ozet.plan.tumu")} <ChevronRight size={14} />
           </button>
         </div>
         <div className="bt-bugun-plan-grid">
           <div className="bt-bugun-faiz">
-            <span>Bu ay işleyecek tahmini faiz</span>
+            <span>{t("ozet.plan.faizBaslik")}</span>
             <strong>{tutarGoster(bugunBorcPlani.monthlyInterest)}</strong>
             <small>
-              Kart, KMH ve diğer değişken faizli kayıtların bugünkü bakiyesine göre; vergi/fon ve kredi taksitlerindeki faiz dahil değildir.
+              {t("ozet.plan.faizNot")}
             </small>
           </div>
           {proAktif ? (
@@ -5730,8 +5733,10 @@ function Ozet({
                     <span>
                       <strong>{item.ad}</strong>
                       <small>
-                        Aylık %{Number(item.faiz || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 })}
-                        {" · yaklaşık "}{tutarGoster(item.faizTutari)} faiz
+                        {t("ozet.plan.siraFaiz", {
+                          oran: Number(item.faiz || 0).toLocaleString(locale(), { maximumFractionDigits: 2 }),
+                          tutar: tutarGoster(item.faizTutari),
+                        })}
                       </small>
                     </span>
                     <span className="bt-bugun-sira-tutar">{tutarGoster(item.bakiye)}</span>
@@ -5739,26 +5744,26 @@ function Ozet({
                 ))}
                 {bugunBorcPlani.priorityItems.length > 3 && (
                   <div className="bt-bugun-sira-devami">
-                    +{bugunBorcPlani.priorityItems.length - 3} borç daha plan ekranında
+                    {t("ozet.plan.devami", { n: bugunBorcPlani.priorityItems.length - 3 })}
                   </div>
                 )}
               </div>
             ) : (
               <div className="bt-bugun-plan-bos">
                 <div>
-                  <strong>Sıralanacak değişken faizli borç yok.</strong>
-                  <span>Sabit taksitli kredilerini ödeme takviminde takip etmeye devam edebilirsin.</span>
+                  <strong>{t("ozet.plan.bosBaslik")}</strong>
+                  <span>{t("ozet.plan.bosAciklama")}</span>
                 </div>
               </div>
             )
           ) : (
             <div className="bt-bugun-plan-kilit">
               <div>
-                <strong>Kişisel kapatma sıranı aç</strong>
-                <span>Pro, kart ve KMH borçlarını aylık faiz oranı ile kalan bakiyeye göre sıralar.</span>
+                <strong>{t("ozet.plan.kilitBaslik")}</strong>
+                <span>{t("ozet.plan.kilitAciklama")}</span>
               </div>
               <button className="bt-btn birincil" type="button" onClick={proAc}>
-                Sırayı gör <Sparkles size={15} />
+                {t("ozet.plan.siraGor")} <Sparkles size={15} />
               </button>
             </div>
           )}
@@ -5782,7 +5787,7 @@ function Ozet({
         <section className={"bt-pro-senaryo " + (proAktif ? "aktif" : "kilitli")}>
           <div className="bt-pro-senaryo-ust">
             <span className="bt-pro-senaryo-rozet"><Sparkles size={15} /> Borcama Pro</span>
-            {proAktif && trialKalanGun > 0 && <span>{trialKalanGun} deneme günü kaldı</span>}
+            {proAktif && trialKalanGun > 0 && <span>{t(trialKalanGun === 1 ? "ozet.pro.denemeTekil" : "ozet.pro.denemeCogul", { n: trialKalanGun })}</span>}
           </div>
           {proAktif && borcsuzlukSenaryosu.status === "ok" ? (
             <>
@@ -5790,46 +5795,48 @@ function Ozet({
                 <div>
                   <h2>
                     {hizlananAy > 0
-                      ? `Harcamanı azaltırsan kart borcun ${hizlananAy} ay daha erken bitebilir`
+                      ? t(hizlananAy === 1 ? "ozet.pro.hizlanmaBaslikTekil" : "ozet.pro.hizlanmaBaslikCogul", { n: hizlananAy })
                       : senaryoMetni.title}
                   </h2>
                   <p>
                     {hizlananAy > 0 ? (
-                      <>
-                        Yeni kart veya KMH borcu oluşturmadan aylık yaşam harcamanı
-                        {" "}<b>{tutarGoster(harcamaAzaltmaFirsati)}</b> azaltırsan tahmini süre
-                        {" "}<b>{borcsuzlukSenaryosu.months} aydan {onerilenBorcsuzlukSenaryosu.months} aya</b> inebilir.
-                      </>
+                      <Ceviri
+                        anahtar="ozet.pro.hizlanmaMetin"
+                        degerler={{
+                          azaltma: <b>{tutarGoster(harcamaAzaltmaFirsati)}</b>,
+                          sure: <b>{t("ozet.pro.aydanAya", { once: borcsuzlukSenaryosu.months, sonra: onerilenBorcsuzlukSenaryosu.months })}</b>,
+                        }}
+                      />
                     ) : (
-                      <>
-                        {senaryoMetni.reason} Tahmin, yeni kart/KMH borcu eklemediğin varsayımıyla
-                        {" "}<b>{borcsuzlukSenaryosu.months} ay</b>.
-                      </>
+                      <Ceviri
+                        anahtar="ozet.pro.tahminMetin"
+                        degerler={{ neden: senaryoMetni.reason, sure: <b>{ayMetni(borcsuzlukSenaryosu.months)}</b> }}
+                      />
                     )}
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
-                  Borç planını aç <ChevronRight size={16} />
+                  {t("ozet.pro.planiAc")} <ChevronRight size={16} />
                 </button>
               </div>
               <div className="bt-pro-senaryo-metrikler">
-                <div><span>Mevcut plan</span><strong>{borcsuzlukSenaryosu.months} ay</strong></div>
+                <div><span>{t("ozet.pro.mevcutPlan")}</span><strong>{ayMetni(borcsuzlukSenaryosu.months)}</strong></div>
                 <div>
-                  <span>{hizlananAy > 0 ? "Harcama hedefiyle" : "Kart ve KMH'ye ilk ay"}</span>
+                  <span>{hizlananAy > 0 ? t("ozet.pro.harcamaHedefiyle") : t("ozet.pro.ilkAyKartKmh")}</span>
                   <strong>
                     {hizlananAy > 0
-                      ? `${onerilenBorcsuzlukSenaryosu.months} ay`
+                      ? ayMetni(onerilenBorcsuzlukSenaryosu.months)
                       : tutarGoster(Math.max(borcsuzlukSenaryosu.initialDebtBudget, 0))}
                   </strong>
                 </div>
                 <div>
-                  <span>{hizlananAy > 0 ? "Aylık azaltılacak" : "Tahmini toplam faiz"}</span>
+                  <span>{hizlananAy > 0 ? t("ozet.pro.aylikAzaltilacak") : t("ozet.pro.toplamFaiz")}</span>
                   <strong>{hizlananAy > 0 ? tutarGoster(harcamaAzaltmaFirsati) : tutarGoster(borcsuzlukSenaryosu.totalInterest)}</strong>
                 </div>
               </div>
               {borcsuzlukSenaryosu.living.confidence === "low" && (
                 <p className="bt-pro-senaryo-not">
-                  Bu geçici bir tahmin. Ekstre veya harcama kaydı ekledikçe yaşam bütçen daha net hesaplanır.
+                  {t("ozet.pro.geciciTahmin")}
                 </p>
               )}
             </>
@@ -5840,7 +5847,7 @@ function Ozet({
                 <p>{senaryoMetni.reason}</p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={() => setSekme("borclar")}>
-                Ekstre ekle <ChevronRight size={16} />
+                {t("ozet.pro.ekstreEkle")} <ChevronRight size={16} />
               </button>
             </div>
           ) : proAktif && borcsuzlukSenaryosu.status === "missing_income" ? (
@@ -5850,7 +5857,7 @@ function Ozet({
                 <p>{senaryoMetni.reason}</p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={() => setSekme("gelir")}>
-                Gelir ekle <ChevronRight size={16} />
+                {t("ozet.pro.gelirEkle")} <ChevronRight size={16} />
               </button>
             </div>
           ) : proAktif && borcsuzlukSenaryosu.status === "no_revolving_debt" ? (
@@ -5860,7 +5867,7 @@ function Ozet({
                 <p>{senaryoMetni.reason}</p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={() => setSekme("borclar")}>
-                Borçları gör <ChevronRight size={16} />
+                {t("ozet.pro.borclariGor")} <ChevronRight size={16} />
               </button>
             </div>
           ) : proAktif ? (
@@ -5869,39 +5876,42 @@ function Ozet({
                 <div>
                   <h2>
                     {borcsuzlukSenaryosu.status === "structural_gap"
-                      ? `Aylık planında ${tutarGoster(borcsuzlukSenaryosu.monthlyGap)} açık var`
+                      ? t("ozet.pro.planAcikVar", { tutar: tutarGoster(borcsuzlukSenaryosu.monthlyGap) })
                       : borcsuzlukSenaryosu.recommendation.livingReductionNeeded > 0
-                      ? `Aylık harcamanı ${tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded)} azalt`
+                      ? t("ozet.pro.harcamaAzalt", { tutar: tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded) })
                       : senaryoMetni.title}
                   </h2>
                   <p>
-                    Yeni kart veya KMH borcu oluşturmadan mevcut aylık harcaman
-                    {" "}<b>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</b>; ilk hedef
-                    {" "}<b>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</b>.
-                    {onerilenBorcsuzlukSenaryosu?.status === "structural_gap" && " Bu azaltım tek başına açığı kapatmıyor. Gereken ek değişikliği borç planında gör."}
+                    <Ceviri
+                      anahtar="ozet.pro.mevcutHarcamaMetin"
+                      degerler={{
+                        mevcut: <b>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</b>,
+                        hedef: <b>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</b>,
+                      }}
+                    />
+                    {onerilenBorcsuzlukSenaryosu?.status === "structural_gap" && " " + t("ozet.pro.azaltimYetmez")}
                   </p>
                 </div>
                 <button className="bt-btn birincil" type="button" onClick={() => setSekme("plan")}>
-                  Borç planını aç <ChevronRight size={16} />
+                  {t("ozet.pro.planiAc")} <ChevronRight size={16} />
                 </button>
               </div>
               <div className="bt-pro-senaryo-metrikler">
-                <div><span>Mevcut aylık yaşam harcaması</span><strong>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</strong></div>
-                <div><span>İlk aylık hedef</span><strong>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</strong></div>
-                <div><span>Aylık azaltılacak</span><strong>{tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded)}</strong></div>
+                <div><span>{t("ozet.pro.mevcutYasam")}</span><strong>{tutarGoster(borcsuzlukSenaryosu.livingBudget)}</strong></div>
+                <div><span>{t("ozet.pro.ilkHedef")}</span><strong>{tutarGoster(borcsuzlukSenaryosu.recommendation.recommendedLivingBudget)}</strong></div>
+                <div><span>{t("ozet.pro.aylikAzaltilacak")}</span><strong>{tutarGoster(borcsuzlukSenaryosu.recommendation.livingReductionNeeded)}</strong></div>
               </div>
             </>
           ) : (
             <div className="bt-pro-senaryo-ana">
               <div>
-                <h2>Borçlarının ne zaman biteceğini gör</h2>
+                <h2>{t("ozet.pro.kilitBaslik")}</h2>
                 <p>
-                  Pro; gelirini, aylık ödeme gücünü ve tanımlı faiz yükünü birlikte
-                  hesaplayarak sana kişisel bir borçsuzluk senaryosu çıkarır.
+                  {t("ozet.pro.kilitAciklama")}
                 </p>
               </div>
               <button className="bt-btn birincil" type="button" onClick={proAc}>
-                Pro planını gör <Sparkles size={16} />
+                {t("ozet.pro.planiGor")} <Sparkles size={16} />
               </button>
             </div>
           )}
@@ -5912,23 +5922,23 @@ function Ozet({
         <div className="bt-bugun-bolum-head">
           <div>
             <h2 id="bugun-odemeler-baslik">
-              {gecikmisler.length ? "Geciken ve yaklaşan ödemeler" : "Ödeme takvimin"}
+              {gecikmisler.length ? t("ozet.odemeler.baslikGecikmis") : t("ozet.odemeler.baslik")}
             </h2>
             <p>
               {gecikmisler.length
-                ? `${gecikmisler.length} gecikmiş ödeme önce gösteriliyor; ayrıntılar Hareketler altında.`
-                : "En yakın üç ödeme; ayrıntılar Hareketler altında."}
+                ? t(gecikmisler.length === 1 ? "ozet.odemeler.gecikmisAciklamaTekil" : "ozet.odemeler.gecikmisAciklamaCogul", { n: gecikmisler.length })
+                : t("ozet.odemeler.aciklama")}
             </p>
           </div>
           <button className="bt-link" type="button" onClick={() => setSekme("odemeler")}>
-            Tüm ödemeler <ChevronRight size={14} />
+            {t("ozet.odemeler.tumu")} <ChevronRight size={14} />
           </button>
         </div>
         {gorunenOdemeler.length ? (
           <div className="bt-bugun-odeme-listesi">
             {gorunenOdemeler.map((odeme) => {
               const gecikmis = kalanGun(odeme.tarih) < 0;
-              const rozet = (odeme.ad || "ÖD")
+              const rozet = (odeme.ad || t("ozet.odemeler.rozetVarsayilan"))
                 .split(/\s+/)
                 .map((parca) => parca[0])
                 .join("")
@@ -5943,14 +5953,14 @@ function Ozet({
                   </span>
                   <span className="bt-bugun-odeme-tutar">
                     <b>{tutarGoster(odeme.tutar)}</b>
-                    <span>{odeme.tur === "kredi" ? "taksit" : "minimum ödeme"}</span>
+                    <span>{odeme.tur === "kredi" ? t("ozet.odemeler.taksit") : t("ozet.odemeler.minimum")}</span>
                   </span>
                 </div>
               );
             })}
           </div>
         ) : (
-          <div className="bt-bugun-odeme-bos">Şu anda bekleyen bir ödeme görünmüyor.</div>
+          <div className="bt-bugun-odeme-bos">{t("ozet.odemeler.bos")}</div>
         )}
       </section>
     </div>
@@ -5980,21 +5990,20 @@ function BorcamaOnerileri({
     return <Lightbulb />;
   };
   const zamanEtiketi = (oneri) =>
-    oneri?.oncelik >= 90 ? "Şimdi" : oneri?.oncelik >= 75 ? "Bu hafta" : "İncele";
+    oneri?.oncelik >= 90 ? t("ozet.oneri.simdi") : oneri?.oncelik >= 75 ? t("ozet.oneri.buHafta") : t("ozet.oneri.incele");
 
   return (
     <section className="bt-oneriler" aria-labelledby="borcama-oneriler-baslik">
       <div className="bt-oneriler-head">
         <div>
-          <h2 id="borcama-oneriler-baslik">Borçlarını azaltmak için öneriler</h2>
+          <h2 id="borcama-oneriler-baslik">{t("ozet.oneri.baslik")}</h2>
           <p>
-            Aylık ödeme baskısını mı, toplam faiz maliyetini mi azaltmak
-            istiyorsun? Önceliğini seç, önerileri ona göre sıralayalım.
+            {t("ozet.oneri.aciklama")}
           </p>
         </div>
         <div className="bt-oneri-hedef">
-          <span className="bt-oneri-hedef-label">Önceliğin ne?</span>
-          <div className="bt-oneri-mod" aria-label="Öneri önceliği">
+          <span className="bt-oneri-hedef-label">{t("ozet.oneri.oncelikSoru")}</span>
+          <div className="bt-oneri-mod" aria-label={t("ozet.oneri.oncelikAria")}>
             <button
               className={mod === "nakit" ? "aktif" : ""}
               onClick={() => {
@@ -6003,7 +6012,7 @@ function BorcamaOnerileri({
               }}
             >
               <Wallet size={17} />
-              <span>Aylık ödemeyi azalt</span>
+              <span>{t("ozet.oneri.aylikAzalt")}</span>
             </button>
             <button
               className={mod === "faiz" ? "aktif" : ""}
@@ -6015,7 +6024,7 @@ function BorcamaOnerileri({
               }}
             >
               <TrendingUp size={17} />
-              <span>Toplam faizi azalt{proAktif ? "" : " · Pro"}</span>
+              <span>{t("ozet.oneri.faizAzalt")}{proAktif ? "" : " · Pro"}</span>
             </button>
           </div>
         </div>
@@ -6030,8 +6039,8 @@ function BorcamaOnerileri({
               <div className="bt-oneri-sahne-ust">
                 <span className="bt-oneri-sayac">
                   {proAktif
-                    ? filtreli.findIndex((oneri) => oneri.id === secili.id) + 1 + "/" + filtreli.length + " sinyal"
-                    : "1 ücretsiz öneri"}
+                    ? t("ozet.oneri.sayac", { sira: filtreli.findIndex((oneri) => oneri.id === secili.id) + 1, toplam: filtreli.length })
+                    : t("ozet.oneri.ucretsiz")}
                 </span>
               </div>
               <h3>{secili.baslik}</h3>
@@ -6053,14 +6062,14 @@ function BorcamaOnerileri({
                 {secili.aksiyon} <ChevronRight size={17} />
               </button>
             </div>
-            <div className="bt-oneri-pusula" aria-label={zamanEtiketi(secili) + " önceliği"}>
+            <div className="bt-oneri-pusula" aria-label={t("ozet.oneri.oncelikiAria", { zaman: zamanEtiketi(secili) })}>
               <div className="bt-oneri-yildiz">✦</div>
               <div className="bt-oneri-pusula-ikon">{ikon(secili.tur)}</div>
               <strong>{zamanEtiketi(secili)}</strong>
               <span>
                 {proAktif
-                  ? filtreli.length + " finansal sinyal tarandı"
-                  : "Tüm analizler Borcama Pro'da"}
+                  ? t(filtreli.length === 1 ? "ozet.oneri.taranTekil" : "ozet.oneri.taranCogul", { n: filtreli.length })
+                  : t("ozet.oneri.tumAnalizPro")}
               </span>
             </div>
           </article>
@@ -6069,13 +6078,10 @@ function BorcamaOnerileri({
             <div className="bt-pro-kilit">
               <div className="bt-pro-kilit-ikon"><Sparkles size={20} /></div>
               <div>
-                <strong>{filtreli.length - 1} kişisel öneri daha hazır</strong>
-                <span>
-                  Tüm sinyalleri, faiz önceliğini ve aylık plan analizini Borcama
-                  Pro ile aç.
-                </span>
+                <strong>{t(filtreli.length - 1 === 1 ? "ozet.oneri.dahaHazirTekil" : "ozet.oneri.dahaHazirCogul", { n: filtreli.length - 1 })}</strong>
+                <span>{t("ozet.oneri.kilitAciklama")}</span>
               </div>
-              <button className="bt-btn birincil" onClick={proAc}>Pro'yu incele</button>
+              <button className="bt-btn birincil" onClick={proAc}>{t("ozet.oneri.proyuIncele")}</button>
             </div>
           )}
 
@@ -6084,10 +6090,10 @@ function BorcamaOnerileri({
               <div className="bt-oneri-diger-baslik">
                 <div className="bt-oneri-diger-baslik-ana">
                   <span className="bt-oneri-diger-baslik-ikon"><Sparkles size={16} /></span>
-                  <span className="bt-oneri-diger-baslik-baslik">Finansal sinyaller</span>
+                  <span className="bt-oneri-diger-baslik-baslik">{t("ozet.oneri.finansalSinyaller")}</span>
                   <span className="bt-oneri-diger-sayac">{filtreli.length}</span>
                 </div>
-                <small>Karta dokun, ayrıntısı yukarıda açılsın.</small>
+                <small>{t("ozet.oneri.karttaDokun")}</small>
               </div>
               <div className={"bt-oneri-kartlar " + (tumuAcik ? "tumu-acik" : "")}>
                 {filtreli.map((oneri, index) => (
@@ -6115,18 +6121,17 @@ function BorcamaOnerileri({
         </>
       ) : (
         <div className="bt-oneri-bos">
-          <Check size={18} /> Bu hedef için şu anda dikkat gerektiren bir sinyal
-          yok.
+          <Check size={18} /> {t("ozet.oneri.bos")}
         </div>
       )}
 
       <div className="bt-oneriler-alt">
         <span>
-          Tahmini senaryodur; banka koşullarını ve güncel sözleşmeni kontrol et.
+          {t("ozet.oneri.altNot")}
         </span>
         {proAktif && filtreli.length > 3 && (
           <button className="bt-link" onClick={() => setTumuAcik(!tumuAcik)}>
-            {tumuAcik ? "Daha az göster" : "Tüm önerileri gör (" + filtreli.length + ")"}
+            {tumuAcik ? t("ozet.oneri.dahaAz") : t("ozet.oneri.tumunuGor", { n: filtreli.length })}
           </button>
         )}
       </div>

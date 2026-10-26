@@ -1,4 +1,5 @@
 import { getActivationState } from "./productActivation.js";
+import { t } from "./i18n.js";
 
 // Borcama rehberi: kullanıcıya her an tek bir "sıradaki en faydalı adım"
 // gösterir. Kurallar deterministiktir; kullanıcı aylık rutini öğrendiğinde
@@ -49,7 +50,7 @@ export function yeterliVeriVar(veri) {
 }
 
 function kartAdi(kart) {
-  return [kart?.banka, kart?.ad].filter(Boolean).join(" · ") || "Kartın";
+  return [kart?.banka, kart?.ad].filter(Boolean).join(" · ") || t("ozet.rehber.kartVarsayilan");
 }
 
 export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
@@ -63,7 +64,7 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
     return {
       asama: "kurulum",
       kurulum,
-      oneri: { id: `kurulum-${g.id}`, tur: "kurulum", gorev: g, baslik: g.baslik, aciklama: g.aciklama, adim: `${kurulum.tamamlanan + 1}/${kurulum.toplam}`, aksiyonEtiketi: "Devam et" },
+      oneri: { id: `kurulum-${g.id}`, tur: "kurulum", gorev: g, baslik: g.baslik, aciklama: g.aciklama, adim: `${kurulum.tamamlanan + 1}/${kurulum.toplam}`, aksiyonEtiketi: t("ozet.rehber.kurulumAksiyon") },
     };
   }
 
@@ -83,9 +84,9 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
     if (o.eklendi && gunFarki(o.eklendi, simdi) !== null && gunFarki(o.eklendi, simdi) >= gun) continue;
     adaylar.push({
       id: `odeme-${o.anahtar || o.id}`, tur: "odeme", hedef: "odemeler",
-      baslik: `${o.ad || o.banka || "Ödemen"}: ödediysen işaretle`,
-      aciklama: gun === 0 ? "Son ödeme günü bugün. Ödediysen işaretle; kalan borcun güncellensin." : `Son ödeme günü ${-gun} gün önce geçti. Ödediysen işaretle; kalan borcun güncellensin.`,
-      aksiyonEtiketi: "Ödemelere git", ertelenebilir: true,
+      baslik: t("ozet.rehber.odemeBaslik", { ad: o.ad || o.banka || t("ozet.rehber.odemenVarsayilan") }),
+      aciklama: gun === 0 ? t("ozet.rehber.odemeBugun") : t(-gun === 1 ? "ozet.rehber.odemeGectiTekil" : "ozet.rehber.odemeGectiCogul", { n: -gun }),
+      aksiyonEtiketi: t("ozet.rehber.odemelereGit"), ertelenebilir: true,
     });
   }
 
@@ -97,9 +98,9 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
     if (Number.isFinite(kesim) && kesim > 0 && simdi.getDate() < kesim) continue;
     adaylar.push({
       id: `ekstre-${kart.id}-${buAy}`, tur: "ekstre", hedef: "borclar",
-      baslik: `${kartAdi(kart)} için yeni ekstreni gir`,
-      aciklama: "Yeni dönem kesildi. Ekstreni okut ya da tutarı yaz; ödeme planın güncellensin.",
-      aksiyonEtiketi: "Ekstre ekle", ertelenebilir: true,
+      baslik: t("ozet.rehber.ekstreBaslik", { kart: kartAdi(kart) }),
+      aciklama: t("ozet.rehber.ekstreAciklama"),
+      aksiyonEtiketi: t("ozet.rehber.ekstreEkle"), ertelenebilir: true,
     });
   }
 
@@ -107,19 +108,19 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
   if (borcKalemSayisi(veri) === 1)
     adaylar.push({
       id: "baska-borc", tur: "tamamla", hedef: "borclar",
-      baslik: "Başka kartın veya kredin var mı?",
-      aciklama: "Hepsini ekleyince toplam borcun ve ödeme takvimin tamamlanır.",
-      aksiyonEtiketi: "Borç ekle", ertelenebilir: true, kapatEtiketi: "Başka borcum yok",
-      secenekler: [["cards", "Kredi kartı"], ["loans", "Kredi"], ["od", "Ek hesap / KMH"], ["others", "Diğer borç"]],
+      baslik: t("ozet.rehber.baskaBorcBaslik"),
+      aciklama: t("ozet.rehber.baskaBorcAciklama"),
+      aksiyonEtiketi: t("ozet.rehber.borcEkle"), ertelenebilir: true, kapatEtiketi: t("ozet.rehber.baskaBorcumYok"),
+      secenekler: [["cards", t("ozet.rehber.secenek.kart")], ["loans", t("ozet.rehber.secenek.kredi")], ["od", t("ozet.rehber.secenek.ek")], ["others", t("ozet.rehber.secenek.diger")]],
     });
 
   // 4) Tamamlama: her ay tekrarlanan gider yok.
   if (!(veri?.expenses || []).some((g) => g?.tekrar === "Her ay"))
     adaylar.push({
       id: "sabit-gider", tur: "tamamla", hedef: "sabit-giderler",
-      baslik: "Kira ve faturalarını bir kez ekle",
-      aciklama: "Her ay tekrarlanan giderlerini girersen aylık planın gerçekçi olur.",
-      aksiyonEtiketi: "Sabit gider ekle", ertelenebilir: true, kapatEtiketi: "Sabit giderim yok",
+      baslik: t("ozet.rehber.sabitGiderBaslik"),
+      aciklama: t("ozet.rehber.sabitGiderAciklama"),
+      aksiyonEtiketi: t("ozet.rehber.sabitGiderEkle"), ertelenebilir: true, kapatEtiketi: t("ozet.rehber.sabitGiderimYok"),
     });
 
   const oneri = adaylar.find((a) => !ertelendi(a.id) && !kapali(a.id));
@@ -132,9 +133,9 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
       asama: "mezuniyet",
       oneri: {
         id: "mezuniyet", tur: "mezuniyet",
-        baslik: "Hepsi bu kadar! Artık hazırsın.",
-        aciklama: "Her ay yeni ekstreni gir ve ödemelerini işaretle; gerisini Borcama hesaplar. Bundan sonra bu kutuyla seni rahatsız etmeyeceğim; ödeme ve ekstre zamanları Bugün ekranında.",
-        aksiyonEtiketi: "Anladım",
+        baslik: t("ozet.rehber.mezunBaslik"),
+        aciklama: t("ozet.rehber.mezunAciklama"),
+        aksiyonEtiketi: t("ozet.rehber.anladim"),
       },
     };
   return { asama: "bekle", oneri: null };
