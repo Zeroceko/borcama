@@ -1,11 +1,9 @@
 import React from "react";
 import { Globe } from "lucide-react";
-import { nativeMi } from "./platform.js";
 import { DESTEKLENEN_DILLER, DIL_ADLARI, dil, diliDegistirVeYenile, t } from "./i18n.js";
 
-// Ayarlar > Dil. Yalniz native'de gorunur; tarayici surumu Turkce kalir.
+// Ayarlar > Dil (native ve web).
 export default function DilAyari() {
-  if (!nativeMi) return null;
   const secili = dil();
   return (
     <section className="bt-settings-card">

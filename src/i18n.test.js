@@ -8,6 +8,8 @@ import {
   digerDil,
   dil,
   dilBelirle,
+  dilBelleginiSifirla,
+  webUygulamaYoluMu,
   diliDegistirVeYenile,
   locale,
   t,
@@ -15,10 +17,35 @@ import {
 import tr from "./locales/tr.js";
 import en from "./locales/en.js";
 
-test("web her koşulda Türkçe kalır", () => {
-  assert.equal(dilBelirle({ native: false, kayitli: "en", tarayiciDili: "en-US" }), "tr");
+test("web: Türkçe kalan sayfalarda (landing, SEO, CRM) ve botlarda dil daima Türkçe", () => {
+  for (const yol of ["/", "/araclar/kredi-karti", "/rehber", "/finansal-sozluk/faiz", "/classic", "/landing-v2", "/backoffice", "/ceo", ""]) {
+    assert.equal(dilBelirle({ native: false, kayitli: "en", tarayiciDili: "en-US", yol }), "tr", yol);
+  }
+  assert.equal(dilBelirle({ native: false, kayitli: "en", tarayiciDili: "en-US", yol: "/summary", crm: true }), "tr");
+  assert.equal(dilBelirle({ native: false, tarayiciDili: "en-US", yol: "/faq", bot: true }), "tr");
+  // Node'da konum yok: Türkçe.
   assert.equal(dil(), "tr");
   assert.equal(locale(), "tr-TR");
+});
+
+test("web: uygulama içi yollarda kayıtlı seçim → tarayıcı dili → Türkçe", () => {
+  assert.equal(dilBelirle({ native: false, tarayiciDili: "tr-TR", yol: "/login" }), "tr");
+  assert.equal(dilBelirle({ native: false, tarayiciDili: "en-US", yol: "/login" }), "en");
+  assert.equal(dilBelirle({ native: false, tarayiciDili: "de-DE", yol: "/settings/" }), "de");
+  assert.equal(dilBelirle({ native: false, tarayiciDilleri: ["ru-RU", "fr-FR", "en"], yol: "/summary" }), "fr");
+  assert.equal(dilBelirle({ native: false, tarayiciDilleri: ["ru-RU", "pt-BR"], yol: "/summary" }), "tr");
+  assert.equal(dilBelirle({ native: false, kayitli: "it", tarayiciDili: "tr-TR", yol: "/privacy" }), "it");
+  assert.equal(dilBelirle({ native: false, kayitli: "xx", tarayiciDili: "es-ES", yol: "/register" }), "es");
+  // "/" yalnız oturum varken uygulamadır.
+  assert.equal(dilBelirle({ native: false, tarayiciDili: "en-US", yol: "/", oturumVar: true }), "en");
+  assert.equal(webUygulamaYoluMu("/terms"), true);
+  assert.equal(webUygulamaYoluMu("/araclar"), false);
+  assert.equal(webUygulamaYoluMu("/"), false);
+});
+
+test("native kararı yol, bot ve CRM bilgisinden etkilenmez", () => {
+  assert.equal(dilBelirle({ native: true, tarayiciDili: "de-DE", yol: "/", bot: true }), "de");
+  assert.equal(dilBelirle({ native: true, kayitli: "en", tarayiciDili: "tr-TR", yol: "/araclar" }), "en");
 });
 
 test("native'de kayıtlı seçim cihaz dilinden önce gelir", () => {
@@ -114,22 +141,24 @@ test("dil düğmesi karşı dili kendi adıyla gösterir", () => {
   assert.equal(DIL_ADLARI[digerDil("en")], "Türkçe");
 });
 
-test("web'de dil değiştirme hiçbir şey yazmaz ve sayfayı yenilemez", () => {
+test("web'de dil değiştirme seçimi kaydeder ve sayfayı yeniler (native ile aynı)", () => {
   const yazilan = [];
   let yenilendi = false;
   const oncekiDepo = globalThis.localStorage;
   const oncekiKonum = Object.getOwnPropertyDescriptor(globalThis, "location");
-  globalThis.localStorage = { getItem: () => null, setItem: (k, v) => yazilan.push([k, v]) };
-  Object.defineProperty(globalThis, "location", { value: { reload: () => { yenilendi = true; } }, configurable: true });
+  globalThis.localStorage = { getItem: () => null, setItem: (k, v) => yazilan.push([k, v]), key: () => null, length: 0 };
+  Object.defineProperty(globalThis, "location", { value: { pathname: "/settings", hostname: "borcama.com", reload: () => { yenilendi = true; } }, configurable: true });
   try {
-    diliDegistirVeYenile("en");
-    assert.deepEqual(yazilan, []);
-    assert.equal(yenilendi, false);
-    assert.equal(dil(), "tr");
+    dilBelleginiSifirla();
+    diliDegistirVeYenile("de");
+    assert.deepEqual(yazilan, [["borcama_dil", "de"]]);
+    assert.equal(yenilendi, true);
+    assert.equal(dil(), "de");
   } finally {
     globalThis.localStorage = oncekiDepo;
     if (oncekiKonum) Object.defineProperty(globalThis, "location", oncekiKonum);
     else delete globalThis.location;
+    dilBelleginiSifirla();
   }
 });
 
@@ -144,12 +173,14 @@ test("açılışta <html lang> seçili dile eşitlenir", () => {
   }
 });
 
-test("dil düğmesi ve ayarı yalnız native'de çizilir, açılış lang'i ayarlar", async () => {
+test("dil düğmesi, dil ve para birimi ayarı native ve web'de çizilir, açılış lang'i ayarlar", async () => {
   const { readFile } = await import("node:fs/promises");
   const oku = (d) => readFile(new URL(`./${d}`, import.meta.url), "utf8");
-  for (const dosya of ["DilDugmesi.jsx", "DilAyari.jsx", "ParaBirimiSecici.jsx", "ParaBirimiAyari.jsx"]) {
-    assert.match(await oku(dosya), /if \(!nativeMi\) return null;/, dosya);
+  for (const dosya of ["DilDugmesi.jsx", "DilAyari.jsx", "ParaBirimiAyari.jsx"]) {
+    assert.doesNotMatch(await oku(dosya), /nativeMi/, dosya);
   }
+  // Onboarding yalnız native; oradaki seçici native'e özgü kalır.
+  assert.match(await oku("ParaBirimiSecici.jsx"), /if \(!nativeMi\) return null;/);
   assert.match(await oku("Onboarding.jsx"), /<DilDugmesi /);
   assert.match(await oku("Auth.jsx"), /<DilDugmesi className="auth-dil" \/>/);
   assert.match(await oku("App.jsx"), /<DilAyari \/>\s*<ParaBirimiAyari \/>/);

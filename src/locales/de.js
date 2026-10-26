@@ -1,6 +1,9 @@
 // de sozlugu (1.69.0). Eksik anahtarlar Ingilizceye (src/locales/en.js) duser.
 // Kaynak: en.js; yer tutucular {x} birebir korunur.
+import { de as web } from "./bolumler/web.js";
+
 const de_ = {
+  ...web,
   "sekme.ozet": "Heute",
   "sekme.borclar": "Schulden",
   "sekme.hareketler": "Aktivität",

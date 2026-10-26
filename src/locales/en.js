@@ -17,8 +17,9 @@ import { en as hatalarSss } from "./bolumler/hatalar-sss.js";
 import { en as yasal } from "./bolumler/yasal.js";
 import { en as islemler } from "./bolumler/islemler.js";
 import { en as paraBirimi } from "./bolumler/para-birimi.js";
+import { en as web } from "./bolumler/web.js";
 
-// English dictionary. Shown only in the native (iOS) app; the web stays Turkish.
+// English dictionary. Used in the iOS app and in the web app's in-app screens (landing/SEO pages stay Turkish).
 // Missing keys fall back to Turkish (src/locales/tr.js).
 const en = {
   // Bölüm sözlükleri (src/locales/bolumler/*.js)
@@ -41,6 +42,7 @@ const en = {
   ...yasal,
   ...islemler,
   ...paraBirimi,
+  ...web,
 
   // Onboarding
   "onboarding.atla": "Skip",
