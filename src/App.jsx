@@ -4152,12 +4152,12 @@ function IlkKullanimRehberi({
         <button
           className="bt-product-tour-kapat"
           type="button"
-          aria-label="Kullanım rehberini kapat"
+          aria-label={t("asistan.rehber.kapatAria")}
           onClick={kapat}
         >
           <X size={19} />
         </button>
-        <div className="bt-product-tour-progress" aria-label={`Adım ${adim + 1} / ${REHBER_ADIMLARI.length}`}>
+        <div className="bt-product-tour-progress" aria-label={t("asistan.rehber.adimAria", { n: adim + 1, toplam: REHBER_ADIMLARI.length })}>
           {REHBER_ADIMLARI.map((_, i) => (
             <span key={i} className={i <= adim ? "aktif" : ""} />
           ))}
@@ -4172,11 +4172,11 @@ function IlkKullanimRehberi({
         </div>
         <div className="bt-product-tour-actions">
           <button className="bt-product-tour-atla" type="button" onClick={kapat}>
-            Turu geç
+            {t("asistan.rehber.turuGec")}
           </button>
           {adim > 0 && (
             <button className="bt-btn kucuk ikincil" type="button" onClick={() => adimaGit(adim - 1)}>
-              <ChevronLeft size={15} /> Geri
+              <ChevronLeft size={15} /> {t("ortak.geri")}
             </button>
           )}
           <button
@@ -4184,7 +4184,7 @@ function IlkKullanimRehberi({
             type="button"
             onClick={() => (sonAdim ? bitir(!kartVar) : adimaGit(adim + 1))}
           >
-            {sonAdim ? (kartVar ? "Başla" : "İlk kartımı ekle") : "Sonraki"}
+            {sonAdim ? (kartVar ? t("asistan.rehber.basla") : t("asistan.rehber.ilkKart")) : t("asistan.rehber.sonraki")}
             {sonAdim ? <Check size={15} /> : <ChevronRight size={15} />}
           </button>
         </div>
@@ -4228,42 +4228,42 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   const ilkOneri = oneriler?.[0];
   const yanitlar = {
     durum: {
-      baslik: planAlani < 0 ? `Bu ay ${fmt0(Math.abs(planAlani))} açık görünüyor` : `Bu ay ${fmt0(planAlani)} alanın görünüyor`,
+      baslik: planAlani < 0 ? t("asistan.durum.baslikAcik", { tutar: fmt0(Math.abs(planAlani)) }) : t("asistan.durum.baslikAlan", { tutar: fmt0(planAlani) }),
       metin: gelir > 0
         ? senaryo.status === "structural_gap"
-          ? `${fmt0(gelir)} gelirin; kredi taksitleri, kart/ek hesap zorunlu ödemeleri ve ${fmt0(senaryo.livingBudget)} tahmini aylık yaşam harcamasıyla birlikte değerlendirildi.`
-          : `${fmt0(gelir)} gelirinden ${fmt0(zorunluOdeme)} zorunlu ödeme ve ${fmt0(harcama)} kayıtlı harcama düşüldü.`
-        : "Aylık durumunu hesaplayabilmem için gelirini eklemen gerekiyor. Borç ve harcama kayıtların korunur.",
+          ? t("asistan.durum.metinYapisal", { gelir: fmt0(gelir), yasam: fmt0(senaryo.livingBudget) })
+          : t("asistan.durum.metin", { gelir: fmt0(gelir), zorunlu: fmt0(zorunluOdeme), harcama: fmt0(harcama) })
+        : t("asistan.durum.gelirYok"),
       hedef: gelir > 0 ? "odemeler" : "sabit-gelirler",
-      aksiyon: gelir > 0 ? "Ödemeleri gör" : "Gelir ekle",
+      aksiyon: gelir > 0 ? t("asistan.durum.odemeleriGor") : t("asistan.durum.gelirEkle"),
     },
     ilk: {
-      baslik: ilkOneri?.baslik || "Önce finansal tablonu tamamla",
-      metin: ilkOneri?.aciklama || "İlk borcunu, gelirini ve düzenli giderlerini eklediğinde Borcama sıradaki adımı kayıtlarından hesaplar.",
+      baslik: ilkOneri?.baslik || t("asistan.ilk.baslik"),
+      metin: ilkOneri?.aciklama || t("asistan.ilk.metin"),
       hedef: ilkOneri?.hedef || "borclar",
-      aksiyon: ilkOneri?.aksiyon || "Borçlara git",
+      aksiyon: ilkOneri?.aksiyon || t("asistan.ilk.aksiyon"),
     },
     acik: {
-      baslik: planAcigi > 0 ? "Açık, aylık çıkışlarının gelirini aşmasından oluşuyor" : "Kayıtlarına göre aylık açık görünmüyor",
+      baslik: planAcigi > 0 ? t("asistan.acik.baslikVar") : t("asistan.acik.baslikYok"),
       metin: senaryo.status === "structural_gap"
-        ? `${fmt0(senaryo.fixedLoanPayments)} kredi taksiti, ${fmt0(senaryo.livingBudget)} tahmini yaşam harcaması ve ${fmt0(senaryo.initialDebtBudget)} kart/ek hesap ödeme bütçesi birlikte gelirini aşıyor.`
-        : `${fmt0(zorunluOdeme)} zorunlu ödeme ile ${fmt0(harcama)} kayıtlı harcamayı birlikte değerlendiriyorum. Bu tutarlar banka bakiyesi değildir.`,
+        ? t("asistan.acik.metinYapisal", { taksit: fmt0(senaryo.fixedLoanPayments), yasam: fmt0(senaryo.livingBudget), kartButce: fmt0(senaryo.initialDebtBudget) })
+        : t("asistan.acik.metin", { zorunlu: fmt0(zorunluOdeme), harcama: fmt0(harcama) }),
       hedef: "plan",
-      aksiyon: "Borç planını aç",
+      aksiyon: t("asistan.acik.aksiyon"),
     },
     duzelt: {
-      baslik: "Yanlış kaydı bulunduğu yerden düzeltebilirsin",
-      metin: "Kart ödemesi için Borçlar > Kartlar bölümünde kartın ödeme durumuna dokun. Diğer tamamlanan işlemler için Hareketler > Ödemeler içindeki işlem geçmişini aç.",
+      baslik: t("asistan.duzelt.baslik"),
+      metin: t("asistan.duzelt.metin"),
       hedef: "borclar",
-      aksiyon: "Kartlara git",
+      aksiyon: t("asistan.duzelt.aksiyon"),
     },
   };
   const yanit = yanitlar[secim];
   const hizliIncelemeler = [
-    { id: "durum", baslik: "Aylık durumumu özetle", aciklama: "Gelir ve ödeme dengem", ikon: BarChart3 },
-    { id: "ilk", baslik: "Önceliğimi göster", aciklama: "İlk odaklanacağım adım", ikon: CalendarCheck },
-    { id: "acik", baslik: "Açığın kaynağını bul", aciklama: "Bütçeyi zorlayan kalemler", ikon: ScanSearch },
-    { id: "duzelt", baslik: "Bir kaydı düzelt", aciklama: "Doğru ekrana hızla git", ikon: ReceiptText },
+    { id: "durum", baslik: t("asistan.hizli.durum.baslik"), aciklama: t("asistan.hizli.durum.aciklama"), ikon: BarChart3 },
+    { id: "ilk", baslik: t("asistan.hizli.ilk.baslik"), aciklama: t("asistan.hizli.ilk.aciklama"), ikon: CalendarCheck },
+    { id: "acik", baslik: t("asistan.hizli.acik.baslik"), aciklama: t("asistan.hizli.acik.aciklama"), ikon: ScanSearch },
+    { id: "duzelt", baslik: t("asistan.hizli.duzelt.baslik"), aciklama: t("asistan.hizli.duzelt.aciklama"), ikon: ReceiptText },
   ];
   const soruSor = async (event) => {
     event.preventDefault();
@@ -4285,11 +4285,11 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
     } catch (error) {
       const mesaj = error?.message === "DAILY_LIMIT"
         ? (error.quota?.limit ? error.quota.limit >= ASISTAN_PRO_SORU : proAktif)
-          ? `Bugünkü ${error.quota?.limit || ASISTAN_PRO_SORU} soru hakkını kullandın. Yarın yeniden sorabilirsin.`
-          : `Bugünkü ${error.quota?.limit || ASISTAN_UCRETSIZ_SORU} ücretsiz soru hakkını kullandın. Pro ile günde ${ASISTAN_PRO_SORU} soru sorabilirsin; ücretsiz hakların yarın yenilenir.`
+          ? t("asistan.hata.limitPro", { limit: error.quota?.limit || ASISTAN_PRO_SORU })
+          : t("asistan.hata.limitUcretsiz", { limit: error.quota?.limit || ASISTAN_UCRETSIZ_SORU, pro: ASISTAN_PRO_SORU })
         : error?.message === "DEMO_MODE"
-          ? "Yapay zekâ yanıtları yalnız giriş yapılmış gerçek hesapta çalışır. Hazır cevapları bu önizlemede kullanabilirsin."
-          : "Şu anda güvenilir bir yanıt oluşturamadım. Biraz sonra tekrar deneyebilirsin.";
+          ? t("asistan.hata.demo")
+          : t("asistan.hata.genel");
       setModelDurumu({ yukleniyor: false, hata: mesaj, kota: error?.quota || null });
     }
   };
@@ -4297,12 +4297,12 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
   // (ör. iOS test aboneliği) sunucuyla farklıysa kullanıcı yanlış bilgilenmez.
   const asistanProKotasi = modelDurumu.kota?.limit ? modelDurumu.kota.limit >= ASISTAN_PRO_SORU : proAktif;
   const gosterilenYanit = secim === "model" ? {
-    baslik: modelYaniti?.title || (modelDurumu.yukleniyor ? "Tüm finansal tablonu analiz ediyorum" : "Yanıt oluşturulamadı"),
-    metin: modelYaniti?.answer || modelDurumu.hata || "Sorunu finansal kayıtlarınla karşılaştırıyorum.",
-    aksiyon: modelYaniti?.actionLabel || "İlgili ekranı aç",
+    baslik: modelYaniti?.title || (modelDurumu.yukleniyor ? t("asistan.model.yukleniyor") : t("asistan.model.olusturulamadi")),
+    metin: modelYaniti?.answer || modelDurumu.hata || t("asistan.model.karsilastiriyor"),
+    aksiyon: modelYaniti?.actionLabel || t("asistan.model.aksiyon"),
   } : secim === "bilinmiyor" ? {
-    baslik: "Bu soruya henüz güvenilir bir yanıt veremiyorum",
-    metin: "Sorunu bize iletirsen hepsini okuyoruz. Yanıt uydurmak yerine bu ihtiyacı asistanın sonraki sürümüne eklemek istiyoruz.",
+    baslik: t("asistan.bilinmiyor.baslik"),
+    metin: t("asistan.bilinmiyor.metin"),
     aksiyon: "Görüş bildir",
   } : yanit;
   const yanitSunumu = secim === "model" && modelYaniti?.answer
@@ -4318,28 +4318,28 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
       <section className="bt-modal bt-assistant-modal" role="dialog" aria-modal="true" aria-labelledby="bt-assistant-title">
         <div className="bt-assistant-head">
           <span className="bt-assistant-mark"><Sparkles size={20}/></span>
-          <div><h2 id="bt-assistant-title">Borcama Asistanı</h2><p>Finansal tablonu anlaşılır bir sonraki adıma dönüştürür.</p></div>
-          <button className="bt-assistant-close" type="button" aria-label="Asistanı kapat" onClick={kapat}><X size={17}/></button>
+          <div><h2 id="bt-assistant-title">{t("asistan.baslik")}</h2><p>{t("asistan.altBaslik")}</p></div>
+          <button className="bt-assistant-close" type="button" aria-label={t("asistan.kapatAria")} onClick={kapat}><X size={17}/></button>
         </div>
         {!yapayZekaIzni && (
           <div className="bt-assistant-consent">
-            <strong>Kişisel finansal soru-cevabı etkinleştir</strong>
-            Kayıtlarından ham ekstre, kart numarası ve işlem açıklaması gönderilmez. Soru metnin, bu konuşmadaki son 5 soru/yanıt ve hesaplanmış finansal özetin Gemini'nin ücretli API hizmetine iletilir. Soru alanına kart numarası veya ham belge yapıştırma.
-            <button className="bt-btn kucuk birincil" type="button" onClick={yapayZekaIzniVer}>Etkinleştir</button>
+            <strong>{t("asistan.izin.baslik")}</strong>
+            {t("asistan.izin.metin")}
+            <button className="bt-btn kucuk birincil" type="button" onClick={yapayZekaIzniVer}>{t("asistan.izin.etkinlestir")}</button>
           </div>
         )}
         <div className="bt-assistant-composer">
-          <span className="bt-assistant-section-label">Ne öğrenmek istiyorsun?</span>
+          <span className="bt-assistant-section-label">{t("asistan.soruEtiketi")}</span>
           <form className="bt-assistant-custom" onSubmit={soruSor}>
-            <input className="bt-input" value={soru} maxLength={500} onChange={(e) => setSoru(e.target.value)} placeholder={konusmaGecmisi.length ? "Yanıtla veya devam sorunu yaz…" : "Örn. 10.000 TL ile önce hangi borcu kapatmalıyım?"} aria-label="Sorunuzu yazın" disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
-            <button className="bt-btn birincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < (konusmaGecmisi.length ? 1 : 3) || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> Bakıyorum</span> : <>Sor <Send size={14}/></>}</button>
+            <input className="bt-input" value={soru} maxLength={500} onChange={(e) => setSoru(e.target.value)} placeholder={konusmaGecmisi.length ? t("asistan.placeholderDevam") : t("asistan.placeholder")} aria-label={t("asistan.soruAria")} disabled={!yapayZekaIzni || modelDurumu.yukleniyor}/>
+            <button className="bt-btn birincil" type="submit" disabled={!yapayZekaIzni || soru.trim().length < (konusmaGecmisi.length ? 1 : 3) || modelDurumu.yukleniyor}>{modelDurumu.yukleniyor ? <span className="bt-assistant-loading"><RefreshCw size={14}/> {t("asistan.bakiyorum")}</span> : <>{t("asistan.sor")} <Send size={14}/></>}</button>
           </form>
-          <small>Güncel kayıtların ve bu konuşmadaki son {MAX_ASSISTANT_EXCHANGES} soru/yanıt birlikte değerlendirilir. Sayfa yenilendiğinde konuşma bağlamı sıfırlanır.</small>
-          {!!konusmaGecmisi.length && <button className="bt-btn kucuk ikincil" type="button" onClick={yeniKonusma} disabled={modelDurumu.yukleniyor} style={{ marginTop: 10 }}>Yeni konuşma</button>}
+          <small>{t("asistan.baglamNotu", { n: MAX_ASSISTANT_EXCHANGES })}</small>
+          {!!konusmaGecmisi.length && <button className="bt-btn kucuk ikincil" type="button" onClick={yeniKonusma} disabled={modelDurumu.yukleniyor} style={{ marginTop: 10 }}>{t("asistan.yeniKonusma")}</button>}
         </div>
         <div className="bt-assistant-shortcuts">
-          <span className="bt-assistant-section-label">Ya da kayıtlarında hızlıca incele</span>
-          <div className="bt-assistant-prompts" role="group" aria-label="Hızlı finansal incelemeler">
+          <span className="bt-assistant-section-label">{t("asistan.hizliEtiket")}</span>
+          <div className="bt-assistant-prompts" role="group" aria-label={t("asistan.hizliAria")}>
             {hizliIncelemeler.map(({ id, baslik, aciklama, ikon: Ikon }) => (
               <button key={id} type="button" disabled={modelDurumu.yukleniyor} className={secim === id ? "aktif" : ""} aria-pressed={secim === id} onClick={() => { setSecim(id); setModelDurumu({ yukleniyor: false, hata: "", kota: modelDurumu.kota }); }}>
                 <span className="bt-assistant-prompt-icon"><Ikon size={16}/></span>
@@ -4350,30 +4350,30 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
           </div>
         </div>
         {!!konusmaGecmisi.length && <details style={{ marginBottom: 14 }}>
-          <summary style={{ cursor: "pointer", fontSize: 12 }}>Bu konuşmadaki soru ve yanıtlar ({konusmaGecmisi.length})</summary>
+          <summary style={{ cursor: "pointer", fontSize: 12 }}>{t("asistan.gecmis", { n: konusmaGecmisi.length })}</summary>
           {konusmaGecmisi.map((tur, index) => <div key={index} style={{ padding: "12px 0", borderBottom: "1px solid var(--line-soft)", fontSize: 12, lineHeight: 1.5 }}>
-            <strong>Sen: {tur.question}</strong>
+            <strong>{t("asistan.sen", { soru: tur.question })}</strong>
             <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", color: "var(--dim)" }}>{tur.answer}</p>
           </div>)}
         </details>}
         <div className="bt-assistant-answer" aria-live="polite">
-          <span className="bt-assistant-answer-label">{secim === "model" ? "Soruna özel yanıt" : "Kayıtlarına göre"}</span>
-          {secim === "model" && modelYaniti && <p style={{ marginBottom: 10 }}>Sorun: {yanitlananSoru}</p>}
+          <span className="bt-assistant-answer-label">{secim === "model" ? t("asistan.etiketModel") : t("asistan.etiketKayit")}</span>
+          {secim === "model" && modelYaniti && <p style={{ marginBottom: 10 }}>{t("asistan.sorun", { soru: yanitlananSoru })}</p>}
           <strong>{gosterilenYanit.baslik}</strong>
           {yanitSunumu ? <>
             {yanitSunumu.kisaCevap && <p className="bt-assistant-summary">{vurgula(yanitSunumu.kisaCevap)}</p>}
             {!!yanitSunumu.maddeler.length && <ul className="bt-assistant-list">{yanitSunumu.maddeler.map((madde, index) => <li key={index}>{vurgula(madde)}</li>)}</ul>}
-            {yanitSunumu.sonrakiAdim && <div className="bt-assistant-next"><b>Yapman gereken:</b> {vurgula(yanitSunumu.sonrakiAdim, true)}</div>}
+            {yanitSunumu.sonrakiAdim && <div className="bt-assistant-next"><b>{t("asistan.yapmanGereken")}</b> {vurgula(yanitSunumu.sonrakiAdim, true)}</div>}
           </> : <p>{gosterilenYanit.metin}</p>}
-          <div className="bt-assistant-check"><AlertTriangle size={14}/><span><b>Sonuçları kontrol edin.</b> Asistan hata yapabilir; özellikle faiz, vergi, tarih ve banka tekliflerini resmi belgenizle karşılaştırın.</span></div>
-          <small>Borcama, sorularını kaydettiğin verileri yorumlayarak yanıtlar. Yatırım tavsiyesi vermez.</small>
+          <div className="bt-assistant-check"><AlertTriangle size={14}/><span><b>{t("asistan.kontrolBaslik")}</b> {t("asistan.kontrolMetin")}</span></div>
+          <small>{t("asistan.uyari")}</small>
           <div className="bt-assistant-answer-footer">
             {!(nativeMi && secim === "bilinmiyor") && !(secim === "model" && modelYaniti?.route === "none") && <div className="bt-assistant-action"><button className="bt-btn birincil" type="button" onClick={() => secim === "bilinmiyor" ? gorusBildir() : git(secim === "model" ? (modelYaniti?.route || "ozet") : yanit.hedef)} disabled={secim === "model" && !modelYaniti}>{gosterilenYanit.aksiyon} <ArrowRight size={14}/></button></div>}
-            {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : "Ücretsiz"}</span><strong>{modelDurumu.kota.remaining}</strong><span>bugünkü soru hakkın kaldı</span></div>}
+            {modelDurumu.kota && <div className="bt-assistant-quota"><span className="bt-assistant-quota-plan">{asistanProKotasi ? "Pro" : t("asistan.kota.ucretsiz")}</span><strong>{modelDurumu.kota.remaining}</strong><span>{modelDurumu.kota.remaining === 1 ? t("asistan.kota.kaldiTekil") : t("asistan.kota.kaldiCogul")}</span></div>}
             {!asistanProKotasi && proAc && modelDurumu.kota && modelDurumu.kota.remaining <= 0 && (
               <div className="bt-assistant-upsell">
-                <span><b>Daha fazla sormak ister misin?</b> Pro ile günde {ASISTAN_PRO_SORU} soru sorabilirsin.</span>
-                <button className="bt-btn birincil" type="button" onClick={proAc}><Sparkles size={14} aria-hidden="true" /> Pro'yu aktif et</button>
+                <span><b>{t("asistan.upsell.baslik")}</b> {t("asistan.upsell.metin", { n: ASISTAN_PRO_SORU })}</span>
+                <button className="bt-btn birincil" type="button" onClick={proAc}><Sparkles size={14} aria-hidden="true" /> {t("asistan.upsell.buton")}</button>
               </div>
             )}
           </div>
@@ -4447,7 +4447,7 @@ function ProTanitimPenceresi({
           <button
             type="button"
             className="bt-pro-modal-kapat"
-            aria-label="Pro penceresini kapat"
+            aria-label={t("asistan.proTanitim.kapatAria")}
             onClick={kapat}
           >
             <X size={18} />
@@ -4456,11 +4456,10 @@ function ProTanitimPenceresi({
             <Sparkles size={13} /> BORCAMA PRO
           </span>
           <h2 id="bt-pro-tanitim-baslik">
-            Rakamlarını yalnızca görme. <span>Ne yapacağını da bil.</span>
+            {t("asistan.proTanitim.baslik")} <span>{t("asistan.proTanitim.baslikVurgu")}</span>
           </h2>
           <p>
-            Borcama Pro; kendi kayıtlarından ödeme önceliğini, faiz yükünü ve
-            aylık baskıyı hesaplayarak en anlamlı finansal sinyalleri öne çıkarır.
+            {t("asistan.proTanitim.aciklama")}
           </p>
         </div>
         <div className="bt-pro-modal-body">
@@ -4468,42 +4467,42 @@ function ProTanitimPenceresi({
             <div className="bt-pro-fayda">
               <TrendingUp />
               <div>
-                <strong>Tüm kişisel önerileri aç</strong>
-                <small>Faiz ve aylık ödeme hedeflerine göre hazırlanmış tüm sinyalleri gör.</small>
+                <strong>{t("asistan.proTanitim.fayda1Baslik")}</strong>
+                <small>{t("asistan.proTanitim.fayda1Metin")}</small>
               </div>
             </div>
             <div className="bt-pro-fayda">
               <Target />
               <div>
-                <strong>Ödeme önceliğini netleştir</strong>
-                <small>Hangi borca önce odaklanmanın daha anlamlı olduğunu karşılaştır.</small>
+                <strong>{t("asistan.proTanitim.fayda2Baslik")}</strong>
+                <small>{t("asistan.proTanitim.fayda2Metin")}</small>
               </div>
             </div>
             <div className="bt-pro-fayda">
               <TrendingUp />
               <div>
-                <strong>Senaryoları karşılaştır</strong>
-                <small>Aylık yükünü ve toplam faiz maliyetini azaltmaya yönelik seçenekleri birlikte değerlendir.</small>
+                <strong>{t("asistan.proTanitim.fayda3Baslik")}</strong>
+                <small>{t("asistan.proTanitim.fayda3Metin")}</small>
               </div>
             </div>
           </div>
           <div className="bt-pro-satin-al">
-            <div className="bt-pro-planlar" role="group" aria-label="Pro planı">
+            <div className="bt-pro-planlar" role="group" aria-label={t("asistan.proTanitim.planAria")}>
               <button
                 type="button"
                 className={"bt-pro-plan " + (plan === "monthly" ? "aktif" : "")}
                 onClick={() => setPlan("monthly")}
               >
-                <span>AYLIK</span>
-                <strong>{aylikFiyat || "Yükleniyor…"}</strong>
+                <span>{t("asistan.proTanitim.aylik")}</span>
+                <strong>{aylikFiyat || t("ortak.yukleniyor")}</strong>
               </button>
               <button
                 type="button"
                 className={"bt-pro-plan " + (plan === "annual" ? "aktif" : "")}
                 onClick={() => setPlan("annual")}
               >
-                <span>YILLIK</span>
-                <strong>{yillikFiyat || "Yükleniyor…"}</strong>
+                <span>{t("asistan.proTanitim.yillik")}</span>
+                <strong>{yillikFiyat || t("ortak.yukleniyor")}</strong>
               </button>
             </div>
             {hata && <div className="bt-pro-hata">{hata}</div>}
@@ -4521,14 +4520,14 @@ function ProTanitimPenceresi({
               {demoOnizleme
                 ? "Canlı hesapta ödeme adımı açılır"
                 : proSatinAlma?.yukleniyor
-                ? "Ödeme açılıyor…"
+                ? t("asistan.proTanitim.odemeAciliyor")
                 : proPaketler?.yukleniyor
-                  ? "Fiyat yükleniyor…"
-                  : `Pro'ya geç · ${seciliFiyat || "Fiyat alınamadı"}`}
+                  ? t("asistan.proTanitim.fiyatYukleniyor")
+                  : t("asistan.proTanitim.proyaGec", { fiyat: seciliFiyat || t("asistan.proTanitim.fiyatAlinamadi") })}
             </button>
             <div className="bt-pro-guvence">
               <KeyRound size={13} />
-              <span>Güvenli ödeme ekranı açılır. Aboneliğini daha sonra Ayarlar’dan yönetebilir veya iptal edebilirsin.</span>
+              <span>{t("asistan.proTanitim.guvence")}</span>
             </div>
           </div>
         </div>
