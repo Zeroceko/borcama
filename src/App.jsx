@@ -14,6 +14,7 @@ import {
 } from "./nativeSekmeCubugu.js";
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
+import DilAyari from "./DilAyari.jsx";
 import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
 import {
   revenueCatHazir,
@@ -4997,6 +4998,7 @@ function Ayarlar({
         )}
         <BiyometrikAyar />
         <OdemeHatirlatmaAyari />
+        <DilAyari />
         <section className="bt-settings-card">
           <div className="bt-settings-title">
             <Palette size={18} /> Görünüm

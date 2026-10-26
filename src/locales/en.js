@@ -141,6 +141,12 @@ const en = {
   "auth.yenile.yenidenDogrula": "Your security check has expired. Request a new reset link from the sign-in screen.",
   "auth.yenile.hata": "Couldn't reset your password. Request a new link and try again.",
   "auth.yenile.hataKod": "Couldn't reset your password. Request a new link and try again (Error: {kod}).",
+
+  // Language (iOS only)
+  "dil.degistir": "Change language",
+  "dil.baslik": "Language",
+  "dil.satir": "App language",
+  "dil.aciklama": "The app reloads in the language you pick.",
 };
 
 export default en;

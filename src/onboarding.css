@@ -71,6 +71,13 @@
   height: auto;
 }
 
+.ob-ust-sag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
 /* Atla dokunma alani 44pt'nin altina dusmesin. */
 .ob-atla {
   display: inline-flex;

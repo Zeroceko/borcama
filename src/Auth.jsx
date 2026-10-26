@@ -27,6 +27,7 @@ import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
 import { appleGirisiVarMi, appleHataMesaji, appleIleGirisYap } from "./appleGiris.js";
 import { dil, t, tOgeler } from "./i18n.js";
+import DilDugmesi from "./DilDugmesi.jsx";
 
 // Ogeli ceviri: yer tutuculara React ogesi (kalin metin, dugme) yerlestirir.
 function Ceviri({ anahtar, degerler }) {
@@ -607,6 +608,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           <ArrowLeft size={15} /> {t("auth.anaSayfayaDon")}
         </a>
       )}
+      {/* Giris yapmadan dil degistirme; yalniz native'de cizilir. */}
+      <DilDugmesi className="auth-dil" />
       <div className="auth-card">
         <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
         <div className="auth-welcome">

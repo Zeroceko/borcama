@@ -232,3 +232,42 @@ html.borcama-native .auth-legal { margin-top: 8px; }
 /* Alttaki bilgi notu uygulamada gizleniyor; ayni bilgi Gizlilik ve KVKK
    sayfasinda zaten var ve ekranda en az kritik satir bu. */
 html.borcama-native .auth-foot { display: none; }
+
+/* Dil dugmesi (DilDugmesi.jsx) yalniz native'de cizilir. Dokunma alani
+   44pt; gorunen hap daha kucuk kalir. */
+html.borcama-native .dil-dugmesi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #14160f2e;
+  border-radius: 999px;
+  background: #ffffffb8;
+  color: #14160f;
+  font: 700 13px "Space Grotesk", system-ui, sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.borcama-native .dil-dugmesi.ob-dil {
+  font-family: "OB Space", "Space Grotesk", system-ui, sans-serif;
+}
+
+/* Giris/kayit: geri dugmesinin karsisina, sag uste. */
+html.borcama-native .dil-dugmesi.auth-dil {
+  position: absolute;
+  z-index: 2;
+  top: calc(24px + var(--guvenli-ust));
+  right: clamp(20px, 4vw, 48px);
+  min-height: 40px;
+  background: #fff;
+}
+
+@media (max-width: 720px) {
+  html.borcama-native .dil-dugmesi.auth-dil {
+    top: calc(15px + var(--guvenli-ust));
+    right: 12px;
+  }
+}

@@ -3,6 +3,7 @@ import { ArrowRight, Check, Diamond, Target, Wallet } from "lucide-react";
 import { onboardingTamamla } from "./onboardingDurumu.js";
 import { misafirModunuAc } from "./misafirModu.js";
 import { t } from "./i18n.js";
+import DilDugmesi from "./DilDugmesi.jsx";
 import { kullaniciParaBirimi, paraBiriminiFormatla } from "./currencyInput.js";
 import "./onboarding.css";
 
@@ -160,11 +161,15 @@ export default function Onboarding({ baslangic = 0 }) {
     >
       <div className="ob-ust">
         <img className="ob-logo" src="/borcama-logo-368.png" alt="Borcama" width="368" height="90" />
-        {!kararEkrani && (
-          <button className="ob-atla" type="button" onClick={() => setAdim(ADIMLAR.length)}>
-            {t("onboarding.atla")}
-          </button>
-        )}
+        {/* Dil dugmesi ilk tanitim ekraninda ve karar ekraninda; yalniz native. */}
+        <div className="ob-ust-sag">
+          {(adim === 0 || kararEkrani) && <DilDugmesi className="ob-dil" />}
+          {!kararEkrani && (
+            <button className="ob-atla" type="button" onClick={() => setAdim(ADIMLAR.length)}>
+              {t("onboarding.atla")}
+            </button>
+          )}
+        </div>
       </div>
 
       {kararEkrani ? (

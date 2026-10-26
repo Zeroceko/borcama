@@ -142,6 +142,12 @@ const tr = {
   "auth.yenile.yenidenDogrula": "Güvenlik doğrulaması yenilenmeli. Giriş ekranından yeni bir parola yenileme bağlantısı iste.",
   "auth.yenile.hata": "Parola yenilenemedi. Yeni bir bağlantı isteyip tekrar dene.",
   "auth.yenile.hataKod": "Parola yenilenemedi. Yeni bir bağlantı isteyip tekrar dene (Hata: {kod}).",
+
+  // Dil seçimi (yalnız iOS)
+  "dil.degistir": "Dili değiştir",
+  "dil.baslik": "Dil",
+  "dil.satir": "Uygulama dili",
+  "dil.aciklama": "Değiştirdiğinde uygulama seçtiğin dille yeniden açılır.",
 };
 
 export default tr;

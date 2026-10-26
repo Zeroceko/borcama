@@ -1,6 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cevir, cevirOgeler, dil, dilBelirle, locale, t } from "./i18n.js";
+import {
+  DIL_ADLARI,
+  belgeDiliniAyarla,
+  cevir,
+  cevirOgeler,
+  digerDil,
+  dil,
+  dilBelirle,
+  diliDegistirVeYenile,
+  locale,
+  t,
+} from "./i18n.js";
 import tr from "./locales/tr.js";
 import en from "./locales/en.js";
 
@@ -67,12 +78,12 @@ test("Türkçe anahtarların tamamının İngilizce karşılığı var", () => {
 
 test("çevrilmiş ekranlarda kullanılan her anahtar sözlükte var", async () => {
   const { readFile } = await import("node:fs/promises");
-  for (const dosya of ["Onboarding.jsx", "Auth.jsx"]) {
+  for (const dosya of ["Onboarding.jsx", "Auth.jsx", "DilDugmesi.jsx", "DilAyari.jsx"]) {
     const kaynak = await readFile(new URL(`./${dosya}`, import.meta.url), "utf8");
     const anahtarlar = [
       ...kaynak.matchAll(/\bt(?:Ogeler)?\("([\w.]+)"/g),
       ...kaynak.matchAll(/anahtar=\{?"([\w.]+)"/g),
-      ...kaynak.matchAll(/"((?:onboarding|auth)\.[\w.]+)"/g),
+      ...kaynak.matchAll(/"((?:onboarding|auth|dil)\.[\w.]+)"/g),
     ].map((m) => m[1]);
     assert.ok(anahtarlar.length > 0, dosya);
     for (const anahtar of anahtarlar) {
@@ -80,4 +91,53 @@ test("çevrilmiş ekranlarda kullanılan her anahtar sözlükte var", async () =
       assert.ok(anahtar in en, `${dosya}: en.js'te yok: ${anahtar}`);
     }
   }
+});
+
+test("dil düğmesi karşı dili kendi adıyla gösterir", () => {
+  assert.equal(digerDil("tr"), "en");
+  assert.equal(digerDil("en"), "tr");
+  assert.equal(DIL_ADLARI[digerDil("tr")], "English");
+  assert.equal(DIL_ADLARI[digerDil("en")], "Türkçe");
+});
+
+test("web'de dil değiştirme hiçbir şey yazmaz ve sayfayı yenilemez", () => {
+  const yazilan = [];
+  let yenilendi = false;
+  const oncekiDepo = globalThis.localStorage;
+  const oncekiKonum = Object.getOwnPropertyDescriptor(globalThis, "location");
+  globalThis.localStorage = { getItem: () => null, setItem: (k, v) => yazilan.push([k, v]) };
+  Object.defineProperty(globalThis, "location", { value: { reload: () => { yenilendi = true; } }, configurable: true });
+  try {
+    diliDegistirVeYenile("en");
+    assert.deepEqual(yazilan, []);
+    assert.equal(yenilendi, false);
+    assert.equal(dil(), "tr");
+  } finally {
+    globalThis.localStorage = oncekiDepo;
+    if (oncekiKonum) Object.defineProperty(globalThis, "location", oncekiKonum);
+    else delete globalThis.location;
+  }
+});
+
+test("açılışta <html lang> seçili dile eşitlenir", () => {
+  const onceki = globalThis.document;
+  globalThis.document = { documentElement: { lang: "" } };
+  try {
+    belgeDiliniAyarla();
+    assert.equal(globalThis.document.documentElement.lang, "tr");
+  } finally {
+    globalThis.document = onceki;
+  }
+});
+
+test("dil düğmesi ve ayarı yalnız native'de çizilir, açılış lang'i ayarlar", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const oku = (d) => readFile(new URL(`./${d}`, import.meta.url), "utf8");
+  for (const dosya of ["DilDugmesi.jsx", "DilAyari.jsx"]) {
+    assert.match(await oku(dosya), /if \(!nativeMi\) return null;/, dosya);
+  }
+  assert.match(await oku("Onboarding.jsx"), /<DilDugmesi /);
+  assert.match(await oku("Auth.jsx"), /<DilDugmesi className="auth-dil" \/>/);
+  assert.match(await oku("App.jsx"), /<DilAyari \/>/);
+  assert.match(await oku("main.jsx"), /^belgeDiliniAyarla\(\);$/m);
 });

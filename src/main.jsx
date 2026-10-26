@@ -18,6 +18,7 @@ import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import { belgeDiliniAyarla } from "./i18n.js";
 import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
 import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
@@ -43,6 +44,8 @@ const GizlilikMetni = lazy(() => import("./Legal.jsx").then((module) => ({ defau
 const IadePolitikasi = lazy(() => import("./Legal.jsx").then((module) => ({ default: module.IadePolitikasi })));
 
 nativeGorunumuHazirla();
+// <html lang> secili dile esitlenir; web'de dil "tr" oldugundan degismez.
+belgeDiliniAyarla();
 // Native sekme cubugu uygulama penceresinde yasiyor, sayfayla birlikte
 // silinmiyor. Giris/kayit gibi tam sayfa yenileyen ekranlara gecince React
 // temizligi calismadigi icin cubuk ekranda asili kaliyordu; her acilista

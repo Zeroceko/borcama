@@ -55,6 +55,29 @@ export function dilAyarla(kod) {
   return oturumDili;
 }
 
+// Dil adlari her zaman kendi dilinde yazilir; kullanici okuyamadigi dilde
+// kalmissa da kendi dilini tanir.
+export const DIL_ADLARI = { tr: "Türkçe", en: "English" };
+
+export function digerDil(kod = dil()) {
+  return kod === "en" ? "tr" : "en";
+}
+
+// Acilista <html lang> secili dile esitlenir; ekran okuyucu ve yazim
+// denetimi dogru dili kullanir. Web'de dil daima "tr" (index.html ile ayni).
+export function belgeDiliniAyarla() {
+  const kok = globalThis.document?.documentElement;
+  if (kok && kok.lang !== dil()) kok.lang = dil();
+}
+
+// Dil degisince tum metinler yeniden okunmali; en guvenli yol sayfayi
+// yeniden yuklemek. Web'de dil secimi yok, hicbir sey yapmaz.
+export function diliDegistirVeYenile(kod) {
+  if (!nativeMi || kod === dil()) return;
+  dilAyarla(kod);
+  globalThis.location?.reload();
+}
+
 export function locale(kod = dil()) {
   return LOCALELER[kod] || LOCALELER.tr;
 }
