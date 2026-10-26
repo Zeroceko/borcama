@@ -45,3 +45,13 @@ test("Pro yüzeyleri satış yokken gizlenir, özellikler açılır", () => {
   const checkout = readFileSync(new URL("./ProCheckout.jsx", import.meta.url), "utf8");
   assert.match(checkout, /if \(proSatistaDegil\(\)\) \{\s*window\.location\.replace\("\/summary"\);/);
 });
+
+test("misafirde Pro satış durumu anonim RevenueCat ile sorgulanır, hesap açınca logIn ile birleşir", () => {
+  const rc = readFileSync(new URL("./revenuecat.js", import.meta.url), "utf8");
+  assert.match(rc, /if \(!isConfigured\) await Purchases\.configure\(\{ apiKey \}\);/);
+  assert.match(rc, /if \(bekleyenAnonim\) await bekleyenAnonim\.catch\(\(\) => \{\}\);/);
+  assert.match(rc, /else if \(configuredUserId !== userId\) await Purchases\.logIn\(\{ appUserID: userId \}\);/);
+  assert.match(rc, /export async function revenueCatNativeTeklifleri\(\)/);
+  const app = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(app, /if \(nativeMi && revenueCatHazir\) \{\s*try \{\s*proSatisKarariniUygula\(\{ paketler: await revenueCatNativeTeklifleri\(\) \}\);/);
+});

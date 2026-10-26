@@ -56,11 +56,39 @@ function revenueCatNativeSdk() {
 // kilitli kalir. Hazirligi tek bir paylasilan soze bagliyoruz.
 let nativeHazirlik = { userId: null, promise: null };
 
+// Hesapsiz (misafir) kullanicida da Pro'nun bu App Store ulkesinde satilip
+// satilmadigini ogrenmek icin SDK anonim kullaniciyla yapilandirilir.
+// configuredUserId null kalir; kullanici hesap acinca/girince
+// nativePurchasesForUser logIn() cagirir ve RevenueCat anonim kullaniciyi
+// hesapla birlestirir. Kullanici hazirligi bu sozu bekler ki configure()
+// iki kez cagrilmasin.
+let anonimHazirlik = null;
+
+function nativeAnonimHazirla() {
+  if (nativeHazirlik.promise) return nativeHazirlik.promise;
+  if (!anonimHazirlik) {
+    const promise = (async () => {
+      const { Purchases } = await revenueCatNativeSdk();
+      const { isConfigured } = await Purchases.isConfigured();
+      if (!isConfigured) await Purchases.configure({ apiKey });
+      // Proxy `then` tuzagi: eklenti nesnesi sarmalanarak dondurulur.
+      return { Purchases };
+    })();
+    promise.catch(() => {
+      if (anonimHazirlik === promise) anonimHazirlik = null;
+    });
+    anonimHazirlik = promise;
+  }
+  return anonimHazirlik;
+}
+
 async function nativePurchasesForUser(userId) {
   if (configurationError) throw new Error(configurationError);
   if (!userId) return null;
   if (nativeHazirlik.userId !== userId || !nativeHazirlik.promise) {
+    const bekleyenAnonim = anonimHazirlik;
     const promise = (async () => {
+      if (bekleyenAnonim) await bekleyenAnonim.catch(() => {});
       const { Purchases } = await revenueCatNativeSdk();
       const { isConfigured } = await Purchases.isConfigured();
       if (!isConfigured) await Purchases.configure({ apiKey, appUserID: userId });
@@ -156,35 +184,45 @@ function paketOzeti(rcPackage) {
   };
 }
 
+async function nativeTeklifOzeti({ Purchases }) {
+  // App Store ulkesi (ISO 3166-1 alpha-3, ör. "TUR"); Pro'nun bu ulkede
+  // satista olup olmadigina karar verirken guvenlik kontrolu olarak kullanilir.
+  const storefront = await Purchases.getStorefront()
+    .then((magaza) => magaza?.countryCode || null)
+    .catch(() => null);
+  let offerings;
+  try {
+    offerings = await Purchases.getOfferings();
+  } catch (error) {
+    if (error && typeof error === "object") error.storefront = storefront;
+    throw error;
+  }
+  const offering = proOffering(offerings);
+  if (!offering) {
+    const error = new Error("Borcama Pro teklifi bulunamadı.");
+    error.bosTeklif = true;
+    error.storefront = storefront;
+    throw error;
+  }
+  return {
+    monthly: paketOzeti(planPackage(offering, "monthly")),
+    annual: paketOzeti(planPackage(offering, "annual")),
+    storefront,
+  };
+}
+
+// Misafir dahil native acilista: bu App Store ulkesinde Pro teklifleri.
+// Hesap gerekmez; satin alma yine hesapla yapilir.
+export async function revenueCatNativeTeklifleri() {
+  if (!nativeMi || configurationError) return { unavailable: true };
+  return nativeTeklifOzeti(await nativeAnonimHazirla());
+}
+
 export async function revenueCatProPaketleri(userId) {
   if (nativeMi) {
     const hazir = await nativePurchasesForUser(userId);
     if (!hazir) return { unavailable: true };
-    const { Purchases } = hazir;
-    // App Store ulkesi (ISO 3166-1 alpha-3, ör. "TUR"); Pro'nun bu ulkede
-    // satista olup olmadigina karar verirken guvenlik kontrolu olarak kullanilir.
-    const storefront = await Purchases.getStorefront()
-      .then((magaza) => magaza?.countryCode || null)
-      .catch(() => null);
-    let offerings;
-    try {
-      offerings = await Purchases.getOfferings();
-    } catch (error) {
-      if (error && typeof error === "object") error.storefront = storefront;
-      throw error;
-    }
-    const offering = proOffering(offerings);
-    if (!offering) {
-      const error = new Error("Borcama Pro teklifi bulunamadı.");
-      error.bosTeklif = true;
-      error.storefront = storefront;
-      throw error;
-    }
-    return {
-      monthly: paketOzeti(planPackage(offering, "monthly")),
-      annual: paketOzeti(planPackage(offering, "annual")),
-      storefront,
-    };
+    return nativeTeklifOzeti(hazir);
   }
 
   const purchases = await purchasesForUser(userId);

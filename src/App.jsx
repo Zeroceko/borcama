@@ -39,6 +39,7 @@ import {
 } from "./proSatis.js";
 import {
   revenueCatHazir,
+  revenueCatNativeTeklifleri,
   revenueCatProKontrol,
   revenueCatProPaketleri,
   revenueCatProSatinAl,
@@ -2045,6 +2046,16 @@ export default function BorcTakip() {
         const kullanici = data?.user;
         setKullaniciEposta(kullanici?.email || "");
         if (!revenueCatHazir || !kullanici?.id) {
+          // Misafir (native): hesap olmadan anonim RevenueCat ile bu App Store
+          // ulkesinde Pro satista mi ogrenilir; satilmiyorsa Pro yuzeyleri
+          // misafirde de gizlenir. Satin alma yine hesap ister.
+          if (nativeMi && revenueCatHazir) {
+            try {
+              proSatisKarariniUygula({ paketler: await revenueCatNativeTeklifleri() });
+            } catch (error) {
+              proSatisKarariniUygula({ hata: error });
+            }
+          }
           setProPaketler({
             yukleniyor: false,
             monthly: null,
