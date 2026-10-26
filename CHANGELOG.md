@@ -4,6 +4,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.70.0] - 2026-10-27
+
 ### Eklendi
 
 - Tarayıcı sürümünün uygulama içi ekranları (giriş, kayıt, uygulama, Ayarlar, SSS ve yasal metinler) iOS'taki gibi Türkçe, İngilizce, Almanca, Fransızca, İspanyolca ve İtalyanca açılıyor: dil kayıtlı seçimden, yoksa tarayıcı dilinden (desteklenen ilk dil), o da yoksa Türkçe belirleniyor; giriş/kayıt ekranının sağ üstünden ve Ayarlar > Dil satırından değiştirilebiliyor, `<html lang>` seçili dile eşitleniyor. Landing, araç/rehber/sözlük sayfaları ve CRM Türkçe kalıyor; tarayıcı dili Türkçe olan ziyaretçi web'i birebir eskisi gibi görüyor.
