@@ -43,6 +43,7 @@
 .oa *, .oa *::before, .oa *::after { box-sizing: border-box; }
 
 .oa-kolon {
+  --kenar: 20px;
   display: flex;
   flex-direction: column;
   width: min(100%, 480px);
@@ -50,22 +51,23 @@
   margin: 0 auto;
   padding:
     calc(var(--guvenli-ust, 0px) + 18px)
-    max(20px, var(--guvenli-sag, 0px))
+    max(var(--kenar), var(--guvenli-sag, 0px))
     calc(var(--guvenli-alt, 0px) + 18px)
-    max(20px, var(--guvenli-sol, 0px));
+    max(var(--kenar), var(--guvenli-sol, 0px));
 }
 
-/* Masaustu: kolon bir kart gibi ortada durur. */
-@media (min-width: 760px) and (min-height: 640px) {
+/* Masaustu: tam ekran zemin, cercevesiz ortali ~560px kolon; dugme icerigin
+   hemen altinda (ekranin dibine itilmez). */
+@media (min-width: 760px) {
   .oa-akis .oa-kolon,
   .oa-zemin-mint .oa-kolon {
-    margin: 40px auto;
-    padding: 28px 32px 28px;
-    border: 1.5px solid var(--ink);
-    border-radius: 28px;
-    background: color-mix(in srgb, #fff 26%, transparent);
-    min-height: min(760px, calc(100vh - 80px));
+    --kenar: 24px;
+    width: min(100%, 608px);
+    padding-top: max(48px, 8vh);
   }
+  .oa-akis .oa-govde { flex: none; }
+  .oa-akis .oa-alt { padding-top: 32px; }
+  .oa-baslik { font-size: 38px; }
 }
 
 .oa-govde {
@@ -248,7 +250,7 @@
   cursor: pointer;
 }
 
-.oa-geri:disabled { opacity: 0.35; cursor: default; }
+.oa-geri-bos { flex: none; width: 36px; height: 36px; }
 
 .oa-ilerleme {
   display: flex;
@@ -391,6 +393,13 @@
 
 .oa-girdi.buyuk { min-height: 58px; font-size: 20px; }
 
+/* Ornek metinler deger sanilmasin diye silik ve ince. */
+.oa input::placeholder {
+  color: #14160f4d;
+  font-weight: 500;
+  opacity: 1;
+}
+
 .oa-form {
   display: grid;
   gap: 10px;
@@ -506,10 +515,12 @@
 /* ---------- Gun seridi ---------- */
 
 .oa-gun-seridi {
+  position: relative;
   display: flex;
   gap: 8px;
-  margin: 0 -20px;
-  padding: 4px 20px 10px;
+  margin: 0 calc(-1 * var(--kenar));
+  padding: 4px var(--kenar) 10px;
+  scroll-padding: 0 var(--kenar);
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scrollbar-width: none;

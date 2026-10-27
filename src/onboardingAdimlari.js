@@ -128,19 +128,34 @@ export function yasamOnerileri(gelir) {
   return YASAM_ORANLARI.map((oran) => Math.round((tutar(gelir) * oran) / 100));
 }
 
+// Planda bu ay odemelere giden tutar: kredi taksitleri sabit; taksitsiz
+// borclara (kart, ek hesap, kisi) gelir - yasam - taksitlerden artan para en
+// kucuk bakiyeden baslayarak gider (kartin tamami sigmiyorsa sigan kadari).
+export function planOdemeleri({ gelir, borclar = [], yasam = 0 }) {
+  const sabit = borclar.filter((borc) => borc.tur === "kredi").reduce((toplam, borc) => toplam + tutar(borc.taksit), 0);
+  let guc = Math.max(tutar(gelir) - tutar(yasam) - sabit, 0);
+  let degisken = 0;
+  for (const borc of borclar.filter((b) => b.tur === "kart").sort((a, b) => borcBakiyesi(a) - borcBakiyesi(b))) {
+    const odeme = Math.min(borcBakiyesi(borc), guc);
+    degisken += odeme;
+    guc -= odeme;
+  }
+  return sabit + degisken;
+}
+
 export function aySonuKalan({ gelir, borclar = [], yasam = 0 }) {
-  return tutar(gelir) - aylikOdemeler(borclar) - tutar(yasam);
+  return tutar(gelir) - planOdemeleri({ gelir, borclar, yasam }) - tutar(yasam);
 }
 
 // Ilk bitecek borc: taksitsiz borclarda (kart, ek hesap, kisi) en kucuk
-// bakiye once kapanir; ay sonu artanla birlikte o borca gidebilecek tutar
-// = gelir - yasam - diger borclarin aylik odemesi. Kredi taksitle biter.
-// Gelir yetmiyorsa ay null.
+// bakiye once kapanir; o borca her ay gidebilecek tutar = gelir - yasam -
+// kredi taksitleri. Kredi kendi taksitiyle biter. Gelir yetmiyorsa ay null.
 export function ilkBitecekBorc({ gelir, borclar = [], yasam = 0 }) {
   if (!borclar.length) return null;
+  const taksitler = borclar.filter((borc) => borc.tur === "kredi").reduce((toplam, borc) => toplam + tutar(borc.taksit), 0);
+  const odemeGucu = tutar(gelir) - tutar(yasam) - taksitler;
   const sureler = borclar.map((borc) => {
     if (borc.tur === "kredi") return { borc, ay: parseInt(borc.kalanTaksit, 10) || null };
-    const odemeGucu = tutar(gelir) - tutar(yasam) - aylikOdemeler(borclar.filter((diger) => diger !== borc));
     const bakiye = borcBakiyesi(borc);
     return { borc, ay: odemeGucu > 0 && bakiye > 0 ? Math.max(1, Math.ceil(bakiye / odemeGucu)) : null };
   });

@@ -1,9 +1,11 @@
 // fr sozlugu (1.69.0). Eksik anahtarlar Ingilizceye (src/locales/en.js) duser.
 // Kaynak: en.js; yer tutucular {x} birebir korunur.
 import { fr as web } from "./bolumler/web.js";
+import { fr as onboarding } from "./bolumler/onboarding.js";
 
 const fr_ = {
   ...web,
+  ...onboarding,
   "sekme.ozet": "Aujourd'hui",
   "sekme.borclar": "Dettes",
   "sekme.hareketler": "Activité",

@@ -15,6 +15,7 @@ import {
   numaraliAdimlar,
   oncekiAdim,
   onboardingSonucunuUygula,
+  planOdemeleri,
   sonuctanDurum,
   sonrakiAdim,
   sonrakiMaas,
@@ -82,6 +83,12 @@ test("ödemeler, yaşam önerileri ve ay sonu kalan", () => {
   assert.deepEqual(yasamOnerileri("70000"), [21000, 31500, 42000]);
   assert.equal(aySonuKalan({ gelir: "70000", borclar: [kart], yasam: 31500 }), 26000);
   assert.equal(aySonuKalan({ gelir: "70000", borclar: [], yasam: null }), 70000);
+  // Kartın tamamı sığmıyorsa plan yalnız sığanı öder; ay sonu eksiye düşmez.
+  const buyuk = { ...kart, tutar: "120000" };
+  assert.equal(planOdemeleri({ gelir: "70000", borclar: [buyuk, kredi], yasam: 31500 }), 38500);
+  assert.equal(aySonuKalan({ gelir: "70000", borclar: [buyuk, kredi], yasam: 31500 }), 0);
+  // Taksitler gelir - yaşamı aşıyorsa açık görünür.
+  assert.equal(aySonuKalan({ gelir: "3000", borclar: [kredi], yasam: 0 }), -1000);
 });
 
 test("ilk biten borç ve ilk ödeme tarihi", () => {
