@@ -145,14 +145,14 @@ test("İngilizce yasal metinlerde doldurulmamış yer tutucu kalmaz", async () =
   assert.doesNotMatch(kaynak, /\[(LEGAL ENTITY|COMPANY ADDRESS|DPO|RETENTION|EFFECTIVE DATE|MINIMUM AGE)/);
 });
 
-test("web İngilizce şartlar ve iade politikası Paddle (Merchant of Record) ve yalnız Türkiye satışını anlatır", () => {
+test("web İngilizce şartlar ve iade politikası Paddle (Merchant of Record) ve ülkeye göre fiyatı anlatır", () => {
   const sartlar = ciz(legalEn.TermsOfUseEn, { web: true });
   const iade = ciz(legalEn.RefundPolicyEn, { web: true });
   const gizlilik = ciz(legalEn.PrivacyPolicyEn, { web: true });
   for (const html of [sartlar, iade]) {
     assert.ok(html.includes("Merchant of Record"), "Merchant of Record");
     assert.ok(html.includes("Paddle.com"), "Paddle.com");
-    assert.ok(html.includes("only to customers in Türkiye"), "yalnız Türkiye");
+    assert.ok(html.includes("set per country or region"), "ülkeye göre fiyat");
   }
   assert.ok(sartlar.includes("Buyer Terms"));
   assert.ok(sartlar.includes("borcama.com"));

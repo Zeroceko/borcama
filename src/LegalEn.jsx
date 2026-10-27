@@ -2,8 +2,7 @@
 //
 // Dil Türkçe değilken Legal.jsx bu içerikleri gösterir (native ve web).
 // web=true iken metin borcama.com'u da kapsar: web satın alımları Paddle
-// (Merchant of Record) üzerinden yapılır ve web'de Pro yalnız Türkiye'de
-// satılır. web=false (iOS) çıktısı değişmez. Türkçe metinler Legal.jsx'te.
+// (Merchant of Record) üzerinden yapılır; fiyat ülkeye göre. web=false (iOS) çıktısı değişmez. Türkçe metinler Legal.jsx'te.
 // Kimlik App Store satici kaydindan (Ozer Ocek, Istanbul); saklama sureleri
 // ve 16 yas siniri 1.69.0 icin secildi, hukuk kontrolunde teyit edilmeli.
 import React from "react";
@@ -31,7 +30,7 @@ export const EN_BASLIKLAR = {
   refund: { title: "Cancellation and Refund Policy", tarih: "27 October 2026", surum: "1.0" },
 };
 
-// Web Terms, bölüm 7: Pro web'de Paddle üzerinden ve yalnız Türkiye'de satılır.
+// Web Terms, bölüm 7: Pro web'de Paddle üzerinden, ülkeye göre fiyatla satılır.
 function WebProKosullari() {
   return (
     <>
@@ -43,11 +42,11 @@ function WebProKosullari() {
           screen apply.
         </li>
         <li>
-          <b>Where Pro is sold on the web:</b> on borcama.com, Borcama Pro is
-          currently sold only to customers in Türkiye. Outside Türkiye the web
-          app does not offer Pro for purchase. Any Pro features made available
-          to you there are provided free of charge, without a subscription,
-          and we may change or withdraw them at any time.
+          <b>Prices and availability:</b> Borcama Pro prices are set per
+          country or region and shown in your local currency before you buy.
+          Where Pro is not offered for purchase, any Pro features made
+          available to you are provided free of charge, without a
+          subscription, and we may change or withdraw them at any time.
         </li>
         <li>
           <b>Web purchases are made through Paddle:</b> our order process on
@@ -532,8 +531,7 @@ function WebIadePolitikasi() {
         subscription. Purchases on borcama.com are processed by our online
         reseller Paddle.com, which is the Merchant of Record for all our web
         orders. Purchases in the iOS app are sold by Apple through the App
-        Store. On the web, Borcama Pro is currently sold only to customers in
-        Türkiye; outside Türkiye it is not offered for purchase on the web.
+        Store. Prices are set per country or region and shown before you buy.
       </p>
       <h2>1. Renewal</h2>
       <p>
