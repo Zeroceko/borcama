@@ -313,7 +313,7 @@ export default function LandingStory() {
                 pro
                 badge="30 GÜN ÜCRETSİZ"
                 title="Borcama Pro Aylık"
-                price="₺99"
+                price="₺39,90"
                 suffix="/ ay"
                 description="Tüm kişiselleştirilmiş analizler ve gelişmiş finansal senaryolar."
                 items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Aylık yük ve faiz senaryoları"]}
@@ -324,9 +324,9 @@ export default function LandingStory() {
                 pro
                 badge="EN AVANTAJLI"
                 title="Borcama Pro Yıllık"
-                price="₺999"
+                price="₺399"
                 suffix="/ yıl"
-                description="Yıllık öde, aynı Pro deneyiminde ₺189 avantaj sağla."
+                description="Yıllık öde, 2 ay bedava: aylığa göre ₺79,80 avantaj."
                 items={["Ücretsiz paketteki her şey", "Tüm kişisel öneri ve sinyaller", "Faiz ve ödeme önceliği analizleri", "Aylık yük ve faiz senaryoları"]}
                 action="Ücretsiz dene"
                 href="/register"

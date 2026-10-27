@@ -4724,9 +4724,9 @@ function ProTanitimPenceresi({
     !proPaketler?.monthly?.formattedPrice &&
     !proPaketler?.annual?.formattedPrice;
   const aylikFiyat =
-    proPaketler?.monthly?.formattedPrice || (demoOnizleme ? "₺99 / ay" : null);
+    proPaketler?.monthly?.formattedPrice || (demoOnizleme ? "₺39,90 / ay" : null);
   const yillikFiyat =
-    proPaketler?.annual?.formattedPrice || (demoOnizleme ? "₺999 / yıl" : null);
+    proPaketler?.annual?.formattedPrice || (demoOnizleme ? "₺399 / yıl" : null);
   const seciliFiyat = plan === "annual" ? yillikFiyat : aylikFiyat;
   const hata = demoOnizleme
     ? "Demo önizlemesi · Canlı hesapta güncel yerel fiyat gösterilir."
