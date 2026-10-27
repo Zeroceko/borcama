@@ -114,6 +114,9 @@ import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
 import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
+import { KurulumAkisi } from "./Onboarding.jsx";
+import { kurulumGosterilsinMi, onboardingSonucunuUygula } from "./onboardingAdimlari.js";
+import { bekleyenSonucuOku, bekleyenSonucuTemizle } from "./onboardingKoprusu.js";
 import {
   paraBiriminiFormatla,
   paraGirdisiniCoz,
@@ -141,7 +144,7 @@ import {
 } from "./googleAds.js";
 import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
-import { aktiviteleriKaydet } from "./activityLog.js";
+import { aktiviteleriKaydet, bekleyenOnboardingOlaylariniGonder } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
 import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
 import { rehberDurumu, rehberiErtele, rehberiMezunEt, rehberOnerisiniKapat } from "./borcamaRehberi.js";
@@ -1975,6 +1978,10 @@ export default function BorcTakip() {
   const [trialHatirlaticiAcik, setTrialHatirlaticiAcik] = useState(false);
   const [borcKutlamasi, setBorcKutlamasi] = useState(null);
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
+  // Kayit/misafir sonrasi ilk acilista kurulum akisi (Onboarding.jsx).
+  const [kurulumAcik, setKurulumAcik] = useState(false);
+  // Giris oncesi (native) biten onboarding'in hesaba yazilmayi bekleyen sonucu.
+  const [bekleyenOnboarding, setBekleyenOnboarding] = useState(() => bekleyenSonucuOku());
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
   const [piyasa, setPiyasa] = useState(() => {
     try {
@@ -2123,6 +2130,11 @@ export default function BorcTakip() {
           const donemSonucu = ekstreDonemleriniDuzelt(kaynakVeri);
           const borcSonucu = ekstreBorcModeliniDuzelt(donemSonucu.veri);
           setVeri(borcSonucu.veri);
+          // Akisi bitirmemis ve hic kaydi olmayan hesap: kurulum akisi.
+          setKurulumAcik(
+            (!demoModu || yeniUyelikOnizlemesi) &&
+              kurulumGosterilsinMi({ veri: borcSonucu.veri }),
+          );
           if (demoKaydiBos || donemSonucu.degisti || borcSonucu.degisti)
             await window.storage.set(
               veriDepolamaAnahtari,
@@ -2136,6 +2148,12 @@ export default function BorcTakip() {
                 ayarlar: { ekstreDonemleriV2: true, ekstreBorcModeliV3: true },
               };
           setVeri(ilkVeri);
+          // Hic kaydi olmayan hesap/misafir: kurulum akisi acilir. Demo
+          // verisinde acilmaz (onizleme ?yeni=1 haric).
+          setKurulumAcik(
+            (!demoModu || yeniUyelikOnizlemesi) &&
+              kurulumGosterilsinMi({ veri: ilkVeri }),
+          );
           if (demoModu)
             await window.storage.set(veriDepolamaAnahtari, JSON.stringify(ilkVeri));
         }
@@ -2611,12 +2629,14 @@ export default function BorcTakip() {
       await window.storage.set(veriDepolamaAnahtari, JSON.stringify(yeni));
       void aktiviteleriKaydet(aktiviteOlaylari);
       setHata("");
+      return true;
     } catch (e) {
       setHata(
         e?.message === "VERI_CAKISMASI"
           ? t("kabuk.hata.cakisma", { yonerge: yenilemeYonergesi.toLocaleLowerCase("tr") })
           : t("kabuk.hata.kayit"),
       );
+      return false;
     } finally {
       setKaydediliyor(false);
     }
@@ -3412,6 +3432,31 @@ export default function BorcTakip() {
     // bekler; onceki ekranin kaydirma konumu tasinmiyor.
     window.scrollTo({ top: 0 });
   }, [anaSekme]);
+
+  // Native onboarding sonucu: hesap/misafir verisi bossa bir kez yazilir;
+  // kayitli veri varsa (mevcut hesaba giris) yok sayilir. Kuyruktaki
+  // onboarding olcum olaylari oturum varsa gonderilir.
+  useEffect(() => {
+    if (yukleniyor) return;
+    void bekleyenOnboardingOlaylariniGonder();
+    if (!bekleyenOnboarding) return;
+    bekleyenSonucuTemizle();
+    setBekleyenOnboarding(null);
+    if (!kurulumGosterilsinMi({ veri })) return;
+    setKurulumAcik(false);
+    void kaydet(
+      onboardingSonucunuUygula(veri, bekleyenOnboarding, {
+        native: nativeMi,
+        idUret: uid,
+        gelirAdi: t("onboarding.gelir.kayitAdi"),
+      }),
+    );
+  }, [yukleniyor]);
+
+  // Kurulum akisi tam ekran; bitince sayfa /summary ile yeniden yuklenir.
+  if (kurulumAcik && !yukleniyor && !bekleyenOnboarding) {
+    return <KurulumAkisi veri={veri} native={nativeMi} kaydet={kaydet} />;
+  }
 
   return (
     <div

@@ -18,6 +18,7 @@ import { tr as yasal } from "./bolumler/yasal.js";
 import { tr as islemler } from "./bolumler/islemler.js";
 import { tr as paraBirimi } from "./bolumler/para-birimi.js";
 import { tr as web } from "./bolumler/web.js";
+import { tr as onboarding } from "./bolumler/onboarding.js";
 
 // Türkçe sözlük: uygulamanın kaynak dili. Her anahtarın metni ekranda
 // bugün görünen metnin birebir aynısıdır; eksik İngilizce anahtar buraya düşer.
@@ -44,37 +45,9 @@ const tr = {
   ...islemler,
   ...paraBirimi,
   ...web,
+  ...onboarding,
 
-  // Onboarding
-  "onboarding.atla": "Atla",
-  "onboarding.sonraki": "Sonraki",
-  "onboarding.adim1.baslik": "Borçların tek yerde.",
-  "onboarding.adim1.aciklama": "Kart, kredi ve ek hesaplarını aynı tabloda gör. Ne kadar borcun kaldığını karıştırma.",
-  "onboarding.adim2.baslik": "Önce neyi kapatacağını bil.",
-  "onboarding.adim2.aciklama": "Faiz yükünü ve yaklaşan ödemelerini birlikte gör. İlk adımını netleştir.",
-  "onboarding.adim3.baslik": "Ay sonunda ne kalacağını gör.",
-  "onboarding.adim3.aciklama": "Gelirini, zorunlu ödemelerini ve harcamalarını tek aylık planda buluştur.",
-  "onboarding.kart.toplamBorc": "Toplam borç",
-  "onboarding.kart.alt": "3 hesap · tek tablo",
-  "onboarding.sira.baslik": "Kapatma sıran",
-  "onboarding.sira.ekHesap": "Ek hesap",
-  "onboarding.sira.ekHesapBilgi": "%4,50 aylık",
-  "onboarding.sira.krediKarti": "Kredi kartı",
-  "onboarding.sira.krediKartiBilgi": "Son ödeme 6 gün",
-  "onboarding.sira.ihtiyacKredisi": "İhtiyaç kredisi",
-  "onboarding.sira.ihtiyacKredisiBilgi": "Planında ilerliyor",
-  "onboarding.plan.baslik": "Bu ay",
-  "onboarding.plan.gelir": "Gelir",
-  "onboarding.plan.odemeler": "Ödemeler",
-  "onboarding.plan.yasam": "Yaşam giderleri",
-  "onboarding.plan.aySonunda": "Ay sonunda",
-  "onboarding.plan.kalir": "{tutar} kalır",
-  "onboarding.karar.baslik": "Paran nereye gidiyor?",
-  "onboarding.karar.vurgu": "Artık bil.",
-  "onboarding.karar.aciklama": "Borçlarını, ödeme günlerini ve aylık planını tek yerde takip et.",
-  "onboarding.karar.guvence": "Banka şifresi ve kredi kartı bilgisi gerekmez.",
-  "onboarding.karar.ucretsizBasla": "Ücretsiz başla",
-  "onboarding.karar.girisYap": "Giriş yap",
+  // Onboarding (karşılama ekranındaki misafir bağlantısı; App Review notunda geçer)
   "onboarding.karar.misafir": "Hesap açmadan devam et",
 
   // Giriş / kayıt

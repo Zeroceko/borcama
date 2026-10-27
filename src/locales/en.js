@@ -18,6 +18,7 @@ import { en as yasal } from "./bolumler/yasal.js";
 import { en as islemler } from "./bolumler/islemler.js";
 import { en as paraBirimi } from "./bolumler/para-birimi.js";
 import { en as web } from "./bolumler/web.js";
+import { en as onboarding } from "./bolumler/onboarding.js";
 
 // English dictionary. Used in the iOS app and in the web app's in-app screens (landing/SEO pages stay Turkish).
 // Missing keys fall back to Turkish (src/locales/tr.js).
@@ -43,37 +44,9 @@ const en = {
   ...islemler,
   ...paraBirimi,
   ...web,
+  ...onboarding,
 
-  // Onboarding
-  "onboarding.atla": "Skip",
-  "onboarding.sonraki": "Next",
-  "onboarding.adim1.baslik": "All your debts in one place.",
-  "onboarding.adim1.aciklama": "See your cards, loans and overdrafts in one table. Always know how much you owe.",
-  "onboarding.adim2.baslik": "Know what to pay off first.",
-  "onboarding.adim2.aciklama": "See interest costs and upcoming payments together. Make your first step clear.",
-  "onboarding.adim3.baslik": "See what's left at month end.",
-  "onboarding.adim3.aciklama": "Bring your income, fixed payments and spending into one monthly plan.",
-  "onboarding.kart.toplamBorc": "Total debt",
-  "onboarding.kart.alt": "3 accounts · one table",
-  "onboarding.sira.baslik": "Your payoff order",
-  "onboarding.sira.ekHesap": "Overdraft",
-  "onboarding.sira.ekHesapBilgi": "4.50% monthly",
-  "onboarding.sira.krediKarti": "Credit card",
-  "onboarding.sira.krediKartiBilgi": "Due in 6 days",
-  "onboarding.sira.ihtiyacKredisi": "Personal loan",
-  "onboarding.sira.ihtiyacKredisiBilgi": "On track",
-  "onboarding.plan.baslik": "This month",
-  "onboarding.plan.gelir": "Income",
-  "onboarding.plan.odemeler": "Payments",
-  "onboarding.plan.yasam": "Living costs",
-  "onboarding.plan.aySonunda": "At month end",
-  "onboarding.plan.kalir": "{tutar} left",
-  "onboarding.karar.baslik": "Where is your money going?",
-  "onboarding.karar.vurgu": "Now you'll know.",
-  "onboarding.karar.aciklama": "Track your debts, due dates and monthly plan in one place.",
-  "onboarding.karar.guvence": "No bank password or card details needed.",
-  "onboarding.karar.ucretsizBasla": "Start for free",
-  "onboarding.karar.girisYap": "Sign in",
+  // Onboarding: karşılama ekranındaki misafir bağlantısı (App Review notunda geçer)
   "onboarding.karar.misafir": "Continue without an account",
 
   // Sign in / sign up

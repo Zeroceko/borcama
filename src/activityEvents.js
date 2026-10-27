@@ -28,4 +28,19 @@ export function aktiviteOlaylariniCikar(eski = {}, yeni = {}) {
   return olaylar.slice(0, 12);
 }
 
+// Kurulum akisi olay verisi: yalniz izinli alanlar, kisa metin ve sayi.
+const ONBOARDING_ALANLARI = { adim: "metin", sure_ms: "sayi", borc_sayisi: "sayi", gelir_var: "mantik" };
+
+export function onboardingOlayVerisi(metadata = {}) {
+  const temiz = {};
+  for (const [alan, tur] of Object.entries(ONBOARDING_ALANLARI)) {
+    const deger = metadata[alan];
+    if (deger === undefined || deger === null) continue;
+    if (tur === "metin") temiz[alan] = temizMetin(deger, 24);
+    else if (tur === "sayi" && Number.isFinite(Number(deger))) temiz[alan] = Math.max(0, Math.round(Number(deger)));
+    else if (tur === "mantik") temiz[alan] = Boolean(deger);
+  }
+  return temiz;
+}
+
 export { temizMetin };

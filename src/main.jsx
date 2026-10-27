@@ -23,7 +23,8 @@ import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
 import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
-import Onboarding, { KARAR_ADIMI } from "./Onboarding.jsx";
+import Onboarding, { NativeOnboarding } from "./Onboarding.jsx";
+import { nativeOnboardingVarMi } from "./onboardingKoprusu.js";
 import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
 import HesapSilindiEkrani from "./AccountDeleted.jsx";
 import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
@@ -107,11 +108,12 @@ function nativeEkran(yol) {
   return <KimlikliKok />;
 }
 
-// Oturumu olmayan kullanici once karsilama akisini gorur. Ilk kurulumda
-// tanitim ekranlariyla baslar; tanitimi gormus veya cikis yapmis kullaniciya
-// dogrudan "Ucretsiz basla / Giris yap" karar ekrani acilir. /login ve
-// /register bu kapidan gecmez; oralara karar ekranindan veya ekran icindeki
-// baglantilardan gelinir ve geri dugmesiyle karar ekranina donulur.
+// Oturumu olmayan kullanici once karsilama ekranini gorur. Ilk kurulumda
+// kisa acilis ekraniyla baslar; karsilamayi gormus veya cikis yapmis
+// kullaniciya dogrudan karsilama acilir. /login ve /register bu kapidan
+// gecmez; oralara karsilamadan gelinir ve geri dugmesiyle karsilamaya
+// donulur. Kurulum akisi (gelir, ilk borc, plan) kayit/misafir sonrasi
+// App.jsx icinde acilir.
 function OnboardingKapisi({ children, yol }) {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
@@ -119,7 +121,9 @@ function OnboardingKapisi({ children, yol }) {
   // Hesapsiz kullanan kisi karsilama akisina geri dusmemeli.
   if (misafirModuAcik()) return children;
   if (yol === "/login" || yol === "/register") return children;
-  return <Onboarding baslangic={onboardingTamamlandiMi() ? KARAR_ADIMI : 0} />;
+  // Yeni iOS kabugu onboarding'i SwiftUI ile cizer; eski build'lerde web.
+  if (nativeOnboardingVarMi()) return <NativeOnboarding />;
+  return <Onboarding acilis={!onboardingTamamlandiMi()} />;
 }
 
 function NativeKapi({ yol }) {

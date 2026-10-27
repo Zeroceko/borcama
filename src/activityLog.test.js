@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { aktiviteOlaylariniCikar } from "./activityEvents.js";
+import { aktiviteOlaylariniCikar, onboardingOlayVerisi } from "./activityEvents.js";
 
 test("yeni harcama, kart ve ekstreyi tutarsız finansal ayrıntı olmadan kaydeder", () => {
   const eski = { cards: [], expenses: [] };
@@ -25,4 +25,10 @@ test("mevcut kartın yeni ekstresini ve ödemesini bir kez algılar", () => {
   const olaylar = aktiviteOlaylariniCikar(eski, yeni);
   assert.deepEqual(olaylar.map((x) => x.event_type), ["statement_added", "payment_added"]);
   assert.equal(aktiviteOlaylariniCikar(yeni, yeni).length, 0);
+});
+
+test("kurulum akışı ölçümü yalnız izinli alanları yazar; tutar ve isim gitmez", () => {
+  const veri = onboardingOlayVerisi({ adim: "gelir", sure_ms: 4210.6, gelir: 70000, ad: "Özer", banka: "Akbank", borc_sayisi: "2", gelir_var: 1 });
+  assert.deepEqual(veri, { adim: "gelir", sure_ms: 4211, borc_sayisi: 2, gelir_var: true });
+  assert.deepEqual(onboardingOlayVerisi({ sure_ms: "abc" }), {});
 });

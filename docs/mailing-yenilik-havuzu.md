@@ -18,6 +18,12 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### İlk açılışta 2 dakikada planın hazır — Unreleased
+
+- Siz istediniz: Uygulamayı açınca nereden başlayacağını bilmek.
+- Biz yaptık: Yeni kurulum akışı gelirini, maaş gününü ve ilk borcunu tek tek soruyor; sonunda ay sonunda ne kalacağını ve hangi borcun önce biteceğini gösteren planı açıyor.
+- Faydası: Boş bir ekran yerine ilk günden dolu bir Bugün ekranıyla başlarsın.
+
 ### Bir borç daha bittiğinde ilerlemeni gör — v1.60.0
 
 - Siz istediniz: Son taksiti ödenen borcun aktif listede kalmamasını ve bu ilerlemenin görünür olmasını.
