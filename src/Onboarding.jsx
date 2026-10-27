@@ -22,7 +22,6 @@ import { onboardingOlayiKaydet } from "./activityLog.js";
 import {
   BORC_TURLERI,
   HEDEFLER,
-  SIK_ULKELER,
   SIKLIKLAR,
   TUM_ULKELER,
   adimGecilebilirMi,
@@ -41,6 +40,10 @@ import {
   ilkBitecekBorc,
   ilkOdeme,
   numaraliAdimlar,
+  oneCikanUlkeler,
+  hedefDegistir,
+  sonrakiHaftaGunuTarihi,
+  kalanGun,
   planOdemeleri,
   oncekiAdim,
   sonrakiAdim,
@@ -310,6 +313,8 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     const tespit = cihazBolgesi();
     return /^[A-Z]{2}$/.test(tespit) ? tespit : "TR";
   });
+  // One cikan liste tespit edilen ulkeye gore bir kez kurulur; secimle degismez.
+  const [oneCikan] = useState(() => oneCikanUlkeler(cihazBolgesi()));
   const [birim, setBirim] = useState(() => kullaniciParaBirimi());
   const [yasamKendim, setYasamKendim] = useState(false);
   const [yasamAtlandi, setYasamAtlandi] = useState(false);
@@ -474,7 +479,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     );
     dugme = <BirincilDugme onClick={() => ileri()}>{t("onboarding.devam")}</BirincilDugme>;
   } else if (adim === "ulke") {
-    const sik = [ulke, ...SIK_ULKELER.filter((kod) => kod !== ulke)].slice(0, 4);
+    const sik = oneCikan;
     const tumListe = [...new Set(TUM_ULKELER)].sort((a, b) => ulkeAdi(a).localeCompare(ulkeAdi(b), locale()));
     icerik = (
       <>
@@ -492,7 +497,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
         </div>
         <div className="oa-ek-satirlar">
           <label className="oa-ek-satir">
-            <span>{t("onboarding.ulke.baskaUlke")}</span>
+            <span>{t("onboarding.ulke.baskaUlke")}{!sik.includes(ulke) && <b> · {bayrak(ulke)} {ulkeAdi(ulke)}</b>}</span>
             <ChevronRight size={16} aria-hidden="true" />
             <select aria-label={t("onboarding.ulke.ulkeSec")} value={ulke} onChange={(o) => ulkeSec(o.target.value)}>
               {tumListe.map((kod) => <option key={kod} value={kod}>{ulkeAdi(kod)}</option>)}
@@ -530,10 +535,15 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     icerik = (
       <>
         <Baslik gri={t("onboarding.hedef.baslikGri")} vurgu={t("onboarding.hedef.baslik")} />
-        <p className="oa-aciklama">{t("onboarding.hedef.aciklama")}</p>
+        <p className="oa-aciklama">{t("onboarding.hedef.aciklama")} {t("onboarding.hedef.aciklamaCoklu")}</p>
         <div className="oa-liste">
           {HEDEFLER.map((hedef) => (
-            <SecimSatiri key={hedef} secili={durum.hedef === hedef} onClick={() => guncelle({ hedef })} etiket={t(`onboarding.hedef.${hedef}`)}>
+            <SecimSatiri
+              key={hedef}
+              secili={durum.hedefler.includes(hedef)}
+              onClick={() => guncelle({ hedefler: hedefDegistir(durum.hedefler, hedef) })}
+              etiket={t(`onboarding.hedef.${hedef}`)}
+            >
               {t(`onboarding.hedef.${hedef}`)}
             </SecimSatiri>
           ))}
@@ -563,14 +573,26 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     );
     dugme = <BirincilDugme onClick={() => ileri()}>{t("onboarding.devam")}</BirincilDugme>;
   } else if (adim === "gun") {
-    const maas = sonrakiMaas(durum.maasGunu);
+    // Ayda bir: ayin gunu; ayda iki: ilk maasin gunu; haftalik: haftanin gunu.
+    const haftalik = durum.siklik === "haftalik";
+    const ek = haftalik ? ".haftalik" : durum.siklik === "ikiKez" ? ".ikiKez" : "";
+    const maas = haftalik
+      ? (() => {
+          const tarih = sonrakiHaftaGunuTarihi(durum.maasHaftaGunu);
+          return { tarih, kalan: kalanGun(tarih) };
+        })()
+      : sonrakiMaas(durum.maasGunu);
     icerik = (
       <>
-        <Baslik gri={t("onboarding.gun.baslikGri")} vurgu={t("onboarding.gun.baslik")} />
-        <p className="oa-aciklama">{t("onboarding.gun.aciklama")}</p>
-        <GunSeridi secili={durum.maasGunu} onSec={(maasGunu) => guncelle({ maasGunu })} />
+        <Baslik gri={t(`onboarding.gun.baslikGri${ek}`)} vurgu={t(`onboarding.gun.baslik${ek}`)} />
+        <p className="oa-aciklama">{t(`onboarding.gun.aciklama${ek}`)}</p>
+        {haftalik ? (
+          <HaftaGunleri secili={durum.maasHaftaGunu} onSec={(maasHaftaGunu) => guncelle({ maasHaftaGunu })} />
+        ) : (
+          <GunSeridi secili={durum.maasGunu} onSec={(maasGunu) => guncelle({ maasGunu })} />
+        )}
         <p className="oa-yanki" aria-live="polite">
-          <VurguluMetin anahtar="onboarding.gun.yanki" degisken="tarih" deger={gunAyHaftaEtiketi(maas.tarih)} />
+          <VurguluMetin anahtar={haftalik ? "onboarding.gun.yankiHafta" : "onboarding.gun.yanki"} degisken="tarih" deger={gunAyHaftaEtiketi(maas.tarih)} />
           <br />
           {maas.kalan === 0 ? t("onboarding.gun.bugun") : t("onboarding.gun.kalan", { gun: maas.kalan })}
         </p>
@@ -583,7 +605,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
         <Baslik gri={t("onboarding.gelir.baslikGri")} vurgu={t("onboarding.gelir.baslik")} />
         <p className="oa-aciklama">{t("onboarding.gelir.aciklama")}</p>
         <TutarAlani buyuk otomatikOdak deger={durum.gelir} onChange={(deger) => guncelle({ gelir: deger })} etiket={t("onboarding.gelir.etiket")} />
-        <p className="oa-alt-not">{t("onboarding.gelir.herAy")}</p>
+        <p className="oa-alt-not">{durum.siklik === "aylik" ? t("onboarding.gelir.herAy") : t("onboarding.gelir.herAyOrtalama")}</p>
         {gelir > 0 && (
           <p className="oa-yanki" aria-live="polite">
             <VurguluMetin anahtar="onboarding.gelir.yanki" degisken="tutar" deger={tamTutar(gunlukTutar(gelir))} />
@@ -593,7 +615,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     );
     dugme = (
       <BirincilDugme onClick={() => ileri()} disabled={!adimGecilebilirMi("gelir", durum)}>
-        {t("onboarding.gelir.dugme")}
+        {t("onboarding.devam")}
       </BirincilDugme>
     );
   } else if (adim === "turler") {
@@ -649,6 +671,13 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
             ))}
           </div>
         )}
+        <div className="oa-form">
+          <BorcFormu borc={taslak} setBorc={(yeni) => { setTaslak(yeni); setTaslakHata(false); }} />
+        </div>
+        {taslakHata && <p className="oa-hata" role="alert">{t("onboarding.borc.eksik")}</p>}
+        <button className="oa-ekle" type="button" onClick={taslagiEkle}>
+          <Plus size={15} aria-hidden="true" /> {t("onboarding.borc.baskaEkle")}
+        </button>
         {durum.borclar.length > 0 && (
           <ul className="oa-eklenenler">
             {durum.borclar.map((borc, i) => (
@@ -666,13 +695,6 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
             ))}
           </ul>
         )}
-        <div className="oa-form">
-          <BorcFormu borc={taslak} setBorc={(yeni) => { setTaslak(yeni); setTaslakHata(false); }} />
-        </div>
-        {taslakHata && <p className="oa-hata" role="alert">{t("onboarding.borc.eksik")}</p>}
-        <button className="oa-ekle" type="button" onClick={taslagiEkle}>
-          <Plus size={15} aria-hidden="true" /> {t("onboarding.borc.baskaEkle")}
-        </button>
         {aylikOdemeler(anlik) > 0 && (
           <p className="oa-yanki" aria-live="polite">
             <VurguluMetin anahtar="onboarding.borc.yanki" degisken="tutar" deger={tamTutar(aylikOdemeler(anlik))} />
@@ -890,6 +912,29 @@ function GunSeridi({ secili, onSec }) {
           onClick={() => onSec(gun)}
         >
           {gun}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Haftanin gunleri (1 = Pazartesi ... 7 = Pazar), secili dilde kisa adla.
+function HaftaGunleri({ secili, onSec }) {
+  // 5 Ocak 2026 Pazartesi; ad uretmek icin sabit bir hafta.
+  const ad = (gun, bicim) => new Intl.DateTimeFormat(locale(), { weekday: bicim }).format(new Date(2026, 0, 4 + gun));
+  return (
+    <div className="oa-hafta" role="radiogroup" aria-label={t("onboarding.gun.baslik.haftalik")}>
+      {[1, 2, 3, 4, 5, 6, 7].map((gun) => (
+        <button
+          key={gun}
+          type="button"
+          role="radio"
+          aria-checked={secili === gun}
+          aria-label={ad(gun, "long")}
+          className={`oa-gun${secili === gun ? " secili" : ""}`}
+          onClick={() => onSec(gun)}
+        >
+          {ad(gun, "short")}
         </button>
       ))}
     </div>

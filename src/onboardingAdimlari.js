@@ -14,9 +14,10 @@ export const YASAM_ORANLARI = [30, 45, 60];
 export function bosDurum() {
   return {
     ad: "",
-    hedef: "borc",
+    hedefler: ["borc"],
     siklik: "aylik",
     maasGunu: 1,
+    maasHaftaGunu: 1,
     gelir: "",
     turler: [],
     borcYok: false,
@@ -27,12 +28,12 @@ export function bosDurum() {
 }
 
 // Isim yalniz uygulamada sorulur (web'de hesap zaten e-postayla acik).
-// Maas gunu yalniz ayda bir/iki odemede anlamli; haftalik ve duzensiz
-// gelirde sorulmaz. "Borcum yok" secilince ilk borc formu atlanir.
+// Maas gunu sikliga gore sorulur: ayda bir/iki -> ayin gunu, haftalik ->
+// haftanin gunu; duzensiz gelirde sorulmaz. "Borcum yok" secilince ilk borc formu atlanir.
 export function adimSirasi({ native = false, siklik = "aylik", borcYok = false } = {}) {
   return ADIMLAR.filter((adim) => {
     if (adim === "isim") return native;
-    if (adim === "gun") return siklik === "aylik" || siklik === "ikiKez";
+    if (adim === "gun") return siklik !== "duzensiz";
     if (adim === "borc") return !borcYok;
     return true;
   });
@@ -66,6 +67,7 @@ export function gelirGecerli(deger) {
 
 // Gelir plan icin sart; diger adimlar varsayilanla gecilebilir.
 export function adimGecilebilirMi(adim, durum) {
+  if (adim === "hedef") return durum.hedefler.length > 0;
   if (adim === "gelir") return gelirGecerli(durum.gelir);
   if (adim === "turler") return durum.borcYok || durum.turler.length > 0;
   if (adim === "borc") return durum.borclar.length > 0;
@@ -101,6 +103,22 @@ export function sonrakiGunTarihi(gun, bugun = new Date()) {
   const yil = basla.getMonth() === 11 ? basla.getFullYear() + 1 : basla.getFullYear();
   const ay = (basla.getMonth() + 1) % 12;
   return new Date(yil, ay, Math.min(g, ayinSonGunu(yil, ay)));
+}
+
+// Haftanin gunu (1 = Pazartesi ... 7 = Pazar) icin bugunden sonraki ilk
+// tarih (bugun dahil).
+export function sonrakiHaftaGunuTarihi(haftaGunu, bugun = new Date()) {
+  const hedef = Math.min(Math.max(parseInt(haftaGunu, 10) || 1, 1), 7) % 7; // JS: 0 = Pazar
+  const basla = gunBasi(bugun);
+  const fark = (hedef - basla.getDay() + 7) % 7;
+  return new Date(basla.getFullYear(), basla.getMonth(), basla.getDate() + fark);
+}
+
+// Hedef secimi coklu; en az biri secili kalir.
+export function hedefDegistir(hedefler, hedef) {
+  if (!HEDEFLER.includes(hedef)) return hedefler;
+  if (!hedefler.includes(hedef)) return HEDEFLER.filter((h) => h === hedef || hedefler.includes(h));
+  return hedefler.length > 1 ? hedefler.filter((h) => h !== hedef) : hedefler;
 }
 
 export function kalanGun(tarih, bugun = new Date()) {
@@ -251,9 +269,11 @@ export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idU
     ...(ad ? { ad } : {}),
     onboarding: {
       tamam: simdi.toISOString(),
-      hedef: durum.hedef,
+      hedef: durum.hedefler[0] || "borc",
+      hedefler: [...durum.hedefler],
       siklik: durum.siklik,
       maasGunu: durum.siklik === "aylik" || durum.siklik === "ikiKez" ? durum.maasGunu : null,
+      maasHaftaGunu: durum.siklik === "haftalik" ? durum.maasHaftaGunu : null,
       atlanan: [...new Set(durum.atlanan)],
     },
   };
@@ -270,7 +290,14 @@ export function kurulumGosterilsinMi({ veri = {} } = {}) {
 
 // Ulke secimi (web akisi ve native SwiftUI onboarding'e giden liste): sik
 // kullanilanlar ustte. Para birimi ulkeden gelir; desteklenmeyen ulkede USD.
-export const SIK_ULKELER = ["TR", "DE", "GB", "US", "FR", "ES", "IT", "NL"];
+export const SIK_ULKELER = ["TR", "GB", "DE", "FR", "ES", "IT"];
+
+// One cikan ulke listesi: 6 sik ulke; tespit edilen bunlardan degilse basa
+// gelir ve ilk 5 sik ulke eklenir. Secim yapinca liste degismez (tespit
+// edilen ulkeye gore bir kez kurulur).
+export function oneCikanUlkeler(tespit) {
+  return SIK_ULKELER.includes(tespit) || !/^[A-Z]{2}$/.test(String(tespit || "")) ? [...SIK_ULKELER] : [tespit, ...SIK_ULKELER.slice(0, 5)];
+}
 export const TUM_ULKELER = [
   "TR", "US", "GB", "DE", "FR", "ES", "IT", "NL", "BE", "AT", "IE", "PT", "FI", "GR", "LU", "SK", "SI", "EE", "LV", "LT",
   "MT", "CY", "HR", "ME", "XK", "CH", "LI", "CA", "AU", "NZ", "JP", "SE", "NO", "DK", "AZ", "AE", "SA", "QA", "IL", "PL",
@@ -283,7 +310,9 @@ export const bayrak = (kod) => String.fromCodePoint(...[...String(kod)].map((har
 // cikti sekli. Native kabuk `borcamaOnboardingBitti` olayinda bunu gonderir.
 // {
 //   cikis: "tamam" | "giris" | "misafir",
-//   dil, ulke, paraBirimi, ad, hedef, siklik, maasGunu (1-31),
+//   dil, ulke, paraBirimi, ad,
+//   hedefler: ["borc"|"aySonu"|"kontrol"] (en az 1), hedef (= hedefler[0]),
+//   siklik, maasGunu (1-31; aylik/ikiKez), maasHaftaGunu (1=Pzt..7=Paz; haftalik),
 //   gelir (sayi), borcTurleri: ["kart"|"kredi"|"kmh"|"kisi"],
 //   borclar: [{ tur, ad, tutar?, gun?, taksit?, kalanTaksit? }],
 //   yasam (sayi|null), atlanan: [adim], sure_ms
@@ -300,9 +329,11 @@ export function durumdanSonuc(durum, { cikis = "tamam", dil = null, ulke = null,
     ulke,
     paraBirimi,
     ad: durum.ad || "",
-    hedef: durum.hedef,
+    hedef: durum.hedefler[0] || "borc",
+    hedefler: [...durum.hedefler],
     siklik: durum.siklik,
     maasGunu: durum.maasGunu,
+    maasHaftaGunu: durum.maasHaftaGunu,
     gelir: tutar(durum.gelir),
     borcTurleri: durum.borcYok ? [] : [...durum.turler],
     borclar: durum.borcYok
@@ -337,12 +368,15 @@ export function sonuctanDurum(sonuc = {}) {
     }))
     .filter((borc) => BORC_TURLERI.includes(borc.tur) && borcGecerli(borc));
   const gun = parseInt(sonuc.maasGunu, 10);
+  const haftaGunu = parseInt(sonuc.maasHaftaGunu, 10);
+  const hedefler = HEDEFLER.filter((h) => (Array.isArray(sonuc.hedefler) ? sonuc.hedefler : [sonuc.hedef]).includes(h));
   return {
     ...bosDurum(),
     ad: String(sonuc.ad ?? "").trim().slice(0, 40),
-    hedef: secenek(sonuc.hedef, HEDEFLER, "borc"),
+    hedefler: hedefler.length ? hedefler : ["borc"],
     siklik: secenek(sonuc.siklik, SIKLIKLAR, "aylik"),
     maasGunu: gun >= 1 && gun <= 31 ? gun : 1,
+    maasHaftaGunu: haftaGunu >= 1 && haftaGunu <= 7 ? haftaGunu : 1,
     gelir: tutar(sonuc.gelir) ? String(tutar(sonuc.gelir)) : "",
     turler: (Array.isArray(sonuc.borcTurleri) ? sonuc.borcTurleri : []).filter((tur) => BORC_TURLERI.includes(tur)),
     borcYok: borclar.length === 0,
