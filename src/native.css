@@ -322,3 +322,122 @@ html.borcama-native .para-birimi-secici.ob-para-birimi {
   font-family: "OB Space", "Space Grotesk", system-ui, sans-serif;
   margin: 0 0 14px;
 }
+
+/* Yan guvenli alanlar (iPhone Duo, yatay iPhone, Split View). Katlanabilir
+   cihazda ve yatay konumda sol ve sag bosluklar esit olmayabiliyor; her
+   kenar kendi env() degerini kullanir. Bosluk sifirken max() ilk degeri
+   secer, yani dikey iPhone'daki gorunum degismez. Kurallar cihaz yonelimine
+   degil yalniz pencere olculerine baglidir. */
+html.borcama-native .bt-wrap {
+  padding-left: max(clamp(16px, 4vw, 28px), calc(var(--guvenli-sol) + 12px));
+  padding-right: max(clamp(16px, 4vw, 28px), calc(var(--guvenli-sag) + 12px));
+}
+
+html.borcama-native .bt-feedback-trigger,
+html.borcama-native .bt-quick-add,
+html.borcama-native .bt-quick-menu {
+  right: calc(clamp(14px, 3vw, 28px) + var(--guvenli-sag));
+}
+
+html.borcama-native .bt-modal-arka {
+  padding-left: calc(20px + var(--guvenli-sol));
+  padding-right: calc(20px + var(--guvenli-sag));
+}
+
+html.borcama-native .auth-wrap {
+  padding-left: calc(12px + var(--guvenli-sol));
+  padding-right: calc(12px + var(--guvenli-sag));
+}
+
+html.borcama-native .auth-back {
+  left: max(clamp(20px, 4vw, 48px), calc(var(--guvenli-sol) + 12px));
+}
+
+html.borcama-native .dil-dugmesi.auth-dil {
+  right: max(clamp(20px, 4vw, 48px), calc(var(--guvenli-sag) + 12px));
+}
+
+html.borcama-native .legal {
+  padding-left: calc(18px + var(--guvenli-sol));
+  padding-right: calc(18px + var(--guvenli-sag));
+}
+
+html.borcama-native .pc-page {
+  padding-left: calc(18px + var(--guvenli-sol));
+  padding-right: calc(18px + var(--guvenli-sag));
+}
+
+@media (max-width: 760px) {
+  html.borcama-native .pc-page {
+    padding-left: calc(11px + var(--guvenli-sol));
+    padding-right: calc(11px + var(--guvenli-sag));
+  }
+}
+
+@media (max-width: 720px) {
+  html.borcama-native .auth-back { left: calc(12px + var(--guvenli-sol)); }
+  html.borcama-native .dil-dugmesi.auth-dil { right: calc(12px + var(--guvenli-sag)); }
+}
+
+@media (max-width: 600px) {
+  html.borcama-native .bt-wrap {
+    padding-left: calc(12px + var(--guvenli-sol));
+    padding-right: calc(12px + var(--guvenli-sag));
+  }
+  html.borcama-native .bt-feedback-trigger,
+  html.borcama-native .bt-quick-add,
+  html.borcama-native .bt-quick-menu {
+    right: calc(12px + var(--guvenli-sag));
+  }
+  html.borcama-native .bt-quick-menu {
+    width: min(300px, calc(100vw - 24px - var(--guvenli-sol) - var(--guvenli-sag)));
+  }
+  html.borcama-native .bt-modal-arka {
+    padding-left: calc(10px + var(--guvenli-sol));
+    padding-right: calc(10px + var(--guvenli-sag));
+  }
+}
+
+@media (max-width: 560px) {
+  html.borcama-native .legal {
+    padding-left: calc(10px + var(--guvenli-sol));
+    padding-right: calc(10px + var(--guvenli-sag));
+  }
+}
+
+/* Pro penceresi dar ekranda daha az yan bosluk kullaniyor. */
+@media (max-width: 700px) {
+  html.borcama-native .bt-modal-arka.bt-pro-modal-arka {
+    padding-left: calc(8px + var(--guvenli-sol));
+    padding-right: calc(8px + var(--guvenli-sag));
+  }
+}
+
+/* Kisa pencerede (yatay telefon, yari katli Duo) pencere ekrandan uzun
+   olabiliyor. Ortalanmis flex kapsayicida tasan kisim ustten kesiliyor ve
+   kaydirilamiyordu. Kapsayici kayar; margin:auto yer varken ortalar, yer
+   yokken ust kenara yaslar. Dar ekran zaten ustten hizali ve kayiyor. */
+@media (min-width: 601px) {
+  html.borcama-native .bt-modal-arka {
+    align-items: flex-start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  html.borcama-native .bt-modal-arka > * {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+}
+
+/* iOS'ta UITabBar webview'in uzerinde duruyor ve pencereler acikken de
+   gorunur kaliyor. Pencere katmaninin alt boslugu cubugun yuksekligi kadar
+   artirilir; boylece kaydirilan pencerenin son satiri cubugun altinda
+   kalmaz. Yukseklik native taraftan --sekme-cubugu olarak gelir (cubuk
+   gizliyken 0); gelmezse standart sekme cubugu yuksekligi kullanilir. */
+html.borcama-ios .bt-modal-arka {
+  padding-bottom: calc(20px + var(--guvenli-alt) + var(--sekme-cubugu, 56px));
+}
+
+html.borcama-ios .bt-assistant-modal {
+  max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt) - var(--sekme-cubugu, 56px));
+}

@@ -6,7 +6,19 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Borcama Pro fiyatı ayda 39,90 TL, yılda 399 TL oldu (yıllık plan 2 ay bedava); site ve demo metinleri yeni fiyatla güncellendi. Ödeme ekranındaki fiyat RevenueCat ve App Store'dan geliyor.
+- Borcama Pro'nun Türkiye fiyatı ayda 39,90 TL, yılda 399 TL oldu (yıllık plan 2 ay bedava); Türkçe site ve demo metinleri yeni fiyatla güncellendi. Ödeme ekranındaki fiyat Paddle (web) ve App Store'dan geliyor.
+
+## [1.71.0] - 2026-10-28
+
+### Değiştirildi
+
+- Borcama Pro artık her ülkede satılabiliyor; Pro ve Ücretsiz plan her yerde. iOS'ta hangi ülkede satışta olduğunu App Store abonelik ayarı belirliyor (o ülkede ürün yoksa satın alma gizlenir, Pro özellikleri ücretsiz açılır); web'de Pro Paddle ile her ülkede satılıyor. Fiyatlar ülkeye göre. İngilizce şartlar ve iade politikası buna göre güncellendi.
+
+## [1.70.1] - 2026-10-28
+
+### Düzeltildi
+
+- iOS uygulamasında yatay konumda alt sekme çubuğu ekrandan taşmıyor; sol ve sağ güvenli alanlar ayrı hesaplanıyor, geniş ve kısa pencerelerde tanıtım ve pencereler düzgün yerleşiyor; klavye kapanınca gizli sekme çubuğu geri gelmiyor.
 
 ## [1.70.0] - 2026-10-27
 
