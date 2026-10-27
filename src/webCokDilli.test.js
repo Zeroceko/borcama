@@ -103,7 +103,7 @@ test("web + İngilizce: uygulama içi sayfalar İngilizce, yasal metinler Paddle
   const sartlar = metin(web.sayfaCiz("terms", "en"));
   assert.match(sartlar, /Terms of Use/);
   assert.match(sartlar, /Merchant of Record/);
-  assert.match(sartlar, /only to customers in Türkiye/);
+  assert.match(sartlar, /set per country or region/);
   const iade = metin(web.sayfaCiz("refund-policy", "en"));
   assert.match(iade, /Refunds for web purchases \(Paddle\)/);
   const gizlilik = metin(web.sayfaCiz("privacy", "en"));

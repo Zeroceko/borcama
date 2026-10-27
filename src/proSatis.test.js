@@ -10,9 +10,10 @@ test("ürün gelirse Pro satışta sayılır, mevcut akış sürer", () => {
   assert.equal(proSatisDurumuBelirle({ paketler: { monthly: null, annual: paket, storefront: null } }), "var");
 });
 
-test("Türkiye dışı mağazada ürün gelse bile Pro satışta değil (sandbox ülke kısıtını uygulamıyor)", () => {
-  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: paket, storefront: "USA" } }), "yok");
-  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: null, storefront: "DEU" } }), "yok");
+test("Pro her ülkede satılabilir: ürün gelen mağazada satışta, gelmeyende değil", () => {
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: paket, storefront: "USA" } }), "var");
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: null, storefront: "DEU" } }), "var");
+  assert.equal(proSatisDurumuBelirle({ paketler: { monthly: null, annual: null, storefront: "DEU" } }), "yok");
   assert.equal(proSatisDurumuBelirle({ paketler: { monthly: paket, annual: paket, storefront: "TUR" } }), "var");
 });
 
@@ -63,41 +64,14 @@ test("misafirde Pro satış durumu anonim RevenueCat ile sorgulanır, hesap aç�
   assert.match(app, /if \(nativeMi && revenueCatHazir\) \{\s*try \{\s*proSatisKarariniUygula\(\{ paketler: await revenueCatNativeTeklifleri\(\) \}\);/);
 });
 
-test("web: aynı karar fonksiyonu IP ülkesiyle çalışır; yalnız Türkiye dışı ülke satışı kapatır", async () => {
+test("web: Pro Paddle ile her ülkede satışta", async () => {
   const { webProSatisDurumu } = await import("./proSatis.js");
-  assert.equal(proSatisDurumuBelirle({ ulke: "TR" }), "var");
-  assert.equal(proSatisDurumuBelirle({ ulke: "DE" }), "yok");
-  assert.equal(webProSatisDurumu("TR"), "var");
-  assert.equal(webProSatisDurumu("tr"), "var");
-  assert.equal(webProSatisDurumu("US"), "yok");
-  assert.equal(webProSatisDurumu("GB"), "yok");
-  // Ülke alınamadı / geçersiz: bugünkü davranış (Pro satışta).
-  assert.equal(webProSatisDurumu(null), "var");
-  assert.equal(webProSatisDurumu(""), "var");
-  assert.equal(webProSatisDurumu("XYZ"), "var");
+  assert.equal(webProSatisDurumu(), "var");
 });
 
-test("web: kayıtlı IP ülkesi Pro satış kararını besler", async () => {
-  const { ulkeBelleginiSifirla, ULKE_ANAHTARI } = await import("./ulke.js");
-  const depo = new Map();
-  const onceki = globalThis.localStorage;
-  globalThis.localStorage = { getItem: (k) => depo.get(k) ?? null, setItem: (k, v) => depo.set(k, v), key: () => null, length: 0 };
-  try {
-    depo.set(ULKE_ANAHTARI, JSON.stringify({ kod: "DE", zaman: Date.now() }));
-    ulkeBelleginiSifirla();
-    assert.equal(kayitliProSatisDurumu(), "yok");
-    assert.equal(proSatistaDegil(), true);
-    depo.set(ULKE_ANAHTARI, JSON.stringify({ kod: "TR", zaman: Date.now() }));
-    ulkeBelleginiSifirla();
-    assert.equal(kayitliProSatisDurumu(), "var");
-    assert.equal(proSatistaDegil(), false);
-    depo.set(ULKE_ANAHTARI, "bozuk");
-    ulkeBelleginiSifirla();
-    assert.equal(kayitliProSatisDurumu(), "var");
-  } finally {
-    globalThis.localStorage = onceki;
-    ulkeBelleginiSifirla();
-  }
+test("web: Pro satış kararı ülkeden bağımsız", async () => {
+  assert.equal(kayitliProSatisDurumu(), "var");
+  assert.equal(proSatistaDegil(), false);
 });
 
 test("web: /api/ulke istemcisi hatada ve geçersiz yanıtta bilinen değeri korur", async () => {

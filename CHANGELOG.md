@@ -4,6 +4,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.71.0] - 2026-10-28
+
+### Değiştirildi
+
+- Borcama Pro artık her ülkede satılabiliyor; Pro ve Ücretsiz plan her yerde. iOS'ta hangi ülkede satışta olduğunu App Store abonelik ayarı belirliyor (o ülkede ürün yoksa satın alma gizlenir, Pro özellikleri ücretsiz açılır); web'de Pro Paddle ile her ülkede satılıyor. Fiyatlar ülkeye göre. İngilizce şartlar ve iade politikası buna göre güncellendi.
+
 ## [1.70.1] - 2026-10-28
 
 ### Düzeltildi
