@@ -95,6 +95,8 @@ final class OBDurum: ObservableObject {
 
     @Published var adim: OBAdim = .acilis
     @Published var gecmis: [OBAdim] = []
+    // Gecis yonu: geri gidiste ekran soldan gelir.
+    var ileriYon = true
     @Published var dil: String
     @Published var ulke: String
     @Published var paraBirimi: String
@@ -240,12 +242,14 @@ final class OBDurum: ObservableObject {
             return
         }
         gecmis.append(simdiki)
+        ileriYon = true
         adimBaslangic = Date()
         adim = siradakiler[sira + 1]
     }
 
     func geri() {
         guard let onceki = gecmis.popLast() else { return }
+        ileriYon = false
         adimBaslangic = Date()
         adim = onceki
     }
@@ -301,15 +305,15 @@ struct OBDugme: View {
                 .frame(height: 54)
                 .background(
                     ZStack {
-                        RoundedRectangle(cornerRadius: 27).fill(OBRenk.coral).offset(x: 0, y: 4)
-                        RoundedRectangle(cornerRadius: 27).fill(etkin ? OBRenk.lime : OBRenk.lime.opacity(0.45))
+                        if etkin { RoundedRectangle(cornerRadius: 27).fill(OBRenk.coral).offset(x: 0, y: 4) }
+                        RoundedRectangle(cornerRadius: 27).fill(etkin ? OBRenk.lime : OBRenk.beyaz)
                         RoundedRectangle(cornerRadius: 27).stroke(OBRenk.murekkep, lineWidth: 1.5)
                     }
                 )
         }
         .buttonStyle(.plain)
         .disabled(!etkin)
-        .opacity(etkin ? 1 : 0.6)
+        .opacity(etkin ? 1 : 0.5)
     }
 }
 
@@ -362,6 +366,9 @@ struct OBCip: View {
             Text(baslik)
                 .font(.system(size: 14, weight: .semibold, design: .monospaced))
                 .foregroundColor(OBRenk.murekkep)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .fixedSize(horizontal: true, vertical: false)
                 .padding(.horizontal, 14)
                 .frame(height: 38)
                 .background(Capsule().fill(secili ? OBRenk.coral : OBRenk.beyaz))
@@ -378,8 +385,10 @@ struct OBYanki: View {
 
     var body: some View {
         parcalar.reduce(Text("")) { toplam, parca in
-            toplam + (parca.1
-                ? Text(parca.0).font(.system(size: 16, weight: .bold, design: .monospaced))
+            // Rakamla baslayan vurgu (tutar) mono, digerleri (tarih, ad) kalin.
+            let tutarMi = parca.0.contains(where: { $0.isNumber }) && !parca.0.contains(where: { $0.isLetter })
+            return toplam + (parca.1
+                ? Text(parca.0).font(.system(size: 16, weight: .bold, design: tutarMi ? .monospaced : .default))
                 : Text(parca.0).font(.system(size: 16, weight: .medium)))
         }
         .foregroundColor(OBRenk.murekkep)
@@ -579,14 +588,17 @@ struct OBKarsilama: View {
             }
             OBDugme(baslik: d.t("onboarding.karsilama.basla")) { d.misafir = false; d.ileri() }
             HStack(spacing: 18) {
-                Button(d.t("onboarding.karsilama.hesabimVar")) { d.bitir(cikis: "giris") }
+                Button(action: { d.bitir(cikis: "giris") }) {
+                    Text(d.t("onboarding.karsilama.hesabimVar")).underline()
+                }
                 // Hesapsiz kullanim: ayni kurulum akisi, sonunda kayit yerine
                 // veriler cihazda kalir.
-                Button(d.t("onboarding.karar.misafir")) { d.misafir = true; d.ileri() }
+                Button(action: { d.misafir = true; d.ileri() }) {
+                    Text(d.t("onboarding.karar.misafir")).underline()
+                }
             }
             .font(.system(size: 14, weight: .semibold))
             .foregroundColor(OBRenk.murekkep)
-            .underline()
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
         }
@@ -624,6 +636,7 @@ struct OBPlanKarti: View {
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             Text(alt).font(.system(size: 13)).foregroundColor(OBRenk.murekkep)
+                .fixedSize(horizontal: false, vertical: true)
             GeometryReader { g in
                 HStack(spacing: 3) {
                     let renkler = [OBRenk.murekkep, OBRenk.beyaz, OBRenk.lime]
@@ -854,7 +867,6 @@ struct OBTutarAlani: View {
     @Binding var metin: String
     var buyuk = false
     var odakla = false
-    @FocusState private var odak: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -865,32 +877,99 @@ struct OBTutarAlani: View {
             }
             HStack(spacing: 4) {
                 Text(d.sembol)
-                TextField("0", text: $metin)
-                    .keyboardType(.decimalPad)
-                    .focused($odak)
-                    .onChange(of: metin) { yeni in metin = bicimle(yeni) }
+                    .font(.system(size: buyuk ? 44 : 20, weight: .bold, design: .monospaced))
+                    .foregroundColor(OBRenk.murekkep)
+                OBTutarGirdisi(metin: $metin, yerel: d.yerel, boyut: buyuk ? 44 : 20, odakla: odakla)
+                    .frame(height: buyuk ? 56 : 28)
             }
-            .font(.system(size: buyuk ? 44 : 20, weight: .bold, design: .monospaced))
-            .foregroundColor(OBRenk.murekkep)
         }
         .padding(buyuk ? 0 : 12)
         .background(buyuk ? nil : RoundedRectangle(cornerRadius: 14).fill(OBRenk.beyaz))
         .overlay(buyuk ? nil : RoundedRectangle(cornerRadius: 14).stroke(OBRenk.murekkep, lineWidth: 1.2))
-        .onAppear { if odakla { DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { odak = true } } }
+    }
+}
+
+// Tutar girdisi UITextField ile: her tus vurusunda ham deger (rakam + en
+// fazla bir ondalik ayrac) hesaplanir, alan binlik ayracli bicimle yeniden
+// yazilir ve imlec sona alinir. SwiftUI TextField'da bicimi geri yazmak hizli
+// yazarken tus kaybettiriyordu.
+struct OBTutarGirdisi: UIViewRepresentable {
+    @Binding var metin: String   // ham: "12500" ya da "12,5"
+    let yerel: Locale
+    let boyut: CGFloat
+    var odakla = false
+
+    func makeCoordinator() -> Koordinator { Koordinator(self) }
+
+    func makeUIView(context: Context) -> UITextField {
+        let alan = UITextField()
+        alan.keyboardType = .decimalPad
+        alan.font = UIFont.monospacedSystemFont(ofSize: boyut, weight: .bold)
+        alan.textColor = UIColor(red: 0.078, green: 0.086, blue: 0.059, alpha: 1)
+        alan.placeholder = "0"
+        alan.delegate = context.coordinator
+        alan.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        alan.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        alan.text = context.coordinator.bicimle(metin)
+        if odakla {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { alan.becomeFirstResponder() }
+        }
+        return alan
     }
 
-    // Yazarken binlik ayrac eklenir (70000 → 70.000).
-    func bicimle(_ ham: String) -> String {
-        let n = obSayi(ham, d.yerel)
-        guard n > 0 else { return ham.filter { $0.isNumber }.isEmpty ? "" : ham }
-        let ayrac = d.yerel.decimalSeparator ?? ","
-        if ham.hasSuffix(ayrac) { return ham }
-        let bicim = NumberFormatter()
-        bicim.numberStyle = .decimal
-        bicim.locale = d.yerel
-        bicim.maximumFractionDigits = 2
-        let sonuc = bicim.string(from: NSNumber(value: n)) ?? ham
-        return sonuc == ham ? ham : sonuc
+    func updateUIView(_ alan: UITextField, context: Context) {
+        context.coordinator.ust = self
+        let beklenen = context.coordinator.bicimle(metin)
+        if alan.text != beklenen { alan.text = beklenen }
+    }
+
+    final class Koordinator: NSObject, UITextFieldDelegate {
+        var ust: OBTutarGirdisi
+        init(_ ust: OBTutarGirdisi) { self.ust = ust }
+
+        var ayrac: String { ust.yerel.decimalSeparator ?? "," }
+
+        func textField(_ alan: UITextField, shouldChangeCharactersIn aralik: NSRange,
+                       replacementString ek: String) -> Bool {
+            let eski = alan.text ?? ""
+            guard let r = Range(aralik, in: eski) else { return false }
+            // Nokta tusu ondalik ayraca cevrilir (Turkce klavyede virgul).
+            let girdi = ek == "." || ek == "," ? ayrac : ek
+            let yeni = eski.replacingCharacters(in: r, with: girdi)
+            let ham = temizle(yeni)
+            alan.text = bicimle(ham)
+            if let son = alan.position(from: alan.endOfDocument, offset: 0) {
+                alan.selectedTextRange = alan.textRange(from: son, to: son)
+            }
+            ust.metin = ham
+            return false
+        }
+
+        // Rakamlar ve en fazla bir ondalik ayrac (2 hane); binlik ayraclar atilir.
+        func temizle(_ girdi: String) -> String {
+            var tam = "", kesir: String? = nil
+            for k in girdi {
+                if k.isNumber {
+                    if kesir != nil { if kesir!.count < 2 { kesir!.append(k) } } else { tam.append(k) }
+                } else if String(k) == ayrac, kesir == nil {
+                    kesir = ""
+                }
+            }
+            tam = String(tam.drop(while: { $0 == "0" }).prefix(12))
+            if let kesir { return (tam.isEmpty ? "0" : tam) + ayrac + kesir }
+            return tam
+        }
+
+        func bicimle(_ ham: String) -> String {
+            guard !ham.isEmpty else { return "" }
+            let parcalar = ham.components(separatedBy: ayrac)
+            let bicim = NumberFormatter()
+            bicim.numberStyle = .decimal
+            bicim.locale = ust.yerel
+            bicim.maximumFractionDigits = 0
+            let tam = bicim.string(from: NSNumber(value: Double(parcalar[0]) ?? 0)) ?? parcalar[0]
+            return parcalar.count > 1 ? tam + ayrac + parcalar[1] : tam
+        }
     }
 }
 
@@ -1064,7 +1143,7 @@ struct OBYasam: View {
 
     var body: some View {
         OBKabuk(d: d, anahtar: "yasam", atlanabilir: true) {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 8)], alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
                 ForEach([0.30, 0.45, 0.60], id: \.self) { oran in
                     let deger = (d.gelir * oran).rounded()
                     OBCip(baslik: d.tutar(deger), secili: !kendim && d.yasam == deger) {
@@ -1072,8 +1151,8 @@ struct OBYasam: View {
                         d.yasam = deger
                     }
                 }
-                OBCip(baslik: d.t("onboarding.yasam.kendim"), secili: kendim) { kendim = true }
             }
+            OBCip(baslik: d.t("onboarding.yasam.kendim"), secili: kendim) { kendim = true }
             if kendim {
                 OBTutarAlani(d: d, etiket: "", metin: $metin, odakla: true)
                     .onChange(of: metin) { yeni in d.yasam = obSayi(yeni, d.yerel) }
@@ -1221,8 +1300,8 @@ struct OBAkis: View {
                 }
             }
             .id(d.adim)
-            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                    removal: .opacity))
+            .transition(.asymmetric(insertion: .move(edge: d.ileriYon ? .trailing : .leading),
+                                    removal: .move(edge: d.ileriYon ? .leading : .trailing)))
         }
         .animation(.easeInOut(duration: 0.28), value: d.adim)
         .environment(\.locale, d.yerel)
