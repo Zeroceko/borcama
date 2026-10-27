@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- iOS kurulum akışı düzeltmeleri: hedef birden fazla seçilebiliyor; maaş günü adımı sıklığa göre değişiyor (ayda iki: ilk maaş günü, haftalık: haftanın günü, düzensiz: adım yok); gelir düğmesi "Devam et"; ülke listesinde dil sayısı kadar ülke var ve seçim sırayı değiştirmiyor; dil seçerken liste kaymıyor; koyu temada isim alanı okunuyor; alan ve düğme çerçeveleri kenarda kesilmiyor; eklenen borçlar formun altında listeleniyor.
+
 ## [1.72.0] - 2026-10-27
 
 ### Eklendi
