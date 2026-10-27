@@ -9,6 +9,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Eklendi
 
 - Yeni kurulum akışı: kayıt (web) ya da hesap/misafir seçimi (iOS) sonrası ilk açılışta dil, ülke ve para birimi, hedef, maaş sıklığı ve günü, net gelir, borç türleri, ilk borç (kart 3, kredi 4 alan), yaşam harcaması ve plan adımlarıyla kullanıcı ana ekrana gelirini ve en az bir borcunu girmiş, planını görmüş olarak düşüyor; girilenler mevcut gelir, borç ve sabit gider kayıtlarına yazılıyor, ödeme günü bu ay geçmiş borç gecikmiş görünmüyor. iOS'ta eski üç tanıtım ve karar ekranı yerine kısa açılış ve "Başla / Zaten hesabım var / Hesap açmadan devam et" karşılaması geliyor; yeni iOS kabuğu SwiftUI onboarding sunarsa akış native'de çalışıyor ve sonucu aynı kurallarla veriye yazılıyor. Adım, atlama ve tamamlanma ölçülüyor (tutar ve isim gönderilmiyor).
+- iOS: kurulum akışı artık uygulamanın kendi (SwiftUI) ekranları; açılış, karşılama ve 11 adım native çalışıyor, tutar alanları yazarken binlik ayraç ekliyor, seçimlerde dokunma titreşimi var. Sonuç web'deki kurallarla veriye yazılıyor; akış sırasında alt sekme çubuğu gizleniyor (yeni iOS build'i gerekir).
 
 ## [1.71.0] - 2026-10-28
 

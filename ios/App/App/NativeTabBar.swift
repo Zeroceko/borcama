@@ -50,11 +50,13 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             : UIColor(red: 0.36, green: 0.38, blue: 0.33, alpha: 1)
     }
     private var kanalKuruldu = false
+    private var onboardingAcik = false
 
     override func capacitorDidLoad() {
         guard !kanalKuruldu else { return }
         kanalKuruldu = true
         webView?.configuration.userContentController.add(self, name: "borcamaTab")
+        webView?.configuration.userContentController.add(self, name: "borcamaOnboarding")
         // Uygulamalarda kaydirma cubugu gosterilmez; webview'in kendi
         // gostergesi kapatiliyor.
         webView?.scrollView.showsVerticalScrollIndicator = false
@@ -65,6 +67,11 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
+        if message.name == "borcamaOnboarding" {
+            guard let govde = message.body as? [String: Any], govde["tip"] as? String == "baslat" else { return }
+            DispatchQueue.main.async { self.onboardingiAc(govde) }
+            return
+        }
         guard message.name == "borcamaTab",
               let govde = message.body as? [String: Any],
               let tip = govde["tip"] as? String else { return }
@@ -174,7 +181,7 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     }
 
     private func gorunurluguUygula() {
-        cubuk?.isHidden = !webGosterilsin || klavyeAcik
+        cubuk?.isHidden = !webGosterilsin || klavyeAcik || onboardingAcik
         yuksekligiBildir()
     }
 
@@ -270,6 +277,51 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         let anahtar = Self.anahtarlar[sira]
         let js = "window.dispatchEvent(new CustomEvent('borcamaSekmeSecildi',"
             + "{detail:{anahtar:'\(anahtar)'}}))"
+        webView?.evaluateJavaScript(js, completionHandler: nil)
+    }
+}
+
+// MARK: - Native onboarding (NativeOnboarding.swift)
+//
+// Web -> native: borcamaOnboarding kanalina { tip: "baslat", ... }
+// Native -> web: borcamaOnboardingDil { dil }, borcamaOnboardingOlay
+// { ad, adim, sure_ms }, borcamaOnboardingBitti { sonuc } olaylari.
+extension BorcamaBridgeViewController {
+
+    fileprivate func onboardingiAc(_ govde: [String: Any]) {
+        guard !onboardingAcik, presentedViewController == nil else { return }
+        let durum = OBDurum(govde: govde)
+        durum.olay = { [weak self] ad, veri in
+            if ad == "dil" {
+                self?.webOlayi("borcamaOnboardingDil", veri)
+            } else {
+                var detay = veri
+                detay["ad"] = ad
+                self?.webOlayi("borcamaOnboardingOlay", detay)
+            }
+        }
+        durum.bitti = { [weak self] sonuc in
+            guard let self else { return }
+            self.webOlayi("borcamaOnboardingBitti", ["sonuc": sonuc])
+            // Web yeni sayfaya gecerken kisa bir an bekleyip kapatiyoruz; aksi
+            // halde altta acilis zemini bir an gorunuyor.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                self.dismiss(animated: true) {
+                    self.onboardingAcik = false
+                    self.gorunurluguUygula()
+                }
+            }
+        }
+        onboardingAcik = true
+        gorunurluguUygula()
+        present(OBDenetleyici(durum: durum), animated: false)
+    }
+
+    fileprivate func webOlayi(_ ad: String, _ detay: [String: Any]) {
+        guard JSONSerialization.isValidJSONObject(detay),
+              let veri = try? JSONSerialization.data(withJSONObject: detay),
+              let json = String(data: veri, encoding: .utf8) else { return }
+        let js = "window.dispatchEvent(new CustomEvent('\(ad)',{detail:\(json)}))"
         webView?.evaluateJavaScript(js, completionHandler: nil)
     }
 }
