@@ -6,6 +6,7 @@ import {
   aySonuKalan,
   aylikOdemeler,
   bosDurum,
+  borcAdiminiAtla,
   borcGecerli,
   durumdanSonuc,
   gunlukTutar,
@@ -227,4 +228,19 @@ test("eksik veya bozuk sonuç varsayılanlara düşer; web durumu sonuca ve geri
   const geri = sonuctanDurum(sonuc);
   assert.equal(aylikOdemeler(geri.borclar), 16500);
   assert.equal(geri.gelir, "70000");
+});
+
+test("ilk borç adımı atlanınca eklenen borçlar kalır, yoksa borçsuz devam edilir", () => {
+  const bos = borcAdiminiAtla({ ...bosDurum(), turler: ["kart"] });
+  assert.equal(bos.borcYok, true);
+  assert.deepEqual(bos.turler, []);
+  assert.deepEqual(bos.atlanan, ["borc"]);
+  assert.equal(adimSirasi({ borcYok: bos.borcYok }).includes("borc"), false);
+  const dolu = borcAdiminiAtla({ ...bosDurum(), turler: ["kart", "kredi"], borclar: [kart], atlanan: ["borc"] });
+  assert.equal(dolu.borcYok, false);
+  assert.deepEqual(dolu.borclar, [kart]);
+  assert.deepEqual(dolu.atlanan, ["borc"]);
+  const sonuc = durumdanSonuc({ ...bos, gelir: "70000" });
+  assert.deepEqual(sonuc.borclar, []);
+  assert.deepEqual(sonuc.atlanan, ["borc"]);
 });

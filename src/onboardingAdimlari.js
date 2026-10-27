@@ -72,6 +72,18 @@ export function adimGecilebilirMi(adim, durum) {
   return true;
 }
 
+// Ilk borc adimini atlama: o ana kadar eklenen borclar kalir; hic yoksa
+// borcsuz devam edilir (plan "borcsuz" metni). Adim atlananlara yazilir.
+export function borcAdiminiAtla(durum) {
+  const borcVar = durum.borclar.length > 0;
+  return {
+    ...durum,
+    borcYok: !borcVar,
+    turler: borcVar ? durum.turler : [],
+    atlanan: durum.atlanan.includes("borc") ? durum.atlanan : [...durum.atlanan, "borc"],
+  };
+}
+
 export function gunlukTutar(gelir) {
   return Math.round(tutar(gelir) / 30);
 }

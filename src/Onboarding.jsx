@@ -35,6 +35,7 @@ import {
   aylikOdemeler,
   borcBakiyesi,
   borcGecerli,
+  borcAdiminiAtla,
   bosDurum,
   gunlukTutar,
   ilkBitecekBorc,
@@ -682,7 +683,23 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     // Formda eksik borc varken ya da hic borc yokken "Bu kadar" pasif.
     const taslakBos = !["banka", "tutar", "taksit", "kalanTaksit", "gun"].some((alan) => String(taslak[alan] || "").trim());
     const bitirilebilir = borcGecerli(taslak) || (taslakBos && durum.borclar.length > 0);
-    dugme = <BirincilDugme onClick={borcAdiminiBitir} disabled={!bitirilebilir}>{t("onboarding.borc.dugme")}</BirincilDugme>;
+    // Atlama: eklenen borclar kalir, yarim form yok sayilir; hic borc yoksa
+    // borcsuz devam (yasam adimina). Sira guncellenmeden once hedef bulunur.
+    const borcuAtla = () => {
+      const hedef = sonrakiAdim("borc", sira);
+      setDurum((eski) => borcAdiminiAtla(eski));
+      setTaslak(null);
+      setTaslakHata(false);
+      void onboardingOlayiKaydet("onboarding_atla", { adim: "borc", sure_ms: Date.now() - adimBaslangici.current });
+      adimBaslangici.current = Date.now();
+      setAdim(hedef);
+    };
+    dugme = (
+      <>
+        <BirincilDugme onClick={borcAdiminiBitir} disabled={!bitirilebilir}>{t("onboarding.borc.dugme")}</BirincilDugme>
+        <button className="oa-baglanti soluk" type="button" onClick={borcuAtla}>{t("onboarding.atla")}</button>
+      </>
+    );
   } else if (adim === "yasam") {
     const oneriler = yasamOnerileri(gelir);
     icerik = (
