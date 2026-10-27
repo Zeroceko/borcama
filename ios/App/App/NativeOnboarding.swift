@@ -166,7 +166,10 @@ final class OBDurum: ObservableObject {
         let bicim = DateFormatter()
         bicim.locale = yerel
         bicim.setLocalizedDateFormatFromTemplate(gunAdi ? "dMMMEEEE" : "dMMM")
-        return bicim.string(from: d)
+        // Almanca "15. Nov." cumle sonunda cift nokta olmasin.
+        var metin = bicim.string(from: d)
+        if metin.hasSuffix(".") { metin.removeLast() }
+        return metin
     }
 
     // MARK: Hesaplar (web'deki onboardingAdimlari.js ile ayni kurallar)
@@ -194,7 +197,22 @@ final class OBDurum: ObservableObject {
     var gunluk: Double { gelir / 30 }
     var buAyOdemeler: Double { borclar.reduce(0) { $0 + $1.buAyOdeme } }
     var yasamTutari: Double { yasam ?? 0 }
-    var kalan: Double { gelir - buAyOdemeler - yasamTutari }
+    var kredTaksitleri: Double { borclar.filter { $0.tur == "kredi" }.reduce(0) { $0 + ($1.taksit ?? 0) } }
+
+    // Plan odemesi (planOdemeleri): kredi taksitleri + kartlara gelirden
+    // kalanin sigan kadari (kucuk bakiyeden baslayarak); ay sonu eksiye dusmez.
+    var planOdemeleri: Double {
+        var guc = max(gelir - yasamTutari - kredTaksitleri, 0)
+        var degisken: Double = 0
+        for b in borclar.filter({ $0.tur == "kart" }).sorted(by: { $0.bakiye < $1.bakiye }) {
+            let odeme = min(b.bakiye, guc)
+            degisken += odeme
+            guc -= odeme
+        }
+        return kredTaksitleri + degisken
+    }
+
+    var kalan: Double { gelir - planOdemeleri - yasamTutari }
 
     // Ilk bitecek borc (ilkBitecekBorc): kredi kalan taksitle biter; digerine
     // gidebilecek tutar = gelir - yasam - diger borclarin aylik odemesi.
@@ -203,8 +221,7 @@ final class OBDurum: ObservableObject {
         guard let ilk = borclar.first else { return nil }
         let sureler: [(OBBorc, Int?)] = borclar.map { b in
             if b.tur == "kredi" { return (b, b.kalanTaksit.flatMap { $0 > 0 ? $0 : nil }) }
-            let digerleri = borclar.filter { $0.id != b.id }.reduce(0) { $0 + $1.buAyOdeme }
-            let guc = gelir - yasamTutari - digerleri
+            let guc = gelir - yasamTutari - kredTaksitleri
             return (b, guc > 0 && b.bakiye > 0 ? max(1, Int((b.bakiye / guc).rounded(.up))) : nil)
         }
         let bilinen = sureler.compactMap { s in s.1.map { (s.0, $0) } }
@@ -236,6 +253,8 @@ final class OBDurum: ObservableObject {
         if OBAdim.numarali.contains(simdiki) {
             olay(atlandi ? "onboarding_atla" : "onboarding_adim", ["adim": simdiki.rawValue, "sure_ms": sure])
             if atlandi, !atlanan.contains(simdiki.rawValue) { atlanan.append(simdiki.rawValue) }
+            // Yasam atlanirsa onerilen %45 yazilmaz; plan "girilmedi" gosterir.
+            if atlandi, simdiki == .yasam { yasam = nil }
         }
         guard let sira = siradakiler.firstIndex(of: simdiki), sira + 1 < siradakiler.count else {
             bitir(cikis: misafir ? "misafir" : "tamam")
@@ -1172,14 +1191,14 @@ struct OBPlan: View {
 
     var body: some View {
         let gider = max(d.gelir, 1)
-        let oranlar = [d.buAyOdemeler / gider, d.yasamTutari / gider, max(0, d.kalan) / gider]
+        let oranlar = [d.planOdemeleri / gider, d.yasamTutari / gider, max(0, d.kalan) / gider]
         OBKabuk(d: d, anahtar: "plan", dugme: d.t("onboarding.plan.dugme")) {
             OBPlanKarti(d: d,
                         etiket: d.t("onboarding.plan.etiket"),
                         tutar: d.tutar(d.kalan),
-                        alt: d.t("onboarding.plan.formul", [
+                        alt: d.t(d.yasam == nil ? "onboarding.plan.formulYasamsiz" : "onboarding.plan.formul", [
                             "gelir": d.tutar(d.gelir),
-                            "odemeler": d.tutar(d.buAyOdemeler),
+                            "odemeler": d.tutar(d.planOdemeleri),
                             "yasam": d.tutar(d.yasamTutari),
                         ]),
                         oranlar: oranlar)
@@ -1198,7 +1217,7 @@ struct OBPlan: View {
                         }
                     }
                     Spacer()
-                    Text(d.tutar(b.buAyOdeme > 0 ? b.buAyOdeme : b.bakiye))
+                    Text(d.tutar(b.tur == "kredi" ? (b.taksit ?? 0) : b.bakiye / Double(max(ilk.ay ?? 1, 1))))
                         .font(.system(size: 13, weight: .bold, design: .monospaced))
                         .padding(.horizontal, 8).padding(.vertical, 4)
                         .background(Capsule().fill(OBRenk.coral))
