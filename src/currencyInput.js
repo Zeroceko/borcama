@@ -294,8 +294,24 @@ export function paraGirdisiniFormatla(value, dilKodu = dil()) {
   return kurusVar ? `${gruplu}${ondalik}${kurus}` : gruplu;
 }
 
-// Cihazin bolge kodu ("US", "DE"); bilinmiyorsa "". Web'de once IP ulkesi.
+// Kullanicinin kurulumda sectigi ulke ("DE"). Varsa cihaz/IP bolgesinin
+// yerine gecer; ulke ortalamasi kurallari (bolgeKurallari.js) buna gore.
+export const BOLGE_ANAHTARI = "borcama_bolge";
+
+export function bolgeAyarla(kod) {
+  if (!/^[A-Z]{2}$/.test(String(kod || ""))) return;
+  try {
+    globalThis.localStorage?.setItem(BOLGE_ANAHTARI, kod);
+  } catch {
+    // Yazilamazsa cihaz bolgesi kullanilir.
+  }
+}
+
+// Cihazin bolge kodu ("US", "DE"); bilinmiyorsa "". Kullanici secimi once,
+// web'de sonra IP ulkesi.
 export function cihazBolgesi() {
+  const secilen = depoOku(BOLGE_ANAHTARI);
+  if (/^[A-Z]{2}$/.test(String(secilen || ""))) return secilen;
   if (!nativeMi) return bilinenUlke() || bolgeKodu(tarayiciYerelAyari());
   return bolgeKodu(cihazYerelAyari());
 }
