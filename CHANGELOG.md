@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Kurulum akışı (TestFlight geri bildirimi): hedef adımında birden fazla hedef seçilebiliyor; maaş günü sıklığa göre soruluyor (ayda bir: ayın günü, ayda iki: ilk maaşın günü, haftada bir: haftanın günü, düzensiz: sorulmuyor); gelir adımının düğmesi "Devam et", ayda bir dışında tutarın altında "ayda ortalama" yazıyor; ülke adımında 6 ülke (Türkiye, Birleşik Krallık, Almanya, Fransa, İspanya, İtalya; tespit edilen ülke bunlardan değilse başta) seçim yapınca sırası değişmeden gösteriliyor; ilk borç adımında eklenen borçlar formun altında listeleniyor.
+
 ### Düzeltildi
 
 - iOS kurulum akışı düzeltmeleri: hedef birden fazla seçilebiliyor; maaş günü adımı sıklığa göre değişiyor (ayda iki: ilk maaş günü, haftalık: haftanın günü, düzensiz: adım yok); gelir düğmesi "Devam et"; ülke listesinde dil sayısı kadar ülke var ve seçim sırayı değiştirmiyor; dil seçerken liste kaymıyor; koyu temada isim alanı okunuyor; alan ve düğme çerçeveleri kenarda kesilmiyor; eklenen borçlar formun altında listeleniyor.

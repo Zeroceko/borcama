@@ -7,6 +7,9 @@ import {
   aylikOdemeler,
   bosDurum,
   borcAdiminiAtla,
+  hedefDegistir,
+  oneCikanUlkeler,
+  sonrakiHaftaGunuTarihi,
   borcGecerli,
   durumdanSonuc,
   gunlukTutar,
@@ -45,10 +48,51 @@ test("\"borç yok\" seçilince ilk borç formu atlanır, türlerden yaşam harca
   assert.equal(sonrakiAdim("turler", adimSirasi()), "borc");
 });
 
-test("haftalık ve düzensiz gelirde maaş günü sorulmaz", () => {
-  for (const siklik of ["haftalik", "duzensiz"]) assert.equal(adimSirasi({ siklik }).includes("gun"), false);
-  for (const siklik of ["aylik", "ikiKez"]) assert.equal(adimSirasi({ siklik }).includes("gun"), true);
-  assert.equal(sonrakiAdim("siklik", adimSirasi({ siklik: "haftalik" })), "gelir");
+test("düzensiz gelirde maaş günü sorulmaz; haftalıkta haftanın günü sorulur", () => {
+  assert.equal(adimSirasi({ siklik: "duzensiz" }).includes("gun"), false);
+  assert.equal(sonrakiAdim("siklik", adimSirasi({ siklik: "duzensiz" })), "gelir");
+  for (const siklik of ["aylik", "ikiKez", "haftalik"]) assert.equal(adimSirasi({ siklik }).includes("gun"), true);
+  // 27 Ekim 2026 Salı. Cuma (5) -> 30 Ekim; Salı (2) -> bugün; Pazartesi (1) -> 2 Kasım; Pazar (7) -> 1 Kasım.
+  const bugun = new Date(2026, 9, 27);
+  assert.equal(sonrakiHaftaGunuTarihi(5, bugun).getDate(), 30);
+  assert.equal(sonrakiHaftaGunuTarihi(2, bugun).getDate(), 27);
+  assert.equal(sonrakiHaftaGunuTarihi(1, bugun).getDate(), 2);
+  assert.equal(sonrakiHaftaGunuTarihi(7, bugun).getDate(), 1);
+});
+
+test("hedef çoklu seçilir, en az biri kalır, sıra sabittir", () => {
+  assert.deepEqual(hedefDegistir(["borc"], "kontrol"), ["borc", "kontrol"]);
+  assert.deepEqual(hedefDegistir(["kontrol"], "borc"), ["borc", "kontrol"]);
+  assert.deepEqual(hedefDegistir(["borc", "kontrol"], "borc"), ["kontrol"]);
+  assert.deepEqual(hedefDegistir(["borc"], "borc"), ["borc"]);
+  assert.deepEqual(hedefDegistir(["borc"], "uydurma"), ["borc"]);
+  assert.equal(adimGecilebilirMi("hedef", { ...bosDurum(), hedefler: [] }), false);
+});
+
+test("sonuçta hedefler ve haftalık ödeme günü ayarlara yazılır; eski tek hedef de okunur", () => {
+  const veri = { cards: [], loans: [], overdrafts: [], others: [], incomes: [], expenses: [], ayarlar: {} };
+  const ortak = { simdi: new Date(2026, 9, 27), idUret: () => "x", gelirAdi: "Maaş" };
+  const haftalik = onboardingSonucunuUygula(veri, { hedefler: ["kontrol", "aySonu", "x"], siklik: "haftalik", maasGunu: 15, maasHaftaGunu: 5, gelir: 9000 }, ortak);
+  assert.deepEqual(haftalik.ayarlar.onboarding.hedefler, ["aySonu", "kontrol"]);
+  assert.equal(haftalik.ayarlar.onboarding.hedef, "aySonu");
+  assert.equal(haftalik.ayarlar.onboarding.maasHaftaGunu, 5);
+  assert.equal(haftalik.ayarlar.onboarding.maasGunu, null);
+  // Gelir sıklıktan bağımsız aylık toplam olarak tek "Her ay" kaydına yazılır.
+  assert.deepEqual([haftalik.incomes[0].tutar, haftalik.incomes[0].tekrar], [9000, "Her ay"]);
+  const eski = onboardingSonucunuUygula(veri, { hedef: "kontrol", siklik: "duzensiz", gelir: 1 }, ortak);
+  assert.deepEqual(eski.ayarlar.onboarding.hedefler, ["kontrol"]);
+  assert.equal(eski.ayarlar.onboarding.maasGunu, null);
+  assert.equal(eski.ayarlar.onboarding.maasHaftaGunu, null);
+  assert.deepEqual(onboardingSonucunuUygula(veri, { hedefler: [] }, ortak).ayarlar.onboarding.hedefler, ["borc"]);
+  const sonuc = durumdanSonuc({ ...bosDurum(), hedefler: ["aySonu", "kontrol"], siklik: "haftalik", maasHaftaGunu: 3 });
+  assert.deepEqual([sonuc.hedef, sonuc.hedefler, sonuc.maasHaftaGunu], ["aySonu", ["aySonu", "kontrol"], 3]);
+});
+
+test("öne çıkan ülkeler: 6 sık ülke; tespit dışarıdaysa başa gelir", () => {
+  assert.deepEqual(oneCikanUlkeler("TR"), ["TR", "GB", "DE", "FR", "ES", "IT"]);
+  assert.deepEqual(oneCikanUlkeler("IT"), ["TR", "GB", "DE", "FR", "ES", "IT"]);
+  assert.deepEqual(oneCikanUlkeler("US"), ["US", "TR", "GB", "DE", "FR", "ES"]);
+  assert.deepEqual(oneCikanUlkeler(""), ["TR", "GB", "DE", "FR", "ES", "IT"]);
 });
 
 test("gelir boş veya sıfırsa geçilemez; tür ve borç adımı en az bir seçim ister", () => {
@@ -215,7 +259,7 @@ test("native onboarding sonucu web akışıyla aynı kayıtları yazar", () => {
 
 test("eksik veya bozuk sonuç varsayılanlara düşer; web durumu sonuca ve geri çevrilir", () => {
   const durum = sonuctanDurum({ hedef: "x", siklik: "y", maasGunu: 40, gelir: "abc", borclar: "yok" });
-  assert.equal(durum.hedef, "borc");
+  assert.deepEqual(durum.hedefler, ["borc"]);
   assert.equal(durum.siklik, "aylik");
   assert.equal(durum.maasGunu, 1);
   assert.equal(durum.gelir, "");
