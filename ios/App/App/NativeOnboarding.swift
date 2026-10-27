@@ -1075,9 +1075,11 @@ struct OBBorcEkrani: View {
 
     var body: some View {
         let toplam = d.buAyOdemeler + (taslak?.buAyOdeme ?? 0)
+        // Atlanabilir: o ana kadar eklenen borclar kalir, yoksa borcsuz devam.
         OBKabuk(d: d, anahtar: "borc",
                 dugme: d.t("onboarding.borc.dugme"),
                 dugmeEtkin: taslak != nil || !d.borclar.isEmpty,
+                atlanabilir: true,
                 dugmeEylemi: { kaydet(); d.ileri() },
                 baslikAnahtari: "onboarding.borc.baslik.\(tur)",
                 aciklamaAnahtari: "onboarding.borc.aciklama.\(tur)") {
