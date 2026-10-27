@@ -137,6 +137,15 @@ export const tr = {
   "onboarding.hazir.aciklama": "İlk ödeme {tarih}. O güne kadar bir şey yapmana gerek yok.",
   "onboarding.hazir.aciklamaBorcsuz": "Harcadıkça ekle; ay sonunda ne kalacağını gösterelim.",
   "onboarding.hazir.dugme": "Bugün'e geç",
+  "onboarding.hedef.aciklamaCoklu": "Birden fazla seçilebilir.",
+  "onboarding.gun.baslikGri.ikiKez": "İlk maaş",
+  "onboarding.gun.baslik.ikiKez": "hangi gün yatıyor?",
+  "onboarding.gun.aciklama.ikiKez": "İkincisi 15 gün sonra sayılır.",
+  "onboarding.gun.baslikGri.haftalik": "Para haftanın",
+  "onboarding.gun.baslik.haftalik": "hangi günü giriyor?",
+  "onboarding.gun.aciklama.haftalik": "Plan her hafta yenilenir.",
+  "onboarding.gun.yankiHafta": "Bir sonraki ödeme {tarih}.",
+  "onboarding.gelir.herAyOrtalama": "ayda ortalama",
 };
 
 export const en = {
@@ -274,6 +283,15 @@ export const en = {
   "onboarding.hazir.aciklama": "First payment {tarih}. Nothing to do until then.",
   "onboarding.hazir.aciklamaBorcsuz": "Add spending as you go; we'll show what's left at month end.",
   "onboarding.hazir.dugme": "Go to Today",
+  "onboarding.hedef.aciklamaCoklu": "You can pick more than one.",
+  "onboarding.gun.baslikGri.ikiKez": "Which day is",
+  "onboarding.gun.baslik.ikiKez": "your first payday?",
+  "onboarding.gun.aciklama.ikiKez": "The second one is counted 15 days later.",
+  "onboarding.gun.baslikGri.haftalik": "Which day of the week",
+  "onboarding.gun.baslik.haftalik": "do you get paid?",
+  "onboarding.gun.aciklama.haftalik": "Your plan renews every week.",
+  "onboarding.gun.yankiHafta": "Next payment {tarih}.",
+  "onboarding.gelir.herAyOrtalama": "monthly average",
 };
 
 export const de = {
@@ -398,6 +416,15 @@ export const de = {
   "onboarding.hazir.aciklama": "Erste Zahlung {tarih}. Bis dahin musst du nichts tun.",
   "onboarding.hazir.aciklamaBorcsuz": "Trag Ausgaben ein, wenn sie anfallen; wir zeigen, was am Monatsende bleibt.",
   "onboarding.hazir.dugme": "Zu Heute",
+  "onboarding.hedef.aciklamaCoklu": "Mehrfachauswahl möglich.",
+  "onboarding.gun.baslikGri.ikiKez": "An welchem Tag kommt",
+  "onboarding.gun.baslik.ikiKez": "das erste Gehalt?",
+  "onboarding.gun.aciklama.ikiKez": "Das zweite zählt 15 Tage später.",
+  "onboarding.gun.baslikGri.haftalik": "An welchem Wochentag",
+  "onboarding.gun.baslik.haftalik": "kommt das Geld?",
+  "onboarding.gun.aciklama.haftalik": "Dein Plan erneuert sich jede Woche.",
+  "onboarding.gun.yankiHafta": "Nächste Zahlung {tarih}.",
+  "onboarding.gelir.herAyOrtalama": "Monatsdurchschnitt",
 };
 
 export const fr = {
@@ -522,6 +549,15 @@ export const fr = {
   "onboarding.hazir.aciklama": "Premier paiement {tarih}. Rien à faire d'ici là.",
   "onboarding.hazir.aciklamaBorcsuz": "Ajoute tes dépenses au fil de l'eau ; on te montre ce qu'il reste en fin de mois.",
   "onboarding.hazir.dugme": "Aller à Aujourd'hui",
+  "onboarding.hedef.aciklamaCoklu": "Plusieurs choix possibles.",
+  "onboarding.gun.baslikGri.ikiKez": "Quel jour tombe",
+  "onboarding.gun.baslik.ikiKez": "ta première paie ?",
+  "onboarding.gun.aciklama.ikiKez": "La seconde est comptée 15 jours plus tard.",
+  "onboarding.gun.baslikGri.haftalik": "Quel jour de la semaine",
+  "onboarding.gun.baslik.haftalik": "es-tu payé ?",
+  "onboarding.gun.aciklama.haftalik": "Ton plan se renouvelle chaque semaine.",
+  "onboarding.gun.yankiHafta": "Prochain paiement {tarih}.",
+  "onboarding.gelir.herAyOrtalama": "moyenne mensuelle",
 };
 
 export const es = {
@@ -646,6 +682,15 @@ export const es = {
   "onboarding.hazir.aciklama": "Primer pago {tarih}. Hasta entonces no tienes que hacer nada.",
   "onboarding.hazir.aciklamaBorcsuz": "Añade tus gastos sobre la marcha; te mostramos lo que queda a fin de mes.",
   "onboarding.hazir.dugme": "Ir a Hoy",
+  "onboarding.hedef.aciklamaCoklu": "Puedes elegir varias.",
+  "onboarding.gun.baslikGri.ikiKez": "¿Qué día llega",
+  "onboarding.gun.baslik.ikiKez": "tu primer sueldo?",
+  "onboarding.gun.aciklama.ikiKez": "El segundo se cuenta 15 días después.",
+  "onboarding.gun.baslikGri.haftalik": "¿Qué día de la semana",
+  "onboarding.gun.baslik.haftalik": "cobras?",
+  "onboarding.gun.aciklama.haftalik": "Tu plan se renueva cada semana.",
+  "onboarding.gun.yankiHafta": "Próximo pago {tarih}.",
+  "onboarding.gelir.herAyOrtalama": "media mensual",
 };
 
 export const it = {
@@ -770,4 +815,13 @@ export const it = {
   "onboarding.hazir.aciklama": "Primo pagamento {tarih}. Fino ad allora non devi fare nulla.",
   "onboarding.hazir.aciklamaBorcsuz": "Aggiungi le spese man mano; ti mostriamo cosa resta a fine mese.",
   "onboarding.hazir.dugme": "Vai a Oggi",
+  "onboarding.hedef.aciklamaCoklu": "Puoi sceglierne più di uno.",
+  "onboarding.gun.baslikGri.ikiKez": "In che giorno arriva",
+  "onboarding.gun.baslik.ikiKez": "il primo stipendio?",
+  "onboarding.gun.aciklama.ikiKez": "Il secondo si conta 15 giorni dopo.",
+  "onboarding.gun.baslikGri.haftalik": "In che giorno della settimana",
+  "onboarding.gun.baslik.haftalik": "vieni pagato?",
+  "onboarding.gun.aciklama.haftalik": "Il piano si rinnova ogni settimana.",
+  "onboarding.gun.yankiHafta": "Prossimo pagamento {tarih}.",
+  "onboarding.gelir.herAyOrtalama": "media mensile",
 };
