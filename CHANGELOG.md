@@ -6,7 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## [1.73.0] - 2026-10-28
 
-Web ve iOS aynı sürüm (iOS build 33).
+Web ve iOS aynı sürüm (iOS build 35, TestFlight).
 
 ### Eklendi
 
