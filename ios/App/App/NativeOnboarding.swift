@@ -977,8 +977,9 @@ struct OBMaket: View {
         .clipShape(OBUstYuvarlak(yaricap: 32))
         .padding(.horizontal, 8)
         .padding(.top, 8)
+        // Golge yok: ust kapta kirpildigi icin cercevenin etrafinda dikdortgen
+        // bir leke birakiyordu.
         .background(OBUstYuvarlak(yaricap: 40).fill(OBRenk.cerceve))
-        .shadow(color: Color.black.opacity(0.18), radius: 20, x: 0, y: -10)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(d.t("onboarding.karsilama.ornekAria"))
     }
