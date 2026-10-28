@@ -18,6 +18,7 @@ import "./storage.js";
 import "./native.css";
 import "./kabuk.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import { kurulumYoluMu } from "./kurulumTaslagi.js";
 import { belgeDiliniAyarla, t } from "./i18n.js";
 import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
 import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
@@ -27,6 +28,7 @@ import Onboarding, { NativeOnboarding } from "./Onboarding.jsx";
 import { nativeOnboardingVarMi } from "./onboardingKoprusu.js";
 import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
 import HesapSilindiEkrani from "./AccountDeleted.jsx";
+import { MasaustuUstCubuk, useMasaustu } from "./MasaustuKabuk.jsx";
 import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
 
 const App = lazy(() => import("./App.jsx"));
@@ -214,6 +216,9 @@ function Kok() {
   if (yol === "/demo") return <HariciYonlendirme url="/register?plan=free" />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
   if (import.meta.env.DEV && yol === "/login-preview") return <GirisEkrani preview />;
+  // Geliştirme önizlemeleri: Pro sonrası hoş geldin (B15) ve yükleniyor (B16).
+  if (import.meta.env.DEV && yol === "/welcome-preview") return <WebWelcome />;
+  if (import.meta.env.DEV && yol === "/yukleniyor-preview") return <Yukleniyor />;
   if (import.meta.env.DEV && (yol === "/crm-preview" || yol.startsWith("/crm-preview/"))) {
     const ek = yol.slice("/crm-preview".length) || "/";
     return <CrmApp preview {...crmSayfasi(ek)} />;
@@ -270,7 +275,8 @@ function Kok() {
     "/settings",
   ];
   if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingDeneyi experiment={landingDeneyiAta(funnelKaynakBilgisi())} />;
-  if (!uygulamaYollari.includes(yol)) return <LandingControl />;
+  // Web kurulum akisi /kurulum/<adim> adresinde (App icinde; B6/B7).
+  if (!uygulamaYollari.includes(yol) && !(!nativeMi && kurulumYoluMu(yol))) return <LandingControl />;
   if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />;
   return <KimlikliKok />;
 }
@@ -375,7 +381,40 @@ function KimlikliWelcome() {
   const session = useSession();
   if (session === undefined) return <Yukleniyor />;
   if (!session) return <GirisEkrani redirectTo="/welcome" />;
+  return nativeMi ? <EskiWelcome /> : <WebWelcome />;
+}
 
+// Web (B15): kurulum ve kayıtla aynı .oa yüzeyi; glif, kenarlık ve blok
+// gölge yok. ≥1024'te uygulamanın üst çubuğu.
+function WebWelcome() {
+  const masaustu = useMasaustu();
+  const kolon = (
+    <div className="oa-kolon">
+      <div className="oa-govde">
+        {!masaustu && <img className="oa-hosgeldin-logo" src="/borcama-logo.png" alt="Borcama" width="900" height="222" />}
+        <span className="oa-mono-etiket">Borcama Pro</span>
+        <h1 className="oa-baslik">{t("web.hosgeldin.baslik")}</h1>
+        <p className="oa-aciklama">{t("web.hosgeldin.metin")}</p>
+      </div>
+      <div className="oa-alt">
+        <a className="oa-dugme" href="/summary">{t("web.hosgeldin.ozeteGit")}</a>
+      </div>
+    </div>
+  );
+  return (
+    <main className={`oa oa-hosgeldin${masaustu ? " mk-web" : ""}`}>
+      {masaustu ? (
+        <>
+          <MasaustuUstCubuk logoHref="/summary" />
+          <div className="mk-izgara mk-tek">{kolon}</div>
+        </>
+      ) : kolon}
+    </main>
+  );
+}
+
+// iOS: önceki görünüm aynen (native davranış değişmez).
+function EskiWelcome() {
   return (
     <main
       style={{
@@ -429,21 +468,32 @@ function KimlikliWelcome() {
   );
 }
 
+// Web (B16): .oa yüzeyi, ≥1024'te uygulamanın üst çubuğu; iOS'ta önceki düz
+// ekran aynen.
 function Yukleniyor() {
+  const masaustu = useMasaustu();
+  if (nativeMi) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f4efe0",
+          color: "#55584c",
+          fontFamily: "Space Grotesk, system-ui, sans-serif",
+          fontSize: 14,
+        }}
+      >
+        {t("ortak.yukleniyor")}
+      </div>
+    );
+  }
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f4efe0",
-        color: "#55584c",
-        fontFamily: "Space Grotesk, system-ui, sans-serif",
-        fontSize: 14,
-      }}
-    >
-      {t("ortak.yukleniyor")}
+    <div className={`oa oa-yukleniyor${masaustu ? " mk-web" : ""}`} role="status" aria-live="polite">
+      {masaustu && <MasaustuUstCubuk />}
+      <p className="oa-yukleniyor-metin">{t("ortak.yukleniyor")}</p>
     </div>
   );
 }

@@ -7,6 +7,9 @@
 //        VITE_SUPABASE_URL=https://demo.invalid VITE_SUPABASE_ANON_KEY=demo npx vite --port 5182
 
 export const EKRANLAR = ["karsilama", "kayit", "giris", "kod", "dil", "gorunum", "ulke", "hedef", "siklik", "gun", "gelir", "turler", "borc", "plan", "hazir"];
+// Büyük ekran (≥1024, web) kabuğu: kayıt/giriş/kod web'de, kurulum sonrası
+// uygulama ("Hazırsın" bandı, Bugün, "+ Ekle" menüsü, dört panel, hesap menüsü).
+export const MASAUSTU_EKRANLARI = ["kayit-web", "giris-web", "kod-web", "bugun", "ekle-menu", "panel-harcama", "panel-odeme", "panel-ekstre", "panel-borc", "hesap-menu"];
 
 export function argumanlar(argv = process.argv.slice(2)) {
   const deger = (ad, varsayilan) => {
@@ -61,7 +64,7 @@ const devam = async (page) => {
 };
 
 // Her ekranda `her(ad, page)` cagrilir. `yalniz` verilirse yalniz o ekranlar.
-export async function ekranlariGez(browser, { demo, auth, genislik = 390, yukseklik = 844, tema = "light", her, yalniz = EKRANLAR }) {
+export async function ekranlariGez(browser, { demo, auth, genislik = 390, yukseklik = 844, tema = "light", her, yalniz = [...EKRANLAR, ...MASAUSTU_EKRANLARI] }) {
   const iste = (ad) => yalniz.includes(ad);
   const dokunmatik = genislik < 760;
   const cagir = async (ad, page) => { if (iste(ad)) { await olcumuKapat(page); await her(ad, page); } };
@@ -86,6 +89,25 @@ export async function ekranlariGez(browser, { demo, auth, genislik = 390, yuksek
     await page.keyboard.type("482");
     await page.waitForTimeout(400);
     await cagir("kod", page);
+    await ctx.close();
+  }
+
+  // Büyük ekranda web kabuğu (üst çubuk + "ne olacak" paneli).
+  if (genislik >= 1024 && ["kayit-web", "giris-web", "kod-web"].some(iste)) {
+    const { ctx, page } = await sayfaAc(browser, { genislik, yukseklik, tema });
+    await page.goto(`${auth}/register`);
+    await page.waitForSelector(".oa-auth");
+    await page.locator("#auth-email").fill("ozer@eposta.com");
+    await cagir("kayit-web", page);
+    await page.goto(`${auth}/login`);
+    await page.waitForSelector(".oa-auth");
+    await page.locator("#auth-email").fill("ozer@eposta.com");
+    await cagir("giris-web", page);
+    await page.locator(".oa-alt .oa-dugme").click();
+    await page.waitForSelector(".oa-kod-kutular");
+    await page.keyboard.type("482");
+    await page.waitForTimeout(400);
+    await cagir("kod-web", page);
     await ctx.close();
   }
 
@@ -139,9 +161,32 @@ export async function ekranlariGez(browser, { demo, auth, genislik = 390, yuksek
     await page.waitForTimeout(450);
     await cagir("plan", page);
     await page.getByRole("button", { name: /planı aç/i }).click();
-    await page.waitForSelector(".oa-hazir");
+    // ≥1024 web: "Hazırsın" uygulamanın üstünde lime bant; dar ekranda perde.
+    await page.waitForSelector(".oa-hazir, .bt-hazir-bant");
     await page.waitForTimeout(2200);
     await cagir("hazir", page);
+    if (genislik >= 1024 && await page.locator(".bt-hazir-bant").count()) {
+      await page.locator(".bt-hazir-bant-dugme").click();
+      await page.waitForTimeout(500);
+      await cagir("bugun", page);
+      const ekle = () => page.getByRole("button", { name: /^\+?\s*Ekle$/ }).first();
+      await ekle().click();
+      await page.waitForTimeout(300);
+      await cagir("ekle-menu", page);
+      const adlar = ["panel-harcama", "panel-odeme", "panel-ekstre", "panel-borc"];
+      for (let i = 0; i < adlar.length; i += 1) {
+        if (i > 0) { await ekle().click(); await page.waitForTimeout(250); }
+        await page.locator("[role=menu] [role=menuitem]").nth(i).click();
+        await page.waitForSelector(".sag-panel");
+        await page.waitForTimeout(450);
+        await cagir(adlar[i], page);
+        await page.keyboard.press("Escape");
+        await page.waitForTimeout(350);
+      }
+      await page.locator(".bt-hesap-dugme").click();
+      await page.waitForTimeout(300);
+      await cagir("hesap-menu", page);
+    }
     await ctx.close();
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Building2,
   CalendarCheck,
@@ -70,6 +70,12 @@ import { nativeOnboardingBaslat } from "./onboardingKoprusu.js";
 import "./onboardingAkis.css";
 import { webdeKoyuMu } from "./siteTema.js";
 import { kabukDurumunuBildir } from "./kabukDurumu.js";
+import { MasaustuUstCubuk, useMasaustu } from "./MasaustuKabuk.jsx";
+import { adimYolu, gecmistenAdim, oturumKullaniciId, taslagiCoz, taslagiOku, taslagiSil, taslagiYaz, taslakAnahtari } from "./kurulumTaslagi.js";
+
+// Uygulama modulu bu dille yuklendi; kurulumda dil degisirse modul duzeyindeki
+// metinler icin bitiste sayfa yine yenilenir (i18n.js > diliDegistirVeYenile).
+const ACILIS_DILI = dil();
 
 // Iki parca:
 // 1. Onboarding (varsayilan): yalniz native kabukta, oturumu olmayan
@@ -656,18 +662,37 @@ function TemaSecimi({ secili, onSec }) {
   );
 }
 
-export function KurulumAkisi({ veri, native = false, kaydet }) {
-  const [durum, setDurum] = useState(bosDurum);
-  const [adim, setAdim] = useState("dil");
+// Web, ≥1024 (docs/web-akis-direktifi.md §3 PR-3): uygulamanin ust cubugu
+// (logo, "Adim n/10", Cikis) ve iki sutun: solda adim (560 px), sagda canli
+// Bugün onizlemesi (`onizleme(taslakVeri, { koyu, adim })`, App.jsx). Hazirsin
+// adiminda `onHazir({ ilkOdeme, bitir })` cagrilir; uygulama cizilir, ustte
+// lime bant.
+export function KurulumAkisi({ veri, native = false, kaydet, onBitti, onHazir, onizleme, cikisYap }) {
+  // Web: adim /kurulum/<adim> adresinde ve tarayici gecmisinde; adim ve
+  // cevaplar sekme oturumunda saklanir (yenileme ve geri tusu, B6/B7).
+  // Native (iOS) bunlari kullanmaz.
+  const web = !native;
+  const [taslakAnahtar] = useState(() => taslakAnahtari(oturumKullaniciId()));
+  const [ilkTaslak] = useState(() => {
+    if (!web) return null;
+    const ham = taslagiOku(taslakAnahtar);
+    const cozulen = ham ? taslagiCoz(ham, { native, diller: DESTEKLENEN_DILLER, birimler: DESTEKLENEN_PARA_BIRIMLERI }) : null;
+    if (ham && !cozulen) taslagiSil(taslakAnahtar);
+    return cozulen;
+  });
+  const [durum, setDurum] = useState(() => ilkTaslak?.durum || bosDurum());
+  const [adim, setAdim] = useState(() => ilkTaslak?.adim || "dil");
+  // Dil secimi kayitli (dilAyarla); yenilemede gecerli dil zaten odur.
   const [secilenDil, setSecilenDil] = useState(dil());
   const [, setSozlukSurumu] = useState(0);
   const [ulke, setUlke] = useState(() => {
+    if (ilkTaslak?.ulke) return ilkTaslak.ulke;
     const tespit = cihazBolgesi();
     return /^[A-Z]{2}$/.test(tespit) ? tespit : "TR";
   });
   // One cikan liste tespit edilen ulkeye gore bir kez kurulur; secimle degismez.
   const [oneCikan] = useState(() => oneCikanUlkeler(cihazBolgesi()));
-  const [birim, setBirim] = useState(() => kullaniciParaBirimi());
+  const [birim, setBirim] = useState(() => ilkTaslak?.birim || kullaniciParaBirimi());
   const [taslak, setTaslak] = useState(null);
   const [taslakHata, setTaslakHata] = useState(false);
   const [kaydediliyor, setKaydediliyor] = useState(false);
@@ -678,6 +703,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const kabaIsaretci = useKabaIsaretci();
   const kokRef = useRef(null);
   useKlavye(kokRef);
+  const masaustu = useMasaustu() && !native;
   // Web'de tema sorusundan (2. adım) önce site temasıyla açılır; kayıt
   // ekranından gelen kullanıcı aynı görünümde kalır.
   const koyu = !native && adim === "dil"
@@ -689,6 +715,13 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   useEffect(() => {
     sekmeCubugunuGoster(false);
   }, []);
+  // Web: sayfa zemini (kaydirma cubugu boslugu dahil) akisin temasiyla ayni.
+  useEffect(() => {
+    if (!web) return;
+    const kok = document.querySelector(".oa.oa-akis");
+    const zemin = kok ? getComputedStyle(kok).getPropertyValue("--oa-zemin").trim() : "";
+    if (zemin) document.body.style.backgroundColor = zemin;
+  }, [web, koyu, adim]);
   // Web'de kurulum acikken olcum izni bandi cizilmez (B2).
   useEffect(() => {
     if (native) return undefined;
@@ -704,6 +737,71 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const no = numarali.indexOf(adim) + 1;
   const guncelle = (alanlar) => setDurum((eski) => ({ ...eski, ...alanlar }));
 
+  // Gecmis dinleyicisi guncel adim ve siraya ref ile bakar.
+  const adimRef = useRef(adim);
+  const siraRef = useRef(sira);
+  adimRef.current = adim;
+  siraRef.current = sira;
+
+  // Web: ilk giriste gecmise bir koruma girdisi (/kurulum/dil) ve gecerli
+  // adim yazilir; 1. adimda geri tusu kurulumdan cikmaz. Yenilemede gecmis
+  // durumu korunur, ikinci koruma eklenmez (StrictMode'da da tek sefer).
+  useEffect(() => {
+    if (!web) return;
+    const arama = window.location.search;
+    const mevcut = window.history.state;
+    if (mevcut && typeof mevcut === "object" && mevcut.kurulumAdim) {
+      window.history.replaceState({ ...mevcut, kurulumAdim: adimRef.current }, "", adimYolu(adimRef.current, arama));
+      return;
+    }
+    window.history.replaceState({ kurulumKoruma: true }, "", adimYolu("dil", arama));
+    window.history.pushState({ kurulumAdim: adimRef.current, kurulumOnceki: null }, "", adimYolu(adimRef.current, arama));
+  }, [web]);
+
+  // Geri/ileri: gecerli bir kurulum adimina gidilir. Koruma girdisine ya da
+  // artik sirada olmayan adima gelinirse ve kayittan sonra (hazir) akista
+  // kalinir.
+  useEffect(() => {
+    if (!web) return undefined;
+    const gecmisDegisti = (olay) => {
+      const hedef = adimRef.current === "hazir" ? null : gecmistenAdim(olay.state, siraRef.current);
+      if (hedef) {
+        adimBaslangici.current = Date.now();
+        setAdim(hedef);
+        return;
+      }
+      window.history.pushState({ kurulumAdim: adimRef.current, kurulumOnceki: null }, "", adimYolu(adimRef.current, window.location.search));
+    };
+    window.addEventListener("popstate", gecmisDegisti);
+    return () => window.removeEventListener("popstate", gecmisDegisti);
+  }, [web]);
+
+  // Taslak: her degisimde sekme oturumuna; kayittan sonra silinir.
+  useEffect(() => {
+    if (!web || adim === "hazir") return;
+    taslagiYaz(taslakAnahtar, { adim, durum, secilenDil, ulke, birim });
+  }, [web, taslakAnahtar, adim, durum, secilenDil, ulke, birim]);
+
+  // Onizleme taslagi: girilen cevaplar (borc adiminda yazilmakta olan gecerli
+  // borc dahil) uygulamanin kayit yoluyla bos veriye yazilir.
+  const taslakVeri = useMemo(() => {
+    if (!masaustu || !onizleme || adim === "hazir") return null;
+    const yazilan = adim === "borc" && taslak && borcGecerli(taslak) ? [taslak] : [];
+    const sonuc = durumdanSonuc({ ...durum, borclar: [...durum.borclar, ...yazilan] }, { dil: secilenDil, ulke, paraBirimi: birim });
+    let n = 0;
+    return onboardingSonucunuUygula(veri, sonuc, {
+      native: false,
+      simdi: new Date(),
+      idUret: () => `onizleme-${n++}`,
+      gelirAdi: t("onboarding.gelir.kayitAdi"),
+    });
+  }, [masaustu, onizleme, adim, taslak, durum, secilenDil, ulke, birim, veri]);
+
+  function adimaYonel(hedef) {
+    setAdim(hedef);
+    if (web) window.history.pushState({ kurulumAdim: hedef, kurulumOnceki: adim }, "", adimYolu(hedef, window.location.search));
+  }
+
   // Ilk borc formu, secilen ilk turle acilir.
   useEffect(() => {
     if (adim === "borc" && !taslak) setTaslak({ tur: durum.turler[0] || "kart" });
@@ -717,13 +815,23 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     });
     if (atlandi) guncelle({ atlanan: [...durum.atlanan, adim] });
     adimBaslangici.current = Date.now();
-    setAdim(hedef);
+    adimaYonel(hedef);
   }
 
   const ileri = (secenekler) => adimaGec(sonrakiAdim(adim, sira), secenekler);
+  // Web'de uygulamadaki geri dugmesi tarayicinin geri tusuyla ayni yoldan
+  // gider (onceki girdi onceki adimsa); degilse (ör. yenilemeden sonra
+  // gecmiste yoksa) adim yerinde degisir.
   const geri = () => {
     const onceki = oncekiAdim(adim, sira);
-    if (onceki) setAdim(onceki);
+    if (!onceki) return;
+    if (web && window.history.state?.kurulumOnceki === onceki) {
+      window.history.back();
+      return;
+    }
+    adimBaslangici.current = Date.now();
+    setAdim(onceki);
+    if (web) window.history.replaceState({ kurulumAdim: onceki, kurulumOnceki: null }, "", adimYolu(onceki, window.location.search));
   };
 
   async function dilSec(kod) {
@@ -795,13 +903,19 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       gelir_var: sonuc.gelir > 0,
       sure_ms: sonuc.sure_ms,
     });
+    if (web) taslagiSil(taslakAnahtar);
     adimaGec("hazir");
   }
 
   function bitir() {
     if (native) onboardingTamamla();
-    // Yeniden yukleme: secilen dil, tema ve para birimi tum ekranlara
-    // uygulanir, iOS'ta native sekmeler geri gelir.
+    // Web: sayfa yenilenmez (B8); tema veriden, para birimi ve bolge
+    // secildikleri anda kayitli. Dil degistiyse modul duzeyindeki metinler
+    // icin yine yenilenir. iOS: yeniden yukleme native sekmeleri geri getirir.
+    if (web && onBitti && dil() === ACILIS_DILI) {
+      onBitti();
+      return;
+    }
     window.location.assign("/summary");
   }
 
@@ -812,6 +926,14 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const odemeler = planOdemeleri({ gelir, borclar });
   const ilkBiten = ilkBitecekBorc({ gelir, borclar });
   const ilkOdemeBilgisi = ilkOdeme(borclar);
+
+  // Masaustunde "Hazirsin" telefon karti yerine uygulamanin kendisi: App
+  // bilgiyi alip Bugün'u cizer (boyamadan once; ara ekran gorunmez).
+  const hazirUygulamada = web && masaustu && adim === "hazir" && Boolean(onHazir);
+  useLayoutEffect(() => {
+    if (!hazirUygulamada) return;
+    onHazir({ ilkOdeme: ilkOdemeBilgisi ? gunAyEtiketi(ilkOdemeBilgisi.tarih) : null, bitir });
+  }, [hazirUygulamada]);
 
   let icerik = null;
   let dugme = null;
@@ -1109,7 +1231,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       setTaslakHata(false);
       void onboardingOlayiKaydet("onboarding_atla", { adim: "borc", sure_ms: Date.now() - adimBaslangici.current });
       adimBaslangici.current = Date.now();
-      setAdim(hedef);
+      adimaYonel(hedef);
     };
     dugme = <BirincilDugme onClick={borcAdiminiBitir} disabled={!bitirilebilir}>{t("onboarding.borc.dugme")}</BirincilDugme>;
   } else if (adim === "plan") {
@@ -1153,6 +1275,10 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     );
   }
 
+  if (adim === "hazir" && hazirUygulamada) {
+    return <div className={`oa oa-akis mk-web${koyu ? " oa-koyu" : ""}`} lang={secilenDil} />;
+  }
+
   if (adim === "hazir") {
     const ad = native ? durum.ad.trim() : "";
     return (
@@ -1176,21 +1302,56 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     );
   }
 
+  const adimEtiketi = t("onboarding.adimEtiketi", { n: no, toplam: numarali.length });
+  const kolon = (
+    <form
+      className="oa-kolon"
+      onSubmit={(olay) => {
+        olay.preventDefault();
+      }}
+    >
+      <Kabuk geri={oncekiAdim(adim, sira) ? geri : null} no={no} toplam={numarali.length} atla={atla} />
+      <div className={govdeSinifi} key={adim}>
+        {/* Masaustunde adim etiketi ust cubukta. */}
+        {!masaustu && <span className="oa-mono-etiket">{adimEtiketi}</span>}
+        {icerik}
+      </div>
+      <div className="oa-alt">{dugme}</div>
+    </form>
+  );
+
+  if (masaustu) {
+    return (
+      <div className={`oa oa-akis mk-web${koyu ? " oa-koyu" : ""}`} lang={secilenDil} ref={kokRef}>
+        <MasaustuUstCubuk
+          koyu={koyu}
+          sag={
+            <>
+              <span className="oa-mono-etiket mk-ust-adim">{adimEtiketi}</span>
+              {cikisYap && (
+                <button className="oa-baglanti soluk" type="button" onClick={cikisYap}>
+                  {t("ayarlar.hesap.cikisYap")}
+                </button>
+              )}
+            </>
+          }
+        />
+        <div className={`mk-izgara${onizleme ? " mk-kurulum" : " mk-tek"}`}>
+          {kolon}
+          {onizleme && (
+            <aside className="mk-onizleme" aria-label={t("web.kurulum.onizlemeAria")}>
+              <span className="oa-mono-etiket">{t("web.kurulum.onizleme")}</span>
+              {onizleme(taslakVeri, { koyu, adim })}
+            </aside>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`oa oa-akis${koyu ? " oa-koyu" : ""}`} lang={secilenDil} ref={kokRef}>
-      <form
-        className="oa-kolon"
-        onSubmit={(olay) => {
-          olay.preventDefault();
-        }}
-      >
-        <Kabuk geri={oncekiAdim(adim, sira) ? geri : null} no={no} toplam={numarali.length} atla={atla} />
-        <div className={govdeSinifi} key={adim}>
-          <span className="oa-mono-etiket">{t("onboarding.adimEtiketi", { n: no, toplam: numarali.length })}</span>
-          {icerik}
-        </div>
-        <div className="oa-alt">{dugme}</div>
-      </form>
+      {kolon}
     </div>
   );
 }

@@ -442,6 +442,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/kurulum/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/debts",
       "destination": "/index.html"
     },

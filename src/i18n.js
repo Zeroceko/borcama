@@ -85,6 +85,8 @@ function normalYol(yol) {
 // ziyaretci orada Turkce landing'i gorur.
 export function webUygulamaYoluMu(yol, { oturumVar = false } = {}) {
   const temiz = normalYol(yol);
+  // Web kurulum akisi: /kurulum/<adim> (Onboarding.jsx).
+  if (temiz === "/kurulum" || temiz.startsWith("/kurulum/")) return true;
   return WEB_UYGULAMA_YOLLARI.has(temiz) || (temiz === "/" && oturumVar);
 }
 

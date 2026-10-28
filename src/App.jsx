@@ -107,7 +107,9 @@ import {
   Copy,
   Share2,
   CreditCard,
+  UserRound,
 } from "lucide-react";
+import { AcilirMenu, SagPanel, panelTetikleyicisiniAyarla, useMasaustu } from "./MasaustuKabuk.jsx";
 import { belgeKaydiParaBirimi, readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
 import { formatStatementTransactionDate } from "./statementTransactions.js";
@@ -118,6 +120,8 @@ import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
 import { KurulumAkisi, temaKoyuMu, useSistemKoyu } from "./Onboarding.jsx";
 import { kabukDurumunuBildir } from "./kabukDurumu.js";
 import { kurulumGosterilsinMi, onboardingSonucunuUygula } from "./onboardingAdimlari.js";
+import { kurulumYoluMu } from "./kurulumTaslagi.js";
+import { aylikPlanOdemesi, ilkAyKartKmhOdemesi, senaryoYasamButcesi, yasamButcesiKaydi, yasamButcesiTutari } from "./yasamButcesi.js";
 import { bekleyenSonucuOku, bekleyenSonucuTemizle } from "./onboardingKoprusu.js";
 import {
   paraBiriminiFormatla,
@@ -229,6 +233,12 @@ function YerindeForm({ hedef, children }) {
   if (typeof document === "undefined") return null;
   const dugum = document.getElementById(hedef);
   return dugum ? createPortal(children, dugum) : null;
+}
+
+// Masaustunde (≥1024, web) form sag panelde; aksi halde satir icinde.
+function FormYeri({ panel, baslik, aciklama, onKapat, hedef, children }) {
+  if (panel) return <SagPanel baslik={baslik} aciklama={aciklama} onKapat={onKapat}>{children}</SagPanel>;
+  return <YerindeForm hedef={hedef}>{children}</YerindeForm>;
 }
 
 const ACIK_TEMA = {
@@ -587,7 +597,7 @@ const CSS = `
 .bt-bugun-odemeler{background:var(--summary-soft);border:1px solid var(--line-soft);border-radius:20px;padding:clamp(18px,4vw,26px)}.bt-bugun-bolum-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.bt-bugun-bolum-head h2{margin:0;color:var(--text);font:800 clamp(20px,3vw,25px)/1.1 'Space Grotesk',sans-serif}.bt-bugun-bolum-head p{margin:5px 0 0;color:var(--dim);font-size:11.5px}.bt-bugun-bolum-head .bt-link{white-space:nowrap}.bt-bugun-odeme-listesi{display:grid;gap:8px}.bt-bugun-odeme{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-bugun-odeme-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK};font:800 11px 'JetBrains Mono',monospace}.bt-bugun-odeme.gecikmis .bt-bugun-odeme-ikon{background:${CORAL}}.bt-bugun-odeme strong{display:block;color:var(--text);font-size:13.5px;line-height:1.25}.bt-bugun-odeme small{display:block;margin-top:3px;color:var(--dim);font-size:11px}.bt-bugun-odeme.gecikmis small{color:${CORAL};font-weight:750}.bt-bugun-odeme-tutar{text-align:right}.bt-bugun-odeme-tutar b{display:block;color:var(--text);font:750 14px 'JetBrains Mono',monospace}.bt-bugun-odeme-tutar span{display:block;margin-top:3px;color:var(--dim);font-size:10px}.bt-bugun-odeme-bos{padding:20px;border:1px dashed var(--line-soft);border-radius:14px;background:var(--panel);color:var(--dim);font-size:12px;text-align:center}
 .bt-bugun-icgoru{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px 17px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:17px;background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:0 7px 20px #14160f08}.bt-bugun-icgoru:hover{background:color-mix(in srgb,${LIME} 8%,var(--panel))}.bt-bugun-icgoru>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,${LIME} 45%,var(--panel2));color:${INK}}.bt-bugun-icgoru strong{display:block;font-size:13.5px}.bt-bugun-icgoru small{display:block;margin-top:3px;color:var(--dim);font-size:11px;line-height:1.4}
 .bt-bugun-icgoruler{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.bt-pro-senaryo{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:22px;background:linear-gradient(135deg,#173c30 0%,#0b2d25 68%,#12382e 100%);color:#f8f5e8;box-shadow:7px 7px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo:after{content:"";position:absolute;right:-45px;top:-55px;width:145px;height:145px;border-radius:50%;background:color-mix(in srgb,${LIME} 76%,transparent);opacity:.88}.bt-pro-senaryo-ust{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#dbe7d9;font-size:11px;font-weight:750}.bt-pro-senaryo-rozet{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid color-mix(in srgb,${LIME} 75%,transparent);border-radius:999px;background:#0b241e;color:${LIME};font-weight:850}.bt-pro-senaryo-ana{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.bt-pro-senaryo h2{max-width:720px;margin:0;color:#fffaf0;font:800 clamp(25px,4vw,36px)/1.04 'Space Grotesk',sans-serif}.bt-pro-senaryo p{max-width:760px;margin:10px 0 0;color:#c7d1ca;font-size:12.5px;line-height:1.55}.bt-pro-senaryo .bt-btn{white-space:nowrap}.bt-pro-senaryo-metrikler{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:24px;overflow:hidden;border:1px solid #ffffff26;border-radius:15px;background:#ffffff26}.bt-pro-senaryo-metrikler>div{padding:15px 17px;background:#0d2b24}.bt-pro-senaryo-metrikler span{display:block;color:#aebdb5;font-size:10.5px;line-height:1.35}.bt-pro-senaryo-metrikler strong{display:block;margin-top:6px;color:#fffaf0;font:750 clamp(15px,2.4vw,19px) 'JetBrains Mono',monospace}.bt-pro-senaryo .bt-pro-senaryo-not{position:relative;z-index:1;margin:12px 0 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0d;color:#e6ece7}.bt-pro-senaryo.kilitli{background:linear-gradient(135deg,#173c30,#12382e)}
-.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,#fff),#fff 58%,color-mix(in srgb,${CORAL} 8%,#fff));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo.oncelikli{display:flex;flex-direction:column}.bt-plan-senaryo.oncelikli>.bt-plan-senaryo-ust{order:1}.bt-plan-senaryo.oncelikli>.bt-plan-karar{order:2}.bt-plan-senaryo.oncelikli>.bt-plan-cozum{order:3}.bt-plan-senaryo.oncelikli>.bt-plan-detay{order:4}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-kicker{display:block;margin-bottom:7px;color:#5d7a2e;font:800 10.5px 'JetBrains Mono',monospace;letter-spacing:.08em}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,#fff);font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-grid small{display:block;margin-top:6px;color:var(--dim);font-size:10.5px;line-height:1.4}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,#fff);font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-karar{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(180px,.65fr);gap:12px;margin-top:18px}.bt-plan-karar-ana,.bt-plan-karar-yan{padding:20px;border-radius:16px}.bt-plan-karar-ana{background:${INK};color:#fff;box-shadow:5px 5px 0 ${CORAL}}.bt-plan-karar-ana span,.bt-plan-karar-yan span{display:block;font-size:11px;font-weight:750}.bt-plan-karar-ana strong{display:block;margin-top:7px;color:${LIME};font:800 clamp(30px,5vw,46px)/1 'Archivo Black',sans-serif}.bt-plan-karar-ana small{display:block;margin-top:9px;color:#ffffffc2;line-height:1.45}.bt-plan-karar-yan{border:1px solid color-mix(in srgb,${LIME} 65%,var(--line-soft));background:color-mix(in srgb,${LIME} 18%,#fff)}.bt-plan-karar-yan strong{display:block;margin-top:7px;font:800 22px/1.15 'JetBrains Mono',monospace}.bt-plan-detay{margin-top:12px;border:1px solid var(--line-soft);border-radius:14px;background:#fff}.bt-plan-detay>summary{cursor:pointer;padding:14px 16px;font-weight:850;list-style:none}.bt-plan-detay>summary::-webkit-details-marker{display:none}.bt-plan-detay>summary:after{content:'+';float:right;font-size:20px;line-height:1}.bt-plan-detay[open]>summary:after{content:'−'}.bt-plan-detay .bt-plan-senaryo-grid{margin:0;padding:0 12px 12px}.bt-plan-detay .bt-plan-senaryo-not{margin:0 12px 12px}.bt-plan-cozum{margin-top:14px;padding:18px;border:1px solid color-mix(in srgb,${LIME} 68%,var(--line-soft));border-left:5px solid ${LIME};border-radius:16px;background:color-mix(in srgb,${LIME} 12%,#fff)}.bt-plan-cozum h3{margin:0;color:var(--text);font:800 18px/1.2 'Space Grotesk',sans-serif}.bt-plan-cozum p{margin:6px 0 0;color:var(--dim);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}.bt-plan-cozum-adimlar li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;color:var(--text);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${INK};color:${LIME};font:800 11px 'JetBrains Mono',monospace}.bt-plan-cozum-adimlar strong{font-weight:850}.bt-plan-cozum-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
+.bt-plan-senaryo{padding:clamp(18px,3vw,26px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,${LIME} 13%,var(--panel)),var(--panel) 58%,color-mix(in srgb,${CORAL} 8%,var(--panel)));box-shadow:0 15px 34px #2534260d}.bt-plan-senaryo.oncelikli{display:flex;flex-direction:column}.bt-plan-senaryo.oncelikli>.bt-plan-senaryo-ust{order:1}.bt-plan-senaryo.oncelikli>.bt-plan-karar{order:2}.bt-plan-senaryo.oncelikli>.bt-plan-cozum{order:3}.bt-plan-senaryo.oncelikli>.bt-plan-detay{order:4}.bt-plan-senaryo-ust{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.bt-plan-senaryo-kicker{display:block;margin-bottom:7px;color:#5d7a2e;font:800 10.5px 'JetBrains Mono',monospace;letter-spacing:.08em}.bt-plan-senaryo-ust h2{margin:0;font:800 clamp(22px,3vw,30px)/1.12 'Space Grotesk',sans-serif}.bt-plan-senaryo-ust p{max-width:720px;margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-senaryo-durum{flex:0 0 auto;padding:8px 11px;border:1px solid color-mix(in srgb,${LIME} 80%,var(--line-soft));border-radius:999px;background:color-mix(in srgb,${LIME} 24%,var(--panel));font-weight:850;font-size:12px}.bt-plan-senaryo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}.bt-plan-senaryo-grid>div{min-height:86px;padding:14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-plan-senaryo-grid span{display:block;color:var(--dim);font-size:11px;line-height:1.35}.bt-plan-senaryo-grid strong{display:block;margin-top:7px;font:750 15px/1.35 'JetBrains Mono',monospace}.bt-plan-senaryo-grid small{display:block;margin-top:6px;color:var(--dim);font-size:10.5px;line-height:1.4}.bt-plan-senaryo-not{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;margin-top:12px;padding:13px 14px;border-radius:13px;background:color-mix(in srgb,var(--panel2) 72%,var(--panel));font-size:12px;line-height:1.5}.bt-plan-senaryo-not span{color:var(--dim)}.bt-plan-karar{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(180px,.65fr);gap:12px;margin-top:18px}.bt-plan-karar-ana,.bt-plan-karar-yan{padding:20px;border-radius:16px}.bt-plan-karar-ana{background:${INK};color:#fff;box-shadow:5px 5px 0 ${CORAL}}.bt-plan-karar-ana span,.bt-plan-karar-yan span{display:block;font-size:11px;font-weight:750}.bt-plan-karar-ana strong{display:block;margin-top:7px;color:${LIME};font:800 clamp(30px,5vw,46px)/1 'Archivo Black',sans-serif}.bt-plan-karar-ana small{display:block;margin-top:9px;color:#ffffffc2;line-height:1.45}.bt-plan-karar-yan{border:1px solid color-mix(in srgb,${LIME} 65%,var(--line-soft));background:color-mix(in srgb,${LIME} 18%,var(--panel))}.bt-plan-karar-yan strong{display:block;margin-top:7px;font:800 22px/1.15 'JetBrains Mono',monospace}.bt-plan-detay{margin-top:12px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-plan-detay>summary{cursor:pointer;padding:14px 16px;font-weight:850;list-style:none}.bt-plan-detay>summary::-webkit-details-marker{display:none}.bt-plan-detay>summary:after{content:'+';float:right;font-size:20px;line-height:1}.bt-plan-detay[open]>summary:after{content:'−'}.bt-plan-detay .bt-plan-senaryo-grid{margin:0;padding:0 12px 12px}.bt-plan-detay .bt-plan-senaryo-not{margin:0 12px 12px}.bt-plan-cozum{margin-top:14px;padding:18px;border:1px solid color-mix(in srgb,${LIME} 68%,var(--line-soft));border-left:5px solid ${LIME};border-radius:16px;background:color-mix(in srgb,${LIME} 12%,var(--panel))}.bt-plan-cozum h3{margin:0;color:var(--text);font:800 18px/1.2 'Space Grotesk',sans-serif}.bt-plan-cozum p{margin:6px 0 0;color:var(--dim);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}.bt-plan-cozum-adimlar li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel);color:var(--text);font-size:12px;line-height:1.5}.bt-plan-cozum-adimlar b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:${INK};color:${LIME};font:800 11px 'JetBrains Mono',monospace}.bt-plan-cozum-adimlar strong{font-weight:850}.bt-plan-cozum-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.bt-plan-senaryo-actions{display:flex;justify-content:flex-end;margin-top:14px}
 .bt-plan-giris{display:grid;gap:22px;padding:clamp(20px,4vw,32px);border:1px solid var(--line-soft);border-radius:22px;background:linear-gradient(145deg,var(--summary-bg),color-mix(in srgb,${LIME} 9%,var(--panel)));box-shadow:0 14px 34px #14160f0b}.bt-plan-giris-ust{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--dim);font-size:11px}.bt-plan-giris-ust .bt-link{display:inline-flex;align-items:center;gap:5px;color:var(--text);font-weight:800}.bt-plan-giris-ana{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:24px;align-items:end}.bt-plan-giris h1{max-width:720px;margin:0;color:var(--text);font:800 clamp(29px,5vw,44px)/1.02 'Space Grotesk',sans-serif}.bt-plan-giris p{max-width:700px;margin:12px 0 0;color:var(--dim);font-size:13px;line-height:1.55}.bt-plan-faiz-ozeti{padding:17px;border:1px solid color-mix(in srgb,${CORAL} 50%,var(--line-soft));border-radius:16px;background:color-mix(in srgb,${CORAL} 8%,var(--panel))}.bt-plan-faiz-ozeti span,.bt-plan-faiz-ozeti small{display:block;color:var(--dim);font-size:10.5px}.bt-plan-faiz-ozeti strong{display:block;margin:7px 0 5px;color:var(--text);font:800 clamp(22px,4vw,31px) 'JetBrains Mono',monospace}.bt-plan-faiz-kirilim{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.bt-plan-gecikme{padding:12px 14px;border-left:4px solid ${CORAL};border-radius:12px;background:color-mix(in srgb,${CORAL} 9%,var(--panel));color:var(--text);font-size:12px;font-weight:750}.bt-borc-donem-satiri{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 0 20px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2)}.bt-borc-donem-satiri>div{min-width:0}.bt-borc-donem-satiri strong{display:block;color:var(--text);font-size:13px}.bt-borc-donem-satiri span{display:block;margin-top:3px;color:var(--dim);font-size:10.5px}.bt-borc-donem-satiri .bt-input{width:min(240px,100%);margin:0}
 .bt-plan-kisayol{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;padding:14px 16px;border:1px solid color-mix(in srgb,${LIME} 64%,var(--line-soft));border-radius:17px;background:linear-gradient(110deg,color-mix(in srgb,${LIME} 16%,var(--panel)),var(--panel) 58%,color-mix(in srgb,${CORAL} 7%,var(--panel)));box-shadow:0 9px 25px #14160f0a}.bt-plan-kisayol-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:${INK};color:${LIME};box-shadow:3px 3px 0 color-mix(in srgb,${CORAL} 75%,transparent)}.bt-plan-kisayol-metin{min-width:0}.bt-plan-kisayol-metin strong{display:block;color:var(--text);font:800 15px/1.2 'Space Grotesk',sans-serif}.bt-plan-kisayol-metin span{display:block;margin-top:4px;color:var(--dim);font-size:11px;line-height:1.4}.bt-plan-kisayol .bt-btn{white-space:nowrap}
 .bt-bugun-bos{display:grid;justify-items:start;gap:14px;padding:clamp(26px,6vw,54px);border:1px solid var(--line-soft);border-radius:24px;background:var(--summary-bg);box-shadow:0 14px 34px #14160f0d}.bt-bugun-bos-ikon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:${LIME};color:${INK};box-shadow:4px 4px 0 ${CORAL}}.bt-bugun-bos h1{max-width:650px;margin:4px 0 0;color:var(--text);font:800 clamp(29px,6vw,48px)/1.02 'Space Grotesk',sans-serif}.bt-bugun-bos p{max-width:580px;margin:0;color:var(--dim);font-size:14px;line-height:1.55}.bt-bugun-bos>p{font-size:16px;line-height:1.5}.bt-bugun-bos .bt-btn{min-height:46px}
@@ -596,6 +606,9 @@ const CSS = `
 @media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-karar{grid-template-columns:1fr}.bt-plan-cozum{padding:15px 13px}.bt-plan-cozum-actions{display:grid;grid-template-columns:1fr}.bt-plan-cozum-actions .bt-btn{width:100%}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
 @media(max-width:620px){.bt-plan-kisayol{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-plan-kisayol-ikon{width:38px;height:38px}.bt-plan-kisayol .bt-btn{grid-column:1/-1;width:100%;justify-content:center}}
 @media(max-width:700px){.bt-aktivasyon{grid-template-columns:1fr;gap:18px;padding:18px}.bt-aktivasyon-aksiyon,.bt-aktivasyon-aksiyon>.bt-btn{width:100%;justify-self:stretch}.bt-aktivasyon-aksiyon>.bt-btn{justify-content:center}.bt-aktivasyon-aksiyon{justify-items:stretch}.bt-aktivasyon-ilerleme{max-width:none}}
+.bt-aktivasyon.bt-aktivasyon-devam{border:0;background:var(--panel);box-shadow:none}.bt-aktivasyon-devam .bt-aktivasyon-aksiyon{gap:8px}.bt-aktivasyon-ikincil{min-height:36px;padding:6px 4px;border:0;background:none;color:var(--text);font:700 13.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-ozet-kisa-link{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.bt-yasam-butcesi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end}.bt-yasam-butcesi-kopya p{margin:7px 0 0;max-width:520px;color:var(--dim);font-size:13.5px;line-height:1.45}.bt-yasam-butcesi-alan{display:flex;gap:10px;align-items:flex-end}.bt-yasam-butcesi-alan .bt-alan{width:200px;grid-template-rows:auto 44px}.bt-yasam-butcesi-alan .bt-btn{min-height:44px}.bt-yasam-butcesi-sonuc{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;color:var(--dim);font-size:13px}.bt-yasam-butcesi-sonuc:empty{display:none}.bt-yasam-butcesi-sonuc b{color:var(--text);font-family:'JetBrains Mono',monospace}
+@media(max-width:700px){.bt-yasam-butcesi{grid-template-columns:1fr}.bt-yasam-butcesi-alan .bt-alan{flex:1;width:auto}}
 @media(max-width:460px){.bt-plan-senaryo-grid{grid-template-columns:1fr}.bt-plan-senaryo-grid>div{min-height:auto}}
 .bt-satirD{display:flex;align-items:center;gap:14px;row-gap:8px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel)}
 .bt-satirD-ad{font-size:14px;color:var(--text);font-weight:600}
@@ -1874,6 +1887,325 @@ function borcamaOnerileriniHesapla({
   return oneriler.sort((a, b) => b.oncelik - a.oncelik);
 }
 
+// Bugün ekraninin turetilmis degerleri (borc kalemleri, odemeler, gelir,
+// harcama, oneriler). Uygulama ve web kurulumundaki canli onizleme ayni
+// kancayla ayni sayilari uretir (docs/web-akis-direktifi.md A3).
+function useBugunHesaplari(veri, kurTablosu, fiyatlar) {
+  const kalemler = useMemo(() => borcKalemleri(veri, kurTablosu), [veri, kurTablosu]);
+
+  const toplamlar = useMemo(() => {
+    const kart = kalemler
+      .filter((k) => k.tur === "kart")
+      .reduce((t, k) => t + k.bakiye, 0);
+    const kredi = kalemler
+      .filter((k) => k.tur === "kredi")
+      .reduce((t, k) => t + k.bakiye, 0);
+    const ek = kalemler
+      .filter((k) => k.tur === "ek")
+      .reduce((t, k) => t + k.bakiye, 0);
+    const diger = kalemler
+      .filter((k) => k.tur === "diger")
+      .reduce((t, k) => t + k.bakiye, 0);
+    return { kart, kredi, ek, diger, genel: kart + kredi + ek + diger };
+  }, [kalemler]);
+
+  const varlikOzeti = useMemo(
+    () => varlikOzetiHesapla(veri.assets || [], fiyatlar),
+    [veri.assets, fiyatlar],
+  );
+
+  const aylikFaiz = useMemo(
+    () =>
+      kalemler
+        .filter((k) => !k.sabitTaksit)
+        .reduce((t, k) => t + k.faizTutari, 0),
+    [kalemler],
+  );
+
+  const buAyOdenecek = useMemo(() => {
+    // Tutarlar kaydin biriminde; ana birime cevrilerek toplanir (kur yoksa disarida).
+    const kartOdeme = veri.cards.reduce((t, k) => {
+      if (kartOdemeAyi(k) !== ayAnahtari()) return t;
+      const h = kartHesabi(k);
+      const hedef =
+        k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
+          ? h.asgari
+          : +k.asgari > 0
+            ? +k.asgari
+            : +k.borc > 0
+              ? +k.borc
+              : h.onceki;
+      return t + anaTutar(Math.max(hedef - h.odeme, 0), k, kurTablosu);
+    }, 0);
+    const ay = ayAnahtari();
+    const taksit = veri.loans.reduce(
+      (t, k) =>
+        t +
+        ((+k.kalanBorc || 0) <= 0 ||
+        veri.paid?.["kredi-" + k.id + "-" + ay]
+          ? 0
+          : anaTutar(+k.taksit || 0, k, kurTablosu)),
+      0,
+    );
+    return kartOdeme + taksit;
+  }, [veri, kurTablosu]);
+
+  const gecenAyDelta = useMemo(() => {
+    const buAy = ayAnahtari();
+    const aylar = Object.keys(veri.snapshots || {})
+      .filter((a) => a < buAy)
+      .sort();
+    if (aylar.length === 0) return null;
+    const onceki = veri.snapshots[aylar[aylar.length - 1]];
+    return { fark: toplamlar.genel - onceki, ay: aylar[aylar.length - 1] };
+  }, [veri, toplamlar]);
+
+  const yaklasan = useMemo(() => {
+    const liste = [];
+    const ay = ayAnahtari();
+    veri.cards.forEach((k) => {
+      const h = kartHesabi(k);
+      const anaBorc = h.toplam;
+      if (anaBorc > 0) {
+        const yeniModel =
+          k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
+        const yasalOran = krediKartiAsgariOrani(k.limit);
+        // TRY disi birimde BDDK orani uygulanmaz; girilen asgari kullanilir.
+        const kartBirimi = kayitParaBirimi(k);
+        const yasalAsgari = yasalAsgariUygulanir(kartBirimi);
+        const hedefTutar = yeniModel
+          ? yasalAsgari ? h.onceki * yasalOran : h.asgari
+          : +k.asgari > 0
+            ? +k.asgari
+            : yasalAsgari ? anaBorc * yasalOran : bolgeAsgariOdemesi(anaBorc, h.oran, bolgeProfili(kartBirimi));
+        const odemeAnahtari = kartOdemeAnahtari(k);
+        const elleOdendi = !!veri.paid[odemeAnahtari];
+        const odemeBilgisiYok = !yeniModel && !elleOdendi;
+        const odemeKayitlari = veri.cardPaymentHistory?.[odemeAnahtari] || [];
+        const girilenOdeme = yeniModel ? h.odeme : 0;
+        const yapilanOdeme = Math.min(
+          elleOdendi ? Math.max(girilenOdeme, hedefTutar) : girilenOdeme,
+          h.onceki || anaBorc,
+        );
+        const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
+        const kalanToplam = anaBorc;
+        const minimumTamam = hedefTutar > 0 && tutar <= 0;
+        const tamamiOdendi = kalanToplam <= 0;
+        liste.push({
+          id: "kart-" + k.id,
+          kartOdemesi: true,
+          banka: k.banka,
+          ad: kartGorunenAdi(k),
+          tutar,
+          kalanToplam,
+          minimumOdeme: hedefTutar,
+          hedefTutar,
+          yapilanOdeme,
+          odemeKayitSayisi: odemeKayitlari.length,
+          odemeBilgisiYok,
+          not: t("kabuk.odeme.kalanMinimum"),
+          tarih: kartGecikmeTarihi(k),
+          odendi: minimumTamam,
+          minimumTamam,
+          tamamiOdendi,
+          anahtar: odemeAnahtari,
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
+        });
+      }
+    });
+    veri.loans.forEach((k) => {
+      if ((+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun())) {
+        const anahtar = "kredi-" + k.id + "-" + ay;
+        const odemeKaydi = veri.loanPaymentHistory?.[ay]?.[k.id];
+        const taksit = +k.taksit || 0;
+        const yapilanOdeme = Math.max(
+          +(odemeKaydi?.tutar ?? (veri.paid[anahtar] ? taksit : 0)) || 0,
+          0,
+        );
+        const elleOdendi = yapilanOdeme + 0.01 >= taksit;
+        liste.push({
+          id: "kredi-" + k.id,
+          krediId: k.id,
+          banka: k.banka,
+          ad: k.banka + (k.ad ? " · " + k.ad : ""),
+          tutar: Math.max(taksit - yapilanOdeme, 0),
+          hedefTutar: taksit,
+          yapilanOdeme,
+          kalanKrediBorcu: +k.kalanBorc || 0,
+          not: t("kabuk.odeme.buAykiTaksit"),
+          tarih: buAyOdemeTarihi(k.odemeGunu),
+          odendi: elleOdendi,
+          anahtar,
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
+        });
+      }
+    });
+    return liste.sort((a, b) => a.tarih - b.tarih);
+  }, [veri]);
+
+  const gelecekOdemeler = useMemo(() => {
+    const simdi = bugun();
+    const yil = simdi.getFullYear();
+    const ay = simdi.getMonth() + 1;
+    return veri.loans
+      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0 && loanIsDueInMonth(k, new Date(yil, ay, 1)))
+      .map((k) => {
+        const gun = Math.min(
+          Math.max(parseInt(k.odemeGunu) || 1, 1),
+          new Date(yil, ay + 1, 0).getDate(),
+        );
+        return {
+          id: "gelecek-kredi-" + k.id,
+          krediId: k.id,
+          banka: k.banka,
+          ad: k.banka + (k.ad ? " · " + k.ad : ""),
+          tutar: +k.taksit || 0,
+          hedefTutar: +k.taksit || 0,
+          yapilanOdeme: 0,
+          kalanKrediBorcu: +k.kalanBorc || 0,
+          not: t("kabuk.odeme.gelecekAyTaksiti"),
+          tarih: new Date(yil, ay, gun),
+          odendi: false,
+          anahtar: "kredi-" + k.id + "-" + ayAnahtari(new Date(yil, ay, 1)),
+          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
+        };
+      })
+      .sort((a, b) => a.tarih - b.tarih);
+  }, [veri]);
+
+  const buAyHarcama = useMemo(() => {
+    const ay = ayAnahtari();
+    const kategoriler = {};
+    const kaynaklar = {};
+    let toplam = 0;
+    let adet = 0;
+    veri.expenses.forEach((h) => {
+      const kart = veri.cards.find(
+        (k) => h.kaynak === k.banka + " · " + (k.ad || "Kredi kartı"),
+      );
+      const tutar = h.tekrar === "Her ay"
+        ? +h.tutar || 0
+        : kart
+        ? expenseInstallmentAmountForPeriod(h, kart, ay)
+        : (h.tarih || "").startsWith(ay)
+          ? +h.tutar || 0
+          : 0;
+      if (tutar <= 0) return;
+      toplam += tutar;
+      adet += 1;
+      kategoriler[h.kategori] = (kategoriler[h.kategori] || 0) + tutar;
+      const kaynak = h.kaynak || "Belirtilmemiş";
+      kaynaklar[kaynak] = (kaynaklar[kaynak] || 0) + tutar;
+    });
+    return { toplam, kategoriler, kaynaklar, adet };
+  }, [veri]);
+
+  const buAyGelir = useMemo(() => {
+    const ay = ayAnahtari();
+    const kaynaklar = {};
+    let toplam = 0;
+    (veri.incomes || []).forEach((g) => {
+      const dahil =
+        g.tekrar === "Tek seferlik" ? (g.tarih || "").startsWith(ay) : true;
+      if (dahil) {
+        toplam += +g.tutar || 0;
+        kaynaklar[g.ad] = (kaynaklar[g.ad] || 0) + (+g.tutar || 0);
+      }
+    });
+    return { toplam, kaynaklar };
+  }, [veri]);
+
+  const netNakit =
+    buAyGelir.toplam > 0
+      ? buAyGelir.toplam - buAyOdenecek - buAyHarcama.toplam
+      : null;
+
+  const borcamaOnerileri = useMemo(
+    () =>
+      borcamaOnerileriniHesapla({
+        veri,
+        kalemler,
+        yaklasan,
+        buAyHarcama,
+        netNakit,
+      }),
+    [veri, kalemler, yaklasan, buAyHarcama, netNakit],
+  );
+  return {
+    kalemler,
+    toplamlar,
+    varlikOzeti,
+    aylikFaiz,
+    buAyOdenecek,
+    gecenAyDelta,
+    yaklasan,
+    gelecekOdemeler,
+    buAyHarcama,
+    buAyGelir,
+    netNakit,
+    borcamaOnerileri,
+  };
+}
+
+// Uygulama kokunun tema degiskenleri (ACIK_TEMA / KOYU_TEMA).
+function temaDegiskenleri(temaRenkleri) {
+  return {
+    "--bg": temaRenkleri.bg,
+    "--panel": temaRenkleri.panel,
+    "--panel2": temaRenkleri.panel2,
+    "--text": temaRenkleri.text,
+    "--dim": temaRenkleri.dim,
+    "--faint": temaRenkleri.faint,
+    "--line": temaRenkleri.line,
+    "--line-soft": temaRenkleri.lineSoft,
+    "--summary-bg": temaRenkleri.summaryBg,
+    "--summary-soft": temaRenkleri.summarySoft,
+    "--summary-text": temaRenkleri.summaryText,
+    "--summary-muted": temaRenkleri.summaryMuted,
+    "--summary-amount": temaRenkleri.summaryAmount,
+    "--summary-shadow": temaRenkleri.summaryShadow,
+    "--debt-card": temaRenkleri.debtCard,
+    "--debt-loan": temaRenkleri.debtLoan,
+    "--debt-account": temaRenkleri.debtAccount,
+    "--debt-other": temaRenkleri.debtOther,
+  };
+}
+
+// Web kurulumu (≥1024): sagdaki canli Bugün onizlemesi. Kurulum durumundan
+// onboardingSonucunuUygula ile uretilen taslak veri, uygulamanin Bugün
+// hesaplari (useBugunHesaplari) ve Ozet bileseniyle cizilir; etkilesim yok.
+function KurulumOnizleme({ veri, koyu, adim, kurTablosu, fiyatlar, proAktif }) {
+  const h = useBugunHesaplari(veri, kurTablosu, fiyatlar);
+  const bos = () => {};
+  return (
+    <div className="bt-app bt-onizleme" style={temaDegiskenleri(koyu ? KOYU_TEMA : ACIK_TEMA)} inert="">
+      <style>{CSS}</style>
+      <Ozet
+        onizleme={{ adim }}
+        veri={veri}
+        toplamlar={h.toplamlar}
+        kalemler={h.kalemler}
+        aylikFaiz={h.aylikFaiz}
+        gecenAyDelta={h.gecenAyDelta}
+        buAyOdenecek={h.buAyOdenecek}
+        yaklasan={h.yaklasan}
+        buAyHarcama={h.buAyHarcama}
+        buAyGelir={h.buAyGelir}
+        setSekme={bos}
+        aktivasyonAdiminiBaslat={bos}
+        tutarlarGizli={false}
+        tutarlariGizle={bos}
+        varlikOzeti={h.varlikOzeti}
+        oneriler={h.borcamaOnerileri}
+        kurNotu={null}
+        proAktif={proAktif}
+        proAc={bos}
+        proSatisYok
+      />
+    </div>
+  );
+}
+
 /* ---------------- Ana bileşen ---------------- */
 export default function BorcTakip() {
   // Bu satır web sürümünde (supabaseClient bağlı) gerçek çıkışla değiştirilir; artifact önizlemesinde zararsızdır.
@@ -1986,12 +2318,26 @@ export default function BorcTakip() {
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
   // Kayit/misafir sonrasi ilk acilista kurulum akisi (Onboarding.jsx).
   const [kurulumAcik, setKurulumAcik] = useState(false);
+  // Web, ≥1024: ust cubuk "+ Ekle" ve hesap menusu; formlar sag panelde.
+  const masaustu = useMasaustu();
+  // Masaustunde kurulum "Hazirsin": uygulama cizili, ustte lime bant
+  // ({ ilkOdeme, bitir }); "Bugün'e geç" kurulumu bitirir.
+  const [hazirBandi, setHazirBandi] = useState(null);
+  // "+ Ekle" baska sekmedeyken: formu tasiyan bilesen gorunmeden baglanir,
+  // formu sag panelde acar ("harcamalar" | "odemeler" | "borclar").
+  const [panelKonagi, setPanelKonagi] = useState(null);
   // Web: ölçüm izni bandı uygulamada (≥1024) üstte durur, kurulumda çizilmez.
   useEffect(() => {
     if (nativeMi) return undefined;
     kabukDurumunuBildir({ uygulama: true });
     return () => kabukDurumunuBildir({ uygulama: false });
   }, []);
+  // "Hazirsin" bandi kurulumun son adimi: izin bandi o sirada cizilmez.
+  useEffect(() => {
+    if (nativeMi || !hazirBandi) return undefined;
+    kabukDurumunuBildir({ kurulum: true });
+    return () => kabukDurumunuBildir({ kurulum: false });
+  }, [hazirBandi]);
   // Giris oncesi (native) biten onboarding'in hesaba yazilmayi bekleyen sonucu.
   const [bekleyenOnboarding, setBekleyenOnboarding] = useState(() => bekleyenSonucuOku());
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
@@ -2547,6 +2893,7 @@ export default function BorcTakip() {
   }, [yukleniyor, piyasaKodAnahtari]);
 
   function setSekme(yeniSekme) {
+    setPanelKonagi(null);
     setSekmeState(yeniSekme);
     const yol = SEKME_YOLLARI[yeniSekme];
     if (yol && window.location.pathname !== yol)
@@ -2569,6 +2916,12 @@ export default function BorcTakip() {
     if (gorev?.id === "activity") {
       setSekme("harcamalar");
       setForm({ liste: "expenses", veri: {} });
+      return;
+    }
+    if (gorev?.id === "payment") {
+      setOdemeFiltresi("bekleyen");
+      setSekme("odemeler");
+      setOdemeFormuIstegi((eski) => eski + 1);
       return;
     }
     setSekme(gorev?.hedef || "ozet");
@@ -2678,26 +3031,7 @@ export default function BorcTakip() {
     ayarKaydet({ tema: isDark ? "light" : "dark" });
   const temaSec = (tema) => ayarKaydet({ tema });
   const temaRenkleri = isDark ? KOYU_TEMA : ACIK_TEMA;
-  const rootStyle = {
-    "--bg": temaRenkleri.bg,
-    "--panel": temaRenkleri.panel,
-    "--panel2": temaRenkleri.panel2,
-    "--text": temaRenkleri.text,
-    "--dim": temaRenkleri.dim,
-    "--faint": temaRenkleri.faint,
-    "--line": temaRenkleri.line,
-    "--line-soft": temaRenkleri.lineSoft,
-    "--summary-bg": temaRenkleri.summaryBg,
-    "--summary-soft": temaRenkleri.summarySoft,
-    "--summary-text": temaRenkleri.summaryText,
-    "--summary-muted": temaRenkleri.summaryMuted,
-    "--summary-amount": temaRenkleri.summaryAmount,
-    "--summary-shadow": temaRenkleri.summaryShadow,
-    "--debt-card": temaRenkleri.debtCard,
-    "--debt-loan": temaRenkleri.debtLoan,
-    "--debt-account": temaRenkleri.debtAccount,
-    "--debt-other": temaRenkleri.debtOther,
-  };
+  const rootStyle = temaDegiskenleri(temaRenkleri);
 
   // Borc bazinda para birimi: son bilinen kur (yerelde saklanir). Ana
   // birimdeki kayitlarda carpan 1 oldugundan tek birimli kullanicida etkisiz.
@@ -2706,246 +3040,21 @@ export default function BorcTakip() {
     [piyasa.prices, piyasa.updatedAt],
   );
   const kurNotuDurumu = useMemo(() => kurDurumu(veri, kurTablosu), [veri, kurTablosu]);
-  const kalemler = useMemo(() => borcKalemleri(veri, kurTablosu), [veri, kurTablosu]);
-
-  const toplamlar = useMemo(() => {
-    const kart = kalemler
-      .filter((k) => k.tur === "kart")
-      .reduce((t, k) => t + k.bakiye, 0);
-    const kredi = kalemler
-      .filter((k) => k.tur === "kredi")
-      .reduce((t, k) => t + k.bakiye, 0);
-    const ek = kalemler
-      .filter((k) => k.tur === "ek")
-      .reduce((t, k) => t + k.bakiye, 0);
-    const diger = kalemler
-      .filter((k) => k.tur === "diger")
-      .reduce((t, k) => t + k.bakiye, 0);
-    return { kart, kredi, ek, diger, genel: kart + kredi + ek + diger };
-  }, [kalemler]);
-
-  const varlikOzeti = useMemo(
-    () => varlikOzetiHesapla(veri.assets || [], piyasa.prices),
-    [veri.assets, piyasa.prices],
-  );
-
-  const aylikFaiz = useMemo(
-    () =>
-      kalemler
-        .filter((k) => !k.sabitTaksit)
-        .reduce((t, k) => t + k.faizTutari, 0),
-    [kalemler],
-  );
-
-  const buAyOdenecek = useMemo(() => {
-    // Tutarlar kaydin biriminde; ana birime cevrilerek toplanir (kur yoksa disarida).
-    const kartOdeme = veri.cards.reduce((t, k) => {
-      if (kartOdemeAyi(k) !== ayAnahtari()) return t;
-      const h = kartHesabi(k);
-      const hedef =
-        k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined
-          ? h.asgari
-          : +k.asgari > 0
-            ? +k.asgari
-            : +k.borc > 0
-              ? +k.borc
-              : h.onceki;
-      return t + anaTutar(Math.max(hedef - h.odeme, 0), k, kurTablosu);
-    }, 0);
-    const ay = ayAnahtari();
-    const taksit = veri.loans.reduce(
-      (t, k) =>
-        t +
-        ((+k.kalanBorc || 0) <= 0 ||
-        veri.paid?.["kredi-" + k.id + "-" + ay]
-          ? 0
-          : anaTutar(+k.taksit || 0, k, kurTablosu)),
-      0,
-    );
-    return kartOdeme + taksit;
-  }, [veri, kurTablosu]);
-
-  const gecenAyDelta = useMemo(() => {
-    const buAy = ayAnahtari();
-    const aylar = Object.keys(veri.snapshots || {})
-      .filter((a) => a < buAy)
-      .sort();
-    if (aylar.length === 0) return null;
-    const onceki = veri.snapshots[aylar[aylar.length - 1]];
-    return { fark: toplamlar.genel - onceki, ay: aylar[aylar.length - 1] };
-  }, [veri, toplamlar]);
-
-  const yaklasan = useMemo(() => {
-    const liste = [];
-    const ay = ayAnahtari();
-    veri.cards.forEach((k) => {
-      const h = kartHesabi(k);
-      const anaBorc = h.toplam;
-      if (anaBorc > 0) {
-        const yeniModel =
-          k.toplamEkstreBorcu !== undefined || k.oncekiDonemBorcu !== undefined;
-        const yasalOran = krediKartiAsgariOrani(k.limit);
-        // TRY disi birimde BDDK orani uygulanmaz; girilen asgari kullanilir.
-        const kartBirimi = kayitParaBirimi(k);
-        const yasalAsgari = yasalAsgariUygulanir(kartBirimi);
-        const hedefTutar = yeniModel
-          ? yasalAsgari ? h.onceki * yasalOran : h.asgari
-          : +k.asgari > 0
-            ? +k.asgari
-            : yasalAsgari ? anaBorc * yasalOran : bolgeAsgariOdemesi(anaBorc, h.oran, bolgeProfili(kartBirimi));
-        const odemeAnahtari = kartOdemeAnahtari(k);
-        const elleOdendi = !!veri.paid[odemeAnahtari];
-        const odemeBilgisiYok = !yeniModel && !elleOdendi;
-        const odemeKayitlari = veri.cardPaymentHistory?.[odemeAnahtari] || [];
-        const girilenOdeme = yeniModel ? h.odeme : 0;
-        const yapilanOdeme = Math.min(
-          elleOdendi ? Math.max(girilenOdeme, hedefTutar) : girilenOdeme,
-          h.onceki || anaBorc,
-        );
-        const tutar = Math.max(hedefTutar - yapilanOdeme, 0);
-        const kalanToplam = anaBorc;
-        const minimumTamam = hedefTutar > 0 && tutar <= 0;
-        const tamamiOdendi = kalanToplam <= 0;
-        liste.push({
-          id: "kart-" + k.id,
-          kartOdemesi: true,
-          banka: k.banka,
-          ad: kartGorunenAdi(k),
-          tutar,
-          kalanToplam,
-          minimumOdeme: hedefTutar,
-          hedefTutar,
-          yapilanOdeme,
-          odemeKayitSayisi: odemeKayitlari.length,
-          odemeBilgisiYok,
-          not: t("kabuk.odeme.kalanMinimum"),
-          tarih: kartGecikmeTarihi(k),
-          odendi: minimumTamam,
-          minimumTamam,
-          tamamiOdendi,
-          anahtar: odemeAnahtari,
-          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
-        });
-      }
-    });
-    veri.loans.forEach((k) => {
-      if ((+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun())) {
-        const anahtar = "kredi-" + k.id + "-" + ay;
-        const odemeKaydi = veri.loanPaymentHistory?.[ay]?.[k.id];
-        const taksit = +k.taksit || 0;
-        const yapilanOdeme = Math.max(
-          +(odemeKaydi?.tutar ?? (veri.paid[anahtar] ? taksit : 0)) || 0,
-          0,
-        );
-        const elleOdendi = yapilanOdeme + 0.01 >= taksit;
-        liste.push({
-          id: "kredi-" + k.id,
-          krediId: k.id,
-          banka: k.banka,
-          ad: k.banka + (k.ad ? " · " + k.ad : ""),
-          tutar: Math.max(taksit - yapilanOdeme, 0),
-          hedefTutar: taksit,
-          yapilanOdeme,
-          kalanKrediBorcu: +k.kalanBorc || 0,
-          not: t("kabuk.odeme.buAykiTaksit"),
-          tarih: buAyOdemeTarihi(k.odemeGunu),
-          odendi: elleOdendi,
-          anahtar,
-          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
-        });
-      }
-    });
-    return liste.sort((a, b) => a.tarih - b.tarih);
-  }, [veri]);
-
-  const gelecekOdemeler = useMemo(() => {
-    const simdi = bugun();
-    const yil = simdi.getFullYear();
-    const ay = simdi.getMonth() + 1;
-    return veri.loans
-      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0 && loanIsDueInMonth(k, new Date(yil, ay, 1)))
-      .map((k) => {
-        const gun = Math.min(
-          Math.max(parseInt(k.odemeGunu) || 1, 1),
-          new Date(yil, ay + 1, 0).getDate(),
-        );
-        return {
-          id: "gelecek-kredi-" + k.id,
-          krediId: k.id,
-          banka: k.banka,
-          ad: k.banka + (k.ad ? " · " + k.ad : ""),
-          tutar: +k.taksit || 0,
-          hedefTutar: +k.taksit || 0,
-          yapilanOdeme: 0,
-          kalanKrediBorcu: +k.kalanBorc || 0,
-          not: t("kabuk.odeme.gelecekAyTaksiti"),
-          tarih: new Date(yil, ay, gun),
-          odendi: false,
-          anahtar: "kredi-" + k.id + "-" + ayAnahtari(new Date(yil, ay, 1)),
-          ...(yabanciBirim(k) ? { paraBirimi: yabanciBirim(k) } : {}),
-        };
-      })
-      .sort((a, b) => a.tarih - b.tarih);
-  }, [veri]);
-
-  const buAyHarcama = useMemo(() => {
-    const ay = ayAnahtari();
-    const kategoriler = {};
-    const kaynaklar = {};
-    let toplam = 0;
-    let adet = 0;
-    veri.expenses.forEach((h) => {
-      const kart = veri.cards.find(
-        (k) => h.kaynak === k.banka + " · " + (k.ad || "Kredi kartı"),
-      );
-      const tutar = h.tekrar === "Her ay"
-        ? +h.tutar || 0
-        : kart
-        ? expenseInstallmentAmountForPeriod(h, kart, ay)
-        : (h.tarih || "").startsWith(ay)
-          ? +h.tutar || 0
-          : 0;
-      if (tutar <= 0) return;
-      toplam += tutar;
-      adet += 1;
-      kategoriler[h.kategori] = (kategoriler[h.kategori] || 0) + tutar;
-      const kaynak = h.kaynak || "Belirtilmemiş";
-      kaynaklar[kaynak] = (kaynaklar[kaynak] || 0) + tutar;
-    });
-    return { toplam, kategoriler, kaynaklar, adet };
-  }, [veri]);
-
-  const buAyGelir = useMemo(() => {
-    const ay = ayAnahtari();
-    const kaynaklar = {};
-    let toplam = 0;
-    (veri.incomes || []).forEach((g) => {
-      const dahil =
-        g.tekrar === "Tek seferlik" ? (g.tarih || "").startsWith(ay) : true;
-      if (dahil) {
-        toplam += +g.tutar || 0;
-        kaynaklar[g.ad] = (kaynaklar[g.ad] || 0) + (+g.tutar || 0);
-      }
-    });
-    return { toplam, kaynaklar };
-  }, [veri]);
-
-  const netNakit =
-    buAyGelir.toplam > 0
-      ? buAyGelir.toplam - buAyOdenecek - buAyHarcama.toplam
-      : null;
-
-  const borcamaOnerileri = useMemo(
-    () =>
-      borcamaOnerileriniHesapla({
-        veri,
-        kalemler,
-        yaklasan,
-        buAyHarcama,
-        netNakit,
-      }),
-    [veri, kalemler, yaklasan, buAyHarcama, netNakit],
-  );
+  // Bugün hesaplari (kurulum onizlemesi de ayni kancayi kullanir).
+  const {
+    kalemler,
+    toplamlar,
+    varlikOzeti,
+    aylikFaiz,
+    buAyOdenecek,
+    gecenAyDelta,
+    yaklasan,
+    gelecekOdemeler,
+    buAyHarcama,
+    buAyGelir,
+    netNakit,
+    borcamaOnerileri,
+  } = useBugunHesaplari(veri, kurTablosu, piyasa.prices);
 
   function ekleGuncelle(liste, kayit, secenekler = {}) {
     const dizi = veri[liste];
@@ -3441,6 +3550,12 @@ export default function BorcTakip() {
     if (!nativeSekmeCubuguVarMi) return;
     sekmeCubuguTemasi(isDark);
   }, [isDark]);
+  // Web: sayfa zemini (kaydirma cubugu boslugu dahil, kabuk.css) temayla
+  // ayni; kurulum acikken akis kendi zeminini yazar.
+  useEffect(() => {
+    if (nativeMi || kurulumAcik) return;
+    document.body.style.backgroundColor = temaRenkleri.bg;
+  }, [temaRenkleri.bg, kurulumAcik]);
   useEffect(() => {
     if (!nativeSekmeCubuguVarMi) return;
     sekmeCubugunuSec(anaSekme);
@@ -3469,14 +3584,153 @@ export default function BorcTakip() {
     );
   }, [yukleniyor]);
 
-  // Kurulum akisi tam ekran; bitince sayfa /summary ile yeniden yuklenir.
-  if (kurulumAcik && !yukleniyor && !bekleyenOnboarding) {
-    return <KurulumAkisi veri={veri} native={nativeMi} kaydet={kaydet} />;
+  // Web: kurulum bittikten sonra (ya da gerekmiyorsa) /kurulum/... adresi
+  // ve gecmisteki kurulum girdileri Bugün'e cikar.
+  useEffect(() => {
+    if (nativeMi || yukleniyor || kurulumAcik) return undefined;
+    const kurulumAdresiniDuzelt = () => {
+      if (!kurulumYoluMu(window.location.pathname)) return;
+      window.history.replaceState({}, "", SEKME_YOLLARI.ozet);
+      setSekmeState("ozet");
+    };
+    kurulumAdresiniDuzelt();
+    window.addEventListener("popstate", kurulumAdresiniDuzelt);
+    return () => window.removeEventListener("popstate", kurulumAdresiniDuzelt);
+  }, [yukleniyor, kurulumAcik]);
+
+  // Web: kurulum bitince sayfa yenilenmez (B8); tema veriden, dil, para
+  // birimi ve bolge kurulumda kaydedildi. iOS'ta akis kendisi yeniden yukler.
+  function kurulumuBitir() {
+    window.history.replaceState({}, "", SEKME_YOLLARI.ozet);
+    setSekmeState("ozet");
+    setForm(null);
+    setHazirBandi(null);
+    setKurulumAcik(false);
+    window.scrollTo({ top: 0 });
   }
+
+  // "+ Ekle" (masaustu): form ya da secici, bulunulan sayfadan ayrilmadan
+  // sag panelde acilir; odak kapaninca "+ Ekle"ye doner.
+  function masaustuEkle(tur, tetikleyici) {
+    panelTetikleyicisiniAyarla(tetikleyici);
+    setHizliMenuAcik(false);
+    if (tur === "harcama") {
+      if (sekme === "sabit-giderler") setSekme("harcamalar");
+      else if (sekme !== "harcamalar") setPanelKonagi("harcamalar");
+      setForm({ liste: "expenses", veri: {} });
+      return;
+    }
+    setForm(null);
+    if (tur === "odeme") {
+      setOdemeFiltresi("bekleyen");
+      if (sekme !== "odemeler") setPanelKonagi("odemeler");
+      setOdemeFormuIstegi((eski) => eski + 1);
+      return;
+    }
+    if (tur === "ekstre") {
+      setBorcKategori("cards");
+      if (sekme !== "borclar") setPanelKonagi("borclar");
+      setEkstreYuklemeIstegi((eski) => eski + 1);
+      return;
+    }
+    setBorcTuruSecimiAcik(true);
+  }
+
+  // Kurulum akisi tam ekran (masaustunde "Hazirsin" uygulamanin ustunde bant).
+  if (kurulumAcik && !hazirBandi && !yukleniyor && !bekleyenOnboarding) {
+    return (
+      <KurulumAkisi
+        veri={veri}
+        native={nativeMi}
+        kaydet={kaydet}
+        onBitti={kurulumuBitir}
+        onHazir={setHazirBandi}
+        cikisYap={cikisYap}
+        onizleme={(taslakVeri, { koyu, adim }) => (
+          <KurulumOnizleme
+            veri={taslakVeri}
+            koyu={koyu}
+            adim={adim}
+            kurTablosu={kurTablosu}
+            fiyatlar={piyasa.prices}
+            proAktif={etkinPro}
+          />
+        )}
+      />
+    );
+  }
+
+  // Sekmede ve "+ Ekle" panel konaginda ayni ozellikler.
+  const borclarOzellikleri = {
+    veri,
+    kaydet,
+    islemEkle,
+    form,
+    setForm,
+    ekleGuncelle,
+    sil,
+    odendiIsaretle,
+    kartOdemesiKaydet,
+    kartOdemesiDegistir,
+    krediOdemesiKaydet,
+    kartYapilandir,
+    bankalar,
+    bankaEkle,
+    kategori: borcKategori,
+    setKategori: setBorcKategori,
+    odemelereGit: () => {
+      setOdemeFiltresi("bekleyen");
+      setSekme("odemeler");
+      setForm(null);
+    },
+    planaGit: () => {
+      setSekme("plan");
+      setForm(null);
+    },
+    ekstreArsivIslemi,
+    ekstreYuklemeIstegi,
+    ekstreYuklemeIsteginiTuket: () => setEkstreYuklemeIstegi(0),
+    gelirEkle: () => {
+      setSekme("gelir");
+      setForm({ liste: "incomes", veri: {} });
+    },
+    hareketEkle: () => {
+      setSekme("harcamalar");
+      setForm({ liste: "expenses", veri: {} });
+    },
+    borcKutla: setBorcKutlamasi,
+    kurNotu: kurNotuDurumu,
+  };
+  const odemelerOzellikleri = {
+    veri,
+    yaklasan,
+    gelecekOdemeler,
+    odendiIsaretle,
+    kartOdemesiKaydet,
+    krediOdemesiKaydet,
+    filtre: odemeFiltresi,
+    filtreDegistir: setOdemeFiltresi,
+    odemeFormuIstegi,
+    odemeFormuIsteginiTuket: () => setOdemeFormuIstegi(0),
+    islemler: veri.activityHistory || [],
+    islemiGeriAl,
+    kurNotu: kurNotuDurumu,
+  };
+  const harcamalarOzellikleri = {
+    veri,
+    form,
+    setForm,
+    ekleGuncelle,
+    harcamaKaydet,
+    sil,
+    buAyHarcama,
+    bankalar,
+  };
 
   return (
     <div
-      className="bt-app"
+      id="bt-app-kok"
+      className={"bt-app" + (nativeMi ? "" : " mk-web") + (isDark ? " mk-koyu" : "") + (hazirBandi ? " bt-hazir-acilis" : "")}
       style={rootStyle}
       onKeyDownCapture={sayisalTusKontrol}
       onBeforeInputCapture={sayisalOnceGirdiKontrol}
@@ -3490,11 +3744,11 @@ export default function BorcTakip() {
       </datalist>
       <div className="bt-wrap">
         <header className="bt-header">
-          <div>
+          <div className="bt-logo">
             <img
               src={isDark ? "/borcama-logo-koyu.png" : "/borcama-logo.png"}
               alt="Borcama"
-              style={{
+              style={masaustu ? undefined : {
                 width: "clamp(150px,22vw,220px)",
                 height: "auto",
                 display: "block",
@@ -3553,6 +3807,20 @@ export default function BorcTakip() {
                 <Sparkles size={14} /> {t("kabuk.proyaGec")}
               </button>
             )}
+            {masaustu && (
+              <AcilirMenu
+                sinif="mk-ekle-kap"
+                etiket={t("web.kabuk.ekle.menu")}
+                dugmeSinifi="mk-ekle"
+                dugmeIcerigi={<><Plus size={16} strokeWidth={2.4} aria-hidden="true" /> {t("web.kabuk.ekle")}</>}
+                maddeler={[
+                  { anahtar: "harcama", ad: t("web.kabuk.ekle.harcama"), alt: t("kabuk.hizli.harcamaAlt"), ikon: Plus, onSec: (d) => masaustuEkle("harcama", d) },
+                  { anahtar: "odeme", ad: t("web.kabuk.ekle.odeme"), alt: t("kabuk.hizli.odemeAlt"), ikon: CalendarCheck, onSec: (d) => masaustuEkle("odeme", d) },
+                  { anahtar: "ekstre", ad: t("web.kabuk.ekle.ekstre"), alt: t("kabuk.hizli.ekstreAlt"), ikon: ReceiptText, onSec: (d) => masaustuEkle("ekstre", d) },
+                  { anahtar: "borc", ad: t("web.kabuk.ekle.borc"), alt: t("kabuk.hizli.yeniBorcAlt"), ikon: Wallet, onSec: (d) => masaustuEkle("borc", d) },
+                ]}
+              />
+            )}
             <button
               className={
                 "bt-settings-link " + (sekme === "ayarlar" ? "aktif" : "")
@@ -3564,8 +3832,41 @@ export default function BorcTakip() {
             >
               <Settings size={14} /> {t("kabuk.ayarlar")}
             </button>
+            {masaustu && (
+              <AcilirMenu
+                sinif="mk-hesap-kap"
+                etiket={t("web.kabuk.hesap")}
+                dugmeSinifi="bt-hesap-dugme"
+                dugmeAria={t("web.kabuk.hesap")}
+                dugmeBaslik={t("web.kabuk.hesap")}
+                dugmeIcerigi={<UserRound size={18} strokeWidth={2.2} aria-hidden="true" />}
+                ust={kullaniciEposta ? (
+                  <div className="mk-menu-ust" role="presentation">
+                    <strong>{t("web.kabuk.hesap")}</strong>
+                    {kullaniciEposta}
+                  </div>
+                ) : null}
+                maddeler={[
+                  { anahtar: "gorus", ad: t("web.geriBildirim.dugme"), ikon: MessageCircle, onSec: () => setGeriBildirimPenceresi(true) },
+                  ...(misafir || demoModu ? [] : [{ anahtar: "cikis", ad: t("ayarlar.hesap.cikisYap"), ikon: LogOut, onSec: cikisYap }]),
+                ]}
+              />
+            )}
           </div>
         </header>
+
+        {hazirBandi && (
+          <div className="bt-hazir-bant" role="status">
+            <strong>
+              {hazirBandi.ilkOdeme
+                ? t("web.kurulum.hazirBant", { tarih: hazirBandi.ilkOdeme })
+                : t("web.kurulum.hazirBantBorcsuz")}
+            </strong>
+            <button type="button" className="bt-hazir-bant-dugme" autoFocus onClick={() => hazirBandi.bitir()}>
+              {t("onboarding.hazir.dugme")}
+            </button>
+          </div>
+        )}
 
         <nav className={"bt-nav bt-nav-ana" + (nativeSekmeCubuguVarMi ? " bt-nav-gizli" : "")}>
           {[
@@ -3745,63 +4046,10 @@ export default function BorcTakip() {
               />
             )}
             {sekme === "borclar" && (
-              <Borclar
-                veri={veri}
-                kaydet={kaydet}
-                islemEkle={islemEkle}
-                form={form}
-                setForm={setForm}
-                ekleGuncelle={ekleGuncelle}
-                sil={sil}
-                odendiIsaretle={odendiIsaretle}
-                kartOdemesiKaydet={kartOdemesiKaydet}
-                kartOdemesiDegistir={kartOdemesiDegistir}
-                krediOdemesiKaydet={krediOdemesiKaydet}
-                kartYapilandir={kartYapilandir}
-                bankalar={bankalar}
-                bankaEkle={bankaEkle}
-                kategori={borcKategori}
-                setKategori={setBorcKategori}
-                odemelereGit={() => {
-                  setOdemeFiltresi("bekleyen");
-                  setSekme("odemeler");
-                  setForm(null);
-                }}
-                planaGit={() => {
-                  setSekme("plan");
-                  setForm(null);
-                }}
-                ekstreArsivIslemi={ekstreArsivIslemi}
-                ekstreYuklemeIstegi={ekstreYuklemeIstegi}
-                ekstreYuklemeIsteginiTuket={() => setEkstreYuklemeIstegi(0)}
-                gelirEkle={() => {
-                  setSekme("gelir");
-                  setForm({ liste: "incomes", veri: {} });
-                }}
-                hareketEkle={() => {
-                  setSekme("harcamalar");
-                  setForm({ liste: "expenses", veri: {} });
-                }}
-                borcKutla={setBorcKutlamasi}
-                kurNotu={kurNotuDurumu}
-              />
+              <Borclar {...borclarOzellikleri} />
             )}
             {sekme === "odemeler" && (
-              <Odemeler
-                veri={veri}
-                yaklasan={yaklasan}
-                gelecekOdemeler={gelecekOdemeler}
-                odendiIsaretle={odendiIsaretle}
-                kartOdemesiKaydet={kartOdemesiKaydet}
-                krediOdemesiKaydet={krediOdemesiKaydet}
-                filtre={odemeFiltresi}
-                filtreDegistir={setOdemeFiltresi}
-                odemeFormuIstegi={odemeFormuIstegi}
-                odemeFormuIsteginiTuket={() => setOdemeFormuIstegi(0)}
-                islemler={veri.activityHistory || []}
-                islemiGeriAl={islemiGeriAl}
-                kurNotu={kurNotuDurumu}
-              />
+              <Odemeler {...odemelerOzellikleri} />
             )}
             {sekme === "plan" && (
               <Plan
@@ -3813,6 +4061,7 @@ export default function BorcTakip() {
                 gelir={buAyGelir.toplam}
                 proAktif={etkinPro}
                 proAc={() => setProPenceresiAcik(true)}
+                yasamButcesiKaydet={(tutar) => ayarKaydet({ yasamButcesi: yasamButcesiKaydi(tutar, "kullanici") })}
               />
             )}
             {sekme === "gelir" && (
@@ -3854,18 +4103,7 @@ export default function BorcTakip() {
                 sabit
               />
             )}
-            {sekme === "harcamalar" && (
-              <Harcamalar
-                veri={veri}
-                form={form}
-                setForm={setForm}
-                ekleGuncelle={ekleGuncelle}
-                harcamaKaydet={harcamaKaydet}
-                sil={sil}
-                buAyHarcama={buAyHarcama}
-                bankalar={bankalar}
-              />
-            )}
+            {sekme === "harcamalar" && <Harcamalar {...harcamalarOzellikleri} />}
             {sekme === "varliklar" && (
               <Varliklar
                 veri={veri}
@@ -3904,8 +4142,48 @@ export default function BorcTakip() {
             )}
           </>
         )}
+        {/* "+ Ekle" baska sekmedeyken formu tasiyan bilesen listesiz baglanir;
+            formu ve secicileri sag panelde (masaustu), sayfa yerinde kalir. */}
+        {masaustu && panelKonagi && !yukleniyor && (
+          <>
+            {panelKonagi === "harcamalar" && sekme !== "harcamalar" && <Harcamalar {...harcamalarOzellikleri} yalnizPanel />}
+            {panelKonagi === "odemeler" && sekme !== "odemeler" && <Odemeler {...odemelerOzellikleri} yalnizPanel />}
+            {panelKonagi === "borclar" && sekme !== "borclar" && <Borclar {...borclarOzellikleri} yalnizPanel />}
+          </>
+        )}
       </div>
-      {borcTuruSecimiAcik && (
+      {(() => {
+        if (!borcTuruSecimiAcik) return null;
+        const turler = (
+          <div className="bt-baslangic-yontemler">
+            {[["cards", CreditCard], ["loans", Building2], ["od", Wallet]].map(([kategori, Ikon]) => (
+              <button
+                key={kategori}
+                className="bt-baslangic-yontem"
+                type="button"
+                onClick={() => {
+                  setBorcTuruSecimiAcik(false);
+                  setBorcKategori(kategori);
+                  // Masaustunde secilen turun formu ayni sayfada sag panelde.
+                  if (!masaustu) setSekme("borclar");
+                  else if (sekme !== "borclar") setPanelKonagi("borclar");
+                  setForm({ liste: KATEGORI_META[kategori].liste, veri: {} });
+                }}
+              >
+                <span><Ikon size={18} /></span>
+                <span><strong>{KATEGORI_META[kategori].ad}</strong></span>
+              </button>
+            ))}
+          </div>
+        );
+        if (masaustu) {
+          return (
+            <SagPanel baslik={t("kabuk.borcTuru.baslik")} aciklama={t("kabuk.borcTuru.aciklama")} onKapat={() => setBorcTuruSecimiAcik(false)}>
+              {turler}
+            </SagPanel>
+          );
+        }
+        return (
         <div
           className="bt-modal-arka"
           role="presentation"
@@ -3923,27 +4201,11 @@ export default function BorcTakip() {
                 <X size={18} />
               </button>
             </div>
-            <div className="bt-baslangic-yontemler">
-              {[["cards", CreditCard], ["loans", Building2], ["od", Wallet]].map(([kategori, Ikon]) => (
-                <button
-                  key={kategori}
-                  className="bt-baslangic-yontem"
-                  type="button"
-                  onClick={() => {
-                    setBorcTuruSecimiAcik(false);
-                    setBorcKategori(kategori);
-                    setSekme("borclar");
-                    setForm({ liste: KATEGORI_META[kategori].liste, veri: {} });
-                  }}
-                >
-                  <span><Ikon size={18} /></span>
-                  <span><strong>{KATEGORI_META[kategori].ad}</strong></span>
-                </button>
-              ))}
-            </div>
+            {turler}
           </div>
         </div>
-      )}
+        );
+      })()}
       {hizliMenuAcik && (
         <div className="bt-quick-menu" id="bt-hizli-islemler" role="menu">
           <button type="button" role="menuitem" onClick={() => {
@@ -4609,6 +4871,7 @@ function BorcamaAsistani({ acik, kapat, gelir, zorunluOdeme, harcama, oneriler, 
     loans: anaBirimVeri?.loans || [],
     debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
     currentDate: bugun(),
+    livingBudgetOverride: senaryoYasamButcesi({ ayarlar: veri?.ayarlar, expenses: veri?.expenses }),
   });
   const planAcigi = senaryo.status === "structural_gap" ? senaryo.monthlyGap : Math.max(-aylikKalan, 0);
   const planAlani = planAcigi > 0 ? -planAcigi : aylikKalan;
@@ -5787,8 +6050,30 @@ function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
   );
 }
 
-function AktivasyonKutusu({ durum, onBaslat }) {
+function AktivasyonKutusu({ durum, onBaslat, kurulumSonrasi = false }) {
   if (durum.tamam || !durum.siradaki) return null;
+  // Kurulumu bitiren kullanici: borc ve gelir kurulumda girildi; kurulumun
+  // devami olan tek kart (B13), sayac yok.
+  if (kurulumSonrasi) {
+    const hareket = durum.gorevler.find((gorev) => gorev.id === "activity");
+    if (!hareket || hareket.tamam) return null;
+    return (
+      <section className="bt-aktivasyon bt-aktivasyon-devam" aria-label={t("ozet.aktivasyon.sonAdimAria")}>
+        <div className="bt-aktivasyon-kopya">
+          <h2>{t("ozet.aktivasyon.sonAdimBaslik")}</h2>
+          <p>{t("ozet.aktivasyon.sonAdimAciklama")}</p>
+        </div>
+        <div className="bt-aktivasyon-aksiyon">
+          <button className="bt-btn birincil" type="button" onClick={() => onBaslat(hareket)}>
+            {t("ozet.aktivasyon.harcamaEkle")} <ChevronRight size={16} />
+          </button>
+          <button className="bt-aktivasyon-ikincil" type="button" onClick={() => onBaslat({ id: "payment" })}>
+            {t("ozet.aktivasyon.odemeGir")}
+          </button>
+        </div>
+      </section>
+    );
+  }
   const aktifAdim = Math.min(durum.tamamlanan + 1, durum.toplam);
   return (
     <section className="bt-aktivasyon" aria-label={t("ozet.aktivasyon.aria")}>
@@ -5845,6 +6130,9 @@ function Ozet({
   trialKalanGun = 0,
   proAc,
   proSatisYok = false,
+  // Web kurulumundaki canli onizleme ({ adim }): yalniz ozet karti ve borc
+  // sirasi cizilir, bos kisimlar iskelet cizgi; dugmeler yok.
+  onizleme = null,
 }) {
   const [haricTurler, setHaricTurler] = useState([]);
   // Senaryo kayit dizileriyle calisir; ana birime cevrilmis kopya (tek
@@ -5852,12 +6140,7 @@ function Ozet({
   const anaBirimVeri = useMemo(() => anaBirimBorcVerisi(veri), [veri]);
   const gelir = buAyGelir.toplam;
   const aktivasyon = getActivationState(veri);
-  const aylikDenge = getMonthlyBalancePresentation({
-    income: gelir,
-    mandatoryPayments: buAyOdenecek,
-    expenses: buAyHarcama.toplam,
-    expenseCount: buAyHarcama.adet,
-  });
+  const kurulumSonrasi = Boolean(veri?.ayarlar?.onboarding?.tamam);
 
   const parcalar = [
     { tur: "kart", ad: t("ozet.parca.kart"), tutar: toplamlar.kart, renk: "var(--debt-card)" },
@@ -5924,6 +6207,9 @@ function Ozet({
       : t("ozet.yeniOdemeBilgi");
   const gorunenOdemeler = [...gorunenGecikmisler, ...gorunenYaklasanlar].slice(0, 3);
   const yeniKullanici = gosterilenToplam <= 0.01 && yaklasan.length === 0;
+  // Yasam butcesi: harcama kaydi yokken kurulumun varsayimi, kullanici
+  // Plan'da girdiyse o (yasamButcesi.js); kurulumla ayni plan tutari.
+  const yasamButcesi = senaryoYasamButcesi({ ayarlar: veri?.ayarlar, expenses: veri?.expenses });
   const borcsuzlukSenaryosu = calculateRevolvingDebtScenario({
     income: gelir,
     expenses: veri?.expenses || [],
@@ -5933,6 +6219,15 @@ function Ozet({
       ["kart", "ek"].includes(kalem.tur),
     ),
     currentDate: bugun(),
+    livingBudgetOverride: yasamButcesi,
+  });
+  const aylikDenge = getMonthlyBalancePresentation({
+    income: gelir,
+    mandatoryPayments: buAyOdenecek,
+    expenses: buAyHarcama.toplam,
+    expenseCount: buAyHarcama.adet,
+    livingBudget: yasamButcesi,
+    planPayment: yasamButcesi === null ? null : aylikPlanOdemesi(borcsuzlukSenaryosu),
   });
   const senaryoMetni = getFinancialScenarioCopy(borcsuzlukSenaryosu);
   const onerilenYasamButcesi = borcsuzlukSenaryosu.recommendation?.recommendedLivingBudget;
@@ -5963,23 +6258,36 @@ function Ozet({
     return gunKaldi(gun);
   };
 
-  if (yeniKullanici) {
+  // Onizleme: borc girilmeden once tutarlar iskelet; gelir girilince aylik plan.
+  const iskeletBorc = Boolean(onizleme) && yeniKullanici;
+  const iskeletPlan = Boolean(onizleme) && aylikDenge.tutar === null && borcsuzlukSenaryosu.status !== "structural_gap";
+  const iskelet = (genislik, sinif = "") => <span className={`bt-iskelet ${sinif}`.trim()} style={{ "--genislik": genislik }} aria-hidden="true" />;
+
+  if (yeniKullanici && !onizleme) {
     return (
       <div className="bt-bugun-bos" data-tour="ozet">
         <span className="bt-bugun-bos-ikon"><ReceiptText size={25} /></span>
         <h1>{t("ozet.bos.baslik")}</h1>
         <p>{t("ozet.bos.aciklama")}</p>
-        <AktivasyonKutusu durum={aktivasyon} onBaslat={aktivasyonAdiminiBaslat} />
+        <AktivasyonKutusu durum={aktivasyon} kurulumSonrasi={kurulumSonrasi} onBaslat={aktivasyonAdiminiBaslat} />
       </div>
     );
   }
 
   return (
     <div className="bt-stack">
-      {!aktivasyon.tamam && (
-        <AktivasyonKutusu durum={aktivasyon} onBaslat={aktivasyonAdiminiBaslat} />
+      {!onizleme && !aktivasyon.tamam && (
+        <AktivasyonKutusu durum={aktivasyon} kurulumSonrasi={kurulumSonrasi} onBaslat={aktivasyonAdiminiBaslat} />
       )}
-      <div className="bt-hero" data-tour="ozet">
+      {/* Onizlemede plan adiminda, kurulumun plan kartiyla ayni tutar en ustte. */}
+      {onizleme && ["plan", "hazir"].includes(onizleme.adim) && aylikDenge.tutar !== null && (
+        <section className="bt-onizleme-plan">
+          <span className="oa-mono-etiket">{t("onboarding.plan.etiket")}</span>
+          <strong>{tutarGoster(aylikPlanOdemesi(borcsuzlukSenaryosu))}</strong>
+          <small>{t("onboarding.plan.varsayim", { gelir: tutarGoster(gelir) })}</small>
+        </section>
+      )}
+      <div className="bt-hero" data-tour={onizleme ? undefined : "ozet"}>
         <span className="deko-daire" />
         <span className="deko-kare" />
         <div className="bt-hero-grid">
@@ -5998,9 +6306,11 @@ function Ozet({
                 {tutarlarGizli ? <Eye size={17} /> : <EyeOff size={17} />}
               </button>
             </div>
-            <div className="bt-hero-tutar">
-              {tutarGoster(gosterilenToplam)}
-            </div>
+            {iskeletBorc ? iskelet("62%", "buyuk") : (
+              <div className="bt-hero-tutar">
+                {tutarGoster(gosterilenToplam)}
+              </div>
+            )}
             <KurNotu durum={kurNotu} koyu />
             <div
               aria-hidden={!haricTurler.length}
@@ -6034,7 +6344,7 @@ function Ozet({
               </div>
             )}
           </div>
-          <aside className="bt-onemli-panel" aria-label={t("ozet.aksiyonlarAria")}>
+          {!iskeletBorc && <aside className="bt-onemli-panel" aria-label={t("ozet.aksiyonlarAria")}>
             <div className="bt-onemli-liste">
               {oncelikliOdeme && (
                 <button
@@ -6076,33 +6386,49 @@ function Ozet({
                 <div className="bt-onemli-bos">{t("ozet.kritikYok")}</div>
               )}
             </div>
-          </aside>
+          </aside>}
         </div>
         <div className="bt-ozet-kisa" aria-label={t("ozet.buAyOzetAria")}>
           <div>
             <span>{t("ozet.kalanZorunlu")}</span>
-            <strong>{tutarGoster(buAyOdenecek)}</strong>
+            {iskeletBorc ? iskelet("70%", "orta") : <strong>{tutarGoster(buAyOdenecek)}</strong>}
           </div>
           <div>
             <span>{t("ozet.aylikPlan")}</span>
+            {iskeletPlan ? iskelet("78%", "orta") : <>
             <strong>
               {borcsuzlukSenaryosu.status === "structural_gap"
                 ? t("ozet.acikTutar", { tutar: tutarGoster(borcsuzlukSenaryosu.monthlyGap) })
                 : aylikDenge.tutar !== null
-                  ? `${aylikDenge.tutar >= 0 ? "+" : ""}${tutarGoster(aylikDenge.tutar)}`
+                  ? `${aylikDenge.tahmini ? "≈ " : ""}${aylikDenge.tutar >= 0 ? "+" : ""}${tutarGoster(aylikDenge.tutar)}`
                   : t("ozet.veriEksik")}
             </strong>
             <small>
               {borcsuzlukSenaryosu.status === "structural_gap"
                 ? t("ozet.acikAciklama")
-                : aylikDenge.aciklama}
+                : aylikDenge.tahmini
+                  ? (
+                    <>
+                      {aylikDenge.aciklama} ·{" "}
+                      <button className="bt-ozet-kisa-link" type="button" onClick={() => setSekme("plan")}>
+                        {t("ozet.denge.plandanDegistir")}
+                      </button>
+                    </>
+                  )
+                  : aylikDenge.aciklama}
             </small>
+            </>}
           </div>
           <div>
             <span>{t("ozet.ayIciHarcama")}</span>
-            <strong>{tutarGoster(buAyHarcama.toplam)}</strong>
+            {onizleme && !buAyHarcama.adet ? iskelet("58%", "orta") : <strong>{tutarGoster(buAyHarcama.toplam)}</strong>}
           </div>
         </div>
+        {iskeletBorc ? (
+          <div className="bt-borc-dagilim" aria-hidden="true">
+            <div className="bt-borc-dagilim-icerik">{iskelet("100%")}</div>
+          </div>
+        ) : (
         <div className="bt-borc-dagilim" aria-label={t("ozet.dagilimAria")}>
           <div className="bt-borc-dagilim-icerik">
             <div className="bt-serit">
@@ -6129,6 +6455,7 @@ function Ozet({
             </div>
           </div>
         </div>
+        )}
       </div>
 
       <section className="bt-bugun-plan" aria-labelledby="bugun-borc-plani-baslik">
@@ -6141,6 +6468,16 @@ function Ozet({
             {t("ozet.plan.tumu")} <ChevronRight size={14} />
           </button>
         </div>
+        {iskeletBorc ? (
+          <div className="bt-bugun-sira" aria-hidden="true">
+            {["58%", "44%", "52%"].map((genislik) => (
+              <div className="bt-iskelet-satir" key={genislik}>
+                <i />
+                <span>{iskelet(genislik)}{iskelet("34%")}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="bt-bugun-plan-grid">
           <div className="bt-bugun-faiz">
             <span>{t("ozet.plan.faizBaslik")}</span>
@@ -6193,8 +6530,10 @@ function Ozet({
             </div>
           )}
         </div>
+        )}
       </section>
 
+      {!onizleme && (<>
       {/* Davet odulu Pro: Pro'nun satilmadigi yerde bant gosterilmez. */}
       {!nativeMi && !proSatisYok && (
       <section className="bt-referral-campaign" aria-label={t("web.davet.bant.aria")}>
@@ -6252,7 +6591,7 @@ function Ozet({
                   <strong>
                     {hizlananAy > 0
                       ? ayMetni(onerilenBorcsuzlukSenaryosu.months)
-                      : tutarGoster(Math.max(borcsuzlukSenaryosu.initialDebtBudget, 0))}
+                      : tutarGoster(ilkAyKartKmhOdemesi(borcsuzlukSenaryosu))}
                   </strong>
                 </div>
                 <div>
@@ -6389,6 +6728,7 @@ function Ozet({
           <div className="bt-bugun-odeme-bos">{t("ozet.odemeler.bos")}</div>
         )}
       </section>
+      </>)}
     </div>
   );
 }
@@ -6748,7 +7088,12 @@ function Odemeler({
   kurNotu = null,
   odemeFormuIstegi = 0,
   odemeFormuIsteginiTuket,
+  // "+ Ekle" baska sekmedeyken: liste cizilmez, yalniz odeme paneli.
+  yalnizPanel = false,
 }) {
+  // Masaustunde odeme formu sag panelde; bekleyen yoksa panel bunu soyler.
+  const masaustu = useMasaustu();
+  const [bosOdemePaneli, setBosOdemePaneli] = useState(false);
   const [kartOdemePenceresi, setKartOdemePenceresi] = useState(null);
   const [krediOdemePenceresi, setKrediOdemePenceresi] = useState(null);
   const [kismiOdemeTutari, setKismiOdemeTutari] = useState("");
@@ -6896,7 +7241,10 @@ function Odemeler({
     if (odemeFormuIstegi <= 0) return;
     odemeFormuIsteginiTuket?.();
     const ilk = bekleyen[0];
-    if (!ilk) return;
+    if (!ilk) {
+      if (masaustu) setBosOdemePaneli(true);
+      return;
+    }
     setKismiOdemeTutari("");
     if (ilk.kartOdemesi) setKartOdemePenceresi(ilk);
     else setKrediOdemePenceresi(ilk);
@@ -6907,6 +7255,267 @@ function Odemeler({
     remaining: kalan,
   } = summarizeMandatoryPayments(odemeleriAnaBirimeCevir(sirali));
   const eskiKayitSayisi = sirali.filter((x) => x.odemeBilgisiYok).length;
+  // Panelde (masaustu) birden fazla bekleyen odeme varsa hangisi oldugu secilir.
+  function odemeSecici(secili) {
+    if (bekleyen.length < 2 || !bekleyen.some((o) => o.id === secili.id)) return null;
+    return (
+      <label className="bt-odeme-secim">
+        {t("web.panel.odemeSec")}
+        <select
+          className="bt-input"
+          value={secili.id}
+          onChange={(e) => {
+            const odeme = bekleyen.find((o) => o.id === e.target.value);
+            if (!odeme) return;
+            setKismiOdemeTutari("");
+            setKartOdemePenceresi(odeme.kartOdemesi ? odeme : null);
+            setKrediOdemePenceresi(odeme.kartOdemesi ? null : odeme);
+          }}
+        >
+          {bekleyen.map((o) => (
+            <option key={o.id} value={o.id}>{o.ad} · {fmt(o.tutar, o.paraBirimi)}</option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+  const odemePencereleri = (
+    <>
+      {bosOdemePaneli && (
+        <SagPanel baslik={t("web.panel.odeme")} onKapat={() => setBosOdemePaneli(false)}>
+          <p className="bt-odeme-bos">{t("odemeler.aktifBos")}</p>
+        </SagPanel>
+      )}
+      {kartOdemePenceresi && (() => {
+        const govde = (
+          <>
+            <div className="bt-kart-odeme-ozet">
+              <div>
+                <span>{t("odemeler.modal.kalanMinimum")}</span>
+                <strong>{fmt(kartOdemePenceresi.tutar, kartOdemePenceresi.paraBirimi)}</strong>
+              </div>
+              <div>
+                <span>{t("odemeler.kalanToplamBorc")}</span>
+                <strong>{fmt(kartOdemePenceresi.kalanToplam, kartOdemePenceresi.paraBirimi)}</strong>
+              </div>
+            </div>
+            <div className="bt-kart-odeme-secenekler">
+              <button
+                className="bt-kart-odeme-secimi"
+                type="button"
+                disabled={kartOdemePenceresi.tutar <= 0}
+                onClick={() => {
+                  kartOdemesiKaydet(kartOdemePenceresi.anahtar, kartOdemePenceresi.tutar, "minimum");
+                  setKartOdemePenceresi(null);
+                }}
+              >
+                <span><strong>{t("odemeler.modal.minimumuOdedim")}</strong><small>{t("odemeler.modal.minimumuOdedimAlt")}</small></span>
+                <b>{kartOdemePenceresi.tutar > 0 ? fmt(kartOdemePenceresi.tutar, kartOdemePenceresi.paraBirimi) : t("odemeler.modal.tamamlandi")}</b>
+              </button>
+              <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
+                <span><strong>{t("odemeler.modal.kismiYaptim")}</strong><small>{t("odemeler.modal.kismiYaptimAlt")}</small></span>
+                <span />
+                <ParaInput
+                  className="bt-input"
+                  placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
+                  value={kismiOdemeTutari}
+                  onValueChange={setKismiOdemeTutari}
+                  style={{ gridColumn: "1/-1", width: "100%" }}
+                />
+                <button
+                  className="bt-btn birincil"
+                  type="button"
+                  disabled={
+                    !(parseParaGirisi(kismiOdemeTutari) > 0) ||
+                    parseParaGirisi(kismiOdemeTutari) > kartOdemePenceresi.kalanToplam
+                  }
+                  onClick={() => {
+                    kartOdemesiKaydet(
+                      kartOdemePenceresi.anahtar,
+                      parseParaGirisi(kismiOdemeTutari),
+                      "kismi",
+                    );
+                    setKartOdemePenceresi(null);
+                  }}
+                  style={{ gridColumn: "1/-1", justifyContent: "center" }}
+                >
+                  {t("odemeler.modal.kismiKaydet")}
+                </button>
+              </div>
+              <button
+                className="bt-kart-odeme-secimi"
+                type="button"
+                onClick={() => {
+                  kartOdemesiKaydet(
+                    kartOdemePenceresi.anahtar,
+                    kartOdemePenceresi.kalanToplam,
+                    "tamami",
+                  );
+                  setKartOdemePenceresi(null);
+                }}
+              >
+                <span><strong>{t("odemeler.modal.tamaminiOdedim")}</strong><small>{t("odemeler.modal.tamaminiOdedimAlt")}</small></span>
+                <b>{fmt(kartOdemePenceresi.kalanToplam, kartOdemePenceresi.paraBirimi)}</b>
+              </button>
+            </div>
+          </>
+        );
+        if (masaustu) {
+          return (
+            <SagPanel baslik={kartOdemePenceresi.ad} onKapat={() => setKartOdemePenceresi(null)}>
+              {odemeSecici(kartOdemePenceresi)}
+              {govde}
+            </SagPanel>
+          );
+        }
+        return (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setKartOdemePenceresi(null);
+          }}
+        >
+          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kart-odeme-baslik">
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="kart-odeme-baslik" className="bt-h2">
+                  {kartOdemePenceresi.ad}
+                </div>
+              </div>
+              <button className="bt-btn hayalet" onClick={() => setKartOdemePenceresi(null)} aria-label={t("ortak.kapat")}>
+                <X size={17} />
+              </button>
+            </div>
+            {govde}
+          </div>
+        </div>
+        );
+      })()}
+      {krediOdemePenceresi && (() => {
+        const govde = (
+          <>
+            <div className="bt-kart-odeme-ozet">
+              <div>
+                <span>
+                  {t("odemeler.modal.kalanTaksit", {
+                    donem: krediOdemePenceresi.donemEtiketi || t("odemeler.modal.buAy"),
+                  })}
+                </span>
+                <strong>{fmt(krediOdemePenceresi.tutar, krediOdemePenceresi.paraBirimi)}</strong>
+              </div>
+              <div>
+                <span>{t("odemeler.modal.kalanKrediBorcu")}</span>
+                <strong>{fmt(krediOdemePenceresi.kalanKrediBorcu, krediOdemePenceresi.paraBirimi)}</strong>
+              </div>
+            </div>
+            <div className="bt-kart-odeme-secenekler">
+              <button
+                className="bt-kart-odeme-secimi"
+                type="button"
+                onClick={() => {
+                  krediOdemesiKaydet(
+                    krediOdemePenceresi.anahtar,
+                    krediOdemePenceresi.tutar,
+                    "taksit",
+                  );
+                  setKrediOdemePenceresi(null);
+                }}
+              >
+                <span>
+                  <strong>
+                    {t("odemeler.modal.taksitiOdedim", {
+                      donem: krediOdemePenceresi.donemEtiketi || t("odemeler.modal.buAy"),
+                    })}
+                  </strong>
+                  <small>{t("odemeler.modal.taksitiOdedimAlt")}</small>
+                </span>
+                <b>{fmt(krediOdemePenceresi.tutar, krediOdemePenceresi.paraBirimi)}</b>
+              </button>
+              <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
+                <span><strong>{t("odemeler.modal.farkliTutar")}</strong><small>{t("odemeler.modal.farkliTutarAlt")}</small></span>
+                <span />
+                <ParaInput
+                  className="bt-input"
+                  placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
+                  value={kismiOdemeTutari}
+                  onValueChange={setKismiOdemeTutari}
+                  style={{ gridColumn: "1/-1", width: "100%" }}
+                />
+                <button
+                  className="bt-btn birincil"
+                  type="button"
+                  disabled={
+                    !(parseParaGirisi(kismiOdemeTutari) > 0) ||
+                    parseParaGirisi(kismiOdemeTutari) > krediOdemePenceresi.kalanKrediBorcu
+                  }
+                  onClick={() => {
+                    krediOdemesiKaydet(
+                      krediOdemePenceresi.anahtar,
+                      parseParaGirisi(kismiOdemeTutari),
+                      "kismi",
+                    );
+                    setKrediOdemePenceresi(null);
+                  }}
+                  style={{ gridColumn: "1/-1", justifyContent: "center" }}
+                >
+                  {t("odemeler.modal.odemeyiKaydet")}
+                </button>
+              </div>
+              <button
+                className="bt-kart-odeme-secimi"
+                type="button"
+                onClick={() => {
+                  krediOdemesiKaydet(
+                    krediOdemePenceresi.anahtar,
+                    krediOdemePenceresi.kalanKrediBorcu,
+                    "kapat",
+                  );
+                  setKrediOdemePenceresi(null);
+                }}
+              >
+                <span><strong>{t("odemeler.modal.krediKapattim")}</strong><small>{t("odemeler.modal.krediKapattimAlt")}</small></span>
+                <b>{fmt(krediOdemePenceresi.kalanKrediBorcu, krediOdemePenceresi.paraBirimi)}</b>
+              </button>
+            </div>
+          </>
+        );
+        if (masaustu) {
+          return (
+            <SagPanel baslik={krediOdemePenceresi.ad} onKapat={() => setKrediOdemePenceresi(null)}>
+              {odemeSecici(krediOdemePenceresi)}
+              {govde}
+            </SagPanel>
+          );
+        }
+        return (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setKrediOdemePenceresi(null);
+          }}
+        >
+          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kredi-odeme-baslik">
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="kredi-odeme-baslik" className="bt-h2">
+                  {krediOdemePenceresi.ad}
+                </div>
+              </div>
+              <button className="bt-btn hayalet" onClick={() => setKrediOdemePenceresi(null)} aria-label={t("ortak.kapat")}>
+                <X size={17} />
+              </button>
+            </div>
+            {govde}
+          </div>
+        </div>
+        );
+      })()}
+    </>
+  );
+  if (yalnizPanel) return odemePencereleri;
+
   return (
     <div className="bt-stack">
       {(() => {
@@ -7108,205 +7717,11 @@ function Odemeler({
           )}
         </div>
       )}
-      {kartOdemePenceresi && (
-        <div
-          className="bt-modal-arka"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setKartOdemePenceresi(null);
-          }}
-        >
-          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kart-odeme-baslik">
-            <div className="bt-modalbaslik">
-              <div>
-                <div id="kart-odeme-baslik" className="bt-h2">
-                  {kartOdemePenceresi.ad}
-                </div>
-              </div>
-              <button className="bt-btn hayalet" onClick={() => setKartOdemePenceresi(null)} aria-label={t("ortak.kapat")}>
-                <X size={17} />
-              </button>
-            </div>
-            <div className="bt-kart-odeme-ozet">
-              <div>
-                <span>{t("odemeler.modal.kalanMinimum")}</span>
-                <strong>{fmt(kartOdemePenceresi.tutar, kartOdemePenceresi.paraBirimi)}</strong>
-              </div>
-              <div>
-                <span>{t("odemeler.kalanToplamBorc")}</span>
-                <strong>{fmt(kartOdemePenceresi.kalanToplam, kartOdemePenceresi.paraBirimi)}</strong>
-              </div>
-            </div>
-            <div className="bt-kart-odeme-secenekler">
-              <button
-                className="bt-kart-odeme-secimi"
-                type="button"
-                disabled={kartOdemePenceresi.tutar <= 0}
-                onClick={() => {
-                  kartOdemesiKaydet(kartOdemePenceresi.anahtar, kartOdemePenceresi.tutar, "minimum");
-                  setKartOdemePenceresi(null);
-                }}
-              >
-                <span><strong>{t("odemeler.modal.minimumuOdedim")}</strong><small>{t("odemeler.modal.minimumuOdedimAlt")}</small></span>
-                <b>{kartOdemePenceresi.tutar > 0 ? fmt(kartOdemePenceresi.tutar, kartOdemePenceresi.paraBirimi) : t("odemeler.modal.tamamlandi")}</b>
-              </button>
-              <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
-                <span><strong>{t("odemeler.modal.kismiYaptim")}</strong><small>{t("odemeler.modal.kismiYaptimAlt")}</small></span>
-                <span />
-                <ParaInput
-                  className="bt-input"
-                  placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
-                  value={kismiOdemeTutari}
-                  onValueChange={setKismiOdemeTutari}
-                  style={{ gridColumn: "1/-1", width: "100%" }}
-                />
-                <button
-                  className="bt-btn birincil"
-                  type="button"
-                  disabled={
-                    !(parseParaGirisi(kismiOdemeTutari) > 0) ||
-                    parseParaGirisi(kismiOdemeTutari) > kartOdemePenceresi.kalanToplam
-                  }
-                  onClick={() => {
-                    kartOdemesiKaydet(
-                      kartOdemePenceresi.anahtar,
-                      parseParaGirisi(kismiOdemeTutari),
-                      "kismi",
-                    );
-                    setKartOdemePenceresi(null);
-                  }}
-                  style={{ gridColumn: "1/-1", justifyContent: "center" }}
-                >
-                  {t("odemeler.modal.kismiKaydet")}
-                </button>
-              </div>
-              <button
-                className="bt-kart-odeme-secimi"
-                type="button"
-                onClick={() => {
-                  kartOdemesiKaydet(
-                    kartOdemePenceresi.anahtar,
-                    kartOdemePenceresi.kalanToplam,
-                    "tamami",
-                  );
-                  setKartOdemePenceresi(null);
-                }}
-              >
-                <span><strong>{t("odemeler.modal.tamaminiOdedim")}</strong><small>{t("odemeler.modal.tamaminiOdedimAlt")}</small></span>
-                <b>{fmt(kartOdemePenceresi.kalanToplam, kartOdemePenceresi.paraBirimi)}</b>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {krediOdemePenceresi && (
-        <div
-          className="bt-modal-arka"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setKrediOdemePenceresi(null);
-          }}
-        >
-          <div className="bt-modal" role="dialog" aria-modal="true" aria-labelledby="kredi-odeme-baslik">
-            <div className="bt-modalbaslik">
-              <div>
-                <div id="kredi-odeme-baslik" className="bt-h2">
-                  {krediOdemePenceresi.ad}
-                </div>
-              </div>
-              <button className="bt-btn hayalet" onClick={() => setKrediOdemePenceresi(null)} aria-label={t("ortak.kapat")}>
-                <X size={17} />
-              </button>
-            </div>
-            <div className="bt-kart-odeme-ozet">
-              <div>
-                <span>
-                  {t("odemeler.modal.kalanTaksit", {
-                    donem: krediOdemePenceresi.donemEtiketi || t("odemeler.modal.buAy"),
-                  })}
-                </span>
-                <strong>{fmt(krediOdemePenceresi.tutar, krediOdemePenceresi.paraBirimi)}</strong>
-              </div>
-              <div>
-                <span>{t("odemeler.modal.kalanKrediBorcu")}</span>
-                <strong>{fmt(krediOdemePenceresi.kalanKrediBorcu, krediOdemePenceresi.paraBirimi)}</strong>
-              </div>
-            </div>
-            <div className="bt-kart-odeme-secenekler">
-              <button
-                className="bt-kart-odeme-secimi"
-                type="button"
-                onClick={() => {
-                  krediOdemesiKaydet(
-                    krediOdemePenceresi.anahtar,
-                    krediOdemePenceresi.tutar,
-                    "taksit",
-                  );
-                  setKrediOdemePenceresi(null);
-                }}
-              >
-                <span>
-                  <strong>
-                    {t("odemeler.modal.taksitiOdedim", {
-                      donem: krediOdemePenceresi.donemEtiketi || t("odemeler.modal.buAy"),
-                    })}
-                  </strong>
-                  <small>{t("odemeler.modal.taksitiOdedimAlt")}</small>
-                </span>
-                <b>{fmt(krediOdemePenceresi.tutar, krediOdemePenceresi.paraBirimi)}</b>
-              </button>
-              <div className="bt-kart-odeme-secimi" style={{ cursor: "default" }}>
-                <span><strong>{t("odemeler.modal.farkliTutar")}</strong><small>{t("odemeler.modal.farkliTutarAlt")}</small></span>
-                <span />
-                <ParaInput
-                  className="bt-input"
-                  placeholder={ornekSayiMetni("odemeler.modal.tutarOrnek", 5000)}
-                  value={kismiOdemeTutari}
-                  onValueChange={setKismiOdemeTutari}
-                  style={{ gridColumn: "1/-1", width: "100%" }}
-                />
-                <button
-                  className="bt-btn birincil"
-                  type="button"
-                  disabled={
-                    !(parseParaGirisi(kismiOdemeTutari) > 0) ||
-                    parseParaGirisi(kismiOdemeTutari) > krediOdemePenceresi.kalanKrediBorcu
-                  }
-                  onClick={() => {
-                    krediOdemesiKaydet(
-                      krediOdemePenceresi.anahtar,
-                      parseParaGirisi(kismiOdemeTutari),
-                      "kismi",
-                    );
-                    setKrediOdemePenceresi(null);
-                  }}
-                  style={{ gridColumn: "1/-1", justifyContent: "center" }}
-                >
-                  {t("odemeler.modal.odemeyiKaydet")}
-                </button>
-              </div>
-              <button
-                className="bt-kart-odeme-secimi"
-                type="button"
-                onClick={() => {
-                  krediOdemesiKaydet(
-                    krediOdemePenceresi.anahtar,
-                    krediOdemePenceresi.kalanKrediBorcu,
-                    "kapat",
-                  );
-                  setKrediOdemePenceresi(null);
-                }}
-              >
-                <span><strong>{t("odemeler.modal.krediKapattim")}</strong><small>{t("odemeler.modal.krediKapattimAlt")}</small></span>
-                <b>{fmt(krediOdemePenceresi.kalanKrediBorcu, krediOdemePenceresi.paraBirimi)}</b>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {odemePencereleri}
     </div>
   );
 }
+
 
 function BorcUzerindenOdemeModal({
   odeme,
@@ -7315,6 +7730,7 @@ function BorcUzerindenOdemeModal({
   krediOdemesiKaydet,
 }) {
   const [kismiTutar, setKismiTutar] = useState("");
+  const masaustu = useMasaustu();
   const fmt = (n) => fmtBirimli(n, odeme?.paraBirimi);
   const kartMi = odeme?.tur === "kart";
   useEffect(() => {
@@ -7333,28 +7749,8 @@ function BorcUzerindenOdemeModal({
     else krediOdemesiKaydet?.(odeme.anahtar, tutar, tur);
     onClose?.();
   };
-  return (
-    <div
-      className="bt-modal-arka"
-      role="presentation"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose?.();
-      }}
-    >
-      <div
-        className="bt-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="borc-odeme-baslik"
-      >
-        <div className="bt-modalbaslik">
-          <div>
-            <div id="borc-odeme-baslik" className="bt-h2">{odeme.ad}</div>
-          </div>
-          <button className="bt-btn hayalet" onClick={onClose} aria-label={t("ortak.kapat")}>
-            <X size={17} />
-          </button>
-        </div>
+  const govde = (
+    <>
         <div className="bt-kart-odeme-ozet">
           <div>
             <span>
@@ -7418,6 +7814,38 @@ function BorcUzerindenOdemeModal({
             <b>{fmt(kalanToplam)}</b>
           </button>
         </div>
+    </>
+  );
+  if (masaustu) {
+    return (
+      <SagPanel baslik={odeme.ad} onKapat={onClose}>
+        {govde}
+      </SagPanel>
+    );
+  }
+  return (
+    <div
+      className="bt-modal-arka"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose?.();
+      }}
+    >
+      <div
+        className="bt-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="borc-odeme-baslik"
+      >
+        <div className="bt-modalbaslik">
+          <div>
+            <div id="borc-odeme-baslik" className="bt-h2">{odeme.ad}</div>
+          </div>
+          <button className="bt-btn hayalet" onClick={onClose} aria-label={t("ortak.kapat")}>
+            <X size={17} />
+          </button>
+        </div>
+        {govde}
       </div>
     </div>
   );
@@ -8129,7 +8557,12 @@ function Borclar({
   hareketEkle,
   borcKutla,
   kurNotu = null,
+  // "+ Ekle" baska sekmedeyken: liste cizilmez, yalniz form paneli ve
+  // ekleme secicileri/pencereleri.
+  yalnizPanel = false,
 }) {
+  // Masaustunde formlar ve ekleme secicileri sag panelde; liste yerinde (B11).
+  const masaustu = useMasaustu();
   const [seciliEkstreAyi, setSeciliEkstreAyi] = useState("guncel");
   const [seciliKrediAyi, setSeciliKrediAyi] = useState("guncel");
   const [yeniBanka, setYeniBanka] = useState("");
@@ -8321,6 +8754,7 @@ function Borclar({
   const saltOkunurGorunum =
     arsivGorunumu || krediArsivGorunumu || krediGelecekGorunumu;
   const acik = form && form.liste === meta.liste;
+  const satirIci = acik && !masaustu;
   const yeniEkstreModu = kategori === "cards" && acik && form.yeniEkstre;
   const ekstreDuzenleModu = kategori === "cards" && acik && form.ekstreDuzenle;
   const ekstreFormu = yeniEkstreModu || ekstreDuzenleModu;
@@ -8334,9 +8768,28 @@ function Borclar({
     ? `borc-form-${form.veri.id}`
     : null;
   const yeniKayitHedefi = acik && !form.veri?.id ? "borc-yeni-formu" : null;
+  // Sag panel basligi (masaustu): formun hangi kayit icin acildigi.
+  const borcFormBasligi = !acik
+    ? ""
+    : ekHesapBorcModu
+      ? t("web.panel.ekHesapBorc")
+      : ekHesapOdemeModu
+        ? form.odemeDuzenle ? t("borclar.form.odemeKaydiDuzenle") : t("web.panel.odeme")
+        : yeniEkstreModu
+          ? t("web.panel.yeniEkstre")
+          : ekstreDuzenleModu
+            ? t("web.panel.ekstreDuzenle")
+            : form.veri?.id
+              ? t("web.panel.borcDuzenle")
+              : { cards: t("web.panel.kart"), loans: t("web.panel.kredi"), overdrafts: t("web.panel.ekHesap") }[meta.liste] || t("web.panel.borc");
+  const borcFormAciklamasi = acik && form.veri?.id
+    ? meta.liste === "cards"
+      ? kartGorunenAdi(form.veri)
+      : [form.veri.banka, form.veri.ad].filter(Boolean).join(" · ")
+    : undefined;
 
   useEffect(() => {
-    if (!guncelKrediGorunumu) return;
+    if (!guncelKrediGorunumu || yalnizPanel) return;
     const kredi = kutlanacakKapaliKredi(kapatilanKrediler, gecmisKrediKutlamalari.current);
     if (!kredi) return;
     gecmisKrediKutlamalari.current.add(kredi.id);
@@ -8367,7 +8820,7 @@ function Borclar({
   }, [borcKutla, guncelKrediGorunumu, kapatilanKrediler, kaydet, veri]);
 
   useEffect(() => {
-    if (!yerindeFormHedefi) return;
+    if (!yerindeFormHedefi || masaustu) return;
     const kare = requestAnimationFrame(() => {
       document.getElementById(yerindeFormHedefi)?.scrollIntoView({
         behavior: "smooth",
@@ -8378,7 +8831,7 @@ function Borclar({
   }, [yerindeFormHedefi]);
 
   useEffect(() => {
-    if (!yeniKayitHedefi) return;
+    if (!yeniKayitHedefi || masaustu) return;
     const kare = requestAnimationFrame(() => {
       document.getElementById(yeniKayitHedefi)?.scrollIntoView({
         behavior: "smooth",
@@ -9132,718 +9585,340 @@ function Borclar({
         : t("borclar.arsiv.yuklemeKaldirildi"));
   }
 
-  return (
-    <div className="bt-stack">
-      <section className="bt-plan-kisayol" aria-label={t("borclar.plan.aria")}>
-        <span className="bt-plan-kisayol-ikon" aria-hidden="true">
-          <Target size={20} />
-        </span>
-        <div className="bt-plan-kisayol-metin">
-          <strong>{t("borclar.plan.baslik")}</strong>
-          <span>{t("borclar.plan.aciklama")}</span>
-        </div>
-        <button className="bt-btn kucuk birincil" type="button" onClick={planaGit}>
-          {t("borclar.plan.ac")} <ChevronRight size={15} />
-        </button>
-      </section>
-      {kategori === "kontrol" && (
-        <div className="bt-borc-araclari">
+  const borcFormu = acik && (
+    <FormYeri
+      panel={masaustu}
+      baslik={borcFormBasligi}
+      aciklama={borcFormAciklamasi}
+      onKapat={() => setForm(null)}
+      hedef={yerindeFormHedefi}
+    >
+      <div className="bt-form" id={yeniKayitHedefi || undefined}>
+      {ekHesapBorcModu && (
+        <div className="bt-ipucu" style={{ marginBottom: 14 }}>
+          <Lightbulb size={16} />
           <div>
-            <div className="bt-borc-araclari-baslik">
-              <div className="bt-borc-araclari-ikon"><ReceiptText size={17} /></div>
-              <div>
-                <strong>{t("borclar.kontrol.baslik")}</strong>
-              </div>
-            </div>
-            <div className="bt-borc-araclari-aciklama">
-              {t("borclar.kontrol.aciklama")}
-            </div>
-          </div>
-          <div className="bt-borc-araclari-actions">
-            <button
-              className="bt-btn kucuk ikincil"
-              onClick={() => {
-                setKategori("cards");
-                setForm(null);
-              }}
-            >
-              {t("borclar.kontrol.kartlaraDon")}
-            </button>
-            <details className="bt-ekstre-bilgi">
-              <summary aria-label={t("borclar.kontrol.bilgiAria")}>
-                <Info size={17} aria-hidden="true" />
-              </summary>
-              <div className="bt-ekstre-bilgi-kutu" role="note">
-                <strong>{t("borclar.kontrol.nasil")}</strong>
-                {t("borclar.kontrol.nasilMetin")}
-              </div>
-            </details>
+            <b>{t("borclar.form.yeniBorcBaslik", { banka: form.veri.banka })}</b> {t("borclar.form.yeniBorcAciklama")}
+            <br />{t("borclar.form.guncelKalan")} <b>{fmt(ekHesapHesabi(form.veri).kalan, yabanciBirim(form.veri))}</b>
+            {Number(f.yeniBorcTutari) > 0 && <> · {t("borclar.form.eklemeSonrasi")} <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari), yabanciBirim(form.veri))}</b></>}
           </div>
         </div>
       )}
-      {kategori === "others" && (
-        <div className="bt-borc-araclari filtre-aktif">
+      {ekHesapBorcHatasi && ekHesapBorcModu && <p role="alert">{ekHesapBorcHatasi}</p>}
+      {yeniEkstreModu && (
+        <div className="bt-ipucu" style={{ marginBottom: 14 }}>
+          <Lightbulb size={16} />
           <div>
-            <div className="bt-borc-araclari-baslik">
-              <div className="bt-borc-araclari-ikon"><AlertTriangle size={17} /></div>
-              <div><strong>{t("borclar.gecikenler.baslik")}</strong></div>
-            </div>
-            <div className="bt-borc-araclari-aciklama">
-              {t("borclar.gecikenler.aciklama", { devreden: devredenSayisi, gecikmis: gecikmisSayisi })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {kategori === "kontrol" ? (
-        <EkstreKontrol
-          veri={veri}
-          onKartEkle={() => {
-            setKategori("cards");
-            setForm({ liste: "cards", veri: {} });
-          }}
-          onEkstreYukle={genelEkstreAkisiniAc}
-        />
-      ) : (
-        <div className="bt-card" data-tour="borclar">
-          {kategori === "cards" ? (
-            <div className="bt-kart-ust">
-              <div className="bt-kart-ust-ozet">
-                <div className="bt-kart-ust-baslik">
-                  <span className="bt-kart-ust-ikon"><Wallet size={17} /></span>
-                  <div>
-                    <strong>{t("borclar.kart.baslik")}</strong>
-                    <span>{kayitlar.length
-                      ? t(kayitlar.length === 1 ? "borclar.kart.kayitliTekil" : "borclar.kart.kayitliCogul", { n: kayitlar.length })
-                      : t("borclar.kart.henuzYok")}</span>
-                  </div>
-                </div>
-                <div className="bt-kart-borc">
-                  {kayitlar.length ? (
-                    <>
-                      <span>{t("borclar.kart.kalanBorc")}</span>
-                      <strong>{fmt(toplamHesapla())}</strong>
-                      <KurNotu durum={kurNotu} />
-                    </>
-                  ) : (
-                    <span className="bt-kart-bos-metin">
-                      {t("borclar.kart.bosMetin")}
-                    </span>
-                  )}
-                  <button
-                    className="bt-btn kucuk ikincil bt-kart-ekle"
-                    type="button"
-                    onClick={() => setForm({ liste: meta.liste, veri: {} })}
-                  >
-                    <Plus size={14} /> {t("borclar.kart.ekle")}
-                  </button>
-                </div>
-              </div>
-              {!acik && !saltOkunurGorunum && (
-                <div className="bt-kart-ust-islemler">
-                  <div className="bt-kart-islem-baslik">
-                    <strong>{t("borclar.ekstre.islemler")}</strong>
-                    <span>{t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.islemlerAciklama" : "borclar.ekstre.islemlerAciklamaManuel")}</span>
-                  </div>
-                  <div className="bt-kart-ust-ana tek">
-                    <button
-                      className="bt-btn kucuk birincil"
-                      onClick={genelEkstreAkisiniAc}
-                    >
-                      <Plus size={14} /> {t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
-                    </button>
-                  </div>
-                  <div className="bt-kart-ust-araclar" aria-label={t("borclar.ekstre.araclarAria")}>
-                    <button
-                      className="bt-btn kucuk hayalet"
-                      onClick={() => {
-                        setKategori("kontrol");
-                        setForm(null);
-                      }}
-                    >
-                      <ScanSearch size={14} /> {t("borclar.kontrol.baslik")}
-                    </button>
-                    <button
-                      className="bt-btn kucuk hayalet"
-                      onClick={() => {
-                        setArsivMesaji("");
-                        setEkstreArsiviAcik(true);
-                      }}
-                    >
-                      <BookOpen size={14} /> {t("borclar.arsiv.baslik")}
-                      {yuklenenEkstreler.length > 0 ? ` (${yuklenenEkstreler.length})` : ""}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bt-strip">
-              <div className="bt-strip-count">{sayacHesapla()}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                <div className="bt-strip-total-block">
-                  <span className="bt-strip-total-label">
-                    {kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu ? t("borclar.serit.kalanToplam") : t("ortak.toplam")}
-                  </span>
-                  <div className="bt-strip-total bt-mono">
-                    {fmt(toplamHesapla())}
-                  </div>
-                  <KurNotu durum={kurNotu} />
-                </div>
-                {!acik && !saltOkunurGorunum && kategori !== "others" && (
-                  <button
-                    className="bt-btn kucuk ikincil"
-                    type="button"
-                    onClick={() => {
-                      if (kategori === "loans") {
-                        // Odeme plani okuyucusu yalniz Turk bankalarini taniyor;
-                        // TRY disinda dogrudan elle giris formu acilir.
-                        if (belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) setKrediEklemeSecimiAcik(true);
-                        else setForm({ liste: "loans", veri: {} });
-                        return;
-                      }
-                      setForm({ liste: meta.liste, veri: {} });
-                    }}
-                  >
-                    <Plus size={14} /> {kategori === "loans" ? t("borclar.serit.yeniKredi") : t("borclar.serit.yeniEkHesap")}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Form açıkken dönem seçicisi gizlenir; formun alanı sanılmasın (dönem değişince form zaten kapanır). */}
-          {!acik && kategori === "cards" && veri.cards.length > 0 && (
-            <div className="bt-borc-donem-satiri">
-              <div>
-                <strong>{t("borclar.donem.ekstreBaslik")}</strong>
-                <span>{t("borclar.donem.ekstreAciklama")}</span>
-              </div>
-              <select
-                className="bt-input"
-                value={seciliEkstreAyi}
-                onChange={(e) => {
-                  setSeciliEkstreAyi(e.target.value);
-                  setForm(null);
-                }}
-              >
-                <option value="guncel">{t("borclar.donem.guncel", { ay: ayEtiketi(guncelEkstreAyi) })}</option>
-                {ekstreAylar
-                  .filter((ay) => ay !== guncelEkstreAyi)
-                  .map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}
-              </select>
-            </div>
-          )}
-
-          {!acik && kategori === "loans" && veri.loans.length > 0 && (
-            <div className="bt-borc-donem-satiri">
-              <div>
-                <strong>{t("borclar.donem.krediBaslik")}</strong>
-                <span>{t("borclar.donem.krediAciklama")}</span>
-              </div>
-              <select
-                className="bt-input"
-                value={seciliKrediAyi}
-                onChange={(e) => {
-                  setSeciliKrediAyi(e.target.value);
-                  setForm(null);
-                }}
-              >
-                <option value="guncel">{t("borclar.donem.guncel", { ay: ayEtiketi(ayAnahtari()) })}</option>
-                {gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{t("borclar.donem.gelecek", { ay: ayEtiketi(ay) })}</option>)}
-                {krediAylar.map((ay) => <option key={ay} value={ay}>{t("borclar.donem.gecmis", { ay: ayEtiketi(ay) })}</option>)}
-              </select>
-            </div>
-          )}
-
-          {!acik && odemeOzeti && (
-            <BorcOdemeGrafigi
-              ozet={odemeOzeti}
-              depolamaAnahtari={kategori}
+            <Ceviri
+              anahtar="borclar.form.yeniEkstre"
+              degerler={{ kart: <b>{kartGorunenAdi(form.veri)}</b> }}
             />
-          )}
-
-          {acik && (
-            <YerindeForm hedef={yerindeFormHedefi}>
-              <div className="bt-form" id={yeniKayitHedefi || undefined}>
-              {ekHesapBorcModu && (
-                <div className="bt-ipucu" style={{ marginBottom: 14 }}>
-                  <Lightbulb size={16} />
-                  <div>
-                    <b>{t("borclar.form.yeniBorcBaslik", { banka: form.veri.banka })}</b> {t("borclar.form.yeniBorcAciklama")}
-                    <br />{t("borclar.form.guncelKalan")} <b>{fmt(ekHesapHesabi(form.veri).kalan, yabanciBirim(form.veri))}</b>
-                    {Number(f.yeniBorcTutari) > 0 && <> · {t("borclar.form.eklemeSonrasi")} <b>{fmt(ekHesapHesabi(form.veri).kalan + Number(f.yeniBorcTutari), yabanciBirim(form.veri))}</b></>}
-                  </div>
-                </div>
-              )}
-              {ekHesapBorcHatasi && ekHesapBorcModu && <p role="alert">{ekHesapBorcHatasi}</p>}
-              {yeniEkstreModu && (
-                <div className="bt-ipucu" style={{ marginBottom: 14 }}>
-                  <Lightbulb size={16} />
-                  <div>
-                    <Ceviri
-                      anahtar="borclar.form.yeniEkstre"
-                      degerler={{ kart: <b>{kartGorunenAdi(form.veri)}</b> }}
-                    />
-                  </div>
-                </div>
-              )}
-              {ekstreDuzenleModu && (
-                <div className="bt-ipucu" style={{ marginBottom: 14 }}>
-                  <Lightbulb size={16} />
-                  <div>
-                    <Ceviri
-                      anahtar="borclar.form.ekstreDuzenle"
-                      degerler={{ kart: <b>{kartGorunenAdi(form.veri)}</b> }}
-                    />
-                  </div>
-                </div>
-              )}
-              {ekHesapOdemeModu &&
-                (() => {
-                  const h = ekHesapHesabi(form.veri);
-                  return (
-                    <div className="bt-ipucu" style={{ marginBottom: 14 }}>
-                      <Lightbulb size={16} />
-                      <div>
-                        <b>
-                          {form.veri.banka} ·{" "}
-                          {form.odemeDuzenle
-                            ? t("borclar.form.odemeKaydiDuzenle")
-                            : t("borclar.form.ekHesap")}
-                        </b>
-                        <br />
-                        <Ceviri
-                          anahtar="borclar.form.ekHesapOzet"
-                          degerler={{
-                            kullanilan: fmt(h.kullanilan, yabanciBirim(form.veri)),
-                            odenen: fmt(h.odeme, yabanciBirim(form.veri)),
-                            kalan: <b>{fmt(h.kalan, yabanciBirim(form.veri))}</b>,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
-              <div className="bt-alanlar">
-                {alanlar.filter((a) => !a.ek).map((a) => (
-                  <label key={a.k} className="bt-alan">
-                    {a.e}
-                    {a.z ? " *" : ""}
-                    {a.k === "banka" && kategori !== "others" ? (
-                      <select
-                        className="bt-input"
-                        value={f.banka ?? ""}
-                        onChange={(e) => {
-                          if (e.target.value === "__diger__")
-                            setBankaPenceresi(true);
-                          else setF({ ...f, banka: e.target.value });
-                        }}
-                      >
-                        <option value="">{t("borclar.alan.bankaSecin")}</option>
-                        {(f?.paraBirimi === "TRY" ? [...new Set([...BANKALAR, ...bankalar])] : bankalar).map((b) => (
-                          <option key={b} value={b}>
-                            {b}
-                          </option>
-                        ))}
-                        <option value="__diger__">{t("borclar.alan.diger")}</option>
-                      </select>
-                    ) : (
-                      <input
-                        className="bt-input"
-                        type={a.para ? "text" : a.t}
-                        inputMode={a.para ? "decimal" : undefined}
-                        min={!a.para && a.t === "number" ? 0 : undefined}
-                        step={a.k === "faiz" ? "0.01" : undefined}
-                        readOnly={
-                          kategori === "loans" &&
-                          ((krediIlerlemesi?.gecerli && a.k === "kalanTaksit") ||
-                            (a.k === "odemeGunu" && !!f.ilkOdemeTarihi))
-                        }
-                        placeholder={a.p}
-                        value={a.para ? paraGirdisiniFormatla(
-                          f[a.k] ?? ""
-                        ) : (
-                          kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
-                            ? krediIlerlemesi.kalanTaksit
-                            : kategori === "loans" && a.k === "odemeGunu" && f.ilkOdemeTarihi
-                              ? Number(f.ilkOdemeTarihi.slice(-2))
-                              : f[a.k] ?? ""
-                        )}
-                        onChange={(e) => {
-                          setKrediGirisHatasi("");
-                          const deger = a.para ? paraGirdisiniCoz(e.target.value) : e.target.value;
-                          setF({
-                            ...f,
-                            [a.k]: deger,
-                            ...(kategori === "loans" && a.k === "ilkOdemeTarihi"
-                              ? { odemeGunu: deger ? Number(deger.slice(-2)) : "" }
-                              : {}),
-                          });
-                        }}
-                      />
-                    )}
-                  </label>
-                ))}
-                {!ekHesapBorcModu && !ekHesapOdemeModu && !ekstreFormu && (
-                  <BorcParaBirimiSecici
-                    deger={f?.paraBirimi}
-                    onChange={(kod) => setF({ ...f, paraBirimi: kod })}
-                  />
-                )}
-              </div>
-              {alanlar.some((a) => a.ek) && (
-                <details className="bt-alan-ek">
-                  <summary>{t("borclar.alan.dahaFazla")}</summary>
-                  <div className="bt-alanlar">
-                    {alanlar.filter((a) => a.ek).map((a) => (
-                      <label key={a.k} className="bt-alan">
-                    {a.e}
-                    {a.z ? " *" : ""}
-                    {a.k === "banka" && kategori !== "others" ? (
-                      <select
-                        className="bt-input"
-                        value={f.banka ?? ""}
-                        onChange={(e) => {
-                          if (e.target.value === "__diger__")
-                            setBankaPenceresi(true);
-                          else setF({ ...f, banka: e.target.value });
-                        }}
-                      >
-                        <option value="">{t("borclar.alan.bankaSecin")}</option>
-                        {bankalar.map((b) => (
-                          <option key={b} value={b}>
-                            {b}
-                          </option>
-                        ))}
-                        <option value="__diger__">{t("borclar.alan.diger")}</option>
-                      </select>
-                    ) : (
-                      <input
-                        className="bt-input"
-                        type={a.para ? "text" : a.t}
-                        inputMode={a.para ? "decimal" : undefined}
-                        min={!a.para && a.t === "number" ? 0 : undefined}
-                        step={a.k === "faiz" ? "0.01" : undefined}
-                        readOnly={
-                          kategori === "loans" &&
-                          ((krediIlerlemesi?.gecerli && a.k === "kalanTaksit") ||
-                            (a.k === "odemeGunu" && !!f.ilkOdemeTarihi))
-                        }
-                        placeholder={a.p}
-                        value={a.para ? paraGirdisiniFormatla(
-                          f[a.k] ?? ""
-                        ) : (
-                          kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
-                            ? krediIlerlemesi.kalanTaksit
-                            : kategori === "loans" && a.k === "odemeGunu" && f.ilkOdemeTarihi
-                              ? Number(f.ilkOdemeTarihi.slice(-2))
-                              : f[a.k] ?? ""
-                        )}
-                        onChange={(e) => {
-                          setKrediGirisHatasi("");
-                          const deger = a.para ? paraGirdisiniCoz(e.target.value) : e.target.value;
-                          setF({
-                            ...f,
-                            [a.k]: deger,
-                            ...(kategori === "loans" && a.k === "ilkOdemeTarihi"
-                              ? { odemeGunu: deger ? Number(deger.slice(-2)) : "" }
-                              : {}),
-                          });
-                        }}
-                      />
-                    )}
-                  </label>
-                    ))}
-                  </div>
-                </details>
-              )}
-              {kategori === "loans" && (
-                <div
-                  className="bt-ipucu"
-                  role={krediGirisHatasi || krediIlerlemesi?.hata ? "alert" : undefined}
-                  style={{
-                    marginTop: 14,
-                    borderColor: krediGirisHatasi || krediIlerlemesi?.hata ? CORAL : undefined,
-                  }}
-                >
-                  <Lightbulb size={16} />
-                  <div>
-                    {krediGirisHatasi || krediIlerlemesi?.hata ? (
-                      krediGirisHatasi || krediIlerlemesi.hata
-                    ) : krediIlerlemesi?.gecerli ? (
-                      <>
-                        <b>{t("borclar.form.otomatikPlan")}</b>{" "}
-                        <Ceviri
-                          anahtar="borclar.form.taksitKaldi"
-                          degerler={{
-                            n: krediIlerlemesi.kalanTaksit,
-                            tutar: <b>{fmt(krediIlerlemesi.kalanToplamOdeme, yabanciBirim(f))}</b>,
-                          }}
-                        />
-                      </>
-                    ) : !f.id && +f.taksit > 0 && +f.kalanTaksit > 0 ? (
-                      <>
-                        <b>{t("borclar.form.kalanToplamEtiket")}</b>{" "}
-                        {t("borclar.form.kalanToplamCarpim", {
-                          toplam: fmt((+f.taksit || 0) * (+f.kalanTaksit || 0), yabanciBirim(f)),
-                          n: f.kalanTaksit,
-                          taksit: fmt(+f.taksit || 0, yabanciBirim(f)),
-                        })}
-                      </>
-                    ) : (
-                      <>{t("borclar.form.krediIpucu")}</>
-                    )}
-                    <br />{t("borclar.form.faizNotu")}
-                  </div>
-                </div>
-              )}
-              {kategori === "cards" &&
-                f.yeniDonemEkstreBorcu !== "" &&
-                f.yeniDonemEkstreBorcu !== undefined &&
-                (() => {
-                  const h = kartHesabi(f);
-                  return (
-                    <div className="bt-ipucu" style={{ marginTop: 14 }}>
-                      <Lightbulb size={16} />
-                      <div>
-                        <Ceviri
-                          anahtar={yasalAsgariUygulanir(kayitParaBirimi(f)) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiBolge"}
-                          degerler={{
-                            baslik: <b>{t("borclar.form.otomatikHesap")}</b>,
-                            yeni: fmt(h.yeni, yabanciBirim(f)),
-                            devreden: fmt(h.oncekiDevreden, yabanciBirim(f)),
-                            toplam: <b>{t("borclar.form.toplamBorc", { tutar: fmt(h.onceki, yabanciBirim(f)) })}</b>,
-                            odenen: fmt(h.odeme, yabanciBirim(f)),
-                            kalan: <b>{t("borclar.form.kalir", { tutar: fmt(h.devreden, yabanciBirim(f)) })}</b>,
-                            faiz: fmt(h.faiz, yabanciBirim(f)),
-                            oran: h.oran.toFixed(2),
-                            asgari: <b>{fmt(h.asgari, yabanciBirim(f))}</b>,
-                            asgariOran: Math.round(krediKartiAsgariOrani(f.limit) * 100),
-                            kaynak: turkiyeKurallariGecerli(kayitParaBirimi(f)) ? "" : ortalamaKaynagi(kayitParaBirimi(f)),
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
-              {ekHesapOdemeModu &&
-                f.odemeTutari &&
-                (() => {
-                  const h = ekHesapHesabi(form.veri);
-                  const oncekiKayitTutari = form.odemeDuzenle
-                    ? Math.max(+form.odemeDuzenle.tutar || 0, 0)
-                    : 0;
-                  const azami = Math.max(h.kalan + oncekiKayitTutari, 0);
-                  const odeme = Math.min(+f.odemeTutari || 0, azami);
-                  const toplamOdeme = form.kapat
-                    ? h.kullanilan
-                    : Math.min(
-                        h.odeme - oncekiKayitTutari + odeme,
-                        h.kullanilan,
-                      );
-                  const kalan = Math.max(h.kullanilan - toplamOdeme, 0);
-                  return (
-                    <div className="bt-ipucu" style={{ marginTop: 14 }}>
-                      <Lightbulb size={16} />
-                      <div>
-                        <Ceviri
-                          anahtar="borclar.form.odemeSonrasiMetin"
-                          degerler={{
-                            baslik: <b>{t("borclar.form.odemeSonrasi")}</b>,
-                            kalan: <b>{fmt(kalan, yabanciBirim(form.veri))}</b>,
-                            faiz: fmt((kalan * h.oran) / 100, yabanciBirim(form.veri)),
-                            oran: h.oran.toFixed(2),
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
-              <div className="bt-form-butonlar">
-                <button className="bt-btn birincil" onClick={gonder}>
-                  <Check size={14} />{" "}
-                  {ekHesapBorcModu
-                    ? t("borclar.buton.yeniBorcEkle")
-                    : ekHesapOdemeModu
-                    ? form.odemeDuzenle
-                      ? t("borclar.buton.odemeGuncelle")
-                      : form.kapat
-                        ? t("borclar.buton.borcuKapat")
-                        : t("borclar.buton.odemeKaydet")
-                    : yeniEkstreModu
-                      ? t("borclar.buton.yeniEkstreKaydet")
-                      : ekstreDuzenleModu
-                        ? t("borclar.buton.ekstreGuncelle")
-                        : f.id
-                          ? t("ortak.guncelle")
-                          : t("ortak.kaydet")}
-                </button>
-                <button
-                  className="bt-btn ikincil"
-                  onClick={() => setForm(null)}
-                >
-                  {t("ortak.vazgec")}
-                </button>
-              </div>
-              </div>
-            </YerindeForm>
-          )}
-
-          {kategori === "others" && otomatikGecikenler.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <div
-                style={{
-                  fontSize: 11.5,
-                  color: "var(--dim)",
-                  marginBottom: 12,
-                }}
-              >
-                {t("borclar.gecikenler.not")}
-              </div>
-              <div className="bt-stack" style={{ gap: 10 }}>
-                {otomatikGecikenler.map((g, i) => (
-                  <GecikmisBorcSatiri key={g.id} g={g} i={i} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {gorunenKayitlar.length === 0 &&
-          !acik &&
-          !(kategori === "others" && otomatikGecikenler.length > 0) ? (
-            kategori === "cards" && !arsivGorunumu ? null : (
-              <div className="bt-bos">
-                {arsivGorunumu
-                  ? t("borclar.bos.arsivEkstre", { ay: ayEtiketi(seciliEkstreAyi) })
-                  : krediArsivGorunumu
-                    ? t("borclar.bos.odenmisTaksit", { ay: ayEtiketi(seciliKrediAyi) })
-                    : krediGelecekGorunumu
-                      ? t("borclar.bos.planlananTaksit", { ay: ayEtiketi(seciliKrediAyi) })
-                      : kategori === "loans"
-                        ? kapatilanKrediler.length > 0
-                          ? t("borclar.bos.aktifKrediYok")
-                          : t("borclar.bos.krediYok")
-                        : kategori === "od"
-                          ? kapananEkHesaplar.length > 0
-                            ? t("borclar.bos.acikEkHesapYok")
-                            : t("borclar.bos.ekHesapYok")
-                          : t("borclar.bos.gecikenYok")}
-              </div>
-            )
-          ) : (
-            <div className="bt-stack" style={{ gap: 12 }}>
-              {kategori === "others" && gorunenKayitlar.length > 0 && (
-                <div>
-                  <div className="bt-h2" style={{ marginBottom: 5 }}>
-                    {t("borclar.diger.baslik")}
-                  </div>
-                  <div style={{ fontSize: 11.5, color: "var(--dim)" }}>
-                    {t("borclar.diger.aciklama")}
-                  </div>
-                </div>
-              )}
-              {gorunenKayitlar.map(borcSatiri)}
-            </div>
-          )}
-
-          {guncelKrediGorunumu && kapatilanKrediler.length > 0 && (
-            <section
-              className="bt-kapatilan-krediler"
-              aria-labelledby="kapatilan-krediler-baslik"
-            >
-              <div className="bt-kapatilan-krediler-baslik">
-                <span aria-hidden="true"><Check size={18} /></span>
-                <div>
-                  <strong id="kapatilan-krediler-baslik">{t("borclar.kapatilan.baslik")}</strong>
-                  <small>
-                    {t(kapatilanKrediler.length === 1 ? "borclar.kapatilan.aciklamaTekil" : "borclar.kapatilan.aciklamaCogul", { n: kapatilanKrediler.length })}
-                  </small>
-                </div>
-              </div>
-              {kapatilanKrediler.map((kredi, index) => (
-                <KapatilanKrediSatiri
-                  key={kredi.id}
-                  kredi={kredi}
-                  index={index}
-                />
-              ))}
-            </section>
-          )}
-
-          {kapananEkHesaplar.length > 0 && (
-            <section
-              className="bt-kapatilan-krediler"
-              aria-labelledby="kapanan-ek-hesaplar-baslik"
-            >
-              <div className="bt-kapatilan-krediler-baslik">
-                <span aria-hidden="true"><Check size={18} /></span>
-                <div>
-                  <strong id="kapanan-ek-hesaplar-baslik">{t("borclar.kapanan.baslik")}</strong>
-                  <small>
-                    {t(kapananEkHesaplar.length === 1 ? "borclar.kapanan.aciklamaTekil" : "borclar.kapanan.aciklamaCogul", { n: kapananEkHesaplar.length })}
-                  </small>
-                </div>
-              </div>
-              {kapananEkHesaplar.map(borcSatiri)}
-            </section>
-          )}
-
-          {kategori === "cards" && !saltOkunurGorunum && !aktivasyon.tamam && (
-            <div className="bt-baslangic-plani kisa">
-              <div>
-                <h3>{t("borclar.baslangic.baslik")}</h3>
-                <p>{t("borclar.baslangic.aciklama")}</p>
-                <div className="bt-baslangic-adimlar">
-                  <div className={`bt-baslangic-adim ${aktivasyonGorevleri.debt?.tamam ? "tamam" : ""}`}>
-                    <b>{aktivasyonGorevleri.debt?.tamam ? <Check size={14} /> : "1"}</b>
-                    <span>
-                      <strong>{t("borclar.baslangic.adim1")}</strong>
-                      <small>{t("borclar.baslangic.adim1Aciklama")}</small>
-                    </span>
-                    {aktivasyonGorevleri.debt?.tamam ? (
-                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
-                    ) : (
-                      <button className="bt-btn kucuk birincil" type="button" onClick={genelEkstreAkisiniAc}>
-                        {t("ortak.ekle")} <ChevronRight size={14} />
-                      </button>
-                    )}
-                  </div>
-                  <div className={`bt-baslangic-adim ${aktivasyonGorevleri.income?.tamam ? "tamam" : ""}`}>
-                    <b>{aktivasyonGorevleri.income?.tamam ? <Check size={14} /> : "2"}</b>
-                    <span>
-                      <strong>{t("borclar.baslangic.adim2")}</strong>
-                      <small>{t("borclar.baslangic.adim2Aciklama")}</small>
-                    </span>
-                    {aktivasyonGorevleri.income?.tamam ? (
-                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
-                    ) : (
-                      <button className="bt-btn kucuk ikincil" type="button" onClick={gelirEkle}>
-                        {t("borclar.baslangic.gelirEkle")} <ChevronRight size={14} />
-                      </button>
-                    )}
-                  </div>
-                  <div className={`bt-baslangic-adim ${aktivasyonGorevleri.activity?.tamam ? "tamam" : ""}`}>
-                    <b>{aktivasyonGorevleri.activity?.tamam ? <Check size={14} /> : "3"}</b>
-                    <span>
-                      <strong>{t("borclar.baslangic.adim3")}</strong>
-                      <small>{t("borclar.baslangic.adim3Aciklama")}</small>
-                    </span>
-                    {aktivasyonGorevleri.activity?.tamam ? (
-                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
-                    ) : (
-                      <button className="bt-btn kucuk ikincil" type="button" onClick={hareketEkle}>
-                        {t("borclar.baslangic.harcamaEkle")} <ChevronRight size={14} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       )}
-
+      {ekstreDuzenleModu && (
+        <div className="bt-ipucu" style={{ marginBottom: 14 }}>
+          <Lightbulb size={16} />
+          <div>
+            <Ceviri
+              anahtar="borclar.form.ekstreDuzenle"
+              degerler={{ kart: <b>{kartGorunenAdi(form.veri)}</b> }}
+            />
+          </div>
+        </div>
+      )}
+      {ekHesapOdemeModu &&
+        (() => {
+          const h = ekHesapHesabi(form.veri);
+          return (
+            <div className="bt-ipucu" style={{ marginBottom: 14 }}>
+              <Lightbulb size={16} />
+              <div>
+                <b>
+                  {form.veri.banka} ·{" "}
+                  {form.odemeDuzenle
+                    ? t("borclar.form.odemeKaydiDuzenle")
+                    : t("borclar.form.ekHesap")}
+                </b>
+                <br />
+                <Ceviri
+                  anahtar="borclar.form.ekHesapOzet"
+                  degerler={{
+                    kullanilan: fmt(h.kullanilan, yabanciBirim(form.veri)),
+                    odenen: fmt(h.odeme, yabanciBirim(form.veri)),
+                    kalan: <b>{fmt(h.kalan, yabanciBirim(form.veri))}</b>,
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+      <div className="bt-alanlar">
+        {alanlar.filter((a) => !a.ek).map((a) => (
+          <label key={a.k} className="bt-alan">
+            {a.e}
+            {a.z ? " *" : ""}
+            {a.k === "banka" && kategori !== "others" ? (
+              <select
+                className="bt-input"
+                value={f.banka ?? ""}
+                onChange={(e) => {
+                  if (e.target.value === "__diger__")
+                    setBankaPenceresi(true);
+                  else setF({ ...f, banka: e.target.value });
+                }}
+              >
+                <option value="">{t("borclar.alan.bankaSecin")}</option>
+                {(f?.paraBirimi === "TRY" ? [...new Set([...BANKALAR, ...bankalar])] : bankalar).map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+                <option value="__diger__">{t("borclar.alan.diger")}</option>
+              </select>
+            ) : (
+              <input
+                className="bt-input"
+                type={a.para ? "text" : a.t}
+                inputMode={a.para ? "decimal" : undefined}
+                min={!a.para && a.t === "number" ? 0 : undefined}
+                step={a.k === "faiz" ? "0.01" : undefined}
+                readOnly={
+                  kategori === "loans" &&
+                  ((krediIlerlemesi?.gecerli && a.k === "kalanTaksit") ||
+                    (a.k === "odemeGunu" && !!f.ilkOdemeTarihi))
+                }
+                placeholder={a.p}
+                value={a.para ? paraGirdisiniFormatla(
+                  f[a.k] ?? ""
+                ) : (
+                  kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
+                    ? krediIlerlemesi.kalanTaksit
+                    : kategori === "loans" && a.k === "odemeGunu" && f.ilkOdemeTarihi
+                      ? Number(f.ilkOdemeTarihi.slice(-2))
+                      : f[a.k] ?? ""
+                )}
+                onChange={(e) => {
+                  setKrediGirisHatasi("");
+                  const deger = a.para ? paraGirdisiniCoz(e.target.value) : e.target.value;
+                  setF({
+                    ...f,
+                    [a.k]: deger,
+                    ...(kategori === "loans" && a.k === "ilkOdemeTarihi"
+                      ? { odemeGunu: deger ? Number(deger.slice(-2)) : "" }
+                      : {}),
+                  });
+                }}
+              />
+            )}
+          </label>
+        ))}
+        {!ekHesapBorcModu && !ekHesapOdemeModu && !ekstreFormu && (
+          <BorcParaBirimiSecici
+            deger={f?.paraBirimi}
+            onChange={(kod) => setF({ ...f, paraBirimi: kod })}
+          />
+        )}
+      </div>
+      {alanlar.some((a) => a.ek) && (
+        <details className="bt-alan-ek">
+          <summary>{t("borclar.alan.dahaFazla")}</summary>
+          <div className="bt-alanlar">
+            {alanlar.filter((a) => a.ek).map((a) => (
+              <label key={a.k} className="bt-alan">
+            {a.e}
+            {a.z ? " *" : ""}
+            {a.k === "banka" && kategori !== "others" ? (
+              <select
+                className="bt-input"
+                value={f.banka ?? ""}
+                onChange={(e) => {
+                  if (e.target.value === "__diger__")
+                    setBankaPenceresi(true);
+                  else setF({ ...f, banka: e.target.value });
+                }}
+              >
+                <option value="">{t("borclar.alan.bankaSecin")}</option>
+                {bankalar.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+                <option value="__diger__">{t("borclar.alan.diger")}</option>
+              </select>
+            ) : (
+              <input
+                className="bt-input"
+                type={a.para ? "text" : a.t}
+                inputMode={a.para ? "decimal" : undefined}
+                min={!a.para && a.t === "number" ? 0 : undefined}
+                step={a.k === "faiz" ? "0.01" : undefined}
+                readOnly={
+                  kategori === "loans" &&
+                  ((krediIlerlemesi?.gecerli && a.k === "kalanTaksit") ||
+                    (a.k === "odemeGunu" && !!f.ilkOdemeTarihi))
+                }
+                placeholder={a.p}
+                value={a.para ? paraGirdisiniFormatla(
+                  f[a.k] ?? ""
+                ) : (
+                  kategori === "loans" && krediIlerlemesi?.gecerli && a.k === "kalanTaksit"
+                    ? krediIlerlemesi.kalanTaksit
+                    : kategori === "loans" && a.k === "odemeGunu" && f.ilkOdemeTarihi
+                      ? Number(f.ilkOdemeTarihi.slice(-2))
+                      : f[a.k] ?? ""
+                )}
+                onChange={(e) => {
+                  setKrediGirisHatasi("");
+                  const deger = a.para ? paraGirdisiniCoz(e.target.value) : e.target.value;
+                  setF({
+                    ...f,
+                    [a.k]: deger,
+                    ...(kategori === "loans" && a.k === "ilkOdemeTarihi"
+                      ? { odemeGunu: deger ? Number(deger.slice(-2)) : "" }
+                      : {}),
+                  });
+                }}
+              />
+            )}
+          </label>
+            ))}
+          </div>
+        </details>
+      )}
+      {kategori === "loans" && (
+        <div
+          className="bt-ipucu"
+          role={krediGirisHatasi || krediIlerlemesi?.hata ? "alert" : undefined}
+          style={{
+            marginTop: 14,
+            borderColor: krediGirisHatasi || krediIlerlemesi?.hata ? CORAL : undefined,
+          }}
+        >
+          <Lightbulb size={16} />
+          <div>
+            {krediGirisHatasi || krediIlerlemesi?.hata ? (
+              krediGirisHatasi || krediIlerlemesi.hata
+            ) : krediIlerlemesi?.gecerli ? (
+              <>
+                <b>{t("borclar.form.otomatikPlan")}</b>{" "}
+                <Ceviri
+                  anahtar="borclar.form.taksitKaldi"
+                  degerler={{
+                    n: krediIlerlemesi.kalanTaksit,
+                    tutar: <b>{fmt(krediIlerlemesi.kalanToplamOdeme, yabanciBirim(f))}</b>,
+                  }}
+                />
+              </>
+            ) : !f.id && +f.taksit > 0 && +f.kalanTaksit > 0 ? (
+              <>
+                <b>{t("borclar.form.kalanToplamEtiket")}</b>{" "}
+                {t("borclar.form.kalanToplamCarpim", {
+                  toplam: fmt((+f.taksit || 0) * (+f.kalanTaksit || 0), yabanciBirim(f)),
+                  n: f.kalanTaksit,
+                  taksit: fmt(+f.taksit || 0, yabanciBirim(f)),
+                })}
+              </>
+            ) : (
+              <>{t("borclar.form.krediIpucu")}</>
+            )}
+            <br />{t("borclar.form.faizNotu")}
+          </div>
+        </div>
+      )}
+      {kategori === "cards" &&
+        f.yeniDonemEkstreBorcu !== "" &&
+        f.yeniDonemEkstreBorcu !== undefined &&
+        (() => {
+          const h = kartHesabi(f);
+          return (
+            <div className="bt-ipucu" style={{ marginTop: 14 }}>
+              <Lightbulb size={16} />
+              <div>
+                <Ceviri
+                  anahtar={yasalAsgariUygulanir(kayitParaBirimi(f)) ? "borclar.form.kartHesabi" : "paraBirimi.kartHesabiBolge"}
+                  degerler={{
+                    baslik: <b>{t("borclar.form.otomatikHesap")}</b>,
+                    yeni: fmt(h.yeni, yabanciBirim(f)),
+                    devreden: fmt(h.oncekiDevreden, yabanciBirim(f)),
+                    toplam: <b>{t("borclar.form.toplamBorc", { tutar: fmt(h.onceki, yabanciBirim(f)) })}</b>,
+                    odenen: fmt(h.odeme, yabanciBirim(f)),
+                    kalan: <b>{t("borclar.form.kalir", { tutar: fmt(h.devreden, yabanciBirim(f)) })}</b>,
+                    faiz: fmt(h.faiz, yabanciBirim(f)),
+                    oran: h.oran.toFixed(2),
+                    asgari: <b>{fmt(h.asgari, yabanciBirim(f))}</b>,
+                    asgariOran: Math.round(krediKartiAsgariOrani(f.limit) * 100),
+                    kaynak: turkiyeKurallariGecerli(kayitParaBirimi(f)) ? "" : ortalamaKaynagi(kayitParaBirimi(f)),
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+      {ekHesapOdemeModu &&
+        f.odemeTutari &&
+        (() => {
+          const h = ekHesapHesabi(form.veri);
+          const oncekiKayitTutari = form.odemeDuzenle
+            ? Math.max(+form.odemeDuzenle.tutar || 0, 0)
+            : 0;
+          const azami = Math.max(h.kalan + oncekiKayitTutari, 0);
+          const odeme = Math.min(+f.odemeTutari || 0, azami);
+          const toplamOdeme = form.kapat
+            ? h.kullanilan
+            : Math.min(
+                h.odeme - oncekiKayitTutari + odeme,
+                h.kullanilan,
+              );
+          const kalan = Math.max(h.kullanilan - toplamOdeme, 0);
+          return (
+            <div className="bt-ipucu" style={{ marginTop: 14 }}>
+              <Lightbulb size={16} />
+              <div>
+                <Ceviri
+                  anahtar="borclar.form.odemeSonrasiMetin"
+                  degerler={{
+                    baslik: <b>{t("borclar.form.odemeSonrasi")}</b>,
+                    kalan: <b>{fmt(kalan, yabanciBirim(form.veri))}</b>,
+                    faiz: fmt((kalan * h.oran) / 100, yabanciBirim(form.veri)),
+                    oran: h.oran.toFixed(2),
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+      <div className="bt-form-butonlar">
+        <button className="bt-btn birincil" onClick={gonder}>
+          <Check size={14} />{" "}
+          {ekHesapBorcModu
+            ? t("borclar.buton.yeniBorcEkle")
+            : ekHesapOdemeModu
+            ? form.odemeDuzenle
+              ? t("borclar.buton.odemeGuncelle")
+              : form.kapat
+                ? t("borclar.buton.borcuKapat")
+                : t("borclar.buton.odemeKaydet")
+            : yeniEkstreModu
+              ? t("borclar.buton.yeniEkstreKaydet")
+              : ekstreDuzenleModu
+                ? t("borclar.buton.ekstreGuncelle")
+                : f.id
+                  ? t("ortak.guncelle")
+                  : t("ortak.kaydet")}
+        </button>
+        <button
+          className="bt-btn ikincil"
+          onClick={() => setForm(null)}
+        >
+          {t("ortak.vazgec")}
+        </button>
+      </div>
+      </div>
+    </FormYeri>
+  );
+  const borcPencereleri = (
+    <>
       {odemePenceresi && (
         <BorcUzerindenOdemeModal
           odeme={odemePenceresi}
@@ -9865,38 +9940,9 @@ function Borclar({
         />
       )}
 
-      {baslangicSecimiAcik && belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) && (
-        <div
-          className="bt-modal-arka"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) ekstreYontemSeciminiKapat();
-          }}
-        >
-          <div
-            className="bt-modal bt-baslangic-secim"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="bt-baslangic-secim-baslik"
-          >
-            <div className="bt-modalbaslik">
-              <div>
-                <div id="bt-baslangic-secim-baslik" className="bt-h2">
-                  {t("borclar.yontem.baslik")}
-                </div>
-                <p className="bt-baslangic-secim-aciklama">
-                  {t("borclar.yontem.aciklama")}
-                </p>
-              </div>
-              <button
-                className="bt-btn hayalet kucuk"
-                type="button"
-                aria-label={t("ortak.kapat")}
-                onClick={ekstreYontemSeciminiKapat}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {baslangicSecimiAcik && belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) && (() => {
+        const govde = (
+          <>
             <div className="bt-baslangic-yontemler">
               <button
                 className="bt-baslangic-yontem"
@@ -9933,9 +9979,52 @@ function Borclar({
             >
               {t("borclar.yontem.sonra")}
             </button>
+          </>
+        );
+        if (masaustu) {
+          return (
+            <SagPanel baslik={t("borclar.yontem.baslik")} aciklama={t("borclar.yontem.aciklama")} onKapat={ekstreYontemSeciminiKapat}>
+              {govde}
+            </SagPanel>
+          );
+        }
+        return (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) ekstreYontemSeciminiKapat();
+          }}
+        >
+          <div
+            className="bt-modal bt-baslangic-secim"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-baslangic-secim-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-baslangic-secim-baslik" className="bt-h2">
+                  {t("borclar.yontem.baslik")}
+                </div>
+                <p className="bt-baslangic-secim-aciklama">
+                  {t("borclar.yontem.aciklama")}
+                </p>
+              </div>
+              <button
+                className="bt-btn hayalet kucuk"
+                type="button"
+                aria-label={t("ortak.kapat")}
+                onClick={ekstreYontemSeciminiKapat}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {govde}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {ekstreYuklemePenceresi && (
         <StatementImportModal
@@ -9950,38 +10039,9 @@ function Borclar({
         />
       )}
 
-      {krediEklemeSecimiAcik && (
-        <div
-          className="bt-modal-arka"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setKrediEklemeSecimiAcik(false);
-          }}
-        >
-          <div
-            className="bt-modal bt-baslangic-secim"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="bt-kredi-ekleme-secim-baslik"
-          >
-            <div className="bt-modalbaslik">
-              <div>
-                <div id="bt-kredi-ekleme-secim-baslik" className="bt-h2">
-                  {t("borclar.krediYontem.baslik")}
-                </div>
-                <p className="bt-baslangic-secim-aciklama">
-                  {t("borclar.krediYontem.aciklama")}
-                </p>
-              </div>
-              <button
-                className="bt-btn hayalet kucuk"
-                type="button"
-                aria-label={t("ortak.kapat")}
-                onClick={() => setKrediEklemeSecimiAcik(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {krediEklemeSecimiAcik && (() => {
+        const govde = (
+          <>
             <div className="bt-baslangic-yontemler">
               <button
                 className="bt-baslangic-yontem manuel"
@@ -10019,9 +10079,52 @@ function Borclar({
             >
               {t("ortak.vazgec")}
             </button>
+          </>
+        );
+        if (masaustu) {
+          return (
+            <SagPanel baslik={t("borclar.krediYontem.baslik")} aciklama={t("borclar.krediYontem.aciklama")} onKapat={() => setKrediEklemeSecimiAcik(false)}>
+              {govde}
+            </SagPanel>
+          );
+        }
+        return (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setKrediEklemeSecimiAcik(false);
+          }}
+        >
+          <div
+            className="bt-modal bt-baslangic-secim"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-kredi-ekleme-secim-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-kredi-ekleme-secim-baslik" className="bt-h2">
+                  {t("borclar.krediYontem.baslik")}
+                </div>
+                <p className="bt-baslangic-secim-aciklama">
+                  {t("borclar.krediYontem.aciklama")}
+                </p>
+              </div>
+              <button
+                className="bt-btn hayalet kucuk"
+                type="button"
+                aria-label={t("ortak.kapat")}
+                onClick={() => setKrediEklemeSecimiAcik(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {govde}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {krediPlaniYuklemePenceresi && (
         <LoanPlanImportModal
@@ -10031,38 +10134,9 @@ function Borclar({
         />
       )}
 
-      {manuelEkstreSecimiAcik && (
-        <div
-          className="bt-modal-arka"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setManuelEkstreSecimiAcik(false);
-          }}
-        >
-          <div
-            className="bt-modal bt-baslangic-secim"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="bt-manuel-ekstre-baslik"
-          >
-            <div className="bt-modalbaslik">
-              <div>
-                <div id="bt-manuel-ekstre-baslik" className="bt-h2">
-                  {t("borclar.manuelSecim.baslik")}
-                </div>
-                <p className="bt-baslangic-secim-aciklama">
-                  {t("borclar.manuelSecim.aciklama")}
-                </p>
-              </div>
-              <button
-                className="bt-btn hayalet kucuk"
-                type="button"
-                aria-label={t("ortak.kapat")}
-                onClick={() => setManuelEkstreSecimiAcik(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {manuelEkstreSecimiAcik && (() => {
+        const govde = (
+          <>
             <div className="bt-baslangic-yontemler">
               {veri.cards.map((kart, i) => (
                 <button
@@ -10097,9 +10171,52 @@ function Borclar({
             >
               <Plus size={14} /> {t("borclar.manuelSecim.yeniKart")}
             </button>
+          </>
+        );
+        if (masaustu) {
+          return (
+            <SagPanel baslik={t("borclar.manuelSecim.baslik")} aciklama={t("borclar.manuelSecim.aciklama")} onKapat={() => setManuelEkstreSecimiAcik(false)}>
+              {govde}
+            </SagPanel>
+          );
+        }
+        return (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setManuelEkstreSecimiAcik(false);
+          }}
+        >
+          <div
+            className="bt-modal bt-baslangic-secim"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bt-manuel-ekstre-baslik"
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-manuel-ekstre-baslik" className="bt-h2">
+                  {t("borclar.manuelSecim.baslik")}
+                </div>
+                <p className="bt-baslangic-secim-aciklama">
+                  {t("borclar.manuelSecim.aciklama")}
+                </p>
+              </div>
+              <button
+                className="bt-btn hayalet kucuk"
+                type="button"
+                aria-label={t("ortak.kapat")}
+                onClick={() => setManuelEkstreSecimiAcik(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {govde}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {ekstreArsiviAcik && (
         <div
@@ -10402,6 +10519,398 @@ function Borclar({
           </div>
         </div>
       )}
+    </>
+  );
+  if (yalnizPanel) return <>{masaustu && borcFormu}{borcPencereleri}</>;
+
+  return (
+    <div className="bt-stack">
+      <section className="bt-plan-kisayol" aria-label={t("borclar.plan.aria")}>
+        <span className="bt-plan-kisayol-ikon" aria-hidden="true">
+          <Target size={20} />
+        </span>
+        <div className="bt-plan-kisayol-metin">
+          <strong>{t("borclar.plan.baslik")}</strong>
+          <span>{t("borclar.plan.aciklama")}</span>
+        </div>
+        <button className="bt-btn kucuk birincil" type="button" onClick={planaGit}>
+          {t("borclar.plan.ac")} <ChevronRight size={15} />
+        </button>
+      </section>
+      {kategori === "kontrol" && (
+        <div className="bt-borc-araclari">
+          <div>
+            <div className="bt-borc-araclari-baslik">
+              <div className="bt-borc-araclari-ikon"><ReceiptText size={17} /></div>
+              <div>
+                <strong>{t("borclar.kontrol.baslik")}</strong>
+              </div>
+            </div>
+            <div className="bt-borc-araclari-aciklama">
+              {t("borclar.kontrol.aciklama")}
+            </div>
+          </div>
+          <div className="bt-borc-araclari-actions">
+            <button
+              className="bt-btn kucuk ikincil"
+              onClick={() => {
+                setKategori("cards");
+                setForm(null);
+              }}
+            >
+              {t("borclar.kontrol.kartlaraDon")}
+            </button>
+            <details className="bt-ekstre-bilgi">
+              <summary aria-label={t("borclar.kontrol.bilgiAria")}>
+                <Info size={17} aria-hidden="true" />
+              </summary>
+              <div className="bt-ekstre-bilgi-kutu" role="note">
+                <strong>{t("borclar.kontrol.nasil")}</strong>
+                {t("borclar.kontrol.nasilMetin")}
+              </div>
+            </details>
+          </div>
+        </div>
+      )}
+      {kategori === "others" && (
+        <div className="bt-borc-araclari filtre-aktif">
+          <div>
+            <div className="bt-borc-araclari-baslik">
+              <div className="bt-borc-araclari-ikon"><AlertTriangle size={17} /></div>
+              <div><strong>{t("borclar.gecikenler.baslik")}</strong></div>
+            </div>
+            <div className="bt-borc-araclari-aciklama">
+              {t("borclar.gecikenler.aciklama", { devreden: devredenSayisi, gecikmis: gecikmisSayisi })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {kategori === "kontrol" ? (
+        <EkstreKontrol
+          veri={veri}
+          onKartEkle={() => {
+            setKategori("cards");
+            setForm({ liste: "cards", veri: {} });
+          }}
+          onEkstreYukle={genelEkstreAkisiniAc}
+        />
+      ) : (
+        <div className="bt-card" data-tour="borclar">
+          {kategori === "cards" ? (
+            <div className="bt-kart-ust">
+              <div className="bt-kart-ust-ozet">
+                <div className="bt-kart-ust-baslik">
+                  <span className="bt-kart-ust-ikon"><Wallet size={17} /></span>
+                  <div>
+                    <strong>{t("borclar.kart.baslik")}</strong>
+                    <span>{kayitlar.length
+                      ? t(kayitlar.length === 1 ? "borclar.kart.kayitliTekil" : "borclar.kart.kayitliCogul", { n: kayitlar.length })
+                      : t("borclar.kart.henuzYok")}</span>
+                  </div>
+                </div>
+                <div className="bt-kart-borc">
+                  {kayitlar.length ? (
+                    <>
+                      <span>{t("borclar.kart.kalanBorc")}</span>
+                      <strong>{fmt(toplamHesapla())}</strong>
+                      <KurNotu durum={kurNotu} />
+                    </>
+                  ) : (
+                    <span className="bt-kart-bos-metin">
+                      {t("borclar.kart.bosMetin")}
+                    </span>
+                  )}
+                  <button
+                    className="bt-btn kucuk ikincil bt-kart-ekle"
+                    type="button"
+                    onClick={() => setForm({ liste: meta.liste, veri: {} })}
+                  >
+                    <Plus size={14} /> {t("borclar.kart.ekle")}
+                  </button>
+                </div>
+              </div>
+              {!satirIci && !saltOkunurGorunum && (
+                <div className="bt-kart-ust-islemler">
+                  <div className="bt-kart-islem-baslik">
+                    <strong>{t("borclar.ekstre.islemler")}</strong>
+                    <span>{t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.islemlerAciklama" : "borclar.ekstre.islemlerAciklamaManuel")}</span>
+                  </div>
+                  <div className="bt-kart-ust-ana tek">
+                    <button
+                      className="bt-btn kucuk birincil"
+                      onClick={genelEkstreAkisiniAc}
+                    >
+                      <Plus size={14} /> {t(belgeOkumaAcik(undefined, tumBorcKayitlari(veri)) ? "borclar.ekstre.ekle" : "borclar.ekstre.ekleManuel")}
+                    </button>
+                  </div>
+                  <div className="bt-kart-ust-araclar" aria-label={t("borclar.ekstre.araclarAria")}>
+                    <button
+                      className="bt-btn kucuk hayalet"
+                      onClick={() => {
+                        setKategori("kontrol");
+                        setForm(null);
+                      }}
+                    >
+                      <ScanSearch size={14} /> {t("borclar.kontrol.baslik")}
+                    </button>
+                    <button
+                      className="bt-btn kucuk hayalet"
+                      onClick={() => {
+                        setArsivMesaji("");
+                        setEkstreArsiviAcik(true);
+                      }}
+                    >
+                      <BookOpen size={14} /> {t("borclar.arsiv.baslik")}
+                      {yuklenenEkstreler.length > 0 ? ` (${yuklenenEkstreler.length})` : ""}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bt-strip">
+              <div className="bt-strip-count">{sayacHesapla()}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <div className="bt-strip-total-block">
+                  <span className="bt-strip-total-label">
+                    {kategori === "loans" && !krediArsivGorunumu && !krediGelecekGorunumu ? t("borclar.serit.kalanToplam") : t("ortak.toplam")}
+                  </span>
+                  <div className="bt-strip-total bt-mono">
+                    {fmt(toplamHesapla())}
+                  </div>
+                  <KurNotu durum={kurNotu} />
+                </div>
+                {!satirIci && !saltOkunurGorunum && kategori !== "others" && (
+                  <button
+                    className="bt-btn kucuk ikincil"
+                    type="button"
+                    onClick={() => {
+                      if (kategori === "loans") {
+                        // Odeme plani okuyucusu yalniz Turk bankalarini taniyor;
+                        // TRY disinda dogrudan elle giris formu acilir.
+                        if (belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) setKrediEklemeSecimiAcik(true);
+                        else setForm({ liste: "loans", veri: {} });
+                        return;
+                      }
+                      setForm({ liste: meta.liste, veri: {} });
+                    }}
+                  >
+                    <Plus size={14} /> {kategori === "loans" ? t("borclar.serit.yeniKredi") : t("borclar.serit.yeniEkHesap")}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Form açıkken dönem seçicisi gizlenir; formun alanı sanılmasın (dönem değişince form zaten kapanır). */}
+          {!satirIci && kategori === "cards" && veri.cards.length > 0 && (
+            <div className="bt-borc-donem-satiri">
+              <div>
+                <strong>{t("borclar.donem.ekstreBaslik")}</strong>
+                <span>{t("borclar.donem.ekstreAciklama")}</span>
+              </div>
+              <select
+                className="bt-input"
+                value={seciliEkstreAyi}
+                onChange={(e) => {
+                  setSeciliEkstreAyi(e.target.value);
+                  setForm(null);
+                }}
+              >
+                <option value="guncel">{t("borclar.donem.guncel", { ay: ayEtiketi(guncelEkstreAyi) })}</option>
+                {ekstreAylar
+                  .filter((ay) => ay !== guncelEkstreAyi)
+                  .map((ay) => <option key={ay} value={ay}>{ayEtiketi(ay)}</option>)}
+              </select>
+            </div>
+          )}
+
+          {!satirIci && kategori === "loans" && veri.loans.length > 0 && (
+            <div className="bt-borc-donem-satiri">
+              <div>
+                <strong>{t("borclar.donem.krediBaslik")}</strong>
+                <span>{t("borclar.donem.krediAciklama")}</span>
+              </div>
+              <select
+                className="bt-input"
+                value={seciliKrediAyi}
+                onChange={(e) => {
+                  setSeciliKrediAyi(e.target.value);
+                  setForm(null);
+                }}
+              >
+                <option value="guncel">{t("borclar.donem.guncel", { ay: ayEtiketi(ayAnahtari()) })}</option>
+                {gelecekKrediAylar.map((ay) => <option key={ay} value={ay}>{t("borclar.donem.gelecek", { ay: ayEtiketi(ay) })}</option>)}
+                {krediAylar.map((ay) => <option key={ay} value={ay}>{t("borclar.donem.gecmis", { ay: ayEtiketi(ay) })}</option>)}
+              </select>
+            </div>
+          )}
+
+          {!satirIci && odemeOzeti && (
+            <BorcOdemeGrafigi
+              ozet={odemeOzeti}
+              depolamaAnahtari={kategori}
+            />
+          )}
+
+          {borcFormu}
+
+          {kategori === "others" && otomatikGecikenler.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  fontSize: 11.5,
+                  color: "var(--dim)",
+                  marginBottom: 12,
+                }}
+              >
+                {t("borclar.gecikenler.not")}
+              </div>
+              <div className="bt-stack" style={{ gap: 10 }}>
+                {otomatikGecikenler.map((g, i) => (
+                  <GecikmisBorcSatiri key={g.id} g={g} i={i} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {gorunenKayitlar.length === 0 &&
+          !satirIci &&
+          !(kategori === "others" && otomatikGecikenler.length > 0) ? (
+            kategori === "cards" && !arsivGorunumu ? null : (
+              <div className="bt-bos">
+                {arsivGorunumu
+                  ? t("borclar.bos.arsivEkstre", { ay: ayEtiketi(seciliEkstreAyi) })
+                  : krediArsivGorunumu
+                    ? t("borclar.bos.odenmisTaksit", { ay: ayEtiketi(seciliKrediAyi) })
+                    : krediGelecekGorunumu
+                      ? t("borclar.bos.planlananTaksit", { ay: ayEtiketi(seciliKrediAyi) })
+                      : kategori === "loans"
+                        ? kapatilanKrediler.length > 0
+                          ? t("borclar.bos.aktifKrediYok")
+                          : t("borclar.bos.krediYok")
+                        : kategori === "od"
+                          ? kapananEkHesaplar.length > 0
+                            ? t("borclar.bos.acikEkHesapYok")
+                            : t("borclar.bos.ekHesapYok")
+                          : t("borclar.bos.gecikenYok")}
+              </div>
+            )
+          ) : (
+            <div className="bt-stack" style={{ gap: 12 }}>
+              {kategori === "others" && gorunenKayitlar.length > 0 && (
+                <div>
+                  <div className="bt-h2" style={{ marginBottom: 5 }}>
+                    {t("borclar.diger.baslik")}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "var(--dim)" }}>
+                    {t("borclar.diger.aciklama")}
+                  </div>
+                </div>
+              )}
+              {gorunenKayitlar.map(borcSatiri)}
+            </div>
+          )}
+
+          {guncelKrediGorunumu && kapatilanKrediler.length > 0 && (
+            <section
+              className="bt-kapatilan-krediler"
+              aria-labelledby="kapatilan-krediler-baslik"
+            >
+              <div className="bt-kapatilan-krediler-baslik">
+                <span aria-hidden="true"><Check size={18} /></span>
+                <div>
+                  <strong id="kapatilan-krediler-baslik">{t("borclar.kapatilan.baslik")}</strong>
+                  <small>
+                    {t(kapatilanKrediler.length === 1 ? "borclar.kapatilan.aciklamaTekil" : "borclar.kapatilan.aciklamaCogul", { n: kapatilanKrediler.length })}
+                  </small>
+                </div>
+              </div>
+              {kapatilanKrediler.map((kredi, index) => (
+                <KapatilanKrediSatiri
+                  key={kredi.id}
+                  kredi={kredi}
+                  index={index}
+                />
+              ))}
+            </section>
+          )}
+
+          {kapananEkHesaplar.length > 0 && (
+            <section
+              className="bt-kapatilan-krediler"
+              aria-labelledby="kapanan-ek-hesaplar-baslik"
+            >
+              <div className="bt-kapatilan-krediler-baslik">
+                <span aria-hidden="true"><Check size={18} /></span>
+                <div>
+                  <strong id="kapanan-ek-hesaplar-baslik">{t("borclar.kapanan.baslik")}</strong>
+                  <small>
+                    {t(kapananEkHesaplar.length === 1 ? "borclar.kapanan.aciklamaTekil" : "borclar.kapanan.aciklamaCogul", { n: kapananEkHesaplar.length })}
+                  </small>
+                </div>
+              </div>
+              {kapananEkHesaplar.map(borcSatiri)}
+            </section>
+          )}
+
+          {kategori === "cards" && !saltOkunurGorunum && !aktivasyon.tamam && (
+            <div className="bt-baslangic-plani kisa">
+              <div>
+                <h3>{t("borclar.baslangic.baslik")}</h3>
+                <p>{t("borclar.baslangic.aciklama")}</p>
+                <div className="bt-baslangic-adimlar">
+                  <div className={`bt-baslangic-adim ${aktivasyonGorevleri.debt?.tamam ? "tamam" : ""}`}>
+                    <b>{aktivasyonGorevleri.debt?.tamam ? <Check size={14} /> : "1"}</b>
+                    <span>
+                      <strong>{t("borclar.baslangic.adim1")}</strong>
+                      <small>{t("borclar.baslangic.adim1Aciklama")}</small>
+                    </span>
+                    {aktivasyonGorevleri.debt?.tamam ? (
+                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
+                    ) : (
+                      <button className="bt-btn kucuk birincil" type="button" onClick={genelEkstreAkisiniAc}>
+                        {t("ortak.ekle")} <ChevronRight size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <div className={`bt-baslangic-adim ${aktivasyonGorevleri.income?.tamam ? "tamam" : ""}`}>
+                    <b>{aktivasyonGorevleri.income?.tamam ? <Check size={14} /> : "2"}</b>
+                    <span>
+                      <strong>{t("borclar.baslangic.adim2")}</strong>
+                      <small>{t("borclar.baslangic.adim2Aciklama")}</small>
+                    </span>
+                    {aktivasyonGorevleri.income?.tamam ? (
+                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
+                    ) : (
+                      <button className="bt-btn kucuk ikincil" type="button" onClick={gelirEkle}>
+                        {t("borclar.baslangic.gelirEkle")} <ChevronRight size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <div className={`bt-baslangic-adim ${aktivasyonGorevleri.activity?.tamam ? "tamam" : ""}`}>
+                    <b>{aktivasyonGorevleri.activity?.tamam ? <Check size={14} /> : "3"}</b>
+                    <span>
+                      <strong>{t("borclar.baslangic.adim3")}</strong>
+                      <small>{t("borclar.baslangic.adim3Aciklama")}</small>
+                    </span>
+                    {aktivasyonGorevleri.activity?.tamam ? (
+                      <span className="bt-adim-tamam"><Check size={13} /> {t("borclar.baslangic.tamam")}</span>
+                    ) : (
+                      <button className="bt-btn kucuk ikincil" type="button" onClick={hareketEkle}>
+                        {t("borclar.baslangic.harcamaEkle")} <ChevronRight size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {borcPencereleri}
     </div>
   );
 }
@@ -11487,8 +11996,68 @@ function GecikmisBorcSatiri({ g, i }) {
   );
 }
 
+/* Plan: aylik yasam butcesi (B5/A3). Kurulum gelirin %45'ini varsayar;
+   kullanici burada degistirir, senaryo ve Bugün bu tutarla hesaplanir. */
+function YasamButcesiKarti({ ayarlar, senaryo, kaydet }) {
+  const kayitli = yasamButcesiTutari(ayarlar);
+  const kaynak = ayarlar?.yasamButcesi?.kaynak;
+  const [girdi, setGirdi] = useState(() => (kayitli === null ? "" : String(Math.round(kayitli))));
+  const [kaydedildi, setKaydedildi] = useState(false);
+  const tutar = Number(girdi);
+  const gecerli = girdi !== "" && Number.isFinite(tutar) && tutar > 0;
+  const degisti = !(kaynak === "kullanici" && kayitli !== null && Math.round(tutar) === Math.round(kayitli));
+  const odemeGorunur = senaryo.monthlyIncome > 0 && senaryo.living?.hasData;
+  return (
+    <form
+      className="bt-card bt-yasam-butcesi"
+      onSubmit={async (olay) => {
+        olay.preventDefault();
+        if (!gecerli || !degisti || !kaydet) return;
+        const tamam = await kaydet(tutar);
+        setKaydedildi(tamam !== false);
+      }}
+    >
+      <div className="bt-yasam-butcesi-kopya">
+        <div className="bt-h2" style={{ margin: 0 }}>{t("plan.yasamButcesi.baslik")}</div>
+        <p>
+          {kaynak === "kullanici"
+            ? t("plan.yasamButcesi.aciklamaKullanici")
+            : kayitli !== null
+              ? t("plan.yasamButcesi.aciklamaVarsayim")
+              : t("plan.yasamButcesi.aciklamaBos")}
+        </p>
+      </div>
+      <div className="bt-yasam-butcesi-alan">
+        <label className="bt-alan">
+          {t("plan.yasamButcesi.alan")}
+          <ParaInput
+            className="bt-input"
+            placeholder={senaryo.livingBudget > 0 ? String(Math.round(senaryo.livingBudget)) : ornekSayiMetni("plan.ekstra.ornek", 5000)}
+            value={girdi}
+            onValueChange={(deger) => {
+              setGirdi(deger);
+              setKaydedildi(false);
+            }}
+          />
+        </label>
+        <button className="bt-btn birincil" type="submit" disabled={!gecerli || !degisti}>
+          {t("ortak.kaydet")}
+        </button>
+      </div>
+      <p className="bt-yasam-butcesi-sonuc" aria-live="polite">
+        {kaydedildi && !degisti ? <span>{t("plan.yasamButcesi.kaydedildi")}</span> : null}
+        {odemeGorunur && (
+          <span>
+            {t("plan.yasamButcesi.odemeler")} <b>{fmt0(aylikPlanOdemesi(senaryo))}</b>
+          </span>
+        )}
+      </p>
+    </form>
+  );
+}
+
 /* ---------------- Borç Planı ---------------- */
-function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc, kurNotu = null }) {
+function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc, kurNotu = null, yasamButcesiKaydet }) {
   const [strateji, setStrateji] = useState("cig");
   const [ekstra, setEkstra] = useState("");
   // Plan tutarlari ana birimde; senaryo kayitlari ana birime cevrilmis kopya.
@@ -11501,7 +12070,15 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc, kur
     loans: anaBirimVeri?.loans || [],
     debts: (kalemler || []).filter((kalem) => ["kart", "ek"].includes(kalem.tur)),
     currentDate: bugun(),
+    livingBudgetOverride: senaryoYasamButcesi({ ayarlar: veri?.ayarlar, expenses: veri?.expenses }),
   });
+  const yasamKarti = (
+    <YasamButcesiKarti
+      ayarlar={veri?.ayarlar}
+      senaryo={finansalSenaryo}
+      kaydet={yasamButcesiKaydet}
+    />
+  );
   const senaryoMetni = getFinancialScenarioCopy(finansalSenaryo);
   // Ay sayısına göre tekil/çoğul anahtar (İngilizce "1 month / 2 months").
   const ayli = (anahtar, n, degerler) => t(`${anahtar}${n === 1 ? "Tekil" : "Cogul"}`, { n, ...degerler });
@@ -11613,6 +12190,7 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc, kur
             </div>
           </div>
         </section>
+        {yasamKarti}
         <section className="bt-pro-senaryo kilitli">
           <div className="bt-pro-senaryo-ust">
             <span className="bt-pro-senaryo-rozet"><Sparkles size={15} /> Borcama Pro</span>
@@ -11689,6 +12267,8 @@ function Plan({ kalemler, aylikFaiz, setSekme, veri, gelir, proAktif, proAc, kur
           </div>
         )}
       </section>
+
+      {yasamKarti}
 
       <section className={`bt-plan-senaryo ${finansalSenaryo.status === "structural_gap" ? "oncelikli" : ""}`}>
         <div className="bt-plan-senaryo-not" style={{ display: "none" }}>
@@ -12141,6 +12721,9 @@ function Varliklar({
   ozet,
 }) {
   const acik = form?.liste === "assets";
+  // Masaustunde form sag panelde; liste yerinde kalir (B11).
+  const masaustu = useMasaustu();
+  const satirIci = acik && !masaustu;
   const f = acik ? form.veri || {} : {};
   const seciliTur = varlikTuru(f.tur || (piyasaDegerlemesiAcik() ? "usd" : "nakit"));
   const formParaBirimi = seciliTur.fon ? "TRY" : paraBirimi(f.paraBirimi).id;
@@ -12482,7 +13065,7 @@ function Varliklar({
                 <RefreshCw size={14} /> {t("varliklar.fiyatlariYenile")}
               </button>
             )}
-            {!acik && (
+            {!satirIci && (
               <>
                 <button
                   className="bt-btn kucuk ikincil"
@@ -12530,7 +13113,8 @@ function Varliklar({
         ))}
       </nav>
 
-      {acik && (
+      {acik && (() => {
+        const varlikFormu = (
         <form className="bt-form" onSubmit={kaydet}>
           <div className="bt-h2" style={{ marginBottom: 16 }}>
             {f.id ? t("varliklar.form.duzenleBaslik") : t("varliklar.form.yeniBaslik")}
@@ -12869,14 +13453,21 @@ function Varliklar({
             </button>
           </div>
         </form>
-      )}
+        );
+        if (!masaustu) return varlikFormu;
+        return (
+          <SagPanel baslik={f.id ? t("varliklar.form.duzenleBaslik") : t("varliklar.form.yeniBaslik")} onKapat={() => setForm(null)}>
+            {varlikFormu}
+          </SagPanel>
+        );
+      })()}
 
-      {ozet.kalemler.length === 0 && !acik ? (
+      {ozet.kalemler.length === 0 && !satirIci ? (
         <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
           {t("varliklar.bos.hic")}
           <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}><Plus size={15} /> {t("varliklar.varlikEkle")}</button>
         </div>
-      ) : gorunenKalemler.length === 0 && !acik ? (
+      ) : gorunenKalemler.length === 0 && !satirIci ? (
         <div className="bt-card bt-bos" style={{ display: "grid", justifyItems: "center", gap: 14 }}>
           {t("varliklar.bos.kategori")}
           <button className="bt-btn birincil" type="button" onClick={bosKategoriEkle}>
@@ -13108,6 +13699,9 @@ function Varliklar({
 /* ---------------- Gelirler ---------------- */
 function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = false }) {
   const acik = form && form.liste === "incomes";
+  // Masaustunde form sag panelde; liste yerinde kalir (B11).
+  const masaustu = useMasaustu();
+  const satirIci = acik && !masaustu;
   const [f, setF] = useState({});
   useEffect(() => {
     if (acik) setF({ ...(sabit ? { tekrar: "Her ay" } : {}), ...(form.veri || {}) });
@@ -13151,7 +13745,7 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
           <div className="bt-h2" style={{ margin: 0 }}>
             <TrendingUp size={16} /> {sabit ? t("gelirGider.gelir.sabitBaslik") : t("gelirGider.gelir.baslik")}
           </div>
-          {!acik && (
+          {!satirIci && (
             <button
               className="bt-btn kucuk ikincil"
               onClick={() => setForm({ liste: "incomes", veri: {} })}
@@ -13165,7 +13759,8 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
             ? t("gelirGider.gelir.sabitAciklama")
             : t("gelirGider.gelir.aciklama")}
         </div>
-        {acik && (
+        {acik && (() => {
+          const gelirFormu = (
           <div className="bt-form">
             <div className="bt-alanlar">
               {alanlar.filter((a) => !(sabit && ["tekrar", "tarih"].includes(a.k))).map((a) => (
@@ -13211,8 +13806,15 @@ function Gelirler({ veri, form, setForm, ekleGuncelle, sil, buAyGelir, sabit = f
               </button>
             </div>
           </div>
-        )}
-        {gorunenGelirler.length === 0 && !acik ? (
+          );
+          if (!masaustu) return gelirFormu;
+          return (
+            <SagPanel baslik={form.veri?.id ? t("web.panel.gelirDuzenle") : sabit ? t("web.panel.sabitGelir") : t("web.panel.gelir")} onKapat={() => setForm(null)}>
+              {gelirFormu}
+            </SagPanel>
+          );
+        })()}
+        {gorunenGelirler.length === 0 && !satirIci ? (
           <div className="bt-bos">{t("gelirGider.gelir.bos")}</div>
         ) : (
           <div className="bt-stack" style={{ gap: 12 }}>
@@ -13294,8 +13896,13 @@ function Harcamalar({
   bankalar,
   kredilereGit,
   sabit = false,
+  // "+ Ekle" baska sekmedeyken: liste cizilmez, yalniz panel ve pencereleri.
+  yalnizPanel = false,
 }) {
   const acik = form && form.liste === "expenses";
+  // Masaustunde form sag panelde; liste yerinde kalir (B11).
+  const masaustu = useMasaustu();
+  const satirIci = acik && !masaustu;
   const [f, setF] = useState({});
   const [gorunenAy, setGorunenAy] = useState(ayAnahtari());
   const [kaynakEklemeTuru, setKaynakEklemeTuru] = useState("");
@@ -13654,6 +14261,161 @@ function Harcamalar({
     </div>
   );
 
+  const harcamaPaneli = masaustu && acik && (
+    <SagPanel
+      baslik={form.veri?.id ? t("gelirGider.harcama.duzenle") : sabit ? t("web.panel.sabitGider") : t("web.panel.harcama")}
+      onKapat={() => setForm(null)}
+    >
+      {harcamaFormu}
+    </SagPanel>
+  );
+  const kaynakPenceresi = (
+    <>
+      {acik && kaynakEklemeTuru && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) kaynakEklemeKapat();
+          }}
+        >
+          <form
+            className="bt-modal bt-kaynak-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="harcama-kaynak-modal-baslik"
+            onSubmit={(e) => {
+              e.preventDefault();
+              hizliKaynakKaydet();
+            }}
+          >
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="harcama-kaynak-modal-baslik" className="bt-h2">
+                  {kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.yeniKart") : t("gelirGider.kaynak.yeniHesap")}
+                </div>
+                <p className="bt-kaynak-modal-aciklama">
+                  {t("gelirGider.kaynak.modalAciklama")}
+                </p>
+              </div>
+              <button className="bt-btn hayalet" type="button" onClick={kaynakEklemeKapat} aria-label={t("ortak.kapat")}>
+                <X size={17} />
+              </button>
+            </div>
+            <div className="bt-kaynak-modal-form">
+              <label className="bt-alan">
+                <span>{t("ortak.banka")} *</span>
+                <select
+                  className="bt-input"
+                  autoFocus
+                  value={kaynakFormu.banka}
+                  onChange={(e) => setKaynakFormu({
+                    ...kaynakFormu,
+                    banka: e.target.value,
+                    ...(e.target.value !== "__other__" ? { ozelBanka: "" } : {}),
+                  })}
+                >
+                  <option value="">{t("gelirGider.kaynak.bankaSecin")}</option>
+                  {bankalar.map((banka) => <option key={banka} value={banka}>{banka}</option>)}
+                  <option value="__other__">{t("gelirGider.kaynak.digerBanka")}</option>
+                </select>
+              </label>
+              {kaynakFormu.banka === "__other__" && (
+                <label className="bt-alan">
+                  <span>{t("gelirGider.kaynak.bankaAdi")} *</span>
+                  <input
+                    className="bt-input"
+                    value={kaynakFormu.ozelBanka}
+                    placeholder={t("gelirGider.kaynak.bankaAdiOrnek")}
+                    onChange={(e) => setKaynakFormu({ ...kaynakFormu, ozelBanka: e.target.value })}
+                  />
+                </label>
+              )}
+              <label className="bt-alan">
+                <span>{kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.kartAdi") : t("gelirGider.kaynak.hesapAdi")} *</span>
+                <input
+                  className="bt-input"
+                  value={kaynakFormu.ad}
+                  placeholder={kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.kartAdiOrnek") : t("gelirGider.kaynak.hesapAdiOrnek")}
+                  onChange={(e) => setKaynakFormu({ ...kaynakFormu, ad: e.target.value })}
+                />
+              </label>
+              {kaynakEklemeTuru === "card" ? (
+                <>
+                  <label className="bt-alan">
+                    <span>{t("gelirGider.kaynak.kartSon4")}</span>
+                    <input
+                      className="bt-input"
+                      inputMode="numeric"
+                      maxLength={4}
+                      value={kaynakFormu.kartSon4}
+                      placeholder="1234"
+                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, kartSon4: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                    />
+                  </label>
+                  <label className="bt-alan">
+                    <span>{t("gelirGider.kaynak.kartLimiti")}</span>
+                    <ParaInput
+                      className="bt-input"
+                      value={kaynakFormu.limit}
+                      placeholder={t("gelirGider.kaynak.istegeBagli")}
+                      onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, limit: value })}
+                    />
+                  </label>
+                  <label className="bt-alan">
+                    <span>{t("gelirGider.kaynak.kesimGunu")} *</span>
+                    <input
+                      className="bt-input"
+                      type="number"
+                      min="1"
+                      max="31"
+                      inputMode="numeric"
+                      value={kaynakFormu.kesimGunu}
+                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, kesimGunu: e.target.value })}
+                    />
+                  </label>
+                  <label className="bt-alan">
+                    <span>{t("gelirGider.kaynak.sonOdemeGunu")}</span>
+                    <input
+                      className="bt-input"
+                      type="number"
+                      min="1"
+                      max="31"
+                      inputMode="numeric"
+                      value={kaynakFormu.sonOdemeGunu}
+                      placeholder={t("gelirGider.kaynak.istegeBagli")}
+                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, sonOdemeGunu: e.target.value })}
+                    />
+                  </label>
+                </>
+              ) : (
+                <label className="bt-alan genis">
+                  <span>{t("gelirGider.kaynak.guncelBakiye")}</span>
+                  <ParaInput
+                    className="bt-input"
+                    value={kaynakFormu.bakiye}
+                    placeholder={t("gelirGider.kaynak.istegeBagli")}
+                    onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, bakiye: value })}
+                  />
+                </label>
+              )}
+              {kaynakHatasi && <span className="bt-kaynak-ekle-hata" role="alert">{kaynakHatasi}</span>}
+              <div className="bt-kaynak-modal-actions">
+                <button className="bt-btn birincil" type="submit">
+                  <Check size={14} /> {t("gelirGider.kaynak.kaydetVeSec")}
+                </button>
+                <button className="bt-btn ikincil" type="button" onClick={kaynakEklemeKapat}>
+                  {t("ortak.vazgec")}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
+  );
+  if (yalnizPanel) return <>{harcamaPaneli}{kaynakPenceresi}</>;
+
   return (
     <div className="bt-stack">
       <div className="bt-card" data-tour="harcamalar">
@@ -13661,7 +14423,7 @@ function Harcamalar({
           <div className="bt-h2" style={{ margin: 0 }}>
             <Wallet size={16} /> {sabit ? t("gelirGider.harcama.sabitBaslik") : t("gelirGider.harcama.baslik")}
           </div>
-          {!acik && (
+          {!satirIci && (
             <button
               className="bt-btn kucuk birincil"
               onClick={() => setForm({ liste: "expenses", veri: {} })}
@@ -13670,8 +14432,9 @@ function Harcamalar({
             </button>
           )}
         </div>
-        {acik && !f.id && harcamaFormu}
-        {!acik && sirali.length === 0 && (!sabit || otomatikBorcOdemeleri.length === 0) && (
+        {satirIci && !f.id && harcamaFormu}
+        {harcamaPaneli}
+        {!satirIci && sirali.length === 0 && (!sabit || otomatikBorcOdemeleri.length === 0) && (
           <div className="bt-bos">
             {sabit
               ? t("gelirGider.harcama.sabitBos")
@@ -13879,7 +14642,7 @@ function Harcamalar({
                         </button>
                       </div>
                     </div>
-                    {acik && f.id === h.id && (
+                    {satirIci && f.id === h.id && (
                       <div
                         id={`harcama-editor-${h.id}`}
                         className="bt-harcama-inline-edit"
@@ -13902,147 +14665,7 @@ function Harcamalar({
         </div>
       )}
 
-      {acik && kaynakEklemeTuru && (
-        <div
-          className="bt-modal-arka"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) kaynakEklemeKapat();
-          }}
-        >
-          <form
-            className="bt-modal bt-kaynak-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="harcama-kaynak-modal-baslik"
-            onSubmit={(e) => {
-              e.preventDefault();
-              hizliKaynakKaydet();
-            }}
-          >
-            <div className="bt-modalbaslik">
-              <div>
-                <div id="harcama-kaynak-modal-baslik" className="bt-h2">
-                  {kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.yeniKart") : t("gelirGider.kaynak.yeniHesap")}
-                </div>
-                <p className="bt-kaynak-modal-aciklama">
-                  {t("gelirGider.kaynak.modalAciklama")}
-                </p>
-              </div>
-              <button className="bt-btn hayalet" type="button" onClick={kaynakEklemeKapat} aria-label={t("ortak.kapat")}>
-                <X size={17} />
-              </button>
-            </div>
-            <div className="bt-kaynak-modal-form">
-              <label className="bt-alan">
-                <span>{t("ortak.banka")} *</span>
-                <select
-                  className="bt-input"
-                  autoFocus
-                  value={kaynakFormu.banka}
-                  onChange={(e) => setKaynakFormu({
-                    ...kaynakFormu,
-                    banka: e.target.value,
-                    ...(e.target.value !== "__other__" ? { ozelBanka: "" } : {}),
-                  })}
-                >
-                  <option value="">{t("gelirGider.kaynak.bankaSecin")}</option>
-                  {bankalar.map((banka) => <option key={banka} value={banka}>{banka}</option>)}
-                  <option value="__other__">{t("gelirGider.kaynak.digerBanka")}</option>
-                </select>
-              </label>
-              {kaynakFormu.banka === "__other__" && (
-                <label className="bt-alan">
-                  <span>{t("gelirGider.kaynak.bankaAdi")} *</span>
-                  <input
-                    className="bt-input"
-                    value={kaynakFormu.ozelBanka}
-                    placeholder={t("gelirGider.kaynak.bankaAdiOrnek")}
-                    onChange={(e) => setKaynakFormu({ ...kaynakFormu, ozelBanka: e.target.value })}
-                  />
-                </label>
-              )}
-              <label className="bt-alan">
-                <span>{kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.kartAdi") : t("gelirGider.kaynak.hesapAdi")} *</span>
-                <input
-                  className="bt-input"
-                  value={kaynakFormu.ad}
-                  placeholder={kaynakEklemeTuru === "card" ? t("gelirGider.kaynak.kartAdiOrnek") : t("gelirGider.kaynak.hesapAdiOrnek")}
-                  onChange={(e) => setKaynakFormu({ ...kaynakFormu, ad: e.target.value })}
-                />
-              </label>
-              {kaynakEklemeTuru === "card" ? (
-                <>
-                  <label className="bt-alan">
-                    <span>{t("gelirGider.kaynak.kartSon4")}</span>
-                    <input
-                      className="bt-input"
-                      inputMode="numeric"
-                      maxLength={4}
-                      value={kaynakFormu.kartSon4}
-                      placeholder="1234"
-                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, kartSon4: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                    />
-                  </label>
-                  <label className="bt-alan">
-                    <span>{t("gelirGider.kaynak.kartLimiti")}</span>
-                    <ParaInput
-                      className="bt-input"
-                      value={kaynakFormu.limit}
-                      placeholder={t("gelirGider.kaynak.istegeBagli")}
-                      onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, limit: value })}
-                    />
-                  </label>
-                  <label className="bt-alan">
-                    <span>{t("gelirGider.kaynak.kesimGunu")} *</span>
-                    <input
-                      className="bt-input"
-                      type="number"
-                      min="1"
-                      max="31"
-                      inputMode="numeric"
-                      value={kaynakFormu.kesimGunu}
-                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, kesimGunu: e.target.value })}
-                    />
-                  </label>
-                  <label className="bt-alan">
-                    <span>{t("gelirGider.kaynak.sonOdemeGunu")}</span>
-                    <input
-                      className="bt-input"
-                      type="number"
-                      min="1"
-                      max="31"
-                      inputMode="numeric"
-                      value={kaynakFormu.sonOdemeGunu}
-                      placeholder={t("gelirGider.kaynak.istegeBagli")}
-                      onChange={(e) => setKaynakFormu({ ...kaynakFormu, sonOdemeGunu: e.target.value })}
-                    />
-                  </label>
-                </>
-              ) : (
-                <label className="bt-alan genis">
-                  <span>{t("gelirGider.kaynak.guncelBakiye")}</span>
-                  <ParaInput
-                    className="bt-input"
-                    value={kaynakFormu.bakiye}
-                    placeholder={t("gelirGider.kaynak.istegeBagli")}
-                    onValueChange={(value) => setKaynakFormu({ ...kaynakFormu, bakiye: value })}
-                  />
-                </label>
-              )}
-              {kaynakHatasi && <span className="bt-kaynak-ekle-hata" role="alert">{kaynakHatasi}</span>}
-              <div className="bt-kaynak-modal-actions">
-                <button className="bt-btn birincil" type="submit">
-                  <Check size={14} /> {t("gelirGider.kaynak.kaydetVeSec")}
-                </button>
-                <button className="bt-btn ikincil" type="button" onClick={kaynakEklemeKapat}>
-                  {t("ortak.vazgec")}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
+      {kaynakPenceresi}
     </div>
   );
 }

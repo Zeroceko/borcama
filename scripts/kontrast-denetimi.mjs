@@ -1,5 +1,7 @@
 // Kurulum akisi v3 kontrast denetimi (direktif §9). 15 ekran x acik/koyu
-// tema x mobil (390x844) ve masaustu (1280x800): gorunen her metin ve girdi
+// tema x mobil (390x844) ve masaustu (1280x800, 1024x768; web kabugu, Hazirsin
+// bandi, Bugün ust cubugu, "+ Ekle" menusu, sag paneller, hesap menusu dahil
+// — docs/web-akis-direktifi.md PR-3): gorunen her metin ve girdi
 // (deger ya da yer tutucu, pasif dugmeler dahil) icin hesaplanan on plan /
 // arka plan renginden WCAG orani. Normal metin >= 4.5, buyuk metin >= 3.
 // background-clip: text ogeleri ve aria-hidden bayrak emojisi haric.
@@ -70,7 +72,9 @@ function sayfadaDenetle() {
       bulgular.push({ oge: ad, metin: metin.slice(0, 40), oran: Math.round(r * 100) / 100, esik });
     }
   };
-  for (const el of document.querySelectorAll(".oa *")) {
+  // Kurulum/kayıt yüzeyi (.oa, sağdaki Bugün önizlemesi dahil) ve büyük ekran
+  // kabuğunun uygulamadaki yeni parçaları (üst çubuk, bant, menü, sağ panel).
+  for (const el of document.querySelectorAll(".oa *, .bt-header *, .bt-hazir-bant *, .mk-menu *, .sag-panel *")) {
     if (!gorunur(el)) continue;
     const s = getComputedStyle(el);
     if (el.matches("input, textarea")) {
@@ -85,7 +89,7 @@ function sayfadaDenetle() {
 }
 
 let toplam = 0;
-for (const [genislik, yukseklik] of [[390, 844], [1280, 800]]) {
+for (const [genislik, yukseklik] of [[390, 844], [1280, 800], [1024, 768]]) {
   for (const tema of ["light", "dark"]) {
     await ekranlariGez(browser, {
       demo, auth, genislik, yukseklik, tema,

@@ -3,8 +3,10 @@ import { runAuthAttempt, recoveryErrorMessage } from "./authAttempt.js";
 import { supabase, supabaseHazir } from "./supabaseClient.js";
 import {
   Check,
+  Info,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Eye,
   EyeOff,
   LogOut,
@@ -33,6 +35,7 @@ import { hesapZatenVardi, kodGecerli, kodHataAnahtari, kodTemizle } from "./auth
 import { useKlavye, useSistemKoyu } from "./Onboarding.jsx";
 import { webdeKoyuMu } from "./siteTema.js";
 import "./onboardingAkis.css";
+import { MasaustuUstCubuk, useMasaustu } from "./MasaustuKabuk.jsx";
 
 const EPOSTA_DESENI = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -232,6 +235,31 @@ export function useSession() {
   return session;
 }
 
+// Kayit/giris (masaustu) sag sutunu: sonra ne olacagi, uc kisa madde.
+function NeOlacak({ kayit }) {
+  const maddeler = [
+    [Mail, t("web.kabuk.neOlacak.kod"), t(kayit ? "web.kabuk.neOlacak.kodAlt" : "web.kabuk.neOlacak.kodAltGiris")],
+    ...(kayit ? [[Clock, t("web.kabuk.neOlacak.kurulum"), t("web.kabuk.neOlacak.kurulumAlt")]] : []),
+    [ShieldCheck, t("web.kabuk.neOlacak.banka"), t("web.kabuk.neOlacak.bankaAlt")],
+  ];
+  return (
+    <aside className="mk-ne-olacak" aria-labelledby="mk-ne-olacak-baslik">
+      <span className="oa-mono-etiket" id="mk-ne-olacak-baslik">{t("web.kabuk.neOlacak.etiket")}</span>
+      <ul>
+        {maddeler.map(([Ikon, baslik, alt]) => (
+          <li key={baslik}>
+            <span className="ikon" aria-hidden="true"><Ikon size={19} strokeWidth={2.2} /></span>
+            <span>
+              <strong>{baslik}</strong>
+              <small>{alt}</small>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+}
+
 export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, preview = false }) {
   const sorgu = new URLSearchParams(window.location.search);
   const hamYonlendirme = sorgu.get("redirect");
@@ -274,6 +302,20 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [appleYukleniyor, setAppleYukleniyor] = useState(false);
   const [hata, setHata] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  // Kod gönderiminde ikinci istek için yeni Turnstile jetonu beklenir.
+  const captchaBekleyen = useRef(null);
+  const captchaJetonuGeldi = (jeton) => {
+    setCaptchaToken(jeton);
+    if (jeton && captchaBekleyen.current) {
+      captchaBekleyen.current(jeton);
+      captchaBekleyen.current = null;
+    }
+  };
+  // Kod ekranındaki bağlam: "hesapVar" (kayıtta var olan hesap),
+  // "yeniHesap" (kayıtta yeni hesap), "girisYeniHesap" (girişte hesap yoktu).
+  const [kodBaglami, setKodBaglami] = useState(null);
+  // Girişte e-postanın hesabı yoksa aynı ekranda onaylar sorulur.
+  const [girisHesapYok, setGirisHesapYok] = useState(false);
   const [captchaAttempt, setCaptchaAttempt] = useState(0);
   const [captchaDurumu, setCaptchaDurumu] = useState("loading");
   // Uygulama surumunde referans kodu hic okunmuyor; alan gizli oldugu icin
@@ -350,7 +392,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         <TurnstileWidget
           siteKey={turnstileSiteKey}
           widgetKey={`${widgetKey}-${captchaAttempt}`}
-          onToken={setCaptchaToken}
+          onToken={captchaJetonuGeldi}
           onStatus={setCaptchaDurumu}
         />
         {tekrarGerekli && (
@@ -383,28 +425,43 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     );
   }
 
+  // Önceki istek jetonu tükettikten sonra Turnstile yenisini üretir; Turnstile
+  // yoksa (yerel geliştirme) jeton gerekmez.
+  function yeniCaptchaJetonu() {
+    if (!turnstileSiteKey) return Promise.resolve("");
+    return new Promise((coz, reddet) => {
+      const zamanAsimi = window.setTimeout(() => { captchaBekleyen.current = null; reddet(new Error("captcha")); }, 20000);
+      captchaBekleyen.current = (jeton) => { window.clearTimeout(zamanAsimi); coz(jeton); };
+    });
+  }
+
+  const hesapYokHatasi = (error) => Boolean(error) && (error.code === "otp_disabled" || /signups? not allowed/i.test(error.message || ""));
+
   // Tek kullanimlik kod: e-postaya hem kod hem baglanti gider (auth-email
-  // hook'u). Kayitta hesap bu adimda acilir; parola hic sorulmaz.
+  // hook'u). Hesap yalnız onaylar işaretliyken ve yeni hesap gerekiyorsa
+  // açılır. Kayıtta önce var olan hesaba kod istenir; hesap yoksa yeni hesap
+  // kodu gönderilir. Girişte hesap yoksa aynı ekranda onaylar sorulur.
   async function kodGonder(e) {
     e?.preventDefault?.();
     if (!eposta.trim()) return;
-    if (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu))
+    const yeniHesapIzni = kayitModu || girisHesapYok;
+    if (yeniHesapIzni && (!sozlesmeKabul || !aydinlatmaOkundu))
       return setHata(t("auth.hata.sozlesme"));
     // Tasarim onizlemesinde (Supabase yok) kod ekrani gosterilir, e-posta gitmez.
-    if (preview && import.meta.env.DEV) { setKod(""); setKodModu(true); setTekrarZamani(Date.now() + 60000); setSimdi(Date.now()); return; }
+    if (preview && import.meta.env.DEV) { setKodBaglami(kayitModu ? "yeniHesap" : girisHesapYok ? "girisYeniHesap" : null); setKod(""); setKodModu(true); setTekrarZamani(Date.now() + 60000); setSimdi(Date.now()); return; }
     if (!supabaseHazir) return setHata(t("auth.hata.onizlemeEposta"));
     setGonderiliyor(true);
     setHata("");
-    if (kayitModu) await funnelEtkinligiKaydet("register_view");
+    if (yeniHesapIzni) await funnelEtkinligiKaydet("register_view");
     const kayitZamani = new Date().toISOString();
-    const kayitOlayKimligi = kayitModu ? crypto.randomUUID() : null;
-    const { error } = await authIstegiYap(() => supabase.auth.signInWithOtp({
+    const kayitOlayKimligi = yeniHesapIzni ? crypto.randomUUID() : null;
+    const kodIste = (olustur, jeton) => authIstegiYap(() => supabase.auth.signInWithOtp({
       email: eposta.trim(),
       options: {
         emailRedirectTo: epostaDonusAdresi(sonrakiSayfa),
-        captchaToken: captchaToken || undefined,
-        shouldCreateUser: kayitModu,
-        data: kayitModu ? {
+        captchaToken: jeton || undefined,
+        shouldCreateUser: olustur,
+        data: olustur ? {
           terms_version: "1.0",
           terms_accepted_at: kayitZamani,
           privacy_version: "1.0",
@@ -417,22 +474,41 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         } : undefined,
       },
     }));
+    let baglam = null;
+    let { error } = await kodIste(girisHesapYok, captchaToken);
+    if (girisHesapYok) {
+      baglam = "girisYeniHesap";
+    } else if (!error) {
+      baglam = kayitModu ? "hesapVar" : null;
+    } else if (kayitModu && hesapYokHatasi(error)) {
+      // Kayıt: hesap yok; yeni jetonla hesap açan kod gönderilir.
+      setGonderiliyor(true);
+      try {
+        const jeton = await yeniCaptchaJetonu();
+        ({ error } = await kodIste(true, jeton));
+        baglam = "yeniHesap";
+      } catch {
+        error = { status: 0, message: "captcha" };
+      }
+    }
     setGonderiliyor(false);
     if (error) {
-      // Giriste (shouldCreateUser: false) kayitsiz e-posta "signups not allowed".
-      const hesapYok = !kayitModu && (error.code === "otp_disabled" || /signups? not allowed/i.test(error.message || ""));
+      if (!kayitModu && !girisHesapYok && hesapYokHatasi(error)) {
+        // Giriş: bu e-postayla hesap yok; onaylar işaretlenince kod gönderilir.
+        setGirisHesapYok(true);
+        return;
+      }
       setHata(
         error.status === 429
           ? t("auth.hata.cokDenemeTekrar")
-          : hesapYok
-            ? t("auth.hata.hesapYok")
-            : kayitModu
-              ? t("auth.hata.kodGonderilemedi")
-              : t("auth.hata.kodGirisHesapYok"),
+          : yeniHesapIzni
+            ? t("auth.hata.kodGonderilemedi")
+            : t("auth.hata.kodGirisHesapYok"),
       );
       return;
     }
     void onboardingOlayiKaydet("auth_kod_gonderildi", {});
+    setKodBaglami(baglam);
     setKod("");
     setKodModu(true);
     setTekrarZamani(Date.now() + 60000);
@@ -469,7 +545,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     oturumKalicilginiYaz();
     if (kayitModu) proNiyetiniTemizle();
     // Kayıt ekranından var olan hesaba girildiyse önce söylenir (B12).
-    if (kayitModu && hesapZatenVardi(data?.user)) {
+    if (kayitModu && kodBaglami !== "hesapVar" && hesapZatenVardi(data?.user)) {
       setGonderiliyor(false);
       setHesapVardi(true);
       return;
@@ -562,6 +638,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   }
 
   const koyu = webdeKoyuMu({ native: nativeMi, sistemKoyu: useSistemKoyu() });
+  // Web, ≥1024: uygulamanin ust cubugu ve iki sutun (form + "ne olacak").
+  const masaustu = useMasaustu();
   const formId = "auth-form";
   const captchaBekliyor = Boolean(turnstileSiteKey && !captchaToken);
   const ustSag = <DilDugmesi className="oa-cip kucuk oa-ust-sag" kisa />;
@@ -595,7 +673,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         inputMode="email"
         placeholder={t("auth.epostaOrnek")}
         value={eposta}
-        onChange={(e) => setEposta(e.target.value)}
+        onChange={(e) => { setEposta(e.target.value); if (girisHesapYok) setGirisHesapYok(false); }}
         autoFocus={!nativeMi}
         required
       />
@@ -652,6 +730,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       <>
         <span className="oa-mono-etiket">{t("auth.kod.etiket")}</span>
         <h1 className="oa-baslik">{t("auth.kod.baslik")}</h1>
+        {kodBaglami && (
+          <div className="oa-bilgi" role="status">
+            <span className="ikon" aria-hidden="true"><Check size={16} strokeWidth={2.2} /></span>
+            <span><b>{t(`auth.kod.baglam.${kodBaglami}`)}</b></span>
+          </div>
+        )}
         <p className="oa-aciklama">
           <Ceviri anahtar="auth.kod.aciklama" degerler={{ eposta: <mark>{eposta}</mark> }} />
         </p>
@@ -855,7 +939,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             )}
           </div>
         )}
-        {kayitModu && (
+        {girisHesapYok && (
+          <div className="oa-bilgi" role="status">
+            <span className="ikon" aria-hidden="true"><Info size={16} strokeWidth={2.2} /></span>
+            <span><b>{t("auth.giris.hesapYokBaslik")}</b> {t("auth.giris.hesapYokAciklama")}</span>
+          </div>
+        )}
+        {(kayitModu || girisHesapYok) && (
           <div className="oa-onaylar">
             {onayKutusu("onay-sozlesme", sozlesmeKabul, setSozlesmeKabul, (
               <Ceviri
@@ -912,7 +1002,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         {captchaAlani(linkModu ? `code-send-${kayitModu}` : `password-${kayitModu}`)}
       </>
     );
-    const onaylarEksik = kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu);
+    const onaylarEksik = (kayitModu || girisHesapYok) && (!sozlesmeKabul || !aydinlatmaOkundu);
     const pasif = gonderiliyor || captchaBekliyor || !eposta.trim()
       || (!linkModu && !parola)
       || onaylarEksik;
@@ -960,17 +1050,46 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     );
   }
 
-  return (
-    <div className={`oa oa-auth${koyu ? " oa-koyu" : ""}`} ref={kokRef}>
-      <div className="oa-kolon">
+  const kolon = (
+    <div className="oa-kolon">
+      {/* Masaustunde geri dairesi yerine ust cubuk logosu ana sayfaya doner. */}
+      {!masaustu && (
         <div className="oa-kabuk">
           {geriDugmesi}
           {/* Giris yapmadan dil degistirme (native ve web). */}
           {ustSag}
         </div>
-        <div className="oa-govde" key={kodModu ? "kod" : gonderildi ? "gonderildi" : sifirlamaModu ? "sifirlama" : yontem}>{govde}</div>
-        <div className="oa-alt">{alt}</div>
-      </div>
+      )}
+      <div className="oa-govde" key={kodModu ? "kod" : gonderildi ? "gonderildi" : sifirlamaModu ? "sifirlama" : yontem}>{govde}</div>
+      <div className="oa-alt">{alt}</div>
+    </div>
+  );
+
+  return (
+    <div className={`oa oa-auth${masaustu ? " mk-web" : ""}${koyu ? " oa-koyu" : ""}`} ref={kokRef}>
+      {masaustu ? (
+        <>
+          <MasaustuUstCubuk
+            koyu={koyu}
+            logoHref="/?plan=free"
+            onLogo={proNiyetiniTemizle}
+            sag={
+              <>
+                <DilDugmesi className="oa-cip kucuk" kisa />
+                {kayitModu ? (
+                  <a className="mk-ust-baglanti" href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>{t("auth.gecis.girisYap")}</a>
+                ) : (
+                  <a className="mk-ust-baglanti" href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>{t("auth.gecis.kayitOl")}</a>
+                )}
+              </>
+            }
+          />
+          <div className="mk-izgara mk-auth">
+            {kolon}
+            <NeOlacak kayit={kayitModu} />
+          </div>
+        </>
+      ) : kolon}
       {yasalMetin && (
         <div
           className="oa-yasal-perde"

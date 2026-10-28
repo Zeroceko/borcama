@@ -259,6 +259,22 @@ async function sekmeTuru(b, adres, { genislik, yukseklik }) {
     }
   }
   kaydet(3, `A4 "+ Ekle" 4 madde sağ panelde, liste kıpırdamaz ${genislik}`, maddeler.length === 4 && maddeler.every(Boolean), maddeler.length ? maddeler.join(",") : "\"+ Ekle\" yok");
+
+  // B11: Bugün'de .bt-card yok; kartlı bir listede (Borçlar › Kartlar) "Kart
+  // ekle" formu sağ panelde açılır, kartların yeri ve boyu değişmez, Esc kapatır.
+  await page.goto(`${adres}/debts`); await page.waitForSelector(".bt-header"); await page.waitForTimeout(600);
+  const kutular = () => page.evaluate(() => [...document.querySelectorAll(".bt-card")].filter((k) => !k.closest(".sag-panel"))
+    .slice(0, 4).map((k) => { const r = k.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map(Math.round).join(":"); }).join(","));
+  const listeOnce = await kutular();
+  await page.locator(".bt-kart-ekle").first().click().catch(() => {});
+  await page.waitForTimeout(500);
+  const formPanelde = await page.locator(".sag-panel[role=dialog] .bt-form").count();
+  const listeSonra = await kutular();
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(400);
+  const kapandi = (await page.locator(".sag-panel").count()) === 0;
+  kaydet(3, `B11 kart formu panelde, Borçlar listesi kıpırdamaz ${genislik}`, Boolean(listeOnce) && formPanelde > 0 && listeOnce === listeSonra && kapandi,
+    `panel ${formPanelde}, aynı ${listeOnce === listeSonra}, Esc ${kapandi}`);
   await ctx.close();
 }
 

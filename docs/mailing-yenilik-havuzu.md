@@ -18,6 +18,18 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Bilgisayarda Borcama: + Ekle ve sağ panel — Unreleased
+
+- Siz istediniz: Bilgisayardan kullanırken telefon ekranı gibi dar değil, rahat bir görünüm.
+- Biz yaptık: Büyük ekranda kayıt, kurulum ve uygulama aynı üst çubukta; kurulumu yaparken sağda Bugün ekranın girdikçe oluşuyor. Üst çubuktaki "+ Ekle" ile harcama, ödeme, ekstre ya da borcu bulunduğun sayfadan ayrılmadan sağdan açılan panelde ekliyorsun.
+- Faydası: Liste yerinden oynamadan, tek tıkla kayıt; kurulumdaki plan ile ilk ekran aynı yerde.
+
+### Yaşam bütçeni planda sen belirle — Unreleased
+
+- Siz istediniz: Planın kendi harcamama göre hesaplanması.
+- Biz yaptık: Borç planı ekranında "Aylık yaşam bütçesi" alanı; yazdığın tutarla plan ve Bugün ekranı yeniden hesaplanıyor, her maaşta ödemelere ne gittiği altında yazıyor.
+- Faydası: Kurulumda gördüğün plan ile uygulamadaki sayılar aynı; tahmini kendi rakamınla değiştirirsin.
+
 ### iPhone'da ve tarayıcıda, aynı hesap — 1.73.0
 
 - Siz istediniz: Borcama'nın iPhone uygulamasını ve web'i aynı yerde görmek.
