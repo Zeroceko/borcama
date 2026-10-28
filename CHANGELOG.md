@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.73.1] - 2026-10-28
+
+Web ve iOS aynı sürüm (iOS build 36).
+
+### Düzeltildi
+
+- iOS kurulum akışı web ile aynı: seçili seçenek artık ana düğmeyle aynı renk (lime) değil; açık temada mürekkep, koyu temada krem dolgulu, içindeki tik ve ikon lime. Yaşam gideri adımı kalktı; plan, yaşam için gelirin %45'ini varsayıyor ve bunu kartta söylüyor (her maaşta ödemelere giden tutar, gelirin kalanı). Ülke listesinde bayraklar; kapanışta yıldız yerine Borcama logosu.
+
 ## [1.73.0] - 2026-10-28
 
 Web ve iOS aynı sürüm (iOS build 35, TestFlight).
