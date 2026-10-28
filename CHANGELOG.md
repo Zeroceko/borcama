@@ -4,13 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.1] - 2026-10-29
+
+Web ve iOS aynı sürüm (iOS build 37). 1.74.0 iOS'a yüklenmedi; iOS'a bu düzeltmeyle birlikte 1.74.1 olarak çıkar.
+
 ### Düzeltildi
 
 - iOS'ta Borcama Asistanı açılınca pencere ekranın üstünde ince bir şerit olarak kalıyordu. Sekme çubuğu yüksekliği, çubuk yerleşmeden ölçüldüğü için ekranın tamamı kadar (~890 px) bildiriliyordu; artık yerleşimden sonra ölçülüyor ve web tarafında 120 px ile sınırlı.
 
 ## [1.74.0] - 2026-10-28
 
-Web ve iOS aynı sürüm (iOS build 37). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
+Web sürümü (iOS'a 1.74.1 build 37 ile birlikte çıktı). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
 
 ### Eklendi
 
