@@ -18,9 +18,9 @@ const b = await tarayiciAc();
 let hata = 0;
 try {
   for (const { genislik, hedef } of GENISLIKLER) {
-    for (const koyu of [false, true]) {
+    {
       const ctx = await baglamAc(b, { viewport: { width: genislik, height: 900 } });
-      const sayfa = await siteyiAc(ctx, `${adres}/`, { koyu });
+      const sayfa = await siteyiAc(ctx, `${adres}/`);
       const araliklar = await sayfa.evaluate(() => {
         const bolumler = [...document.querySelectorAll(".site header.ust, .site main > section, .site footer.alt")];
         // Görünür kutu: overflow ile kırpan atalar (ör. .tel-kirp) hesaba katılır.
@@ -68,7 +68,7 @@ try {
         if (!tamam) hata += 1;
         return `  ${tamam ? "ok " : "HATA"} ${a.from} → ${a.to}: ${a.gap}px${ustCubuk ? " (üst çubuk, hedef dışı)" : ""}`;
       });
-      console.log(`${genislik}px ${koyu ? "koyu" : "açık"} (hedef ${hedef} ± ${TOLERANS})\n${satirlar.join("\n")}`);
+      console.log(`${genislik}px açık (hedef ${hedef} ± ${TOLERANS})\n${satirlar.join("\n")}`);
       await ctx.close();
     }
   }

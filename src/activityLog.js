@@ -92,7 +92,9 @@ export async function bekleyenOnboardingOlaylariniGonder() {
 
 export async function girisAktivitesiKaydet(session) {
   if (demoModu || !session?.user?.id) return;
-  const anahtar = `borcama:login-log:${session.user.id}:${session.expires_at || "session"}`;
+  // Tarayıcı oturumu başına bir kayıt: token yenilemesi (expires_at değişir)
+  // yeni "login" yazmaz (B14).
+  const anahtar = `borcama:login-log:${session.user.id}`;
   if (sessionStorage.getItem(anahtar)) return;
   sessionStorage.setItem(anahtar, "1");
   try {

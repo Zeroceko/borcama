@@ -1296,7 +1296,8 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
   cursor: pointer;
 }
 
-.oa-onay button {
+/* Metin içindeki bağlantı görünümlü düğmeler; onay kutusu (.oa-kutu) hariç. */
+.oa-onay button:not(.oa-kutu) {
   padding: 0;
   border: 0;
   background: none;
@@ -1318,14 +1319,19 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
   padding: 0;
   color: transparent;
   cursor: pointer;
-  border: 1.5px solid var(--oa-yuzey-3);
+  border: 1.5px solid var(--oa-metin-3);
   border-radius: 6px;
   background: var(--oa-yuzey);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .oa-kutu svg { opacity: 0; }
-.oa-onay.secili .oa-kutu { background: var(--oa-ink); border-color: var(--oa-ink); color: var(--oa-lime); }
+/* Seçili: açıkta mürekkep + lime tik, koyuda krem + mürekkep tik (K9). */
+.oa-onay.secili .oa-kutu { background: var(--oa-secili-zemin); border-color: var(--oa-secili-zemin); color: var(--oa-lime); }
+.oa-koyu .oa-onay.secili .oa-kutu { color: var(--oa-ink); }
+
+/* Pasif ana düğmenin nedeni (ör. onaylar eksik). */
+.oa-ipucu { margin: 10px 0 0; color: var(--oa-metin-2); font-size: 13px; line-height: 1.45; text-align: center; }
 .oa-onay.secili .oa-kutu svg { opacity: 1; }
 
 .oa-gecis {

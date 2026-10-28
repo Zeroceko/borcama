@@ -1,0 +1,3 @@
+/* Web kabuğu: kaydırma çubuğu kısa ve uzun sayfalarda aynı yeri tutar;
+   sekme değişince düzen yana kaymaz (docs/web-akis-direktifi.md B4). */
+html { scrollbar-gutter: stable; }

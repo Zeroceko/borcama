@@ -41,7 +41,9 @@ enum OBRenk {
     static let ozet = dinamik(0xd9e7e1, 0x191c12)
     static let ozetMetin = dinamik(0x14160f, 0xf4efe0)
     static let ozetTutar = dinamik(0x14160f, 0xcdf564)
-    static let yasam = dinamik(0x899285, 0xc8c9be)
+    // K9: secili secenek CTA'dan ayri; acikta murekkep, koyuda krem dolgu.
+    static let seciliZemin = dinamik(0x14160f, 0xf4efe0)
+    static let seciliMetin = dinamik(0xf4efe0, 0x14160f)
     static let ilerlemeTamam = dinamik(0x14160f, 0xf4efe0)
     static let ilerlemeSirada = dinamik(0xe65340, 0xff6f59)
     static let ilerlemeBekleyen = dinamik(0x14160f, 0xf4efe0, acikAlfa: 0.14, koyuAlfa: 0.16)
@@ -143,10 +145,10 @@ struct OBBorc: Identifiable {
 }
 
 enum OBAdim: String, CaseIterable {
-    case acilis, karsilama, dil, gorunum, ulke, isim, hedef, siklik, gun, gelir, turler, borc, yasam, plan, hazir
+    case acilis, karsilama, dil, gorunum, ulke, isim, hedef, siklik, gun, gelir, turler, borc, plan, hazir
 
     // Ilerleme cubugunda sayilan adimlar; acilis, karsilama ve hazir sayilmaz.
-    static let numarali: [OBAdim] = [.dil, .gorunum, .ulke, .isim, .hedef, .siklik, .gun, .gelir, .turler, .borc, .yasam, .plan]
+    static let numarali: [OBAdim] = [.dil, .gorunum, .ulke, .isim, .hedef, .siklik, .gun, .gelir, .turler, .borc, .plan]
 }
 
 final class OBDurum: ObservableObject {
@@ -175,7 +177,8 @@ final class OBDurum: ObservableObject {
     @Published var borcTurleri: [String] = []
     @Published var borcYok = false
     @Published var borclar: [OBBorc] = []
-    @Published var yasam: Double?
+    // Yasam gideri sorulmuyor (K10); alan sonucta null kalir.
+    var yasam: Double? = nil
     @Published var atlanan: [String] = []
     // Karsilamada "Hesap acmadan devam et" secildiyse akis misafir olarak biter.
     var misafir = false
@@ -325,7 +328,8 @@ final class OBDurum: ObservableObject {
 
     var gunluk: Double { gelir / 30 }
     var buAyOdemeler: Double { borclar.reduce(0) { $0 + $1.buAyOdeme } }
-    var yasamTutari: Double { yasam ?? 0 }
+    // Plan, yasam icin gelirin %45'ini varsayar (web: yasamVarsayilan).
+    var yasamTutari: Double { yasam ?? (gelir * 45 / 100).rounded() }
     var kredTaksitleri: Double { borclar.filter { $0.tur == "kredi" }.reduce(0) { $0 + ($1.taksit ?? 0) } }
 
     // Plan odemesi (planOdemeleri): kredi taksitleri + kartlara gelirden
@@ -383,8 +387,6 @@ final class OBDurum: ObservableObject {
         if OBAdim.numarali.contains(simdiki) {
             olay(atlandi ? "onboarding_atla" : "onboarding_adim", ["adim": simdiki.rawValue, "sure_ms": sure])
             if atlandi, !atlanan.contains(simdiki.rawValue) { atlanan.append(simdiki.rawValue) }
-            // Yasam atlanirsa onerilen %45 yazilmaz; plan "girilmedi" gosterir.
-            if atlandi, simdiki == .yasam { yasam = nil }
         }
         guard let sira = siradakiler.firstIndex(of: simdiki), sira + 1 < siradakiler.count else {
             bitir(cikis: misafir ? "misafir" : "tamam")
@@ -424,7 +426,7 @@ final class OBDurum: ObservableObject {
                 if let kalan = b.kalanTaksit { d["kalanTaksit"] = kalan }
                 return d
             },
-            "yasam": yasam.map { $0 as Any } ?? NSNull(),
+            "yasam": NSNull(),
             "atlanan": atlanan,
             "sure_ms": Int(Date().timeIntervalSince(baslangic) * 1000),
         ]
@@ -433,6 +435,11 @@ final class OBDurum: ObservableObject {
 }
 
 // MARK: - Ortak parcalar
+
+// Bolge kodundan bayrak (TR -> regional indicator ciftine); K6 istisnasi.
+func obBayrak(_ kod: String) -> String {
+    String(String.UnicodeScalarView(kod.uppercased().unicodeScalars.compactMap { Unicode.Scalar(127397 + $0.value) }))
+}
 
 private func dokunusTitresimi() {
     UISelectionFeedbackGenerator().selectionChanged()
@@ -484,16 +491,16 @@ struct OBDugme: View {
     }
 }
 
-// Secim halkasi: 22px; secilince ink dolgu + lime tik.
+// Secim halkasi: 22px; secilince lime dolgu + ink tik.
 struct OBHalka: View {
     let secili: Bool
     var boyut: CGFloat = 22
     var body: some View {
         ZStack {
-            Circle().fill(secili ? OBRenk.ink : Color.clear)
-            Circle().strokeBorder(secili ? OBRenk.ink : OBRenk.yuzey3, lineWidth: 1.5)
+            Circle().fill(secili ? OBRenk.lime : Color.clear)
+            Circle().strokeBorder(secili ? OBRenk.lime : OBRenk.yuzey3, lineWidth: 1.5)
             if secili {
-                Image(systemName: "checkmark").font(.system(size: boyut * 0.5, weight: .heavy)).foregroundColor(OBRenk.lime)
+                Image(systemName: "checkmark").font(.system(size: boyut * 0.5, weight: .heavy)).foregroundColor(OBRenk.ink)
             }
         }
         .frame(width: boyut, height: boyut)
@@ -501,17 +508,17 @@ struct OBHalka: View {
     }
 }
 
-// Mono kod rozeti (TR, EN, KISI); secilince ink dolgu + lime metin.
+// Mono kod rozeti (TR, EN, KISI); secilince lime dolgu + ink metin.
 struct OBKod: View {
     let kod: String
     var secili = false
     var body: some View {
         Text(kod)
             .font(OBYazi.mono(11, 700))
-            .foregroundColor(secili ? OBRenk.lime : OBRenk.metin)
+            .foregroundColor(secili ? OBRenk.ink : OBRenk.metin)
             .padding(.horizontal, 7)
             .frame(minWidth: 30, minHeight: 24)
-            .background(RoundedRectangle(cornerRadius: 7).fill(secili ? OBRenk.ink : OBRenk.yuzey2))
+            .background(RoundedRectangle(cornerRadius: 7).fill(secili ? OBRenk.lime : OBRenk.yuzey2))
     }
 }
 
@@ -525,12 +532,14 @@ struct OBBasmaStili: ButtonStyle {
 }
 
 // Kenarliksiz secim satiri: 60px, yuzey, 18px kose; sol kod rozeti, orta metin
-// + alt satir, sag mono not + halka. Secili: lime dolgu + ink metin.
+// + alt satir, sag mono not + halka. Secili: murekkep/krem dolgu + ters metin
+// (K9; lime yalniz CTA'da). Ulke satirinda kod yerine bayrak.
 struct OBSecenek: View {
     let baslik: String
     var alt: String? = nil
     var sag: String? = nil
     var kod: String? = nil
+    var bayrak: String? = nil
     let secili: Bool
     let eylem: () -> Void
 
@@ -538,21 +547,22 @@ struct OBSecenek: View {
         Button(action: { dokunusTitresimi(); eylem() }) {
             HStack(spacing: 12) {
                 if let kod { OBKod(kod: kod, secili: secili) }
+                if let bayrak { Text(bayrak).font(.system(size: 24)).frame(width: 32).accessibilityHidden(true) }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(baslik).font(OBYazi.govde(15, 700)).foregroundColor(secili ? OBRenk.ink : OBRenk.metin)
+                    Text(baslik).font(OBYazi.govde(15, 700)).foregroundColor(secili ? OBRenk.seciliMetin : OBRenk.metin)
                     if let alt, !alt.isEmpty {
-                        Text(alt).font(OBYazi.govde(12.5, 500)).foregroundColor(secili ? OBRenk.ink.opacity(0.7) : OBRenk.metin2)
+                        Text(alt).font(OBYazi.govde(12.5, 500)).foregroundColor(secili ? OBRenk.seciliMetin.opacity(0.74) : OBRenk.metin2)
                     }
                 }
                 Spacer(minLength: 8)
                 if let sag {
-                    Text(sag).font(OBYazi.mono(11, 700)).foregroundColor(secili ? OBRenk.ink.opacity(0.7) : OBRenk.metin2)
+                    Text(sag).font(OBYazi.mono(11, 700)).foregroundColor(secili ? OBRenk.seciliMetin.opacity(0.74) : OBRenk.metin2)
                 }
                 OBHalka(secili: secili)
             }
             .padding(.horizontal, 16)
             .frame(minHeight: 60)
-            .background(RoundedRectangle(cornerRadius: 18).fill(secili ? OBRenk.lime : OBRenk.yuzey))
+            .background(RoundedRectangle(cornerRadius: 18).fill(secili ? OBRenk.seciliZemin : OBRenk.yuzey))
             .contentShape(Rectangle())
         }
         .buttonStyle(OBBasmaStili())
@@ -574,22 +584,22 @@ struct OBSecimKarti: View {
                 HStack(alignment: .top) {
                     Image(systemName: simge)
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(secili ? OBRenk.lime : OBRenk.metin)
+                        .foregroundColor(secili ? OBRenk.ink : OBRenk.metin)
                         .frame(width: 40, height: 40)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(secili ? OBRenk.ink : OBRenk.yuzey2))
+                        .background(RoundedRectangle(cornerRadius: 12).fill(secili ? OBRenk.lime : OBRenk.yuzey2))
                     Spacer()
                     OBHalka(secili: secili)
                 }
                 Spacer(minLength: 14)
                 Text(baslik)
                     .font(OBYazi.govde(14, 700))
-                    .foregroundColor(secili ? OBRenk.ink : OBRenk.metin)
+                    .foregroundColor(secili ? OBRenk.seciliMetin : OBRenk.metin)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(14)
             .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
-            .background(RoundedRectangle(cornerRadius: 20).fill(secili ? OBRenk.lime : OBRenk.yuzey))
+            .background(RoundedRectangle(cornerRadius: 20).fill(secili ? OBRenk.seciliZemin : OBRenk.yuzey))
             .contentShape(Rectangle())
         }
         .buttonStyle(OBBasmaStili())
@@ -609,23 +619,24 @@ struct OBEkSatir: View {
         Button(action: eylem) {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(baslik).font(OBYazi.govde(14, 700)).foregroundColor(OBRenk.metin)
-                    if let alt { Text(alt).font(OBYazi.govde(12, 500)).foregroundColor(OBRenk.metin2) }
+                    Text(baslik).font(OBYazi.govde(14, 700)).foregroundColor(secili ? OBRenk.seciliMetin : OBRenk.metin)
+                    if let alt { Text(alt).font(OBYazi.govde(12, 500)).foregroundColor(secili ? OBRenk.seciliMetin.opacity(0.74) : OBRenk.metin2) }
                 }
                 Spacer()
                 Image(systemName: secili ? "checkmark" : "chevron.right")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(OBRenk.metin)
+                    .foregroundColor(secili ? OBRenk.seciliMetin : OBRenk.metin)
             }
             .padding(.horizontal, 16)
             .frame(minHeight: 54)
+            .background(RoundedRectangle(cornerRadius: 18).fill(secili ? OBRenk.seciliZemin : Color.clear))
             .contentShape(Rectangle())
         }
         .buttonStyle(OBBasmaStili())
     }
 }
 
-// Cip: 999px, yuzey; secili lime + ink. Mono tutar cipleri icin `mono`.
+// Cip: 999px, yuzey; secili murekkep/krem dolgu (K9). Mono tutar cipleri icin `mono`.
 struct OBCip: View {
     let baslik: String
     var mono = false
@@ -636,12 +647,12 @@ struct OBCip: View {
         Button(action: { dokunusTitresimi(); eylem() }) {
             Text(baslik)
                 .font(mono ? OBYazi.mono(13, 700) : OBYazi.govde(13.5, 700))
-                .foregroundColor(secili ? OBRenk.ink : OBRenk.metin)
+                .foregroundColor(secili ? OBRenk.seciliMetin : OBRenk.metin)
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
                 .padding(.horizontal, 16)
                 .frame(height: 40)
-                .background(Capsule().fill(secili ? OBRenk.lime : OBRenk.yuzey))
+                .background(Capsule().fill(secili ? OBRenk.seciliZemin : OBRenk.yuzey))
         }
         .buttonStyle(OBBasmaStili())
         .animation(.easeOut(duration: 0.18), value: secili)
@@ -1172,14 +1183,14 @@ struct OBTemaKarti: View {
                 .frame(height: 190)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 HStack {
-                    Text(ad).font(OBYazi.govde(13, 700)).foregroundColor(secili ? OBRenk.ink : OBRenk.metin)
+                    Text(ad).font(OBYazi.govde(13, 700)).foregroundColor(secili ? OBRenk.seciliMetin : OBRenk.metin)
                     Spacer()
                     OBHalka(secili: secili, boyut: 20)
                 }
                 .padding(.leading, 10).padding(.trailing, 8).padding(.bottom, 2)
             }
             .padding(6)
-            .background(RoundedRectangle(cornerRadius: 20).fill(secili ? OBRenk.lime : OBRenk.yuzey))
+            .background(RoundedRectangle(cornerRadius: 20).fill(secili ? OBRenk.seciliZemin : OBRenk.yuzey))
         }
         .buttonStyle(OBBasmaStili())
         .animation(.easeOut(duration: 0.18), value: secili)
@@ -1216,7 +1227,7 @@ struct OBUlkeEkrani: View {
             VStack(spacing: 10) {
                 ForEach(tumUlkeler ? tumu : oneCikanlar) { u in
                     let birim = u.kod == d.ulke ? d.paraBirimi : u.paraBirimi
-                    OBSecenek(baslik: u.ad(d.dil), sag: "\(birim) \(sembol(birim))", kod: u.kod, secili: d.ulke == u.kod) {
+                    OBSecenek(baslik: u.ad(d.dil), sag: "\(birim) \(sembol(birim))", bayrak: obBayrak(u.kod), secili: d.ulke == u.kod) {
                         d.ulke = u.kod
                         if !u.paraBirimi.isEmpty { d.paraBirimi = u.paraBirimi }
                     }
@@ -1852,94 +1863,35 @@ struct OBBorcEkrani: View {
     }
 }
 
-struct OBYasam: View {
-    @ObservedObject var d: OBDurum
-    @State private var kendim = false
-    @State private var ham = ""
-
-    var body: some View {
-        OBKabuk(d: d, anahtar: "yasam", atlanabilir: true,
-                atlaEylemi: { kendim = false; d.ileri(atlandi: true) },
-                dugmeEylemi: {
-                    if (d.yasam ?? 0) <= 0 { d.ileri(atlandi: true); return }
-                    d.atlanan.removeAll { $0 == "yasam" }
-                    d.ileri()
-                },
-                dikey: kendim) {
-            OBAkisCipleri(d: d, kendim: $kendim, ham: $ham)
-            if kendim {
-                OBTutarGosterimi(d: d, ham: ham).padding(.top, 6)
-            }
-            if let y = d.yasam, y > 0 {
-                OBYankiMetni(parcalar: obParcala(d.t(d.kalan < 0 ? "onboarding.yasam.acik" : "onboarding.yasam.yanki"),
-                                                 ["tutar": d.tutar(abs(d.kalan))]))
-                    .padding(.top, 8)
-            }
-            if kendim {
-                Spacer(minLength: 12)
-                OBTusTakimi(d: d, ham: $ham)
-            }
-        }
-        .onChange(of: ham) { yeni in if kendim { d.yasam = Double(yeni) } }
-        .onAppear { if d.yasam == nil && d.gelir > 0 && !kendim { d.yasam = (d.gelir * 0.45).rounded() } }
-    }
-}
-
-// Yasam cipleri: %30 / %45 / %60 (mono) + "Kendim yazayim"; sarilan satir.
-private struct OBAkisCipleri: View {
-    @ObservedObject var d: OBDurum
-    @Binding var kendim: Bool
-    @Binding var ham: String
-
-    var body: some View {
-        let oneriler = [0.30, 0.45, 0.60].map { (d.gelir * $0).rounded() }
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                ForEach(oneriler, id: \.self) { deger in
-                    OBCip(baslik: d.tutar(deger), mono: true, secili: !kendim && d.yasam == deger) {
-                        kendim = false
-                        d.yasam = deger
-                    }
-                }
-            }
-            OBCip(baslik: d.t("onboarding.yasam.kendim"), secili: kendim) {
-                kendim = true
-                ham = ""
-                d.yasam = nil
-            }
-        }
-    }
-}
-
-// Plan karti: ay sonunda kalan, formul, uc dilimli serit ve aciklama.
+// Plan karti: her maasta odemelere giden tutar, yasam varsayimi satiri, iki
+// dilimli serit (odemeler / gelirin kalani). Odemeler geliri asarsa serit
+// tamamen coral.
 struct OBPlanKarti: View {
     @ObservedObject var d: OBDurum
-    let yasamsiz: Bool
 
     var body: some View {
         let gelir = max(d.gelir, 1)
-        let eksi = d.kalan < 0
-        let oranlar: [Double] = eksi ? [1, 0, 0] : [d.planOdemeleri / gelir, d.yasamTutari / gelir, max(d.kalan, 0) / gelir]
+        let kalan = max(d.gelir - d.planOdemeleri, 0)
+        let eksi = d.planOdemeleri > d.gelir
+        let oranlar: [Double] = eksi ? [1, 0] : [d.planOdemeleri / gelir, kalan / gelir]
         VStack(alignment: .leading, spacing: 8) {
             OBMonoEtiket(metin: d.t("onboarding.plan.etiket"), renk: OBRenk.ozetMetin.opacity(0.75))
-            Text(d.tutar(d.kalan))
+            Text(d.tutar(d.planOdemeleri))
                 .font(OBYazi.baslik(40))
                 .foregroundColor(OBRenk.ozetTutar)
                 .modifier(OBOzetGolge())
                 .lineLimit(1).minimumScaleFactor(0.6)
                 .padding(.vertical, 2)
-            Text(d.t(yasamsiz ? "onboarding.plan.formulYasamsiz" : "onboarding.plan.formul", [
-                "gelir": d.tutar(d.gelir), "odemeler": d.tutar(d.planOdemeleri), "yasam": d.tutar(d.yasamTutari),
-            ]))
-            .font(OBYazi.govde(12.5, 500))
-            .foregroundColor(OBRenk.ozetMetin.opacity(0.8))
-            .fixedSize(horizontal: false, vertical: true)
+            Text(d.t("onboarding.plan.varsayim", ["gelir": d.tutar(d.gelir)]))
+                .font(OBYazi.govde(12.5, 500))
+                .foregroundColor(OBRenk.ozetMetin.opacity(0.8))
+                .fixedSize(horizontal: false, vertical: true)
             GeometryReader { g in
                 HStack(spacing: 3) {
-                    let renkler = [OBRenk.coral, OBRenk.yasam, OBRenk.lime]
+                    let renkler = [OBRenk.coral, OBRenk.lime]
                     ForEach(oranlar.indices, id: \.self) { i in
                         if oranlar[i] > 0 {
-                            Capsule().fill(renkler[i]).frame(width: max(6, (g.size.width - 6) * min(oranlar[i], 1)))
+                            Capsule().fill(renkler[i]).frame(width: max(6, (g.size.width - 3) * min(oranlar[i], 1)))
                         }
                     }
                 }
@@ -1948,8 +1900,7 @@ struct OBPlanKarti: View {
             .padding(.top, 6)
             VStack(spacing: 6) {
                 aciklama(OBRenk.coral, d.t("onboarding.plan.odemeler"), d.planOdemeleri)
-                aciklama(OBRenk.yasam, d.t("onboarding.plan.yasam"), d.yasamTutari)
-                aciklama(OBRenk.lime, d.t("onboarding.plan.kalan"), d.kalan)
+                aciklama(OBRenk.lime, d.t("onboarding.plan.gelirinKalani"), kalan)
             }
             .padding(.top, 8)
         }
@@ -1973,7 +1924,7 @@ struct OBPlan: View {
 
     var body: some View {
         OBKabuk(d: d, anahtar: "plan", dugme: d.t("onboarding.plan.dugme")) {
-            OBPlanKarti(d: d, yasamsiz: d.yasam == nil || d.yasamTutari <= 0)
+            OBPlanKarti(d: d)
             if let ilk = d.ilkBitecek {
                 let b = ilk.borc
                 HStack(spacing: 10) {
@@ -2016,28 +1967,7 @@ struct OBPlan: View {
     }
 }
 
-// Logodaki yildiz: dort uclu buyuk yildiz + iki kucuk (lucide Sparkles).
-struct OBYildiz: Shape {
-    func path(in r: CGRect) -> Path {
-        func yildiz(_ m: CGPoint, _ yc: CGFloat, _ ic: CGFloat) -> Path {
-            var p = Path()
-            p.move(to: CGPoint(x: m.x, y: m.y - yc))
-            p.addQuadCurve(to: CGPoint(x: m.x + yc, y: m.y), control: CGPoint(x: m.x + ic, y: m.y - ic))
-            p.addQuadCurve(to: CGPoint(x: m.x, y: m.y + yc), control: CGPoint(x: m.x + ic, y: m.y + ic))
-            p.addQuadCurve(to: CGPoint(x: m.x - yc, y: m.y), control: CGPoint(x: m.x - ic, y: m.y + ic))
-            p.addQuadCurve(to: CGPoint(x: m.x, y: m.y - yc), control: CGPoint(x: m.x - ic, y: m.y - ic))
-            p.closeSubpath()
-            return p
-        }
-        let b = min(r.width, r.height)
-        var p = yildiz(CGPoint(x: r.midX - b * 0.08, y: r.midY + b * 0.06), b * 0.38, b * 0.07)
-        p.addPath(yildiz(CGPoint(x: r.midX + b * 0.34, y: r.midY - b * 0.32), b * 0.12, b * 0.025))
-        p.addPath(yildiz(CGPoint(x: r.midX + b * 0.3, y: r.midY + b * 0.3), b * 0.09, b * 0.02))
-        return p
-    }
-}
-
-// Kapanis: alttan buyuyen lime perde, yildiz, "PLAN KURULDU.", baslik + coral
+// Kapanis: alttan buyuyen lime perde, Borcama logosu, "PLAN KURULDU.", baslik + coral
 // golge, aciklama, ink CTA. Otomatik yonlendirme yok.
 struct OBHazir: View {
     @ObservedObject var d: OBDurum
@@ -2061,8 +1991,15 @@ struct OBHazir: View {
                     )
                 VStack(spacing: 0) {
                     Spacer()
-                    OBYildiz().fill(OBRenk.ink).frame(width: 56, height: 56)
-                        .opacity(asama >= 1 ? 1 : 0).offset(y: asama >= 1 ? 0 : 10)
+                    Group {
+                        if let logo = UIImage(named: "BorcamaLogo") {
+                            Image(uiImage: logo).resizable().scaledToFit().frame(width: 150)
+                        } else {
+                            Text("Borcama").font(OBYazi.baslik(30)).foregroundColor(OBRenk.ink)
+                        }
+                    }
+                    .accessibilityLabel("Borcama")
+                    .opacity(asama >= 1 ? 1 : 0).offset(y: asama >= 1 ? 0 : 10)
                     OBMonoEtiket(metin: d.t("onboarding.hazir.rozet"), renk: OBRenk.ink)
                         .padding(.top, 14)
                         .opacity(asama >= 2 ? 1 : 0).offset(y: asama >= 2 ? 0 : 10)
@@ -2127,7 +2064,6 @@ struct OBAkis: View {
                 case .gelir: OBGelir(d: d)
                 case .turler: OBTurler(d: d)
                 case .borc: OBBorcEkrani(d: d)
-                case .yasam: OBYasam(d: d)
                 case .plan: OBPlan(d: d)
                 case .hazir: OBHazir(d: d)
                 }
@@ -2178,7 +2114,6 @@ final class OBDenetleyici: UIHostingController<OBAkis> {
             OBBorc(tur: "kart", ad: "Akbank", tutar: 6200, gun: 12),
             OBBorc(tur: "kredi", ad: "QNB", gun: 5, taksit: 4150, kalanTaksit: 8),
         ]
-        d.yasam = 14400
         d.gecmis = [.karsilama]
         d.adim = adim
     }
