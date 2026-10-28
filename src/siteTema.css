@@ -56,7 +56,13 @@ html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
 .site .ust { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 0 max(16px, env(safe-area-inset-left, 0px)); background: color-mix(in srgb, var(--zemin) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .site .ust-ic { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 76px; }
 /* Büyük ekranda uygulama kabuğunun üst çubuğuyla aynı yükseklik (72 px); logo aynı yerde. */
-@media (min-width: 1024px) { .site .ust-ic { min-height: 72px; } }
+@media (min-width: 1024px) {
+  .site .ust-ic { min-height: 72px; }
+  /* Uygulama kabuğuyla aynı kenar (32 px) ve logo hizası. */
+  .site { padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); }
+  .site .ust { margin: 0 calc(-1 * max(32px, env(safe-area-inset-left, 0px))); padding: 0 max(32px, env(safe-area-inset-left, 0px)); }
+  .site .logo { margin-left: -7px; }
+}
 .site .logo { display: block; width: 140px; }
 .site .logo img { display: block; width: 100%; height: auto; }
 .site .menu { display: flex; align-items: center; gap: 22px; font-size: 14px; font-weight: 700; }

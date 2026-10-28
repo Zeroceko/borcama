@@ -292,7 +292,7 @@ html.gac-ustte .sag-panel-arka { top: var(--gac-yukseklik, 0px); }
     margin: 0 auto;
   }
 
-  .mk-logo { display: block; flex: none; width: 140px; line-height: 0; }
+  .mk-logo { display: block; flex: none; width: 140px; line-height: 0; margin-left: var(--logo-saydam-kenar); }
   .mk-logo img { display: block; width: 100%; height: auto; }
   .mk-ust-sag { display: flex; align-items: center; gap: 18px; min-width: 0; }
 
@@ -408,7 +408,7 @@ html.gac-ustte .sag-panel-arka { top: var(--gac-yukseklik, 0px); }
     backdrop-filter: blur(10px);
   }
 
-  .bt-app.mk-web .bt-logo { flex: none; width: 140px; line-height: 0; }
+  .bt-app.mk-web .bt-logo { flex: none; width: 140px; line-height: 0; margin-left: var(--logo-saydam-kenar); }
   .bt-app.mk-web .bt-logo img { display: block; width: 100%; height: auto; }
   .bt-app.mk-web .bt-headright { flex-wrap: nowrap; gap: 12px; }
   .bt-app.mk-web .bt-date { margin-right: 4px; white-space: nowrap; }
@@ -521,3 +521,7 @@ html.gac-ustte .sag-panel-arka { top: var(--gac-yukseklik, 0px); }
   .bt-hazir-bant,
   .bt-app.bt-hazir-acilis .bt-wrap > * { animation: none !important; }
 }
+
+/* Logo görselinin solunda genişliğinin %5,2'si kadar saydam kenar var; logo
+   içerik kenarıyla aynı hizada görünsün diye geri çekilir (140 px → ~7 px). */
+:root { --logo-saydam-kenar: -7px; }
