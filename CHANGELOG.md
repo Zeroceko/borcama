@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.0] - 2026-10-28
+
+Web ve iOS aynı sürüm (iOS build 37). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
+
 ### Eklendi
 
 - Web'de büyük ekranda (≥1024 px) üst çubukta "+ Ekle" menüsü var: Harcama, Ödeme, Ekstre ve Borç; her biri ilgili formu ya da seçiciyi bulunduğun sayfadan ayrılmadan sağdan açılan panelde açıyor. "Görüş bildir" üst çubuktaki hesap menüsünde; sağ alttaki yüzen "Hızlı işlem" ve "Görüş bildir" düğmeleri büyük ekranda kalktı (dar ekran ve iOS aynı).
