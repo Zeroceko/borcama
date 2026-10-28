@@ -144,6 +144,12 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             yeni.bottomAnchor.constraint(equalTo: pencere.safeAreaLayoutGuide.bottomAnchor),
         ])
         pencere.bringSubviewToFront(yeni)
+        // Kisitlar etkinlesir etkinlesmez cerceve hala sifir; olcmeden once
+        // yerlesim bitirilir. Aksi halde --sekme-cubugu pencerenin tamami
+        // (iPhone 17 Pro Max simulatorunde 889px) olarak bildiriliyor ve asistan penceresi sifir yukseklige
+        // iniyordu. Cubugun kendi yerlesimi bu denetleyicinin
+        // viewDidLayoutSubviews'unu tetiklemedigi icin deger duzelmiyordu.
+        pencere.layoutIfNeeded()
         yerlesimiGuncelle()
 
         // Klavye acilinca cubuk klavyenin uzerinde asili kalmasin.
@@ -259,9 +265,13 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     // duzeninde cubuk yuksekligi degisse de icerik altinda kalmaz.
     private func yuksekligiBildir() {
         guard let cubuk, let pencere = cubuk.window else { return }
+        // Henuz yerlesmemis cubuk (yukseklik 0) olculmez; gorunen kisim
+        // cubugun kendi yuksekligini asamaz.
+        guard cubuk.isHidden || cubuk.bounds.height > 0 else { return }
         let gorunur: CGFloat = cubuk.isHidden
             ? 0
-            : max(0, (pencere.bounds.height - pencere.safeAreaInsets.bottom) - cubuk.frame.minY)
+            : min(cubuk.bounds.height,
+                  max(0, (pencere.bounds.height - pencere.safeAreaInsets.bottom) - cubuk.frame.minY))
         let yuvarlak = gorunur.rounded(.up)
         guard yuvarlak != bildirilenYukseklik else { return }
         bildirilenYukseklik = yuvarlak

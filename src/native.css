@@ -433,11 +433,13 @@ html.borcama-native .pc-page {
    gorunur kaliyor. Pencere katmaninin alt boslugu cubugun yuksekligi kadar
    artirilir; boylece kaydirilan pencerenin son satiri cubugun altinda
    kalmaz. Yukseklik native taraftan --sekme-cubugu olarak gelir (cubuk
-   gizliyken 0); gelmezse standart sekme cubugu yuksekligi kullanilir. */
+   gizliyken 0); gelmezse standart sekme cubugu yuksekligi kullanilir.
+   Hatali buyuk bir deger pencereyi sifir yukseklige indirmesin diye
+   120px ile sinirlanir. */
 html.borcama-ios .bt-modal-arka {
-  padding-bottom: calc(20px + var(--guvenli-alt) + var(--sekme-cubugu, 56px));
+  padding-bottom: calc(20px + var(--guvenli-alt) + min(var(--sekme-cubugu, 56px), 120px));
 }
 
 html.borcama-ios .bt-assistant-modal {
-  max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt) - var(--sekme-cubugu, 56px));
+  max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt) - min(var(--sekme-cubugu, 56px), 120px));
 }
