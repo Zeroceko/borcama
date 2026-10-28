@@ -23,6 +23,8 @@ const kullaniciYollari = [
   "/landing-v2",
   "/demo",
 ];
+// Eski landing yolları (v1.74 öncesi) ana sayfaya kalıcı yönlenir.
+const KALDIRILAN_LANDINGLER = ["/classic", "/landing-v2"];
 
 test("kullanıcı ve yönetim ekranları noindex olarak sınıflandırılır", () => {
   for (const yol of kullaniciYollari) assert.equal(noindexYoluMu(yol), true, yol);
@@ -51,7 +53,8 @@ test("Vercel kullanıcı ekranlarında X-Robots-Tag gönderir", async () => {
       .filter((kural) => kural.headers?.some((baslik) => baslik.key === "X-Robots-Tag" && baslik.value.includes("noindex")))
       .map((kural) => kural.source),
   );
-  for (const yol of kullaniciYollari) assert.equal(noindexKaynaklari.has(yol), true, yol);
+  for (const yol of kullaniciYollari.filter((yol) => !KALDIRILAN_LANDINGLER.includes(yol)))
+    assert.equal(noindexKaynaklari.has(yol), true, yol);
   assert.equal(noindexKaynaklari.has("/user/:path*"), true);
   assert.equal(noindexKaynaklari.has("/davet/:path*"), true);
 });
@@ -61,8 +64,17 @@ test("Vercel kullanıcı ekranlarını uygulamaya yönlendirir", async () => {
   const yenidenYazimlar = new Map(
     vercel.rewrites.map((kural) => [kural.source, kural.destination]),
   );
-  for (const yol of kullaniciYollari.filter((yol) => !["/classic", "/landing-v2"].includes(yol)))
+  for (const yol of kullaniciYollari.filter((yol) => !KALDIRILAN_LANDINGLER.includes(yol)))
     assert.equal(yenidenYazimlar.get(yol), "/index.html", yol);
+});
+
+test("kaldırılan eski landing yolları ana sayfaya kalıcı yönlenir", async () => {
+  const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  for (const yol of KALDIRILAN_LANDINGLER) {
+    const kural = vercel.redirects.find((k) => k.source === yol);
+    assert.deepEqual([kural?.destination, kural?.permanent], ["/", true], yol);
+    assert.equal(vercel.rewrites.some((k) => k.source === yol), false, yol);
+  }
 });
 
 test("ana landing tek ve sorgudan bağımsız canonical kullanır", async () => {

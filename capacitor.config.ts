@@ -18,6 +18,14 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: "never",
   },
+  // Klavye acilinca webview klavye kadar kuculur; kurulum ve giris
+  // ekranlarindaki alt dugme klavyenin ustunde kalir (onboarding v3, K12).
+  plugins: {
+    Keyboard: {
+      resize: "native",
+      resizeOnFullScreen: true,
+    },
+  },
 };
 
 export default config;

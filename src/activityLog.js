@@ -59,7 +59,7 @@ function olaySatiri(userId, olay) {
 }
 
 export async function onboardingOlayiKaydet(eventType, metadata = {}) {
-  if (demoModu || !/^onboarding_(adim|atla|tamam)$/.test(eventType)) return;
+  if (demoModu || !/^(onboarding_(adim|atla|tamam)|auth_kod_(gonderildi|dogrulandi))$/.test(eventType)) return;
   const olay = { event_type: eventType, metadata: onboardingOlayVerisi(metadata), path: window.location.pathname };
   try {
     const { data } = await supabase.auth.getUser();

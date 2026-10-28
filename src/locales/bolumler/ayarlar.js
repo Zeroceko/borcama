@@ -117,6 +117,7 @@ export const tr = {
   "ayarlar.silme.hataAbonelik":
     "Aktif aboneliğin durdurulamadığı için hesabın silinmedi. Lütfen tekrar dene veya destekle iletişime geç.",
   "ayarlar.silme.hataGenel": "Hesabın silinemedi. Hiçbir verin kaldırılmadı; lütfen tekrar dene.",
+  "ayarlar.gorunum.sistem": "Sistem",
 };
 
 export const en = {
@@ -196,6 +197,7 @@ export const en = {
   "ayarlar.gorunum.tema": "Theme",
   "ayarlar.gorunum.temaAciklama": "Use Borcama with light or dark colors.",
   "ayarlar.gorunum.acik": "Light",
+  "ayarlar.gorunum.sistem": "System",
   "ayarlar.gorunum.koyu": "Dark",
   "ayarlar.gorunum.rehber": "User guide",
   "ayarlar.gorunum.rehberAciklama": "Walk through Borcama's basic flow again, step by step.",

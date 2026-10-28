@@ -22,6 +22,8 @@ Deno.serve(async (req) => {
   const emailData = hook?.email_data;
   if (!user?.email || !emailData) return new Response(JSON.stringify({ error: "INVALID_PAYLOAD" }), { status: 422 });
   const actionType = String(emailData.email_action_type || "magiclink");
+  // Tek kullanimlik kod (email OTP): kayit ve kodla giris bunu yazar.
+  const otpKodu = String(emailData.token || "");
   const supabaseUrl = String(Deno.env.get("SUPABASE_URL") || "").replace(/\/$/, "");
   const siteUrl = String(Deno.env.get("PUBLIC_SITE_URL") || "https://borcama.com").replace(/\/$/, "");
   // Baglanti dogrudan borcama.com/auth-callback adresine gider: iOS bunu
@@ -31,7 +33,7 @@ Deno.serve(async (req) => {
   // iOS boyle bir adres icin uygulamayi acmaz. Dogrulamayi token_hash ile
   // uygulama ya da tarayici kendisi yapar.
   const confirmUrl = `${siteUrl}/auth-callback?token_hash=${encodeURIComponent(emailData.token_hash)}&type=${encodeURIComponent(actionType)}`;
-  let subject = actionType === "signup" ? "Borcama hesabını doğrula" : actionType === "recovery" ? "Borcama parolanı yenile" : "Borcama'ya giriş bağlantın";
+  let subject = actionType === "signup" ? "Borcama hesabını doğrula" : actionType === "recovery" ? "Borcama parolanı yenile" : otpKodu ? `Borcama giriş kodun: ${otpKodu}` : "Borcama'ya giriş bağlantın";
   const admin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
   let trackedUrl = confirmUrl;
   let deliveryId = "";
@@ -55,7 +57,7 @@ Deno.serve(async (req) => {
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: "Borcama <zero@borcama.com>", to: [user.email], reply_to: "zero@borcama.com",
-      subject, html: actionType === "signup" ? dogrulamaHtml(trackedUrl) : hesapAksiyonuHtml(confirmUrl, actionType),
+      subject, html: actionType === "signup" ? dogrulamaHtml(trackedUrl, otpKodu) : hesapAksiyonuHtml(confirmUrl, actionType, otpKodu),
       tags: [{ name: "campaign", value: "auth-confirmation" }],
     }),
   });

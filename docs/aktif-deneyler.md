@@ -12,6 +12,8 @@
 
 Şu an aktif landing deneyi yok. Yeni deney, yeterli trafik (kol başına en az 200 ziyaret ve 20 kayıt makul sürede) sağlandığında açılır.
 
+- v1.73.0: landing v3 varsayılan oldu; deney açılmadı (trafik eşiği). Ana metrik: kayıt + App Store tıklaması (`landing_cta_click` → `register_view` → kayıt ve `landing_appstore_click`); App Store tarafı App Store Connect'te `ct=landing-*` kampanyalarıyla izlenir.
+
 ## Tarihsel deney (durduruldu)
 
 - Kod: `LANDING-003`

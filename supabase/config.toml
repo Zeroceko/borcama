@@ -11,7 +11,7 @@ minimum_password_length = 8
 
 [auth.email]
 enable_confirmations = true
-otp_length = 8
+otp_length = 6
 otp_expiry = 1800
 
 [auth.mfa.totp]

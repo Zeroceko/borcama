@@ -2,17 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { runAuthAttempt, recoveryErrorMessage } from "./authAttempt.js";
 import { supabase, supabaseHazir } from "./supabaseClient.js";
 import {
-  ArrowLeft,
-  Mail,
-  ShieldCheck,
-  LogOut,
-  CheckCircle2,
-  KeyRound,
+  Check,
+  ChevronLeft,
+  ChevronRight,
   Eye,
   EyeOff,
+  LogOut,
+  Mail,
+  ShieldCheck,
   X,
-  Gift,
-  ChevronDown,
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
@@ -21,7 +19,7 @@ import {
   googleAnalyticsProDenemeBaslangici,
 } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js";
-import { girisAktivitesiKaydet } from "./activityLog.js";
+import { girisAktivitesiKaydet, onboardingOlayiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
@@ -30,8 +28,13 @@ import { dil, t } from "./i18n.js";
 import Ceviri from "./Ceviri.jsx";
 import DilDugmesi from "./DilDugmesi.jsx";
 import { proSatistaDegil } from "./proSatis.js";
+import { kodGecerli, kodHataAnahtari, kodTemizle } from "./authKod.js";
+import { useKlavye, useSistemKoyu } from "./Onboarding.jsx";
+import "./onboardingAkis.css";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
+// Basliklar noktayla biter (kurulum akisiyla ayni ton).
+const noktali = (metin) => (/[.!?]$/.test(metin) ? metin : `${metin}.`);
 const TURNSTILE_SCRIPT_ID = "borcama-turnstile-script";
 const TURNSTILE_RECOVERY_TIMEOUT_MS = 25000;
 let turnstileYuklemeSozu = null;
@@ -152,7 +155,7 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
       if (widget !== undefined && turnstileApi) turnstileApi.remove(widget);
     };
   }, [siteKey, widgetKey, onToken, onStatus]);
-  return <div ref={ref} style={{ marginBottom: 12 }} />;
+  return <div ref={ref} className="oa-turnstile" />;
 }
 
 async function proDenemesiniVeBaslangicMailiniTetikle(session) {
@@ -182,72 +185,9 @@ async function proDenemesiniVeBaslangicMailiniTetikle(session) {
   }
 }
 
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
-.auth-wrap,.auth-wrap *{box-sizing:border-box}
-.auth-wrap{
-  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
-  font-family:'Space Grotesk',sans-serif;
-  background:
-    radial-gradient(circle at 88% 12%,#ff6f5966 0 8%,transparent 8.3%),
-    radial-gradient(circle at 12% 88%,#cdf56499 0 12%,transparent 12.3%),
-    linear-gradient(135deg,#f4efe0 0 64%,#d8e6df 64% 100%);
-  color:#14160f;
-  position:relative;overflow:hidden;
-}
-.auth-wrap::before{content:'';position:absolute;width:170px;height:170px;border:3px solid #14160f;border-radius:38px;right:-65px;bottom:-65px;transform:rotate(18deg);background:#ff6f59}
-.auth-back{position:absolute;top:24px;left:clamp(20px,4vw,48px);z-index:2;display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border:2px solid #14160f;border-radius:999px;background:#fff;color:#14160f;text-decoration:none;font-size:13px;font-weight:700;box-shadow:3px 3px 0 #14160f}
-.auth-back:hover{transform:translate(2px,2px);box-shadow:1px 1px 0 #14160f}
-.auth-card{
-  position:relative;z-index:1;width:100%; max-width:440px; background:#ffffff; border:3px solid #14160f;
-  border-radius:26px; padding:40px 36px;box-shadow:12px 12px 0 #ff6f59;
-}
-.auth-title{display:block;width:190px;height:auto;margin:0 0 18px}
-.auth-welcome{font-size:17px;font-weight:800;margin-bottom:7px}
-.auth-sub{font-size:13.5px;color:#55584c;line-height:1.55;margin:0 0 24px}
-.auth-input{
-  width:100%; padding:12px 14px; border-radius:10px; border:2px solid #14160f;
-  background:#f4efe0; color:#14160f; font-size:14px; font-family:inherit; margin-bottom:12px;
-}
-.auth-input::placeholder{color:#8a8c7e}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;border:2px solid #14160f;border-radius:999px;background:#f4efe0;margin-bottom:18px}
-.auth-tab{border:0;border-radius:999px;padding:8px 10px;background:transparent;color:#55584c;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer}
-.auth-tab.active{background:#14160f;color:#fff}
-.auth-password{position:relative}.auth-password .auth-input{padding-right:46px}.auth-eye{position:absolute;right:7px;top:7px;width:34px;height:34px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:#55584c}
-.auth-help{font-size:11.5px;color:#777a6d;line-height:1.45;margin:-2px 0 12px}
-.auth-referral-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 12px;padding:10px 12px;border:1px solid #d7d4c7;border-radius:12px;background:#fff;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;cursor:pointer}.auth-referral-toggle span{display:flex;align-items:center;gap:7px}.auth-referral-toggle small{margin-left:auto;color:#5d7a2e;font-size:10px}.auth-referral-toggle svg:last-child{transition:transform .24s ease}.auth-referral-toggle.acik svg:last-child{transform:rotate(180deg)}.auth-referral-collapse{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-6px);pointer-events:none;transition:grid-template-rows .26s ease,opacity .2s ease,transform .26s ease}.auth-referral-collapse.acik{grid-template-rows:1fr;opacity:1;transform:translateY(0);pointer-events:auto}.auth-referral-collapse-inner{min-height:0;overflow:hidden}.auth-referral{margin:-5px 0 14px;padding:12px;border:1px solid #d7d4c7;border-radius:13px;background:#f8faef}.auth-referral-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:12px;font-weight:800}.auth-referral .auth-input{margin:0;background:#fff}.auth-referral-state{display:block;margin-top:7px;font-size:10.5px;color:#686b60}.auth-referral-state.valid{color:#46651f;font-weight:700}.auth-referral-state.invalid{color:#a53a2a;font-weight:700}.auth-invite-note{margin:-8px 0 14px;padding:10px 12px;border-radius:12px;background:#e9f7cd;color:#35521c;font-size:11.5px;line-height:1.45;font-weight:650}
-.auth-reset-link{display:block;margin:-4px 0 13px auto;padding:0;border:0;background:none;color:#315c47;font:700 11.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.auth-remember{display:flex;align-items:center;gap:9px;margin:2px 0 14px;font-size:12.5px;font-weight:600;color:#55584c;cursor:pointer}
-.auth-remember input{appearance:none;width:18px;height:18px;flex:0 0 auto;margin:0;border:2px solid #14160f;border-radius:5px;background:#fff;display:grid;place-items:center;cursor:pointer}
-.auth-remember input:checked{background:#cdf564}
-.auth-remember input:checked::after{content:'✓';font-size:13px;font-weight:900;line-height:1;color:#14160f}
-.auth-consents{display:grid;gap:10px;margin:4px 0 16px;padding:13px;background:#f4efe0;border:1px solid #d9d5c7;border-radius:12px}.auth-consents .auth-remember{align-items:flex-start;margin:0;font-size:11.5px;line-height:1.45}
-.auth-switch{margin-top:17px;padding-top:16px;border-top:1px solid #dedbce;text-align:center;font-size:12.5px;color:#66695d}
-.auth-switch a{color:#14160f;font-weight:800;text-decoration:underline;text-underline-offset:3px}
-.auth-legal{text-align:center;margin-top:11px;font-size:10.5px;color:#8a8c7e}.auth-legal span{margin:0 5px}
-.auth-legal button,.auth-consents button{padding:0;border:0;background:none;color:#315c47;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer}.auth-legal-modal{position:fixed;z-index:1000;inset:0;background:#09291fcc;display:grid;place-items:center;padding:18px}.auth-legal-dialog{width:min(860px,100%);height:min(760px,92vh);background:#f4efe0;border:3px solid #14160f;border-radius:24px;box-shadow:10px 10px 0 #cdf564;display:flex;flex-direction:column;overflow:hidden}.auth-legal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:#fff;border-bottom:2px solid #14160f;font-size:14px;font-weight:800}.auth-legal-close{width:36px;height:36px;flex:0 0 auto;border:2px solid #14160f;border-radius:50%;background:#cdf564;display:grid;place-items:center;cursor:pointer}.auth-legal-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;background:#f4efe0}.auth-legal-content .legal{min-height:auto}
-.auth-btn{
-  width:100%; padding:12px 0; border-radius:999px; border:2px solid #14160f; background:#cdf564; color:#14160f;
-  font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-}
-.auth-btn:disabled{opacity:.6; cursor:default}
-.auth-btn:hover:not(:disabled){filter:brightness(0.96)}
-.auth-apple{width:100%;min-height:46px;padding:12px 0;border-radius:999px;border:1px solid #000;background:#000;color:#fff;font:700 15px -apple-system,'Space Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
-.auth-apple:disabled{opacity:.6;cursor:default}
-.auth-apple svg{margin-top:-2px}
-.auth-ayirac{display:flex;align-items:center;gap:10px;margin:14px 0 16px;color:#8a8c7e;font-size:11.5px;font-weight:700}
-.auth-ayirac:before,.auth-ayirac:after{content:"";flex:1;height:1px;background:#14160f22}
-.auth-error{background:#ff6f5922;border:2px solid #ff6f59;color:#a53a2a;font-size:13px;border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.auth-captcha-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid #e2a44f;border-radius:12px;background:#fff6df;color:#6e4712;font-size:12px;line-height:1.4}.auth-captcha-status button{flex:0 0 auto;border:1px solid #14160f;border-radius:999px;background:#fff;padding:7px 10px;color:#14160f;font:700 11px 'Space Grotesk',sans-serif;cursor:pointer}
-.auth-sent{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:10px 0}
-.auth-sent svg{color:#5D7A2E}
-.auth-foot{margin-top:18px;font-size:12px;color:#8a8c7e;line-height:1.5;display:flex;align-items:flex-start;justify-content:center;gap:6px;text-align:left}
-.auth-foot svg{flex:0 0 auto;margin-top:2px}
-@media(max-width:720px){.auth-wrap{display:block;min-height:100dvh;padding:78px 12px 32px;overflow-x:clip;overflow-y:visible}.auth-card{margin:0 auto}.auth-back{top:15px;left:12px}}
-@media(max-width:520px){.auth-card{padding:28px 20px;box-shadow:6px 6px 0 #ff6f59;border-radius:20px}.auth-title{width:155px}.auth-tabs{margin-bottom:15px}.auth-legal-modal{padding:7px}.auth-legal-dialog{height:96dvh;border-radius:16px;box-shadow:4px 4px 0 #cdf564}.auth-legal-head{padding:10px 12px}.auth-consents{padding:11px}.auth-btn{min-height:46px}}
-.auth-back,.auth-card,.auth-input,.auth-tabs,.auth-remember input,.auth-legal-dialog,.auth-legal-close,.auth-btn{border-width:1px;border-color:#14160f24}.auth-card,.auth-legal-dialog{box-shadow:0 18px 46px #14160f18}.auth-legal-head{border-bottom-width:1px;border-bottom-color:#14160f1f}.auth-error{border-width:1px}
-html:not(.borcama-native) .auth-dil{position:absolute;top:24px;right:clamp(20px,4vw,48px);z-index:2;display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border:1px solid #14160f24;border-radius:999px;background:#fff;color:#14160f;font-size:13px;font-weight:700;box-shadow:3px 3px 0 #14160f;cursor:pointer}html:not(.borcama-native) .auth-dil .dil-dugmesi-secim{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer}html:not(.borcama-native) .auth-dil:focus-within{outline:2px solid #14160f;outline-offset:2px}@media(max-width:720px){html:not(.borcama-native) .auth-dil{top:15px;right:12px}}
-`;
+// Yuzey: onboardingAkis.css (.oa-* siniflari); giris/kayit kurulum akisiyla
+// ayni gorsel dunyada. Davranis (Supabase, Apple, Turnstile, referans kodu,
+// sozlesme onayi) degismedi.
 
 export function useSession() {
   const [session, setSession] = useState(undefined); // undefined = yükleniyor, null = oturum yok
@@ -303,10 +243,17 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const sonrakiSayfa = kayitModu
     ? sorguYonlendirmesi || "/summary"
     : sorguYonlendirmesi || proYonlendirmesi || redirectTo;
-  const [yontem, setYontem] = useState("parola");
+  // Giris ve kayit: Apple ya da e-postaya gelen 6 haneli kod. Parola yalniz
+  // web'de mevcut parola hesaplari icin (?yontem=parola; eski form).
+  const [yontem, setYontem] = useState(() => (!kayitModu && !nativeMi && sorgu.get("yontem") === "parola" ? "parola" : "kod"));
+  const [tekrarZamani, setTekrarZamani] = useState(0);
+  const [simdi, setSimdi] = useState(() => Date.now());
+  const kokRef = useRef(null);
+  useKlavye(kokRef);
+  const [kodModu, setKodModu] = useState(false);
+  const [kod, setKod] = useState("");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
-  const [parolaTekrar, setParolaTekrar] = useState("");
   const [parolaGorunur, setParolaGorunur] = useState(false);
   const [oturumuAcikTut, setOturumuAcikTut] = useState(true);
   const [sozlesmeKabul, setSozlesmeKabul] = useState(false);
@@ -365,6 +312,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     };
   }, [yasalMetin]);
 
+  // Kod ekraninda 60 sn tekrar gonderme sayaci.
+  useEffect(() => {
+    if (!kodModu || tekrarZamani <= Date.now()) return undefined;
+    const zamanlayici = window.setInterval(() => setSimdi(Date.now()), 1000);
+    return () => window.clearInterval(zamanlayici);
+  }, [kodModu, tekrarZamani]);
+
   function authIstegiYap(request) {
     return runAuthAttempt(request, () => {
       setCaptchaToken("");
@@ -391,7 +345,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           onStatus={setCaptchaDurumu}
         />
         {tekrarGerekli && (
-          <div className="auth-captcha-status" role="alert">
+          <div className="oa-captcha" role="alert">
             <span>
               {yapilandirmaHatasi
                 ? t("auth.captcha.yapilandirma")
@@ -420,11 +374,16 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     );
   }
 
-  async function linkGonder(e) {
-    e.preventDefault();
+  // Tek kullanimlik kod: e-postaya hem kod hem baglanti gider (auth-email
+  // hook'u). Kayitta hesap bu adimda acilir; parola hic sorulmaz.
+  async function kodGonder(e) {
+    e?.preventDefault?.();
     if (!eposta.trim()) return;
     if (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu))
       return setHata(t("auth.hata.sozlesme"));
+    // Tasarim onizlemesinde (Supabase yok) kod ekrani gosterilir, e-posta gitmez.
+    if (preview && import.meta.env.DEV) { setKod(""); setKodModu(true); setTekrarZamani(Date.now() + 60000); setSimdi(Date.now()); return; }
+    if (!supabaseHazir) return setHata(t("auth.hata.onizlemeEposta"));
     setGonderiliyor(true);
     setHata("");
     if (kayitModu) await funnelEtkinligiKaydet("register_view");
@@ -442,22 +401,65 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           privacy_version: "1.0",
           privacy_notice_read_at: kayitZamani,
           borcama_registration_created_at: kayitZamani,
-          borcama_registration_method: "magic_link",
+          borcama_registration_method: "email_otp",
           borcama_registration_event_id: kayitOlayKimligi,
           funnel_session_id: funnelOturumKimligi(),
           referral_code: referansKodu || undefined,
         } : undefined,
       },
     }));
-    if (error)
+    setGonderiliyor(false);
+    if (error) {
+      // Giriste (shouldCreateUser: false) kayitsiz e-posta "signups not allowed".
+      const hesapYok = !kayitModu && (error.code === "otp_disabled" || /signups? not allowed/i.test(error.message || ""));
       setHata(
         error.status === 429
           ? t("auth.hata.cokDenemeTekrar")
-          : kayitModu
-            ? t("auth.hata.kayitLinki")
-            : t("auth.hata.girisLinki"),
+          : hesapYok
+            ? t("auth.hata.hesapYok")
+            : kayitModu
+              ? t("auth.hata.kodGonderilemedi")
+              : t("auth.hata.kodGirisHesapYok"),
       );
-    else setGonderildi(true);
+      return;
+    }
+    void onboardingOlayiKaydet("auth_kod_gonderildi", {});
+    setKod("");
+    setKodModu(true);
+    setTekrarZamani(Date.now() + 60000);
+    setSimdi(Date.now());
+  }
+
+  function oturumKalicilginiYaz() {
+    if (oturumuAcikTut) {
+      localStorage.removeItem("borcama_session_only");
+      sessionStorage.removeItem("borcama_session_active");
+    } else {
+      localStorage.setItem("borcama_session_only", "1");
+      sessionStorage.setItem("borcama_session_active", "1");
+    }
+  }
+
+  async function koduDogrula(e, deger = kod) {
+    e?.preventDefault?.();
+    if (!kodGecerli(deger) || gonderiliyor) return;
+    if (preview && import.meta.env.DEV) { setHata(t("auth.hata.onizleme")); return; }
+    setGonderiliyor(true);
+    setHata("");
+    const { error } = await authIstegiYap(() => supabase.auth.verifyOtp({
+      email: eposta.trim(),
+      token: kodTemizle(deger),
+      type: "email",
+    }));
+    if (error) {
+      setGonderiliyor(false);
+      setHata(t(kodHataAnahtari(error)));
+      return;
+    }
+    void onboardingOlayiKaydet("auth_kod_dogrulandi", {});
+    oturumKalicilginiYaz();
+    if (kayitModu) proNiyetiniTemizle();
+    window.location.href = sonrakiSayfa;
   }
 
   async function parolaylaGiris(e) {
@@ -489,13 +491,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             : t("auth.hata.girisTamamlanamadi"),
         );
     } else {
-      if (oturumuAcikTut) {
-        localStorage.removeItem("borcama_session_only");
-        sessionStorage.removeItem("borcama_session_active");
-      } else {
-        localStorage.setItem("borcama_session_only", "1");
-        sessionStorage.setItem("borcama_session_active", "1");
-      }
+      oturumKalicilginiYaz();
       window.location.href = sonrakiSayfa;
     }
   }
@@ -518,52 +514,6 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     else setGonderildi(true);
   }
 
-  async function parolaylaKayit(e) {
-    e.preventDefault();
-    if (!eposta.trim() || !parola) return;
-    if (!sozlesmeKabul || !aydinlatmaOkundu)
-      return setHata(t("auth.hata.sozlesme"));
-    if (parola.length < 8) return setHata(t("auth.hata.parolaKisa"));
-    if (parola !== parolaTekrar)
-      return setHata(t("auth.hata.parolaEslesmiyor"));
-    setGonderiliyor(true);
-    setHata("");
-    await funnelEtkinligiKaydet("register_view");
-    const kayitZamani = new Date().toISOString();
-    const kayitOlayKimligi = crypto.randomUUID();
-    const { data, error } = await authIstegiYap(() => supabase.auth.signUp({
-      email: eposta.trim(),
-      password: parola,
-      options: {
-        emailRedirectTo: epostaDonusAdresi(sonrakiSayfa),
-        captchaToken: captchaToken || undefined,
-        data: {
-          terms_version: "1.0",
-          terms_accepted_at: kayitZamani,
-          privacy_version: "1.0",
-          privacy_notice_read_at: kayitZamani,
-          borcama_registration_created_at: kayitZamani,
-          borcama_registration_method: "password",
-          borcama_registration_event_id: kayitOlayKimligi,
-          funnel_session_id: funnelOturumKimligi(),
-          referral_code: referansKodu || undefined,
-        },
-      },
-    }));
-    if (error)
-      setHata(
-        error.status === 429
-          ? t("auth.hata.cokDeneme")
-          : t("auth.hata.hesapOlusturulamadi"),
-      );
-    else {
-      proNiyetiniTemizle();
-      if (data?.session) {
-        window.location.href = sonrakiSayfa;
-      } else setGonderildi(true);
-    }
-  }
-
   async function appleIleGiris() {
     if (appleYukleniyor) return;
     setAppleYukleniyor(true);
@@ -571,13 +521,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     try {
       const girildi = await appleIleGirisYap();
       if (!girildi) return;
-      if (oturumuAcikTut) {
-        localStorage.removeItem("borcama_session_only");
-        sessionStorage.removeItem("borcama_session_active");
-      } else {
-        localStorage.setItem("borcama_session_only", "1");
-        sessionStorage.setItem("borcama_session_active", "1");
-      }
+      oturumKalicilginiYaz();
       window.location.href = sonrakiSayfa;
     } catch (appleHatasi) {
       // Kullanici Apple ekranini kapatirsa mesaj bos doner; hata gostermiyoruz.
@@ -592,377 +536,356 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     setYontem(yeni);
     setHata("");
     setGonderildi(false);
+    setKodModu(false);
   }
 
-  return (
-    <div className="auth-wrap">
-      <style>{CSS}</style>
-      {nativeMi ? (
-        // Native kabukta ana sayfa yok; geri dugmesi karsilama ekranina doner.
-        <a className="auth-back" href="/summary" onClick={proNiyetiniTemizle}>
-          <ArrowLeft size={15} /> {t("auth.geri")}
-        </a>
-      ) : (
-        <a className="auth-back" href="/?plan=free" onClick={proNiyetiniTemizle}>
-          <ArrowLeft size={15} /> {t("auth.anaSayfayaDon")}
-        </a>
-      )}
-      {/* Giris yapmadan dil degistirme (native ve web). */}
-      <DilDugmesi className="auth-dil" />
-      <div className="auth-card">
-        <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
-        <div className="auth-welcome">
-          {kayitModu
-            ? t("auth.kayit.baslik")
-            : t("auth.giris.baslik")}
+  const koyu = useSistemKoyu();
+  const formId = "auth-form";
+  const captchaBekliyor = Boolean(turnstileSiteKey && !captchaToken);
+  const ustSag = <DilDugmesi className="oa-cip kucuk oa-ust-sag" kisa />;
+  const geriDugmesi = nativeMi ? (
+    // Native kabukta ana sayfa yok; geri dugmesi karsilama ekranina doner.
+    <a className="oa-geri" href="/summary" onClick={proNiyetiniTemizle} aria-label={t("auth.geri")}>
+      <ChevronLeft size={20} strokeWidth={2.2} />
+    </a>
+  ) : (
+    <a className="oa-geri" href="/?plan=free" onClick={proNiyetiniTemizle} aria-label={t("auth.anaSayfayaDon")}>
+      <ChevronLeft size={20} strokeWidth={2.2} />
+    </a>
+  );
+  // Satirin tamami dokunulabilir; kutu gercek bir onay dugmesi (klavye),
+  // metindeki sozlesme baglantilari ayri dugme kaldigi icin satir <div>.
+  const onayKutusu = (id, secili, degistir, icerik) => (
+    <div className={`oa-onay${secili ? " secili" : ""}`} onClick={() => degistir(!secili)}>
+      <button className="oa-kutu" type="button" role="checkbox" aria-checked={secili} aria-labelledby={id} onClick={(e) => { e.stopPropagation(); degistir(!secili); }}>
+        <Check size={13} strokeWidth={3.5} aria-hidden="true" />
+      </button>
+      <span id={id}>{icerik}</span>
+    </div>
+  );
+  const epostaAlani = (
+    <label className="oa-alan">
+      <span className="oa-mono-etiket">{t("auth.eposta")}</span>
+      <input
+        id="auth-email"
+        autoComplete="email"
+        type="email"
+        inputMode="email"
+        placeholder={t("auth.epostaOrnek")}
+        value={eposta}
+        onChange={(e) => setEposta(e.target.value)}
+        autoFocus={!nativeMi}
+        required
+      />
+    </label>
+  );
+  const parolaAlani = (id, etiket, yerTutucu, deger, degistir, otomatik, ekstra = {}) => (
+    <label className="oa-alan">
+      <span className="oa-mono-etiket">{etiket}</span>
+      <span className="satir">
+        <input
+          id={id}
+          autoComplete={otomatik}
+          type={parolaGorunur ? "text" : "password"}
+          placeholder={yerTutucu}
+          value={deger}
+          onChange={(e) => degistir(e.target.value)}
+          required
+          {...ekstra}
+        />
+        <button
+          className="oa-goz"
+          type="button"
+          aria-label={parolaGorunur ? t("auth.parola.gizle") : t("auth.parola.goster")}
+          onClick={() => setParolaGorunur(!parolaGorunur)}
+        >
+          {parolaGorunur ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </span>
+    </label>
+  );
+
+  let govde;
+  let alt;
+  if (kodModu) {
+    const kodTamam = kodGecerli(kod);
+    const kalan = Math.max(0, Math.ceil((tekrarZamani - simdi) / 1000));
+    const sure = `${Math.floor(kalan / 60)}:${String(kalan % 60).padStart(2, "0")}`;
+    govde = (
+      <>
+        <span className="oa-mono-etiket">{t("auth.kod.etiket")}</span>
+        <h1 className="oa-baslik">{t("auth.kod.baslik")}</h1>
+        <p className="oa-aciklama">
+          <Ceviri anahtar="auth.kod.aciklama" degerler={{ eposta: <mark>{eposta}</mark> }} />
+        </p>
+        <form id={formId} onSubmit={koduDogrula}>
+          <KodKutulari
+            deger={kod}
+            hatali={Boolean(hata)}
+            onChange={(yeni) => { setKod(yeni); if (hata) setHata(""); }}
+            onTamam={(tam) => koduDogrula(null, tam)}
+          />
+        </form>
+        {hata && <p className="oa-hata" role="alert">{hata}</p>}
+        <div className="oa-satir-ara">
+          <span>{t("auth.kod.gelmedi")}</span>
+          <button className="oa-baglanti" type="button" disabled={gonderiliyor || kalan > 0 || captchaBekliyor} onClick={() => kodGonder()}>
+            {kalan > 0 ? t("auth.kod.tekrarSure", { sure }) : t("auth.kod.tekrar")}
+          </button>
         </div>
-        {/* Uygulamada kayit ekranindaki uzun tanitim metni gosterilmiyor;
-            ekran dogrudan Apple ile devam et ve form ile aciliyor. Tarayici
-            surumunde metin aynen duruyor. */}
-        {!(nativeMi && kayitModu) && (
-          <div className="auth-sub">
-            {kayitModu
-              ? t("auth.kayit.aciklama")
-              : nativeMi
-                ? t("auth.giris.aciklamaNative")
-                : t("auth.giris.aciklamaWeb")}
-          </div>
-        )}
-        {/* Tek kullanimlik e-posta linkiyle giris yalniz tarayici surumunde
-            sunuluyor; uygulamada giris Apple ile ya da parolayla yapiliyor. */}
-        {!kayitModu && !nativeMi && (
-          <div className="auth-tabs">
-            <button
-              className={"auth-tab " + (yontem === "parola" ? "active" : "")}
-              onClick={() => yontemDegistir("parola")}
-              type="button"
-            >
-              {t("auth.sekme.parola")}
-            </button>
-            <button
-              className={"auth-tab " + (yontem === "link" ? "active" : "")}
-              onClick={() => yontemDegistir("link")}
-              type="button"
-            >
-              {t("auth.sekme.link")}
-            </button>
-          </div>
-        )}
-
-        {appleGirisiVarMi && !sifirlamaModu && !gonderildi && (
-          <>
-            <button
-              className="auth-apple"
-              type="button"
-              onClick={appleIleGiris}
-              disabled={appleYukleniyor || gonderiliyor}
-            >
-              <svg width="15" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
-                <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
-              </svg>
-              {appleYukleniyor
-                ? t("auth.apple.yukleniyor")
+        {captchaAlani(`code-${kayitModu}`)}
+      </>
+    );
+    alt = (
+      <>
+        <button className="oa-dugme" type="submit" form={formId} disabled={gonderiliyor || !kodTamam}>
+          {gonderiliyor ? t("auth.kod.dogrulaniyor") : t("auth.kod.devam")}
+        </button>
+        <p className="oa-gecis">
+          {t("auth.kod.yanlisAdres")}{" "}
+          <button className="oa-baglanti" type="button" onClick={() => { setKodModu(false); setKod(""); setHata(""); }}>
+            {t("auth.kod.degistir")}
+          </button>
+        </p>
+      </>
+    );
+  } else if (gonderildi) {
+    const tekrarGonder = sifirlamaModu ? sifirlamaLinkiGonder : null;
+    govde = (
+      <div className="oa-posta">
+        <span className="rozet" aria-hidden="true"><Mail size={30} strokeWidth={2.2} /></span>
+        <span className="oa-mono-etiket">
+          {sifirlamaModu ? t("auth.gonderildi.sifirlama") : kayitModu ? t("auth.gonderildi.kayit") : t("auth.gonderildi.link")}
+        </span>
+        <h1 className="oa-baslik">{noktali(t("auth.gonderildi.kayit"))}</h1>
+        <p className="oa-aciklama">
+          <Ceviri
+            anahtar={
+              sifirlamaModu
+                ? "auth.gonderildi.sifirlamaMetni"
                 : kayitModu
-                  ? t("auth.apple.devam")
-                  : t("auth.apple.giris")}
+                  ? "auth.gonderildi.kayitMetni"
+                  : "auth.gonderildi.linkMetni"
+            }
+            degerler={{ eposta: <mark>{eposta}</mark> }}
+          />
+        </p>
+      </div>
+    );
+    alt = (
+      <>
+        <button
+          className="oa-dugme"
+          type="button"
+          onClick={() => {
+            setGonderildi(false);
+            setSifirlamaModu(false);
+            setHata("");
+            if (kayitModu) window.location.href = "/login";
+          }}
+        >
+          {t("auth.girisEkraninaDon")}
+        </button>
+        {tekrarGonder && (
+          <p className="oa-gecis">
+            {t("auth.gonderildi.gelmedi")}{" "}
+            <button className="oa-baglanti" type="button" disabled={gonderiliyor} onClick={() => tekrarGonder({ preventDefault() {} })}>
+              {t("auth.gonderildi.tekrar")}
             </button>
-            <div className="auth-ayirac">{t("auth.yaDa")}</div>
-          </>
+          </p>
         )}
-
-        {hata && <div className="auth-error">{hata}</div>}
-
-        {gonderildi ? (
-          <div className="auth-sent">
-            <CheckCircle2 size={34} />
-            <div style={{ fontWeight: 700, fontSize: 15 }}>
-              {sifirlamaModu
-                ? t("auth.gonderildi.sifirlama")
-                : kayitModu
-                  ? t("auth.gonderildi.kayit")
-                  : t("auth.gonderildi.link")}
-            </div>
-            <div style={{ fontSize: 13, color: "#55584c" }}>
-              <Ceviri
-                anahtar={
-                  sifirlamaModu
-                    ? "auth.gonderildi.sifirlamaMetni"
-                    : kayitModu
-                      ? "auth.gonderildi.kayitMetni"
-                      : "auth.gonderildi.linkMetni"
-                }
-                degerler={{ eposta: <b style={{ color: "#14160f" }}>{eposta}</b> }}
-              />
-            </div>
-          </div>
-        ) : sifirlamaModu ? (
-          <form onSubmit={sifirlamaLinkiGonder}>
-            <div className="auth-help" style={{ marginBottom: 14 }}>
-              {t("auth.sifirlama.yardim")}
-            </div>
-            <input
-              className="auth-input"
-              type="email"
-              placeholder={t("auth.epostaOrnek")}
-              value={eposta}
-              onChange={(e) => setEposta(e.target.value)}
-              autoFocus={!nativeMi}
-              required
-            />
-            {captchaAlani(`reset-${sifirlamaModu}`)}
+      </>
+    );
+  } else if (sifirlamaModu) {
+    govde = (
+      <>
+        <span className="oa-mono-etiket">{t("auth.parolamiUnuttum")}</span>
+        <h1 className="oa-baslik">{t("auth.parolamiUnuttum")}</h1>
+        <p className="oa-aciklama">{t("auth.sifirlama.yardim")}</p>
+        <form id={formId} className="oa-form" onSubmit={sifirlamaLinkiGonder}>
+          {epostaAlani}
+        </form>
+        {hata && <p className="oa-hata" role="alert">{hata}</p>}
+        {captchaAlani(`reset-${sifirlamaModu}`)}
+      </>
+    );
+    alt = (
+      <>
+        <button className="oa-dugme" type="submit" form={formId} disabled={gonderiliyor || captchaBekliyor}>
+          {gonderiliyor ? t("auth.gonderiliyor") : t("auth.sifirlama.gonder")}
+        </button>
+        <p className="oa-gecis">
+          <button
+            className="oa-baglanti"
+            type="button"
+            onClick={() => {
+              setSifirlamaModu(false);
+              setHata("");
+            }}
+          >
+            {t("auth.girisEkraninaDon")}
+          </button>
+        </p>
+      </>
+    );
+  } else {
+    const appleDugmesi = appleGirisiVarMi && (
+      <>
+        <button
+          className="oa-apple"
+          type="button"
+          onClick={appleIleGiris}
+          disabled={appleYukleniyor || gonderiliyor}
+        >
+          <svg width="16" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
+            <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
+          </svg>
+          {appleYukleniyor
+            ? t("auth.apple.yukleniyor")
+            : kayitModu
+              ? t("auth.apple.devam")
+              : t("auth.apple.giris")}
+        </button>
+        <div className="oa-yada" aria-hidden="true">{t("auth.yaDa")}</div>
+      </>
+    );
+    // Kod modu varsayilan; parola formu yalniz web'de "Parolayla gir" ile.
+    const linkModu = kayitModu || yontem === "kod";
+    const onSubmit = linkModu
+      ? kodGonder
+      : preview && import.meta.env.DEV
+        ? (event) => { event.preventDefault(); setHata(t("auth.hata.onizleme")); }
+        : parolaylaGiris;
+    govde = (
+      <>
+        <span className="oa-mono-etiket">{kayitModu ? t("auth.etiket.kayit") : t("auth.etiket.giris")}</span>
+        <h1 className="oa-baslik">{kayitModu ? t("auth.kayit.baslik") : t("auth.giris.baslik")}</h1>
+        <p className="oa-aciklama">
+          {kayitModu ? t("auth.kayit.aciklamaKisa") : !linkModu ? t("auth.giris.aciklamaWeb") : appleGirisiVarMi ? t("auth.giris.aciklama") : t("auth.giris.aciklamaEposta")}
+        </p>
+        {appleDugmesi}
+        <form id={formId} className="oa-form" onSubmit={onSubmit}>
+          {epostaAlani}
+          {!linkModu && parolaAlani(
+            "auth-password",
+            t("auth.parola"),
+            t("auth.parola.yerTutucuGiris"),
+            parola,
+            setParola,
+            "current-password",
+          )}
+        </form>
+        {hata && <p className="oa-hata" role="alert">{hata}</p>}
+        {/* Referans kodu alani uygulama surumunde yok: App Store, kodla
+            acilan Pro odulunu uygulama ici satin alma disi bir mekanizma
+            sayiyor. Tarayici surumunde alan aynen duruyor. */}
+        {kayitModu && !nativeMi && (
+          <div className="oa-referans">
             <button
-              className="auth-btn"
-              type="submit"
-              disabled={
-                gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)
-              }
-            >
-              <Mail size={16} />{" "}
-              {gonderiliyor ? t("auth.gonderiliyor") : t("auth.sifirlama.gonder")}
-            </button>
-            <button
-              className="auth-reset-link"
-              style={{ margin: "14px auto 0" }}
+              className="oa-ek"
               type="button"
-              onClick={() => {
-                setSifirlamaModu(false);
-                setHata("");
-              }}
+              aria-expanded={referansAcik}
+              aria-controls="referans-kodu-alani"
+              onClick={() => setReferansAcik((acik) => !acik)}
             >
-              {t("auth.girisEkraninaDon")}
+              <span>
+                <span>{t("auth.referans.soru")}</span>
+                <small>{!referansAcik && referansKodu ? t("auth.referans.eklendi") : t("auth.referans.altSatir")}</small>
+              </span>
+              <ChevronRight size={16} aria-hidden="true" style={referansAcik ? { transform: "rotate(90deg)" } : undefined} />
             </button>
-          </form>
-        ) : yontem === "link" ? (
-          <form onSubmit={linkGonder}>
-            <input
-              className="auth-input"
-              type="email"
-              placeholder={t("auth.epostaOrnek")}
-              value={eposta}
-              onChange={(e) => setEposta(e.target.value)}
-              autoFocus={!nativeMi}
-              required
-            />
-            {captchaAlani(`link-${yontem}-${kayitModu}`)}
-            <button
-              className="auth-btn"
-              type="submit"
-              disabled={
-                gonderiliyor || Boolean(turnstileSiteKey && !captchaToken)
-              }
-            >
-              <Mail size={16} />{" "}
-              {gonderiliyor
-                ? t("auth.gonderiliyor")
-                : kayitModu
-                  ? t("auth.link.kayit")
-                  : t("auth.link.giris")}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={preview && import.meta.env.DEV ? (event) => { event.preventDefault(); setHata(t("auth.hata.onizleme")); } : kayitModu ? parolaylaKayit : parolaylaGiris}>
-            <label htmlFor="auth-email" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>{t("auth.eposta")}</label>
-            <input
-              id="auth-email"
-              autoComplete="email"
-              className="auth-input"
-              type="email"
-              placeholder={t("auth.epostaOrnek")}
-              value={eposta}
-              onChange={(e) => setEposta(e.target.value)}
-              autoFocus={!nativeMi}
-              required
-            />
-            <label htmlFor="auth-password" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>{t("auth.parola")}</label>
-            <div className="auth-password">
-              <input
-                id="auth-password"
-                autoComplete={kayitModu ? "new-password" : "current-password"}
-                className="auth-input"
-                type={parolaGorunur ? "text" : "password"}
-                placeholder={
-                  kayitModu ? t("auth.parola.yerTutucuKayit") : t("auth.parola.yerTutucuGiris")
-                }
-                value={parola}
-                onChange={(e) => setParola(e.target.value)}
-                minLength={kayitModu ? 8 : undefined}
-                required
-              />
-              <button
-                className="auth-eye"
-                type="button"
-                aria-label={
-                  parolaGorunur ? t("auth.parola.gizle") : t("auth.parola.goster")
-                }
-                onClick={() => setParolaGorunur(!parolaGorunur)}
-              >
-                {parolaGorunur ? <EyeOff size={17} /> : <Eye size={17} />}
-              </button>
-            </div>
-            {kayitModu && (
-              <>
-                <label htmlFor="auth-password-confirm" style={{ display: "block", marginBottom: 6, fontWeight: 700, fontSize: 13 }}>{t("auth.parola.tekrarEtiket")}</label>
+            {referansAcik && (
+              <label className="oa-alan" id="referans-kodu-alani">
+                <span className="oa-mono-etiket">{t("auth.referans.baslik")} {t("auth.referans.istegeBagli")}</span>
                 <input
-                  id="auth-password-confirm"
-                  autoComplete="new-password"
-                  className="auth-input"
-                  type={parolaGorunur ? "text" : "password"}
-                  placeholder={t("auth.parola.tekrarYerTutucu")}
-                  value={parolaTekrar}
-                  onChange={(e) => setParolaTekrar(e.target.value)}
-                  required
+                  className="oa-mono"
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  placeholder={t("auth.referans.ornek")}
+                  value={referansKodu}
+                  onChange={(event) => {
+                    const value = referansKodunuTemizle(event.target.value);
+                    setReferansKodu(value);
+                    setReferansDurumu(value ? "checking" : "idle");
+                  }}
+                  aria-describedby="referans-kodu-durumu"
                 />
-                {/* Referans kodu alani uygulama surumunde yok: App Store, kodla
-                    acilan Pro odulunu uygulama ici satin alma disi bir mekanizma
-                    sayiyor. Tarayici surumunde alan aynen duruyor. */}
-                {!nativeMi && (
-                <>
-                <button
-                  className={`auth-referral-toggle ${referansAcik ? "acik" : ""}`}
-                  type="button"
-                  aria-expanded={referansAcik}
-                  aria-controls="referans-kodu-alani"
-                  onClick={() => setReferansAcik((acik) => !acik)}
-                >
-                  <span><Gift size={15}/> {t("auth.referans.soru")}</span>
-                  {!referansAcik && referansKodu && <small>{t("auth.referans.eklendi")}</small>}
-                  <ChevronDown size={15}/>
-                </button>
-                <div className={`auth-referral-collapse ${referansAcik ? "acik" : ""}`} aria-hidden={!referansAcik}>
-                  <div className="auth-referral-collapse-inner">
-                    <div className="auth-referral" id="referans-kodu-alani">
-                    <div className="auth-referral-head">{t("auth.referans.baslik")} <span style={{fontWeight:500,color:"#777a6d"}}>{t("auth.referans.istegeBagli")}</span></div>
-                    <input
-                      className="auth-input"
-                      type="text"
-                      inputMode="text"
-                      autoComplete="off"
-                      tabIndex={referansAcik ? undefined : -1}
-                      placeholder={t("auth.referans.ornek")}
-                      value={referansKodu}
-                      onChange={(event) => {
-                        const value = referansKodunuTemizle(event.target.value);
-                        setReferansKodu(value);
-                        setReferansDurumu(value ? "checking" : "idle");
-                      }}
-                      aria-describedby="referans-kodu-durumu"
-                    />
-                    <span id="referans-kodu-durumu" className={`auth-referral-state ${referansDurumu}`}>
-                      {referansDurumu === "checking" ? t("auth.referans.kontrol") : referansDurumu === "valid" ? t("auth.referans.gecerli") : referansDurumu === "invalid" ? t("auth.referans.gecersiz") : referansDurumu === "unknown" ? t("auth.referans.bilinmiyor") : t("auth.referans.bos")}
-                    </span>
-                    </div>
-                  </div>
-                </div>
-                </>
-                )}
-              </>
-            )}
-            <div className="auth-help">
-              {kayitModu
-                ? t("auth.yardim.kayit")
-                : nativeMi
-                  ? t("auth.yardim.native")
-                  : t("auth.yardim.web")}
-            </div>
-            {!kayitModu && (
-              <button
-                className="auth-reset-link"
-                type="button"
-                onClick={() => {
-                  setSifirlamaModu(true);
-                  setHata("");
-                  setGonderildi(false);
-                }}
-              >
-                {t("auth.parolamiUnuttum")}
-              </button>
-            )}
-            {kayitModu && (
-              <div className="auth-consents">
-                <label className="auth-remember">
-                  <input
-                    type="checkbox"
-                    checked={sozlesmeKabul}
-                    onChange={(e) => setSozlesmeKabul(e.target.checked)}
-                    required
-                  />
-                  <span>
-                    <Ceviri
-                      anahtar="auth.onay.sozlesme"
-                      degerler={{
-                        baglanti: (
-                          <button
-                            type="button"
-                            onClick={() => setYasalMetin("terms")}
-                          >
-                            {t("auth.kullaniciSozlesmesi")}
-                          </button>
-                        ),
-                      }}
-                    />
-                  </span>
-                </label>
-                <label className="auth-remember">
-                  <input
-                    type="checkbox"
-                    checked={aydinlatmaOkundu}
-                    onChange={(e) => setAydinlatmaOkundu(e.target.checked)}
-                    required
-                  />
-                  <span>
-                    <Ceviri
-                      anahtar="auth.onay.aydinlatma"
-                      degerler={{
-                        baglanti: (
-                          <button
-                            type="button"
-                            onClick={() => setYasalMetin("privacy")}
-                          >
-                            {t("auth.aydinlatmaMetni")}
-                          </button>
-                        ),
-                      }}
-                    />
-                  </span>
-                </label>
-              </div>
-            )}
-            {!kayitModu && (
-              <label className="auth-remember">
-                <input
-                  type="checkbox"
-                  checked={oturumuAcikTut}
-                  onChange={(e) => setOturumuAcikTut(e.target.checked)}
-                />
-                <span>{t("auth.oturumuAcikTut", { ortam: ortamAdi })}</span>
+                <small id="referans-kodu-durumu" className={referansDurumu}>
+                  {referansDurumu === "checking" ? t("auth.referans.kontrol") : referansDurumu === "valid" ? t("auth.referans.gecerli") : referansDurumu === "invalid" ? t("auth.referans.gecersiz") : referansDurumu === "unknown" ? t("auth.referans.bilinmiyor") : t("auth.referans.bos")}
+                </small>
               </label>
             )}
-            {captchaAlani(`password-${kayitModu}`)}
-            <button
-              className="auth-btn"
-              type="submit"
-              disabled={
-                gonderiliyor ||
-                !parola ||
-                (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu)) ||
-                Boolean(turnstileSiteKey && !captchaToken)
-              }
-            >
-              <KeyRound size={16} />
-              {gonderiliyor
-                ? kayitModu
-                  ? t("auth.gonder.olusturuluyor")
-                  : t("auth.gonder.girisYapiliyor")
-                : kayitModu
-                  ? ilkProPlani
-                    ? t("auth.gonder.olusturVeDevam")
-                    : t("auth.gonder.olustur")
-                  : t("auth.gonder.parolaylaGiris")}
-            </button>
-          </form>
+          </div>
         )}
-
-        <div className="auth-switch">
+        {kayitModu && (
+          <div className="oa-onaylar">
+            {onayKutusu("onay-sozlesme", sozlesmeKabul, setSozlesmeKabul, (
+              <Ceviri
+                anahtar="auth.onay.sozlesme"
+                degerler={{
+                  baglanti: (
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setYasalMetin("terms"); }}>
+                      {t("auth.kullaniciSozlesmesi")}
+                    </button>
+                  ),
+                }}
+              />
+            ))}
+            {onayKutusu("onay-aydinlatma", aydinlatmaOkundu, setAydinlatmaOkundu, (
+              <Ceviri
+                anahtar="auth.onay.aydinlatma"
+                degerler={{
+                  baglanti: (
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setYasalMetin("privacy"); }}>
+                      {t("auth.aydinlatmaMetni")}
+                    </button>
+                  ),
+                }}
+              />
+            ))}
+          </div>
+        )}
+        {!kayitModu && !linkModu && (
+          <div className="oa-satir-ara">
+            <label>
+              <button
+                className={`oa-anahtar${oturumuAcikTut ? " acik" : ""}`}
+                type="button"
+                role="switch"
+                aria-checked={oturumuAcikTut}
+                aria-label={t("auth.oturumuAcikTut", { ortam: ortamAdi })}
+                onClick={() => setOturumuAcikTut(!oturumuAcikTut)}
+              />
+              {t("auth.oturumuAcikTut", { ortam: ortamAdi })}
+            </label>
+            <button
+              className="oa-baglanti"
+              type="button"
+              onClick={() => {
+                setSifirlamaModu(true);
+                setHata("");
+                setGonderildi(false);
+              }}
+            >
+              {t("auth.parolamiUnuttum")}
+            </button>
+          </div>
+        )}
+        {captchaAlani(linkModu ? `code-send-${kayitModu}` : `password-${kayitModu}`)}
+      </>
+    );
+    const pasif = gonderiliyor || captchaBekliyor || !eposta.trim()
+      || (!linkModu && !parola)
+      || (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu));
+    alt = (
+      <>
+        <button className="oa-dugme" type="submit" form={formId} disabled={pasif}>
+          {linkModu
+            ? gonderiliyor ? t("auth.gonderiliyor") : t("auth.gonder.kod")
+            : gonderiliyor ? t("auth.gonder.girisYapiliyor") : t("auth.gonder.giris")}
+        </button>
+        <p className="oa-gecis">
           {kayitModu ? (
             <>
               {t("auth.gecis.hesapVar")} <a href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>{t("auth.gecis.girisYap")}</a>
@@ -972,25 +895,44 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               {t("auth.gecis.hesapYok")} <a href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>{t("auth.gecis.kayitOl")}</a>
             </>
           )}
+        </p>
+        {/* Web: mevcut parola hesaplari icin eski form; uygulamada parola yok. */}
+        {!kayitModu && !nativeMi && (
+          <p className="oa-gecis">
+            <button className="oa-baglanti soluk" type="button" onClick={() => yontemDegistir(linkModu ? "parola" : "kod")}>
+              {linkModu ? t("auth.parolaylaGir") : t("auth.kodlaGir")}
+            </button>
+          </p>
+        )}
+        <div className="oa-yasal-satir">
+          <button type="button" onClick={() => setYasalMetin("terms")}>{t("auth.kullaniciSozlesmesi")}</button>
+          <span aria-hidden="true">·</span>
+          <button type="button" onClick={() => setYasalMetin("privacy")}>{t("auth.gizlilikKvkk")}</button>
         </div>
-        <div className="auth-legal">
-          <button type="button" onClick={() => setYasalMetin("terms")}>
-            {t("auth.kullaniciSozlesmesi")}
-          </button>
-          <span>·</span>
-          <button type="button" onClick={() => setYasalMetin("privacy")}>
-            {t("auth.gizlilikKvkk")}
-          </button>
-        </div>
+        {!nativeMi && (
+          <div className="oa-guvence">
+            <ShieldCheck size={13} />
+            <span>{t("auth.guvence")}</span>
+          </div>
+        )}
+      </>
+    );
+  }
 
-        <div className="auth-foot">
-          <ShieldCheck size={13} />
-          <span>{t("auth.guvence")}</span>
+  return (
+    <div className={`oa oa-auth${koyu ? " oa-koyu" : ""}`} ref={kokRef}>
+      <div className="oa-kolon">
+        <div className="oa-kabuk">
+          {geriDugmesi}
+          {/* Giris yapmadan dil degistirme (native ve web). */}
+          {ustSag}
         </div>
+        <div className="oa-govde" key={kodModu ? "kod" : gonderildi ? "gonderildi" : sifirlamaModu ? "sifirlama" : yontem}>{govde}</div>
+        <div className="oa-alt">{alt}</div>
       </div>
       {yasalMetin && (
         <div
-          className="auth-legal-modal"
+          className="oa-yasal-perde"
           role="dialog"
           aria-modal="true"
           aria-label={
@@ -1000,18 +942,15 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
           }
           onClick={() => setYasalMetin(null)}
         >
-          <div
-            className="auth-legal-dialog"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="auth-legal-head">
+          <div className="oa-yasal" onClick={(e) => e.stopPropagation()}>
+            <div className="oa-yasal-ust">
               <span>
                 {yasalMetin === "terms"
                   ? t("auth.kullaniciSozlesmesi")
                   : t("auth.aydinlatmaMetni")}
               </span>
               <button
-                className="auth-legal-close"
+                className="oa-geri"
                 type="button"
                 aria-label={t("auth.metniKapat")}
                 onClick={() => setYasalMetin(null)}
@@ -1019,7 +958,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
                 <X size={18} />
               </button>
             </div>
-            <div className="auth-legal-content" tabIndex={0}>
+            <div className="oa-yasal-icerik" tabIndex={0}>
               {yasalMetin === "terms" ? (
                 <KullaniciSozlesmesi embedded />
               ) : (
@@ -1090,95 +1029,90 @@ export function ParolaYenileEkrani() {
     );
   }
 
-  return (
-    <div className="auth-wrap">
-      <style>{CSS}</style>
-      <a className="auth-back" href="/login">
-        <ArrowLeft size={15} /> {t("auth.girisEkraninaDon")}
-      </a>
-      <div className="auth-card">
-        <img className="auth-title" src="/borcama-logo.png" alt="Borcama" />
-        {session === undefined ? (
-          <div className="auth-sub">{t("auth.yenile.kontrol")}</div>
-        ) : !session ? (
-          <>
-            <div className="auth-welcome">
-              {t("auth.yenile.gecersizBaslik")}
-            </div>
-            <div className="auth-sub">
-              {t("auth.yenile.gecersizAciklama")}
-            </div>
-            <a
-              className="auth-btn"
-              href="/login"
-              style={{ textDecoration: "none" }}
-            >
-              {t("auth.yenile.yeniBaglanti")}
-            </a>
-          </>
-        ) : durum.tamam ? (
-          <div className="auth-sent">
-            <CheckCircle2 size={34} />
-            <div style={{ fontWeight: 700, fontSize: 15 }}>{t("auth.yenile.hazir")}</div>
-            <div style={{ fontSize: 13, color: "#55584c" }}>
-              {t("auth.yenile.hazirAciklama")}
-            </div>
-            <a
-              className="auth-btn"
-              href="/summary"
-              style={{ textDecoration: "none", marginTop: 8 }}
-            >
-              {t("auth.yenile.devam")}
-            </a>
-          </div>
-        ) : (
-          <>
-            <div className="auth-welcome">{t("auth.yenile.baslik")}</div>
-            <div className="auth-sub">
-              {t("auth.yenile.aciklama")}
-            </div>
-            {durum.hata && <div className="auth-error">{durum.hata}</div>}
-            <form onSubmit={parolayiKaydet}>
-              <div className="auth-password">
-                <input
-                  className="auth-input"
-                  type={gorunur ? "text" : "password"}
-                  placeholder={t("auth.yenile.yeniParola")}
-                  value={parola}
-                  onChange={(e) => setParola(e.target.value)}
-                  autoFocus={!nativeMi}
-                  required
-                  minLength={8}
-                />
-                <button
-                  className="auth-eye"
-                  type="button"
-                  aria-label={gorunur ? t("auth.parola.gizle") : t("auth.parola.goster")}
-                  onClick={() => setGorunur(!gorunur)}
-                >
-                  {gorunur ? <EyeOff size={17} /> : <Eye size={17} />}
-                </button>
-              </div>
+  const koyu = useSistemKoyu();
+  let govde;
+  let alt = null;
+  if (session === undefined) {
+    govde = <p className="oa-aciklama">{t("auth.yenile.kontrol")}</p>;
+  } else if (!session) {
+    govde = (
+      <>
+        <h1 className="oa-baslik">{t("auth.yenile.gecersizBaslik")}</h1>
+        <p className="oa-aciklama">{t("auth.yenile.gecersizAciklama")}</p>
+      </>
+    );
+    alt = <a className="oa-dugme" href="/login">{t("auth.yenile.yeniBaglanti")}</a>;
+  } else if (durum.tamam) {
+    govde = (
+      <div className="oa-posta">
+        <span className="rozet" aria-hidden="true"><Check size={30} strokeWidth={3} /></span>
+        <h1 className="oa-baslik">{t("auth.yenile.hazir")}</h1>
+        <p className="oa-aciklama">{t("auth.yenile.hazirAciklama")}</p>
+      </div>
+    );
+    alt = <a className="oa-dugme" href="/summary">{t("auth.yenile.devam")}</a>;
+  } else {
+    govde = (
+      <>
+        <h1 className="oa-baslik">{t("auth.yenile.baslik")}</h1>
+        <p className="oa-aciklama">{t("auth.yenile.aciklama")}</p>
+        <form id="auth-form" className="oa-form" onSubmit={parolayiKaydet}>
+          <label className="oa-alan">
+            <span className="oa-mono-etiket">{t("auth.yenile.yeniParola")}</span>
+            <span className="satir">
               <input
-                className="auth-input"
                 type={gorunur ? "text" : "password"}
-                placeholder={t("auth.yenile.yeniParolaTekrar")}
-                value={tekrar}
-                onChange={(e) => setTekrar(e.target.value)}
+                placeholder={t("auth.yenile.yeniParola")}
+                value={parola}
+                onChange={(e) => setParola(e.target.value)}
+                autoFocus={!nativeMi}
                 required
                 minLength={8}
               />
               <button
-                className="auth-btn"
-                type="submit"
-                disabled={durum.kaydediliyor || !parola || !tekrar}
+                className="oa-goz"
+                type="button"
+                aria-label={gorunur ? t("auth.parola.gizle") : t("auth.parola.goster")}
+                onClick={() => setGorunur(!gorunur)}
               >
-                <KeyRound size={16} />
-                {durum.kaydediliyor ? t("auth.yenile.kaydediliyor") : t("auth.yenile.kaydet")}
+                {gorunur ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
-            </form>
-          </>
-        )}
+            </span>
+          </label>
+          <label className="oa-alan">
+            <span className="oa-mono-etiket">{t("auth.yenile.yeniParolaTekrar")}</span>
+            <input
+              type={gorunur ? "text" : "password"}
+              placeholder={t("auth.yenile.yeniParolaTekrar")}
+              value={tekrar}
+              onChange={(e) => setTekrar(e.target.value)}
+              required
+              minLength={8}
+            />
+          </label>
+        </form>
+        {durum.hata && <p className="oa-hata" role="alert">{durum.hata}</p>}
+      </>
+    );
+    alt = (
+      <button className="oa-dugme" type="submit" form="auth-form" disabled={durum.kaydediliyor || !parola || !tekrar}>
+        {durum.kaydediliyor ? t("auth.yenile.kaydediliyor") : t("auth.yenile.kaydet")}
+      </button>
+    );
+  }
+  return (
+    <div className={`oa oa-auth${koyu ? " oa-koyu" : ""}`}>
+      <div className="oa-kolon">
+        <div className="oa-kabuk">
+          <a className="oa-geri" href="/login" aria-label={t("auth.girisEkraninaDon")}>
+            <ChevronLeft size={20} strokeWidth={2.2} />
+          </a>
+        </div>
+        <div className="oa-govde">
+          <span className="oa-mono-etiket">{t("auth.parolamiUnuttum")}</span>
+          {govde}
+        </div>
+        <div className="oa-alt">{alt}</div>
       </div>
     </div>
   );
@@ -1193,5 +1127,62 @@ export function CikisButonu({ className }) {
     >
       <LogOut size={15} /> {t("auth.cikis")}
     </button>
+  );
+}
+
+// Tek kullanimlik kod: 6 kutu. Yazinca sonrakine gecer, bos kutuda Backspace
+// oncekine doner, 6 haneli yapistirma (ya da iOS'un Mail'den onerdigi kod,
+// one-time-code) hepsini doldurur; 6. hane dolunca dogrulama baslar.
+function KodKutulari({ deger, onChange, onTamam, hatali = false }) {
+  const kutular = useRef([]);
+  const haneler = Array.from({ length: 6 }, (_, i) => deger[i] || "");
+  const yaz = (i, metin) => {
+    const rakamlar = kodTemizle(metin);
+    if (!rakamlar) {
+      onChange(deger.slice(0, i) + deger.slice(i + 1));
+      return;
+    }
+    // Tek hane ya da yapistirma: i'den itibaren doldur.
+    const yeni = kodTemizle(deger.slice(0, i) + rakamlar + (rakamlar.length > 1 ? "" : deger.slice(i + 1)));
+    onChange(yeni);
+    const sonraki = Math.min(i + rakamlar.length, 5);
+    kutular.current[sonraki]?.focus();
+    if (yeni.length === 6) onTamam?.(yeni);
+  };
+  return (
+    <div className={`oa-kod-kutular${hatali ? " hatali" : ""}`} role="group" aria-label={t("auth.kod.grup")}>
+      {haneler.map((hane, i) => (
+        <input
+          key={i}
+          ref={(el) => { kutular.current[i] = el; }}
+          id={i === 0 ? "auth-code" : undefined}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete={i === 0 ? "one-time-code" : "off"}
+          maxLength={i === 0 ? 6 : 1}
+          aria-label={t("auth.kod.hane", { n: i + 1 })}
+          value={hane}
+          autoFocus={i === 0}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => {
+            const v = e.target.value;
+            // Dolu kutuya yazilinca yeni rakam eskisinin yerine gecer.
+            yaz(i, hane && v.length === 2 ? v.slice(-1) : v);
+          }}
+          onPaste={(e) => {
+            e.preventDefault();
+            yaz(i, e.clipboardData.getData("text"));
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Backspace" && !hane && i > 0) {
+              e.preventDefault();
+              onChange(deger.slice(0, i - 1) + deger.slice(i));
+              kutular.current[i - 1]?.focus();
+            }
+          }}
+        />
+      ))}
+    </div>
   );
 }

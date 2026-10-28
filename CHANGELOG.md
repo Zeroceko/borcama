@@ -4,13 +4,33 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.73.0] - 2026-10-28
+
+Web ve iOS aynı sürüm (iOS build 33).
+
+### Eklendi
+
+- Ayarlar > Görünüm'e "Sistem" seçeneği eklendi; cihaz teması değişince uygulama anında değişir.
+- Landing'deki App Store bağlantısı tıklaması `landing_appstore_click` olarak ölçülüyor (istemci, `analytics-event` Edge Function ve `analytics_events` kısıtı; migration `20261028120000_landing_appstore_click.sql`); App Store bağlantıları App Store Connect kaynak ölçümü için `ct=landing-hero|landing-fiyat|landing-son` kampanya parametresi taşıyor.
+- `npm run ekranlar` (`scripts/ekran-goruntuleri.mjs`): sitedeki uygulama görsellerini demo modundaki gerçek uygulamadan sentetik veriyle yeniden çeker (`public/ekranlar/`, açık/koyu, png + webp). Site denetimleri: `scripts/bolum-araliklari.mjs` (bölüm aralıkları) ve `scripts/site-kontrast-denetimi.mjs` (WCAG kontrastı, iki tema).
+
 ### Değiştirildi
 
+- borcama.com ana sayfası v3'e geçti: iPhone uygulaması ve web eşit ağırlıkta (hero ve kapanışta "App Store'dan indir" ve "Şimdi başla" yan yana), görseller uygulamanın gerçek ekran görüntüleri (masaüstü Bugün CSS tarayıcı çerçevesinde, iPhone Bugün ve Borç planı CSS telefon çerçevesinde), uygulamayla aynı renk ve yazı sistemi, kenarlıksız kartlar; mağaza metnindeki altı uygulama özelliği yeni "Her gün yanında" bölümünde. Ana mesaj, fiyatlar, güven cümleleri, alt bilgi bağlantıları ve SEO çıktısı aynı. Sayfa varsayılan açık temada açılıyor; alt bilgideki "Koyu mod" anahtarıyla koyuya geçiliyor ve tercih bu tarayıcıda hatırlanıyor.
+- Giriş ve kayıt: parola yok; Apple ile ya da e-postaya gelen 6 haneli tek kullanımlık kodla (6 kutu, Mail'den kod önerisi ve yapıştırma, 6. hanede kendiliğinden doğrulama, 60 sn sonra tekrar gönderme). Kayıtsız e-postayla girişte "Bu e-postayla hesap yok" uyarısı. Web'de mevcut parola hesapları için küçük "Parolayla gir" bağlantısı ve parola yenileme kalıyor. Turnstile, referans kodu, sözleşme onayı ve Pro niyeti aynı.
+- Kurulum akışı yeni yüzeyle (v3): kenarlıksız, iki temalı (açık/koyu) sakin tasarım; seçili seçenek mürekkep dolgulu (koyu temada krem), lime yalnız ana düğmede; imza (lime düğme + coral blok gölge) düğmede, büyük tutarda, plan kartında ve kapanışta. Dilden sonra "Açık mı, koyu mu?" adımı (Sistem / Açık / Koyu; Sistem cihazı izler). Yaşam gideri adımı kalktı (10 adım, uygulamada 11): plan, yaşam için gelirin %45'ini varsayıyor ve bunu söylüyor; plan kartı "her maaşta ödemelere" giden tutarı gösteriyor; yaşam gideri kaydı yazılmıyor (Plan'da düzenlenir). Dokunmatikte gelir uygulama içi tuş takımıyla, masaüstünde alanla (Enter = devam); masaüstünde düğme içeriğin altında. Ülke listesinde bayrak, dil listesinde kod rozeti; hedef ve borç türleri ikonlu kart; gün seçicide kaydırıcı, fare tekerleği ve ok tuşları; eklenen borçlarda banka logosu; kapanışta lime perde ve Borcama logosu. iOS karşılaması 3 slaytlı karusel.
+- Klavye açıkken giriş, kayıt, kod ve borç ekranlarında ana düğme klavyenin üstünde kalıyor (iOS: webview klavye kadar küçülür; web: görünür alan izlenir), odaklanan alan görünür alana kaydırılıyor (yeni iOS build'i gerekir).
+- iOS: native (SwiftUI) kurulum akışı web v3 yüzeyiyle hizalandı: kenarlıksız iki temalı tasarım (açık/koyu; dilden sonra "Açık mı, koyu mu?" adımı, Sistem cihazı izler ve seçim o anda tüm akışı çevirir), 3 slaytlı ekran maketli karşılama, kod rozetli dil/ülke satırları, ikonlu hedef ve borç türü kartları, kaydırıcılı maaş günü seçici ve dönem bilgisi, gelir ve yaşam tutarı için büyük tutar + uygulama içi tuş takımı, plan kartında ödemeler/yaşam/kalan açıklaması, sıradaki borç satırı, lime perdeli kapanış. Başlıklar Archivo Black; Space Grotesk ve JetBrains Mono pakete eklendi. Durum çubuğu temaya göre. Seçilen görünüm kurulum sonucuyla ayarlara yazılır. Hesaplar ve kayıt şekli değişmedi (yeni iOS build'i gerekir).
+- iOS uygulama ikonu: B harfi küçültüldü (ikon genişliğinin %70'i) ve gölgesiyle birlikte ortalandı; sağ ve sol boşluk eşit (yeni iOS build'i gerekir).
 - Kurulum akışı (TestFlight geri bildirimi): hedef adımında birden fazla hedef seçilebiliyor; maaş günü sıklığa göre soruluyor (ayda bir: ayın günü, ayda iki: ilk maaşın günü, haftada bir: haftanın günü, düzensiz: sorulmuyor); gelir adımının düğmesi "Devam et", ayda bir dışında tutarın altında "ayda ortalama" yazıyor; ülke adımında 6 ülke (Türkiye, Birleşik Krallık, Almanya, Fransa, İspanya, İtalya; tespit edilen ülke bunlardan değilse başta) seçim yapınca sırası değişmeden gösteriliyor; ilk borç adımında eklenen borçlar formun altında listeleniyor.
 
 ### Düzeltildi
 
 - iOS kurulum akışı düzeltmeleri: hedef birden fazla seçilebiliyor; maaş günü adımı sıklığa göre değişiyor (ayda iki: ilk maaş günü, haftalık: haftanın günü, düzensiz: adım yok); gelir düğmesi "Devam et"; ülke listesinde dil sayısı kadar ülke var ve seçim sırayı değiştirmiyor; dil seçerken liste kaymıyor; koyu temada isim alanı okunuyor; alan ve düğme çerçeveleri kenarda kesilmiyor; eklenen borçlar formun altında listeleniyor.
+
+### Kaldırıldı
+
+- Eski landing sürümleri ve yolları (`/classic`, `/landing-v2`, geliştirme önizlemesi `/landing-preview`) kaldırıldı; `/classic` ve `/landing-v2` ana sayfaya kalıcı yönleniyor.
 
 ## [1.72.0] - 2026-10-27
 

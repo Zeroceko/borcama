@@ -18,6 +18,21 @@ test("yeni ölçüm olayları istemci, Edge Function ve veritabanında aynı", a
   }
 });
 
+test("landing App Store tıklaması istemci, Edge Function ve veritabanında izinli", async () => {
+  const [client, edge, migration, olcum] = await Promise.all([
+    oku("./funnelAnalytics.js"),
+    oku("../supabase/functions/analytics-event/index.ts"),
+    oku("../supabase/migrations/20261028120000_landing_appstore_click.sql"),
+    oku("./landingMeasurement.js"),
+  ]);
+  for (const ad of [...YENI_OLAYLAR, "landing_appstore_click"]) {
+    assert.match(client, new RegExp(`"${ad}"`));
+    assert.match(edge, new RegExp(`"${ad}"`));
+    assert.match(migration, new RegExp(`'${ad}'`));
+  }
+  assert.match(olcum, /a\[href\*="apps\.apple\.com"\][\s\S]+funnelEtkinligiKaydet\("landing_appstore_click"\)/);
+});
+
 test("bot filtresi istemci ve sunucuda aynı deseni kullanır", async () => {
   const [nav, edge] = await Promise.all([oku("./funnelNavigation.js"), oku("../supabase/functions/analytics-event/index.ts")]);
   const desen = (metin) => metin.match(/\/bot\|crawl[^/]+\/i/)?.[0];

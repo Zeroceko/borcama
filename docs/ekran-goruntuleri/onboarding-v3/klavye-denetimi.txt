@@ -1,0 +1,10 @@
+light kayit  CTA görünür (y 377-433 / 508)
+light giris  CTA görünür (y 377-433 / 508)
+light kod    CTA görünür (y 390-446 / 508)
+light borc   CTA görünür (y 428-484 / 508)
+dark  kayit  CTA görünür (y 377-433 / 508)
+dark  giris  CTA görünür (y 377-433 / 508)
+dark  kod    CTA görünür (y 390-446 / 508)
+dark  borc   CTA görünür (y 428-484 / 508)
+
+Klavye denetimi geçti.
