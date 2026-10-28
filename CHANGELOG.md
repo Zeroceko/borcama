@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- iOS'ta Borcama Asistanı açılınca pencere ekranın üstünde ince bir şerit olarak kalıyordu. Sekme çubuğu yüksekliği, çubuk yerleşmeden ölçüldüğü için ekranın tamamı kadar (~890 px) bildiriliyordu; artık yerleşimden sonra ölçülüyor ve web tarafında 120 px ile sınırlı.
+
 ## [1.74.0] - 2026-10-28
 
 Web ve iOS aynı sürüm (iOS build 37). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
