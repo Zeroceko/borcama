@@ -3,7 +3,7 @@
 ### 2026-10-28 · Ürün ve Mühendislik · Parolasız kayıt, kodla giriş
 
 - Kayıt yalnız tek kullanımlık e-posta koduyla (`signInWithOtp` + `verifyOtp type:"email"`); parola alanları kaldırıldı. Girişte "Parola" ve "Tek kullanımlık kod" sekmeleri web + iOS'ta ("E-posta linki" sekmesi kalktı; linkle giriş e-postadaki bağlantıdan hâlâ çalışır). `src/authKod.js` kod temizleme/geçerlilik/hata eşlemesi, testleri `src/authKod.test.js`.
-- `supabase/functions/auth-email` + `_shared/borcama-email.ts`: `email_data.token` kod kutusu olarak e-postaya giriyor (signup ve magiclink), konu "Borcama giriş kodun: …". Fonksiyon dağıtılmadan kod akışı çalışmaz; dağıtım PR'da belirtildi. Kod uzunluğu Supabase panelindeki `otp_length` (6–8 kabul edilir).
+- `supabase/functions/auth-email` + `_shared/borcama-email.ts`: `email_data.token` kod kutusu olarak e-postaya giriyor (signup ve magiclink), konu "Borcama giriş kodun: …". Fonksiyon dağıtılmadan kod akışı çalışmaz; dağıtım PR'da belirtildi. Kod 6 hane (`config.toml` ve panel `otp_length = 6`).
 - Yeni sözlük anahtarları `auth.sekme.kod`, `auth.kayit.aciklamaKod`, `auth.giris.aciklamaKod`, `auth.kod.*`, `auth.hata.kod*` (6 dil). `src/testVerisi/*login*/*register*` fikstürleri yeniden üretildi. DEV: `/login-preview` eklendi (`/register-preview` gibi).
 
 ### 2026-10-24 · Ürün ve Mühendislik · Projenin yeni geliştiriciye devri

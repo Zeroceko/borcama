@@ -606,7 +606,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               inputMode="numeric"
               autoComplete="one-time-code"
               pattern="[0-9]*"
-              placeholder="••••••••"
+              placeholder="••••••"
               value={kod}
               onChange={(e) => setKod(kodTemizle(e.target.value))}
               autoFocus

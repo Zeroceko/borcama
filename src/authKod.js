@@ -1,11 +1,10 @@
 // Tek kullanimlik e-posta kodu (Supabase email OTP) icin saf yardimcilar.
-// Kod uzunlugu projede 8 hane (supabase/config.toml > otp_length); eski
-// ayarla gonderilmis 6 haneli kodlar da kabul edilir.
+// Kod 6 hane (supabase/config.toml > otp_length; panelde de 6).
 
 export const KOD_EN_AZ = 6;
-export const KOD_EN_COK = 8;
+export const KOD_EN_COK = 6;
 
-// Yapistirilan "123 456-78" gibi metinlerden yalniz rakamlari alir.
+// Yapistirilan "123 456" gibi metinlerden yalniz rakamlari alir.
 export function kodTemizle(metin) {
   return String(metin ?? "").replace(/\D/g, "").slice(0, KOD_EN_COK);
 }
