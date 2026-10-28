@@ -1,4 +1,4 @@
-// Landing (site) metinlerinin WCAG kontrastını iki temada denetler
+// Landing (site) metinlerinin WCAG kontrastını denetler (site yalnız açık tema)
 // (docs/web-v3-direktifi.md §6). Her metin düğümü için hesaplanan ön/arka
 // plan rengi (yarı saydam katmanlar harmanlanır), normal metin ≥ 4.5, büyük
 // metin (≥ 24px ya da ≥ 18.66px kalın) ≥ 3. Pasif düğmeler dahil;
@@ -15,9 +15,9 @@ const b = await tarayiciAc();
 let toplam = 0;
 try {
   for (const genislik of GENISLIKLER) {
-    for (const koyu of [false, true]) {
+    {
       const ctx = await baglamAc(b, { viewport: { width: genislik, height: 900 } });
-      const sayfa = await siteyiAc(ctx, `${adres}/`, { koyu });
+      const sayfa = await siteyiAc(ctx, `${adres}/`);
       const bulgular = await sayfa.evaluate(() => {
         const ayristir = (c) => {
           const m = c.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/);
@@ -73,7 +73,7 @@ try {
         return sonuc;
       });
       toplam += bulgular.length;
-      console.log(`${genislik}px ${koyu ? "koyu" : "açık"}: ${bulgular.length} bulgu`);
+      console.log(`${genislik}px açık: ${bulgular.length} bulgu`);
       for (const bulgu of bulgular) console.log(`  ${bulgu.oran} < ${bulgu.gerek} · ${bulgu.sinif} · "${bulgu.metin}"`);
       await ctx.close();
     }

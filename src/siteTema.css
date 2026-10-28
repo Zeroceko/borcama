@@ -1,8 +1,8 @@
 /* borcama.com v3 site teması (docs/web-v3-direktifi.md). Uygulamayla aynı
    token seti (docs/onboarding-v3-direktifi.md §2.1); kenarlıksız yüzeyler,
    imza (lime + coral blok gölge) yalnız CTA, büyük tutar, Pro kartı ve
-   kapanış bandında. Varsayılan açık; koyu yalnız alt bilgideki anahtarla
-   (:root[data-theme="dark"], siteTema.js). Kurallar .site altında kalır ki
+   kapanış bandında. Her zaman açık tema (koyu yalnız giriş sonrası
+   Ayarlar'da). Kurallar .site altında kalır ki
    aynı paketteki uygulama ekranlarına sızmasın. */
 
 @font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/archivo-black-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -22,15 +22,6 @@
   --govde: "Space Grotesk", "Helvetica Neue", Arial, system-ui, sans-serif;
   --baslik: "Archivo Black", "Arial Black", Impact, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-:root[data-theme="dark"] {
-  --zemin: #0f110a; --parlama: radial-gradient(60% 50% at 80% 0%, rgba(205,245,100,.14), transparent 70%);
-  --yuzey: #191c12; --yuzey-2: #22261a; --yuzey-3: #2e3324;
-  --metin: #f4efe0; --metin-2: #b5b2a0; --metin-3: #8a8c7e;
-  --ozet: #191c12; --ozet-metin: #f4efe0; --ozet-tutar: #cdf564; --ozet-golge: 3px 3px 0 #ff6f59;
-  --ters: #f4efe0; --ters-metin: #14160f; --ters-yuzey: #e6e1d2; --ters-metin-2: #55584c;
-  --cerceve: #2e3324; --ekle-ikon: #14160f;
-  color-scheme: dark;
 }
 
 html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
@@ -127,7 +118,6 @@ html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
 .site .fiyat li { display: flex; align-items: flex-start; gap: 8px; }
 .site .fiyat li svg { margin-top: 2px; color: var(--metin-2); }
 .site .fiyat.pro li svg { color: var(--lime); }
-:root[data-theme="dark"] .site .fiyat.pro li svg { color: var(--ters-metin); }
 .site .fiyat .dugme { margin-top: auto; }
 .site .pro-fiyatlar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 6px; }
 .site .pro-fiyat { padding: 12px 14px; border-radius: 14px; background: var(--ters-yuzey); display: grid; gap: 4px; }
@@ -150,11 +140,6 @@ html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
 .site .alt-baglantilar a { padding: 4px 0; }
 .site .alt-rozet img { display: block; width: 120px; height: 32px; }
 .site .alt-not { margin-top: 26px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--metin-2); }
-.site .alt-tema { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: var(--metin-2); cursor: pointer; }
-.site .anahtar { position: relative; width: 44px; height: 26px; border: 0; border-radius: 999px; background: var(--yuzey-3); cursor: pointer; flex: none; transition: background .18s ease; }
-.site .anahtar::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--yuzey); transition: transform .18s ease, background .18s ease; }
-.site .anahtar[aria-checked="true"] { background: var(--lime); }
-.site .anahtar[aria-checked="true"]::after { background: var(--ink); transform: translateX(18px); }
 
 @media (max-width: 900px) {
   .site .hero, .site .ikili, .site .guven, .site .fiyatlar { grid-template-columns: minmax(0, 1fr); }
@@ -177,5 +162,4 @@ html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
 }
 @media (prefers-reduced-motion: reduce) {
   html:has(.site) { scroll-behavior: auto; }
-  .site .dugme, .site .magaza-cta, .site .anahtar, .site .anahtar::after { transition: none; }
-}
+  .site .dugme, .site .magaza-cta, }

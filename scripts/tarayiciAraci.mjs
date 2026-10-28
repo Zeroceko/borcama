@@ -44,12 +44,11 @@ export async function baglamAc(b, secenekler) {
   return ctx;
 }
 
-// Siteyi açar, yazı tiplerini ve tembel görselleri yükler; koyu ise alt
-// bilgideki anahtarla koyuya alır. Sayfa en üstte bırakılır.
-export async function siteyiAc(ctx, adres, { koyu = false } = {}) {
+// Siteyi açar, yazı tiplerini ve tembel görselleri yükler; sayfa en üstte
+// bırakılır.
+export async function siteyiAc(ctx, adres) {
   const sayfa = await ctx.newPage();
   await sayfa.goto(adres, { waitUntil: "networkidle" });
-  if (koyu) await sayfa.click("#koyu-anahtar");
   await sayfa.evaluate(async () => {
     await document.fonts.ready;
     for (let y = 0; y < document.documentElement.scrollHeight; y += 400) {

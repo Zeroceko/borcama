@@ -30,6 +30,7 @@ import DilDugmesi from "./DilDugmesi.jsx";
 import { proSatistaDegil } from "./proSatis.js";
 import { kodGecerli, kodHataAnahtari, kodTemizle } from "./authKod.js";
 import { useKlavye, useSistemKoyu } from "./Onboarding.jsx";
+import { webdeKoyuMu } from "./siteTema.js";
 import "./onboardingAkis.css";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
@@ -539,7 +540,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     setKodModu(false);
   }
 
-  const koyu = useSistemKoyu();
+  const koyu = webdeKoyuMu({ native: nativeMi, sistemKoyu: useSistemKoyu() });
   const formId = "auth-form";
   const captchaBekliyor = Boolean(turnstileSiteKey && !captchaToken);
   const ustSag = <DilDugmesi className="oa-cip kucuk oa-ust-sag" kisa />;
@@ -1029,7 +1030,7 @@ export function ParolaYenileEkrani() {
     );
   }
 
-  const koyu = useSistemKoyu();
+  const koyu = webdeKoyuMu({ native: nativeMi, sistemKoyu: useSistemKoyu() });
   let govde;
   let alt = null;
   if (session === undefined) {

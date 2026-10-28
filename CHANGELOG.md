@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Web'de giriş yapılmadan önceki ekranlar (ana sayfa, giriş, kayıt ve kurulumun ilk adımı) her zaman açık temada açılıyor; ana sayfadaki "Koyu mod" anahtarı kaldırıldı, koyu tema yalnız giriş yaptıktan sonra Ayarlar'dan seçiliyor. iOS'ta bu ekranlar cihaz temasını izlemeye devam ediyor.
+
+### Düzeltildi
+
+- Kayıt ekranında Kullanıcı Sözleşmesi ve Gizlilik/KVKK onay kutuları işaretlenmeden önce görünmüyordu; artık her temada görünüyor, işaretlenince lime zemin ve mürekkep tik.
+
 ## [1.73.0] - 2026-10-28
 
 Web ve iOS aynı sürüm (iOS build 35, TestFlight).
