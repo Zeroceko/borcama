@@ -6,11 +6,22 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
+- borcama.com ana sayfası v3'e geçti: iPhone uygulaması ve web eşit ağırlıkta (hero ve kapanışta "App Store'dan indir" ve "Şimdi başla" yan yana), görseller uygulamanın gerçek ekran görüntüleri (masaüstü Bugün CSS tarayıcı çerçevesinde, iPhone Bugün ve Borç planı CSS telefon çerçevesinde), uygulamayla aynı renk ve yazı sistemi, kenarlıksız kartlar; mağaza metnindeki altı uygulama özelliği yeni "Her gün yanında" bölümünde. Ana mesaj, fiyatlar, güven cümleleri, alt bilgi bağlantıları ve SEO çıktısı aynı. Sayfa varsayılan açık temada açılıyor; alt bilgideki "Koyu mod" anahtarıyla koyuya geçiliyor ve tercih bu tarayıcıda hatırlanıyor.
+
 - Kurulum akışı (TestFlight geri bildirimi): hedef adımında birden fazla hedef seçilebiliyor; maaş günü sıklığa göre soruluyor (ayda bir: ayın günü, ayda iki: ilk maaşın günü, haftada bir: haftanın günü, düzensiz: sorulmuyor); gelir adımının düğmesi "Devam et", ayda bir dışında tutarın altında "ayda ortalama" yazıyor; ülke adımında 6 ülke (Türkiye, Birleşik Krallık, Almanya, Fransa, İspanya, İtalya; tespit edilen ülke bunlardan değilse başta) seçim yapınca sırası değişmeden gösteriliyor; ilk borç adımında eklenen borçlar formun altında listeleniyor.
 
 ### Düzeltildi
 
 - iOS kurulum akışı düzeltmeleri: hedef birden fazla seçilebiliyor; maaş günü adımı sıklığa göre değişiyor (ayda iki: ilk maaş günü, haftalık: haftanın günü, düzensiz: adım yok); gelir düğmesi "Devam et"; ülke listesinde dil sayısı kadar ülke var ve seçim sırayı değiştirmiyor; dil seçerken liste kaymıyor; koyu temada isim alanı okunuyor; alan ve düğme çerçeveleri kenarda kesilmiyor; eklenen borçlar formun altında listeleniyor.
+
+### Eklendi
+
+- Landing'deki App Store bağlantısı tıklaması `landing_appstore_click` olarak ölçülüyor (istemci, `analytics-event` Edge Function ve `analytics_events` kısıtı; migration `20261028120000_landing_appstore_click.sql`); App Store bağlantıları App Store Connect kaynak ölçümü için `ct=landing-hero|landing-fiyat|landing-son` kampanya parametresi taşıyor.
+- `npm run ekranlar` (`scripts/ekran-goruntuleri.mjs`): sitedeki uygulama görsellerini demo modundaki gerçek uygulamadan sentetik veriyle yeniden çeker (`public/ekranlar/`, açık/koyu, png + webp). Site denetimleri: `scripts/bolum-araliklari.mjs` (bölüm aralıkları) ve `scripts/kontrast-denetimi.mjs` (WCAG kontrastı, iki tema).
+
+### Kaldırıldı
+
+- Eski landing sürümleri ve yolları (`/classic`, `/landing-v2`, geliştirme önizlemesi `/landing-preview`) kaldırıldı; `/classic` ve `/landing-v2` ana sayfaya kalıcı yönleniyor.
 
 ## [1.72.0] - 2026-10-27
 

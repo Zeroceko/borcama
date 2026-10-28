@@ -15,6 +15,7 @@
     "build": "vite build && node scripts/prerender-seo.mjs",
     "preview": "vite preview",
     "ios:version": "node scripts/sync-ios-version.mjs",
+    "ekranlar": "node scripts/ekran-goruntuleri.mjs",
     "seo:indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@capacitor/cli": "^8.5.1",
     "@vitejs/plugin-react": "^6.0.3",
+    "playwright-core": "^1.56.1",
     "typescript": "^7.0.2",
     "vite": "^8.1.4"
   }

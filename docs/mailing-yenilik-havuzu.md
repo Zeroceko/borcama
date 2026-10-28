@@ -18,6 +18,12 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### iPhone'da ve tarayıcıda, aynı hesap — Unreleased
+
+- Siz istediniz: Borcama'nın iPhone uygulamasını ve web'i aynı yerde görmek.
+- Biz yaptık: borcama.com yenilendi; uygulamanın gerçek ekranları, App Store'dan indirme ve tarayıcıda başlama yan yana. Sayfayı koyu modda da açabilirsin.
+- Faydası: Hangi cihazda başlarsan başla, aynı hesap ve aynı plan.
+
 ### İlk açılışta 2 dakikada planın hazır — Unreleased
 
 - Siz istediniz: Uygulamayı açınca nereden başlayacağını bilmek.

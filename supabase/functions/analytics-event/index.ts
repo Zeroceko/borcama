@@ -15,6 +15,7 @@ const izinliEtkinlikler = new Set([
   "debt_payoff_product_click",
   "landing_cta_click",
   "landing_scroll_half",
+  "landing_appstore_click",
   "content_product_click",
 ]);
 // src/funnelNavigation.js ile aynı desen; otomasyon ziyaretleri huniye yazılmaz.
