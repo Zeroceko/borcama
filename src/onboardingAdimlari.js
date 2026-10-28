@@ -252,8 +252,10 @@ export function borcKaydi(borc, { id, simdi = new Date() }) {
 }
 
 // Akis bitince yazilacak veri. Mevcut kayitlar korunur, yenileri eklenir.
-// Gelir adi cagirandan gelir. Yasam gideri yazilmaz (adim kalkti; yasam
-// butcesi Plan'da duzenlenir).
+// Gelir adi cagirandan gelir. Yasam gideri kaydi yazilmaz (adim kalkti);
+// planin varsaydigi yasam butcesi (gelirin %45'i) ayarlar.yasamButcesi'ne
+// "varsayim" olarak yazilir ki uygulama ayni plani gostersin; Plan'da
+// duzenlenir (yasamButcesi.js).
 export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idUret, gelirAdi }) {
   const yeni = {
     ...veri,
@@ -276,6 +278,7 @@ export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idU
     ...(veri.ayarlar || {}),
     ...(ad ? { ad } : {}),
     ...(TEMALAR.includes(durum.tema) ? { tema: durum.tema } : {}),
+    ...(gelirGecerli(durum.gelir) ? { yasamButcesi: { tutar: yasamVarsayilan(durum.gelir), kaynak: "varsayim" } } : {}),
     onboarding: {
       tamam: simdi.toISOString(),
       hedef: durum.hedefler[0] || "borc",

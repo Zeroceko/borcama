@@ -18,6 +18,12 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Yaşam bütçeni planda sen belirle — Unreleased
+
+- Siz istediniz: Planın kendi harcamama göre hesaplanması.
+- Biz yaptık: Borç planı ekranında "Aylık yaşam bütçesi" alanı; yazdığın tutarla plan ve Bugün ekranı yeniden hesaplanıyor, her maaşta ödemelere ne gittiği altında yazıyor.
+- Faydası: Kurulumda gördüğün plan ile uygulamadaki sayılar aynı; tahmini kendi rakamınla değiştirirsin.
+
 ### iPhone'da ve tarayıcıda, aynı hesap — 1.73.0
 
 - Siz istediniz: Borcama'nın iPhone uygulamasını ve web'i aynı yerde görmek.

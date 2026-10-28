@@ -4,7 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Borç planı ekranına "Aylık yaşam bütçesi" alanı eklendi: kurulumun varsaydığı tutar (gelirin %45'i) burada değiştirilir, plan ve Bugün yeni tutarla hesaplanır; altında bu bütçeyle her maaşta ödemelere giden tutar yazıyor.
+
 ### Değiştirildi
+
+- Web'de kurulum akışı `/kurulum/<adım>` adresinde çalışıyor: sayfa yenilenince aynı adımda ve aynı cevaplarla devam ediyor, tarayıcının geri tuşu bir önceki adıma gidiyor, ilk adımda geri tuşu kurulumdan çıkarmıyor (taslak yalnız o tarayıcı sekmesinde tutulur, kurulum bitince silinir).
+- Web'de kurulum bitince "Bugün'e geç" sayfayı yenilemeden ve "Yükleniyor" ekranı olmadan Bugün'ü açıyor (kurulumda dil değiştirildiyse sayfa bir kez yenilenir). iOS'ta davranış aynı.
+- Kurulumun plan kartındaki "her maaşta ödemelere" tutarı uygulamada da aynı: kurulum yaşam bütçesi varsayımını kaydediyor; harcama kaydı yokken Bugün'deki "Aylık plan" "Veri eksik" yerine "≈ +₺X · Yaşam gideri tahmini" gösteriyor, Borç planı ve Pro kartı aynı bütçeyle hesaplanıyor.
+- Pro kartındaki "Kart ve KMH'ye ilk ay" tutarı kart ve KMH borcunun toplamını geçmiyor (önceden kalan bütçenin tamamı yazıyordu).
+- Kurulumu bitiren kullanıcı Bugün'de ve diğer sekmelerdeki şeritte "Adım 3/3" yerine tek bir "Son adım: ilk harcamanı ya da ödemeni ekle" kartı görüyor (Harcama ekle / Ödeme gir); kurulum yapmamış eski hesaplarda üç adımlı rehber aynı.
 
 - Web'de giriş yapılmadan önceki ekranlar (ana sayfa, giriş, kayıt, kod, parola yenileme ve kurulumun "Açık mı, koyu mu?" adımına kadarki kısmı) her zaman açık temada; ana sayfadaki "Koyu mod" anahtarı kaldırıldı. Tema kurulumun 2. adımında seçiliyor, koyu tema giriş sonrası Ayarlar'da da değişiyor. iOS'ta bu ekranlar cihaz temasını izlemeye devam ediyor.
 - Ölçüm izni bandı kayıt, giriş, kod ve kurulum ekranlarında gösterilmiyor; uygulamada büyük ekranda (≥1024 px) üstte duruyor ve içeriği aşağı itiyor, hiçbir düğmeyi örtmüyor. Ana sayfada aynı.
@@ -15,6 +25,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Kayıt ekranında Kullanıcı Sözleşmesi ve Gizlilik/KVKK onay kutuları işaretlenmeden önce görünmüyordu; artık her temada görünüyor (seçili: açıkta mürekkep + lime tik, koyuda krem + mürekkep tik). E-posta yazılıp onaylar eksikken "Kod gönder"in altında "Devam etmek için iki onayı işaretle." yazıyor.
 - Uygulamada sekme değiştirince (kısa ve uzun sayfa arasında) düzen kaydırma çubuğu yüzünden yana kaymıyor.
+- Koyu temada Borç planı ekranındaki senaryo kartı beyaz zeminde okunmuyordu; artık temanın panel renginde. Web'de koyu temada sayfa kenarındaki kaydırma çubuğu boşluğu krem kalmıyor.
 - Tarayıcı sekmesine her dönüşte ve saatlik oturum yenilemesinde giriş kaydı (`activity_logs` "login") ve giriş yan etkileri yeniden çalışmıyor; yalnız gerçek girişte bir kez.
 
 ## [1.73.0] - 2026-10-28

@@ -18,6 +18,7 @@ import "./storage.js";
 import "./native.css";
 import "./kabuk.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
+import { kurulumYoluMu } from "./kurulumTaslagi.js";
 import { belgeDiliniAyarla, t } from "./i18n.js";
 import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
 import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
@@ -270,7 +271,8 @@ function Kok() {
     "/settings",
   ];
   if (yol === "/") return supabaseHazir ? <AnaSayfa /> : <LandingDeneyi experiment={landingDeneyiAta(funnelKaynakBilgisi())} />;
-  if (!uygulamaYollari.includes(yol)) return <LandingControl />;
+  // Web kurulum akisi /kurulum/<adim> adresinde (App icinde; B6/B7).
+  if (!uygulamaYollari.includes(yol) && !(!nativeMi && kurulumYoluMu(yol))) return <LandingControl />;
   if (!supabaseHazir) return demoModu ? <App /> : <YapilandirmaEksik />;
   return <KimlikliKok />;
 }

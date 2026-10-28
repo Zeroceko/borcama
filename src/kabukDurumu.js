@@ -27,6 +27,6 @@ const HESAP_YOLLARI = new Set(["/login", "/register", "/auth-callback", "/reset-
 
 // "yok" | "ust" (uygulama, ≥1024'te üstte) | "alt" (landing ve diğer sayfalar).
 export function izinBandiYeri({ yol, kurulum, uygulama }) {
-  if (kurulum || HESAP_YOLLARI.has(yol)) return "yok";
+  if (kurulum || HESAP_YOLLARI.has(yol) || String(yol || "").startsWith("/kurulum")) return "yok";
   return uygulama ? "ust" : "alt";
 }

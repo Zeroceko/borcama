@@ -68,17 +68,32 @@ export function getActivationState(veri = {}) {
   };
 }
 
+// livingBudget: ayarlar.yasamButcesi (yasamButcesi.js > senaryoYasamButcesi);
+// harcama kaydi yokken "Veri eksik" yerine bu butceyle tahmini kalan
+// gosterilir: gelir - plan odemesi - yasam butcesi (kurulumun plan kartiyla
+// ayni hesap).
 export function getMonthlyBalancePresentation({
   income = 0,
   mandatoryPayments = 0,
   expenses = 0,
   expenseCount = 0,
+  livingBudget = null,
+  planPayment = null,
 } = {}) {
   if (!(Number(income) > 0)) {
     return {
       etiket: t("ozet.denge.etiket"),
       tutar: null,
       aciklama: t("ozet.denge.gelirYok"),
+    };
+  }
+  if (!(Number(expenseCount) > 0) && livingBudget !== null && Number.isFinite(Number(livingBudget))) {
+    const odeme = planPayment !== null && Number.isFinite(Number(planPayment)) ? Number(planPayment) : Number(mandatoryPayments);
+    return {
+      etiket: t("ozet.denge.tahminEtiket"),
+      tutar: Number(income) - odeme - Number(livingBudget),
+      tahmini: true,
+      aciklama: t("ozet.denge.tahminAciklama"),
     };
   }
   if (!(Number(expenseCount) > 0)) {

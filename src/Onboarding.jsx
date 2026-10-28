@@ -70,6 +70,11 @@ import { nativeOnboardingBaslat } from "./onboardingKoprusu.js";
 import "./onboardingAkis.css";
 import { webdeKoyuMu } from "./siteTema.js";
 import { kabukDurumunuBildir } from "./kabukDurumu.js";
+import { adimYolu, gecmistenAdim, oturumKullaniciId, taslagiCoz, taslagiOku, taslagiSil, taslagiYaz, taslakAnahtari } from "./kurulumTaslagi.js";
+
+// Uygulama modulu bu dille yuklendi; kurulumda dil degisirse modul duzeyindeki
+// metinler icin bitiste sayfa yine yenilenir (i18n.js > diliDegistirVeYenile).
+const ACILIS_DILI = dil();
 
 // Iki parca:
 // 1. Onboarding (varsayilan): yalniz native kabukta, oturumu olmayan
@@ -656,18 +661,32 @@ function TemaSecimi({ secili, onSec }) {
   );
 }
 
-export function KurulumAkisi({ veri, native = false, kaydet }) {
-  const [durum, setDurum] = useState(bosDurum);
-  const [adim, setAdim] = useState("dil");
+export function KurulumAkisi({ veri, native = false, kaydet, onBitti }) {
+  // Web: adim /kurulum/<adim> adresinde ve tarayici gecmisinde; adim ve
+  // cevaplar sekme oturumunda saklanir (yenileme ve geri tusu, B6/B7).
+  // Native (iOS) bunlari kullanmaz.
+  const web = !native;
+  const [taslakAnahtar] = useState(() => taslakAnahtari(oturumKullaniciId()));
+  const [ilkTaslak] = useState(() => {
+    if (!web) return null;
+    const ham = taslagiOku(taslakAnahtar);
+    const cozulen = ham ? taslagiCoz(ham, { native, diller: DESTEKLENEN_DILLER, birimler: DESTEKLENEN_PARA_BIRIMLERI }) : null;
+    if (ham && !cozulen) taslagiSil(taslakAnahtar);
+    return cozulen;
+  });
+  const [durum, setDurum] = useState(() => ilkTaslak?.durum || bosDurum());
+  const [adim, setAdim] = useState(() => ilkTaslak?.adim || "dil");
+  // Dil secimi kayitli (dilAyarla); yenilemede gecerli dil zaten odur.
   const [secilenDil, setSecilenDil] = useState(dil());
   const [, setSozlukSurumu] = useState(0);
   const [ulke, setUlke] = useState(() => {
+    if (ilkTaslak?.ulke) return ilkTaslak.ulke;
     const tespit = cihazBolgesi();
     return /^[A-Z]{2}$/.test(tespit) ? tespit : "TR";
   });
   // One cikan liste tespit edilen ulkeye gore bir kez kurulur; secimle degismez.
   const [oneCikan] = useState(() => oneCikanUlkeler(cihazBolgesi()));
-  const [birim, setBirim] = useState(() => kullaniciParaBirimi());
+  const [birim, setBirim] = useState(() => ilkTaslak?.birim || kullaniciParaBirimi());
   const [taslak, setTaslak] = useState(null);
   const [taslakHata, setTaslakHata] = useState(false);
   const [kaydediliyor, setKaydediliyor] = useState(false);
@@ -689,6 +708,13 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   useEffect(() => {
     sekmeCubugunuGoster(false);
   }, []);
+  // Web: sayfa zemini (kaydirma cubugu boslugu dahil) akisin temasiyla ayni.
+  useEffect(() => {
+    if (!web) return;
+    const kok = document.querySelector(".oa.oa-akis");
+    const zemin = kok ? getComputedStyle(kok).getPropertyValue("--oa-zemin").trim() : "";
+    if (zemin) document.body.style.backgroundColor = zemin;
+  }, [web, koyu, adim]);
   // Web'de kurulum acikken olcum izni bandi cizilmez (B2).
   useEffect(() => {
     if (native) return undefined;
@@ -704,6 +730,56 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const no = numarali.indexOf(adim) + 1;
   const guncelle = (alanlar) => setDurum((eski) => ({ ...eski, ...alanlar }));
 
+  // Gecmis dinleyicisi guncel adim ve siraya ref ile bakar.
+  const adimRef = useRef(adim);
+  const siraRef = useRef(sira);
+  adimRef.current = adim;
+  siraRef.current = sira;
+
+  // Web: ilk giriste gecmise bir koruma girdisi (/kurulum/dil) ve gecerli
+  // adim yazilir; 1. adimda geri tusu kurulumdan cikmaz. Yenilemede gecmis
+  // durumu korunur, ikinci koruma eklenmez (StrictMode'da da tek sefer).
+  useEffect(() => {
+    if (!web) return;
+    const arama = window.location.search;
+    const mevcut = window.history.state;
+    if (mevcut && typeof mevcut === "object" && mevcut.kurulumAdim) {
+      window.history.replaceState({ ...mevcut, kurulumAdim: adimRef.current }, "", adimYolu(adimRef.current, arama));
+      return;
+    }
+    window.history.replaceState({ kurulumKoruma: true }, "", adimYolu("dil", arama));
+    window.history.pushState({ kurulumAdim: adimRef.current, kurulumOnceki: null }, "", adimYolu(adimRef.current, arama));
+  }, [web]);
+
+  // Geri/ileri: gecerli bir kurulum adimina gidilir. Koruma girdisine ya da
+  // artik sirada olmayan adima gelinirse ve kayittan sonra (hazir) akista
+  // kalinir.
+  useEffect(() => {
+    if (!web) return undefined;
+    const gecmisDegisti = (olay) => {
+      const hedef = adimRef.current === "hazir" ? null : gecmistenAdim(olay.state, siraRef.current);
+      if (hedef) {
+        adimBaslangici.current = Date.now();
+        setAdim(hedef);
+        return;
+      }
+      window.history.pushState({ kurulumAdim: adimRef.current, kurulumOnceki: null }, "", adimYolu(adimRef.current, window.location.search));
+    };
+    window.addEventListener("popstate", gecmisDegisti);
+    return () => window.removeEventListener("popstate", gecmisDegisti);
+  }, [web]);
+
+  // Taslak: her degisimde sekme oturumuna; kayittan sonra silinir.
+  useEffect(() => {
+    if (!web || adim === "hazir") return;
+    taslagiYaz(taslakAnahtar, { adim, durum, secilenDil, ulke, birim });
+  }, [web, taslakAnahtar, adim, durum, secilenDil, ulke, birim]);
+
+  function adimaYonel(hedef) {
+    setAdim(hedef);
+    if (web) window.history.pushState({ kurulumAdim: hedef, kurulumOnceki: adim }, "", adimYolu(hedef, window.location.search));
+  }
+
   // Ilk borc formu, secilen ilk turle acilir.
   useEffect(() => {
     if (adim === "borc" && !taslak) setTaslak({ tur: durum.turler[0] || "kart" });
@@ -717,13 +793,23 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     });
     if (atlandi) guncelle({ atlanan: [...durum.atlanan, adim] });
     adimBaslangici.current = Date.now();
-    setAdim(hedef);
+    adimaYonel(hedef);
   }
 
   const ileri = (secenekler) => adimaGec(sonrakiAdim(adim, sira), secenekler);
+  // Web'de uygulamadaki geri dugmesi tarayicinin geri tusuyla ayni yoldan
+  // gider (onceki girdi onceki adimsa); degilse (ör. yenilemeden sonra
+  // gecmiste yoksa) adim yerinde degisir.
   const geri = () => {
     const onceki = oncekiAdim(adim, sira);
-    if (onceki) setAdim(onceki);
+    if (!onceki) return;
+    if (web && window.history.state?.kurulumOnceki === onceki) {
+      window.history.back();
+      return;
+    }
+    adimBaslangici.current = Date.now();
+    setAdim(onceki);
+    if (web) window.history.replaceState({ kurulumAdim: onceki, kurulumOnceki: null }, "", adimYolu(onceki, window.location.search));
   };
 
   async function dilSec(kod) {
@@ -795,13 +881,19 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       gelir_var: sonuc.gelir > 0,
       sure_ms: sonuc.sure_ms,
     });
+    if (web) taslagiSil(taslakAnahtar);
     adimaGec("hazir");
   }
 
   function bitir() {
     if (native) onboardingTamamla();
-    // Yeniden yukleme: secilen dil, tema ve para birimi tum ekranlara
-    // uygulanir, iOS'ta native sekmeler geri gelir.
+    // Web: sayfa yenilenmez (B8); tema veriden, para birimi ve bolge
+    // secildikleri anda kayitli. Dil degistiyse modul duzeyindeki metinler
+    // icin yine yenilenir. iOS: yeniden yukleme native sekmeleri geri getirir.
+    if (web && onBitti && dil() === ACILIS_DILI) {
+      onBitti();
+      return;
+    }
     window.location.assign("/summary");
   }
 
@@ -1109,7 +1201,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       setTaslakHata(false);
       void onboardingOlayiKaydet("onboarding_atla", { adim: "borc", sure_ms: Date.now() - adimBaslangici.current });
       adimBaslangici.current = Date.now();
-      setAdim(hedef);
+      adimaYonel(hedef);
     };
     dugme = <BirincilDugme onClick={borcAdiminiBitir} disabled={!bitirilebilir}>{t("onboarding.borc.dugme")}</BirincilDugme>;
   } else if (adim === "plan") {

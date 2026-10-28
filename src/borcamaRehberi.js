@@ -60,6 +60,16 @@ export function rehberDurumu(veri, { simdi = new Date(), yaklasan = [] } = {}) {
   if (yeterliVeriVar(veri)) return { asama: "dolu", oneri: null };
 
   const kurulum = getActivationState(veri);
+  // Kurulum akisini bitiren kullanici: borc ve gelir orada girildi; kurulumun
+  // devami tek adim, sayac yok (Bugün'deki kartla ayni metin, B13).
+  const hareket = kurulum.gorevler.find((gorev) => gorev.id === "activity");
+  if (veri?.ayarlar?.onboarding?.tamam && hareket && !hareket.tamam) {
+    return {
+      asama: "kurulum",
+      kurulum,
+      oneri: { id: "kurulum-activity", tur: "kurulum", gorev: hareket, baslik: t("ozet.aktivasyon.sonAdimBaslik"), aciklama: t("ozet.aktivasyon.sonAdimAciklama"), adim: null, aksiyonEtiketi: t("ozet.aktivasyon.harcamaEkle") },
+    };
+  }
   if (!kurulum.tamam) {
     const g = kurulum.siradaki;
     return {
