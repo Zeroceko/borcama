@@ -1,27 +1,7 @@
-// Site (landing) teması: varsayılan açık. prefers-color-scheme izlenmez;
-// koyu yalnız alt bilgideki anahtarla açılır ve bu tarayıcıda hatırlanır.
-// Depolama kapalıysa (gizli pencere vb.) açık temayla devam edilir.
-
-export const SITE_KOYU_ANAHTARI = "borcama:site-koyu";
-
-export function siteKoyuMu() {
-  try {
-    return globalThis.localStorage?.getItem(SITE_KOYU_ANAHTARI) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function siteKoyuKaydet(koyu) {
-  try {
-    globalThis.localStorage?.setItem(SITE_KOYU_ANAHTARI, koyu ? "1" : "0");
-  } catch {
-    // Tercih yalnız bu sayfa açıkken geçerli kalır.
-  }
-}
-
-export function siteTemasiniUygula(koyu, kok = globalThis.document?.documentElement) {
-  if (!kok) return;
-  if (koyu) kok.setAttribute("data-theme", "dark");
-  else kok.removeAttribute("data-theme");
+// Web'de giriş yapılmadan önceki ekranlar (landing, giriş/kayıt ve kurulumun
+// tema sorusundan önceki adımı) her zaman açık temadadır; koyu tema yalnız
+// giriş yaptıktan sonra kullanıcının seçebileceği bir ayardır (Özer, 28 Ekim
+// 2026). iOS'ta bu ekranlar cihaz temasını izler.
+export function webdeKoyuMu({ native, sistemKoyu }) {
+  return native ? Boolean(sistemKoyu) : false;
 }

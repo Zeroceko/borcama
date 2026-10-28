@@ -1296,7 +1296,8 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
   cursor: pointer;
 }
 
-.oa-onay button {
+/* Metin içindeki bağlantı görünümlü düğmeler; onay kutusu (.oa-kutu) hariç. */
+.oa-onay button:not(.oa-kutu) {
   padding: 0;
   border: 0;
   background: none;
@@ -1318,14 +1319,14 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
   padding: 0;
   color: transparent;
   cursor: pointer;
-  border: 1.5px solid var(--oa-yuzey-3);
+  border: 1.5px solid var(--oa-metin-3);
   border-radius: 6px;
   background: var(--oa-yuzey);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .oa-kutu svg { opacity: 0; }
-.oa-onay.secili .oa-kutu { background: var(--oa-ink); border-color: var(--oa-ink); color: var(--oa-lime); }
+.oa-onay.secili .oa-kutu { background: var(--oa-lime); border-color: var(--oa-lime); color: var(--oa-ink); }
 .oa-onay.secili .oa-kutu svg { opacity: 1; }
 
 .oa-gecis {
