@@ -18,6 +18,11 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### iPhone'da ve tarayıcıda, aynı hesap — 1.73.0
+
+- Siz istediniz: Borcama'nın iPhone uygulamasını ve web'i aynı yerde görmek.
+- Biz yaptık: borcama.com yenilendi; uygulamanın gerçek ekranları, App Store'dan indirme ve tarayıcıda başlama yan yana. Sayfayı koyu modda da açabilirsin.
+- Faydası: Hangi cihazda başlarsan başla, aynı hesap ve aynı plan.
 ### Parolasız kayıt ve kodla giriş — 1.73.0
 
 - Siz istediniz: Parola hatırlamadan girmek.
@@ -30,7 +35,8 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 - Biz yaptık: Ayarlar > Görünüm'de "Sistem" seçeneği; kurulum akışında ikinci adımda soruluyor.
 - Faydası: Gece telefon koyuya geçince Borcama da geçer; ayar aramaya gerek yok.
 
-### İlk açılışta 2 dakikada planın hazır — Unreleased
+
+### İlk açılışta 2 dakikada planın hazır — 1.73.0
 
 - Siz istediniz: Uygulamayı açınca nereden başlayacağını bilmek.
 - Biz yaptık: Yeni kurulum akışı gelirini, maaş gününü ve ilk borcunu tek tek soruyor; sonunda ay sonunda ne kalacağını ve hangi borcun önce biteceğini gösteren planı açıyor.

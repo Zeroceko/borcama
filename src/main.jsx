@@ -2,7 +2,6 @@ import React, { lazy, useEffect, useLayoutEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from './errorMonitoring.js';
 import LandingControl from "./LandingAlt.jsx";
-import LandingVariant from "./LandingGrowth.jsx";
 import { useSession, GirisEkrani, ParolaYenileEkrani } from "./Auth.jsx";
 import DogrulamaEkrani from "./DogrulamaEkrani.jsx";
 import { demoModu, supabaseHazir } from "./supabaseClient.js";
@@ -30,8 +29,6 @@ import HesapSilindiEkrani from "./AccountDeleted.jsx";
 import { hesapSilmeBasarisiVar } from "./accountDeletion.js";
 
 const App = lazy(() => import("./App.jsx"));
-const Landing = lazy(() => import("./Landing.jsx"));
-const LandingStory = lazy(() => import("./LandingStory.jsx"));
 const CrmApp = lazy(() => import("./crm/CrmApp.jsx"));
 const Backoffice = lazy(() => import("./Backoffice.jsx"));
 const CeoDashboard = lazy(() => import("./CeoDashboard.jsx"));
@@ -151,7 +148,7 @@ function Kok() {
   // pasif efektleri önce çocukta çalıştırır; landing_visit araç sonucundan
   // (ör. debt_payoff_result_view) önce kuyruğa girsin diye layout effect.
   useLayoutEffect(() => {
-    if (yol === "/classic" || yol === "/landing-v2" || seoYoluMu(yol))
+    if (seoYoluMu(yol))
       funnelEtkinligiKaydet("landing_visit");
     const indekslenmemeli = noindexYoluMu(yol, crmAlani);
     let meta = document.querySelector('meta[name="robots"]');
@@ -213,10 +210,7 @@ function Kok() {
   if (yol === "/refund-policy") return <IadePolitikasi />;
   if (yol === "/faq") return <Faq />;
   if (seoYoluMu(yol)) return <SeoSayfasi yol={yol} />;
-  if (yol === "/classic") return <Landing />;
-  if (yol === "/landing-v2") return <LandingStory />;
   if (yol === "/demo") return <HariciYonlendirme url="/register?plan=free" />;
-  if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
   if (import.meta.env.DEV && yol === "/login-preview") return <GirisEkrani preview />;
   if (import.meta.env.DEV && (yol === "/crm-preview" || yol.startsWith("/crm-preview/"))) {
@@ -509,10 +503,10 @@ function AnaSayfa() {
   return session ? <App /> : <LandingDeneyi experiment={landingDeneyi} />;
 }
 
-function LandingDeneyi({ experiment = {} }) {
-  return experiment.experiment_variant === "variant"
-    ? <LandingVariant />
-    : <LandingControl />;
+// LANDING-003 durduruldu (docs/aktif-deneyler.md); v3 landing varsayılan.
+// Yeni deney açılırsa varyant burada seçilir.
+function LandingDeneyi() {
+  return <LandingControl />;
 }
 
 function KimlikliKok() {

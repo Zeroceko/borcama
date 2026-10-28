@@ -7,6 +7,16 @@
   ],
   "redirects": [
     {
+      "source": "/classic",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/landing-v2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/backoffice",
       "has": [
         {
@@ -345,24 +355,6 @@
       ]
     },
     {
-      "source": "/classic",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    },
-    {
-      "source": "/landing-v2",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    },
-    {
       "source": "/user/:path*",
       "headers": [
         {
@@ -443,14 +435,6 @@
     },
     {
       "source": "/welcome",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/classic",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/landing-v2",
       "destination": "/index.html"
     },
     {

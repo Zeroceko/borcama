@@ -71,9 +71,8 @@ test("PMax kontrol hunisi deney exposure olmadan yalnız ilk temas kohortunu say
 });
 
 test("LANDING-003 durduruldu; eşit teklifli sayfalar ve eski deney verisi tarihsel kalır", async () => {
-  const [control, landing, experiment, main, client, edge, historicalMigration, migration, backoffice, analytics] = await Promise.all([
+  const [control, experiment, main, client, edge, historicalMigration, migration, backoffice, analytics] = await Promise.all([
     oku("./LandingAlt.jsx"),
-    oku("./LandingGrowth.jsx"),
     oku("./landingExperiment.js"),
     oku("./main.jsx"),
     oku("./funnelAnalytics.js"),
@@ -89,15 +88,10 @@ test("LANDING-003 durduruldu; eşit teklifli sayfalar ve eski deney verisi tarih
   assert.match(control, /İlk 30 gün Pro özellikleri hediye\./);
   assert.match(control, /Kontrol edip onayladığın bilgiler hesabına kaydedilir/);
   assert.doesNotMatch(control, /register\?plan=pro|Akıllıca borçlan/);
-  assert.match(landing, /Örnek hesabı incele/);
-  assert.match(landing, /Borcunu gör,/);
-  assert.match(landing, /İlk 30 gün Pro özellikleri hediye\./);
-  assert.doesNotMatch(landing, /register\?plan=pro|Akıllıca borçlan/);
-  assert.match(landing, /\/demo/);
-  assert.doesNotMatch(landing, /experiment_id|experiment_variant|landingDeneyiAta/);
-  assert.match(main, /LandingControl/);
-  assert.match(main, /LandingVariant/);
-  assert.match(main, /experiment\.experiment_variant === "variant"/);
+  assert.doesNotMatch(control, /experiment_id|experiment_variant|landingDeneyiAta/);
+  // Deney kapalı; v3 landing tek varsayılan, varyant dosyası kaldırıldı.
+  assert.match(main, /function LandingDeneyi\(\) \{\n  return <LandingControl \/>;/);
+  assert.doesNotMatch(main, /LandingVariant|LandingGrowth|LandingStory|"\/classic"|"\/landing-v2"|"\/landing-preview"/);
   assert.match(client, /aktifLandingDeneyiOku/);
   assert.match(edge, /"landing-001", "landing-002", "landing-003"/);
   assert.match(historicalMigration, /experiment_id = 'landing-001'/);
@@ -163,7 +157,7 @@ test("araç hunisinde ziyaret olayı sonuçtan önce yazılır; sorgu milisaniye
     oku("./main.jsx"),
     oku("../supabase/migrations/20261011220000_tool_funnel_event_order.sql"),
   ]);
-  assert.match(main, /useLayoutEffect\(\(\) => \{\n    if \(yol === "\/classic" \|\| yol === "\/landing-v2" \|\| seoYoluMu\(yol\)\)\n      funnelEtkinligiKaydet\("landing_visit"\);/);
+  assert.match(main, /useLayoutEffect\(\(\) => \{\n    if \(seoYoluMu\(yol\)\)\n      funnelEtkinligiKaydet\("landing_visit"\);/);
   assert.match(migration, /create or replace function public\.admin_debt_payoff_tool_funnel/);
   assert.match(migration, /create or replace function public\.admin_deposit_tool_funnel/);
   assert.doesNotMatch(migration, /ae\.created_at >= d\.entered_at\)/);

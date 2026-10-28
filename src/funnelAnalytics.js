@@ -16,6 +16,7 @@ const IZINLI_ETKINLIKLER = new Set([
   "debt_payoff_product_click",
   "landing_cta_click",
   "landing_scroll_half",
+  "landing_appstore_click",
   "content_product_click",
 ]);
 let kayitSirasi = Promise.resolve(false);
