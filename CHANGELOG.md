@@ -12,6 +12,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
+- Kod ekranı kullanıcıya durumunu söylüyor: kayıt ekranında e-postanın hesabı varsa "Bu e-postayla hesabın var; giriş yapman için sana kod gönderdik.", yoksa "Hesabını oluşturman için sana kod gönderdik."; giriş ekranında hesap yoksa aynı ekranda iki onay soruluyor ve "Bu e-postayla hesabın yoktu; hesabını oluşturman için sana kod gönderdik." deniyor (Özer kararı; e-postanın kayıtlı olup olmadığı anlaşılabiliyor, Turnstile ve hız sınırı açık).
 - Web'de büyük ekranda (≥1024 px) kayıt, giriş, kod, kurulum ve uygulama aynı üst çubuğu (72 px, logo solda) ve aynı 1120 px ızgarayı kullanıyor; telefon sütunu görünümü kalktı. Kayıt ve kod ekranı iki sütun: solda form, sağda "Sonra ne olacak" (e-postana kod gelir · 2 dakikalık kurulum · banka şifresi yok). Ana sayfanın üst çubuğu da aynı yükseklikte.
 - Web'de büyük ekranda tüm ekleme ve düzenleme formları (harcama, gelir, varlık, kart, kredi, ek hesap, ekstre, ödeme) satır içinde değil sağdan açılan 440 px panelde açılıyor; liste yerinden oynamıyor, Esc ve dışarı tıklama kapatıyor, odak panelde kalıyor ve kapanınca açan düğmeye dönüyor.
 - Web'de büyük ekranda kurulumun "Hazırsın" adımı telefon biçimli lime kart yerine önizlemenin tam genişliğe açılması: Bugün ekranı çizili, üstte "Plan kuruldu. İlk ödeme 12 Kas." bandı ve "Bugün'e geç" düğmesi (hareket azaltma açıksa anında).

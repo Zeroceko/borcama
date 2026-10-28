@@ -68,3 +68,20 @@ test("CSS dosyaları ayrıştırılabilir", async () => {
     assert.doesNotThrow(() => postcss.parse(icerik), dosya);
   }
 });
+
+test("kod gönderimi: kayıtta önce var olan hesap, girişte hesap yoksa onaylı yeni hesap", async () => {
+  const auth = await oku("./Auth.jsx");
+  const kod = auth.slice(auth.indexOf("async function kodGonder"), auth.indexOf("function oturumKalicilginiYaz"));
+  // İlk istek yalnız onay verilmiş girişte hesap açar; kayıtta hesap yoksa
+  // ikinci istek yeni Turnstile jetonuyla hesap açar.
+  assert.match(kod, /let \{ error \} = await kodIste\(girisHesapYok, captchaToken\);/);
+  assert.match(kod, /kayitModu && hesapYokHatasi\(error\)[\s\S]+yeniCaptchaJetonu\(\)[\s\S]+kodIste\(true, jeton\)/);
+  assert.match(kod, /setGirisHesapYok\(true\)/);
+  assert.match(kod, /yeniHesapIzni && \(!sozlesmeKabul \|\| !aydinlatmaOkundu\)/);
+  for (const anahtar of ["hesapVar", "yeniHesap", "girisYeniHesap"]) assert.match(kod + auth, new RegExp(`"${anahtar}"`));
+  for (const dil of ["tr", "en", "de", "es", "fr", "it"]) {
+    const sozluk = (await import(`./locales/${dil}.js`)).default;
+    for (const k of ["auth.kod.baglam.hesapVar", "auth.kod.baglam.yeniHesap", "auth.kod.baglam.girisYeniHesap", "auth.giris.hesapYokBaslik", "auth.giris.hesapYokAciklama"])
+      assert.ok(sozluk[k], `${dil} ${k}`);
+  }
+});
