@@ -26,6 +26,10 @@ function cerceve(icerik: string, altMetin = "Bu e-posta Borcama hesabınla ilgil
 
 const buton = (url: string, metin: string) => `<a href="${htmlEscape(url)}" style="display:block;margin-top:22px;padding:16px 22px;border-radius:999px;background:#cdf564;color:#14160f;text-align:center;text-decoration:none;font-size:16px;font-weight:900">${htmlEscape(metin)} →</a>`;
 
+// Tek kullanimlik kod kutusu: kullanici uygulamadaki kod alanina yazar;
+// baglanti da calismaya devam eder.
+const kodKutusu = (kod: string) => kod ? `<div style="margin-top:22px;padding:18px 20px;border-radius:18px;background:#f4efe0;text-align:center"><div style="font-size:11px;letter-spacing:.12em;font-weight:800;color:#55584c">TEK KULLANIMLIK KOD</div><div style="margin-top:8px;font-family:'JetBrains Mono',Menlo,Consolas,monospace;font-size:34px;line-height:1.1;font-weight:800;letter-spacing:.18em;color:#14160f">${htmlEscape(kod)}</div><div style="margin-top:8px;font-size:13px;line-height:1.5;color:#55584c">Kodu uygulamadaki alana yaz; 30 dakika geçerlidir.</div></div>` : "";
+
 export type AktivasyonMesajSegmenti = "no-debt" | "debt-no-income" | "first-activity";
 
 export function aktivasyonYardimHtml(segment: AktivasyonMesajSegmenti, url: string) {
@@ -53,24 +57,24 @@ ${buton(url, x.buton)}
 <div style="margin-top:18px;padding:16px 18px;border-radius:16px;background:#e5f1ee;color:#4b554f;font-size:13px;line-height:1.55">Borcama yalnızca senin kaydettiğin bilgilerle çalışır. İstersen sonraki adımı daha sonra tamamlayabilirsin.</div>`);
 }
 
-export function dogrulamaHtml(url: string) {
+export function dogrulamaHtml(url: string, kod = "") {
   return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">Borcama hesabını doğrula.</h1>
-<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0">Borçlarını tek yerde takip etmeye başlamak için e-posta adresini doğrula. Bağlantı yalnızca bu hesap için çalışır.</p>
-${buton(url, "E-posta adresimi doğrula")}
+<p style="color:#55584c;font-size:16px;line-height:1.6;margin:0">Borçlarını tek yerde takip etmeye başlamak için e-posta adresini doğrula. ${kod ? "Aşağıdaki kodu uygulamaya yaz ya da bağlantıya dokun." : "Bağlantı yalnızca bu hesap için çalışır."}</p>
+${kodKutusu(kod)}${buton(url, "E-posta adresimi doğrula")}
 <div style="margin-top:18px;padding:16px 18px;border-radius:16px;background:#e5f1ee;color:#4b554f;font-size:13px;line-height:1.55">Bu kaydı sen oluşturmadıysan e-postayı yok sayabilirsin.</div>`);
 }
 
-export function hesapAksiyonuHtml(url: string, tur: string) {
+export function hesapAksiyonuHtml(url: string, tur: string, kod = "") {
   const icerik: Record<string, { baslik: string; metin: string; buton: string }> = {
     recovery: { baslik: "Yeni parolanı belirle.", metin: "Borcama hesabının parolasını güvenle yenilemek için aşağıdaki bağlantıyı kullan.", buton: "Parolamı yenile" },
-    magiclink: { baslik: "Borcama'ya giriş yap.", metin: "Parola kullanmadan hesabına güvenli biçimde giriş yapmak için aşağıdaki bağlantıyı kullan.", buton: "Borcama'ya giriş yap" },
+    magiclink: { baslik: "Borcama'ya giriş yap.", metin: "Parola kullanmadan giriş yapmak için aşağıdaki kodu uygulamaya yaz ya da bağlantıya dokun.", buton: "Borcama'ya giriş yap" },
     invite: { baslik: "Borcama hesabın hazır.", metin: "Hesabını açmak ve Borcama'yı kullanmaya başlamak için aşağıdaki bağlantıyı kullan.", buton: "Hesabımı aç" },
     email_change: { baslik: "Yeni e-posta adresini doğrula.", metin: "Hesabındaki e-posta değişikliğini tamamlamak için aşağıdaki bağlantıyı kullan.", buton: "E-postamı doğrula" },
   };
   const x = icerik[tur] || icerik.magiclink;
   return cerceve(`<h1 style="font-size:34px;line-height:1.1;letter-spacing:-1px;margin:0 0 12px">${htmlEscape(x.baslik)}</h1>
 <p style="color:#55584c;font-size:16px;line-height:1.6;margin:0">${htmlEscape(x.metin)}</p>
-${buton(url, x.buton)}<div style="margin-top:18px;padding:16px 18px;border-radius:16px;background:#e5f1ee;color:#4b554f;font-size:13px;line-height:1.55">Bu isteği sen yapmadıysan e-postayı yok sayabilirsin.</div>`);
+${tur === "recovery" ? "" : kodKutusu(kod)}${buton(url, x.buton)}<div style="margin-top:18px;padding:16px 18px;border-radius:16px;background:#e5f1ee;color:#4b554f;font-size:13px;line-height:1.55">Bu isteği sen yapmadıysan e-postayı yok sayabilirsin.</div>`);
 }
 
 export function denemeBasladiHtml(kalanGun: number, url: string) {

@@ -18,6 +18,10 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Parolasız kayıt ve kodla giriş — Unreleased
+
+- Hesap açarken parola seçmek yok: e-postana gelen tek kullanımlık kodu yaz, hesabın hazır. Girişte parola ya da kod; ikisi de web ve iOS'ta.
+
 ### Açık mı, koyu mu? Uygulama artık cihazını izliyor — 1.73.0
 
 - Siz istediniz: Koyu temayı telefonla birlikte otomatik değiştirmek.

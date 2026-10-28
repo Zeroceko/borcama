@@ -218,6 +218,7 @@ function Kok() {
   if (yol === "/demo") return <HariciYonlendirme url="/register?plan=free" />;
   if (import.meta.env.DEV && yol === "/landing-preview") return <LandingVariant />;
   if (import.meta.env.DEV && yol === "/register-preview") return <GirisEkrani kayitModu preview />;
+  if (import.meta.env.DEV && yol === "/login-preview") return <GirisEkrani preview />;
   if (import.meta.env.DEV && (yol === "/crm-preview" || yol.startsWith("/crm-preview/"))) {
     const ek = yol.slice("/crm-preview".length) || "/";
     return <CrmApp preview {...crmSayfasi(ek)} />;

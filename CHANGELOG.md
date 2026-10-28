@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değiştirildi
+
+- Kayıt artık parolasız: e-posta ve onaylardan sonra e-postaya gelen tek kullanımlık kod girilir, hesap o anda açılır (parola ve parola tekrarı alanları kalktı). Girişte "Parola" ve "Tek kullanımlık kod" sekmeleri; kod sekmesi web'de ve iOS uygulamasında var (eski "E-posta linki" sekmesinin yerine). Kod ekranında "Tekrar gönder" ve "E-postayı değiştir"; "Bu cihazda oturumu açık tut" kod girişinde de geçerli. Parola yenileme ve Apple ile giriş aynı. Kayıt ve kodla giriş e-postalarında kod büyük puntoyla yazılıyor; bağlantı da çalışmaya devam ediyor.
+
 ## [1.73.0] - 2026-10-28
 
 ### Değiştirildi

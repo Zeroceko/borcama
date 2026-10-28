@@ -1503,3 +1503,9 @@
   .oa-hazir * { opacity: 1 !important; }
   .oa-tutar .imlec { opacity: 1; }
 }
+
+/* Tek kullanimlik kod girdisi (kayit ve kodla giris). */
+.oa-kod-formu { width: 100%; margin-top: 18px; }
+.oa-kod-formu .oa-alan { text-align: left; }
+.oa-kod-girdi { font-size: 26px !important; letter-spacing: 0.22em; }
+.oa-kod-girdi::placeholder { letter-spacing: 0.22em; }
