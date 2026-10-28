@@ -119,7 +119,7 @@ export const tr = {
   "onboarding.plan.baslikGri": "İşte",
   "onboarding.plan.baslik": "plan.",
   "onboarding.plan.aciklama": "Her maaşta yenilenir.",
-  "onboarding.plan.etiket": "AY SONUNDA KALAN",
+  "onboarding.plan.etiket": "Her maaşta ödemelere",
   "onboarding.plan.formul": "Gelir {gelir} · Ödemeler {odemeler} · Yaşam {yasam}",
   "onboarding.plan.formulYasamsiz": "Gelir {gelir} · Ödemeler {odemeler} · Yaşam girilmedi",
   "onboarding.plan.siradaki": "{tarih} · {tutar}",
@@ -151,7 +151,7 @@ export const tr = {
   "onboarding.karsilama.slayt2": "Hangi borç önce biter, gör.",
   "onboarding.karsilama.slayt2Alt": "Sıradaki ödeme ve bitiş tarihi her borcun yanında.",
   "onboarding.karsilama.slayt3": "Maaştan ne kalır, bil.",
-  "onboarding.karsilama.slayt3Alt": "Ödemeler ve yaşam düşülür; kalan her maaşta yenilenir.",
+  "onboarding.karsilama.slayt3Alt": "Ödemeler düşülür; plan her maaşta yenilenir.",
   "onboarding.karsilama.maketKalan": "Maaşa {gun} gün var. Ödemeler planda.",
   "onboarding.karsilama.borclar": "Borçlar",
   "onboarding.karsilama.maketSonOdeme": "son ödeme {tarih}",
@@ -182,6 +182,8 @@ export const tr = {
   "onboarding.gun.gunEtiketi": "Ayın günü",
   "onboarding.plan.ayda": "{ay} ayda",
   "onboarding.plan.biterVurgu": "{ad} {sure} biter.",
+  "onboarding.plan.varsayim": "Gelir {gelir} · yaşam gideri için %45 varsayıldı; Plan'da değişir.",
+  "onboarding.plan.gelirinKalani": "Gelirin kalanı",
 };
 
 export const en = {
@@ -301,7 +303,7 @@ export const en = {
   "onboarding.plan.baslikGri": "Here's your",
   "onboarding.plan.baslik": "plan.",
   "onboarding.plan.aciklama": "Renews with every paycheck.",
-  "onboarding.plan.etiket": "LEFT AT MONTH END",
+  "onboarding.plan.etiket": "To payments each payday",
   "onboarding.plan.formul": "Income {gelir} · Payments {odemeler} · Living {yasam}",
   "onboarding.plan.formulYasamsiz": "Income {gelir} · Payments {odemeler} · Living costs not entered",
   "onboarding.plan.siradaki": "{tarih} · {tutar}",
@@ -333,7 +335,7 @@ export const en = {
   "onboarding.karsilama.slayt2": "See which debt ends first.",
   "onboarding.karsilama.slayt2Alt": "Next payment and end date sit beside every debt.",
   "onboarding.karsilama.slayt3": "Know what's left from your paycheck.",
-  "onboarding.karsilama.slayt3Alt": "Payments and living costs come off; the rest renews every payday.",
+  "onboarding.karsilama.slayt3Alt": "Payments come off; the plan renews every payday.",
   "onboarding.karsilama.maketKalan": "Payday in {gun} days. Payments are planned.",
   "onboarding.karsilama.borclar": "Debts",
   "onboarding.karsilama.maketSonOdeme": "due {tarih}",
@@ -364,6 +366,8 @@ export const en = {
   "onboarding.gun.gunEtiketi": "Day of the month",
   "onboarding.plan.ayda": "in {ay} months",
   "onboarding.plan.biterVurgu": "{ad} ends {sure}.",
+  "onboarding.plan.varsayim": "Income {gelir} · 45% assumed for living costs; change it in Plan.",
+  "onboarding.plan.gelirinKalani": "Rest of income",
 };
 
 export const de = {
@@ -471,7 +475,7 @@ export const de = {
   "onboarding.plan.baslikGri": "Hier ist dein",
   "onboarding.plan.baslik": "Plan.",
   "onboarding.plan.aciklama": "Erneuert sich mit jedem Gehalt.",
-  "onboarding.plan.etiket": "AM MONATSENDE ÜBRIG",
+  "onboarding.plan.etiket": "Pro Gehalt an Zahlungen",
   "onboarding.plan.formul": "Einkommen {gelir} · Zahlungen {odemeler} · Leben {yasam}",
   "onboarding.plan.formulYasamsiz": "Einkommen {gelir} · Zahlungen {odemeler} · Lebenskosten nicht angegeben",
   "onboarding.plan.siradaki": "{tarih} · {tutar}",
@@ -502,7 +506,7 @@ export const de = {
   "onboarding.karsilama.slayt2": "Sieh, welche Schuld zuerst endet.",
   "onboarding.karsilama.slayt2Alt": "Nächste Zahlung und Enddatum stehen bei jeder Schuld.",
   "onboarding.karsilama.slayt3": "Wisse, was vom Gehalt bleibt.",
-  "onboarding.karsilama.slayt3Alt": "Zahlungen und Lebenskosten werden abgezogen; der Rest erneuert sich mit jedem Gehalt.",
+  "onboarding.karsilama.slayt3Alt": "Zahlungen werden abgezogen; der Plan erneuert sich mit jedem Gehalt.",
   "onboarding.karsilama.maketKalan": "Noch {gun} Tage bis zum Gehalt. Zahlungen sind geplant.",
   "onboarding.karsilama.borclar": "Schulden",
   "onboarding.karsilama.maketSonOdeme": "fällig {tarih}",
@@ -533,6 +537,8 @@ export const de = {
   "onboarding.gun.gunEtiketi": "Tag des Monats",
   "onboarding.plan.ayda": "in {ay} Monaten",
   "onboarding.plan.biterVurgu": "{ad} endet {sure}.",
+  "onboarding.plan.varsayim": "Einkommen {gelir} · 45 % für Lebenskosten angenommen; im Plan änderbar.",
+  "onboarding.plan.gelirinKalani": "Rest des Einkommens",
 };
 
 export const fr = {
@@ -640,7 +646,7 @@ export const fr = {
   "onboarding.plan.baslikGri": "Voici ton",
   "onboarding.plan.baslik": "plan.",
   "onboarding.plan.aciklama": "Se renouvelle à chaque paie.",
-  "onboarding.plan.etiket": "RESTE EN FIN DE MOIS",
+  "onboarding.plan.etiket": "Aux paiements à chaque paie",
   "onboarding.plan.formul": "Revenu {gelir} · Paiements {odemeler} · Vie {yasam}",
   "onboarding.plan.formulYasamsiz": "Revenu {gelir} · Paiements {odemeler} · Dépenses de vie non saisies",
   "onboarding.plan.siradaki": "{tarih} · {tutar}",
@@ -671,7 +677,7 @@ export const fr = {
   "onboarding.karsilama.slayt2": "Vois quelle dette finit en premier.",
   "onboarding.karsilama.slayt2Alt": "Prochain paiement et date de fin à côté de chaque dette.",
   "onboarding.karsilama.slayt3": "Sache ce qui reste du salaire.",
-  "onboarding.karsilama.slayt3Alt": "Paiements et vie courante déduits ; le reste se renouvelle à chaque paie.",
+  "onboarding.karsilama.slayt3Alt": "Les paiements sont déduits ; le plan se renouvelle à chaque paie.",
   "onboarding.karsilama.maketKalan": "Paie dans {gun} jours. Paiements planifiés.",
   "onboarding.karsilama.borclar": "Dettes",
   "onboarding.karsilama.maketSonOdeme": "échéance {tarih}",
@@ -702,6 +708,8 @@ export const fr = {
   "onboarding.gun.gunEtiketi": "Jour du mois",
   "onboarding.plan.ayda": "en {ay} mois",
   "onboarding.plan.biterVurgu": "{ad} se termine {sure}.",
+  "onboarding.plan.varsayim": "Revenu {gelir} · 45 % supposés pour la vie courante ; modifiable dans Plan.",
+  "onboarding.plan.gelirinKalani": "Reste du revenu",
 };
 
 export const es = {
@@ -809,7 +817,7 @@ export const es = {
   "onboarding.plan.baslikGri": "Aquí está tu",
   "onboarding.plan.baslik": "plan.",
   "onboarding.plan.aciklama": "Se renueva con cada sueldo.",
-  "onboarding.plan.etiket": "QUEDA A FIN DE MES",
+  "onboarding.plan.etiket": "A pagos en cada sueldo",
   "onboarding.plan.formul": "Ingreso {gelir} · Pagos {odemeler} · Vida {yasam}",
   "onboarding.plan.formulYasamsiz": "Ingreso {gelir} · Pagos {odemeler} · Gastos de vida sin indicar",
   "onboarding.plan.siradaki": "{tarih} · {tutar}",
@@ -840,7 +848,7 @@ export const es = {
   "onboarding.karsilama.slayt2": "Mira qué deuda termina antes.",
   "onboarding.karsilama.slayt2Alt": "Próximo pago y fecha de fin junto a cada deuda.",
   "onboarding.karsilama.slayt3": "Sabe qué queda del sueldo.",
-  "onboarding.karsilama.slayt3Alt": "Se descuentan pagos y vida diaria; el resto se renueva con cada sueldo.",
+  "onboarding.karsilama.slayt3Alt": "Se descuentan los pagos; el plan se renueva con cada sueldo.",
   "onboarding.karsilama.maketKalan": "Sueldo en {gun} días. Pagos planificados.",
   "onboarding.karsilama.borclar": "Deudas",
   "onboarding.karsilama.maketSonOdeme": "vence {tarih}",
@@ -871,6 +879,8 @@ export const es = {
   "onboarding.gun.gunEtiketi": "Día del mes",
   "onboarding.plan.ayda": "en {ay} meses",
   "onboarding.plan.biterVurgu": "{ad} termina {sure}.",
+  "onboarding.plan.varsayim": "Ingreso {gelir} · se asume un 45 % para gastos de vida; cámbialo en Plan.",
+  "onboarding.plan.gelirinKalani": "Resto del ingreso",
 };
 
 export const it = {
@@ -978,7 +988,7 @@ export const it = {
   "onboarding.plan.baslikGri": "Ecco il tuo",
   "onboarding.plan.baslik": "piano.",
   "onboarding.plan.aciklama": "Si rinnova a ogni stipendio.",
-  "onboarding.plan.etiket": "RESTA A FINE MESE",
+  "onboarding.plan.etiket": "Ai pagamenti a ogni stipendio",
   "onboarding.plan.formul": "Reddito {gelir} · Pagamenti {odemeler} · Vita {yasam}",
   "onboarding.plan.formulYasamsiz": "Reddito {gelir} · Pagamenti {odemeler} · Spese di vita non indicate",
   "onboarding.plan.siradaki": "{tarih} · {tutar}",
@@ -1009,7 +1019,7 @@ export const it = {
   "onboarding.karsilama.slayt2": "Vedi quale debito finisce prima.",
   "onboarding.karsilama.slayt2Alt": "Prossimo pagamento e data di fine accanto a ogni debito.",
   "onboarding.karsilama.slayt3": "Sai cosa resta dello stipendio.",
-  "onboarding.karsilama.slayt3Alt": "Pagamenti e spese di vita vengono sottratti; il resto si rinnova a ogni stipendio.",
+  "onboarding.karsilama.slayt3Alt": "I pagamenti vengono sottratti; il piano si rinnova a ogni stipendio.",
   "onboarding.karsilama.maketKalan": "Stipendio tra {gun} giorni. Pagamenti pianificati.",
   "onboarding.karsilama.borclar": "Debiti",
   "onboarding.karsilama.maketSonOdeme": "scade {tarih}",
@@ -1040,4 +1050,6 @@ export const it = {
   "onboarding.gun.gunEtiketi": "Giorno del mese",
   "onboarding.plan.ayda": "in {ay} mesi",
   "onboarding.plan.biterVurgu": "{ad} finisce {sure}.",
+  "onboarding.plan.varsayim": "Entrate {gelir} · 45% ipotizzato per le spese di vita; si cambia in Piano.",
+  "onboarding.plan.gelirinKalani": "Resto delle entrate",
 };

@@ -4,19 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
-### Değiştirildi
-
-- Kayıt artık parolasız: e-posta ve onaylardan sonra e-postaya gelen tek kullanımlık kod girilir, hesap o anda açılır (parola ve parola tekrarı alanları kalktı). Girişte "Parola" ve "Tek kullanımlık kod" sekmeleri; kod sekmesi web'de ve iOS uygulamasında var (eski "E-posta linki" sekmesinin yerine). Kod ekranında "Tekrar gönder" ve "E-postayı değiştir"; "Bu cihazda oturumu açık tut" kod girişinde de geçerli. Parola yenileme ve Apple ile giriş aynı. Kayıt ve kodla giriş e-postalarında kod büyük puntoyla yazılıyor; bağlantı da çalışmaya devam ediyor.
-
 ## [1.73.0] - 2026-10-28
 
 ### Değiştirildi
 
-- Kurulum akışı yeni yüzeyle (v3): kenarlıksız, iki temalı (açık/koyu) sakin tasarım; seçili her yerde lime, imza (lime düğme + coral blok gölge, yıldız) yalnız düğmede, büyük tutarda, plan kartında ve kapanışta. Dilden sonra "Açık mı, koyu mu?" adımı eklendi (Sistem / Açık / Koyu; seçim ayarlara yazılır, Sistem cihazı izler). Dokunmatik cihazda gelir ve yaşam tutarı uygulama içi tuş takımıyla giriliyor; masaüstünde alan. Maaş günü seçicide kaydırıcı ve dönem bilgisi; hedef ve borç türleri ikonlu kart; ülke ve dil satırlarında bayrak yerine kod rozeti; eklenen borçlarda banka logosu; plan kartında ödemeler/yaşam/kalan açıklaması; kapanışta lime perde. iOS karşılaması 3 slaytlı (ekran maketli) karusel.
-- Giriş ve kayıt ekranları kurulum akışıyla aynı yüzeye geçti: kabukta geri düğmesi ve dil kodu çipi, mono etiketli alanlar, Apple düğmesi, oturum anahtarı, onay kutuları ve "link gönderildi" ekranı yenilendi. Kayıt açıklaması kısaldı. Giriş, Apple, Turnstile, referans kodu ve sözleşme onayı davranışı değişmedi.
+- Kurulum akışı yeni yüzeyle (v3): kenarlıksız, iki temalı (açık/koyu) sakin tasarım; seçili seçenek mürekkep dolgulu (koyu temada krem), lime yalnız ana düğmede; imza (lime düğme + coral blok gölge) düğmede, büyük tutarda, plan kartında ve kapanışta. Dilden sonra "Açık mı, koyu mu?" adımı (Sistem / Açık / Koyu; Sistem cihazı izler). Yaşam gideri adımı kalktı (10 adım, uygulamada 11): plan, yaşam için gelirin %45'ini varsayıyor ve bunu söylüyor; plan kartı "her maaşta ödemelere" giden tutarı gösteriyor; yaşam gideri kaydı yazılmıyor (Plan'da düzenlenir). Dokunmatikte gelir uygulama içi tuş takımıyla, masaüstünde alanla (Enter = devam); masaüstünde düğme içeriğin altında. Ülke listesinde bayrak, dil listesinde kod rozeti; hedef ve borç türleri ikonlu kart; gün seçicide kaydırıcı, fare tekerleği ve ok tuşları; eklenen borçlarda banka logosu; kapanışta lime perde ve Borcama logosu. iOS karşılaması 3 slaytlı karusel.
+- Giriş ve kayıt: parola yok; Apple ile ya da e-postaya gelen 6 haneli tek kullanımlık kodla (6 kutu, Mail'den kod önerisi ve yapıştırma, 6. hanede kendiliğinden doğrulama, 60 sn sonra tekrar gönderme). Kayıtsız e-postayla girişte "Bu e-postayla hesap yok" uyarısı. Web'de mevcut parola hesapları için küçük "Parolayla gir" bağlantısı ve parola yenileme kalıyor. Turnstile, referans kodu, sözleşme onayı ve Pro niyeti aynı.
+- Klavye açıkken giriş, kayıt, kod ve borç ekranlarında ana düğme klavyenin üstünde kalıyor (iOS: webview klavye kadar küçülür; web: görünür alan izlenir), odaklanan alan görünür alana kaydırılıyor (yeni iOS build'i gerekir).
 - Ayarlar > Görünüm'e "Sistem" seçeneği eklendi; cihaz teması değişince uygulama anında değişir.
-### Değiştirildi
-
 - Kurulum akışı (TestFlight geri bildirimi): hedef adımında birden fazla hedef seçilebiliyor; maaş günü sıklığa göre soruluyor (ayda bir: ayın günü, ayda iki: ilk maaşın günü, haftada bir: haftanın günü, düzensiz: sorulmuyor); gelir adımının düğmesi "Devam et", ayda bir dışında tutarın altında "ayda ortalama" yazıyor; ülke adımında 6 ülke (Türkiye, Birleşik Krallık, Almanya, Fransa, İspanya, İtalya; tespit edilen ülke bunlardan değilse başta) seçim yapınca sırası değişmeden gösteriliyor; ilk borç adımında eklenen borçlar formun altında listeleniyor.
 
 ### Düzeltildi

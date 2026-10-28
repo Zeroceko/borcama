@@ -19,7 +19,7 @@ import {
   googleAnalyticsProDenemeBaslangici,
 } from "./googleAds.js";
 import { funnelEtkinligiKaydet, funnelOturumKimligi } from "./funnelAnalytics.js";
-import { girisAktivitesiKaydet } from "./activityLog.js";
+import { girisAktivitesiKaydet, onboardingOlayiKaydet } from "./activityLog.js";
 import { davetKodunuYoldanOku, referansKodunuDogrula, referansKodunuTemizle } from "./referrals.js";
 import { nativeMi, yenilemeYonergesi, ortamAdi } from "./platform.js";
 import { epostaDonusAdresi } from "./nativeDerinBaglanti.js";
@@ -29,7 +29,7 @@ import Ceviri from "./Ceviri.jsx";
 import DilDugmesi from "./DilDugmesi.jsx";
 import { proSatistaDegil } from "./proSatis.js";
 import { kodGecerli, kodHataAnahtari, kodTemizle } from "./authKod.js";
-import { useSistemKoyu } from "./Onboarding.jsx";
+import { useKlavye, useSistemKoyu } from "./Onboarding.jsx";
 import "./onboardingAkis.css";
 
 const denemeMailiTetiklenenKullanicilar = new Set();
@@ -243,8 +243,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const sonrakiSayfa = kayitModu
     ? sorguYonlendirmesi || "/summary"
     : sorguYonlendirmesi || proYonlendirmesi || redirectTo;
-  // Kayit yalniz tek kullanimlik kodla (parola yok); giriste parola ya da kod.
-  const [yontem, setYontem] = useState(kayitModu ? "kod" : "parola");
+  // Giris ve kayit: Apple ya da e-postaya gelen 6 haneli kod. Parola yalniz
+  // web'de mevcut parola hesaplari icin (?yontem=parola; eski form).
+  const [yontem, setYontem] = useState(() => (!kayitModu && !nativeMi && sorgu.get("yontem") === "parola" ? "parola" : "kod"));
+  const [tekrarZamani, setTekrarZamani] = useState(0);
+  const [simdi, setSimdi] = useState(() => Date.now());
+  const kokRef = useRef(null);
+  useKlavye(kokRef);
   const [kodModu, setKodModu] = useState(false);
   const [kod, setKod] = useState("");
   const [eposta, setEposta] = useState("");
@@ -306,6 +311,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       window.removeEventListener("keydown", escIleKapat);
     };
   }, [yasalMetin]);
+
+  // Kod ekraninda 60 sn tekrar gonderme sayaci.
+  useEffect(() => {
+    if (!kodModu || tekrarZamani <= Date.now()) return undefined;
+    const zamanlayici = window.setInterval(() => setSimdi(Date.now()), 1000);
+    return () => window.clearInterval(zamanlayici);
+  }, [kodModu, tekrarZamani]);
 
   function authIstegiYap(request) {
     return runAuthAttempt(request, () => {
@@ -370,7 +382,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     if (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu))
       return setHata(t("auth.hata.sozlesme"));
     // Tasarim onizlemesinde (Supabase yok) kod ekrani gosterilir, e-posta gitmez.
-    if (preview && import.meta.env.DEV) { setKod(""); setKodModu(true); return; }
+    if (preview && import.meta.env.DEV) { setKod(""); setKodModu(true); setTekrarZamani(Date.now() + 60000); setSimdi(Date.now()); return; }
     if (!supabaseHazir) return setHata(t("auth.hata.onizlemeEposta"));
     setGonderiliyor(true);
     setHata("");
@@ -398,17 +410,24 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     }));
     setGonderiliyor(false);
     if (error) {
+      // Giriste (shouldCreateUser: false) kayitsiz e-posta "signups not allowed".
+      const hesapYok = !kayitModu && (error.code === "otp_disabled" || /signups? not allowed/i.test(error.message || ""));
       setHata(
         error.status === 429
           ? t("auth.hata.cokDenemeTekrar")
-          : kayitModu
-            ? t("auth.hata.kodGonderilemedi")
-            : t("auth.hata.kodGirisHesapYok"),
+          : hesapYok
+            ? t("auth.hata.hesapYok")
+            : kayitModu
+              ? t("auth.hata.kodGonderilemedi")
+              : t("auth.hata.kodGirisHesapYok"),
       );
       return;
     }
+    void onboardingOlayiKaydet("auth_kod_gonderildi", {});
     setKod("");
     setKodModu(true);
+    setTekrarZamani(Date.now() + 60000);
+    setSimdi(Date.now());
   }
 
   function oturumKalicilginiYaz() {
@@ -421,14 +440,15 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     }
   }
 
-  async function koduDogrula(e) {
-    e.preventDefault();
-    if (!kodGecerli(kod)) return;
+  async function koduDogrula(e, deger = kod) {
+    e?.preventDefault?.();
+    if (!kodGecerli(deger) || gonderiliyor) return;
+    if (preview && import.meta.env.DEV) { setHata(t("auth.hata.onizleme")); return; }
     setGonderiliyor(true);
     setHata("");
     const { error } = await authIstegiYap(() => supabase.auth.verifyOtp({
       email: eposta.trim(),
-      token: kodTemizle(kod),
+      token: kodTemizle(deger),
       type: "email",
     }));
     if (error) {
@@ -436,6 +456,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       setHata(t(kodHataAnahtari(error)));
       return;
     }
+    void onboardingOlayiKaydet("auth_kod_dogrulandi", {});
     oturumKalicilginiYaz();
     if (kayitModu) proNiyetiniTemizle();
     window.location.href = sonrakiSayfa;
@@ -588,49 +609,42 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   let alt;
   if (kodModu) {
     const kodTamam = kodGecerli(kod);
+    const kalan = Math.max(0, Math.ceil((tekrarZamani - simdi) / 1000));
+    const sure = `${Math.floor(kalan / 60)}:${String(kalan % 60).padStart(2, "0")}`;
     govde = (
-      <div className="oa-posta">
-        <span className="rozet" aria-hidden="true"><Mail size={30} strokeWidth={2.2} /></span>
-        <span className="oa-mono-etiket">{t("auth.kod.gonderildi")}</span>
+      <>
+        <span className="oa-mono-etiket">{t("auth.kod.etiket")}</span>
         <h1 className="oa-baslik">{t("auth.kod.baslik")}</h1>
         <p className="oa-aciklama">
           <Ceviri anahtar="auth.kod.aciklama" degerler={{ eposta: <mark>{eposta}</mark> }} />
         </p>
-        <form id={formId} className="oa-form oa-kod-formu" onSubmit={koduDogrula}>
-          <label className="oa-alan">
-            <span className="oa-mono-etiket">{t("auth.kod.etiket")}</span>
-            <input
-              id="auth-code"
-              className="oa-mono oa-kod-girdi"
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              pattern="[0-9]*"
-              placeholder="••••••"
-              value={kod}
-              onChange={(e) => setKod(kodTemizle(e.target.value))}
-              autoFocus
-              required
-            />
-          </label>
+        <form id={formId} onSubmit={koduDogrula}>
+          <KodKutulari
+            deger={kod}
+            hatali={Boolean(hata)}
+            onChange={(yeni) => { setKod(yeni); if (hata) setHata(""); }}
+            onTamam={(tam) => koduDogrula(null, tam)}
+          />
         </form>
         {hata && <p className="oa-hata" role="alert">{hata}</p>}
+        <div className="oa-satir-ara">
+          <span>{t("auth.kod.gelmedi")}</span>
+          <button className="oa-baglanti" type="button" disabled={gonderiliyor || kalan > 0 || captchaBekliyor} onClick={() => kodGonder()}>
+            {kalan > 0 ? t("auth.kod.tekrarSure", { sure }) : t("auth.kod.tekrar")}
+          </button>
+        </div>
         {captchaAlani(`code-${kayitModu}`)}
-      </div>
+      </>
     );
     alt = (
       <>
-        <button className="oa-dugme" type="submit" form={formId} disabled={gonderiliyor || !kodTamam || captchaBekliyor}>
-          {gonderiliyor ? t("auth.kod.dogrulaniyor") : kayitModu ? t("auth.kod.dogrula") : t("auth.gonder.giris")}
+        <button className="oa-dugme" type="submit" form={formId} disabled={gonderiliyor || !kodTamam}>
+          {gonderiliyor ? t("auth.kod.dogrulaniyor") : t("auth.kod.devam")}
         </button>
         <p className="oa-gecis">
-          {t("auth.gonderildi.gelmedi")}{" "}
-          <button className="oa-baglanti" type="button" disabled={gonderiliyor || captchaBekliyor} onClick={() => kodGonder()}>
-            {t("auth.gonderildi.tekrar")}
-          </button>
-          <span aria-hidden="true"> · </span>
-          <button className="oa-baglanti" type="button" onClick={() => { setKodModu(false); setHata(""); }}>
-            {t("auth.kod.epostayiDegistir")}
+          {t("auth.kod.yanlisAdres")}{" "}
+          <button className="oa-baglanti" type="button" onClick={() => { setKodModu(false); setKod(""); setHata(""); }}>
+            {t("auth.kod.degistir")}
           </button>
         </p>
       </>
@@ -735,18 +749,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         <div className="oa-yada" aria-hidden="true">{t("auth.yaDa")}</div>
       </>
     );
-    // Giriste parola ya da e-postaya gelen tek kullanimlik kod (web + uygulama;
-    // kod linke bagli olmadigi icin App Store kurali bunu engellemez).
-    const sekmeler = !kayitModu && (
-      <div className="oa-sekmeler" role="tablist">
-        {[["parola", "auth.sekme.parola"], ["kod", "auth.sekme.kod"]].map(([ad, anahtar]) => (
-          <button key={ad} className={`oa-sekme${yontem === ad ? " secili" : ""}`} role="tab" aria-selected={yontem === ad} type="button" onClick={() => yontemDegistir(ad)}>
-            {t(anahtar)}
-          </button>
-        ))}
-      </div>
-    );
-    // Kayit her zaman kod modunda; giriste sekmeye gore.
+    // Kod modu varsayilan; parola formu yalniz web'de "Parolayla gir" ile.
     const linkModu = kayitModu || yontem === "kod";
     const onSubmit = linkModu
       ? kodGonder
@@ -758,10 +761,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         <span className="oa-mono-etiket">{kayitModu ? t("auth.etiket.kayit") : t("auth.etiket.giris")}</span>
         <h1 className="oa-baslik">{kayitModu ? t("auth.kayit.baslik") : t("auth.giris.baslik")}</h1>
         <p className="oa-aciklama">
-          {kayitModu ? t("auth.kayit.aciklamaKod") : t("auth.giris.aciklamaKod")}
+          {kayitModu ? t("auth.kayit.aciklamaKisa") : !linkModu ? t("auth.giris.aciklamaWeb") : appleGirisiVarMi ? t("auth.giris.aciklama") : t("auth.giris.aciklamaEposta")}
         </p>
         {appleDugmesi}
-        {sekmeler}
         <form id={formId} className="oa-form" onSubmit={onSubmit}>
           {epostaAlani}
           {!linkModu && parolaAlani(
@@ -844,7 +846,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             ))}
           </div>
         )}
-        {!kayitModu && (
+        {!kayitModu && !linkModu && (
           <div className="oa-satir-ara">
             <label>
               <button
@@ -857,19 +859,17 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
               />
               {t("auth.oturumuAcikTut", { ortam: ortamAdi })}
             </label>
-            {!linkModu && (
-              <button
-                className="oa-baglanti"
-                type="button"
-                onClick={() => {
-                  setSifirlamaModu(true);
-                  setHata("");
-                  setGonderildi(false);
-                }}
-              >
-                {t("auth.parolamiUnuttum")}
-              </button>
-            )}
+            <button
+              className="oa-baglanti"
+              type="button"
+              onClick={() => {
+                setSifirlamaModu(true);
+                setHata("");
+                setGonderildi(false);
+              }}
+            >
+              {t("auth.parolamiUnuttum")}
+            </button>
           </div>
         )}
         {captchaAlani(linkModu ? `code-send-${kayitModu}` : `password-${kayitModu}`)}
@@ -882,7 +882,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       <>
         <button className="oa-dugme" type="submit" form={formId} disabled={pasif}>
           {linkModu
-            ? gonderiliyor ? t("auth.gonderiliyor") : t("auth.kod.gonder")
+            ? gonderiliyor ? t("auth.gonderiliyor") : t("auth.gonder.kod")
             : gonderiliyor ? t("auth.gonder.girisYapiliyor") : t("auth.gonder.giris")}
         </button>
         <p className="oa-gecis">
@@ -896,6 +896,14 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             </>
           )}
         </p>
+        {/* Web: mevcut parola hesaplari icin eski form; uygulamada parola yok. */}
+        {!kayitModu && !nativeMi && (
+          <p className="oa-gecis">
+            <button className="oa-baglanti soluk" type="button" onClick={() => yontemDegistir(linkModu ? "parola" : "kod")}>
+              {linkModu ? t("auth.parolaylaGir") : t("auth.kodlaGir")}
+            </button>
+          </p>
+        )}
         <div className="oa-yasal-satir">
           <button type="button" onClick={() => setYasalMetin("terms")}>{t("auth.kullaniciSozlesmesi")}</button>
           <span aria-hidden="true">·</span>
@@ -912,7 +920,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   }
 
   return (
-    <div className={`oa oa-auth${koyu ? " oa-koyu" : ""}`}>
+    <div className={`oa oa-auth${koyu ? " oa-koyu" : ""}`} ref={kokRef}>
       <div className="oa-kolon">
         <div className="oa-kabuk">
           {geriDugmesi}
@@ -1119,5 +1127,62 @@ export function CikisButonu({ className }) {
     >
       <LogOut size={15} /> {t("auth.cikis")}
     </button>
+  );
+}
+
+// Tek kullanimlik kod: 6 kutu. Yazinca sonrakine gecer, bos kutuda Backspace
+// oncekine doner, 6 haneli yapistirma (ya da iOS'un Mail'den onerdigi kod,
+// one-time-code) hepsini doldurur; 6. hane dolunca dogrulama baslar.
+function KodKutulari({ deger, onChange, onTamam, hatali = false }) {
+  const kutular = useRef([]);
+  const haneler = Array.from({ length: 6 }, (_, i) => deger[i] || "");
+  const yaz = (i, metin) => {
+    const rakamlar = kodTemizle(metin);
+    if (!rakamlar) {
+      onChange(deger.slice(0, i) + deger.slice(i + 1));
+      return;
+    }
+    // Tek hane ya da yapistirma: i'den itibaren doldur.
+    const yeni = kodTemizle(deger.slice(0, i) + rakamlar + (rakamlar.length > 1 ? "" : deger.slice(i + 1)));
+    onChange(yeni);
+    const sonraki = Math.min(i + rakamlar.length, 5);
+    kutular.current[sonraki]?.focus();
+    if (yeni.length === 6) onTamam?.(yeni);
+  };
+  return (
+    <div className={`oa-kod-kutular${hatali ? " hatali" : ""}`} role="group" aria-label={t("auth.kod.grup")}>
+      {haneler.map((hane, i) => (
+        <input
+          key={i}
+          ref={(el) => { kutular.current[i] = el; }}
+          id={i === 0 ? "auth-code" : undefined}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete={i === 0 ? "one-time-code" : "off"}
+          maxLength={i === 0 ? 6 : 1}
+          aria-label={t("auth.kod.hane", { n: i + 1 })}
+          value={hane}
+          autoFocus={i === 0}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => {
+            const v = e.target.value;
+            // Dolu kutuya yazilinca yeni rakam eskisinin yerine gecer.
+            yaz(i, hane && v.length === 2 ? v.slice(-1) : v);
+          }}
+          onPaste={(e) => {
+            e.preventDefault();
+            yaz(i, e.clipboardData.getData("text"));
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Backspace" && !hane && i > 0) {
+              e.preventDefault();
+              onChange(deger.slice(0, i - 1) + deger.slice(i));
+              kutular.current[i - 1]?.focus();
+            }
+          }}
+        />
+      ))}
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 // yazilacak kayitlar. Ekran, dil veya tarayici bilgisi kullanilmaz; testler
 // dogrudan cagirir.
 
-export const ADIMLAR = ["dil", "gorunum", "ulke", "isim", "hedef", "siklik", "gun", "gelir", "turler", "borc", "yasam", "plan", "hazir"];
+export const ADIMLAR = ["dil", "gorunum", "ulke", "isim", "hedef", "siklik", "gun", "gelir", "turler", "borc", "plan", "hazir"];
 
 export const HEDEFLER = ["borc", "aySonu", "kontrol"];
 export const SIKLIKLAR = ["aylik", "ikiKez", "haftalik", "duzensiz"];
@@ -157,6 +157,13 @@ export function borcBakiyesi(borc) {
   return tutar(borc.tutar);
 }
 
+// Yasam gideri artik sorulmuyor (Plan'da duzenlenir); null iken plan gelirin
+// %45'ini (yasamOnerileri[1]) yasam icin ayrilmis sayar. 0 verilirse 0.
+export function yasamVarsayilan(gelir, yasam = null) {
+  if (yasam === null || yasam === undefined || yasam === "") return yasamOnerileri(gelir)[1];
+  return tutar(yasam);
+}
+
 export function yasamOnerileri(gelir) {
   return YASAM_ORANLARI.map((oran) => Math.round((tutar(gelir) * oran) / 100));
 }
@@ -164,9 +171,9 @@ export function yasamOnerileri(gelir) {
 // Planda bu ay odemelere giden tutar: kredi taksitleri sabit; taksitsiz
 // borclara (kart, ek hesap, kisi) gelir - yasam - taksitlerden artan para en
 // kucuk bakiyeden baslayarak gider (kartin tamami sigmiyorsa sigan kadari).
-export function planOdemeleri({ gelir, borclar = [], yasam = 0 }) {
+export function planOdemeleri({ gelir, borclar = [], yasam = null }) {
   const sabit = borclar.filter((borc) => borc.tur === "kredi").reduce((toplam, borc) => toplam + tutar(borc.taksit), 0);
-  let guc = Math.max(tutar(gelir) - tutar(yasam) - sabit, 0);
+  let guc = Math.max(tutar(gelir) - yasamVarsayilan(gelir, yasam) - sabit, 0);
   let degisken = 0;
   for (const borc of borclar.filter((b) => b.tur === "kart").sort((a, b) => borcBakiyesi(a) - borcBakiyesi(b))) {
     const odeme = Math.min(borcBakiyesi(borc), guc);
@@ -176,17 +183,17 @@ export function planOdemeleri({ gelir, borclar = [], yasam = 0 }) {
   return sabit + degisken;
 }
 
-export function aySonuKalan({ gelir, borclar = [], yasam = 0 }) {
-  return tutar(gelir) - planOdemeleri({ gelir, borclar, yasam }) - tutar(yasam);
+export function aySonuKalan({ gelir, borclar = [], yasam = null }) {
+  return tutar(gelir) - planOdemeleri({ gelir, borclar, yasam }) - yasamVarsayilan(gelir, yasam);
 }
 
 // Ilk bitecek borc: taksitsiz borclarda (kart, ek hesap, kisi) en kucuk
 // bakiye once kapanir; o borca her ay gidebilecek tutar = gelir - yasam -
 // kredi taksitleri. Kredi kendi taksitiyle biter. Gelir yetmiyorsa ay null.
-export function ilkBitecekBorc({ gelir, borclar = [], yasam = 0 }) {
+export function ilkBitecekBorc({ gelir, borclar = [], yasam = null }) {
   if (!borclar.length) return null;
   const taksitler = borclar.filter((borc) => borc.tur === "kredi").reduce((toplam, borc) => toplam + tutar(borc.taksit), 0);
-  const odemeGucu = tutar(gelir) - tutar(yasam) - taksitler;
+  const odemeGucu = tutar(gelir) - yasamVarsayilan(gelir, yasam) - taksitler;
   const sureler = borclar.map((borc) => {
     if (borc.tur === "kredi") return { borc, ay: parseInt(borc.kalanTaksit, 10) || null };
     const bakiye = borcBakiyesi(borc);
@@ -245,8 +252,9 @@ export function borcKaydi(borc, { id, simdi = new Date() }) {
 }
 
 // Akis bitince yazilacak veri. Mevcut kayitlar korunur, yenileri eklenir.
-// Metinler (gelir adi, yasam kategorisi) cagirandan gelir.
-export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idUret, gelirAdi, yasamKategorisi = "Diğer" }) {
+// Gelir adi cagirandan gelir. Yasam gideri yazilmaz (adim kalkti; yasam
+// butcesi Plan'da duzenlenir).
+export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idUret, gelirAdi }) {
   const yeni = {
     ...veri,
     cards: [...(veri.cards || [])],
@@ -262,9 +270,6 @@ export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idU
   }
   if (gelirGecerli(durum.gelir)) {
     yeni.incomes.push({ id: idUret(), ad: gelirAdi, tutar: tutar(durum.gelir), tekrar: "Her ay", tarih: "", eklendi: simdi.toISOString() });
-  }
-  if (tutar(durum.yasam) > 0) {
-    yeni.expenses.push({ id: idUret(), tarih: yerelTarih(simdi), kategori: yasamKategorisi, tutar: tutar(durum.yasam), kaynak: "", tekrar: "Her ay", eklendi: simdi.toISOString() });
   }
   const ad = native ? durum.ad.trim() : "";
   yeni.ayarlar = {
@@ -319,7 +324,7 @@ export const bayrak = (kod) => String.fromCodePoint(...[...String(kod)].map((har
 //   siklik, maasGunu (1-31; aylik/ikiKez), maasHaftaGunu (1=Pzt..7=Paz; haftalik),
 //   gelir (sayi), borcTurleri: ["kart"|"kredi"|"kmh"|"kisi"],
 //   borclar: [{ tur, ad, tutar?, gun?, taksit?, kalanTaksit? }],
-//   yasam (sayi|null), atlanan: [adim], sure_ms
+//   yasam (her zaman null; alan geriye uyum icin kalir), atlanan: [adim], sure_ms
 // }
 // Borc alanlari hizli formlarla ayni:
 //   kart:  ad (banka), tutar (bu ayki borc), gun (son odeme gunu)
@@ -351,7 +356,7 @@ export function durumdanSonuc(durum, { cikis = "tamam", dil = null, ulke = null,
           ...(borc.taksit !== undefined ? { taksit: tutar(borc.taksit) } : {}),
           ...(borc.kalanTaksit !== undefined ? { kalanTaksit: parseInt(borc.kalanTaksit, 10) } : {}),
         })),
-    yasam: tutar(durum.yasam) || null,
+    yasam: null,
     atlanan: [...durum.atlanan],
     sure_ms,
   };

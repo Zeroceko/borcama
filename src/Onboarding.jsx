@@ -9,7 +9,6 @@ import {
   Delete,
   Plus,
   SlidersHorizontal,
-  Sparkles,
   Target,
   Users,
   Wallet,
@@ -40,11 +39,12 @@ import {
   SIKLIKLAR,
   TEMALAR,
   TUM_ULKELER,
+  bayrak,
   adimGecilebilirMi,
   adimSirasi,
   durumdanSonuc,
   onboardingSonucunuUygula,
-  aySonuKalan,
+
   aylikOdeme,
   aylikOdemeler,
   borcBakiyesi,
@@ -65,7 +65,6 @@ import {
   sonrakiGunTarihi,
   sonrakiMaas,
   tutar,
-  yasamOnerileri,
 } from "./onboardingAdimlari.js";
 import { nativeOnboardingBaslat } from "./onboardingKoprusu.js";
 import "./onboardingAkis.css";
@@ -113,6 +112,39 @@ export function useSistemKoyu() {
 }
 
 export const temaKoyuMu = (tema, sistemKoyu) => tema === "dark" || (tema === "system" && sistemKoyu);
+
+// Klavye (K12): native'de webview klavye kadar kuculur (Keyboard.resize =
+// native). Tarayicida visualViewport'tan klavye yuksekligi --klavye olarak
+// koke yazilir (.oa-alt bu kadar yukselir); odaklanan alan gorunur alana
+// kaydirilir.
+export function useKlavye(kokRef) {
+  useEffect(() => {
+    const kok = kokRef.current;
+    if (!kok || typeof window === "undefined") return undefined;
+    const vv = window.visualViewport;
+    const guncelle = () => {
+      const yukseklik = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+      kok.style.setProperty("--klavye", `${Math.round(yukseklik)}px`);
+    };
+    let zamanlayici;
+    const odak = (olay) => {
+      const alan = olay.target;
+      if (!alan?.matches?.("input, textarea, select")) return;
+      window.clearTimeout(zamanlayici);
+      zamanlayici = window.setTimeout(() => alan.scrollIntoView?.({ block: "center", behavior: "smooth" }), 50);
+    };
+    guncelle();
+    vv?.addEventListener("resize", guncelle);
+    vv?.addEventListener("scroll", guncelle);
+    kok.addEventListener("focusin", odak);
+    return () => {
+      window.clearTimeout(zamanlayici);
+      vv?.removeEventListener("resize", guncelle);
+      vv?.removeEventListener("scroll", guncelle);
+      kok.removeEventListener("focusin", odak);
+    };
+  }, [kokRef]);
+}
 
 // Dokunmatik cihazda tutar uygulama ici tus takimiyla girilir.
 function useKabaIsaretci() {
@@ -181,7 +213,7 @@ function Kabuk({ geri, geriEtiket, no, toplam, atla, atlaEtiket, sag }) {
   );
 }
 
-function SecimSatiri({ secili, onClick, children, alt, sag, kod, ...props }) {
+function SecimSatiri({ secili, onClick, children, alt, sag, kod, bayrak: bayrakEmoji, ...props }) {
   return (
     <button
       className={`oa-secim${secili ? " secili" : ""}`}
@@ -194,6 +226,7 @@ function SecimSatiri({ secili, onClick, children, alt, sag, kod, ...props }) {
       {...props}
     >
       {kod && <span className="oa-kod" aria-hidden="true">{kod}</span>}
+      {bayrakEmoji && <span className="oa-bayrak" aria-hidden="true">{bayrakEmoji}</span>}
       <span className="metin">
         {children}
         {alt && <small>{alt}</small>}
@@ -287,7 +320,7 @@ function BilgiKarti({ ikon: Ikon, kalin, children }) {
 
 // Dokunmatikte: simge + sayi + yanip sonen imlec; masaustunde ayni gorunumde
 // gercek girdi. Deger ham rakam dizisi ("32000").
-function TutarGosterimi({ deger, etiket, girdi = false, onChange, otomatikOdak = false }) {
+function TutarGosterimi({ deger, etiket, girdi = false, onChange, otomatikOdak = false, onEnter }) {
   const birim = kullaniciParaBirimi();
   const bos = !deger;
   return (
@@ -301,6 +334,7 @@ function TutarGosterimi({ deger, etiket, girdi = false, onChange, otomatikOdak =
           value={deger ? sayiBicimi(deger) : ""}
           placeholder="0"
           autoFocus={otomatikOdak}
+          onKeyDown={(olay) => { if (olay.key === "Enter" && onEnter) { olay.preventDefault(); onEnter(); } }}
           onChange={(olay) => onChange(olay.target.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 12))}
         />
       ) : (
@@ -530,17 +564,17 @@ function BorcFormu({ borc, setBorc }) {
   const ayarla = (alan) => (deger) => setBorc({ ...borc, [alan]: deger });
   const ornek = (deger) => (deger ? t("onboarding.borc.ornek", { deger }) : "");
   const metin = (alan, etiket, yerTutucu = "") => (
-    <Alan>
+    <Alan etiket={etiket}>
       <input value={borc[alan] || ""} placeholder={ornek(yerTutucu)} onChange={(o) => ayarla(alan)(o.target.value)} />
     </Alan>
   );
   const gun = (alan, etiket) => (
-    <Alan>
+    <Alan etiket={etiket}>
       <input className="oa-mono" inputMode="numeric" value={borc[alan] || ""} placeholder={ornek("15")} onChange={(o) => ayarla(alan)(gunDegeri(o.target.value))} />
     </Alan>
   );
   const para = (alan, etiket) => (
-    <Alan>
+    <Alan etiket={etiket}>
       <TutarAlani deger={borc[alan] || ""} onChange={ayarla(alan)} etiket={etiket} />
     </Alan>
   );
@@ -558,7 +592,7 @@ function BorcFormu({ borc, setBorc }) {
       <>
         {metin("banka", t("onboarding.borc.banka"), "QNB")}
         {para("taksit", t("onboarding.borc.taksit"))}
-        <Alan>
+        <Alan etiket={t("onboarding.borc.kalanTaksit")}>
           <input className="oa-mono" inputMode="numeric" value={borc.kalanTaksit || ""} placeholder={ornek("18")} onChange={(o) => ayarla("kalanTaksit")(o.target.value.replace(/\D/g, "").slice(0, 3))} />
         </Alan>
         {gun("gun", t("onboarding.borc.odemeGunu"))}
@@ -632,8 +666,6 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   // One cikan liste tespit edilen ulkeye gore bir kez kurulur; secimle degismez.
   const [oneCikan] = useState(() => oneCikanUlkeler(cihazBolgesi()));
   const [birim, setBirim] = useState(() => kullaniciParaBirimi());
-  const [yasamKendim, setYasamKendim] = useState(false);
-  const [yasamAtlandi, setYasamAtlandi] = useState(false);
   const [taslak, setTaslak] = useState(null);
   const [taslakHata, setTaslakHata] = useState(false);
   const [kaydediliyor, setKaydediliyor] = useState(false);
@@ -642,6 +674,8 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const adimBaslangici = useRef(Date.now());
   const sistemKoyu = useSistemKoyu();
   const kabaIsaretci = useKabaIsaretci();
+  const kokRef = useRef(null);
+  useKlavye(kokRef);
   const koyu = temaKoyuMu(durum.tema, sistemKoyu);
 
   // Akis tam ekran; iOS'ta native sekme cubugu akis bitince (yeniden
@@ -657,13 +691,6 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const numarali = numaraliAdimlar(sira);
   const no = numarali.indexOf(adim) + 1;
   const guncelle = (alanlar) => setDurum((eski) => ({ ...eski, ...alanlar }));
-
-  // Yasam adiminda gelirin %45'i onceden secili gelir (yanki dolu).
-  useEffect(() => {
-    if (adim === "yasam" && durum.yasam === null && !yasamKendim) {
-      setDurum((eski) => ({ ...eski, yasam: yasamOnerileri(eski.gelir)[1] || null }));
-    }
-  }, [adim, durum.yasam, yasamKendim]);
 
   // Ilk borc formu, secilen ilk turle acilir.
   useEffect(() => {
@@ -768,10 +795,10 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
 
   const gelir = tutar(durum.gelir);
   const borclar = durum.borcYok ? [] : durum.borclar;
-  const odemeler = planOdemeleri({ gelir, borclar, yasam: tutar(durum.yasam) });
-  const yasam = tutar(durum.yasam);
-  const kalan = aySonuKalan({ gelir, borclar, yasam });
-  const ilkBiten = ilkBitecekBorc({ gelir, borclar, yasam });
+  // Yasam gideri sorulmuyor: plan gelirin %45'ini yasam icin ayrilmis sayar
+  // (onboardingAdimlari.js > yasamVarsayilan); Plan ekraninda degisir.
+  const odemeler = planOdemeleri({ gelir, borclar });
+  const ilkBiten = ilkBitecekBorc({ gelir, borclar });
   const ilkOdemeBilgisi = ilkOdeme(borclar);
 
   let icerik = null;
@@ -813,7 +840,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
           {oneCikan.map((kod) => {
             const ulkeBirimi = kod === ulke ? birim : bolgedenParaBirimi(`und-${kod}`);
             return (
-              <SecimSatiri key={kod} secili={kod === ulke} onClick={() => ulkeSec(kod)} kod={kod} sag={`${ulkeBirimi} ${paraBirimiSimgesi(ulkeBirimi)}`}>
+              <SecimSatiri key={kod} secili={kod === ulke} onClick={() => ulkeSec(kod)} bayrak={bayrak(kod)} sag={`${ulkeBirimi} ${paraBirimiSimgesi(ulkeBirimi)}`}>
                 {ulkeAdi(kod)}
               </SecimSatiri>
             );
@@ -824,6 +851,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
           secenekler={tumListe.map((kod) => [kod, ulkeAdi(kod)])}
           deger={ulke}
           onSec={ulkeSec}
+          etiket={t("onboarding.ulke.ulkeSec")}
         >
           {t("onboarding.ulke.baskaUlke")}
         </EkSatir>
@@ -831,6 +859,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
           secenekler={DESTEKLENEN_PARA_BIRIMLERI.map((kod) => [kod, `${kod} · ${paraBirimiAdi(kod)}`])}
           deger={birim}
           onSec={setBirim}
+          etiket={t("onboarding.ulke.paraSec")}
         >
           {t("onboarding.ulke.baskaPara", { kod: `${birim} ${paraBirimiSimgesi(birim)}` })}
         </EkSatir>
@@ -949,7 +978,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       <>
         <Baslik gri={t("onboarding.gelir.baslikGri")} vurgu={t("onboarding.gelir.baslik")} />
         <p className="oa-aciklama">{t("onboarding.gelir.aciklama")}</p>
-        <TutarGosterimi deger={durum.gelir} etiket={t("onboarding.gelir.etiket")} girdi={!kabaIsaretci} otomatikOdak onChange={(deger) => guncelle({ gelir: deger })} />
+        <TutarGosterimi deger={durum.gelir} etiket={t("onboarding.gelir.etiket")} girdi={!kabaIsaretci} otomatikOdak onEnter={() => { if (adimGecilebilirMi("gelir", durum)) ileri(); }} onChange={(deger) => guncelle({ gelir: deger })} />
         <p className="oa-alt-not">{durum.siklik === "aylik" ? t("onboarding.gelir.etiketKisa") : t("onboarding.gelir.etiketKisaOrtalama")}</p>
         {gelir > 0 && (
           <p className="oa-yanki" aria-live="polite">
@@ -1060,7 +1089,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
     const taslakBos = !["banka", "tutar", "taksit", "kalanTaksit", "gun"].some((alan) => String(taslak[alan] || "").trim());
     const bitirilebilir = borcGecerli(taslak) || (taslakBos && durum.borclar.length > 0);
     // Atlama: eklenen borclar kalir, yarim form yok sayilir; hic borc yoksa
-    // borcsuz devam (yasam adimina). Sira guncellenmeden once hedef bulunur.
+    // borcsuz devam (plan adimina). Sira guncellenmeden once hedef bulunur.
     atla = () => {
       const hedef = sonrakiAdim("borc", sira);
       setDurum((eski) => borcAdiminiAtla(eski));
@@ -1071,82 +1100,12 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       setAdim(hedef);
     };
     dugme = <BirincilDugme onClick={borcAdiminiBitir} disabled={!bitirilebilir}>{t("onboarding.borc.dugme")}</BirincilDugme>;
-  } else if (adim === "yasam") {
-    const oneriler = yasamOnerileri(gelir);
-    if (yasamKendim && kabaIsaretci) govdeSinifi = "oa-govde dikey";
-    icerik = (
-      <>
-        <Baslik gri={t("onboarding.yasam.baslikGri")} vurgu={t("onboarding.yasam.baslik")} />
-        <p className="oa-aciklama">{t("onboarding.yasam.aciklama")}</p>
-        <div className="oa-cipler">
-          {oneriler.map((oneri) => (
-            <button
-              key={oneri}
-              type="button"
-              className={`oa-cip oa-mono${!yasamKendim && durum.yasam === oneri ? " secili" : ""}`}
-              aria-pressed={!yasamKendim && durum.yasam === oneri}
-              onClick={() => {
-                dokunusGeriBildirimi("hafif");
-                setYasamKendim(false);
-                guncelle({ yasam: oneri });
-              }}
-            >
-              {tamTutar(oneri)}
-            </button>
-          ))}
-          <button
-            type="button"
-            className={`oa-cip${yasamKendim ? " secili" : ""}`}
-            aria-pressed={yasamKendim}
-            onClick={() => {
-              dokunusGeriBildirimi("hafif");
-              setYasamKendim(true);
-              guncelle({ yasam: "" });
-            }}
-          >
-            {t("onboarding.yasam.kendim")}
-          </button>
-        </div>
-        {yasamKendim && (
-          <TutarGosterimi deger={String(durum.yasam || "")} etiket={t("onboarding.yasam.etiket")} girdi={!kabaIsaretci} otomatikOdak onChange={(deger) => guncelle({ yasam: deger })} />
-        )}
-        {yasam > 0 && (
-          <p className="oa-yanki" aria-live="polite">
-            <VurguluMetin
-              anahtar={kalan >= 0 ? "onboarding.yasam.yanki" : "onboarding.yasam.acik"}
-              degisken="tutar"
-              deger={tamTutar(Math.abs(kalan))}
-            />
-          </p>
-        )}
-        {yasamKendim && kabaIsaretci && <TusTakimi deger={String(durum.yasam || "")} onChange={(deger) => guncelle({ yasam: deger })} />}
-      </>
-    );
-    const yasamiAtla = () => {
-      setYasamKendim(false);
-      setYasamAtlandi(true);
-      guncelle({ yasam: 0 });
-      ileri({ atlandi: true });
-    };
-    atla = yasamiAtla;
-    dugme = (
-      <BirincilDugme
-        onClick={() => {
-          if (yasam <= 0) return yasamiAtla();
-          setYasamAtlandi(false);
-          guncelle({ atlanan: durum.atlanan.filter((a) => a !== "yasam") });
-          ileri();
-        }}
-      >
-        {t("onboarding.devam")}
-      </BirincilDugme>
-    );
   } else if (adim === "plan") {
     icerik = (
       <>
         <Baslik gri={t("onboarding.plan.baslikGri")} vurgu={t("onboarding.plan.baslik")} />
         <p className="oa-aciklama">{t("onboarding.plan.aciklama")}</p>
-        <PlanKarti gelir={gelir} odemeler={odemeler} yasam={yasam} kalan={kalan} yasamsiz={yasamAtlandi || yasam <= 0} />
+        <PlanKarti gelir={gelir} odemeler={odemeler} />
         {ilkBiten && (
           <div className="oa-sira">
             <span className="no" aria-hidden="true">1</span>
@@ -1188,7 +1147,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
       <div className={`oa oa-akis${koyu ? " oa-koyu" : ""}`} lang={secilenDil}>
         <div className="oa-hazir">
           <div>
-            <Sparkles className="oa-yildiz" size={56} strokeWidth={1.6} fill="currentColor" aria-hidden="true" />
+            <img className="oa-hazir-logo" src="/borcama-logo-368.png" alt="Borcama" width="368" height="90" />
             <span className="oa-mono-etiket">{t("onboarding.hazir.rozet")}</span>
             <h1>{ad ? t("onboarding.hazir.baslikAd", { ad }) : t("onboarding.hazir.baslik")}</h1>
             <p>
@@ -1206,7 +1165,7 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   }
 
   return (
-    <div className={`oa oa-akis${koyu ? " oa-koyu" : ""}`} lang={secilenDil}>
+    <div className={`oa oa-akis${koyu ? " oa-koyu" : ""}`} lang={secilenDil} ref={kokRef}>
       <form
         className="oa-kolon"
         onSubmit={(olay) => {
@@ -1239,7 +1198,23 @@ function GunSecici({ secili, onSec }) {
   };
   return (
     <>
-      <div className="oa-gun-seridi" ref={kap} role="radiogroup" aria-label={t("onboarding.gun.baslik")}>
+      <div
+        className="oa-gun-seridi"
+        ref={kap}
+        role="radiogroup"
+        aria-label={t("onboarding.gun.baslik")}
+        onWheel={(olay) => {
+          if (Math.abs(olay.deltaY) > Math.abs(olay.deltaX)) kap.current.scrollLeft += olay.deltaY;
+        }}
+        onKeyDown={(olay) => {
+          const fark = olay.key === "ArrowRight" ? 1 : olay.key === "ArrowLeft" ? -1 : 0;
+          if (!fark) return;
+          olay.preventDefault();
+          const yeni = Math.min(31, Math.max(1, secili + fark));
+          sec(yeni);
+          kap.current.querySelectorAll(".oa-gun")[yeni - 1]?.focus();
+        }}
+      >
         {Array.from({ length: 31 }, (_, i) => i + 1).map((gun) => (
           <button
             key={gun}
@@ -1289,31 +1264,27 @@ function HaftaGunleri({ secili, onSec }) {
   );
 }
 
-// Plan karti: ay sonunda kalan, formul, uc dilimli serit ve aciklama.
-function PlanKarti({ gelir, odemeler, yasam, kalan, yasamsiz }) {
-  const eksi = kalan < 0;
+// Plan karti: her maasta odemelere giden tutar, yasam varsayimi satiri ve
+// iki dilimli serit (odemeler / gelirin kalani). Odemeler geliri asarsa serit
+// tamamen coral.
+function PlanKarti({ gelir, odemeler }) {
+  const kalan = Math.max(gelir - odemeler, 0);
+  const eksi = odemeler > gelir;
   const pay = (n) => `${Math.max(0, Math.min(100, (n / (gelir || 1)) * 100))}%`;
-  const artan = Math.max(kalan, 0);
   return (
     <div className="oa-plan">
       <span className="oa-mono-etiket">{t("onboarding.plan.etiket")}</span>
-      <span className="buyuk">{tamTutar(kalan)}</span>
-      <small>
-        {yasamsiz
-          ? t("onboarding.plan.formulYasamsiz", { gelir: tamTutar(gelir), odemeler: tamTutar(odemeler) })
-          : t("onboarding.plan.formul", { gelir: tamTutar(gelir), odemeler: tamTutar(odemeler), yasam: tamTutar(yasam) })}
-      </small>
+      <span className="buyuk">{tamTutar(odemeler)}</span>
+      <small>{t("onboarding.plan.varsayim", { gelir: tamTutar(gelir) })}</small>
       {gelir > 0 && (
         <span className={`oa-serit${eksi ? " eksi" : ""}`} aria-hidden="true">
           <i className="odemeler" style={eksi ? undefined : { width: pay(odemeler) }} />
-          {!eksi && <i className="yasam" style={{ width: pay(yasam) }} />}
-          {!eksi && <i className="kalan" style={{ width: pay(artan) }} />}
+          {!eksi && <i className="kalan" style={{ width: pay(kalan) }} />}
         </span>
       )}
       <ul className="oa-plan-aciklama">
         <li><i className="odemeler" />{t("onboarding.plan.odemeler")}<b>{tamTutar(odemeler)}</b></li>
-        <li><i className="yasam" />{t("onboarding.plan.yasam")}<b>{tamTutar(yasam)}</b></li>
-        <li><i className="kalan" />{t("onboarding.plan.kalan")}<b>{tamTutar(kalan)}</b></li>
+        <li><i className="kalan" />{t("onboarding.plan.gelirinKalani")}<b>{tamTutar(kalan)}</b></li>
       </ul>
     </div>
   );

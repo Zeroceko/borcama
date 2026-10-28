@@ -25,20 +25,23 @@ import {
   sonrakiMaas,
   veriyeYaz,
   yasamOnerileri,
+  yasamVarsayilan,
 } from "./onboardingAdimlari.js";
 
 const kart = { tur: "kart", banka: "Akbank", tutar: "12500", gun: "15" };
 const kredi = { tur: "kredi", banka: "QNB", taksit: "4000", kalanTaksit: "18", gun: "5" };
 
-test("web'de isim adımı yok, 11 numaralı adım var; uygulamada isim eklenir; görünüm dilden sonra", () => {
+test("web'de isim adımı yok, 10 numaralı adım var; uygulamada isim eklenir (11); görünüm dilden sonra, yaşam adımı yok", () => {
   const web = adimSirasi({ native: false });
   assert.equal(web.includes("isim"), false);
-  assert.equal(numaraliAdimlar(web).length, 11);
+  assert.equal(numaraliAdimlar(web).length, 10);
+  assert.equal(web.includes("yasam"), false);
+  assert.equal(sonrakiAdim("borc", web), "plan");
   assert.equal(web.at(-1), "hazir");
   assert.deepEqual(web.slice(0, 3), ["dil", "gorunum", "ulke"]);
   const native = adimSirasi({ native: true });
   assert.deepEqual(native.slice(0, 5), ["dil", "gorunum", "ulke", "isim", "hedef"]);
-  assert.equal(numaraliAdimlar(native).length, 12);
+  assert.equal(numaraliAdimlar(native).length, 11);
   for (const secenek of [{ siklik: "duzensiz" }, { borcYok: true }]) assert.equal(sonrakiAdim("dil", adimSirasi(secenek)), "gorunum", JSON.stringify(secenek));
 });
 
@@ -62,8 +65,8 @@ test("görünüm: varsayılan sistem; sonuçta ve ayarlarda tema, geçersiz tema
 test("\"borç yok\" seçilince ilk borç formu atlanır, türlerden yaşam harcamasına geçilir", () => {
   const sira = adimSirasi({ borcYok: true });
   assert.equal(sira.includes("borc"), false);
-  assert.equal(sonrakiAdim("turler", sira), "yasam");
-  assert.equal(oncekiAdim("yasam", sira), "turler");
+  assert.equal(sonrakiAdim("turler", sira), "plan");
+  assert.equal(oncekiAdim("plan", sira), "turler");
   assert.equal(sonrakiAdim("turler", adimSirasi()), "borc");
 });
 
@@ -146,13 +149,28 @@ test("ödemeler, yaşam önerileri ve ay sonu kalan", () => {
   assert.equal(aylikOdemeler([kart, kredi, { tur: "kmh", banka: "Enpara", tutar: "9000" }]), 16500);
   assert.deepEqual(yasamOnerileri("70000"), [21000, 31500, 42000]);
   assert.equal(aySonuKalan({ gelir: "70000", borclar: [kart], yasam: 31500 }), 26000);
-  assert.equal(aySonuKalan({ gelir: "70000", borclar: [], yasam: null }), 70000);
+  // Yaşam sorulmadığında (null) gelirin %45'i varsayılır; 0 verilirse 0.
+  assert.equal(aySonuKalan({ gelir: "70000", borclar: [], yasam: null }), 38500);
+  assert.equal(aySonuKalan({ gelir: "70000", borclar: [], yasam: 0 }), 70000);
   // Kartın tamamı sığmıyorsa plan yalnız sığanı öder; ay sonu eksiye düşmez.
   const buyuk = { ...kart, tutar: "120000" };
   assert.equal(planOdemeleri({ gelir: "70000", borclar: [buyuk, kredi], yasam: 31500 }), 38500);
   assert.equal(aySonuKalan({ gelir: "70000", borclar: [buyuk, kredi], yasam: 31500 }), 0);
   // Taksitler gelir - yaşamı aşıyorsa açık görünür.
   assert.equal(aySonuKalan({ gelir: "3000", borclar: [kredi], yasam: 0 }), -1000);
+});
+
+test("yaşam varsayımı: null iken gelirin %45'i; plan hesapları aynı sonucu verir; sonuçta yaşam null", () => {
+  assert.equal(yasamVarsayilan("70000"), 31500);
+  assert.equal(yasamVarsayilan("70000", null), 31500);
+  assert.equal(yasamVarsayilan("70000", ""), 31500);
+  assert.equal(yasamVarsayilan("70000", 0), 0);
+  assert.equal(yasamVarsayilan("70000", "12000"), 12000);
+  const buyuk = { ...kart, tutar: "120000" };
+  assert.equal(planOdemeleri({ gelir: "70000", borclar: [buyuk, kredi] }), planOdemeleri({ gelir: "70000", borclar: [buyuk, kredi], yasam: 31500 }));
+  assert.deepEqual(ilkBitecekBorc({ gelir: "70000", borclar: [kart, kredi], yasam: null }), ilkBitecekBorc({ gelir: "70000", borclar: [kart, kredi], yasam: 31500 }));
+  assert.equal(durumdanSonuc({ ...bosDurum(), gelir: "70000", yasam: 20000 }).yasam, null);
+  assert.equal(bosDurum().yasam, null);
 });
 
 test("ilk biten borç ve ilk ödeme tarihi", () => {
@@ -210,8 +228,8 @@ test("akış sonunda mevcut kayıt yapısına yazar, mevcut kayıtları korur", 
     { ad: yeni.incomes[0].ad, tutar: yeni.incomes[0].tutar, tekrar: yeni.incomes[0].tekrar },
     { ad: "Maaş", tutar: 70000, tekrar: "Her ay" },
   );
-  assert.equal(yeni.expenses[0].tekrar, "Her ay");
-  assert.equal(yeni.expenses[0].tarih, "2026-10-27");
+  // Yaşam gideri artık yazılmaz (Plan'da düzenlenir).
+  assert.equal(yeni.expenses.length, 0);
   assert.equal(yeni.ayarlar.ad, "Özer");
   assert.equal(yeni.ayarlar.ekstreBorcModeliV3, true);
   assert.equal(yeni.ayarlar.onboarding.hedef, "borc");
@@ -269,7 +287,7 @@ test("native onboarding sonucu web akışıyla aynı kayıtları yazar", () => {
   assert.equal(yeni.overdrafts[0].kullanilan, 300);
   assert.equal(yeni.others[0].banka, "Alex");
   assert.equal(yeni.incomes[0].tutar, 2400);
-  assert.equal(yeni.expenses[0].tutar, 900);
+  assert.equal(yeni.expenses.length, 0);
   assert.equal(yeni.ayarlar.ad, "Sam");
   assert.deepEqual(yeni.ayarlar.onboarding.atlanan, ["isim"]);
   assert.equal(yeni.ayarlar.onboarding.hedef, "aySonu");

@@ -18,9 +18,11 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
-### Parolasız kayıt ve kodla giriş — Unreleased
+### Parolasız kayıt ve kodla giriş — 1.73.0
 
-- Hesap açarken parola seçmek yok: e-postana gelen tek kullanımlık kodu yaz, hesabın hazır. Girişte parola ya da kod; ikisi de web ve iOS'ta.
+- Siz istediniz: Parola hatırlamadan girmek.
+- Biz yaptık: Kayıt ve giriş Apple ile ya da e-postana gelen 6 haneli kodla; kod Mail'den kendiliğinden önerilir.
+- Faydası: Parola yok, unutma derdi yok; 30 saniyede hesabın açık.
 
 ### Açık mı, koyu mu? Uygulama artık cihazını izliyor — 1.73.0
 
