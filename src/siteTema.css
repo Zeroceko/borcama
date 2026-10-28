@@ -162,4 +162,5 @@ html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
 }
 @media (prefers-reduced-motion: reduce) {
   html:has(.site) { scroll-behavior: auto; }
-  .site .dugme, .site .magaza-cta, }
+  .site .dugme, .site .magaza-cta { transition: none; }
+}

@@ -69,6 +69,7 @@ import {
 import { nativeOnboardingBaslat } from "./onboardingKoprusu.js";
 import "./onboardingAkis.css";
 import { webdeKoyuMu } from "./siteTema.js";
+import { kabukDurumunuBildir } from "./kabukDurumu.js";
 
 // Iki parca:
 // 1. Onboarding (varsayilan): yalniz native kabukta, oturumu olmayan
@@ -688,6 +689,12 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   useEffect(() => {
     sekmeCubugunuGoster(false);
   }, []);
+  // Web'de kurulum acikken olcum izni bandi cizilmez (B2).
+  useEffect(() => {
+    if (native) return undefined;
+    kabukDurumunuBildir({ kurulum: true });
+    return () => kabukDurumunuBildir({ kurulum: false });
+  }, [native]);
 
   const sira = useMemo(
     () => adimSirasi({ native, siklik: durum.siklik, borcYok: durum.borcYok }),

@@ -6,11 +6,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değiştirildi
 
-- Web'de giriş yapılmadan önceki ekranlar (ana sayfa, giriş, kayıt ve kurulumun ilk adımı) her zaman açık temada açılıyor; ana sayfadaki "Koyu mod" anahtarı kaldırıldı, koyu tema yalnız giriş yaptıktan sonra Ayarlar'dan seçiliyor. iOS'ta bu ekranlar cihaz temasını izlemeye devam ediyor.
+- Web'de giriş yapılmadan önceki ekranlar (ana sayfa, giriş, kayıt, kod, parola yenileme ve kurulumun "Açık mı, koyu mu?" adımına kadarki kısmı) her zaman açık temada; ana sayfadaki "Koyu mod" anahtarı kaldırıldı. Tema kurulumun 2. adımında seçiliyor, koyu tema giriş sonrası Ayarlar'da da değişiyor. iOS'ta bu ekranlar cihaz temasını izlemeye devam ediyor.
+- Ölçüm izni bandı kayıt, giriş, kod ve kurulum ekranlarında gösterilmiyor; uygulamada büyük ekranda (≥1024 px) üstte duruyor ve içeriği aşağı itiyor, hiçbir düğmeyi örtmüyor. Ana sayfada aynı.
+- Hızlı işlem menüsünde her madde vaat ettiği formu açıyor: "Ödeme gir" ilk bekleyen ödemenin formunu, "Ekstre ekle" ekstre yükleme seçimini, "Yeni borç ekle" kart / kredi / ek hesap seçiciyi (seçilen türün formu açılır).
+- Kayıt ekranında zaten hesabı olan bir e-postayla kod doğrulanınca "Bu e-postayla hesabın vardı; giriş yaptın." bilgisi gösteriliyor, 4 saniye sonra (ya da "Devam et" ile) uygulamaya geçiliyor.
 
 ### Düzeltildi
 
-- Kayıt ekranında Kullanıcı Sözleşmesi ve Gizlilik/KVKK onay kutuları işaretlenmeden önce görünmüyordu; artık her temada görünüyor, işaretlenince lime zemin ve mürekkep tik.
+- Kayıt ekranında Kullanıcı Sözleşmesi ve Gizlilik/KVKK onay kutuları işaretlenmeden önce görünmüyordu; artık her temada görünüyor (seçili: açıkta mürekkep + lime tik, koyuda krem + mürekkep tik). E-posta yazılıp onaylar eksikken "Kod gönder"in altında "Devam etmek için iki onayı işaretle." yazıyor.
+- Uygulamada sekme değiştirince (kısa ve uzun sayfa arasında) düzen kaydırma çubuğu yüzünden yana kaymıyor.
+- Tarayıcı sekmesine her dönüşte ve saatlik oturum yenilemesinde giriş kaydı (`activity_logs` "login") ve giriş yan etkileri yeniden çalışmıyor; yalnız gerçek girişte bir kez.
 
 ## [1.73.0] - 2026-10-28
 

@@ -28,10 +28,13 @@ import { dil, t } from "./i18n.js";
 import Ceviri from "./Ceviri.jsx";
 import DilDugmesi from "./DilDugmesi.jsx";
 import { proSatistaDegil } from "./proSatis.js";
-import { kodGecerli, kodHataAnahtari, kodTemizle } from "./authKod.js";
+import { oturumGecisi } from "./oturumOlaylari.js";
+import { hesapZatenVardi, kodGecerli, kodHataAnahtari, kodTemizle } from "./authKod.js";
 import { useKlavye, useSistemKoyu } from "./Onboarding.jsx";
 import { webdeKoyuMu } from "./siteTema.js";
 import "./onboardingAkis.css";
+
+const EPOSTA_DESENI = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const denemeMailiTetiklenenKullanicilar = new Set();
 // Basliklar noktayla biter (kurulum akisiyla ayni ton).
@@ -192,14 +195,19 @@ async function proDenemesiniVeBaslangicMailiniTetikle(session) {
 
 export function useSession() {
   const [session, setSession] = useState(undefined); // undefined = yükleniyor, null = oturum yok
+  const oncekiOturum = useRef(undefined);
 
   useEffect(() => {
-    const sessionAyarla = (yeniSession) => {
+    // Yan etkiler yalnız gerçek girişte (oturumOlaylari.js, B14).
+    const sessionAyarla = (yeniSession, event = null) => {
+      const gecis = oturumGecisi(oncekiOturum.current, yeniSession, event);
+      if (!gecis.guncelle) return;
+      oncekiOturum.current = yeniSession;
       setSession(yeniSession);
-      if (yeniSession?.user) {
-        if (!nativeMi) void googleAdsYeniKullaniciDonusumu(yeniSession.user);
-        void proDenemesiniVeBaslangicMailiniTetikle(yeniSession);
-      }
+      if (!gecis.yanEtki) return;
+      if (!nativeMi) void googleAdsYeniKullaniciDonusumu(yeniSession.user);
+      void proDenemesiniVeBaslangicMailiniTetikle(yeniSession);
+      if (gecis.girisKaydi) void girisAktivitesiKaydet(yeniSession);
     };
     const oturumuYukle = async () => {
       if (
@@ -216,8 +224,7 @@ export function useSession() {
     };
     oturumuYukle();
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      sessionAyarla(session);
-      if (event === "SIGNED_IN") void girisAktivitesiKaydet(session);
+      sessionAyarla(session, event);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -252,6 +259,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const kokRef = useRef(null);
   useKlavye(kokRef);
   const [kodModu, setKodModu] = useState(false);
+  const [hesapVardi, setHesapVardi] = useState(false);
   const [kod, setKod] = useState("");
   const [eposta, setEposta] = useState("");
   const [parola, setParola] = useState("");
@@ -447,7 +455,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     if (preview && import.meta.env.DEV) { setHata(t("auth.hata.onizleme")); return; }
     setGonderiliyor(true);
     setHata("");
-    const { error } = await authIstegiYap(() => supabase.auth.verifyOtp({
+    const { data, error } = await authIstegiYap(() => supabase.auth.verifyOtp({
       email: eposta.trim(),
       token: kodTemizle(deger),
       type: "email",
@@ -460,8 +468,21 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     void onboardingOlayiKaydet("auth_kod_dogrulandi", {});
     oturumKalicilginiYaz();
     if (kayitModu) proNiyetiniTemizle();
+    // Kayıt ekranından var olan hesaba girildiyse önce söylenir (B12).
+    if (kayitModu && hesapZatenVardi(data?.user)) {
+      setGonderiliyor(false);
+      setHesapVardi(true);
+      return;
+    }
     window.location.href = sonrakiSayfa;
   }
+
+  // "Hesabın vardı" bilgisi 4 sn görünür, sonra kendiliğinden devam eder.
+  useEffect(() => {
+    if (!hesapVardi) return undefined;
+    const zamanlayici = window.setTimeout(() => { window.location.href = sonrakiSayfa; }, 4000);
+    return () => window.clearTimeout(zamanlayici);
+  }, [hesapVardi]);
 
   async function parolaylaGiris(e) {
     e.preventDefault();
@@ -608,7 +629,22 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
 
   let govde;
   let alt;
-  if (kodModu) {
+  if (hesapVardi) {
+    govde = (
+      <>
+        <span className="oa-mono-etiket">{t("auth.kod.etiket")}</span>
+        <div className="oa-bilgi" role="status">
+          <span className="ikon" aria-hidden="true"><Check size={16} strokeWidth={2.2} /></span>
+          <span><b>{t("auth.kayit.hesapVardi")}</b></span>
+        </div>
+      </>
+    );
+    alt = (
+      <button className="oa-dugme" type="button" onClick={() => { window.location.href = sonrakiSayfa; }}>
+        {t("auth.kayit.hesapVardiDevam")}
+      </button>
+    );
+  } else if (kodModu) {
     const kodTamam = kodGecerli(kod);
     const kalan = Math.max(0, Math.ceil((tekrarZamani - simdi) / 1000));
     const sure = `${Math.floor(kalan / 60)}:${String(kalan % 60).padStart(2, "0")}`;
@@ -876,16 +912,20 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         {captchaAlani(linkModu ? `code-send-${kayitModu}` : `password-${kayitModu}`)}
       </>
     );
+    const onaylarEksik = kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu);
     const pasif = gonderiliyor || captchaBekliyor || !eposta.trim()
       || (!linkModu && !parola)
-      || (kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu));
+      || onaylarEksik;
+    // Pasif düğmenin nedeni: e-posta geçerli ama onaylar eksik.
+    const onayIpucu = onaylarEksik && EPOSTA_DESENI.test(eposta.trim());
     alt = (
       <>
-        <button className="oa-dugme" type="submit" form={formId} disabled={pasif}>
+        <button className="oa-dugme" type="submit" form={formId} disabled={pasif} aria-describedby={onayIpucu ? "auth-onay-ipucu" : undefined}>
           {linkModu
             ? gonderiliyor ? t("auth.gonderiliyor") : t("auth.gonder.kod")
             : gonderiliyor ? t("auth.gonder.girisYapiliyor") : t("auth.gonder.giris")}
         </button>
+        {onayIpucu && <p className="oa-ipucu" id="auth-onay-ipucu">{t("auth.ipucu.onaylar")}</p>}
         <p className="oa-gecis">
           {kayitModu ? (
             <>

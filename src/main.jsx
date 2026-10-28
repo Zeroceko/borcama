@@ -16,6 +16,7 @@ import { noindexYoluMu } from "./seoIndexing.js";
 import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
 import "./native.css";
+import "./kabuk.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 import { belgeDiliniAyarla, t } from "./i18n.js";
 import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";

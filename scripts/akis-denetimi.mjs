@@ -53,7 +53,8 @@ const dugmeTiklanabilir = (page) => page.evaluate(() => {
   if (!d) return { ok: false, neden: "düğme yok" };
   d.scrollIntoView({ block: "nearest" });
   const r = d.getBoundingClientRect();
-  if (r.bottom > innerHeight || r.top < 0) return { ok: false, neden: "görünür alanda değil" };
+  // Alt sınıra hizalanan düğmede alt piksel yuvarlaması (ör. 768.05) taşma sayılmaz.
+  if (r.bottom > innerHeight + 1 || r.top < -1) return { ok: false, neden: "görünür alanda değil" };
   const ust = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
   const bant = document.querySelector("aside.gac");
   const b = bant?.getBoundingClientRect();
