@@ -28,7 +28,7 @@ const buton = (url: string, metin: string) => `<a href="${htmlEscape(url)}" styl
 
 // Tek kullanimlik kod kutusu: kullanici uygulamadaki kod alanina yazar;
 // baglanti da calismaya devam eder.
-const kodKutusu = (kod: string) => kod ? `<div style="margin-top:22px;padding:18px 20px;border-radius:18px;background:#f4efe0;text-align:center"><div style="font-size:11px;letter-spacing:.12em;font-weight:800;color:#55584c">TEK KULLANIMLIK KOD</div><div style="margin-top:8px;font-family:'JetBrains Mono',Menlo,Consolas,monospace;font-size:34px;line-height:1.1;font-weight:800;letter-spacing:.18em;color:#14160f">${htmlEscape(kod)}</div><div style="margin-top:8px;font-size:13px;line-height:1.5;color:#55584c">Kodu uygulamadaki alana yaz; 30 dakika geçerlidir.</div></div>` : "";
+const kodKutusu = (kod: string) => kod ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:22px"><tr><td style="background:#ff6f59;border-radius:20px;padding:0 5px 5px 0"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#cdf564;border-radius:18px"><tr><td style="padding:20px 20px 18px;text-align:center"><div style="font-size:11px;letter-spacing:.12em;font-weight:800;color:#14160f">TEK KULLANIMLIK KOD</div><div style="margin-top:8px;font-family:'JetBrains Mono',Menlo,Consolas,monospace;font-size:38px;line-height:1.1;font-weight:800;letter-spacing:.2em;color:#14160f">${htmlEscape(kod)}</div><div style="margin-top:8px;font-size:13px;line-height:1.5;color:#14160f">Kodu uygulamadaki alana yaz; 30 dakika geçerlidir.</div></td></tr></table></td></tr></table>` : "";
 
 export type AktivasyonMesajSegmenti = "no-debt" | "debt-no-income" | "first-activity";
 
