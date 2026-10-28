@@ -7,6 +7,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Değiştirildi
 
 - Kayıt artık parolasız: e-posta ve onaylardan sonra e-postaya gelen tek kullanımlık kod girilir, hesap o anda açılır (parola ve parola tekrarı alanları kalktı). Girişte "Parola" ve "Tek kullanımlık kod" sekmeleri; kod sekmesi web'de ve iOS uygulamasında var (eski "E-posta linki" sekmesinin yerine). Kod ekranında "Tekrar gönder" ve "E-postayı değiştir"; "Bu cihazda oturumu açık tut" kod girişinde de geçerli. Parola yenileme ve Apple ile giriş aynı. Kayıt ve kodla giriş e-postalarında kod büyük puntoyla yazılıyor; bağlantı da çalışmaya devam ediyor.
+- iOS: native (SwiftUI) kurulum akışı web v3 yüzeyiyle hizalandı: kenarlıksız iki temalı tasarım (açık/koyu; dilden sonra "Açık mı, koyu mu?" adımı, Sistem cihazı izler ve seçim o anda tüm akışı çevirir), 3 slaytlı ekran maketli karşılama, kod rozetli dil/ülke satırları, ikonlu hedef ve borç türü kartları, kaydırıcılı maaş günü seçici ve dönem bilgisi, gelir ve yaşam tutarı için büyük tutar + uygulama içi tuş takımı, plan kartında ödemeler/yaşam/kalan açıklaması, sıradaki borç satırı, lime perdeli kapanış. Başlıklar Archivo Black; Space Grotesk ve JetBrains Mono pakete eklendi. Durum çubuğu temaya göre. Seçilen görünüm kurulum sonucuyla ayarlara yazılır. Hesaplar ve kayıt şekli değişmedi (yeni iOS build'i gerekir).
 
 ## [1.73.0] - 2026-10-28
 

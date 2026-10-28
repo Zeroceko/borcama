@@ -21,6 +21,9 @@ import { tr as onboardingMetinleri } from "./locales/bolumler/onboarding.js";
 // yoksa (tarayici, eski iOS build'leri) web akisi aynen calisir.
 //
 // Web -> native: postMessage({ tip: "baslat", ... }) (baslatMesaji)
+// `tema`: kurulum oncesi secili gorunum ("system" | "light" | "dark");
+// bekleyen bir sonuc varsa onun temasi, yoksa cihazi izleyen "system".
+// Native akis gorunum adiminda bunu degistirir ve sonuc.tema olarak dondurur.
 // Native -> web (window CustomEvent, detail):
 //   borcamaOnboardingDil   { dil }
 //   borcamaOnboardingOlay  { ad: "onboarding_adim"|"onboarding_atla", adim, sure_ms }
@@ -65,6 +68,12 @@ export function bekleyenSonucuTemizle() {
 }
 
 const METIN_ANAHTARLARI = [...Object.keys(onboardingMetinleri), "onboarding.karar.misafir"];
+const TEMALAR = ["system", "light", "dark"];
+
+export function baslangicTemasi() {
+  const bekleyen = bekleyenSonucuOku();
+  return TEMALAR.includes(bekleyen?.tema) ? bekleyen.tema : "system";
+}
 
 function bolgeAdi(kod, dilKodu) {
   try {
@@ -87,6 +96,7 @@ export async function baslatMesaji(bugun = new Date()) {
   return {
     tip: "baslat",
     dil: dil(),
+    tema: baslangicTemasi(),
     ulke: /^[A-Z]{2}$/.test(tespit) ? tespit : null,
     paraBirimi: kullaniciParaBirimi(),
     bugun: yerel(bugun),
