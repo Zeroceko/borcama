@@ -16,6 +16,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Pro kartındaki "Kart ve KMH'ye ilk ay" tutarı kart ve KMH borcunun toplamını geçmiyor (önceden kalan bütçenin tamamı yazıyordu).
 - Kurulumu bitiren kullanıcı Bugün'de ve diğer sekmelerdeki şeritte "Adım 3/3" yerine tek bir "Son adım: ilk harcamanı ya da ödemeni ekle" kartı görüyor (Harcama ekle / Ödeme gir); kurulum yapmamış eski hesaplarda üç adımlı rehber aynı.
 
+### Düzeltildi
+
+- Koyu temada Borç planı ekranındaki senaryo kartı beyaz zeminde okunmuyordu; artık temanın panel renginde. Web'de koyu temada sayfa kenarındaki kaydırma çubuğu boşluğu krem kalmıyor.
+
+## [1.73.1] - 2026-10-28
+
+Web ve iOS aynı sürüm (iOS build 36).
+
+### Değiştirildi
+
 - Web'de giriş yapılmadan önceki ekranlar (ana sayfa, giriş, kayıt, kod, parola yenileme ve kurulumun "Açık mı, koyu mu?" adımına kadarki kısmı) her zaman açık temada; ana sayfadaki "Koyu mod" anahtarı kaldırıldı. Tema kurulumun 2. adımında seçiliyor, koyu tema giriş sonrası Ayarlar'da da değişiyor. iOS'ta bu ekranlar cihaz temasını izlemeye devam ediyor.
 - Ölçüm izni bandı kayıt, giriş, kod ve kurulum ekranlarında gösterilmiyor; uygulamada büyük ekranda (≥1024 px) üstte duruyor ve içeriği aşağı itiyor, hiçbir düğmeyi örtmüyor. Ana sayfada aynı.
 - Hızlı işlem menüsünde her madde vaat ettiği formu açıyor: "Ödeme gir" ilk bekleyen ödemenin formunu, "Ekstre ekle" ekstre yükleme seçimini, "Yeni borç ekle" kart / kredi / ek hesap seçiciyi (seçilen türün formu açılır).
@@ -25,8 +35,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 - Kayıt ekranında Kullanıcı Sözleşmesi ve Gizlilik/KVKK onay kutuları işaretlenmeden önce görünmüyordu; artık her temada görünüyor (seçili: açıkta mürekkep + lime tik, koyuda krem + mürekkep tik). E-posta yazılıp onaylar eksikken "Kod gönder"in altında "Devam etmek için iki onayı işaretle." yazıyor.
 - Uygulamada sekme değiştirince (kısa ve uzun sayfa arasında) düzen kaydırma çubuğu yüzünden yana kaymıyor.
-- Koyu temada Borç planı ekranındaki senaryo kartı beyaz zeminde okunmuyordu; artık temanın panel renginde. Web'de koyu temada sayfa kenarındaki kaydırma çubuğu boşluğu krem kalmıyor.
 - Tarayıcı sekmesine her dönüşte ve saatlik oturum yenilemesinde giriş kaydı (`activity_logs` "login") ve giriş yan etkileri yeniden çalışmıyor; yalnız gerçek girişte bir kez.
+- iOS kurulum akışı web ile aynı: seçili seçenek artık ana düğmeyle aynı renk (lime) değil; açık temada mürekkep, koyu temada krem dolgulu, içindeki tik ve ikon lime. Yaşam gideri adımı kalktı; plan, yaşam için gelirin %45'ini varsayıyor ve bunu kartta söylüyor (her maaşta ödemelere giden tutar, gelirin kalanı). Ülke listesinde bayraklar; kapanışta yıldız yerine Borcama logosu.
 
 ## [1.73.0] - 2026-10-28
 
