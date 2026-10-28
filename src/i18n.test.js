@@ -181,10 +181,12 @@ test("dil düğmesi, dil ve para birimi ayarı native ve web'de çizilir, açıl
   }
   // Onboarding yalnız native; oradaki seçici native'e özgü kalır.
   assert.match(await oku("ParaBirimiSecici.jsx"), /if \(!nativeMi\) return null;/);
-  assert.match(await oku("Onboarding.jsx"), /<DilDugmesi /);
-  assert.match(await oku("Auth.jsx"), /<DilDugmesi className="auth-dil" \/>/);
+  // Kurulum akisinda dil ilk adim (DESTEKLENEN_DILLER listesi); giris/kayit kabugunda kisa dil cipi.
+  assert.match(await oku("Onboarding.jsx"), /DESTEKLENEN_DILLER\.map/);
+  assert.match(await oku("Auth.jsx"), /<DilDugmesi className="oa-cip kucuk oa-ust-sag" kisa \/>/);
   assert.match(await oku("App.jsx"), /<DilAyari \/>\s*<ParaBirimiAyari \/>/);
-  assert.match(await oku("Onboarding.jsx"), /<ParaBirimiSecici /);
+  // Para birimi kurulum akisinin ulke adiminda secilir (gizli <select>).
+  assert.match(await oku("Onboarding.jsx"), /DESTEKLENEN_PARA_BIRIMLERI\.map/);
   assert.match(await oku("main.jsx"), /^belgeDiliniAyarla\(\);$/m);
 });
 

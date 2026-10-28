@@ -18,6 +18,12 @@ Bu dosya toplu e-posta için aday kullanıcı yeniliklerini biriktirir. Buradaki
 
 ## Gelecek sürüm adayları
 
+### Açık mı, koyu mu? Uygulama artık cihazını izliyor — 1.73.0
+
+- Siz istediniz: Koyu temayı telefonla birlikte otomatik değiştirmek.
+- Biz yaptık: Ayarlar > Görünüm'de "Sistem" seçeneği; kurulum akışında ikinci adımda soruluyor.
+- Faydası: Gece telefon koyuya geçince Borcama da geçer; ayar aramaya gerek yok.
+
 ### İlk açılışta 2 dakikada planın hazır — Unreleased
 
 - Siz istediniz: Uygulamayı açınca nereden başlayacağını bilmek.

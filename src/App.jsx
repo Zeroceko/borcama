@@ -114,7 +114,7 @@ import { readLoanPlanFile } from "./loanPlanImport.js";
 import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
 import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
-import { KurulumAkisi } from "./Onboarding.jsx";
+import { KurulumAkisi, temaKoyuMu, useSistemKoyu } from "./Onboarding.jsx";
 import { kurulumGosterilsinMi, onboardingSonucunuUygula } from "./onboardingAdimlari.js";
 import { bekleyenSonucuOku, bekleyenSonucuTemizle } from "./onboardingKoprusu.js";
 import {
@@ -2645,7 +2645,10 @@ export default function BorcTakip() {
   // Hesapsiz kullanim: hesaba bagli isler (Pro, asistan, cikis, davet, hesap
   // silme) kayit ekranina yonlendirilir; geri kalan her sey cihazda calisir.
   const misafir = misafirModuAcik();
-  const isDark = (veri.ayarlar || {}).tema === "dark";
+  // Tema: "dark" | "light" | "system" (cihazi izler; degisince yeniden cizilir).
+  const sistemKoyu = useSistemKoyu();
+  const temaAyari = (veri.ayarlar || {}).tema;
+  const isDark = temaKoyuMu(temaAyari, sistemKoyu);
   const ozelBankalar = (veri.ayarlar || {}).ozelBankalar || [];
   // TRY disinda Turk banka listesi gosterilmez; kullanicinin ekledigi ve
   // kayitlarinda gecen bankalar kalir, "Diger" ile serbest metin girilir.
@@ -2661,6 +2664,7 @@ export default function BorcTakip() {
   );
   const temaAnahtarlarSwitch = () =>
     ayarKaydet({ tema: isDark ? "light" : "dark" });
+  const temaSec = (tema) => ayarKaydet({ tema });
   const temaRenkleri = isDark ? KOYU_TEMA : ACIK_TEMA;
   const rootStyle = {
     "--bg": temaRenkleri.bg,
@@ -3876,6 +3880,8 @@ export default function BorcTakip() {
                 proGeriYukle={proSatinAlimlariGeriYukle}
                 proGeriYukleme={proGeriYukleme}
                 temaDegistir={temaAnahtarlarSwitch}
+                temaSec={temaSec}
+                temaAyari={temaAyari}
                 parolaAc={() => setParolaPenceresi(true)}
                 rehberAc={() => rehberAdiminaGit(0)}
                 cikisYap={cikisYap}
@@ -4951,6 +4957,8 @@ function Ayarlar({
   proGeriYukle,
   proGeriYukleme,
   temaDegistir,
+  temaSec,
+  temaAyari,
   parolaAc,
   rehberAc,
   cikisYap,
@@ -5342,19 +5350,23 @@ function Ayarlar({
               <small>{t("ayarlar.gorunum.temaAciklama")}</small>
             </div>
             <div className="bt-tema-secim" role="group" aria-label={t("ayarlar.gorunum.tema")}>
-              {[["Açık", false], ["Koyu", true]].map(([ad, koyu]) => (
-                <button
-                  key={ad}
-                  type="button"
-                  className={isDark === koyu ? "aktif" : ""}
-                  aria-pressed={isDark === koyu}
-                  onClick={() => {
-                    if (isDark !== koyu) temaDegistir();
-                  }}
-                >
-                  {koyu ? t("ayarlar.gorunum.koyu") : t("ayarlar.gorunum.acik")}
-                </button>
-              ))}
+              {/* Kayitli tercih yoksa "Acik" secili gorunur (eski davranis). */}
+              {[["system", "ayarlar.gorunum.sistem"], ["light", "ayarlar.gorunum.acik"], ["dark", "ayarlar.gorunum.koyu"]].map(([tema, anahtar]) => {
+                const secili = (temaAyari === "system" || temaAyari === "dark" ? temaAyari : "light") === tema;
+                return (
+                  <button
+                    key={tema}
+                    type="button"
+                    className={secili ? "aktif" : ""}
+                    aria-pressed={secili}
+                    onClick={() => {
+                      if (!secili) (temaSec || temaDegistir)(tema);
+                    }}
+                  >
+                    {t(anahtar)}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="bt-setting-row">

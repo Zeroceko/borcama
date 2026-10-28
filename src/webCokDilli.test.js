@@ -77,7 +77,7 @@ test("web + Türkçe: uygulama içi sayfalar çok dilli öncesiyle birebir aynı
 test("web giriş/kayıt ekranında dil düğmesi var, seçili dil Türkçe", () => {
   for (const ad of ["login", "register"]) {
     const html = web.sayfaCiz(ad, "tr");
-    assert.match(html, /<label class="dil-dugmesi auth-dil" lang="tr">/, ad);
+    assert.match(html, /<label class="dil-dugmesi oa-cip kucuk oa-ust-sag" lang="tr">/, ad);
     assert.match(html, /<option value="en" lang="en">English<\/option>/, ad);
   }
 });
@@ -92,7 +92,7 @@ test("native (iOS) + tr/en: çıktı değişmedi", () => {
 
 test("web + İngilizce: uygulama içi sayfalar İngilizce, yasal metinler Paddle'lı web sürümü", () => {
   const giris = metin(web.sayfaCiz("login", "en"));
-  assert.match(giris, /Back to home/);
+  assert.match(giris, /Sign in to your account/);
   assert.doesNotMatch(giris, /Ana sayfaya dön|Hesabına giriş yap/);
   const kayit = metin(web.sayfaCiz("register", "en"));
   assert.doesNotMatch(kayit, /Ücretsiz|hesap oluştur/i);
@@ -123,6 +123,6 @@ test("native İngilizce yasal metinler web'e özgü Paddle bölümlerini almaz",
 test("web + Almanca: sözlük yüklenince giriş ekranı Almanca", async () => {
   await web.dilYukle("de");
   const giris = metin(web.sayfaCiz("login", "de"));
-  assert.match(giris, /Zurück zur Startseite/);
+  assert.match(giris, /Bei deinem Konto anmelden/);
   assert.doesNotMatch(giris, /Ana sayfaya dön|Back to home/);
 });

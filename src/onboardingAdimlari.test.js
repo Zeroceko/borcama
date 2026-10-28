@@ -30,14 +30,33 @@ import {
 const kart = { tur: "kart", banka: "Akbank", tutar: "12500", gun: "15" };
 const kredi = { tur: "kredi", banka: "QNB", taksit: "4000", kalanTaksit: "18", gun: "5" };
 
-test("web'de isim adımı yok, 10 numaralı adım var; uygulamada isim eklenir", () => {
+test("web'de isim adımı yok, 11 numaralı adım var; uygulamada isim eklenir; görünüm dilden sonra", () => {
   const web = adimSirasi({ native: false });
   assert.equal(web.includes("isim"), false);
-  assert.equal(numaraliAdimlar(web).length, 10);
+  assert.equal(numaraliAdimlar(web).length, 11);
   assert.equal(web.at(-1), "hazir");
+  assert.deepEqual(web.slice(0, 3), ["dil", "gorunum", "ulke"]);
   const native = adimSirasi({ native: true });
-  assert.deepEqual(native.slice(0, 4), ["dil", "ulke", "isim", "hedef"]);
-  assert.equal(numaraliAdimlar(native).length, 11);
+  assert.deepEqual(native.slice(0, 5), ["dil", "gorunum", "ulke", "isim", "hedef"]);
+  assert.equal(numaraliAdimlar(native).length, 12);
+  for (const secenek of [{ siklik: "duzensiz" }, { borcYok: true }]) assert.equal(sonrakiAdim("dil", adimSirasi(secenek)), "gorunum", JSON.stringify(secenek));
+});
+
+test("görünüm: varsayılan sistem; sonuçta ve ayarlarda tema, geçersiz tema sisteme düşer", () => {
+  assert.equal(bosDurum().tema, "system");
+  assert.equal(durumdanSonuc(bosDurum()).tema, "system");
+  assert.equal(durumdanSonuc({ ...bosDurum(), tema: "dark" }).tema, "dark");
+  assert.equal(durumdanSonuc({ ...bosDurum(), tema: "mavi" }).tema, "system");
+  assert.equal(sonuctanDurum({ tema: "light" }).tema, "light");
+  assert.equal(sonuctanDurum({ tema: "koyu" }).tema, "system");
+  assert.equal(sonuctanDurum({}).tema, "system");
+  const veri = { cards: [], loans: [], overdrafts: [], others: [], incomes: [], expenses: [], ayarlar: { tema: "light" } };
+  const ortak = { simdi: new Date(2026, 9, 27), idUret: () => "x", gelirAdi: "Maaş" };
+  assert.equal(onboardingSonucunuUygula(veri, { tema: "dark", gelir: 1 }, ortak).ayarlar.tema, "dark");
+  assert.equal(onboardingSonucunuUygula(veri, { gelir: 1 }, ortak).ayarlar.tema, "system");
+  // Tema disinda sonuc sekli ayni.
+  const sonuc = durumdanSonuc(bosDurum());
+  assert.deepEqual(Object.keys(sonuc).filter((k) => k !== "tema").sort(), ["ad", "atlanan", "borcTurleri", "borclar", "cikis", "dil", "gelir", "hedef", "hedefler", "maasGunu", "maasHaftaGunu", "paraBirimi", "siklik", "sure_ms", "ulke", "yasam"]);
 });
 
 test("\"borç yok\" seçilince ilk borç formu atlanır, türlerden yaşam harcamasına geçilir", () => {

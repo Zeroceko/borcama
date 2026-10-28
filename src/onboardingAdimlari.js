@@ -3,17 +3,20 @@
 // yazilacak kayitlar. Ekran, dil veya tarayici bilgisi kullanilmaz; testler
 // dogrudan cagirir.
 
-export const ADIMLAR = ["dil", "ulke", "isim", "hedef", "siklik", "gun", "gelir", "turler", "borc", "yasam", "plan", "hazir"];
+export const ADIMLAR = ["dil", "gorunum", "ulke", "isim", "hedef", "siklik", "gun", "gelir", "turler", "borc", "yasam", "plan", "hazir"];
 
 export const HEDEFLER = ["borc", "aySonu", "kontrol"];
 export const SIKLIKLAR = ["aylik", "ikiKez", "haftalik", "duzensiz"];
 export const BORC_TURLERI = ["kart", "kredi", "kmh", "kisi"];
 export const YASAM_ORANLARI = [30, 45, 60];
+// Gorunum: "system" cihaz ayarini izler (App.jsx > ayarlar.tema).
+export const TEMALAR = ["system", "light", "dark"];
 
 // Durumun bos hali. Varsayilanlar ekranda onceden isaretli gelir.
 export function bosDurum() {
   return {
     ad: "",
+    tema: "system",
     hedefler: ["borc"],
     siklik: "aylik",
     maasGunu: 1,
@@ -267,6 +270,7 @@ export function veriyeYaz(veri, durum, { native = false, simdi = new Date(), idU
   yeni.ayarlar = {
     ...(veri.ayarlar || {}),
     ...(ad ? { ad } : {}),
+    ...(TEMALAR.includes(durum.tema) ? { tema: durum.tema } : {}),
     onboarding: {
       tamam: simdi.toISOString(),
       hedef: durum.hedefler[0] || "borc",
@@ -310,7 +314,7 @@ export const bayrak = (kod) => String.fromCodePoint(...[...String(kod)].map((har
 // cikti sekli. Native kabuk `borcamaOnboardingBitti` olayinda bunu gonderir.
 // {
 //   cikis: "tamam" | "giris" | "misafir",
-//   dil, ulke, paraBirimi, ad,
+//   dil, ulke, paraBirimi, ad, tema: "system" | "light" | "dark",
 //   hedefler: ["borc"|"aySonu"|"kontrol"] (en az 1), hedef (= hedefler[0]),
 //   siklik, maasGunu (1-31; aylik/ikiKez), maasHaftaGunu (1=Pzt..7=Paz; haftalik),
 //   gelir (sayi), borcTurleri: ["kart"|"kredi"|"kmh"|"kisi"],
@@ -329,6 +333,7 @@ export function durumdanSonuc(durum, { cikis = "tamam", dil = null, ulke = null,
     ulke,
     paraBirimi,
     ad: durum.ad || "",
+    tema: TEMALAR.includes(durum.tema) ? durum.tema : "system",
     hedef: durum.hedefler[0] || "borc",
     hedefler: [...durum.hedefler],
     siklik: durum.siklik,
@@ -373,6 +378,7 @@ export function sonuctanDurum(sonuc = {}) {
   return {
     ...bosDurum(),
     ad: String(sonuc.ad ?? "").trim().slice(0, 40),
+    tema: secenek(sonuc.tema, TEMALAR, "system"),
     hedefler: hedefler.length ? hedefler : ["borc"],
     siklik: secenek(sonuc.siklik, SIKLIKLAR, "aylik"),
     maasGunu: gun >= 1 && gun <= 31 ? gun : 1,

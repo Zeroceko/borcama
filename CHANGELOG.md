@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.73.0] - 2026-10-28
+
+### Değiştirildi
+
+- Kurulum akışı yeni yüzeyle (v3): kenarlıksız, iki temalı (açık/koyu) sakin tasarım; seçili her yerde lime, imza (lime düğme + coral blok gölge, yıldız) yalnız düğmede, büyük tutarda, plan kartında ve kapanışta. Dilden sonra "Açık mı, koyu mu?" adımı eklendi (Sistem / Açık / Koyu; seçim ayarlara yazılır, Sistem cihazı izler). Dokunmatik cihazda gelir ve yaşam tutarı uygulama içi tuş takımıyla giriliyor; masaüstünde alan. Maaş günü seçicide kaydırıcı ve dönem bilgisi; hedef ve borç türleri ikonlu kart; ülke ve dil satırlarında bayrak yerine kod rozeti; eklenen borçlarda banka logosu; plan kartında ödemeler/yaşam/kalan açıklaması; kapanışta lime perde. iOS karşılaması 3 slaytlı (ekran maketli) karusel.
+- Giriş ve kayıt ekranları kurulum akışıyla aynı yüzeye geçti: kabukta geri düğmesi ve dil kodu çipi, mono etiketli alanlar, Apple düğmesi, oturum anahtarı, onay kutuları ve "link gönderildi" ekranı yenilendi. Kayıt açıklaması kısaldı. Giriş, Apple, Turnstile, referans kodu ve sözleşme onayı davranışı değişmedi.
+- Ayarlar > Görünüm'e "Sistem" seçeneği eklendi; cihaz teması değişince uygulama anında değişir.
 ### Değiştirildi
 
 - Kurulum akışı (TestFlight geri bildirimi): hedef adımında birden fazla hedef seçilebiliyor; maaş günü sıklığa göre soruluyor (ayda bir: ayın günü, ayda iki: ilk maaşın günü, haftada bir: haftanın günü, düzensiz: sorulmuyor); gelir adımının düğmesi "Devam et", ayda bir dışında tutarın altında "ayda ortalama" yazıyor; ülke adımında 6 ülke (Türkiye, Birleşik Krallık, Almanya, Fransa, İspanya, İtalya; tespit edilen ülke bunlardan değilse başta) seçim yapınca sırası değişmeden gösteriliyor; ilk borç adımında eklenen borçlar formun altında listeleniyor.
