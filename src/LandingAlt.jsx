@@ -1,13 +1,13 @@
 import { APP_STORE_ROZET, APP_STORE_URL, appStoreBaglantisi } from "./appStore.js";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Bell, CalendarCheck, Check, Coins, FileUp, Globe, Lock, Monitor, ReceiptText, ScanFace, ShieldCheck, Target, UserX, WalletCards } from "lucide-react";
 import { landingOlcumunuBaslat } from "./landingMeasurement.js";
-import { siteKoyuKaydet, siteKoyuMu, siteTemasiniUygula } from "./siteTema.js";
 import "./siteTema.css";
 
 // borcama.com v3 (docs/web-v3-direktifi.md): iPhone uygulaması ve web eşit
 // ağırlıkta; uygulama görselleri scripts/ekran-goruntuleri.mjs ile çekilen
-// gerçek ekranlardır (public/ekranlar/), çerçeveler CSS.
+// gerçek ekranlardır (public/ekranlar/), çerçeveler CSS. Sayfa her zaman
+// açık temada; koyu tema yalnız giriş sonrası Ayarlar'da.
 
 const OZELLIKLER = [
   { ikon: UserX, baslik: "Hesap açmadan başla", metin: "Her özelliği hemen kullan. Hesap yalnız cihazlar arası eşitleme ve yedek için gerekir." },
@@ -37,21 +37,10 @@ export default function LandingAlt() {
   const mevduattanGeldi = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "mevduat";
   const heroCtaHref = mevduattanGeldi ? "/register?plan=free&redirect=%2Fassets" : "/register?plan=free";
   const kok = useRef(null);
-  const [koyu, setKoyu] = useState(siteKoyuMu);
   useEffect(() => landingOlcumunuBaslat(kok.current), []);
-  useEffect(() => {
-    siteTemasiniUygula(koyu);
-    return () => siteTemasiniUygula(false);
-  }, [koyu]);
-  const temaDegistir = () => {
-    setKoyu((onceki) => {
-      siteKoyuKaydet(!onceki);
-      return !onceki;
-    });
-  };
   return <div className="site" ref={kok}>
     <header className="ust"><div className="kabuk ust-ic">
-      <a className="logo" href="/" aria-label="Borcama ana sayfa"><Logo koyu={koyu} sizes="140px" /></a>
+      <a className="logo" href="/" aria-label="Borcama ana sayfa"><Logo sizes="140px" /></a>
       <nav className="menu" aria-label="Hesap">
         <a className="gizle baglanti" href="/login">Giriş yap</a>
         <a className="dugme" href={heroCtaHref}>Ücretsiz başla</a>
@@ -71,10 +60,10 @@ export default function LandingAlt() {
         <div className="sahne">
           <div className="pencere">
             <div className="pencere-ust" aria-hidden="true"><i /><i /><i /><span className="adres">borcama.com/summary</span></div>
-            <Ekran ad="web-ozet" koyu={koyu} genislik={1280} yukseklik={800} alt="Borcama web uygulaması: Bugün ekranı" oncelikli />
+            <Ekran ad="web-ozet" genislik={1280} yukseklik={800} alt="Borcama web uygulaması: Bugün ekranı" oncelikli />
           </div>
-          <Telefon ad="iphone-bugun" koyu={koyu} alt="Borcama iPhone uygulaması: Bugün ekranı" oncelikli />
-          <div className="tel-kirp"><Telefon ad="iphone-bugun" koyu={koyu} alt="Borcama iPhone uygulaması: Bugün ekranı" oncelikli /></div>
+          <Telefon ad="iphone-bugun" alt="Borcama iPhone uygulaması: Bugün ekranı" oncelikli />
+          <div className="tel-kirp"><Telefon ad="iphone-bugun" alt="Borcama iPhone uygulaması: Bugün ekranı" oncelikli /></div>
         </div>
       </section>
 
@@ -91,7 +80,7 @@ export default function LandingAlt() {
           <div className="adimlar">
             {ADIMLAR.map(({ ikon: Ikon, baslik, metin }, i) => <article className="adim" key={baslik}><span className="ikon"><Ikon size={22} aria-hidden="true" /></span><span className="no">0{i + 1}</span><h3>{baslik}</h3><p>{metin}</p></article>)}
           </div>
-          <Telefon ad="iphone-plan" koyu={koyu} alt="Borcama iPhone uygulaması: Bu ayın borç planı" tek />
+          <Telefon ad="iphone-plan" alt="Borcama iPhone uygulaması: Bu ayın borç planı" tek />
         </div>
       </section>
 
@@ -149,22 +138,20 @@ export default function LandingAlt() {
 
     <footer className="kabuk alt">
       <div className="alt-ic">
-        <a className="logo" href="/" aria-label="Borcama ana sayfa"><Logo koyu={koyu} sizes="140px" /></a>
+        <a className="logo" href="/" aria-label="Borcama ana sayfa"><Logo sizes="140px" /></a>
         <nav className="alt-baglantilar" aria-label="Alt bilgi">
           <a href="/araclar">Ücretsiz Araçlar</a><a href="/finansal-sozluk">Finansal Sözlük</a><a href="/rehber">Rehber</a><a href="/terms">Kullanıcı Sözleşmesi</a><a href="/privacy">Gizlilik ve KVKK</a><a href="/refund-policy">İade Politikası</a><a href="/faq">SSS</a><a href={APP_STORE_URL} rel="noopener">iPhone uygulaması</a><a href="mailto:zero@borcama.com?subject=Borcama%20reklam%20ve%20i%C5%9Fbirli%C4%9Fi">Reklam ve işbirliği</a>
         </nav>
       </div>
       <div className="alt-not">
         <span>Kişisel borç, harcama ve varlık takip aracı. Kredi vermez, aracılık etmez.</span>
-        <label className="alt-tema"><button className="anahtar" id="koyu-anahtar" type="button" role="switch" aria-checked={koyu} aria-label="Koyu mod" onClick={temaDegistir} />Koyu mod</label>
         <span>Finansal tavsiye değildir.</span>
       </div>
     </footer>
   </div>;
 }
 
-function Logo({ koyu, sizes }) {
-  if (koyu) return <img src="/borcama-logo-koyu.png" width="900" height="222" alt="Borcama" decoding="async" />;
+function Logo({ sizes }) {
   return <picture>
     <source
       type="image/avif"
@@ -183,16 +170,16 @@ function Logo({ koyu, sizes }) {
   </picture>;
 }
 
-function Ekran({ ad, koyu, genislik, yukseklik, alt, oncelikli = false }) {
-  const dosya = `/ekranlar/${ad}${koyu ? "-koyu" : ""}`;
+function Ekran({ ad, genislik, yukseklik, alt, oncelikli = false }) {
+  const dosya = `/ekranlar/${ad}`;
   return <picture>
     <source type="image/webp" srcSet={`${dosya}.webp`} />
     <img src={`${dosya}.png`} width={genislik} height={yukseklik} alt={alt} decoding="async" loading={oncelikli ? "eager" : "lazy"} fetchpriority={oncelikli ? "high" : undefined} />
   </picture>;
 }
 
-function Telefon({ ad, koyu, alt, oncelikli = false, tek = false }) {
-  return <div className={tek ? "tel tek" : "tel"}><Ekran ad={ad} koyu={koyu} genislik={560} yukseklik={1212} alt={alt} oncelikli={oncelikli} /></div>;
+function Telefon({ ad, alt, oncelikli = false, tek = false }) {
+  return <div className={tek ? "tel tek" : "tel"}><Ekran ad={ad} genislik={560} yukseklik={1212} alt={alt} oncelikli={oncelikli} /></div>;
 }
 
 function MagazaCta({ ct }) {

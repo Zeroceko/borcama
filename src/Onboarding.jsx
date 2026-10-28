@@ -68,6 +68,8 @@ import {
 } from "./onboardingAdimlari.js";
 import { nativeOnboardingBaslat } from "./onboardingKoprusu.js";
 import "./onboardingAkis.css";
+import { webdeKoyuMu } from "./siteTema.js";
+import { kabukDurumunuBildir } from "./kabukDurumu.js";
 
 // Iki parca:
 // 1. Onboarding (varsayilan): yalniz native kabukta, oturumu olmayan
@@ -676,13 +678,23 @@ export function KurulumAkisi({ veri, native = false, kaydet }) {
   const kabaIsaretci = useKabaIsaretci();
   const kokRef = useRef(null);
   useKlavye(kokRef);
-  const koyu = temaKoyuMu(durum.tema, sistemKoyu);
+  // Web'de tema sorusundan (2. adım) önce site temasıyla açılır; kayıt
+  // ekranından gelen kullanıcı aynı görünümde kalır.
+  const koyu = !native && adim === "dil"
+    ? webdeKoyuMu({ native, sistemKoyu })
+    : temaKoyuMu(durum.tema, sistemKoyu);
 
   // Akis tam ekran; iOS'ta native sekme cubugu akis bitince (yeniden
   // yuklemede) geri gelir.
   useEffect(() => {
     sekmeCubugunuGoster(false);
   }, []);
+  // Web'de kurulum acikken olcum izni bandi cizilmez (B2).
+  useEffect(() => {
+    if (native) return undefined;
+    kabukDurumunuBildir({ kurulum: true });
+    return () => kabukDurumunuBildir({ kurulum: false });
+  }, [native]);
 
   const sira = useMemo(
     () => adimSirasi({ native, siklik: durum.siklik, borcYok: durum.borcYok }),

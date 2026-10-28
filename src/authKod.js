@@ -22,3 +22,11 @@ export function kodHataAnahtari(hata) {
   if (["otp_expired", "otp_disabled", "invalid_credentials", "validation_failed"].includes(kod) || hata?.status === 403) return "auth.hata.kodYanlis";
   return "auth.hata.kodDogrulanamadi";
 }
+
+// Kayıt ekranından kodla doğrulanan e-posta zaten bir hesaba aitse (hesap 10
+// dakikadan eski) kullanıcıya söylenir; kayıt sessizce girişe dönmesin (B12).
+export const HESAP_VARDI_ESIGI_MS = 10 * 60 * 1000;
+export function hesapZatenVardi(user, simdi = Date.now()) {
+  const olusma = Date.parse(user?.created_at || "");
+  return Number.isFinite(olusma) && simdi - olusma > HESAP_VARDI_ESIGI_MS;
+}

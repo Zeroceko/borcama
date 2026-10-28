@@ -106,6 +106,7 @@ import {
   Gift,
   Copy,
   Share2,
+  CreditCard,
 } from "lucide-react";
 import { belgeKaydiParaBirimi, readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
@@ -115,6 +116,7 @@ import { validateLoanPlanResult } from "./loanPlanParser.js";
 import { loanPaymentAmount, summarizeLoanRecord } from "./loanPlanSummary.js";
 import { krediKaydiniHazirla, krediTaksitIlerlemesi } from "./loanEntry.js";
 import { KurulumAkisi, temaKoyuMu, useSistemKoyu } from "./Onboarding.jsx";
+import { kabukDurumunuBildir } from "./kabukDurumu.js";
 import { kurulumGosterilsinMi, onboardingSonucunuUygula } from "./onboardingAdimlari.js";
 import { bekleyenSonucuOku, bekleyenSonucuTemizle } from "./onboardingKoprusu.js";
 import {
@@ -1974,12 +1976,22 @@ export default function BorcTakip() {
   const [ekstreYuklemeIstegi, setEkstreYuklemeIstegi] = useState(0);
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
   const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
+  // Hızlı menü: "Ödeme gir" ilk bekleyen ödemenin formunu, "Yeni borç" tür
+  // seçiciyi açar (B10).
+  const [odemeFormuIstegi, setOdemeFormuIstegi] = useState(0);
+  const [borcTuruSecimiAcik, setBorcTuruSecimiAcik] = useState(false);
   const [proPenceresiAcik, setProPenceresiAcik] = useState(false);
   const [trialHatirlaticiAcik, setTrialHatirlaticiAcik] = useState(false);
   const [borcKutlamasi, setBorcKutlamasi] = useState(null);
   const [rehber, setRehber] = useState({ acik: false, adim: 0 });
   // Kayit/misafir sonrasi ilk acilista kurulum akisi (Onboarding.jsx).
   const [kurulumAcik, setKurulumAcik] = useState(false);
+  // Web: ölçüm izni bandı uygulamada (≥1024) üstte durur, kurulumda çizilmez.
+  useEffect(() => {
+    if (nativeMi) return undefined;
+    kabukDurumunuBildir({ uygulama: true });
+    return () => kabukDurumunuBildir({ uygulama: false });
+  }, []);
   // Giris oncesi (native) biten onboarding'in hesaba yazilmayi bekleyen sonucu.
   const [bekleyenOnboarding, setBekleyenOnboarding] = useState(() => bekleyenSonucuOku());
   const [rehberKontrolEdildi, setRehberKontrolEdildi] = useState(false);
@@ -3784,6 +3796,8 @@ export default function BorcTakip() {
                 krediOdemesiKaydet={krediOdemesiKaydet}
                 filtre={odemeFiltresi}
                 filtreDegistir={setOdemeFiltresi}
+                odemeFormuIstegi={odemeFormuIstegi}
+                odemeFormuIsteginiTuket={() => setOdemeFormuIstegi(0)}
                 islemler={veri.activityHistory || []}
                 islemiGeriAl={islemiGeriAl}
                 kurNotu={kurNotuDurumu}
@@ -3891,6 +3905,45 @@ export default function BorcTakip() {
           </>
         )}
       </div>
+      {borcTuruSecimiAcik && (
+        <div
+          className="bt-modal-arka"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setBorcTuruSecimiAcik(false);
+          }}
+        >
+          <div className="bt-modal bt-baslangic-secim bt-borc-turu-secim" role="dialog" aria-modal="true" aria-labelledby="bt-borc-turu-baslik">
+            <div className="bt-modalbaslik">
+              <div>
+                <div id="bt-borc-turu-baslik" className="bt-h2">{t("kabuk.borcTuru.baslik")}</div>
+                <p className="bt-baslangic-secim-aciklama">{t("kabuk.borcTuru.aciklama")}</p>
+              </div>
+              <button className="bt-btn hayalet kucuk" type="button" aria-label={t("ortak.kapat")} onClick={() => setBorcTuruSecimiAcik(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="bt-baslangic-yontemler">
+              {[["cards", CreditCard], ["loans", Building2], ["od", Wallet]].map(([kategori, Ikon]) => (
+                <button
+                  key={kategori}
+                  className="bt-baslangic-yontem"
+                  type="button"
+                  onClick={() => {
+                    setBorcTuruSecimiAcik(false);
+                    setBorcKategori(kategori);
+                    setSekme("borclar");
+                    setForm({ liste: KATEGORI_META[kategori].liste, veri: {} });
+                  }}
+                >
+                  <span><Ikon size={18} /></span>
+                  <span><strong>{KATEGORI_META[kategori].ad}</strong></span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {hizliMenuAcik && (
         <div className="bt-quick-menu" id="bt-hizli-islemler" role="menu">
           <button type="button" role="menuitem" onClick={() => {
@@ -3904,12 +3957,14 @@ export default function BorcTakip() {
             setOdemeFiltresi("bekleyen");
             setSekme("odemeler");
             setForm(null);
+            setOdemeFormuIstegi((eski) => eski + 1);
             setHizliMenuAcik(false);
           }}>
             <CalendarCheck /><span><strong>{t("kabuk.hizli.odeme")}</strong><small>{t("kabuk.hizli.odemeAlt")}</small></span>
           </button>
           <button type="button" role="menuitem" onClick={() => {
             setBorcKategori("cards");
+            setEkstreYuklemeIstegi((eski) => eski + 1);
             setSekme("borclar");
             setForm(null);
             setHizliMenuAcik(false);
@@ -3917,9 +3972,8 @@ export default function BorcTakip() {
             <ReceiptText /><span><strong>{t("kabuk.hizli.ekstre")}</strong><small>{t("kabuk.hizli.ekstreAlt")}</small></span>
           </button>
           <button type="button" role="menuitem" onClick={() => {
-            setBorcKategori("cards");
-            setSekme("borclar");
             setForm(null);
+            setBorcTuruSecimiAcik(true);
             setHizliMenuAcik(false);
           }}>
             <Wallet /><span><strong>{t("kabuk.hizli.yeniBorc")}</strong><small>{t("kabuk.hizli.yeniBorcAlt")}</small></span>
@@ -6692,6 +6746,8 @@ function Odemeler({
   islemler = [],
   islemiGeriAl,
   kurNotu = null,
+  odemeFormuIstegi = 0,
+  odemeFormuIsteginiTuket,
 }) {
   const [kartOdemePenceresi, setKartOdemePenceresi] = useState(null);
   const [krediOdemePenceresi, setKrediOdemePenceresi] = useState(null);
@@ -6835,6 +6891,16 @@ function Odemeler({
   // Asgari tamamlandıysa o ayın zorunlu kart ödemesi tamamlanmıştır. Kalan
   // devreden bakiye borç ekranında görünür; burada tekrar bekliyor denmez.
   const bekleyen = sirali.filter(isMandatoryPaymentPending);
+  // Hızlı menüden "Ödeme gir": ilk bekleyen ödemenin formu açılır.
+  useEffect(() => {
+    if (odemeFormuIstegi <= 0) return;
+    odemeFormuIsteginiTuket?.();
+    const ilk = bekleyen[0];
+    if (!ilk) return;
+    setKismiOdemeTutari("");
+    if (ilk.kartOdemesi) setKartOdemePenceresi(ilk);
+    else setKrediOdemePenceresi(ilk);
+  }, [odemeFormuIstegi]);
   const {
     total: toplam,
     covered: odenen,

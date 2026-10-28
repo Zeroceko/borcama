@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { APP_STORE_URL, appStoreBaglantisi } from "./appStore.js";
-import { SITE_KOYU_ANAHTARI, siteKoyuKaydet, siteKoyuMu, siteTemasiniUygula } from "./siteTema.js";
+import { webdeKoyuMu } from "./siteTema.js";
 
 const oku = (yol) => readFile(new URL(yol, import.meta.url), "utf8");
 
@@ -54,44 +54,31 @@ test("Pro maddeleri ödeme sayfasındaki gerçek kapsamla aynı", async () => {
 test("uygulama görselleri gerçek ekran görüntüsü; çizilmiş ekran bileşeni yok", async () => {
   const landing = await oku("./LandingAlt.jsx");
   for (const ad of ["web-ozet", "iphone-bugun", "iphone-plan"]) assert.match(landing, new RegExp(`ad="${ad}"`));
-  assert.match(landing, /\/ekranlar\/\$\{ad\}\$\{koyu \? "-koyu" : ""\}/);
+  assert.match(landing, /`\/ekranlar\/\$\{ad\}`/);
   assert.match(landing, /fetchpriority=/);
   assert.doesNotMatch(landing, /UygulamaEkrani|UygulamaPenceresi|DashboardPreview|StatementPreview/);
 });
 
-test("site teması: token dışında literal hex yok, Google Fonts yok, sistem teması izlenmez", async () => {
+test("site teması: token dışında literal hex yok, Google Fonts yok, koyu tema yok", async () => {
   const css = await oku("./siteTema.css");
-  const tokenler = css.match(/:root\s*\{[\s\S]*?\}\n:root\[data-theme="dark"\]\s*\{[\s\S]*?\}/)[0];
+  const tokenler = css.match(/:root\s*\{[\s\S]*?\}/)[0];
   assert.doesNotMatch(css.replace(tokenler, ""), /#[0-9a-f]{3,8}\b/i);
-  assert.doesNotMatch(css, /@import|fonts\.googleapis|prefers-color-scheme/);
+  assert.doesNotMatch(css, /@import|fonts\.googleapis|prefers-color-scheme|data-theme/);
   assert.doesNotMatch(css, /rotate\(/);
   // Kurallar .site altında: uygulama ekranlarına sızmaz.
   for (const kural of css.replace(tokenler, "").replace(/@font-face\{[^}]*\}/g, "").match(/^[^@\s/}][^{]*\{/gm))
-    assert.match(kural, /(^|,\s*)(\.site|html:has\(\.site\)|:root\[data-theme="dark"\] \.site)/, kural);
+    assert.match(kural, /(^|,\s*)(\.site|html:has\(\.site\))/, kural);
   const landing = await oku("./LandingAlt.jsx");
-  assert.doesNotMatch(landing, /#[0-9a-f]{6}\b|prefers-color-scheme|matchMedia/i);
+  assert.doesNotMatch(landing, /#[0-9a-f]{6}\b|prefers-color-scheme|matchMedia|koyu-anahtar|Koyu mod|-koyu/i);
 });
 
-test("koyu mod tercihi depolanır; depolama kapalıysa açık tema", () => {
-  const depo = new Map();
-  globalThis.localStorage = { getItem: (k) => depo.get(k) ?? null, setItem: (k, v) => depo.set(k, v) };
-  assert.equal(siteKoyuMu(), false);
-  siteKoyuKaydet(true);
-  assert.equal(depo.get(SITE_KOYU_ANAHTARI), "1");
-  assert.equal(siteKoyuMu(), true);
-  siteKoyuKaydet(false);
-  assert.equal(siteKoyuMu(), false);
-  globalThis.localStorage = { getItem: () => { throw new Error("kapalı"); }, setItem: () => { throw new Error("kapalı"); } };
-  assert.equal(siteKoyuMu(), false);
-  assert.doesNotThrow(() => siteKoyuKaydet(true));
-  delete globalThis.localStorage;
-
-  const nitelikler = new Map();
-  const kok = { setAttribute: (k, v) => nitelikler.set(k, v), removeAttribute: (k) => nitelikler.delete(k) };
-  siteTemasiniUygula(true, kok);
-  assert.equal(nitelikler.get("data-theme"), "dark");
-  siteTemasiniUygula(false, kok);
-  assert.equal(nitelikler.has("data-theme"), false);
+test("web'de giriş öncesi ekranlar açık temada; iOS cihaz temasını izler", async () => {
+  assert.equal(webdeKoyuMu({ native: false, sistemKoyu: true }), false);
+  assert.equal(webdeKoyuMu({ native: true, sistemKoyu: true }), true);
+  assert.equal(webdeKoyuMu({ native: true, sistemKoyu: false }), false);
+  const [auth, onboarding] = await Promise.all([oku("./Auth.jsx"), oku("./Onboarding.jsx")]);
+  assert.equal((auth.match(/const koyu = webdeKoyuMu\(\{ native: nativeMi, sistemKoyu: useSistemKoyu\(\) \}\);/g) || []).length, 2);
+  assert.match(onboarding, /!native && adim === "dil"\n    \? webdeKoyuMu/);
 });
 
 test("App Store bağlantısı kampanya parametresi taşır", () => {
