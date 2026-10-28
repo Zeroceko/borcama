@@ -5,6 +5,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Eye,
   EyeOff,
   LogOut,
@@ -33,6 +34,7 @@ import { hesapZatenVardi, kodGecerli, kodHataAnahtari, kodTemizle } from "./auth
 import { useKlavye, useSistemKoyu } from "./Onboarding.jsx";
 import { webdeKoyuMu } from "./siteTema.js";
 import "./onboardingAkis.css";
+import { MasaustuUstCubuk, useMasaustu } from "./MasaustuKabuk.jsx";
 
 const EPOSTA_DESENI = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -230,6 +232,31 @@ export function useSession() {
   }, []);
 
   return session;
+}
+
+// Kayit/giris (masaustu) sag sutunu: sonra ne olacagi, uc kisa madde.
+function NeOlacak({ kayit }) {
+  const maddeler = [
+    [Mail, t("web.kabuk.neOlacak.kod"), t(kayit ? "web.kabuk.neOlacak.kodAlt" : "web.kabuk.neOlacak.kodAltGiris")],
+    ...(kayit ? [[Clock, t("web.kabuk.neOlacak.kurulum"), t("web.kabuk.neOlacak.kurulumAlt")]] : []),
+    [ShieldCheck, t("web.kabuk.neOlacak.banka"), t("web.kabuk.neOlacak.bankaAlt")],
+  ];
+  return (
+    <aside className="mk-ne-olacak" aria-labelledby="mk-ne-olacak-baslik">
+      <span className="oa-mono-etiket" id="mk-ne-olacak-baslik">{t("web.kabuk.neOlacak.etiket")}</span>
+      <ul>
+        {maddeler.map(([Ikon, baslik, alt]) => (
+          <li key={baslik}>
+            <span className="ikon" aria-hidden="true"><Ikon size={19} strokeWidth={2.2} /></span>
+            <span>
+              <strong>{baslik}</strong>
+              <small>{alt}</small>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
 }
 
 export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, preview = false }) {
@@ -562,6 +589,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   }
 
   const koyu = webdeKoyuMu({ native: nativeMi, sistemKoyu: useSistemKoyu() });
+  // Web, ≥1024: uygulamanin ust cubugu ve iki sutun (form + "ne olacak").
+  const masaustu = useMasaustu();
   const formId = "auth-form";
   const captchaBekliyor = Boolean(turnstileSiteKey && !captchaToken);
   const ustSag = <DilDugmesi className="oa-cip kucuk oa-ust-sag" kisa />;
@@ -960,17 +989,46 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     );
   }
 
-  return (
-    <div className={`oa oa-auth${koyu ? " oa-koyu" : ""}`} ref={kokRef}>
-      <div className="oa-kolon">
+  const kolon = (
+    <div className="oa-kolon">
+      {/* Masaustunde geri dairesi yerine ust cubuk logosu ana sayfaya doner. */}
+      {!masaustu && (
         <div className="oa-kabuk">
           {geriDugmesi}
           {/* Giris yapmadan dil degistirme (native ve web). */}
           {ustSag}
         </div>
-        <div className="oa-govde" key={kodModu ? "kod" : gonderildi ? "gonderildi" : sifirlamaModu ? "sifirlama" : yontem}>{govde}</div>
-        <div className="oa-alt">{alt}</div>
-      </div>
+      )}
+      <div className="oa-govde" key={kodModu ? "kod" : gonderildi ? "gonderildi" : sifirlamaModu ? "sifirlama" : yontem}>{govde}</div>
+      <div className="oa-alt">{alt}</div>
+    </div>
+  );
+
+  return (
+    <div className={`oa oa-auth${masaustu ? " mk-web" : ""}${koyu ? " oa-koyu" : ""}`} ref={kokRef}>
+      {masaustu ? (
+        <>
+          <MasaustuUstCubuk
+            koyu={koyu}
+            logoHref="/?plan=free"
+            onLogo={proNiyetiniTemizle}
+            sag={
+              <>
+                <DilDugmesi className="oa-cip kucuk" kisa />
+                {kayitModu ? (
+                  <a className="mk-ust-baglanti" href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>{t("auth.gecis.girisYap")}</a>
+                ) : (
+                  <a className="mk-ust-baglanti" href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>{t("auth.gecis.kayitOl")}</a>
+                )}
+              </>
+            }
+          />
+          <div className="mk-izgara mk-auth">
+            {kolon}
+            <NeOlacak kayit={kayitModu} />
+          </div>
+        </>
+      ) : kolon}
       {yasalMetin && (
         <div
           className="oa-yasal-perde"

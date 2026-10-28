@@ -6,10 +6,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
+- Web'de büyük ekranda (≥1024 px) üst çubukta "+ Ekle" menüsü var: Harcama, Ödeme, Ekstre ve Borç; her biri ilgili formu ya da seçiciyi bulunduğun sayfadan ayrılmadan sağdan açılan panelde açıyor. "Görüş bildir" üst çubuktaki hesap menüsünde; sağ alttaki yüzen "Hızlı işlem" ve "Görüş bildir" düğmeleri büyük ekranda kalktı (dar ekran ve iOS aynı).
+- Web'de büyük ekranda kurulumun sağında, girdikçe dolan canlı "Bugün" önizlemesi var: uygulamanın kendi özet kartı ve borç sırası, kurulumdaki cevaplarla çiziliyor; henüz girilmeyen kısımlar boş çizgi olarak duruyor, plan adımında "her maaşta ödemelere" tutarı çıkıyor.
 - Borç planı ekranına "Aylık yaşam bütçesi" alanı eklendi: kurulumun varsaydığı tutar (gelirin %45'i) burada değiştirilir, plan ve Bugün yeni tutarla hesaplanır; altında bu bütçeyle her maaşta ödemelere giden tutar yazıyor.
 
 ### Değiştirildi
 
+- Web'de büyük ekranda (≥1024 px) kayıt, giriş, kod, kurulum ve uygulama aynı üst çubuğu (72 px, logo solda) ve aynı 1120 px ızgarayı kullanıyor; telefon sütunu görünümü kalktı. Kayıt ve kod ekranı iki sütun: solda form, sağda "Sonra ne olacak" (e-postana kod gelir · 2 dakikalık kurulum · banka şifresi yok). Ana sayfanın üst çubuğu da aynı yükseklikte.
+- Web'de büyük ekranda tüm ekleme ve düzenleme formları (harcama, gelir, varlık, kart, kredi, ek hesap, ekstre, ödeme) satır içinde değil sağdan açılan 440 px panelde açılıyor; liste yerinden oynamıyor, Esc ve dışarı tıklama kapatıyor, odak panelde kalıyor ve kapanınca açan düğmeye dönüyor.
+- Web'de büyük ekranda kurulumun "Hazırsın" adımı telefon biçimli lime kart yerine önizlemenin tam genişliğe açılması: Bugün ekranı çizili, üstte "Plan kuruldu. İlk ödeme 12 Kas." bandı ve "Bugün'e geç" düğmesi (hareket azaltma açıksa anında).
+- Web'de Pro satın alma sonrası hoş geldin ekranı ve "Yükleniyor" ekranı kurulumla aynı yüzeyde (glif, kenarlık ve blok gölge yok; büyük ekranda aynı üst çubuk). iOS'ta görünüm değişmedi.
 - Web'de kurulum akışı `/kurulum/<adım>` adresinde çalışıyor: sayfa yenilenince aynı adımda ve aynı cevaplarla devam ediyor, tarayıcının geri tuşu bir önceki adıma gidiyor, ilk adımda geri tuşu kurulumdan çıkarmıyor (taslak yalnız o tarayıcı sekmesinde tutulur, kurulum bitince silinir).
 - Web'de kurulum bitince "Bugün'e geç" sayfayı yenilemeden ve "Yükleniyor" ekranı olmadan Bugün'ü açıyor (kurulumda dil değiştirildiyse sayfa bir kez yenilenir). iOS'ta davranış aynı.
 - Kurulumun plan kartındaki "her maaşta ödemelere" tutarı uygulamada da aynı: kurulum yaşam bütçesi varsayımını kaydediyor; harcama kaydı yokken Bugün'deki "Aylık plan" "Veri eksik" yerine "≈ +₺X · Yaşam gideri tahmini" gösteriyor, Borç planı ve Pro kartı aynı bütçeyle hesaplanıyor.
