@@ -774,6 +774,7 @@ const it_ = {
   "ekstre.kalem.dahilEt": "Includi {ad}",
   "ekstre.kalem.kategori": "Categoria per {ad}",
   "ekstre.kapsam.bulunan": "Trovato:",
+  "ekstre.kapsam.iadeler": "Rimborsi:",
   "ekstre.kapsam.ekstreToplami": "Totale estratto conto:",
   "ekstre.kapsam.eslesme": "Corrispondenza:",
   "ekstre.kapsam.oran": "{oran}%",
