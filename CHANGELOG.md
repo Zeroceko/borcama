@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.4] - 2026-10-29
+
+Web ve iOS aynı sürüm (iOS build 39).
+
+### Düzeltildi
+
+- Giriş ekranında e-posta yazılınca "Kod gönder" hemen basılabiliyor; robot doğrulaması arka planda bitmemişse düğme "Doğrulanıyor…" gösterip bekliyor, kutu işaret isterse ekran ona kayıp kısa bir açıklama gösteriyor.
+- iPhone'da karşılama ile giriş ekranı arasında ileri ve geri geçiş yana kayarak yapılıyor; geri dönüşte yükleniyor ekranı ve zıplama yok. Giriş ↔ kayıt geçişi de sayfa yenilemeden.
+- iPhone'da klavye açılırken arkada siyah değil uygulama zemini görünüyor.
+
 ## [1.74.3] - 2026-10-29
 
 Web ve iOS aynı sürüm (iOS build 38; build 37, 1.74.1 olarak TestFlight'a yüklenmişti). 1.74.2 iOS'a yüklenmedi.
