@@ -38,3 +38,21 @@ export function sekmeCubuguTemasi(koyu) {
 export function sekmeCubugunuGoster(gorunsun) {
   kanal()?.postMessage({ tip: "goster", gorunsun });
 }
+
+// Kod ekrani acikken native, uygulamaya donulunce panoya o sirada yeni
+// kopyalanmis 6 haneli kodu borcamaPanodanKod olayiyla gonderir. Kod ekrani
+// acilmadan once panoda olan sayi (eski bir kod) okunmaz.
+export function panodanKoduDinle(kodGeldi) {
+  const kapi = kanal();
+  if (!kapi) return () => {};
+  const dinle = (olay) => {
+    const kod = olay?.detail?.kod;
+    if (kod) kodGeldi(kod);
+  };
+  window.addEventListener("borcamaPanodanKod", dinle);
+  kapi.postMessage({ tip: "kodBekle", acik: true });
+  return () => {
+    window.removeEventListener("borcamaPanodanKod", dinle);
+    kapi.postMessage({ tip: "kodBekle", acik: false });
+  };
+}

@@ -97,3 +97,17 @@ test("Turnstile: onToken/onStatus kimliği sabit (widget sıfırlama döngüsü 
   assert.match(auth, /onStatus=\{setCaptchaDurumu\}/);
   assert.match(auth, /const captchaJetonuGeldi = useCallback\(/);
 });
+
+test("iOS: Gmail'den kopyalanan kod uygulamaya dönünce dolar", async () => {
+  const auth = await readFile(new URL("./Auth.jsx", import.meta.url), "utf8");
+  const kopru = await readFile(new URL("./nativeSekmeCubugu.js", import.meta.url), "utf8");
+  const swift = await readFile(new URL("../ios/App/App/NativeTabBar.swift", import.meta.url), "utf8");
+  assert.match(auth, /if \(!kodModu\) return undefined;\s*return panodanKoduDinle\(/);
+  assert.match(kopru, /tip: "kodBekle", acik: true/);
+  assert.match(kopru, /tip: "kodBekle", acik: false/);
+  assert.match(swift, /case "kodBekle":/);
+  assert.match(swift, /didBecomeActiveNotification/);
+  // Kod ekranı açılmadan önce panoda olan içerik okunmaz.
+  assert.match(swift, /pano\.changeCount != sayac/);
+  assert.match(swift, /webOlayi\("borcamaPanodanKod"/);
+});

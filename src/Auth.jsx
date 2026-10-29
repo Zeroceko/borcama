@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
 import { karsilamayaDon, sayfaDegistir } from "./onboardingKoprusu.js";
+import { panodanKoduDinle } from "./nativeSekmeCubugu.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 import {
   googleAdsYeniKullaniciDonusumu,
@@ -383,6 +384,22 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     const zamanlayici = window.setInterval(() => setSimdi(Date.now()), 1000);
     return () => window.clearInterval(zamanlayici);
   }, [kodModu, tekrarZamani]);
+
+  // iOS kodu yalniz Mesajlar ve Mail'den onerebiliyor. Gmail gibi bir
+  // uygulamadan kopyalanip donulunce native panodaki 6 haneli kodu gonderir;
+  // kutular dolar ve dogrulama baslar.
+  const koduDogrulaSon = useRef(null);
+  koduDogrulaSon.current = koduDogrula;
+  useEffect(() => {
+    if (!kodModu) return undefined;
+    return panodanKoduDinle((gelen) => {
+      const temiz = kodTemizle(gelen);
+      if (!kodGecerli(temiz)) return;
+      setKod(temiz);
+      setHata("");
+      koduDogrulaSon.current?.(null, temiz);
+    });
+  }, [kodModu]);
 
   function authIstegiYap(request) {
     return runAuthAttempt(request, () => {
