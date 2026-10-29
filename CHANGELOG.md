@@ -6,7 +6,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## [1.74.3] - 2026-10-29
 
-Web ve iOS aynı sürüm (iOS build 37). 1.74.2 iOS'a yüklenmedi.
+Web ve iOS aynı sürüm (iOS build 38; build 37, 1.74.1 olarak TestFlight'a yüklenmişti). 1.74.2 iOS'a yüklenmedi.
 
 ### Düzeltildi
 
@@ -14,7 +14,7 @@ Web ve iOS aynı sürüm (iOS build 37). 1.74.2 iOS'a yüklenmedi.
 
 ## [1.74.2] - 2026-10-29
 
-Web sürümü; iOS'a 1.74.3 build 37 ile birlikte çıktı.
+Web sürümü; iOS'a 1.74.3 build 38 ile birlikte çıktı.
 
 ### Düzeltildi
 
@@ -22,7 +22,7 @@ Web sürümü; iOS'a 1.74.3 build 37 ile birlikte çıktı.
 
 ## [1.74.1] - 2026-10-29
 
-Web sürümü; iOS'a 1.74.3 build 37 ile birlikte çıktı.
+Web sürümü; iOS'ta yalnız TestFlight'a build 37 olarak yüklendi (e-posta koduyla giriş 1.74.2'deki Turnstile hatası yüzünden bozuk), mağazaya 1.74.3 build 38 ile çıkar.
 
 ### Düzeltildi
 
@@ -30,7 +30,7 @@ Web sürümü; iOS'a 1.74.3 build 37 ile birlikte çıktı.
 
 ## [1.74.0] - 2026-10-28
 
-Web sürümü (iOS'a 1.74.3 build 37 ile birlikte çıktı). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
+Web sürümü (iOS'a 1.74.3 build 38 ile birlikte çıktı). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
 
 ### Eklendi
 
