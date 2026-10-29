@@ -101,7 +101,9 @@ function desteklenenTarayiciDili(tarayiciDilleri) {
 // Saf karar fonksiyonu; testler ortamdan bagimsiz cagirir.
 // Native: kayitli secim -> cihaz dili (desteklenen ise) -> Ingilizce.
 // Web: Turkce kalan sayfalar, CRM ve botlar daima "tr"; uygulama ici yollarda
-// kayitli secim -> tarayici dili (tercih listesinde ilk desteklenen) -> "tr".
+// kayitli secim -> Turkce sayfadan (landing, rehber...) gelindiyse "tr" ->
+// tarayici dili (tercih listesinde ilk desteklenen) -> "tr". Turkce landing'de
+// "Giris yap"a basan Ingilizce tarayicili ziyaretci Ingilizce ekrana dusmez.
 // Tarayici dili Turkce olan ziyaretci web'i birebir eskisi gibi gorur.
 export function dilBelirle({
   native = false,
@@ -112,6 +114,7 @@ export function dilBelirle({
   oturumVar = false,
   crm = false,
   bot = false,
+  turkceSayfadanGeldi = false,
 } = {}) {
   const diller = tarayiciDilleri?.length ? tarayiciDilleri : [tarayiciDili];
   if (native) {
@@ -122,6 +125,7 @@ export function dilBelirle({
   }
   if (crm || bot || !webUygulamaYoluMu(yol, { oturumVar })) return "tr";
   if (DESTEKLENEN_DILLER.includes(kayitli)) return kayitli;
+  if (turkceSayfadanGeldi) return "tr";
   return desteklenenTarayiciDili(diller) || "tr";
 }
 
@@ -140,6 +144,18 @@ export function webOturumuVar() {
   return false;
 }
 
+// Ayni sitedeki Turkce sayfadan (landing, SEO, rehber) mi gelindi? Oturumsuz
+// "/" landing sayilir.
+export function turkceSayfadanMi(onceki, hostname) {
+  try {
+    const adres = new URL(onceki);
+    if (adres.hostname !== hostname) return false;
+    return !webUygulamaYoluMu(adres.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function ortamDili() {
   const konum = globalThis.location;
   const gezgin = globalThis.navigator;
@@ -152,6 +168,8 @@ function ortamDili() {
     oturumVar: !nativeMi && normalYol(konum?.pathname) === "/" && webOturumuVar(),
     crm: String(konum?.hostname || "").toLowerCase() === "crm.borcama.com",
     bot: BOT_DESENI.test(String(gezgin?.userAgent || "")),
+    turkceSayfadanGeldi: !nativeMi
+      && turkceSayfadanMi(globalThis.document?.referrer || "", konum?.hostname || ""),
   });
 }
 

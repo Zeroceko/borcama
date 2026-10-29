@@ -13,6 +13,7 @@ import {
   diliDegistirVeYenile,
   locale,
   t,
+  turkceSayfadanMi,
 } from "./i18n.js";
 import tr from "./locales/tr.js";
 import en from "./locales/en.js";
@@ -217,4 +218,15 @@ test("bölüm sözlüklerinde aynı anahtar farklı Türkçe metinle tanımlanma
       else gorulenEn.set(anahtar, { metin, dosya });
     }
   }
+});
+
+test("web: Türkçe sayfadan gelen ziyaretçi giriş/kayıtta Türkçe görür; kayıtlı seçim önce gelir", () => {
+  assert.equal(dilBelirle({ native: false, tarayiciDili: "en-US", yol: "/login", turkceSayfadanGeldi: true }), "tr");
+  assert.equal(dilBelirle({ native: false, kayitli: "en", tarayiciDili: "en-US", yol: "/login", turkceSayfadanGeldi: true }), "en");
+  assert.equal(dilBelirle({ native: true, tarayiciDili: "en-US", turkceSayfadanGeldi: true }), "en");
+  assert.equal(turkceSayfadanMi("https://borcama.com/", "borcama.com"), true);
+  assert.equal(turkceSayfadanMi("https://borcama.com/rehber/kredi-karti-borcu", "borcama.com"), true);
+  assert.equal(turkceSayfadanMi("https://borcama.com/register", "borcama.com"), false);
+  assert.equal(turkceSayfadanMi("https://www.google.com/", "borcama.com"), false);
+  assert.equal(turkceSayfadanMi("", "borcama.com"), false);
 });
