@@ -26,7 +26,9 @@ const FIELD_ALIASES = {
     "min odeme tutari",
     "en az odeme tutari",
   ],
-  creditLimit: ["toplam kredi limiti", "kart limiti", "musteri limiti", "limiti"],
+  // "limitiniz" (VakifBank) "limiti"nden once: aksi halde yasal metindeki
+  // "karti limiti 100.000 TL ve altindaysa" cumlesi limit sanilir.
+  creditLimit: ["toplam kredi limiti", "kart limiti", "musteri limiti", "limitiniz", "limiti"],
   previousBalance: [
     "onceki donemden devir edilen tutar",
     "bir onceki donem ekstre borcu",
@@ -109,6 +111,10 @@ function parseMoneyResult(raw, { statementField = false } = {}) {
       value.slice(0, index).replace(/[.,]/g, "") +
       "." +
       value.slice(index + 1).replace(/[.,]/g, "");
+  } else if (/^\d{1,3}(?:([.,])\d{3})(?:\1\d{3})*$/.test(value)) {
+    // 100.000 veya 1,250,000: binlik ayiraci duzgun basilmis tam sayi;
+    // kaybolmus kurus degil.
+    value = value.replace(/[.,]/g, "");
   } else {
     const digits = value.replace(/[.,]/g, "");
     // Banka ekstrelerindeki ozet tutarlar daima kurus hanesiyle basilir.

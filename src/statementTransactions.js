@@ -65,6 +65,18 @@ export function categorizeStatementTransaction(description = "") {
   return "Diğer";
 }
 
+// VakifBank: "ACIKLAMA TUTAR KALAN-TAKSIT WORLDPUAN". Tutar, kalan taksit
+// ("2x639.50" / "Son Taksit") ve puan (tam sayi) sutunlarindan oncedir;
+// sondaki tutar kalan taksit tutaridir. Iadeler "+" ile basilir.
+const VAKIFBANK_SATIRI = /\s([+-]?[0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{2})(?:\s*(?:\d+x[0-9.,]+|son taksit))?(?:\s+\d+)?\s*$/i;
+
+function vakifbankIadesi(line) {
+  const dateMatch = String(line).match(/^\s*\d{1,2}[./-]\d{1,2}[./-]\d{4}\s+(.+)$/);
+  if (!dateMatch || !/\biade\b/.test(normalizeStatementText(dateMatch[1]))) return 0;
+  const match = dateMatch[1].match(VAKIFBANK_SATIRI);
+  return match && match[1].startsWith("+") ? parseMoney(match[1]) || 0 : 0;
+}
+
 function transactionLineParts(line, bank) {
   const dateMatch = String(line).match(/^\s*(\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{1,2}\s+[A-Za-zÇĞİÖŞÜçğıöşü]+\s+\d{4})\s+(.+)$/u);
   if (!dateMatch) return null;
@@ -87,6 +99,11 @@ function transactionLineParts(line, bank) {
     if (chosen[1].startsWith("+")) return null;
     amountRaw = chosen[1];
     description = body.slice(0, chosen.index).replace(/\s*[0-9.,]+\s*\/\s*\d+\s*-?\s*$/, "").trim();
+  } else if (bank === "VakıfBank") {
+    const match = body.match(VAKIFBANK_SATIRI);
+    if (!match || match[1].startsWith("+")) return null;
+    amountRaw = match[1];
+    description = body.slice(0, match.index).trim();
   } else {
     const matches = [...body.matchAll(/(?:TL\.?\s*)?([+-]?\s*[0-9]{1,3}(?:[.,][0-9]{3})*(?:[.,][0-9]{2}|,-)|[+-]?\s*[0-9]+[.,][0-9]{2})\s*(?:TL)?/gi)];
     if (!matches.length) return null;
@@ -111,7 +128,9 @@ function transactionLineParts(line, bank) {
 export function parseStatementTransactions(text, { bank = "", currentPurchases = null } = {}) {
   const seen = new Set();
   const transactions = [];
+  let refundTotal = 0;
   for (const line of String(text).split(/\n/)) {
+    if (bank === "VakıfBank") refundTotal += vakifbankIadesi(line);
     const item = transactionLineParts(line, bank);
     if (!item) continue;
     const key = `${item.date}|${normalizeStatementText(item.description)}|${item.amount.toFixed(2)}`;
@@ -120,9 +139,11 @@ export function parseStatementTransactions(text, { bank = "", currentPurchases =
     transactions.push({ ...item, key });
   }
   const detectedTotal = Math.round(transactions.reduce((sum, item) => sum + item.amount, 0) * 100) / 100;
+  refundTotal = Math.round(refundTotal * 100) / 100;
+  // VakifBank'in "Donem ici islemler" toplami iadeler dusulmus nettir.
   const expected = Number(currentPurchases);
   const coverage = Number.isFinite(expected) && expected > 0
-    ? Math.round((detectedTotal / expected) * 100)
+    ? Math.round(((detectedTotal - refundTotal) / expected) * 100)
     : null;
-  return { transactions, detectedTotal, coverage };
+  return { transactions, detectedTotal, refundTotal, coverage };
 }

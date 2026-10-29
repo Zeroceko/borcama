@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.5] - 2026-10-29
+
+Web ve iOS aynı sürüm (iOS build 40).
+
+### Düzeltildi
+
+- VakıfBank ekstresinde kart limiti sayfa sonundaki yasal metinden ("kartı limiti 100.000 TL ve altındaysa") okunup 1.000 TL sanılıyordu; "olağan dışı" hatası kaydı engelliyor, yersiz "kuruş ayıracı" uyarısı çıkıyordu. Artık "Limitiniz" satırı okunuyor; binlik ayıraçlı tam sayılar (100.000) kuruş kaybı sayılmıyor.
+- VakıfBank ekstresinde taksitli harcamaların tutarı yanlışlıkla "kalan taksit" sütunundan alınıyordu; artık tutar sütunu okunuyor. İadeler "İadeler" olarak gösterilip eşleşmeden düşülüyor, böylece bulunan harcamalar ekstre toplamıyla eşleşiyor.
+- Ekstre kaydında "Ekstreyi kaydet" düğmesi pasifken de etkin görünüyordu; artık soluk görünüyor.
+
 ## [1.74.4] - 2026-10-29
 
 Web ve iOS aynı sürüm (iOS build 39).

@@ -209,3 +209,27 @@ Bir önceki ekstre borcu Ödemeler Harcamalar ve yansıyan taksitler Nakit avans
   assert.equal(result.bank, "Enpara");
   assert.ok(result.blockingErrors.some((error) => error.includes("birbiriyle uyuşmuyor")));
 });
+
+test("limit: 'Limitiniz' satırı okunur; yasal metindeki binlik ayıraçlı sayı kuruş sanılmaz", () => {
+  // Uydurma metin; gerçek ekstre verisi değil.
+  const text = [
+    "VakıfBank World",
+    "Kredi kartı limitinizi mobil uygulamadan artırabilirsiniz.",
+    "Dönem Borcunuz : 4,500.00 TL",
+    "Asgari Ödeme Tutarı : 900.00 TL",
+    "Son Ödeme Tarihi : 04.11.2026",
+    "Limitiniz : 50,000.00 TL",
+    "Hesap Kesim Tarihi : 25.10.2026",
+    "Asgari ödeme oranı, kredi kartı limiti 100.000 TL ve altındaysa %20 olarak geçerlidir.",
+  ].join("\n");
+  const sonuc = parseStatementText(text);
+  assert.equal(sonuc.creditLimit, 50000);
+  assert.deepEqual(sonuc.recoveredFields, []);
+  assert.deepEqual(sonuc.blockingErrors, []);
+});
+
+test("binlik ayıraçlı tam sayı (100.000) kuruş kurtarmaya girmez", () => {
+  const sonuc = parseStatementText("Kart limiti 100.000 TL\nDönem borcu 1.234,56");
+  assert.equal(sonuc.creditLimit, 100000);
+  assert.ok(!sonuc.recoveredFields.includes("creditLimit"));
+});

@@ -774,6 +774,7 @@ const de_ = {
   "ekstre.kalem.dahilEt": "{ad} einbeziehen",
   "ekstre.kalem.kategori": "Kategorie für {ad}",
   "ekstre.kapsam.bulunan": "Gefunden:",
+  "ekstre.kapsam.iadeler": "Erstattungen:",
   "ekstre.kapsam.ekstreToplami": "Abrechnungssumme:",
   "ekstre.kapsam.eslesme": "Übereinstimmung:",
   "ekstre.kapsam.oran": "{oran} %",

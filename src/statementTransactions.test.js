@@ -56,3 +56,22 @@ test("Halkbank kalan borc sutununu islem tutarina katmaz", () => {
   assert.deepEqual(result.transactions.map((item) => item.amount), [3000, 508, 99]);
   assert.deepEqual(result.transactions.map((item) => item.category), ["Yeme-İçme", "Ulaşım", "Eğlence"]);
 });
+
+test("VakıfBank: tutar sütunu kalan taksitten önce okunur, iade eşleşmeden düşülür", () => {
+  // Uydurma satırlar; gerçek ekstre verisi değil.
+  const text = [
+    "10.09.2026 ORNEK MAGAZA 2. Taksit 120.50 3x120.50",
+    "12.09.2026 ORNEK OTO 4. Taksit 1,000.00 Son Taksit",
+    "01.10.2026 ORNEK SIGORTA 1. Taksit 300.25 5x310.00",
+    "02.10.2026 ORNEK KAFE 45.00 2",
+    "03.10.2026 2.00 EUR ORNEK SERVIS/LONDON 75.30",
+    "04.10.2026 ORNEK TAKSIT 2.KKDF 1.20 1x0.60",
+    "05.10.2026 10.00 USD İADE/ORNEK IADE +90.00",
+    "06.10.2026 ÖDEMENİZ İÇİN TEŞEKKÜRLER +500.00",
+  ].join("\n");
+  const sonuc = parseStatementTransactions(text, { bank: "VakıfBank", currentPurchases: 1451.05 });
+  assert.deepEqual(sonuc.transactions.map((x) => x.amount), [120.5, 1000, 300.25, 45, 75.3]);
+  assert.equal(sonuc.detectedTotal, 1541.05);
+  assert.equal(sonuc.refundTotal, 90);
+  assert.equal(sonuc.coverage, 100);
+});

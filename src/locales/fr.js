@@ -774,6 +774,7 @@ const fr_ = {
   "ekstre.kalem.dahilEt": "Inclure {ad}",
   "ekstre.kalem.kategori": "Catégorie de {ad}",
   "ekstre.kapsam.bulunan": "Trouvé :",
+  "ekstre.kapsam.iadeler": "Remboursements :",
   "ekstre.kapsam.ekstreToplami": "Total du relevé :",
   "ekstre.kapsam.eslesme": "Correspondance :",
   "ekstre.kapsam.oran": "{oran} %",
