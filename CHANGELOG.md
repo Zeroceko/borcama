@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Web'de giriş ve kayıt ekranında "Kod gönder" / "Giriş yap" düğmesi hiç etkinleşmiyordu (1.74.0): güvenlik doğrulaması (Turnstile) her çizimde baştan başladığı için jeton gelmiyordu.
+
 ## [1.74.1] - 2026-10-29
 
 Web ve iOS aynı sürüm (iOS build 37). 1.74.0 iOS'a yüklenmedi; iOS'a bu düzeltmeyle birlikte 1.74.1 olarak çıkar.

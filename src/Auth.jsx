@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { runAuthAttempt, recoveryErrorMessage } from "./authAttempt.js";
 import { supabase, supabaseHazir } from "./supabaseClient.js";
 import {
@@ -304,13 +304,15 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [captchaToken, setCaptchaToken] = useState("");
   // Kod gönderiminde ikinci istek için yeni Turnstile jetonu beklenir.
   const captchaBekleyen = useRef(null);
-  const captchaJetonuGeldi = (jeton) => {
+  // Kimligi sabit kalmali: TurnstileWidget'in effect'i onToken'a bagli;
+  // her cizimde yeni fonksiyon widget'i surekli sifirlar ve jeton hic gelmez.
+  const captchaJetonuGeldi = useCallback((jeton) => {
     setCaptchaToken(jeton);
     if (jeton && captchaBekleyen.current) {
       captchaBekleyen.current(jeton);
       captchaBekleyen.current = null;
     }
-  };
+  }, []);
   // Kod ekranındaki bağlam: "hesapVar" (kayıtta var olan hesap),
   // "yeniHesap" (kayıtta yeni hesap), "girisYeniHesap" (girişte hesap yoktu).
   const [kodBaglami, setKodBaglami] = useState(null);

@@ -85,3 +85,12 @@ test("kod gönderimi: kayıtta önce var olan hesap, girişte hesap yoksa onayl�
       assert.ok(sozluk[k], `${dil} ${k}`);
   }
 });
+
+test("Turnstile: onToken/onStatus kimliği sabit (widget sıfırlama döngüsü olmaz)", async () => {
+  const auth = await oku("./Auth.jsx");
+  // TurnstileWidget effect'i bu prop'lara bağlı; her çizimde yeni fonksiyon
+  // widget'ı sürekli sıfırlar, jeton gelmez, "Kod gönder" pasif kalır (1.74.0).
+  assert.match(auth, /onToken=\{captchaJetonuGeldi\}/);
+  assert.match(auth, /onStatus=\{setCaptchaDurumu\}/);
+  assert.match(auth, /const captchaJetonuGeldi = useCallback\(/);
+});
