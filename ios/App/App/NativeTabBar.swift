@@ -82,6 +82,33 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         // gostergesi kapatiliyor.
         webView?.scrollView.showsVerticalScrollIndicator = false
         webView?.scrollView.showsHorizontalScrollIndicator = false
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(panodanKodOku),
+            name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+
+    // MARK: - Panodan kod
+
+    // iOS tek kullanimlik kodu yalniz Mesajlar ve Mail'den oneriyor; Gmail
+    // gibi uygulamalardan kopyalanan kod icin kod ekrani acikken uygulamaya
+    // donulunce pano kontrol edilir. Sayac kod ekrani acildigindaki pano
+    // durumudur: o andan sonra kopyalanmamis icerik okunmaz. Icerik sayi
+    // gibi gorunmuyorsa okunmaz, boylece yapistirma izni sorulmaz.
+    private var kodPanoSayaci: Int?
+
+    @objc private func panodanKodOku() {
+        let pano = UIPasteboard.general
+        guard let sayac = kodPanoSayaci, pano.changeCount != sayac else { return }
+        kodPanoSayaci = pano.changeCount
+        pano.detectPatterns(for: [.number]) { sonuc in
+            guard case .success(let bulunan) = sonuc, bulunan.contains(.number) else { return }
+            DispatchQueue.main.async {
+                guard let metin = pano.string,
+                      let aralik = metin.range(of: #"(?<!\d)\d{6}(?!\d)"#, options: .regularExpression)
+                else { return }
+                self.webOlayi("borcamaPanodanKod", ["kod": String(metin[aralik])])
+            }
+        }
     }
 
     // MARK: - Web'den gelen mesajlar
@@ -113,6 +140,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             case "goster":
                 self.webGosterilsin = govde["gorunsun"] as? Bool ?? true
                 self.gorunurluguUygula()
+            case "kodBekle":
+                self.kodPanoSayaci = govde["acik"] as? Bool == true ? UIPasteboard.general.changeCount : nil
             default:
                 break
             }
