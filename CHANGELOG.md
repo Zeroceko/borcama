@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.6] - 2026-10-29
+
+Web ve iOS aynı sürüm (iOS build 41).
+
+### Eklendi
+
+- iPhone'da giriş kodu Gmail gibi bir uygulamadan kopyalanıp Borcama'ya dönülünce kutulara kendiliğinden doluyor ve doğrulama başlıyor (iOS ilk seferde yapıştırma izni sorar). Mail ve Mesajlar'daki kodu klavye zaten öneriyordu.
+
 ## [1.74.5] - 2026-10-29
 
 Web ve iOS aynı sürüm (iOS build 40).
