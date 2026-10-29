@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.4] - 2026-10-29
+
+Web ve iOS aynı sürüm (iOS build 39).
+
 ### Düzeltildi
 
 - Giriş ekranında e-posta yazılınca "Kod gönder" hemen basılabiliyor; robot doğrulaması arka planda bitmemişse düğme "Doğrulanıyor…" gösterip bekliyor, kutu işaret isterse ekran ona kayıp kısa bir açıklama gösteriyor.
