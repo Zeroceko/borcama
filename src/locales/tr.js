@@ -105,6 +105,8 @@ const tr = {
   "auth.captcha.desteklenmiyor": "Bu tarayıcı güvenlik kontrolünü desteklemiyor. Güncel bir tarayıcıyla yeniden deneyin.",
   "auth.captcha.tamamlanamadi": "Güvenlik kontrolü tamamlanamadı. Bağlantını kontrol edip yeniden deneyebilirsin.",
   "auth.captcha.yenidenDene": "Yeniden dene",
+  "auth.captcha.isaretle": "Devam etmek için aşağıdaki doğrulama kutusunu işaretle.",
+  "auth.captcha.dogrulaniyor": "Doğrulanıyor…",
   "auth.hata.sozlesme": "Devam etmek için Kullanıcı Sözleşmesi'ni kabul etmeli ve KVKK Aydınlatma Metni'ni okuduğunuzu belirtmelisiniz.",
   "auth.hata.cokDenemeTekrar": "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin.",
   "auth.hata.cokDeneme": "Çok fazla deneme yapıldı. Lütfen biraz bekleyin.",

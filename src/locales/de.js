@@ -1710,6 +1710,8 @@ const de_ = {
   "auth.captcha.desteklenmiyor": "Dieser Browser unterstützt die Sicherheitsprüfung nicht. Versuch es mit einem aktuellen Browser noch einmal.",
   "auth.captcha.tamamlanamadi": "Die Sicherheitsprüfung konnte nicht abgeschlossen werden. Prüf deine Verbindung und versuch es noch einmal.",
   "auth.captcha.yenidenDene": "Erneut versuchen",
+  "auth.captcha.isaretle": "Hak das Prüffeld unten an, um fortzufahren.",
+  "auth.captcha.dogrulaniyor": "Wird geprüft…",
   "auth.hata.sozlesme": "Um fortzufahren, akzeptiere die Nutzungsbedingungen und bestätige, dass du den Datenschutzhinweis gelesen hast.",
   "auth.hata.cokDenemeTekrar": "Zu viele Versuche. Bitte warte einen Moment und versuch es noch einmal.",
   "auth.hata.cokDeneme": "Zu viele Versuche. Bitte warte einen Moment.",

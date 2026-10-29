@@ -1710,6 +1710,8 @@ const fr_ = {
   "auth.captcha.desteklenmiyor": "Ce navigateur ne prend pas en charge la vérification de sécurité. Réessayez avec un navigateur à jour.",
   "auth.captcha.tamamlanamadi": "La vérification de sécurité n'a pas pu aboutir. Vérifiez votre connexion et réessayez.",
   "auth.captcha.yenidenDene": "Réessayer",
+  "auth.captcha.isaretle": "Pour continuer, cochez la case de vérification ci-dessous.",
+  "auth.captcha.dogrulaniyor": "Vérification…",
   "auth.hata.sozlesme": "Pour continuer, acceptez les Conditions d'utilisation et confirmez avoir lu la Politique de confidentialité.",
   "auth.hata.cokDenemeTekrar": "Trop de tentatives. Patientez un instant puis réessayez.",
   "auth.hata.cokDeneme": "Trop de tentatives. Veuillez patienter un instant.",

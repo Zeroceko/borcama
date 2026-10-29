@@ -104,6 +104,8 @@ const en = {
   "auth.captcha.desteklenmiyor": "This browser doesn't support the security check. Try again with an up-to-date browser.",
   "auth.captcha.tamamlanamadi": "The security check couldn't finish. Check your connection and try again.",
   "auth.captcha.yenidenDene": "Try again",
+  "auth.captcha.isaretle": "To continue, tick the verification box below.",
+  "auth.captcha.dogrulaniyor": "Verifying…",
   "auth.hata.sozlesme": "To continue, accept the Terms of Use and confirm you've read the Privacy Notice.",
   "auth.hata.cokDenemeTekrar": "Too many attempts. Please wait a moment and try again.",
   "auth.hata.cokDeneme": "Too many attempts. Please wait a moment.",

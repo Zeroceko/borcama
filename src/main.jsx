@@ -25,7 +25,7 @@ import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
 import Onboarding, { NativeOnboarding } from "./Onboarding.jsx";
-import { nativeOnboardingVarMi } from "./onboardingKoprusu.js";
+import { YOL_OLAYI, nativeOnboardingVarMi } from "./onboardingKoprusu.js";
 import { onboardingTamamlandiMi } from "./onboardingDurumu.js";
 import HesapSilindiEkrani from "./AccountDeleted.jsx";
 import { MasaustuUstCubuk, useMasaustu } from "./MasaustuKabuk.jsx";
@@ -95,8 +95,9 @@ function dogrulamaBaglantisiMi() {
 }
 
 function nativeEkran(yol) {
-  if (yol === "/login") return <GirisEkrani />;
-  if (yol === "/register") return <GirisEkrani kayitModu />;
+  // Anahtar: yenilemesiz giriş ↔ kayıt geçişinde ekran durumu sıfırlansın.
+  if (yol === "/login") return <GirisEkrani key="giris" />;
+  if (yol === "/register") return <GirisEkrani key="kayit" kayitModu />;
   if (yol === "/auth-callback") return <DogrulamaEkrani />;
   if (yol === "/reset-password") return <ParolaYenileEkrani />;
   if (yol === "/terms") return <KullaniciSozlesmesi />;
@@ -133,6 +134,13 @@ function NativeKapi({ yol }) {
 }
 
 function Kok() {
+  // sayfaDegistir (onboardingKoprusu.js) yenilemesiz yol degisikligi bildirir.
+  const [, yolDegisti] = useState(0);
+  useEffect(() => {
+    const yenidenCiz = () => yolDegisti((n) => n + 1);
+    window.addEventListener(YOL_OLAYI, yenidenCiz);
+    return () => window.removeEventListener(YOL_OLAYI, yenidenCiz);
+  }, []);
   let yol = window.location.pathname.replace(/\/+$/, "") || "/";
   const alan = window.location.hostname.toLowerCase();
   const crmAlani = alan === CRM_ALANI;
