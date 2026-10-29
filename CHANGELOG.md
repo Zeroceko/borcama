@@ -4,9 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.74.3] - 2026-10-29
+
+Web ve iOS aynı sürüm (iOS build 37). 1.74.2 iOS'a yüklenmedi.
+
+### Düzeltildi
+
+- Web'de Türkçe sayfadan (ana sayfa, rehber, araçlar) "Giriş yap" ya da "Ücretsiz başla"ya basan ziyaretçi, tarayıcısı İngilizce olsa da giriş/kayıt ekranını Türkçe görüyor; dil düğmesiyle veya kayıtlı seçimle değiştirilebilir.
+
 ## [1.74.2] - 2026-10-29
 
-Web ve iOS aynı sürüm (iOS build 37). 1.74.1 iOS'a yüklenmedi.
+Web sürümü; iOS'a 1.74.3 build 37 ile birlikte çıktı.
 
 ### Düzeltildi
 
@@ -14,7 +22,7 @@ Web ve iOS aynı sürüm (iOS build 37). 1.74.1 iOS'a yüklenmedi.
 
 ## [1.74.1] - 2026-10-29
 
-Web sürümü; iOS'a 1.74.2 build 37 ile birlikte çıktı.
+Web sürümü; iOS'a 1.74.3 build 37 ile birlikte çıktı.
 
 ### Düzeltildi
 
@@ -22,7 +30,7 @@ Web sürümü; iOS'a 1.74.2 build 37 ile birlikte çıktı.
 
 ## [1.74.0] - 2026-10-28
 
-Web sürümü (iOS'a 1.74.2 build 37 ile birlikte çıktı). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
+Web sürümü (iOS'a 1.74.3 build 37 ile birlikte çıktı). Büyük ekranda kayıttan kullanıma kesintisiz akış (docs/web-akis-direktifi.md PR-2, PR-3).
 
 ### Eklendi
 
