@@ -1710,6 +1710,8 @@ const it_ = {
   "auth.captcha.desteklenmiyor": "Questo browser non supporta il controllo di sicurezza. Riprova con un browser aggiornato.",
   "auth.captcha.tamamlanamadi": "Impossibile completare il controllo di sicurezza. Controlla la connessione e riprova.",
   "auth.captcha.yenidenDene": "Riprova",
+  "auth.captcha.isaretle": "Per continuare, spunta la casella di verifica qui sotto.",
+  "auth.captcha.dogrulaniyor": "Verifica in corso…",
   "auth.hata.sozlesme": "Per continuare, accetta i Termini di utilizzo e conferma di aver letto l'Informativa sulla privacy.",
   "auth.hata.cokDenemeTekrar": "Troppi tentativi. Attendi un momento e riprova.",
   "auth.hata.cokDeneme": "Troppi tentativi. Attendi un momento.",

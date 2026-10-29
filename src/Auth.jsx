@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
+import { karsilamayaDon, sayfaDegistir } from "./onboardingKoprusu.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 import {
   googleAdsYeniKullaniciDonusumu,
@@ -320,6 +321,9 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [girisHesapYok, setGirisHesapYok] = useState(false);
   const [captchaAttempt, setCaptchaAttempt] = useState(0);
   const [captchaDurumu, setCaptchaDurumu] = useState("loading");
+  // "Kod gönder"e jeton gelmeden basıldı; jeton bekleniyor.
+  const [captchaIsteniyor, setCaptchaIsteniyor] = useState(false);
+  const captchaKutusu = useRef(null);
   // Uygulama surumunde referans kodu hic okunmuyor; alan gizli oldugu icin
   // kod bos kaliyor ve kayitla birlikte sunucuya gonderilmiyor.
   const ilkReferansKodu = kayitModu && !nativeMi ? davetKodunuYoldanOku("", window.location.search) : "";
@@ -365,6 +369,14 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     };
   }, [yasalMetin]);
 
+  // Kontrol kutusu etkileşim isteyince görünür alana alınır. Klavye açıkken
+  // alttaki düğme kutunun üstüne biniyordu; kod istenmişse klavye kapanır.
+  useEffect(() => {
+    if (captchaDurumu !== "interactive" && !captchaIsteniyor) return;
+    if (captchaIsteniyor && captchaDurumu === "interactive") document.activeElement?.blur?.();
+    captchaKutusu.current?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+  }, [captchaDurumu, captchaIsteniyor]);
+
   // Kod ekraninda 60 sn tekrar gonderme sayaci.
   useEffect(() => {
     if (!kodModu || tekrarZamani <= Date.now()) return undefined;
@@ -390,7 +402,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     const engellenmis = hataKodu === "200500" || hataKodu === "script";
     const yapilandirmaHatasi = ["110100", "110110", "110200", "400020", "400021", "400070"].includes(hataKodu);
     return (
-      <>
+      <div ref={captchaKutusu}>
+        {captchaDurumu === "interactive" && <p className="oa-ipucu oa-captcha-ipucu">{t("auth.captcha.isaretle")}</p>}
         <TurnstileWidget
           siteKey={turnstileSiteKey}
           widgetKey={`${widgetKey}-${captchaAttempt}`}
@@ -423,16 +436,16 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             </button>
           </div>
         )}
-      </>
+      </div>
     );
   }
 
   // Önceki istek jetonu tükettikten sonra Turnstile yenisini üretir; Turnstile
   // yoksa (yerel geliştirme) jeton gerekmez.
-  function yeniCaptchaJetonu() {
+  function yeniCaptchaJetonu(sure = 20000) {
     if (!turnstileSiteKey) return Promise.resolve("");
     return new Promise((coz, reddet) => {
-      const zamanAsimi = window.setTimeout(() => { captchaBekleyen.current = null; reddet(new Error("captcha")); }, 20000);
+      const zamanAsimi = window.setTimeout(() => { captchaBekleyen.current = null; reddet(new Error("captcha")); }, sure);
       captchaBekleyen.current = (jeton) => { window.clearTimeout(zamanAsimi); coz(jeton); };
     });
   }
@@ -477,7 +490,22 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       },
     }));
     let baglam = null;
-    let { error } = await kodIste(girisHesapYok, captchaToken);
+    // Düğme jetonu beklemez: jeton henüz yoksa burada beklenir. Kontrol
+    // etkileşim isterse kutu görünür kılınır ve işaretlenince kod gider.
+    let jeton = captchaToken;
+    if (turnstileSiteKey && !jeton) {
+      setCaptchaIsteniyor(true);
+      try {
+        jeton = await yeniCaptchaJetonu(90000);
+      } catch {
+        setCaptchaIsteniyor(false);
+        setGonderiliyor(false);
+        setHata(t("auth.captcha.tamamlanamadi"));
+        return;
+      }
+      setCaptchaIsteniyor(false);
+    }
+    let { error } = await kodIste(girisHesapYok, jeton);
     if (girisHesapYok) {
       baglam = "girisYeniHesap";
     } else if (!error) {
@@ -645,9 +673,16 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const formId = "auth-form";
   const captchaBekliyor = Boolean(turnstileSiteKey && !captchaToken);
   const ustSag = <DilDugmesi className="oa-cip kucuk oa-ust-sag" kisa />;
+  // iOS'ta giriş ↔ kayıt geçişi sayfa yenilemeden (açılış ekranı görünmez).
+  const nativeGecis = (e) => {
+    if (!nativeMi) return;
+    e.preventDefault();
+    const hedef = e.currentTarget.getAttribute("href");
+    sayfaDegistir(hedef);
+  };
   const geriDugmesi = nativeMi ? (
     // Native kabukta ana sayfa yok; geri dugmesi karsilama ekranina doner.
-    <a className="oa-geri" href="/summary" onClick={proNiyetiniTemizle} aria-label={t("auth.geri")}>
+    <a className="oa-geri" href="/summary" onClick={(e) => { e.preventDefault(); proNiyetiniTemizle(); karsilamayaDon(); }} aria-label={t("auth.geri")}>
       <ChevronLeft size={20} strokeWidth={2.2} />
     </a>
   ) : (
@@ -752,7 +787,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         {hata && <p className="oa-hata" role="alert">{hata}</p>}
         <div className="oa-satir-ara">
           <span>{t("auth.kod.gelmedi")}</span>
-          <button className="oa-baglanti" type="button" disabled={gonderiliyor || kalan > 0 || captchaBekliyor} onClick={() => kodGonder()}>
+          <button className="oa-baglanti" type="button" disabled={gonderiliyor || kalan > 0} onClick={() => kodGonder()}>
             {kalan > 0 ? t("auth.kod.tekrarSure", { sure }) : t("auth.kod.tekrar")}
           </button>
         </div>
@@ -1005,7 +1040,8 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       </>
     );
     const onaylarEksik = (kayitModu || girisHesapYok) && (!sozlesmeKabul || !aydinlatmaOkundu);
-    const pasif = gonderiliyor || captchaBekliyor || !eposta.trim()
+    // Kod akışında düğme jetonu beklemez (kodGonder bekler); parola girişi bekler.
+    const pasif = gonderiliyor || (!linkModu && captchaBekliyor) || !eposta.trim()
       || (!linkModu && !parola)
       || onaylarEksik;
     // Pasif düğmenin nedeni: e-posta geçerli ama onaylar eksik.
@@ -1014,18 +1050,18 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       <>
         <button className="oa-dugme" type="submit" form={formId} disabled={pasif} aria-describedby={onayIpucu ? "auth-onay-ipucu" : undefined}>
           {linkModu
-            ? gonderiliyor ? t("auth.gonderiliyor") : t("auth.gonder.kod")
+            ? captchaIsteniyor ? t("auth.captcha.dogrulaniyor") : gonderiliyor ? t("auth.gonderiliyor") : t("auth.gonder.kod")
             : gonderiliyor ? t("auth.gonder.girisYapiliyor") : t("auth.gonder.giris")}
         </button>
         {onayIpucu && <p className="oa-ipucu" id="auth-onay-ipucu">{t("auth.ipucu.onaylar")}</p>}
         <p className="oa-gecis">
           {kayitModu ? (
             <>
-              {t("auth.gecis.hesapVar")} <a href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"}>{t("auth.gecis.girisYap")}</a>
+              {t("auth.gecis.hesapVar")} <a href={ilkProPlani ? `/login?plan=${ilkProPlani}` : "/login"} onClick={nativeGecis}>{t("auth.gecis.girisYap")}</a>
             </>
           ) : (
             <>
-              {t("auth.gecis.hesapYok")} <a href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"}>{t("auth.gecis.kayitOl")}</a>
+              {t("auth.gecis.hesapYok")} <a href={ilkProPlani ? `/register?plan=${ilkProPlani}` : "/register"} onClick={nativeGecis}>{t("auth.gecis.kayitOl")}</a>
             </>
           )}
         </p>

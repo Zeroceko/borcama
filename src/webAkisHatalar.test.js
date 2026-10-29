@@ -74,7 +74,10 @@ test("kod gönderimi: kayıtta önce var olan hesap, girişte hesap yoksa onayl�
   const kod = auth.slice(auth.indexOf("async function kodGonder"), auth.indexOf("function oturumKalicilginiYaz"));
   // İlk istek yalnız onay verilmiş girişte hesap açar; kayıtta hesap yoksa
   // ikinci istek yeni Turnstile jetonuyla hesap açar.
-  assert.match(kod, /let \{ error \} = await kodIste\(girisHesapYok, captchaToken\);/);
+  // Jeton yoksa düğme beklemez; kodGonder jetonu bekleyip ilk isteği onunla atar.
+  assert.match(kod, /let jeton = captchaToken;/);
+  assert.match(kod, /jeton = await yeniCaptchaJetonu\(90000\);/);
+  assert.match(kod, /let \{ error \} = await kodIste\(girisHesapYok, jeton\);/);
   assert.match(kod, /kayitModu && hesapYokHatasi\(error\)[\s\S]+yeniCaptchaJetonu\(\)[\s\S]+kodIste\(true, jeton\)/);
   assert.match(kod, /setGirisHesapYok\(true\)/);
   assert.match(kod, /yeniHesapIzni && \(!sozlesmeKabul \|\| !aydinlatmaOkundu\)/);

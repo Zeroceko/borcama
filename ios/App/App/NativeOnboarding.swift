@@ -210,6 +210,8 @@ final class OBDurum: ObservableObject {
         tema = OBDurum.temalar.contains(gelenTema) ? gelenTema : "system"
         ulke = govde["ulke"] as? String ?? ""
         paraBirimi = govde["paraBirimi"] as? String ?? "TRY"
+        // Giris ekranindan geri donuste acilis logosu tekrar oynamaz.
+        if govde["geri"] as? Bool == true { adim = .karsilama }
     }
 
     // MARK: Metin
@@ -2086,7 +2088,10 @@ final class OBDenetleyici: UIHostingController<OBAkis> {
         self.durum = durum
         OBYazi.kaydet()
         super.init(rootView: OBAkis(d: durum))
-        modalPresentationStyle = .fullScreen
+        // overFullScreen: altindaki webview pencereden cikarilmaz; giris
+        // ekranina gecerken web onceden cizilmis olur ve yan yana kayarlar.
+        modalPresentationStyle = .overFullScreen
+        modalPresentationCapturesStatusBarAppearance = true
         // Akis kendi geri dugmesiyle gezinir; kaydirarak kapatma yok.
         isModalInPresentation = true
         #if DEBUG

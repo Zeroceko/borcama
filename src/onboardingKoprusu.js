@@ -116,12 +116,22 @@ export async function baslatMesaji(bugun = new Date()) {
 // veri yazilmaz, giris ekranina gidilir. "misafir"de hesapsiz kullanim
 // acilir; "tamam"da hesap acma (kayit) ekranina gidilir. Iki durumda da
 // sonuc bekler ve uygulama acilinca veriye yazilir.
+// Sayfa yenilemeden yol degistirir; main.jsx Kok bu olayla yeniden cizer.
+// Yenileme acilis ekranini (logo + yukleniyor) bir an gosteriyordu.
+export const YOL_OLAYI = "borcamaYolDegisti";
+export function sayfaDegistir(yol) {
+  globalThis.history?.pushState({}, "", yol);
+  globalThis.dispatchEvent?.(new Event(YOL_OLAYI));
+}
+
 export function onboardingBitti(sonuc = {}, git = (hedef) => globalThis.location?.assign(hedef)) {
   if (DESTEKLENEN_DILLER.includes(sonuc.dil)) dilAyarla(sonuc.dil);
   if (DESTEKLENEN_PARA_BIRIMLERI.includes(sonuc.paraBirimi)) paraBirimiAyarla(sonuc.paraBirimi);
   if (/^[A-Z]{2}$/.test(String(sonuc.ulke || ""))) bolgeAyarla(sonuc.ulke);
   onboardingTamamla();
-  if (sonuc.cikis === "giris") return git("/login");
+  // Giris ekrani native karsilamanin altinda yenilemesiz cizilir; native
+  // taraf karsilamayi sola kaydirarak kapatir.
+  if (sonuc.cikis === "giris") return sayfaDegistir("/login");
   bekleyenSonucuKaydet(sonuc);
   void onboardingOlayiKaydet("onboarding_tamam", {
     borc_sayisi: Array.isArray(sonuc.borclar) ? sonuc.borclar.length : 0,
@@ -137,7 +147,10 @@ export function onboardingBitti(sonuc = {}, git = (hedef) => globalThis.location
 
 // Koprunun acilisi: baslat mesajini gonderir, native olaylarini dinler.
 // Donen fonksiyon dinleyicileri kaldirir.
-export function nativeOnboardingBaslat() {
+// `geri`: giris/kayit ekranindan geri donus. Native karsilamadan baslar
+// (acilis logosu yok) ve soldan kayarak gelir; web sayfasi yerinde kalir.
+// Akis bitince dinleyiciler kendini kaldirir.
+export function nativeOnboardingBaslat({ geri = false } = {}) {
   const kapi = kanal();
   if (!kapi) return () => {};
   const dilOlayi = async (olay) => {
@@ -151,14 +164,28 @@ export function nativeOnboardingBaslat() {
     const { ad, adim, sure_ms } = olay?.detail || {};
     if (ad === "onboarding_adim" || ad === "onboarding_atla") void onboardingOlayiKaydet(ad, { adim, sure_ms });
   };
-  const bittiOlayi = (olay) => onboardingBitti(olay?.detail?.sonuc || {});
-  window.addEventListener("borcamaOnboardingDil", dilOlayi);
-  window.addEventListener("borcamaOnboardingOlay", olcumOlayi);
-  window.addEventListener("borcamaOnboardingBitti", bittiOlayi);
-  baslatMesaji().then((mesaj) => kapi.postMessage(mesaj)).catch(() => {});
-  return () => {
+  const kaldir = () => {
     window.removeEventListener("borcamaOnboardingDil", dilOlayi);
     window.removeEventListener("borcamaOnboardingOlay", olcumOlayi);
     window.removeEventListener("borcamaOnboardingBitti", bittiOlayi);
   };
+  const bittiOlayi = (olay) => {
+    if (geri) kaldir();
+    onboardingBitti(olay?.detail?.sonuc || {});
+  };
+  window.addEventListener("borcamaOnboardingDil", dilOlayi);
+  window.addEventListener("borcamaOnboardingOlay", olcumOlayi);
+  window.addEventListener("borcamaOnboardingBitti", bittiOlayi);
+  baslatMesaji().then((mesaj) => kapi.postMessage(geri ? { ...mesaj, geri: true } : mesaj)).catch(() => {});
+  return kaldir;
+}
+
+// Giris/kayit ekranindaki geri dugmesi (iOS): sayfa yenilenmez, native
+// karsilama soldan kayarak acilir. Ust uste basilirsa onceki dinleyiciler
+// kaldirilir. Native kanal yoksa (eski build) karsilama sayfasina gidilir.
+let geriDinleyicileri = null;
+export function karsilamayaDon() {
+  if (!kanal()) return globalThis.location?.assign("/summary");
+  geriDinleyicileri?.();
+  geriDinleyicileri = nativeOnboardingBaslat({ geri: true });
 }

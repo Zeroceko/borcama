@@ -40,6 +40,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     // uygulama icinden koyu temaya gecince cubuk da koyuya donuyor.
     private func temayiUygula(_ koyu: Bool) {
         koyuTema = koyu
+        temaBelirli = true
+        zeminiUygula()
         guard let cubuk else { return }
         cubuk.overrideUserInterfaceStyle = koyu ? .dark : .light
         cubuk.tintColor = koyu
@@ -49,6 +51,25 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             ? UIColor(red: 0.69, green: 0.71, blue: 0.66, alpha: 1)
             : UIColor(red: 0.36, green: 0.38, blue: 0.33, alpha: 1)
     }
+    // Web uygulama temasini bildirene kadar (giris oncesi ekranlar) zemin
+    // sistem temasini izler.
+    private var temaBelirli = false
+
+    // Klavye acilinca webview klavye kadar kisaliyor (Keyboard.resize =
+    // native); klavyenin yuvarlak koselerinin ve gecis animasyonunun
+    // arkasinda pencere gorunuyordu ve pencere siyahti. Pencere ve webview
+    // zemini uygulamanin zeminine (--oa-zemin: #f4efe0 / #0f110a) boyanir.
+    private func zeminiUygula() {
+        let acik = UIColor(red: 0.957, green: 0.937, blue: 0.878, alpha: 1)
+        let koyu = UIColor(red: 0.059, green: 0.067, blue: 0.039, alpha: 1)
+        let renk: UIColor = temaBelirli
+            ? (koyuTema ? koyu : acik)
+            : UIColor { $0.userInterfaceStyle == .dark ? koyu : acik }
+        view.window?.backgroundColor = renk
+        view.backgroundColor = renk
+        webView?.scrollView.backgroundColor = renk
+    }
+
     private var kanalKuruldu = false
     private var onboardingAcik = false
 
@@ -207,6 +228,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        // Pencere ilk yerlesimde baglanir; zemin o zaman boyanabilir.
+        if view.window?.backgroundColor != view.backgroundColor { zeminiUygula() }
         yerlesimiGuncelle()
     }
 
@@ -313,18 +336,59 @@ extension BorcamaBridgeViewController {
         durum.bitti = { [weak self] sonuc in
             guard let self else { return }
             self.webOlayi("borcamaOnboardingBitti", ["sonuc": sonuc])
-            // Web yeni sayfaya gecerken kisa bir an bekleyip kapatiyoruz; aksi
-            // halde altta acilis zemini bir an gorunuyor.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                self.dismiss(animated: true) {
+            // "Zaten hesabim var": web giris ekranini sayfa yenilemeden cizer;
+            // karsilama sola kayar, giris sagdan gelir (gezinme yigini gibi).
+            // Diger cikislarda web yeni sayfa yukler; kisa bir an bekleyip
+            // kapatiyoruz, aksi halde altta acilis zemini bir an gorunuyor.
+            let giris = sonuc["cikis"] as? String == "giris"
+            DispatchQueue.main.asyncAfter(deadline: .now() + (giris ? 0.15 : 0.35)) {
+                let bitti = {
                     self.onboardingAcik = false
                     self.gorunurluguUygula()
                 }
+                if giris { self.girisEkraninaKay(bitti: bitti) } else { self.dismiss(animated: true, completion: bitti) }
             }
         }
         onboardingAcik = true
         gorunurluguUygula()
-        present(OBDenetleyici(durum: durum), animated: false)
+        let karsilama = OBDenetleyici(durum: durum)
+        // Giris ekranindan geri: karsilama soldan, giris saga kayar.
+        guard govde["geri"] as? Bool == true, !UIAccessibility.isReduceMotionEnabled else {
+            return present(karsilama, animated: false)
+        }
+        // Kaydirma sunumdan sonra verilir: UIKit sunarken donusumu sifirliyor.
+        // Tamamlama ayni cizim turunda calistigi icin arada kare gorunmez.
+        let genislik = view.bounds.width
+        present(karsilama, animated: false) {
+            karsilama.view.transform = CGAffineTransform(translationX: -genislik, y: 0)
+            UIView.animate(withDuration: 0.34, delay: 0, options: [.curveEaseInOut], animations: {
+                karsilama.view.transform = .identity
+                self.view.transform = CGAffineTransform(translationX: genislik, y: 0)
+            }, completion: { _ in
+                self.view.transform = .identity
+            })
+        }
+    }
+
+    // Karsilama sola cikar, giris ekrani (web) sagdan gelir; ikisi yan
+    // yana kayar (gezinme yigini gibi). Karsilama overFullScreen sunuldugu
+    // icin webview pencerede kalir ve giris ekrani altta cizilmis olur.
+    fileprivate func girisEkraninaKay(bitti: @escaping () -> Void) {
+        guard !UIAccessibility.isReduceMotionEnabled,
+              let ust = presentedViewController?.view
+        else { return dismiss(animated: false, completion: bitti) }
+        let alt = view!
+        let genislik = alt.bounds.width
+        alt.transform = CGAffineTransform(translationX: genislik, y: 0)
+        UIView.animate(withDuration: 0.34, delay: 0, options: [.curveEaseInOut], animations: {
+            ust.transform = CGAffineTransform(translationX: -genislik, y: 0)
+            alt.transform = .identity
+        }, completion: { _ in
+            self.dismiss(animated: false) {
+                ust.transform = .identity
+                bitti()
+            }
+        })
     }
 
     fileprivate func webOlayi(_ ad: String, _ detay: [String: Any]) {
