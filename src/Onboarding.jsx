@@ -121,18 +121,28 @@ export function useSistemKoyu() {
 
 export const temaKoyuMu = (tema, sistemKoyu) => tema === "dark" || (tema === "system" && sistemKoyu);
 
-// Klavye (K12): native'de webview klavye kadar kuculur (Keyboard.resize =
-// native). Tarayicida visualViewport'tan klavye yuksekligi --klavye olarak
-// koke yazilir (.oa-alt bu kadar yukselir); odaklanan alan gorunur alana
-// kaydirilir.
+// Klavye (K12): tarayicida visualViewport'tan klavye yuksekligi --klavye
+// olarak koke yazilir (.oa-alt bu kadar yukselir); odaklanan alan gorunur
+// alana kaydirilir. iOS kabugu klavyeyi "borcamaKlavye" olayiyla bildirir
+// ({ yukseklik, sure }): CTA klavyeyle ayni surede ve egride kayar, webview
+// klavye bittikten sonra bir kerede kuculup "hoplamaz". Olay bir kez
+// geldiyse visualViewport yok sayilir.
 export function useKlavye(kokRef) {
   useEffect(() => {
     const kok = kokRef.current;
     if (!kok || typeof window === "undefined") return undefined;
     const vv = window.visualViewport;
+    let nativeKlavye = false;
     const guncelle = () => {
+      if (nativeKlavye) return;
       const yukseklik = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
       kok.style.setProperty("--klavye", `${Math.round(yukseklik)}px`);
+    };
+    const nativeKlavyeOlayi = (olay) => {
+      nativeKlavye = true;
+      const { yukseklik = 0, sure = 0.25 } = olay.detail || {};
+      kok.style.setProperty("--klavye-sure", `${Math.max(0, +sure || 0)}s`);
+      kok.style.setProperty("--klavye", `${Math.max(0, Math.round(+yukseklik || 0))}px`);
     };
     let zamanlayici;
     const odak = (olay) => {
@@ -144,8 +154,10 @@ export function useKlavye(kokRef) {
     guncelle();
     vv?.addEventListener("resize", guncelle);
     vv?.addEventListener("scroll", guncelle);
+    window.addEventListener("borcamaKlavye", nativeKlavyeOlayi);
     kok.addEventListener("focusin", odak);
     return () => {
+      window.removeEventListener("borcamaKlavye", nativeKlavyeOlayi);
       window.clearTimeout(zamanlayici);
       vv?.removeEventListener("resize", guncelle);
       vv?.removeEventListener("scroll", guncelle);

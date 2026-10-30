@@ -72,6 +72,11 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     private var kanalKuruldu = false
     private var onboardingAcik = false
+    // "Zaten hesabim var": web giris ekranini cizince borcamaOnboarding
+    // kanalina { tip: "girisHazir" } gonderir; karsilama ancak o zaman kayar,
+    // aksi halde altta yukleniyor ekrani gorunup giris birden beliriyordu.
+    fileprivate var girisHazir = false
+    fileprivate var girisHazirBekleyen: (() -> Void)?
 
     override func capacitorDidLoad() {
         guard !kanalKuruldu else { return }
@@ -85,6 +90,36 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         NotificationCenter.default.addObserver(
             self, selector: #selector(panodanKodOku),
             name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(klavyeCercevesiDegisti(_:)),
+            name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(klavyeCercevesiDegisti(_:)),
+            name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    // MARK: - Klavye
+
+    // Keyboard.resize "none": webview kuculmez. Klavyenin pencerede kapladigi
+    // yukseklik (nokta) ve animasyon suresi (sn) web'e "borcamaKlavye"
+    // olayiyla gider; kapanista yukseklik 0. Web alt boslugu (--klavye) ayni
+    // surede canlandirir, boylece dugme klavyeyle birlikte kayar.
+    private var bildirilenKlavye: CGFloat = -1
+
+    @objc private func klavyeCercevesiDegisti(_ bildirim: Notification) {
+        let bilgi = bildirim.userInfo ?? [:]
+        let sure = (bilgi[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
+        var yukseklik: CGFloat = 0
+        if bildirim.name != UIResponder.keyboardWillHideNotification,
+           let son = (bilgi[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+           let pencere = view.window {
+            let cerceve = pencere.convert(son, from: nil)
+            yukseklik = max(0, pencere.bounds.maxY - cerceve.minY)
+        }
+        yukseklik = yukseklik.rounded()
+        guard yukseklik != bildirilenKlavye else { return }
+        bildirilenKlavye = yukseklik
+        webOlayi("borcamaKlavye", ["yukseklik": Double(yukseklik), "sure": sure])
     }
 
     // MARK: - Panodan kod
@@ -116,8 +151,11 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
         if message.name == "borcamaOnboarding" {
-            guard let govde = message.body as? [String: Any], govde["tip"] as? String == "baslat" else { return }
-            DispatchQueue.main.async { self.onboardingiAc(govde) }
+            guard let govde = message.body as? [String: Any], let tip = govde["tip"] as? String else { return }
+            DispatchQueue.main.async {
+                if tip == "baslat" { self.onboardingiAc(govde) }
+                if tip == "girisHazir" { self.girisHazirGeldi() }
+            }
             return
         }
         guard message.name == "borcamaTab",
@@ -133,6 +171,7 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
                     self.basliklar = gelen
                 }
                 self.cubuguKur()
+                AcilisPerdesi.kaldir()
             case "sec":
                 if let anahtar = govde["anahtar"] as? String { self.secileniAyarla(anahtar) }
             case "tema":
@@ -355,6 +394,7 @@ extension BorcamaBridgeViewController {
     fileprivate func onboardingiAc(_ govde: [String: Any]) {
         guard !onboardingAcik, presentedViewController == nil else { return }
         let durum = OBDurum(govde: govde)
+        if AcilisPerdesi.gorunuyor && durum.adim == .acilis { durum.adim = .karsilama }
         durum.olay = { [weak self] ad, veri in
             if ad == "dil" {
                 self?.webOlayi("borcamaOnboardingDil", veri)
@@ -372,20 +412,39 @@ extension BorcamaBridgeViewController {
             // Diger cikislarda web yeni sayfa yukler; kisa bir an bekleyip
             // kapatiyoruz, aksi halde altta acilis zemini bir an gorunuyor.
             let giris = sonuc["cikis"] as? String == "giris"
-            DispatchQueue.main.asyncAfter(deadline: .now() + (giris ? 0.15 : 0.35)) {
-                let bitti = {
-                    self.onboardingAcik = false
-                    self.gorunurluguUygula()
-                }
-                if giris { self.girisEkraninaKay(bitti: bitti) } else { self.dismiss(animated: true, completion: bitti) }
+            let bitti = {
+                self.onboardingAcik = false
+                self.gorunurluguUygula()
             }
+            guard giris else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    self.dismiss(animated: true, completion: bitti)
+                }
+                return
+            }
+            // Giris ekrani hazirsa hemen, degilse sinyal gelince kayar; web
+            // sinyal gondermezse en fazla 0,6 sn beklenir.
+            var kaydi = false
+            let kay = {
+                guard !kaydi else { return }
+                kaydi = true
+                self.girisHazirBekleyen = nil
+                self.girisEkraninaKay(bitti: bitti)
+            }
+            if self.girisHazir { return kay() }
+            self.girisHazirBekleyen = kay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { kay() }
         }
         onboardingAcik = true
+        girisHazir = false
+        girisHazirBekleyen = nil
         gorunurluguUygula()
         let karsilama = OBDenetleyici(durum: durum)
         // Giris ekranindan geri: karsilama soldan, giris saga kayar.
         guard govde["geri"] as? Bool == true, !UIAccessibility.isReduceMotionEnabled else {
-            return present(karsilama, animated: false)
+            // Ilk acilis: karsilama acilis perdesinin altinda sunulur, perde
+            // yumusakca kalkar (logo zemini karsilamaya karisir).
+            return present(karsilama, animated: false) { AcilisPerdesi.kaldir() }
         }
         // Kaydirma sunumdan sonra verilir: UIKit sunarken donusumu sifirliyor.
         // Tamamlama ayni cizim turunda calistigi icin arada kare gorunmez.
@@ -399,6 +458,12 @@ extension BorcamaBridgeViewController {
                 self.view.transform = .identity
             })
         }
+    }
+
+    fileprivate func girisHazirGeldi() {
+        girisHazir = true
+        AcilisPerdesi.kaldir()
+        girisHazirBekleyen?()
     }
 
     // Karsilama sola cikar, giris ekrani (web) sagdan gelir; ikisi yan

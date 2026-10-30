@@ -5,9 +5,7 @@
    dolgu farkiyla. Imza (lime + coral blok golge, yildiz) yalniz CTA, buyuk
    tutar, plan karti ve kapanista. Token tanimlari disinda literal renk yok. */
 
-/* Prototiple ayni uc yazi tipi: Archivo Black ve Space Grotesk paketten,
-   JetBrains Mono (etiket ve tutar) Google Fonts'tan. */
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700&display=swap");
+/* Prototiple ayni uc yazi tipi; ucu de paketten (yaziTipleri.css). */
 
 @font-face {
   font-family: "OB Archivo";
@@ -234,6 +232,8 @@
   margin-top: -28px;
   padding: 10px 0 calc(var(--klavye, 0px) + max(var(--guvenli-alt, 0px), 24px));
   background: linear-gradient(to top, var(--oa-zemin) 70%, transparent);
+  /* iOS klavye egrisine yakin; sure kabuktan gelir (borcamaKlavye). */
+  transition: padding-bottom var(--klavye-sure, 0s) cubic-bezier(0.38, 0.7, 0.125, 1);
 }
 
 /* ---------- Tipografi ---------- */
@@ -1347,6 +1347,17 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
 .oa-referans small { display: block; margin-top: 6px; color: var(--oa-metin-2); font-size: 12px; font-weight: 500; line-height: 1.4; }
 .oa-referans small.valid { color: var(--oa-metin); font-weight: 700; }
 .oa-referans small.invalid { color: var(--oa-ilerleme-sirada); font-weight: 700; }
+
+.oa-captcha-etkin .oa-turnstile {
+  /* Cloudflare kutusu uygulamanin yuzeyinde, yuvarlak bir kapta ve yumusak
+     girisle belirir (kendi tasarimi degistirilemiyor; tema parametresiyle
+     acik/koyu). */
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--oa-yuzey);
+  animation: oa-gir 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
 
 .oa-captcha {
   display: flex;

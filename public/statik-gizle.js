@@ -5,4 +5,7 @@
 try {
   var oturumVar = Object.keys(localStorage).some(function (k) { return /^sb-.*-auth-token$/.test(k); });
   if (location.pathname !== "/" || location.hostname.indexOf("crm.") === 0 || oturumVar || window.Capacitor) document.documentElement.classList.add("borcama-statik-gizli");
+  // iOS kabugunda ilk boyama cihaz temasinda olur (index.html); koyu temada
+  // React yuklenene kadar ekran krem parlamasin.
+  if (window.Capacitor) document.documentElement.classList.add("borcama-native");
 } catch (e) {}
