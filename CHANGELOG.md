@@ -11,6 +11,12 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Değişti
 
 - iPhone sekme çubuğunda açık temada seçili sekme rengi mobil marka kılavuzundaki mürekkep rengine (#14160f) çekildi.
+- Dokunmatik ekranlarda her düğmenin dokunma alanı en az 44×44 oldu (görünen boyut aynı); küçük satır düğmeleri artık kolay tutturuluyor.
+- Uygulamada 11px'ten küçük yazı kalmadı (yaklaşık 110 yer 11px'e çıkarıldı; mobil web alt menü etiketleri dahil).
+- Dokunduktan sonra "üzerine gelme" görünümünde takılı kalan kart ve düğmeler düzeldi: hover efektleri yalnız fareli cihazlarda çalışıyor.
+- iPhone'da kayıt, ödeme, ekstre ve harcama kaydedilince başarı titreşimi, silmede uyarı titreşimi var.
+- iPhone'da "Pro'ya geç", "Hesap aç" ve Pro ekranındaki "Ücretsiz devam et" uygulamayı baştan yüklemeden açılıyor.
+- iPhone tanıtımındaki boş tutar "0" yer tutucusu daha okunur renkte (kontrast 2,98:1 → 6,3:1).
 
 ## [1.74.6] - 2026-10-29
 

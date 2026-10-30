@@ -243,7 +243,7 @@
 .oa-mono-etiket {
   display: block;
   color: var(--oa-metin-2);
-  font: 700 10.5px var(--oa-mono);
+  font: 700 11px var(--oa-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -294,7 +294,7 @@
 .oa-alt-not {
   margin: 14px 0 0;
   color: var(--oa-metin-2);
-  font: 700 10.5px var(--oa-mono);
+  font: 700 11px var(--oa-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -424,7 +424,7 @@
   border-radius: 7px;
   background: var(--oa-yuzey-2);
   color: var(--oa-metin);
-  font: 700 10px var(--oa-mono);
+  font: 700 11px var(--oa-mono);
   text-align: center;
   transition: background 0.18s ease, color 0.18s ease;
 }
@@ -1175,7 +1175,7 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
 }
 
 .oa-mockup .m-borc > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.oa-mockup .m-borc small { display: block; color: var(--oa-metin-2); font-size: 10px; font-weight: 500; }
+.oa-mockup .m-borc small { display: block; color: var(--oa-metin-2); font-size: 11px; font-weight: 500; }
 .oa-mockup .m-borc b { margin-left: auto; font: 700 12px var(--oa-mono); }
 .oa-mockup .m-borc.ilk { box-shadow: 0 0 0 2px var(--oa-lime) inset; }
 .oa-mockup .m-borc .oa-banka { width: 26px; height: 26px; }
@@ -1209,7 +1209,7 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
   gap: 12px;
   margin: 16px 0;
   color: var(--oa-metin-2);
-  font: 700 10.5px var(--oa-mono);
+  font: 700 11px var(--oa-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
