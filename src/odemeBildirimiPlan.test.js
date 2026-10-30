@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { bildirimKimligi, bildirimZamanlari } from "./odemeBildirimiPlan.js";
+import { bildirimIcerigi, bildirimKimligi, bildirimZamanlari, ertelemeZamani, gecerliErtelemeler } from "./odemeBildirimiPlan.js";
 
 const SIMDI = new Date(2026, 9, 1, 12, 0, 0); // 1 Ekim 2026, ogleden sonra
 
@@ -72,4 +72,60 @@ test("ayni gun icin kimlik kararlidir, farkli gun icin degisir", () => {
   assert.equal(bildirimKimligi("2026-10-09"), bildirimKimligi("2026-10-09"));
   assert.notEqual(bildirimKimligi("2026-10-09"), bildirimKimligi("2026-10-10"));
   assert.ok(bildirimKimligi("2026-10-09") >= 0);
+});
+
+const ceviri = (anahtar, d = {}) => `${anahtar}|${Object.values(d).join(",")}`;
+const tutarYaz = (n) => `₺${n}`;
+
+test("tek ödemeli bildirim borcun adını ve tutarını yazar, ödeme anahtarını taşır", () => {
+  const icerik = bildirimIcerigi(
+    [{ ad: "Akbank · Axess · •••• 1234", tutar: 6200, anahtar: "kart-1-ekstre-2026-10" }],
+    { tutarYaz, t: ceviri },
+  );
+  assert.equal(icerik.baslik, "bilesen.bildirim.tekBaslik|Akbank · Axess");
+  assert.equal(icerik.metin, "bilesen.bildirim.tekMetin|₺6200");
+  assert.equal(icerik.odemeAnahtari, "kart-1-ekstre-2026-10");
+});
+
+test("hassas modda tutar yazılmaz", () => {
+  const tek = bildirimIcerigi([{ ad: "QNB", tutar: 4150, anahtar: "k" }], { hassas: true, tutarYaz, t: ceviri });
+  assert.doesNotMatch(tek.metin, /4150/);
+  const cok = bildirimIcerigi(
+    [{ ad: "QNB", tutar: 4150 }, { ad: "Enpara", tutar: 1900 }],
+    { hassas: true, tutarYaz, t: ceviri },
+  );
+  assert.equal(cok.metin, "QNB · Enpara");
+});
+
+test("aynı gün birden fazla ödeme: adlar listelenir, ödeme anahtarı yok", () => {
+  const icerik = bildirimIcerigi(
+    [{ ad: "QNB", tutar: 4150, anahtar: "a" }, { ad: "Enpara", tutar: 1900, anahtar: "b" }],
+    { tutarYaz, t: ceviri },
+  );
+  assert.equal(icerik.baslik, "bilesen.bildirim.cokBaslik|2");
+  assert.equal(icerik.metin, "QNB ₺4150 · Enpara ₺1900");
+  assert.equal(icerik.odemeAnahtari, null);
+});
+
+test("günlük planda o günün ödemeleri taşınır", () => {
+  const [gun] = bildirimZamanlari([odeme(10), odeme(10, { id: "ikinci" })], SIMDI);
+  assert.equal(gun.odemeler.length, 2);
+});
+
+test("erteleme ertesi gün 09:00; ödenen ya da geçmiş ertelemeler atılır", () => {
+  const zaman = ertelemeZamani(SIMDI);
+  assert.equal(zaman.getDate(), 2);
+  assert.equal(zaman.getHours(), 9);
+  const yaklasan = [odeme(10, { anahtar: "bekliyor" }), odeme(10, { anahtar: "odendi", odendi: true })];
+  const gecerli = gecerliErtelemeler(
+    [
+      { odemeAnahtari: "bekliyor", zaman: zaman.toISOString() },
+      { odemeAnahtari: "odendi", zaman: zaman.toISOString() },
+      { odemeAnahtari: "bekliyor", zaman: new Date(2026, 8, 1).toISOString() },
+    ],
+    yaklasan,
+    SIMDI,
+  );
+  assert.equal(gecerli.length, 1);
+  assert.equal(gecerli[0].odeme.anahtar, "bekliyor");
 });
