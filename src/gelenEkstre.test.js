@@ -40,3 +40,19 @@ test("gelen ekstre: abone bekleyen adresi alir, islenen adres tekrar gelmez", ()
   birak();
   delete globalThis.sessionStorage;
 });
+
+test("gelen ekstre: soguk acilistaki baslangic adresi bir kez kuyruga girer", () => {
+  _sifirla();
+  globalThis.sessionStorage = (() => {
+    const d = new Map();
+    return { getItem: (k) => d.get(k) ?? null, setItem: (k, v) => d.set(k, String(v)) };
+  })();
+  const baslangic = ADRES.replace(".pdf", "-soguk.pdf");
+  // appUrlOpen kacti, getLaunchUrl adresi verdi:
+  assert.equal(gelenAdresiAl(baslangic), true);
+  gelenEkstreIslendi(baslangic);
+  // webview yeniden yuklenince getLaunchUrl ayni adresi tekrar verir:
+  _sifirla();
+  assert.equal(gelenAdresiAl(baslangic), false);
+  delete globalThis.sessionStorage;
+});

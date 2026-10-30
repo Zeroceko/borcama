@@ -89,6 +89,12 @@ export async function gelenEkstreleriDinle() {
   try {
     const { App } = await import("@capacitor/app");
     App.addListener("appUrlOpen", (olay) => gelenAdresiAl(olay?.url));
+    // Uygulama kapaliyken paylasildiysa bekletilen appUrlOpen olayini
+    // Capacitor yalniz ilk dinleyiciye (derinBaglantilariDinle) veriyor;
+    // adres baslangic adresinden okunur. Ayni adresin yeniden gelmesini
+    // islenenler listesi ve bekleyen karsilastirmasi engeller.
+    const baslangic = await App.getLaunchUrl();
+    gelenAdresiAl(baslangic?.url);
   } catch {
     // Eklenti yoksa paylasim akisi devre disi kalir.
   }
