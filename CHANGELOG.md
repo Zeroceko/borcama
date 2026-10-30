@@ -6,6 +6,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Değişti
 
+- iPhone açılışı tek ekran: Capacitor'ın varsayılan açılış görseli yerine marka zemini ve logo; aynı görünümdeki açılış perdesi karşılama (ya da uygulama) hazır olana kadar kalıp yumuşakça kayboluyor. Arada siyah/boş ekran ve ikinci logo ekranı yok. Splash'te logo büyüdü, yeşil parıltı yumuşakça beliriyor.
+- "Zaten hesabım var": karşılama, giriş ekranı çizilince kayıyor; altta yükleniyor ekranı görünmüyor.
 - Yazı tipleri (Archivo Black, Space Grotesk, JetBrains Mono) artık uygulamanın içinden geliyor; Google Fonts'a istek gitmiyor. Açılışta yazıların yedek fonttan asıl fonta geçip yerinden zıplaması bitti; iPhone'da internet yavaşken de ilk karede doğru font var.
 - iPhone'da kodla giriş, Apple ile giriş ve kayıt tamamlanınca uygulama baştan yüklenmiyor (açılış logosu ve "yükleniyor" ekranı araya girmiyor); doğrudan uygulamaya geçiliyor. Web'de davranış aynı.
 - iPhone koyu temada açılışta krem/beyaz parlama yok: ilk boyama ve "yükleniyor" ekranı cihaz temasında.
