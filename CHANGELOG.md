@@ -9,6 +9,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Yazı tipleri (Archivo Black, Space Grotesk, JetBrains Mono) artık uygulamanın içinden geliyor; Google Fonts'a istek gitmiyor. Açılışta yazıların yedek fonttan asıl fonta geçip yerinden zıplaması bitti; iPhone'da internet yavaşken de ilk karede doğru font var.
 - iPhone'da kodla giriş, Apple ile giriş ve kayıt tamamlanınca uygulama baştan yüklenmiyor (açılış logosu ve "yükleniyor" ekranı araya girmiyor); doğrudan uygulamaya geçiliyor. Web'de davranış aynı.
 
+## [1.76.1] - 2026-10-30
+
+Web ve iOS aynı sürüm (iOS build 44). Build 43 TestFlight'a yüklenmedi.
+
+### Düzeltildi
+
+- Paylaş → Borcama: uygulama kapalıyken paylaşılan PDF kayboluyordu (açılış olayı yalnız giriş bağlantısı dinleyicisine gidiyordu). Artık başlangıç adresinden de okunuyor; aynı dosya iki kez işlenmiyor.
+
 ## [1.76.0] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 43). Paylaş → Borcama (Faz 1).
