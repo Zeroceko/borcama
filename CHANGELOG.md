@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.76.1] - 2026-10-30
+
+Web ve iOS aynı sürüm (iOS build 44). Build 43 TestFlight'a yüklenmedi.
+
+### Düzeltildi
+
+- Paylaş → Borcama: uygulama kapalıyken paylaşılan PDF kayboluyordu (açılış olayı yalnız giriş bağlantısı dinleyicisine gidiyordu). Artık başlangıç adresinden de okunuyor; aynı dosya iki kez işlenmiyor.
+
 ## [1.76.0] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 43). Paylaş → Borcama (Faz 1).
