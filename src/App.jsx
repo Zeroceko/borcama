@@ -124,6 +124,7 @@ import { kurulumYoluMu } from "./kurulumTaslagi.js";
 import { aylikPlanOdemesi, ilkAyKartKmhOdemesi, senaryoYasamButcesi, yasamButcesiKaydi, yasamButcesiTutari } from "./yasamButcesi.js";
 import { bekleyenSonucuOku, bekleyenSonucuTemizle, uygulamaIciGit } from "./onboardingKoprusu.js";
 import { hoverKoru } from "./hoverKoru.js";
+import { gelenEkstreAboneOl, gelenEkstreDosyasi, gelenEkstreIslendi } from "./gelenEkstre.js";
 import {
   paraBiriminiFormatla,
   paraGirdisiniCoz,
@@ -2309,6 +2310,8 @@ export default function BorcTakip() {
   };
   const [borcKategori, setBorcKategori] = useState("cards");
   const [ekstreYuklemeIstegi, setEkstreYuklemeIstegi] = useState(0);
+  // Paylas -> Borcama ile gelen PDF: { adres, dosya } (gelenEkstre.js).
+  const [gelenEkstre, setGelenEkstre] = useState(null);
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
   const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
   // Hızlı menü: "Ödeme gir" ilk bekleyen ödemenin formunu, "Yeni borç" tür
@@ -2904,6 +2907,25 @@ export default function BorcTakip() {
     if (yol && window.location.pathname !== yol)
       window.history.pushState({}, "", yol);
   }
+
+  // Paylas -> Borcama: veri yuklendikten sonra gelen PDF Borclar'da ekstre
+  // penceresiyle acilir; dosya okunamazsa Inbox'tan silinip birakilir.
+  const gelenEkstreGeldi = useRef(null);
+  gelenEkstreGeldi.current = async (adres) => {
+    try {
+      const dosya = await gelenEkstreDosyasi(adres);
+      setForm(null);
+      setBorcKategori("cards");
+      setSekme("borclar");
+      setGelenEkstre({ adres, dosya });
+    } catch {
+      gelenEkstreIslendi(adres);
+    }
+  };
+  useEffect(() => {
+    if (yukleniyor) return undefined;
+    return gelenEkstreAboneOl((adres) => gelenEkstreGeldi.current?.(adres));
+  }, [yukleniyor]);
 
   function aktivasyonAdiminiBaslat(gorev) {
     setForm(null);
@@ -3700,6 +3722,11 @@ export default function BorcTakip() {
     ekstreArsivIslemi,
     ekstreYuklemeIstegi,
     ekstreYuklemeIsteginiTuket: () => setEkstreYuklemeIstegi(0),
+    gelenEkstre,
+    gelenEkstreyiTuket: () => {
+      if (gelenEkstre) gelenEkstreIslendi(gelenEkstre.adres);
+      setGelenEkstre(null);
+    },
     gelirEkle: () => {
       setSekme("gelir");
       setForm({ liste: "incomes", veri: {} });
@@ -7891,13 +7918,17 @@ function BorcUzerindenOdemeModal({
   );
 }
 
-function StatementImportModal({ cards, initialCardId = "", onClose, onUse, onManual }) {
+function StatementImportModal({ cards, initialCardId = "", initialFile = null, onClose, onUse, onManual }) {
   const [result, setResult] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [selectedCard, setSelectedCard] = useState(initialCardId);
   const [automaticCardMatch, setAutomaticCardMatch] = useState(null);
+  // Paylas -> Borcama: dosya hazir geldiyse secici atlanir, okuma baslar.
+  useEffect(() => {
+    if (initialFile) handleFile(initialFile);
+  }, [initialFile]);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -8594,6 +8625,8 @@ function Borclar({
   ekstreArsivIslemi,
   ekstreYuklemeIstegi = 0,
   ekstreYuklemeIsteginiTuket,
+  gelenEkstre = null,
+  gelenEkstreyiTuket,
   gelirEkle,
   hareketEkle,
   borcKutla,
@@ -8616,6 +8649,7 @@ function Borclar({
   const [ekstreAkisKarti, setEkstreAkisKarti] = useState(null);
   const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
+  const [ekstreIlkDosya, setEkstreIlkDosya] = useState(null);
   const [krediEklemeSecimiAcik, setKrediEklemeSecimiAcik] = useState(false);
   const [krediPlaniYuklemePenceresi, setKrediPlaniYuklemePenceresi] = useState(false);
   const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
@@ -8636,6 +8670,20 @@ function Borclar({
     setBaslangicSecimiAcik(true);
     ekstreYuklemeIsteginiTuket?.();
   }, [ekstreYuklemeIstegi, ekstreYuklemeIsteginiTuket]);
+  // Paylas -> Borcama: dosya hazir; ekstre penceresi onunla acilir,
+  // eslesen kart secili gelir ve kullanici onaylar.
+  useEffect(() => {
+    if (!gelenEkstre || yalnizPanel) return;
+    setEkstreAkisKarti(null);
+    setBaslangicSecimiAcik(false);
+    if (belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) {
+      setEkstreIlkDosya(gelenEkstre.dosya);
+      setEkstreYuklemePenceresi(true);
+    } else {
+      manuelEkstreAkisiniAc();
+    }
+    gelenEkstreyiTuket?.();
+  }, [gelenEkstre]);
   useEffect(() => {
     if (!ekstreArsiviAcik && !silinecekYukleme) return undefined;
     const onceki = document.body.style.overflow;
@@ -10073,9 +10121,11 @@ function Borclar({
         <StatementImportModal
           cards={veri.cards}
           initialCardId={ekstreAkisKarti?.id || ""}
+          initialFile={ekstreIlkDosya}
           onClose={() => {
             setEkstreYuklemePenceresi(false);
             setEkstreAkisKarti(null);
+            setEkstreIlkDosya(null);
           }}
           onUse={belgedenEkstreKaydet}
           onManual={manuelEkstreAkisiniAc}
