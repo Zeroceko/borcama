@@ -1471,7 +1471,7 @@ struct OBTutarGosterimi: View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(d.sembol).font(OBYazi.baslik(32)).foregroundColor(OBRenk.metin2)
             if bos {
-                Text("0").font(OBYazi.baslik(50)).foregroundColor(OBRenk.metin3)
+                Text("0").font(OBYazi.baslik(50)).foregroundColor(OBRenk.metin2) // metin3 krem zeminde 2.98:1; buyuk yazi icin 3:1 gerekir
             } else {
                 Text(d.sayi(Double(ham) ?? 0))
                     .font(OBYazi.baslik(50))

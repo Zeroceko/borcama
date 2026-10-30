@@ -9,6 +9,7 @@ import {
   revenueCatSatinAlimlariGeriYukle,
 } from "./revenuecat.js";
 import { nativeMi } from "./platform.js";
+import { uygulamaIciGit } from "./onboardingKoprusu.js";
 import {
   proNiyetiniKaydet,
   proNiyetiniOku,
@@ -143,7 +144,7 @@ export default function ProCheckout() {
 
   function ucretsizDevam() {
     proNiyetiniTemizle();
-    window.location.assign("/summary");
+    uygulamaIciGit("/summary");
   }
 
   return (

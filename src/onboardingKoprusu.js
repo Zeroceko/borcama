@@ -124,6 +124,13 @@ export function sayfaDegistir(yol) {
   globalThis.dispatchEvent?.(new Event(YOL_OLAYI));
 }
 
+// Uygulama ici gecis: native kabukta yenilemesiz (webview bastan yuklenmez,
+// "yukleniyor" ekrani gorunmez); web'de tam sayfa gecisi korunur.
+export function uygulamaIciGit(yol, native = nativeMi) {
+  if (native) sayfaDegistir(yol);
+  else globalThis.location?.assign(yol);
+}
+
 export function onboardingBitti(sonuc = {}, git = (hedef) => globalThis.location?.assign(hedef)) {
   if (DESTEKLENEN_DILLER.includes(sonuc.dil)) dilAyarla(sonuc.dil);
   if (DESTEKLENEN_PARA_BIRIMLERI.includes(sonuc.paraBirimi)) paraBirimiAyarla(sonuc.paraBirimi);

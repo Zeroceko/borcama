@@ -80,9 +80,24 @@ if (nativeMi) {
 }
 
 // Dokunma geri bildirimi. Tarayicida hicbir sey yapmaz.
+// Mobil marka kilavuzu: "hafif" dugme/sekme, "basari" kayit tamamlandi,
+// "uyari" silme ve gecikme, "secim" secicide her adim.
 export function dokunusGeriBildirimi(siddet = "hafif") {
   if (!nativeMi || !hapticsModulu) return;
-  const { Haptics, ImpactStyle } = hapticsModulu;
+  const { Haptics, ImpactStyle, NotificationType } = hapticsModulu;
+  if (siddet === "basari" || siddet === "uyari") {
+    const tur = siddet === "basari" ? NotificationType.Success : NotificationType.Warning;
+    Haptics.notification({ type: tur }).catch(() => {});
+    return;
+  }
+  if (siddet === "secim") {
+    // iOS'ta selectionChanged ancak selectionStart'tan sonra titrer.
+    Haptics.selectionStart()
+      .then(() => Haptics.selectionChanged())
+      .then(() => Haptics.selectionEnd())
+      .catch(() => {});
+    return;
+  }
   const stil = siddet === "orta" ? ImpactStyle.Medium : ImpactStyle.Light;
   Haptics.impact({ style: stil }).catch(() => {});
 }
