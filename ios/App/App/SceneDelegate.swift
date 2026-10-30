@@ -24,6 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // adres kayboluyor. Eklenti olayi tuketilene kadar sakladigi icin web
         // tarafi dinleyiciyi sonra kaydetse de aliyor.
         let urlContexts = connectionOptions.urlContexts
+        urlContexts.forEach { GelenDosya.koru($0.url) }
+        GelenDosya.eskileriTemizle()
         let webActivities = connectionOptions.userActivities.filter {
             $0.activityType == NSUserActivityTypeBrowsingWeb
         }
@@ -51,10 +53,52 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        URLContexts.forEach { GelenDosya.koru($0.url) }
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         SceneDelegateProxy.shared.scene(scene, continue: userActivity)
+    }
+}
+
+// Paylas -> Borcama: PDF'i baska uygulamadan "Borcama" ile acinca iOS
+// dosyayi Documents/Inbox'a kopyalar ve adresini (file://) verir; adres
+// Capacitor'un appUrlOpen olayiyla web'e gider. Ekstre telefon kilitliyken
+// okunamasin diye dosya korumasi "complete" yapilir. Web dosyayi isleyince
+// borcamaTab kanalina { tip: "gelenDosyaSil", adres } gonderir; unutulan
+// dosyalar bir gun sonra acilista silinir.
+enum GelenDosya {
+    static var gelenKutusu: URL? {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("Inbox", isDirectory: true)
+    }
+
+    static func gelenKutusundaMi(_ url: URL) -> Bool {
+        guard url.isFileURL, let kutu = gelenKutusu?.standardizedFileURL.resolvingSymlinksInPath().path else { return false }
+        let yol = url.standardizedFileURL.resolvingSymlinksInPath().path
+        return yol.hasPrefix(kutu + "/")
+    }
+
+    static func koru(_ url: URL) {
+        guard gelenKutusundaMi(url) else { return }
+        try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: url.path)
+    }
+
+    static func sil(_ adres: String) {
+        guard let url = URL(string: adres), gelenKutusundaMi(url) else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    static func eskileriTemizle(enEski: TimeInterval = 24 * 60 * 60) {
+        guard let kutu = gelenKutusu,
+              let dosyalar = try? FileManager.default.contentsOfDirectory(
+                at: kutu, includingPropertiesForKeys: [.contentModificationDateKey])
+        else { return }
+        let sinir = Date().addingTimeInterval(-enEski)
+        for dosya in dosyalar {
+            let tarih = (try? dosya.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            if let tarih, tarih < sinir { try? FileManager.default.removeItem(at: dosya) }
+        }
     }
 }

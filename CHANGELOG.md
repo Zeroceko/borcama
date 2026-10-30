@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- iPhone: Borcama, PDF'lerin Paylaş sayfasında görünüyor (Mail, Dosyalar, Safari, banka uygulamaları). Gelen dosya telefon kilitliyken okunamaz biçimde saklanıyor, işlendikten ya da bir gün sonra siliniyor. Ekstreyi ekleme akışı web tarafıyla birlikte gelecek.
+
 ## [1.75.0] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 42). iOS mobil yol haritası Faz 0.

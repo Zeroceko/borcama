@@ -56,3 +56,10 @@ export function panodanKoduDinle(kodGeldi) {
     kapi.postMessage({ tip: "kodBekle", acik: false });
   };
 }
+
+// Paylas -> Borcama ile gelen PDF islendikten sonra Documents/Inbox'tan
+// silinir. Native yalniz Inbox altindaki dosyalari siler.
+export function gelenDosyayiSil(adres) {
+  if (!adres) return;
+  kanal()?.postMessage({ tip: "gelenDosyaSil", adres });
+}

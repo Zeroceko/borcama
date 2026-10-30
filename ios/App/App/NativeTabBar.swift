@@ -140,6 +140,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             case "goster":
                 self.webGosterilsin = govde["gorunsun"] as? Bool ?? true
                 self.gorunurluguUygula()
+            case "gelenDosyaSil":
+                if let adres = govde["adres"] as? String { GelenDosya.sil(adres) }
             case "kodBekle":
                 self.kodPanoSayaci = govde["acik"] as? Bool == true ? UIPasteboard.general.changeCount : nil
             default:
