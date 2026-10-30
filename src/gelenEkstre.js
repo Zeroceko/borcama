@@ -82,13 +82,24 @@ export async function gelenEkstreDosyasi(adres) {
   return new File([icerik], gelenDosyaAdi(adres), { type: "application/pdf" });
 }
 
+// Soguk acilista Capacitor bekletilen appUrlOpen olayini yalniz ilk
+// kaydolan dinleyiciye verir; o da main.jsx'te once kurulan
+// derinBaglantilariDinle oluyor ve PDF adresini yok sayiyor. Bu yuzden
+// baslangic adresi ayrica okunur; webview yeniden yuklenince ayni adresin
+// tekrar gelmesini islenenler listesi engeller.
+export async function gelenEkstreKanaliniKur(App) {
+  App.addListener("appUrlOpen", (olay) => gelenAdresiAl(olay?.url));
+  const baslangic = await App.getLaunchUrl();
+  gelenAdresiAl(baslangic?.url);
+}
+
 // main.jsx acilista bir kez cagirir; App'ten once kurulur ki soguk
 // acilistaki adres kacmasin.
 export async function gelenEkstreleriDinle() {
   if (!nativeMi) return;
   try {
     const { App } = await import("@capacitor/app");
-    App.addListener("appUrlOpen", (olay) => gelenAdresiAl(olay?.url));
+    await gelenEkstreKanaliniKur(App);
   } catch {
     // Eklenti yoksa paylasim akisi devre disi kalir.
   }

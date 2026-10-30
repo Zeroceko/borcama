@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- iPhone: Borcama kapalıyken Paylaş → Borcama ile gönderilen ekstre PDF'i kayboluyordu; artık uygulama açılınca ekstre penceresine geliyor.
+
 ## [1.76.0] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 43). Paylaş → Borcama (Faz 1).

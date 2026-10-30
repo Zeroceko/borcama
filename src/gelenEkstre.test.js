@@ -6,6 +6,7 @@ import {
   gelenDosyaAdi,
   gelenEkstreAboneOl,
   gelenEkstreIslendi,
+  gelenEkstreKanaliniKur,
   gelenPdfAdresiMi,
 } from "./gelenEkstre.js";
 
@@ -38,5 +39,27 @@ test("gelen ekstre: abone bekleyen adresi alir, islenen adres tekrar gelmez", ()
   assert.equal(gelenAdresiAl(ikinci), true);
   assert.deepEqual(alinan, [ADRES, ikinci]);
   birak();
+  delete globalThis.sessionStorage;
+});
+
+test("gelen ekstre: soğuk açılışta başlangıç adresi kuyruğa alınır, işlenmiş adres alınmaz", async () => {
+  _sifirla();
+  globalThis.sessionStorage = (() => {
+    const d = new Map();
+    return { getItem: (k) => d.get(k) ?? null, setItem: (k, v) => d.set(k, String(v)) };
+  })();
+  const sahteApp = (adres) => ({ addListener() {}, getLaunchUrl: async () => (adres ? { url: adres } : undefined) });
+  const gelen = [];
+  const birak = gelenEkstreAboneOl((adres) => gelen.push(adres));
+  const soguk = ADRES.replace("Ekim%20Ekstresi", "Soguk");
+  await gelenEkstreKanaliniKur(sahteApp(soguk));
+  assert.deepEqual(gelen, [soguk]);
+  gelenEkstreIslendi(soguk);
+  await gelenEkstreKanaliniKur(sahteApp(soguk));
+  assert.deepEqual(gelen, [soguk]);
+  await gelenEkstreKanaliniKur(sahteApp(null));
+  assert.deepEqual(gelen, [soguk]);
+  birak();
+  _sifirla();
   delete globalThis.sessionStorage;
 });
