@@ -95,7 +95,15 @@ async function oturumKur(adres) {
 function pdfDenemesi(adres, yol) {
   if (!/^file:.*\.pdf$/i.test(adres || "")) return false;
   const ad = decodeURIComponent(adres.split("/").pop() || "");
-  window.alert(`Deneme: PDF web katmanına ulaştı (${yol})\n${ad}`);
+  const okuma = globalThis.Capacitor?.convertFileSrc?.(adres) || "";
+  console.log(`[PaylasDeneme] yol=${yol} adres=${adres} okuma=${okuma}`);
+  fetch(okuma)
+    .then((y) => y.arrayBuffer().then((b) => `${y.status} ${b.byteLength} bayt`))
+    .catch((h) => `fetch hatasi: ${h?.message || h}`)
+    .then((sonuc) => {
+      console.log(`[PaylasDeneme] fetch=${sonuc}`);
+      window.alert(`Deneme: PDF web katmanına ulaştı (${yol})\n${ad}\nfetch: ${sonuc}`);
+    });
   return true;
 }
 

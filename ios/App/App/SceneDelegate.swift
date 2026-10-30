@@ -62,7 +62,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard url.isFileURL else { return }
         let boyut = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? -1
         let okunur = FileManager.default.isReadableFile(atPath: url.path)
-        NSLog("[PaylasDeneme] dosya=%@ boyut=%d okunur=%d", url.lastPathComponent, boyut, okunur ? 1 : 0)
+        NSLog("[PaylasDeneme] adres=%@ boyut=%d okunur=%d", url.absoluteString, boyut, okunur ? 1 : 0)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
