@@ -90,6 +90,15 @@ async function oturumKur(adres) {
   window.location.assign(veri.hedef);
 }
 
+// DENEME (Paylas -> Borcama, Yol A): main'e girmez. PDF dosya adresi web
+// katmanina ulasirsa hangi yoldan geldigini ve adin sonunu gosterir.
+function pdfDenemesi(adres, yol) {
+  if (!/^file:.*\.pdf$/i.test(adres || "")) return false;
+  const ad = decodeURIComponent(adres.split("/").pop() || "");
+  window.alert(`Deneme: PDF web katmanına ulaştı (${yol})\n${ad}`);
+  return true;
+}
+
 // Uygulama acikken gelen baglantilar icin dinleyici; kapaliyken acilmissa
 // baslangic adresi okunur.
 export async function derinBaglantilariDinle() {
@@ -97,9 +106,11 @@ export async function derinBaglantilariDinle() {
   try {
     const { App } = await import("@capacitor/app");
     App.addListener("appUrlOpen", (olay) => {
+      if (pdfDenemesi(olay?.url, "appUrlOpen")) return;
       if (uygulamaBaglantisiMi(olay?.url)) oturumKur(olay.url);
     });
     const baslangic = await App.getLaunchUrl();
+    if (pdfDenemesi(baslangic?.url, "getLaunchUrl")) return;
     if (uygulamaBaglantisiMi(baslangic?.url)) oturumKur(baslangic.url);
   } catch {
     // Eklenti yoksa akis tarayici davranisina duser.

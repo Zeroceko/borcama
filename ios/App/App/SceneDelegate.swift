@@ -24,6 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // adres kayboluyor. Eklenti olayi tuketilene kadar sakladigi icin web
         // tarafi dinleyiciyi sonra kaydetse de aliyor.
         let urlContexts = connectionOptions.urlContexts
+        urlContexts.forEach { pdfDenemesiniGunlukle($0.url) }
         let webActivities = connectionOptions.userActivities.filter {
             $0.activityType == NSUserActivityTypeBrowsingWeb
         }
@@ -51,7 +52,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        URLContexts.forEach { pdfDenemesiniGunlukle($0.url) }
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
+    }
+
+    // DENEME (Paylas -> Borcama, Yol A): main'e girmez. Gelen dosyanin
+    // adini, boyutunu ve okunabilirligini konsola yazar.
+    private func pdfDenemesiniGunlukle(_ url: URL) {
+        guard url.isFileURL else { return }
+        let boyut = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? -1
+        let okunur = FileManager.default.isReadableFile(atPath: url.path)
+        NSLog("[PaylasDeneme] dosya=%@ boyut=%d okunur=%d", url.lastPathComponent, boyut, okunur ? 1 : 0)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
