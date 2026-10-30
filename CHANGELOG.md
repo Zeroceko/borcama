@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.77.1] - 2026-10-31
+
+Web ve iOS aynı sürüm (iOS build 46). Build 45 TestFlight'a yüklenmedi; 1.77.0'ın iOS içeriği 46 ile çıkıyor.
+
 ### Değişti
 
 - Paylaş → Borcama / ekstre okuma: aynı bankada birden çok kart varken ekstredeki limit ve hesap kesim günü de kartı ayırmak için kullanılıyor (kesim günü ±2 gün kayabilir). İki ipucu da tek başına kart seçmez, çelişirse kartı elemez; iki kart aynı derecede uyuyorsa kullanıcı seçer.
@@ -11,6 +15,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Düzeltildi
 
 - iPhone kurulum adımları arasında geçiş takılıyordu: iki sayfa üst üste solup "Devam et" düğmesi yanıp sönüyordu. Artık sayfalar iPhone'un kendi geçişi gibi yana kayıyor (ileri sağdan, geri soldan).
+- iPhone koyu temada açılış ekranındaki logo da dikişsiz koyu logoyla değiştirildi.
 
 ## [1.77.0] - 2026-10-31
 
