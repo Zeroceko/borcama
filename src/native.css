@@ -443,3 +443,19 @@ html.borcama-ios .bt-modal-arka {
 html.borcama-ios .bt-assistant-modal {
   max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt) - min(var(--sekme-cubugu, 56px), 120px));
 }
+
+/* Native "yukleniyor": acilis ekrani ve webview zeminiyle ayni renkte
+   (cihaz temasi); koyu temada krem parlamasi olmaz. */
+.native-yukleniyor {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4efe0;
+  color: #55584c;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  .native-yukleniyor { background: #0f110a; color: #b5b2a0; }
+}

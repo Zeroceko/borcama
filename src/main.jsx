@@ -484,19 +484,9 @@ function EskiWelcome() {
 function Yukleniyor() {
   const masaustu = useMasaustu();
   if (nativeMi) {
+    // Zemin cihaz temasinda (native.css); acilis ekraniyla ayni, flas yok.
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#f4efe0",
-          color: "#55584c",
-          fontFamily: "Space Grotesk, system-ui, sans-serif",
-          fontSize: 14,
-        }}
-      >
+      <div className="native-yukleniyor" role="status" aria-live="polite">
         {t("ortak.yukleniyor")}
       </div>
     );

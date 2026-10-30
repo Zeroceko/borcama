@@ -21,6 +21,7 @@ import { tr as onboardingMetinleri } from "./locales/bolumler/onboarding.js";
 // yoksa (tarayici, eski iOS build'leri) web akisi aynen calisir.
 //
 // Web -> native: postMessage({ tip: "baslat", ... }) (baslatMesaji)
+//               postMessage({ tip: "girisHazir" }) (girisHazirBildir)
 // `tema`: kurulum oncesi secili gorunum ("system" | "light" | "dark");
 // bekleyen bir sonuc varsa onun temasi, yoksa cihazi izleyen "system".
 // Native akis gorunum adiminda bunu degistirir ve sonuc.tema olarak dondurur.
@@ -191,6 +192,12 @@ export function nativeOnboardingBaslat({ geri = false } = {}) {
 // karsilama soldan kayarak acilir. Ust uste basilirsa onceki dinleyiciler
 // kaldirilir. Native kanal yoksa (eski build) karsilama sayfasina gidilir.
 let geriDinleyicileri = null;
+// Giris/kayit ekrani ilk karesini cizdiginde native'e haber verilir;
+// karsilama ancak o zaman sola kayar (altta yukleniyor ekrani gorunmez).
+export function girisHazirBildir() {
+  kanal()?.postMessage({ tip: "girisHazir" });
+}
+
 export function karsilamayaDon() {
   if (!kanal()) return globalThis.location?.assign("/summary");
   geriDinleyicileri?.();
