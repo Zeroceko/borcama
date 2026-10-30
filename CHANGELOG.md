@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.76.0] - 2026-10-30
+
+Web ve iOS aynı sürüm (iOS build 43). Paylaş → Borcama (Faz 1).
+
 ### Eklendi
 
 - iPhone: Borcama, PDF'lerin Paylaş sayfasında görünüyor (Mail, Dosyalar, Safari, banka uygulamaları). Gelen dosya telefon kilitliyken okunamaz biçimde saklanıyor, işlendikten ya da bir gün sonra siliniyor.
