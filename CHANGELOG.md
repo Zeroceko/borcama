@@ -4,6 +4,11 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değişti
+
+- iPhone açılışı tek ekran: Capacitor'ın varsayılan açılış görseli yerine marka zemini ve logo; aynı görünümdeki açılış perdesi karşılama (ya da uygulama) hazır olana kadar kalıp yumuşakça kayboluyor. Arada siyah/boş ekran ve ikinci logo ekranı yok. Splash'te logo büyüdü, yeşil parıltı yumuşakça beliriyor.
+- "Zaten hesabım var": karşılama, giriş ekranı çizilince kayıyor; altta yükleniyor ekranı görünmüyor.
+
 ## [1.76.1] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 44). Build 43 TestFlight'a yüklenmedi.
