@@ -129,3 +129,14 @@ test("erteleme ertesi gün 09:00; ödenen ya da geçmiş ertelemeler atılır", 
   assert.equal(gecerli.length, 1);
   assert.equal(gecerli[0].odeme.anahtar, "bekliyor");
 });
+
+test("ertelenen bildirim başlığı ödeme gününe göre: yarın, bugün, geçmiş", () => {
+  const odeme = { ad: "QNB", tutar: 4150, anahtar: "k", tarih: new Date(2026, 9, 10) };
+  const baslik = (gun) =>
+    bildirimIcerigi([odeme], { tutarYaz, t: ceviri, zaman: new Date(2026, 9, gun, 9) }).baslik;
+  assert.equal(baslik(9), "bilesen.bildirim.tekBaslik|QNB");
+  assert.equal(baslik(10), "bilesen.bildirim.bugunBaslik|QNB");
+  assert.equal(baslik(11), "bilesen.bildirim.gecikmeBaslik|QNB");
+  const hassas = bildirimIcerigi([odeme], { hassas: true, tutarYaz, t: ceviri, zaman: new Date(2026, 9, 10, 9) });
+  assert.equal(hassas.metin, "bilesen.bildirim.ertelemeMetinHassas|");
+});

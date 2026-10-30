@@ -54,13 +54,35 @@ function bildirimAdi(odeme) {
 // vardir. Ayni gune denk gelen odemeler tek bildirimde listelenir; dokununca
 // odemeler ekrani acilir. Hassas modda tutar yazilmaz.
 // `t` cagiran tarafin ceviri fonksiyonudur (testte sahtesi verilir).
-export function bildirimIcerigi(odemeler, { hassas = false, tutarYaz, t }) {
+// Bildirim gunu ile odeme gunu arasindaki gun farki (yerel takvim).
+function gunFarki(bildirimZamani, odemeTarihi) {
+  const a = new Date(bildirimZamani);
+  const b = new Date(odemeTarihi);
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return 1;
+  const gun = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((gun(b) - gun(a)) / 86400000);
+}
+
+// `zaman` bildirimin gosterilecegi an. Planli hatirlatma bir gun once
+// geldigi icin "Yarin"; "Yarin hatirlat" ile ertelenen bildirim odeme
+// gunune ya da sonrasina denk gelebilir, baslik buna gore secilir.
+export function bildirimIcerigi(odemeler, { hassas = false, tutarYaz, t, zaman = null }) {
   if (odemeler.length === 1) {
     const [odeme] = odemeler;
+    const ad = bildirimAdi(odeme);
+    const fark = zaman ? gunFarki(zaman, odeme.tarih) : 1;
+    const baslik =
+      fark < 0
+        ? t("bilesen.bildirim.gecikmeBaslik", { ad })
+        : fark === 0
+          ? t("bilesen.bildirim.bugunBaslik", { ad })
+          : t("bilesen.bildirim.tekBaslik", { ad });
     return {
-      baslik: t("bilesen.bildirim.tekBaslik", { ad: bildirimAdi(odeme) }),
+      baslik,
       metin: hassas
-        ? t("bilesen.bildirim.tekMetinHassas")
+        ? fark === 1
+          ? t("bilesen.bildirim.tekMetinHassas")
+          : t("bilesen.bildirim.ertelemeMetinHassas")
         : t("bilesen.bildirim.tekMetin", { tutar: tutarYaz(odeme.tutar, odeme.paraBirimi) }),
       odemeAnahtari: odeme.anahtar || null,
     };
