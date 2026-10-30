@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değişti
+
+- Paylaş → Borcama / ekstre okuma: aynı bankada birden çok kart varken ekstredeki limit ve hesap kesim günü de kartı ayırmak için kullanılıyor (kesim günü ±2 gün kayabilir). İki ipucu da tek başına kart seçmez, çelişirse kartı elemez; iki kart aynı derecede uyuyorsa kullanıcı seçer.
+
 ## [1.77.0] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 45). Akıcılık: açılış, giriş/kayıt, klavye.
