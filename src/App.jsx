@@ -39,7 +39,7 @@ import {
   kurTablosuOlustur,
   kurTablosunuAyarla,
 } from "./dovizKuru.js";
-import { bildirimleriPlanla, yaklasaniKaydet } from "./odemeBildirimi.js";
+import { bildirimEylemleriniDinle, bildirimleriPlanla, yaklasaniKaydet, yarinHatirlat } from "./odemeBildirimi.js";
 import {
   kayitliProSatisDurumu,
   proSatisDurumuBelirle,
@@ -2311,6 +2311,8 @@ export default function BorcTakip() {
   // Hızlı menü: "Ödeme gir" ilk bekleyen ödemenin formunu, "Yeni borç" tür
   // seçiciyi açar (B10).
   const [odemeFormuIstegi, setOdemeFormuIstegi] = useState(0);
+  // Bildirimden gelince acilacak odemenin anahtari; yoksa ilk bekleyen.
+  const [odemeFormuAnahtari, setOdemeFormuAnahtari] = useState(null);
   const [borcTuruSecimiAcik, setBorcTuruSecimiAcik] = useState(false);
   const [proPenceresiAcik, setProPenceresiAcik] = useState(false);
   const [trialHatirlaticiAcik, setTrialHatirlaticiAcik] = useState(false);
@@ -3711,11 +3713,40 @@ export default function BorcTakip() {
     filtre: odemeFiltresi,
     filtreDegistir: setOdemeFiltresi,
     odemeFormuIstegi,
-    odemeFormuIsteginiTuket: () => setOdemeFormuIstegi(0),
+    odemeFormuAnahtari,
+    odemeFormuIsteginiTuket: () => {
+      setOdemeFormuIstegi(0);
+      setOdemeFormuAnahtari(null);
+    },
     islemler: veri.activityHistory || [],
     islemiGeriAl,
     kurNotu: kurNotuDurumu,
   };
+  // Odeme hatirlatmasi: dokununca o borcun odeme formu acilir; "Odedim"
+  // kalan asgari/taksit tutarini kaydeder; "Yarin hatirlat" ertesi gun
+  // 09:00'a yeniden kurar. Odeme artik bekleyen degilse odemeler acilir.
+  const bildirimEylemiSon = useRef(null);
+  bildirimEylemiSon.current = ({ eylem, odemeAnahtari }) => {
+    const odeme = odemeAnahtari
+      ? yaklasan.find((o) => o.anahtar === odemeAnahtari && !o.odendi && (+o.tutar || 0) > 0.01)
+      : null;
+    if (eylem === "yarin" && odeme) {
+      void yarinHatirlat(odeme.anahtar, yaklasan);
+      return;
+    }
+    setForm(null);
+    setOdemeFiltresi("bekleyen");
+    setSekme("odemeler");
+    if (!odeme) return;
+    if (eylem === "odedim") {
+      if (odeme.kartOdemesi) kartOdemesiKaydet(odeme.anahtar, odeme.tutar, "minimum");
+      else krediOdemesiKaydet(odeme.anahtar, odeme.tutar, "taksit");
+      return;
+    }
+    setOdemeFormuAnahtari(odeme.anahtar);
+    setOdemeFormuIstegi((eski) => eski + 1);
+  };
+  useEffect(() => bildirimEylemleriniDinle((olay) => bildirimEylemiSon.current?.(olay)), []);
   const harcamalarOzellikleri = {
     veri,
     form,
@@ -7087,6 +7118,7 @@ function Odemeler({
   islemiGeriAl,
   kurNotu = null,
   odemeFormuIstegi = 0,
+  odemeFormuAnahtari = null,
   odemeFormuIsteginiTuket,
   // "+ Ekle" baska sekmedeyken: liste cizilmez, yalniz odeme paneli.
   yalnizPanel = false,
@@ -7240,7 +7272,7 @@ function Odemeler({
   useEffect(() => {
     if (odemeFormuIstegi <= 0) return;
     odemeFormuIsteginiTuket?.();
-    const ilk = bekleyen[0];
+    const ilk = (odemeFormuAnahtari && bekleyen.find((o) => o.anahtar === odemeFormuAnahtari)) || bekleyen[0];
     if (!ilk) {
       if (masaustu) setBosOdemePaneli(true);
       return;

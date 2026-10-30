@@ -46,7 +46,7 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         cubuk.overrideUserInterfaceStyle = koyu ? .dark : .light
         cubuk.tintColor = koyu
             ? UIColor(red: 0.80, green: 0.98, blue: 0.35, alpha: 1)
-            : UIColor(red: 0.04, green: 0.29, blue: 0.22, alpha: 1)
+            : UIColor(red: 0.078, green: 0.086, blue: 0.059, alpha: 1) // ink #14160f (mobil marka kilavuzu)
         cubuk.unselectedItemTintColor = koyu
             ? UIColor(red: 0.69, green: 0.71, blue: 0.66, alpha: 1)
             : UIColor(red: 0.36, green: 0.38, blue: 0.33, alpha: 1)

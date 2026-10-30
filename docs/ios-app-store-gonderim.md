@@ -64,7 +64,8 @@ Sentry olaylarında hata metni, breadcrumb, oturum, IP, e-posta ve finansal içe
 - Kredi için kayıtlı taksit planındaki gerçek sıradaki ödeme tarihi kullanılır.
 - Bildirim ödeme tarihinden bir gün önce yerel saatle 09:00'da gösterilir.
 - Aynı güne denk gelen ödemeler tek bildirimde gruplanır.
-- Kilit ekranında tutar, banka, kart son hanesi veya borç türü gösterilmez. Metin: `Yarın için kayıtlı ödemen var. Ayrıntıları Borcama'da kontrol et.`
+- Bildirimde borcun adı (banka ve kart adı) ve kalan asgari/taksit tutarı yazar (Özer kararı, 30 Ekim 2026). Kart son 4 hanesi hiç yazılmaz. Ayarlar'daki "Hassas mod" açıkken tutar yazılmaz.
+- Tek ödemeli bildirime dokununca o borcun ödeme formu açılır; "Ödedim" kalan asgari/taksit tutarını kaydeder, "Yarın hatırlat" ertesi gün 09:00'a yeniden kurar. Birden fazla ödemeli bildirim ödemeler ekranını açar.
 - Bildirim cihazda hesaplanır; finansal içerik push servisine gönderilmez.
 
 ## Offline kararı

@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- iPhone ödeme hatırlatması artık hangi borcun ne kadar ödeneceğini yazıyor (kart son 4 hanesi yazılmaz). Bildirime dokununca o borcun ödeme formu açılıyor; "Ödedim" kalan asgari/taksiti kaydediyor, "Yarın hatırlat" ertesi gün 09:00'a erteliyor. Ayarlar'a "Hassas mod" eklendi: açıkken bildirimde tutar gösterilmiyor.
+
+### Değişti
+
+- iPhone sekme çubuğunda açık temada seçili sekme rengi mobil marka kılavuzundaki mürekkep rengine (#14160f) çekildi.
+
 ## [1.74.6] - 2026-10-29
 
 Web ve iOS aynı sürüm (iOS build 41).

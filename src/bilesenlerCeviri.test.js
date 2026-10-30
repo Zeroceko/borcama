@@ -35,15 +35,26 @@ const BEKLENEN = {
     "bilesen.hatirlatma.baslik": "Hatırlatmalar",
     "bilesen.hatirlatma.satir": "Ödeme günü hatırlatması",
     "bilesen.hatirlatma.acikAciklama":
-      "Kayıtlı ödemelerinden bir gün önce saat 09:00'da hatırlatılır. Hesaplama cihazında yapılır; tutar ve banka bilgisi bildirimde gösterilmez.",
+      "Kayıtlı ödemelerinden bir gün önce saat 09:00'da hatırlatılır. Bildirimde borcun adı ve tutarı yazar; kart numarası yazmaz. Hesaplama cihazında yapılır.",
     "bilesen.hatirlatma.kapaliAciklama":
       "Açarsan kayıtlı ödemelerinden bir gün önce saat 09:00'da hatırlatılır.",
     "bilesen.hatirlatma.kapat": "Hatırlatmayı kapat",
     "bilesen.hatirlatma.ac": "Hatırlatmayı aç",
+    "bilesen.hatirlatma.hassas": "Hassas mod",
+    "bilesen.hatirlatma.hassasAcikAciklama": "Açık: bildirimde tutar gizli, yalnız borcun adı yazar.",
+    "bilesen.hatirlatma.hassasKapaliAciklama": "Açarsan bildirimlerde tutar gösterilmez.",
+    "bilesen.hatirlatma.hassasAc": "Hassas modu aç",
+    "bilesen.hatirlatma.hassasKapat": "Hassas modu kapat",
+  },
+  "odemeBildirimiPlan.js": {
+    "bilesen.bildirim.tekBaslik": "Yarın ödeme: {ad}",
+    "bilesen.bildirim.tekMetin": "{tutar} ödemen var. Dokun, ödemeyi kaydet.",
+    "bilesen.bildirim.tekMetinHassas": "Yarın ödemen var. Dokun, ödemeyi kaydet.",
+    "bilesen.bildirim.cokBaslik": "Yarın {n} ödeme",
   },
   "odemeBildirimi.js": {
-    "bilesen.bildirim.baslik": "Ödeme hatırlatması",
-    "bilesen.bildirim.metin": "Yarın için kayıtlı ödemen var. Ayrıntıları Borcama'da kontrol et.",
+    "bilesen.bildirim.odedim": "Ödedim",
+    "bilesen.bildirim.yarin": "Yarın hatırlat",
   },
   "DogrulamaEkrani.jsx": {
     "bilesen.dogrulama.suresiDolmus":
@@ -96,9 +107,9 @@ test("platform yönergeleri Türkçe kalır (başka metinlere gömülüyor)", as
   assert.match(platform, /nativeMi \? "cihaz" : "tarayıcı"/);
 });
 
-test("ödeme bildirimi kilit ekranında tutar ya da banka göstermez (iki dilde)", () => {
+test("ödeme bildirimi hassas modda tutar göstermez; normalde tutar yer tutucusu var (iki dilde)", () => {
   for (const sozluk of [tr, en]) {
-    const metin = `${sozluk["bilesen.bildirim.baslik"]} ${sozluk["bilesen.bildirim.metin"]}`;
-    assert.doesNotMatch(metin, /\d|₺|TL|\{/);
+    assert.doesNotMatch(sozluk["bilesen.bildirim.tekMetinHassas"], /\d|₺|TL|\{/);
+    assert.match(sozluk["bilesen.bildirim.tekMetin"], /\{tutar\}/);
   }
 });
