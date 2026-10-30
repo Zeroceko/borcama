@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- iPhone kurulum adımları arasında geçiş takılıyordu: iki sayfa üst üste solup "Devam et" düğmesi yanıp sönüyordu. Artık sayfalar iPhone'un kendi geçişi gibi yana kayıyor (ileri sağdan, geri soldan).
+
 ## [1.76.1] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 44). Build 43 TestFlight'a yüklenmedi.
