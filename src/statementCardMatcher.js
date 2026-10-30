@@ -27,6 +27,33 @@ export function savedCardLast4(card) {
   return String(value).replace(/\D/g, "").slice(-4);
 }
 
+function amount(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+// Limit ve hesap kesim gunu ayni bankadaki kartlari ayirmak icin ek ipucudur;
+// tek basina kart secmez, celisirse karti elemez (limit degisebilir, kesim
+// gunu tatile denk gelince birkac gun kayabilir).
+function limitMatches(card, statement) {
+  const a = amount(card?.limit);
+  const b = amount(statement.creditLimit);
+  return Boolean(a && b && Math.abs(a - b) <= Math.max(1, b * 0.005));
+}
+
+function cutoffDay(card) {
+  const day = Number(card?.kesimGunu) || Number(String(card?.hesapKesimTarihi || "").slice(-2));
+  return day >= 1 && day <= 31 ? day : null;
+}
+
+function cutoffMatches(card, statement) {
+  const a = cutoffDay(card);
+  const b = Number(String(statement.statementDate || "").slice(-2));
+  if (!a || !b) return false;
+  const diff = Math.abs(a - b);
+  return Math.min(diff, 31 - diff) <= 2;
+}
+
 export function matchStatementToCard(cards = [], statement = {}) {
   const bank = normalize(statement.bank);
   const brand = statement.cardBrand;
@@ -38,6 +65,8 @@ export function matchStatementToCard(cards = [], statement = {}) {
       const cardLast4 = savedCardLast4(card);
       const last4Matches = Boolean(last4 && cardLast4 && last4 === cardLast4);
       const brandMatches = textMatches(card.ad, brand) || textMatches(card.ekstreBelgeOzeti?.kart, brand);
+      const limitMatch = limitMatches(card, statement);
+      const cutoffMatch = cutoffMatches(card, statement);
 
       // Banka veya daha önce öğrenilmiş son dört hane açıkça çelişiyorsa
       // sessizce başka karta kayıt yapmayız.
@@ -49,7 +78,14 @@ export function matchStatementToCard(cards = [], statement = {}) {
         bankMatches,
         brandMatches,
         last4Matches,
-        score: (last4Matches ? 100 : 0) + (bankMatches ? 40 : 0) + (brandMatches ? 25 : 0),
+        limitMatch,
+        cutoffMatch,
+        score:
+          (last4Matches ? 100 : 0) +
+          (bankMatches ? 40 : 0) +
+          (brandMatches ? 25 : 0) +
+          (limitMatch ? 30 : 0) +
+          (cutoffMatch ? 20 : 0),
       };
     })
     .filter(Boolean)
@@ -63,6 +99,7 @@ export function matchStatementToCard(cards = [], statement = {}) {
     sameScoreCount === 1 &&
     (best.last4Matches ||
       (best.bankMatches && best.brandMatches) ||
+      (best.bankMatches && (best.limitMatch || best.cutoffMatch)) ||
       (best.bankMatches && bankCandidateCount === 1));
   if (!safe) return null;
 
@@ -72,6 +109,8 @@ export function matchStatementToCard(cards = [], statement = {}) {
       ? "last4"
       : best.brandMatches
         ? "bank-brand"
-        : "bank",
+        : best.limitMatch || best.cutoffMatch
+          ? "bank-details"
+          : "bank",
   };
 }
