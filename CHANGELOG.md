@@ -10,7 +10,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - "Zaten hesabım var": karşılama, giriş ekranı çizilince kayıyor; altta yükleniyor ekranı görünmüyor.
 - Yazı tipleri (Archivo Black, Space Grotesk, JetBrains Mono) artık uygulamanın içinden geliyor; Google Fonts'a istek gitmiyor. Açılışta yazıların yedek fonttan asıl fonta geçip yerinden zıplaması bitti; iPhone'da internet yavaşken de ilk karede doğru font var.
 - iPhone'da kodla giriş, Apple ile giriş ve kayıt tamamlanınca uygulama baştan yüklenmiyor (açılış logosu ve "yükleniyor" ekranı araya girmiyor); doğrudan uygulamaya geçiliyor. Web'de davranış aynı.
-- iPhone koyu temada açılışta krem/beyaz parlama yok: ilk boyama ve "yükleniyor" ekranı cihaz temasında.
+- iPhone koyu temada açılışta krem/beyaz parlama yok: ilk boyama cihaz temasında. Web'in iPhone "yükleniyor" ekranı açılış perdesiyle aynı (ortada logo, üstte yeşil parıltı, açık/koyu).
 - Doğrulama (Turnstile) kutusu uygulamanın yüzeyinde, yuvarlak bir kapta ve yumuşak girişle beliriyor; açık/koyu temaya uyuyor. Kutu belirince klavye kapanıyor, "Kod gönder" düğmesi artık kutunun üstüne binmiyor.
 - Giriş/kayıt ekranı ilk karesini çizince iPhone kabuğuna "hazır" sinyali gidiyor (karşılama kayarken altta yükleniyor ekranı görünmesin diye; native tarafı ayrı PR).
 - iPhone kabuğu klavyeyi bildirirse (borcamaKlavye) alt düğmeler klavyeyle aynı sürede ve eğride kayıyor; klavye bitince bir kerede zıplamıyor (native tarafı ayrı PR).

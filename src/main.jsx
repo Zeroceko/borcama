@@ -484,10 +484,13 @@ function EskiWelcome() {
 function Yukleniyor() {
   const masaustu = useMasaustu();
   if (nativeMi) {
-    // Zemin cihaz temasinda (native.css); acilis ekraniyla ayni, flas yok.
+    // Acilis ekrani ve perdesiyle ayni: cihaz temasinda zemin, tam ortada
+    // 240x59 logo, ustte yesil parilti (native.css). Yazi yalniz ekran okuyucu.
     return (
       <div className="native-yukleniyor" role="status" aria-live="polite">
-        {t("ortak.yukleniyor")}
+        <img className="native-yukleniyor-logo acik" src="/borcama-logo.png" alt="" />
+        <img className="native-yukleniyor-logo koyu" src="/borcama-logo-koyu.png" alt="" />
+        <span className="native-yukleniyor-metin">{t("ortak.yukleniyor")}</span>
       </div>
     );
   }

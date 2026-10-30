@@ -139,7 +139,12 @@ export function onboardingBitti(sonuc = {}, git = (hedef) => globalThis.location
   onboardingTamamla();
   // Giris ekrani native karsilamanin altinda yenilemesiz cizilir; native
   // taraf karsilamayi sola kaydirarak kapatir.
-  if (sonuc.cikis === "giris") return sayfaDegistir("/login");
+  if (sonuc.cikis === "giris") {
+    sayfaDegistir("/login");
+    // Giris ekrani zaten ciziliyse yeniden mount olmaz; sinyal yine gitsin.
+    globalThis.requestAnimationFrame?.(() => globalThis.requestAnimationFrame(girisHazirBildir));
+    return;
+  }
   bekleyenSonucuKaydet(sonuc);
   void onboardingOlayiKaydet("onboarding_tamam", {
     borc_sayisi: Array.isArray(sonuc.borclar) ? sonuc.borclar.length : 0,

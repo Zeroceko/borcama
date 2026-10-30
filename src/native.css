@@ -444,18 +444,30 @@ html.borcama-ios .bt-assistant-modal {
   max-height: calc(100dvh - 40px - var(--guvenli-ust) - var(--guvenli-alt) - min(var(--sekme-cubugu, 56px), 120px));
 }
 
-/* Native "yukleniyor": acilis ekrani ve webview zeminiyle ayni renkte
-   (cihaz temasi); koyu temada krem parlamasi olmaz. */
+/* Native "yukleniyor": acilis ekrani ve perdesiyle (AcilisPerdesi) ayni
+   gorunum; perde kalkinca altinda baska bir ekran belirmez. Olculer iOS
+   tarafindan: logo 240x59 pt, tam ekranin ortasinda; parilti OBZemin ile
+   ayni (merkez x %20 y 0, yaricap %70, ust %44, #cdf564 acikta .42 koyuda .16). */
 .native-yukleniyor {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f4efe0;
-  color: #55584c;
-  font-family: "Space Grotesk", system-ui, sans-serif;
-  font-size: 14px;
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(70% 44% at 20% 0%, rgba(205, 245, 100, 0.42), transparent 70%),
+    #f4efe0;
+}
+.native-yukleniyor-logo { width: 240px; height: 59px; grid-area: 1 / 1; object-fit: contain; }
+.native-yukleniyor-logo.koyu { display: none; }
+.native-yukleniyor-metin {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
 @media (prefers-color-scheme: dark) {
-  .native-yukleniyor { background: #0f110a; color: #b5b2a0; }
+  .native-yukleniyor {
+    background:
+      radial-gradient(70% 44% at 20% 0%, rgba(205, 245, 100, 0.16), transparent 70%),
+      #0f110a;
+  }
+  .native-yukleniyor-logo.acik { display: none; }
+  .native-yukleniyor-logo.koyu { display: block; }
 }
