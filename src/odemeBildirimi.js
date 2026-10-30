@@ -100,7 +100,7 @@ const tutarYaz = (tutar, birim) =>
     : kullaniciParaFormatla(tutar, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 function bildirimNesnesi(id, zaman, odemeler, hassas) {
-  const icerik = bildirimIcerigi(odemeler, { hassas, tutarYaz, t });
+  const icerik = bildirimIcerigi(odemeler, { hassas, tutarYaz, t, zaman });
   return {
     id,
     title: icerik.baslik,

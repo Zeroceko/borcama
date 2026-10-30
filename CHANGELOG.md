@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- "Yarın hatırlat" ile ertelenen bildirim artık ödeme gününe göre başlık alıyor: "Bugün son gün: …" ya da "… ödemesi görünmüyor".
+
 ### Eklendi
 
 - iPhone ödeme hatırlatması artık hangi borcun ne kadar ödeneceğini yazıyor (kart son 4 hanesi yazılmaz). Bildirime dokununca o borcun ödeme formu açılıyor; "Ödedim" kalan asgari/taksiti kaydediyor, "Yarın hatırlat" ertesi gün 09:00'a erteliyor. Ayarlar'a "Hassas mod" eklendi: açıkken bildirimde tutar gösterilmiyor.
