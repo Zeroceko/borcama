@@ -15,7 +15,9 @@ import {
   X,
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
-import { karsilamayaDon, sayfaDegistir } from "./onboardingKoprusu.js";
+// Girisin sonunda iOS'ta webview bastan yuklenmez (acilis ekrani ve
+// "yukleniyor" gorunmez); web'de tam gecis korunur (sayfa olcumu).
+import { girisHazirBildir, karsilamayaDon, sayfaDegistir, uygulamaIciGit } from "./onboardingKoprusu.js";
 import { panodanKoduDinle } from "./nativeSekmeCubugu.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 import {
@@ -92,7 +94,7 @@ function turnstileYuklemesiniYenile() {
   if (script) script.dataset.turnstileFailed = "1";
 }
 
-function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
+function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey, koyu = false }) {
   const ref = useRef(null);
   useEffect(() => {
     onToken('');
@@ -118,6 +120,7 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
         sitekey: siteKey,
         appearance: 'interaction-only',
         execution: 'render',
+        theme: koyu ? 'dark' : 'light',
         language: dil(),
         size: 'flexible',
         retry: 'auto',
@@ -163,7 +166,7 @@ function TurnstileWidget({ siteKey, onToken, onStatus, widgetKey }) {
       window.clearTimeout(watchdog);
       if (widget !== undefined && turnstileApi) turnstileApi.remove(widget);
     };
-  }, [siteKey, widgetKey, onToken, onStatus]);
+  }, [siteKey, widgetKey, onToken, onStatus, koyu]);
   return <div ref={ref} className="oa-turnstile" />;
 }
 
@@ -288,6 +291,12 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   const [simdi, setSimdi] = useState(() => Date.now());
   const kokRef = useRef(null);
   useKlavye(kokRef);
+  // Ilk kare boyandiktan sonra (iki rAF) native karsilama kaydirmaya baslar.
+  useEffect(() => {
+    let ikinci;
+    const ilk = requestAnimationFrame(() => { ikinci = requestAnimationFrame(girisHazirBildir); });
+    return () => { cancelAnimationFrame(ilk); cancelAnimationFrame(ikinci); };
+  }, []);
   const [kodModu, setKodModu] = useState(false);
   const [hesapVardi, setHesapVardi] = useState(false);
   const [kod, setKod] = useState("");
@@ -371,10 +380,10 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
   }, [yasalMetin]);
 
   // Kontrol kutusu etkileşim isteyince görünür alana alınır. Klavye açıkken
-  // alttaki düğme kutunun üstüne biniyordu; kod istenmişse klavye kapanır.
+  // alttaki düğme kutunun üstüne biniyordu; kutu belirince klavye kapanır.
   useEffect(() => {
     if (captchaDurumu !== "interactive" && !captchaIsteniyor) return;
-    if (captchaIsteniyor && captchaDurumu === "interactive") document.activeElement?.blur?.();
+    if (captchaDurumu === "interactive") document.activeElement?.blur?.();
     captchaKutusu.current?.scrollIntoView?.({ block: "center", behavior: "smooth" });
   }, [captchaDurumu, captchaIsteniyor]);
 
@@ -419,13 +428,14 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
     const engellenmis = hataKodu === "200500" || hataKodu === "script";
     const yapilandirmaHatasi = ["110100", "110110", "110200", "400020", "400021", "400070"].includes(hataKodu);
     return (
-      <div ref={captchaKutusu}>
+      <div ref={captchaKutusu} className={captchaDurumu === "interactive" ? "oa-captcha-etkin" : undefined}>
         {captchaDurumu === "interactive" && <p className="oa-ipucu oa-captcha-ipucu">{t("auth.captcha.isaretle")}</p>}
         <TurnstileWidget
           siteKey={turnstileSiteKey}
           widgetKey={`${widgetKey}-${captchaAttempt}`}
           onToken={captchaJetonuGeldi}
           onStatus={setCaptchaDurumu}
+          koyu={koyu}
         />
         {tekrarGerekli && (
           <div className="oa-captcha" role="alert">
@@ -597,13 +607,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       setHesapVardi(true);
       return;
     }
-    window.location.href = sonrakiSayfa;
+    uygulamaIciGit(sonrakiSayfa);
   }
 
   // "Hesabın vardı" bilgisi 4 sn görünür, sonra kendiliğinden devam eder.
   useEffect(() => {
     if (!hesapVardi) return undefined;
-    const zamanlayici = window.setTimeout(() => { window.location.href = sonrakiSayfa; }, 4000);
+    const zamanlayici = window.setTimeout(() => { uygulamaIciGit(sonrakiSayfa); }, 4000);
     return () => window.clearTimeout(zamanlayici);
   }, [hesapVardi]);
 
@@ -637,7 +647,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         );
     } else {
       oturumKalicilginiYaz();
-      window.location.href = sonrakiSayfa;
+      uygulamaIciGit(sonrakiSayfa);
     }
   }
 
@@ -667,7 +677,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       const girildi = await appleIleGirisYap();
       if (!girildi) return;
       oturumKalicilginiYaz();
-      window.location.href = sonrakiSayfa;
+      uygulamaIciGit(sonrakiSayfa);
     } catch (appleHatasi) {
       // Kullanici Apple ekranini kapatirsa mesaj bos doner; hata gostermiyoruz.
       const mesaj = appleHataMesaji(appleHatasi);
@@ -772,7 +782,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       </>
     );
     alt = (
-      <button className="oa-dugme" type="button" onClick={() => { window.location.href = sonrakiSayfa; }}>
+      <button className="oa-dugme" type="button" onClick={() => { uygulamaIciGit(sonrakiSayfa); }}>
         {t("auth.kayit.hesapVardiDevam")}
       </button>
     );
@@ -856,7 +866,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             setGonderildi(false);
             setSifirlamaModu(false);
             setHata("");
-            if (kayitModu) window.location.href = "/login";
+            if (kayitModu) uygulamaIciGit("/login");
           }}
         >
           {t("auth.girisEkraninaDon")}
