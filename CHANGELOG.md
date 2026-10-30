@@ -15,6 +15,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - Giriş/kayıt ekranı ilk karesini çizince iPhone kabuğuna "hazır" sinyali gidiyor (karşılama kayarken altta yükleniyor ekranı görünmesin diye; native tarafı ayrı PR).
 - iPhone'da klavye açılınca alt düğmeler klavyeyle aynı sürede ve eğride kayıyor; klavye bitince bir kerede zıplamıyor. Uygulama içi pencereler klavyenin üstünde kalıyor, sayfa klavyenin altına kadar kaydırılabiliyor.
 
+### Düzeltildi
+
+- Koyu temadaki Borcama logosunda harflerle renkli gölgeler arasında ince koyu çizgiler görünüyordu; koyu logo açık logodan temiz olarak yeniden üretildi (iPhone ve web).
+
 ## [1.76.1] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 44). Build 43 TestFlight'a yüklenmedi.
