@@ -15,6 +15,7 @@ import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import { noindexYoluMu } from "./seoIndexing.js";
 import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
+import "./yaziTipleri.css";
 import "./native.css";
 import "./kabuk.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";

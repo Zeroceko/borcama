@@ -15,7 +15,9 @@ import {
   X,
 } from "lucide-react";
 import { proNiyetiniOku, proNiyetiniKaydet, proNiyetiniTemizle } from "./proIntent.js";
-import { karsilamayaDon, sayfaDegistir } from "./onboardingKoprusu.js";
+// Girisin sonunda iOS'ta webview bastan yuklenmez (acilis ekrani ve
+// "yukleniyor" gorunmez); web'de tam gecis korunur (sayfa olcumu).
+import { karsilamayaDon, sayfaDegistir, uygulamaIciGit } from "./onboardingKoprusu.js";
 import { panodanKoduDinle } from "./nativeSekmeCubugu.js";
 import { GizlilikMetni, KullaniciSozlesmesi } from "./Legal.jsx";
 import {
@@ -597,13 +599,13 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       setHesapVardi(true);
       return;
     }
-    window.location.href = sonrakiSayfa;
+    uygulamaIciGit(sonrakiSayfa);
   }
 
   // "Hesabın vardı" bilgisi 4 sn görünür, sonra kendiliğinden devam eder.
   useEffect(() => {
     if (!hesapVardi) return undefined;
-    const zamanlayici = window.setTimeout(() => { window.location.href = sonrakiSayfa; }, 4000);
+    const zamanlayici = window.setTimeout(() => { uygulamaIciGit(sonrakiSayfa); }, 4000);
     return () => window.clearTimeout(zamanlayici);
   }, [hesapVardi]);
 
@@ -637,7 +639,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
         );
     } else {
       oturumKalicilginiYaz();
-      window.location.href = sonrakiSayfa;
+      uygulamaIciGit(sonrakiSayfa);
     }
   }
 
@@ -667,7 +669,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       const girildi = await appleIleGirisYap();
       if (!girildi) return;
       oturumKalicilginiYaz();
-      window.location.href = sonrakiSayfa;
+      uygulamaIciGit(sonrakiSayfa);
     } catch (appleHatasi) {
       // Kullanici Apple ekranini kapatirsa mesaj bos doner; hata gostermiyoruz.
       const mesaj = appleHataMesaji(appleHatasi);
@@ -772,7 +774,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
       </>
     );
     alt = (
-      <button className="oa-dugme" type="button" onClick={() => { window.location.href = sonrakiSayfa; }}>
+      <button className="oa-dugme" type="button" onClick={() => { uygulamaIciGit(sonrakiSayfa); }}>
         {t("auth.kayit.hesapVardiDevam")}
       </button>
     );
@@ -856,7 +858,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu = false, previe
             setGonderildi(false);
             setSifirlamaModu(false);
             setHata("");
-            if (kayitModu) window.location.href = "/login";
+            if (kayitModu) uygulamaIciGit("/login");
           }}
         >
           {t("auth.girisEkraninaDon")}

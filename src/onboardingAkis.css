@@ -5,9 +5,7 @@
    dolgu farkiyla. Imza (lime + coral blok golge, yildiz) yalniz CTA, buyuk
    tutar, plan karti ve kapanista. Token tanimlari disinda literal renk yok. */
 
-/* Prototiple ayni uc yazi tipi: Archivo Black ve Space Grotesk paketten,
-   JetBrains Mono (etiket ve tutar) Google Fonts'tan. */
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700&display=swap");
+/* Prototiple ayni uc yazi tipi; ucu de paketten (yaziTipleri.css). */
 
 @font-face {
   font-family: "OB Archivo";

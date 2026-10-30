@@ -434,7 +434,6 @@ function baslikGolgesiStil(isDark, fontSize) {
 
 /* ---------------- Stil ---------------- */
 const CSS = hoverKoru(`
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 .bt-budget-check{position:relative;z-index:1;margin:18px 0;border:1px solid var(--line-soft);border-radius:20px;background:var(--panel);color:var(--text);overflow:hidden;box-shadow:0 8px 22px #14160f08}
 .bt-budget-check summary{display:flex;align-items:center;gap:14px;cursor:pointer;padding:18px 20px;list-style:none;background:linear-gradient(110deg,#cdf56425,transparent 75%)}
 .bt-budget-check summary::-webkit-details-marker{display:none}.bt-budget-check summary:focus-visible{outline:3px solid #5d7a2e;outline-offset:-4px;border-radius:18px}
