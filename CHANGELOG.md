@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- Koyu temadaki Borcama logosunda harflerle renkli gölgeler arasında ince koyu çizgiler görünüyordu; koyu logo açık logodan temiz olarak yeniden üretildi (iPhone ve web).
+
 ## [1.76.1] - 2026-10-30
 
 Web ve iOS aynı sürüm (iOS build 44). Build 43 TestFlight'a yüklenmedi.
