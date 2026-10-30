@@ -51,6 +51,9 @@ const BEKLENEN = {
     "bilesen.bildirim.tekMetin": "{tutar} ödemen var. Dokun, ödemeyi kaydet.",
     "bilesen.bildirim.tekMetinHassas": "Yarın ödemen var. Dokun, ödemeyi kaydet.",
     "bilesen.bildirim.cokBaslik": "Yarın {n} ödeme",
+    "bilesen.bildirim.bugunBaslik": "Bugün son gün: {ad}",
+    "bilesen.bildirim.gecikmeBaslik": "{ad} ödemesi görünmüyor",
+    "bilesen.bildirim.ertelemeMetinHassas": "Ödemeyi kaydetmek için dokun.",
   },
   "odemeBildirimi.js": {
     "bilesen.bildirim.odedim": "Ödedim",
