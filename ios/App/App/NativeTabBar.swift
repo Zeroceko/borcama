@@ -90,6 +90,36 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         NotificationCenter.default.addObserver(
             self, selector: #selector(panodanKodOku),
             name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(klavyeCercevesiDegisti(_:)),
+            name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(klavyeCercevesiDegisti(_:)),
+            name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    // MARK: - Klavye
+
+    // Keyboard.resize "none": webview kuculmez. Klavyenin pencerede kapladigi
+    // yukseklik (nokta) ve animasyon suresi (sn) web'e "borcamaKlavye"
+    // olayiyla gider; kapanista yukseklik 0. Web alt boslugu (--klavye) ayni
+    // surede canlandirir, boylece dugme klavyeyle birlikte kayar.
+    private var bildirilenKlavye: CGFloat = -1
+
+    @objc private func klavyeCercevesiDegisti(_ bildirim: Notification) {
+        let bilgi = bildirim.userInfo ?? [:]
+        let sure = (bilgi[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
+        var yukseklik: CGFloat = 0
+        if bildirim.name != UIResponder.keyboardWillHideNotification,
+           let son = (bilgi[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+           let pencere = view.window {
+            let cerceve = pencere.convert(son, from: nil)
+            yukseklik = max(0, pencere.bounds.maxY - cerceve.minY)
+        }
+        yukseklik = yukseklik.rounded()
+        guard yukseklik != bildirilenKlavye else { return }
+        bildirilenKlavye = yukseklik
+        webOlayi("borcamaKlavye", ["yukseklik": Double(yukseklik), "sure": sure])
     }
 
     // MARK: - Panodan kod

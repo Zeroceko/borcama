@@ -18,11 +18,13 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: "never",
   },
-  // Klavye acilinca webview klavye kadar kuculur; kurulum ve giris
-  // ekranlarindaki alt dugme klavyenin ustunde kalir (onboarding v3, K12).
+  // Klavye webview'i kucultmez: kucultme klavye animasyonu bittikten sonra
+  // tek seferde oluyor ve alt dugme zipliyordu. Native, klavye yuksekligini
+  // ve animasyon suresini "borcamaKlavye" olayiyla bildirir; web alt boslugu
+  // ayni surede canlandirir (onboarding v3, K12).
   plugins: {
     Keyboard: {
-      resize: "native",
+      resize: "none",
       resizeOnFullScreen: true,
     },
   },
