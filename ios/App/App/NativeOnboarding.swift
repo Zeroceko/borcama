@@ -160,6 +160,8 @@ final class OBDurum: ObservableObject {
     var adimBaslangic = Date()
 
     @Published var adim: OBAdim = .acilis
+    // Son gecisin yonu: sayfa ileri giderken sagdan, geri giderken soldan kayar.
+    @Published var geriYonde = false
     @Published var gecmis: [OBAdim] = []
     @Published var dil: String
     // Gorunum: "system" cihazi izler; secim aninda tum akis degisir.
@@ -396,13 +398,18 @@ final class OBDurum: ObservableObject {
         }
         gecmis.append(simdiki)
         adimBaslangic = Date()
-        adim = siradakiler[sira + 1]
+        adimaGec(siradakiler[sira + 1], geriye: false)
     }
 
     func geri() {
         guard let onceki = gecmis.popLast() else { return }
         adimBaslangic = Date()
-        adim = onceki
+        adimaGec(onceki, geriye: true)
+    }
+
+    private func adimaGec(_ yeni: OBAdim, geriye: Bool) {
+        geriYonde = geriye
+        adim = yeni
     }
 
     func bitir(cikis: String) {
@@ -470,6 +477,11 @@ struct OBDugme: View {
     var body: some View {
         Button(action: {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            // Dugme genelde sayfa degistirir: basili hal animasyonsuz
+            // birakilir, yoksa kayan sayfada golge (mercan) geride kaliyordu.
+            var aninda = Transaction()
+            aninda.disablesAnimations = true
+            withTransaction(aninda) { basili = false }
             eylem()
         }) {
             Text(baslik)
@@ -489,7 +501,9 @@ struct OBDugme: View {
         .disabled(!etkin)
         .simultaneousGesture(DragGesture(minimumDistance: 0)
             .onChanged { _ in if !basili { withAnimation(.easeOut(duration: 0.08)) { basili = true } } }
-            .onEnded { _ in withAnimation(.easeOut(duration: 0.08)) { basili = false } })
+            // Eylem (dokunus bitince) once calisir; basili hal hala aciksa
+            // (surukleyip disarida birakma) yumusakca kalkar.
+            .onEnded { _ in DispatchQueue.main.async { if basili { withAnimation(.easeOut(duration: 0.08)) { basili = false } } } })
     }
 }
 
@@ -2049,7 +2063,27 @@ struct OBAkis: View {
     @ObservedObject var d: OBDurum
     @Environment(\.accessibilityReduceMotion) private var hareketAz
 
+    // Adimlar arasi gecis sayfa itmesi gibi yatay kayar: ust cubuk, ilerleme
+    // ve alttaki dugme yeni sayfayla birlikte gelir, solup belirmez (eski
+    // solma gecisinde iki sayfa ust uste biniyor, dugme yanip sonuyordu).
+    // Logo (acilis) ve kapanis (hazir) ekranlari solarak gelir.
+    // SwiftUI cikis gecisini sayfa girerken sabitler; yon ise cikis aninda
+    // bilinir. OBSayfaKaymasi yonu govdesinde d.geriYonde'den okur, boylece
+    // ileri-geri art arda gecislerde sayfalar ust uste binmez.
+    private func gecis(_ genislik: CGFloat) -> AnyTransition {
+        if hareketAz { return .identity }
+        if d.adim == .hazir || d.adim == .acilis { return .opacity }
+        // Karsilamanin alt dugme paneli sayfadan geri kaliyordu; karsilama
+        // kayarken ayrica solar, geride bir sey gorunmez.
+        let solar = d.adim == .karsilama
+        let yerinde = OBSayfaKaymasi(d: d, girerken: true, genislik: 0)
+        return .asymmetric(
+            insertion: .modifier(active: OBSayfaKaymasi(d: d, girerken: true, genislik: genislik, solar: solar), identity: yerinde),
+            removal: .modifier(active: OBSayfaKaymasi(d: d, girerken: false, genislik: genislik, solar: solar), identity: yerinde))
+    }
+
     var body: some View {
+        GeometryReader { g in
         ZStack {
             if d.adim != .hazir { OBZemin() }
             Group {
@@ -2071,11 +2105,29 @@ struct OBAkis: View {
                 }
             }
             .id(d.adim)
-            // Adim girisi: 260 ms, asagidan 10px + solma (direktif §5).
-            .transition(hareketAz ? .identity : .asymmetric(insertion: .opacity.combined(with: .offset(y: 10)), removal: .opacity))
+            // ZStack'te cikan sayfanin gecisi ancak acik zIndex ile oynar;
+            // yoksa eski sayfa aninda kaybolup bos bir kare kaliyordu.
+            .zIndex(1)
+            .transition(gecis(g.size.width))
         }
-        .animation(hareketAz ? nil : .timingCurve(0.2, 0.8, 0.2, 1, duration: 0.26), value: d.adim)
+        }
+        .animation(hareketAz ? nil : .timingCurve(0.25, 0.8, 0.25, 1, duration: 0.36), value: d.adim)
         .environment(\.locale, d.yerel)
+    }
+}
+
+private struct OBSayfaKaymasi: ViewModifier {
+    let d: OBDurum
+    let girerken: Bool
+    let genislik: CGFloat
+    var solar = false
+
+    func body(content: Content) -> some View {
+        // Ileri: yeni sayfa sagdan girer, eski sola cikar. Geri: tersi.
+        let yon: CGFloat = d.geriYonde ? -1 : 1
+        content
+            .offset(x: genislik * (girerken ? yon : -yon))
+            .opacity(solar ? 0 : 1)
     }
 }
 
