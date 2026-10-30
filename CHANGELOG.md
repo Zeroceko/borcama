@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.75.0] - 2026-10-30
+
+Web ve iOS aynı sürüm (iOS build 42). iOS mobil yol haritası Faz 0.
+
 ### Düzeltildi
 
 - "Yarın hatırlat" ile ertelenen bildirim artık ödeme gününe göre başlık alıyor: "Bugün son gün: …" ya da "… ödemesi görünmüyor".
