@@ -21,6 +21,7 @@ import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
 import { kurulumYoluMu } from "./kurulumTaslagi.js";
 import { belgeDiliniAyarla, t } from "./i18n.js";
 import { derinBaglantilariDinle } from "./nativeDerinBaglanti.js";
+import { gelenEkstreleriDinle } from "./gelenEkstre.js";
 import { sekmeCubugunuGoster } from "./nativeSekmeCubugu.js";
 import BiyometrikKilit from "./BiyometrikKilit.jsx";
 import CevrimdisiPerde from "./CevrimdisiPerde.jsx";
@@ -55,6 +56,7 @@ sekmeCubugunuGoster(false);
 // E-posta dogrulama ve parola yenileme baglantilari uygulamaya doner;
 // oturum burada kurulur ve kullanici giris yapmis olarak karsilanir.
 derinBaglantilariDinle();
+gelenEkstreleriDinle();
 // CRM'de Google etiketleri yüklenmez; kullanıcı kimliği içeren yollar ölçüme gitmez.
 // Native kabukta da yüklenmez (App Privacy beyanı).
 const crmAlanindaMi = typeof window !== "undefined" && window.location.hostname.toLowerCase() === CRM_ALANI;

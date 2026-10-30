@@ -6,7 +6,8 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ### Eklendi
 
-- iPhone: Borcama, PDF'lerin Paylaş sayfasında görünüyor (Mail, Dosyalar, Safari, banka uygulamaları). Gelen dosya telefon kilitliyken okunamaz biçimde saklanıyor, işlendikten ya da bir gün sonra siliniyor. Ekstreyi ekleme akışı web tarafıyla birlikte gelecek.
+- iPhone: Borcama, PDF'lerin Paylaş sayfasında görünüyor (Mail, Dosyalar, Safari, banka uygulamaları). Gelen dosya telefon kilitliyken okunamaz biçimde saklanıyor, işlendikten ya da bir gün sonra siliniyor.
+- Paylaş → Borcama: paylaşılan ekstre PDF'i uygulamada doğrudan okunuyor. Borçlar'da ekstre penceresi açılıyor, ekstre telefonda okunuyor ve eşleşen kart seçili geliyor; kullanıcı onaylayınca kaydediliyor. Ekstre okuma kapalıysa (TL dışı birim) elle giriş açılıyor. Aynı dosya bir oturumda iki kez işlenmiyor.
 
 ## [1.75.0] - 2026-10-30
 
