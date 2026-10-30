@@ -4,11 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
-<<<<<<< HEAD
 ### Düzeltildi
 
 - iPhone kurulum adımları arasında geçiş takılıyordu: iki sayfa üst üste solup "Devam et" düğmesi yanıp sönüyordu. Artık sayfalar iPhone'un kendi geçişi gibi yana kayıyor (ileri sağdan, geri soldan).
-=======
+
 ## [1.77.0] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 45). Akıcılık: açılış, giriş/kayıt, klavye.
@@ -27,7 +26,6 @@ Web ve iOS aynı sürüm (iOS build 45). Akıcılık: açılış, giriş/kayıt,
 ### Düzeltildi
 
 - Koyu temadaki Borcama logosunda harflerle renkli gölgeler arasında ince koyu çizgiler görünüyordu; koyu logo açık logodan temiz olarak yeniden üretildi (iPhone ve web).
->>>>>>> origin/main
 
 ## [1.76.1] - 2026-10-30
 
