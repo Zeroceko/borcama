@@ -21,6 +21,7 @@ import { tr as onboardingMetinleri } from "./locales/bolumler/onboarding.js";
 // yoksa (tarayici, eski iOS build'leri) web akisi aynen calisir.
 //
 // Web -> native: postMessage({ tip: "baslat", ... }) (baslatMesaji)
+//               postMessage({ tip: "girisHazir" }) (girisHazirBildir)
 // `tema`: kurulum oncesi secili gorunum ("system" | "light" | "dark");
 // bekleyen bir sonuc varsa onun temasi, yoksa cihazi izleyen "system".
 // Native akis gorunum adiminda bunu degistirir ve sonuc.tema olarak dondurur.
@@ -138,7 +139,12 @@ export function onboardingBitti(sonuc = {}, git = (hedef) => globalThis.location
   onboardingTamamla();
   // Giris ekrani native karsilamanin altinda yenilemesiz cizilir; native
   // taraf karsilamayi sola kaydirarak kapatir.
-  if (sonuc.cikis === "giris") return sayfaDegistir("/login");
+  if (sonuc.cikis === "giris") {
+    sayfaDegistir("/login");
+    // Giris ekrani zaten ciziliyse yeniden mount olmaz; sinyal yine gitsin.
+    globalThis.requestAnimationFrame?.(() => globalThis.requestAnimationFrame(girisHazirBildir));
+    return;
+  }
   bekleyenSonucuKaydet(sonuc);
   void onboardingOlayiKaydet("onboarding_tamam", {
     borc_sayisi: Array.isArray(sonuc.borclar) ? sonuc.borclar.length : 0,
@@ -191,6 +197,12 @@ export function nativeOnboardingBaslat({ geri = false } = {}) {
 // karsilama soldan kayarak acilir. Ust uste basilirsa onceki dinleyiciler
 // kaldirilir. Native kanal yoksa (eski build) karsilama sayfasina gidilir.
 let geriDinleyicileri = null;
+// Giris/kayit ekrani ilk karesini cizdiginde native'e haber verilir;
+// karsilama ancak o zaman sola kayar (altta yukleniyor ekrani gorunmez).
+export function girisHazirBildir() {
+  kanal()?.postMessage({ tip: "girisHazir" });
+}
+
 export function karsilamayaDon() {
   if (!kanal()) return globalThis.location?.assign("/summary");
   geriDinleyicileri?.();

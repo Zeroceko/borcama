@@ -15,6 +15,7 @@ import { CRM_ALANI, yonetimYolu } from "./yonetimUrls.js";
 import { noindexYoluMu } from "./seoIndexing.js";
 import { davetKayitYolu, davetKodunuYoldanOku } from "./referrals.js";
 import "./storage.js";
+import "./yaziTipleri.css";
 import "./native.css";
 import "./kabuk.css";
 import { nativeMi, nativeYoluMu, nativeGorunumuHazirla } from "./platform.js";
@@ -57,6 +58,18 @@ sekmeCubugunuGoster(false);
 // oturum burada kurulur ve kullanici giris yapmis olarak karsilanir.
 derinBaglantilariDinle();
 gelenEkstreleriDinle();
+// iOS'ta webview klavyeyle kuculmez (Keyboard.resize = none); kabuk klavyeyi
+// "borcamaKlavye" ({ yukseklik, sure }) ile bildirir. Uygulama ici pencereler
+// ve sayfa alti bu kadar yukari kayar (native.css); giris/kurulum ekranlari
+// kendi --klavye degiskenini kullanir (useKlavye).
+if (nativeMi) {
+  window.addEventListener("borcamaKlavye", (olay) => {
+    const { yukseklik = 0, sure = 0.25 } = olay.detail || {};
+    const kok = document.documentElement.style;
+    kok.setProperty("--klavye-kok-sure", `${Math.max(0, +sure || 0)}s`);
+    kok.setProperty("--klavye-kok", `${Math.max(0, Math.round(+yukseklik || 0))}px`);
+  });
+}
 // CRM'de Google etiketleri yüklenmez; kullanıcı kimliği içeren yollar ölçüme gitmez.
 // Native kabukta da yüklenmez (App Privacy beyanı).
 const crmAlanindaMi = typeof window !== "undefined" && window.location.hostname.toLowerCase() === CRM_ALANI;
@@ -483,20 +496,13 @@ function EskiWelcome() {
 function Yukleniyor() {
   const masaustu = useMasaustu();
   if (nativeMi) {
+    // Acilis ekrani ve perdesiyle ayni: cihaz temasinda zemin, tam ortada
+    // 240x59 logo, ustte yesil parilti (native.css). Yazi yalniz ekran okuyucu.
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#f4efe0",
-          color: "#55584c",
-          fontFamily: "Space Grotesk, system-ui, sans-serif",
-          fontSize: 14,
-        }}
-      >
-        {t("ortak.yukleniyor")}
+      <div className="native-yukleniyor" role="status" aria-live="polite">
+        <img className="native-yukleniyor-logo acik" src="/borcama-logo.png" alt="" />
+        <img className="native-yukleniyor-logo koyu" src="/borcama-logo-koyu.png" alt="" />
+        <span className="native-yukleniyor-metin">{t("ortak.yukleniyor")}</span>
       </div>
     );
   }

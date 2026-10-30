@@ -4,9 +4,30 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+<<<<<<< HEAD
 ### Düzeltildi
 
 - iPhone kurulum adımları arasında geçiş takılıyordu: iki sayfa üst üste solup "Devam et" düğmesi yanıp sönüyordu. Artık sayfalar iPhone'un kendi geçişi gibi yana kayıyor (ileri sağdan, geri soldan).
+=======
+## [1.77.0] - 2026-10-31
+
+Web ve iOS aynı sürüm (iOS build 45). Akıcılık: açılış, giriş/kayıt, klavye.
+
+### Değişti
+
+- iPhone açılışı tek ekran: Capacitor'ın varsayılan açılış görseli yerine marka zemini ve logo; aynı görünümdeki açılış perdesi karşılama (ya da uygulama) hazır olana kadar kalıp yumuşakça kayboluyor. Arada siyah/boş ekran ve ikinci logo ekranı yok. Splash'te logo büyüdü, yeşil parıltı yumuşakça beliriyor.
+- "Zaten hesabım var": karşılama, giriş ekranı çizilince kayıyor; altta yükleniyor ekranı görünmüyor.
+- Yazı tipleri (Archivo Black, Space Grotesk, JetBrains Mono) artık uygulamanın içinden geliyor; Google Fonts'a istek gitmiyor. Açılışta yazıların yedek fonttan asıl fonta geçip yerinden zıplaması bitti; iPhone'da internet yavaşken de ilk karede doğru font var.
+- iPhone'da kodla giriş, Apple ile giriş ve kayıt tamamlanınca uygulama baştan yüklenmiyor (açılış logosu ve "yükleniyor" ekranı araya girmiyor); doğrudan uygulamaya geçiliyor. Web'de davranış aynı.
+- iPhone koyu temada açılışta krem/beyaz parlama yok: ilk boyama cihaz temasında. Web'in iPhone "yükleniyor" ekranı açılış perdesiyle aynı (ortada logo, üstte yeşil parıltı, açık/koyu).
+- Doğrulama (Turnstile) kutusu uygulamanın yüzeyinde, yuvarlak bir kapta ve yumuşak girişle beliriyor; açık/koyu temaya uyuyor. Kutu belirince klavye kapanıyor, "Kod gönder" düğmesi artık kutunun üstüne binmiyor.
+- Giriş/kayıt ekranı ilk karesini çizince iPhone kabuğuna "hazır" sinyali gidiyor (karşılama kayarken altta yükleniyor ekranı görünmesin diye; native tarafı ayrı PR).
+- iPhone'da klavye açılınca alt düğmeler klavyeyle aynı sürede ve eğride kayıyor; klavye bitince bir kerede zıplamıyor. Uygulama içi pencereler klavyenin üstünde kalıyor, sayfa klavyenin altına kadar kaydırılabiliyor.
+
+### Düzeltildi
+
+- Koyu temadaki Borcama logosunda harflerle renkli gölgeler arasında ince koyu çizgiler görünüyordu; koyu logo açık logodan temiz olarak yeniden üretildi (iPhone ve web).
+>>>>>>> origin/main
 
 ## [1.76.1] - 2026-10-30
 
