@@ -13,7 +13,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 - iPhone koyu temada açılışta krem/beyaz parlama yok: ilk boyama cihaz temasında. Web'in iPhone "yükleniyor" ekranı açılış perdesiyle aynı (ortada logo, üstte yeşil parıltı, açık/koyu).
 - Doğrulama (Turnstile) kutusu uygulamanın yüzeyinde, yuvarlak bir kapta ve yumuşak girişle beliriyor; açık/koyu temaya uyuyor. Kutu belirince klavye kapanıyor, "Kod gönder" düğmesi artık kutunun üstüne binmiyor.
 - Giriş/kayıt ekranı ilk karesini çizince iPhone kabuğuna "hazır" sinyali gidiyor (karşılama kayarken altta yükleniyor ekranı görünmesin diye; native tarafı ayrı PR).
-- iPhone kabuğu klavyeyi bildirirse (borcamaKlavye) alt düğmeler klavyeyle aynı sürede ve eğride kayıyor; klavye bitince bir kerede zıplamıyor (native tarafı ayrı PR).
+- iPhone'da klavye açılınca alt düğmeler klavyeyle aynı sürede ve eğride kayıyor; klavye bitince bir kerede zıplamıyor. Uygulama içi pencereler klavyenin üstünde kalıyor, sayfa klavyenin altına kadar kaydırılabiliyor.
 
 ## [1.76.1] - 2026-10-30
 

@@ -58,6 +58,18 @@ sekmeCubugunuGoster(false);
 // oturum burada kurulur ve kullanici giris yapmis olarak karsilanir.
 derinBaglantilariDinle();
 gelenEkstreleriDinle();
+// iOS'ta webview klavyeyle kuculmez (Keyboard.resize = none); kabuk klavyeyi
+// "borcamaKlavye" ({ yukseklik, sure }) ile bildirir. Uygulama ici pencereler
+// ve sayfa alti bu kadar yukari kayar (native.css); giris/kurulum ekranlari
+// kendi --klavye degiskenini kullanir (useKlavye).
+if (nativeMi) {
+  window.addEventListener("borcamaKlavye", (olay) => {
+    const { yukseklik = 0, sure = 0.25 } = olay.detail || {};
+    const kok = document.documentElement.style;
+    kok.setProperty("--klavye-kok-sure", `${Math.max(0, +sure || 0)}s`);
+    kok.setProperty("--klavye-kok", `${Math.max(0, Math.round(+yukseklik || 0))}px`);
+  });
+}
 // CRM'de Google etiketleri yüklenmez; kullanıcı kimliği içeren yollar ölçüme gitmez.
 // Native kabukta da yüklenmez (App Privacy beyanı).
 const crmAlanindaMi = typeof window !== "undefined" && window.location.hostname.toLowerCase() === CRM_ALANI;

@@ -471,3 +471,14 @@ html.borcama-ios .bt-assistant-modal {
   .native-yukleniyor-logo.acik { display: none; }
   .native-yukleniyor-logo.koyu { display: block; }
 }
+
+/* Klavye (borcamaKlavye, main.jsx): pencere arkasi klavyenin ustunde biter,
+   sayfa klavyenin altina kadar kaydirilabilir; ikisi de klavyeyle ayni
+   surede ve egride kayar. */
+html.borcama-native body {
+  padding-bottom: var(--klavye-kok, 0px);
+}
+html.borcama-native .bt-modal-arka {
+  bottom: var(--klavye-kok, 0px);
+  transition: bottom var(--klavye-kok-sure, 0s) cubic-bezier(0.38, 0.7, 0.125, 1);
+}
