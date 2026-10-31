@@ -105,7 +105,7 @@ test("İngilizce dil Türkçe değilken seçilir (native ve web); web Paddle bö
 test("web/Türkçe çıktıda yasal metinler Türkçe kalır", () => {
   const tr = [
     [legal.KullaniciSozlesmesi, ["Kullanıcı Sözleşmesi", "Yürürlük tarihi: 9 Ağustos 2026 · Sürüm 1.1", "Borcama bir banka, ödeme kuruluşu", "Paddle"]],
-    [legal.GizlilikMetni, ["Gizlilik ve KVKK Aydınlatma Metni", "Yürürlük tarihi: 13 Temmuz 2026 · Sürüm 1.0", "6698 sayılı Kişisel Verilerin Korunması Kanunu", "KVKK’nın 11. maddesi"]],
+    [legal.GizlilikMetni, ["Gizlilik ve KVKK Aydınlatma Metni", "Yürürlük tarihi: 31 Ekim 2026 · Sürüm 1.1", "6698 sayılı Kişisel Verilerin Korunması Kanunu", "KVKK’nın 11. maddesi"]],
     [legal.IadePolitikasi, ["İptal ve İade Politikası", "Yürürlük tarihi: 9 Ağustos 2026 · Sürüm 1.0", "Paddle", "reportaproblem.apple.com"]],
   ];
   for (const [Bilesen, parcalar] of tr) {

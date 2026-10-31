@@ -438,6 +438,8 @@ export function GizlilikMetni({ embedded = false }) {
       tur="privacy"
       title="Gizlilik ve KVKK Aydınlatma Metni"
       embedded={embedded}
+      tarih="31 Ekim 2026"
+      surum="1.1"
     >
       <p>
         Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”)
@@ -464,6 +466,15 @@ export function GizlilikMetni({ embedded = false }) {
           kullanıcının izin vermesi halinde sayfa görüntülemelerini ve reklam
           tıklamasıyla başarılı hesap kaydı veya satın alma işlemini
           ilişkilendirmek için kullanılan sınırlı teknik tanımlayıcılar.
+        </li>
+        <li>
+          <b>İsteğe bağlı uygulama kullanım sayaçları (iOS):</b> yalnızca
+          Ayarlar'daki “Kullanım istatistikleri” izni verildiğinde; tamamlanan
+          işlemin türü (örneğin ekstre kaydedildi), kısa bir durum kodu,
+          uygulama sürümü ve saate yuvarlanmış zaman. Sayaçlar hesaba, cihaza
+          veya oturuma bağlanmaz; tutar, banka, kart ve ekstre içeriği
+          içermez. İzin kaydı (verilip verilmediği, onaylanan metin sürümü ve
+          tarih) hesapla birlikte tutulur.
         </li>
         <li>
           <b>İletişim kayıtları:</b> geri bildirimler ve destek talepleri.
@@ -496,13 +507,20 @@ export function GizlilikMetni({ embedded = false }) {
           Kullanıcının isteğe bağlı izniyle site kullanımının ve reklamların
           hesap kaydı veya satın alma sağlayıp sağlamadığının toplu olarak ölçülmesi.
         </li>
+        <li>
+          Kullanıcının açık rızasıyla iOS uygulamasında hangi adımların
+          tamamlandığının ve nerede zorlanıldığının toplu sayılarla ölçülmesi.
+        </li>
       </ul>
       <h2>3. Hukuki sebepler</h2>
       <p>
         Veriler; kullanıcı sözleşmesinin kurulması ve ifası, hukuki
         yükümlülüklerin yerine getirilmesi, bir hakkın tesisi veya korunması ve
         temel haklarınıza zarar vermemek kaydıyla hizmetin güvenliği ile
-        geliştirilmesine yönelik meşru menfaatler kapsamında işlenir. Açık rıza
+        geliştirilmesine yönelik meşru menfaatler kapsamında işlenir. İsteğe
+        bağlı ölçümler (web'de Google Analytics ve Google Ads, iOS'ta kullanım
+        sayaçları) açık rızaya dayanır; izin vermemek hiçbir özelliği
+        kısıtlamaz ve izin Ayarlar'dan her zaman geri alınabilir. Açık rıza
         gerektiren yeni bir işlem yapılırsa ayrıca ve isteğe bağlı onay alınır.
       </p>
       <h2>4. Aktarım ve altyapı sağlayıcıları</h2>
@@ -530,7 +548,8 @@ export function GizlilikMetni({ embedded = false }) {
       <p>
         Hesap verileri, hesap aktif olduğu veya hizmetin sunulması için gerekli
         olduğu sürece; güvenlik ve yasal kayıtlar ilgili amaç için gereken
-        sınırlı süre boyunca tutulur. Süre sona erdiğinde veriler silinir, yok
+        sınırlı süre boyunca tutulur. Uygulama kullanım sayaçları en fazla 24
+        ay saklanır. Süre sona erdiğinde veriler silinir, yok
         edilir veya anonimleştirilir. Erişim kontrolü, satır seviyesinde
         yetkilendirme, şifreli bağlantı ve kötüye kullanım önleme tedbirleri
         uygulanır.

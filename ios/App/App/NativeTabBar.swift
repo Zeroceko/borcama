@@ -83,6 +83,7 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         kanalKuruldu = true
         webView?.configuration.userContentController.add(self, name: "borcamaTab")
         webView?.configuration.userContentController.add(self, name: "borcamaOnboarding")
+        ortamiBildir()
         // Uygulamalarda kaydirma cubugu gosterilmez; webview'in kendi
         // gostergesi kapatiliyor.
         webView?.scrollView.showsVerticalScrollIndicator = false
@@ -96,6 +97,19 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         NotificationCenter.default.addObserver(
             self, selector: #selector(klavyeCercevesiDegisti(_:)),
             name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    // MARK: - Ortam
+
+    // TestFlight (ve Xcode'dan kurulan) surumlerde makbuz "sandboxReceipt"
+    // olur. Web, kullanim sayaclarini bu surumlerde gondermez
+    // (kullanimOlaylari.js > sayilabilirOrtamMi); bayrak her sayfa
+    // yuklemesinde, betiklerden once yazilir.
+    private func ortamiBildir() {
+        guard Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" else { return }
+        let betik = WKUserScript(source: "window.borcamaOrtam = \"testflight\";",
+                                 injectionTime: .atDocumentStart, forMainFrameOnly: true)
+        webView?.configuration.userContentController.addUserScript(betik)
     }
 
     // MARK: - Klavye
