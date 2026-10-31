@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değişti
+
+- Koyu temadaki Borcama logosunda krem harfler açık yeşil gölgeyle karışıyordu; harflerin çevresine koyu bir ayrım çizgisi eklendi (iPhone karşılama, açılış ve web).
+
 ### Düzeltildi
 
 - iPhone: Önizleme (Preview) uygulamasından Paylaş → Borcama ile gönderilen ekstre işlenmiyordu, uygulama yalnızca açılıyordu; artık ekstre penceresi açılıyor.
