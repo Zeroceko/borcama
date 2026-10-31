@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- iPhone Ayarlar'a varsayılanı kapalı "Kullanım istatistikleri" izni eklendi. İzin verilirse ekstre, ödeme, harcama ve borç ekleme gibi tamamlanan işlemler hesaba bağlanmadan sayılır; tutar, banka, kart ve ekstre içeriği gönderilmez. Gizlilik ve KVKK metni (sürüm 1.1) buna göre güncellendi.
+
 ## [1.77.4] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 49). Değişiklik yalnız web ana sayfasında; iPhone uygulamasına etkisi yok, TestFlight için build 48 geçerli.
