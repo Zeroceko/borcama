@@ -139,7 +139,6 @@ html:has(.site) { scroll-behavior: smooth; background: var(--zemin); }
 .site .son-eylem { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .site .son-kutu .dugme { background: var(--ink); color: var(--lime); }
 .site .son-kutu .dugme.beyaz { background: var(--beyaz); color: var(--ink); }
-.site .son-kutu .rozet img { display: block; width: 151px; height: 40px; }
 
 /* Alt bilgi */
 .site .alt { padding: 36px 0 24px; border-top: 1px solid var(--yuzey-3); }

@@ -1,4 +1,4 @@
-import { APP_STORE_ROZET, APP_STORE_URL, appStoreBaglantisi } from "./appStore.js";
+import { APP_STORE_URL, appStoreBaglantisi } from "./appStore.js";
 import React, { useEffect, useRef } from "react";
 import { Bell, CalendarCheck, Check, Coins, FileUp, Globe, Lock, Monitor, ReceiptText, ScanFace, ShieldCheck, Target, UserX, WalletCards } from "lucide-react";
 import { landingOlcumunuBaslat } from "./landingMeasurement.js";
@@ -132,7 +132,6 @@ export default function LandingAlt() {
           <a className="dugme" href={appStoreBaglantisi("landing-son")} rel="noopener"><Elma /> App Store'dan indir</a>
           <a className="dugme beyaz" href="/register?plan=free">Şimdi başla</a>
         </div>
-        <a className="rozet" href={APP_STORE_URL} rel="noopener" aria-label="Borcama'yı App Store'dan indirin"><img src={APP_STORE_ROZET} alt="App Store'dan İndirin" width="151" height="40" loading="lazy" /></a>
       </div></section>
     </main>
 
