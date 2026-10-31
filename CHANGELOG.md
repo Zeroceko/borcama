@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.77.3] - 2026-10-31
+
+Web ve iOS aynı sürüm (iOS build 48). Build 47 TestFlight'a yüklenmedi; 1.77.2'nin iOS içeriği 48 ile çıkıyor.
+
 ### Değişti
 
 - Koyu temadaki Borcama logosunda krem harfler açık yeşil gölgeyle karışıyordu; harflerin çevresine koyu bir ayrım çizgisi eklendi (iPhone karşılama, açılış ve web).
