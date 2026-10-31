@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.78.0] - 2026-10-31
+
+Web ve iOS aynı sürüm (iOS build 50). Kullanım istatistikleri yalnız bu build ve sonrasındaki iPhone uygulamasında görünür; TestFlight kurulumları sayılmaz.
+
 ### Eklendi
 
 - iPhone Ayarlar'a varsayılanı kapalı "Kullanım istatistikleri" izni eklendi. İzin verilirse ekstre, ödeme, harcama ve borç ekleme gibi tamamlanan işlemler hesaba bağlanmadan sayılır; tutar, banka, kart ve ekstre içeriği gönderilmez. Gizlilik ve KVKK metni (sürüm 1.1) buna göre güncellendi.
