@@ -133,18 +133,36 @@ export function useKlavye(kokRef) {
     if (!kok || typeof window === "undefined") return undefined;
     const vv = window.visualViewport;
     let nativeKlavye = false;
+    let zamanlayici;
+    let yenidenKaydir;
+    // Klavye acikken alt bolumde yalniz ana dugme kalir (oa-klavye-acik);
+    // klavye yerine oturunca odaktaki alan yeniden gorunur alana alinir,
+    // boylece alt dugme alanin ustune binmez (iPhone 11 + QuickType).
+    const ayarla = (yukseklik, sure) => {
+      const px = Math.max(0, Math.round(+yukseklik || 0));
+      kok.style.setProperty("--klavye", `${px}px`);
+      kok.classList.toggle("oa-klavye-acik", px > 60);
+      window.clearTimeout(yenidenKaydir);
+      if (px > 60) {
+        yenidenKaydir = window.setTimeout(() => {
+          const alan = document.activeElement;
+          if (alan && kok.contains(alan) && alan.matches?.("input, textarea, select"))
+            alan.scrollIntoView?.({ block: "center", behavior: "smooth" });
+        }, Math.round((sure || 0) * 1000) + 40);
+      }
+    };
     const guncelle = () => {
       if (nativeKlavye) return;
       const yukseklik = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
-      kok.style.setProperty("--klavye", `${Math.round(yukseklik)}px`);
+      ayarla(yukseklik, 0);
     };
     const nativeKlavyeOlayi = (olay) => {
       nativeKlavye = true;
       const { yukseklik = 0, sure = 0.25 } = olay.detail || {};
-      kok.style.setProperty("--klavye-sure", `${Math.max(0, +sure || 0)}s`);
-      kok.style.setProperty("--klavye", `${Math.max(0, Math.round(+yukseklik || 0))}px`);
+      const saniye = Math.max(0, +sure || 0);
+      kok.style.setProperty("--klavye-sure", `${saniye}s`);
+      ayarla(yukseklik, saniye);
     };
-    let zamanlayici;
     const odak = (olay) => {
       const alan = olay.target;
       if (!alan?.matches?.("input, textarea, select")) return;
@@ -159,6 +177,7 @@ export function useKlavye(kokRef) {
     return () => {
       window.removeEventListener("borcamaKlavye", nativeKlavyeOlayi);
       window.clearTimeout(zamanlayici);
+      window.clearTimeout(yenidenKaydir);
       vv?.removeEventListener("resize", guncelle);
       vv?.removeEventListener("scroll", guncelle);
       kok.removeEventListener("focusin", odak);
