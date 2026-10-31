@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Değişti
+
+- Koyu temadaki Borcama logosunda krem harfler açık yeşil gölgeyle karışıyordu; harflerin çevresine koyu bir ayrım çizgisi eklendi (iPhone karşılama, açılış ve web).
+
 ## [1.77.1] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 46). Build 45 TestFlight'a yüklenmedi; 1.77.0'ın iOS içeriği 46 ile çıkıyor.
