@@ -25,7 +25,8 @@ test("hero ve kapanışta App Store ve web kaydı eşit ağırlıkta", async () 
   assert.match(landing, /<a className="dugme" href=\{heroCtaHref\}><Monitor [^>]*\/> Şimdi başla<\/a>/);
   assert.match(landing, /appStoreBaglantisi\("landing-son"\)/);
   assert.match(landing, /<a className="dugme beyaz" href="\/register\?plan=free">Şimdi başla<\/a>/);
-  assert.match(landing, /APP_STORE_ROZET/);
+  // Kapanışta tek App Store eylemi; ayrı rozet tekrar etmez.
+  assert.doesNotMatch(landing, /APP_STORE_ROZET|className="rozet"/);
   // Üst çubukta yalnız iki eylem; bölüm bağlantısı ve App Store yok.
   const ust = landing.slice(landing.indexOf('<header className="ust">'), landing.indexOf("</header>"));
   assert.equal((ust.match(/<a /g) || []).length, 3);

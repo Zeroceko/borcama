@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.77.4] - 2026-10-31
+
+Web ve iOS aynı sürüm (iOS build 49). Değişiklik yalnız web ana sayfasında; iPhone uygulamasına etkisi yok, TestFlight için build 48 geçerli.
+
+### Değişti
+
+- Web ana sayfasının kapanış bölümünde iki App Store bağlantısı vardı; alttaki resmi rozet kaldırıldı, tek "App Store'dan indir" düğmesi kaldı.
+
 ## [1.77.3] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 48). Build 47 TestFlight'a yüklenmedi; 1.77.2'nin iOS içeriği 48 ile çıkıyor.
