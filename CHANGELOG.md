@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.77.2] - 2026-10-31
+
+Web ve iOS aynı sürüm (iOS build 47). TestFlight 46 geri bildirimi.
+
 ### Düzeltildi
 
 - iPhone giriş ekranında klavye açılınca alt bölüm e-posta alanının üstüne biniyordu (iPhone 11, öneri çubuğu açık). Klavye açıkken altta yalnız "Kod gönder" kalıyor; klavye yerine oturunca odaktaki alan yeniden görünür alana kaydırılıyor.
