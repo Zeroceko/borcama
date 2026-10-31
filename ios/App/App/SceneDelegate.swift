@@ -65,21 +65,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 
 // Paylas -> Borcama: PDF'i baska uygulamadan "Borcama" ile acinca iOS
-// dosyayi Documents/Inbox'a kopyalar ve adresini (file://) verir; adres
-// Capacitor'un appUrlOpen olayiyla web'e gider. Ekstre telefon kilitliyken
+// dosyayi uygulamanin gelen kutusuna kopyalar ve adresini (file://) verir;
+// adres Capacitor'un appUrlOpen olayiyla web'e gider. Gelen kutusu kaynaga
+// gore degisiyor: Mail, Dosyalar ve banka uygulamalari Documents/Inbox,
+// Onizleme (Preview) tmp/<paket kimligi>-Inbox. Ekstre telefon kilitliyken
 // okunamasin diye dosya korumasi "complete" yapilir. Web dosyayi isleyince
 // borcamaTab kanalina { tip: "gelenDosyaSil", adres } gonderir; unutulan
 // dosyalar bir gun sonra acilista silinir.
 enum GelenDosya {
-    static var gelenKutusu: URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
-            .appendingPathComponent("Inbox", isDirectory: true)
+    static var gelenKutulari: [URL] {
+        var kutular: [URL] = []
+        if let belgeler = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            kutular.append(belgeler.appendingPathComponent("Inbox", isDirectory: true))
+        }
+        let paket = Bundle.main.bundleIdentifier ?? "com.borcama.app"
+        kutular.append(FileManager.default.temporaryDirectory.appendingPathComponent("\(paket)-Inbox", isDirectory: true))
+        return kutular
     }
 
     static func gelenKutusundaMi(_ url: URL) -> Bool {
-        guard url.isFileURL, let kutu = gelenKutusu?.standardizedFileURL.resolvingSymlinksInPath().path else { return false }
+        guard url.isFileURL else { return false }
         let yol = url.standardizedFileURL.resolvingSymlinksInPath().path
-        return yol.hasPrefix(kutu + "/")
+        return gelenKutulari.contains { yol.hasPrefix($0.standardizedFileURL.resolvingSymlinksInPath().path + "/") }
     }
 
     static func koru(_ url: URL) {
@@ -93,14 +100,14 @@ enum GelenDosya {
     }
 
     static func eskileriTemizle(enEski: TimeInterval = 24 * 60 * 60) {
-        guard let kutu = gelenKutusu,
-              let dosyalar = try? FileManager.default.contentsOfDirectory(
-                at: kutu, includingPropertiesForKeys: [.contentModificationDateKey])
-        else { return }
         let sinir = Date().addingTimeInterval(-enEski)
-        for dosya in dosyalar {
-            let tarih = (try? dosya.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
-            if let tarih, tarih < sinir { try? FileManager.default.removeItem(at: dosya) }
+        for kutu in gelenKutulari {
+            guard let dosyalar = try? FileManager.default.contentsOfDirectory(
+                at: kutu, includingPropertiesForKeys: [.contentModificationDateKey]) else { continue }
+            for dosya in dosyalar {
+                let tarih = (try? dosya.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+                if let tarih, tarih < sinir { try? FileManager.default.removeItem(at: dosya) }
+            }
         }
     }
 }

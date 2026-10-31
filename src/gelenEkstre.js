@@ -1,6 +1,8 @@
 // Paylas -> Borcama: iOS'ta PDF "Borcama'da ac" ile gelince dosya
-// Documents/Inbox'a kopyalanir ve adresi appUrlOpen ile web'e ulasir
-// (file:///.../Documents/Inbox/<ad>.pdf). Adres, uygulama hazir olana
+// uygulamanin gelen kutusuna kopyalanir ve adresi appUrlOpen ile web'e ulasir.
+// Kaynaga gore iki yer var: Mail, Dosyalar ve banka uygulamalari
+// file:///.../Documents/Inbox/<ad>.pdf, Onizleme (Preview) ise
+// file:///.../tmp/com.borcama.app-Inbox/<ad>.pdf veriyor. Adres, uygulama hazir olana
 // (giris, Face ID, veri yuklemesi) kadar burada bekler; App aboneligi alir,
 // dosyayi okur ve ekstre penceresini acar. Islenen adres oturum boyunca bir
 // daha islenmez: webview yeniden yuklenince getLaunchUrl ayni adresi tekrar
@@ -18,7 +20,7 @@ export function gelenPdfAdresiMi(adres) {
   } catch {
     return false;
   }
-  return /\/Inbox\/[^/]+\.pdf$/i.test(yol);
+  return /\/(Documents\/Inbox|tmp\/[^/]+-Inbox)\/[^/]+\.pdf$/i.test(yol);
 }
 
 export function gelenDosyaAdi(adres) {
@@ -74,12 +76,39 @@ export function gelenEkstreIslendi(adres) {
   gelenDosyayiSil(adres);
 }
 
+// Banka ekstrelerinin adinda bosluk, Turkce harf ve parantez olur
+// ("23 Ekim 2026 (Güncel Ekstrem).pdf"). Adres once geldigi gibi, olmazsa
+// yolu bir kez cozulup yeniden kodlanmis haliyle denenir.
+export function gelenDosyaAdresAdaylari(adres) {
+  const adaylar = [adres];
+  try {
+    const url = new URL(adres);
+    const yeniden = `file://${encodeURI(decodeURIComponent(url.pathname))}`;
+    if (!adaylar.includes(yeniden)) adaylar.push(yeniden);
+  } catch {
+    /* gecersiz adres: yalniz kendisi denenir */
+  }
+  return adaylar;
+}
+
 export async function gelenEkstreDosyasi(adres) {
   const { Capacitor } = await import("@capacitor/core");
-  const yanit = await fetch(Capacitor.convertFileSrc(adres));
-  if (!yanit.ok) throw new Error(`gelen dosya okunamadi (${yanit.status})`);
-  const icerik = await yanit.blob();
-  return new File([icerik], gelenDosyaAdi(adres), { type: "application/pdf" });
+  let sonDurum = "yok";
+  for (const aday of gelenDosyaAdresAdaylari(adres)) {
+    try {
+      const yanit = await fetch(Capacitor.convertFileSrc(aday));
+      if (yanit.ok) {
+        const icerik = await yanit.blob();
+        if (icerik.size > 0) return new File([icerik], gelenDosyaAdi(adres), { type: "application/pdf" });
+        sonDurum = "bos";
+      } else {
+        sonDurum = String(yanit.status);
+      }
+    } catch {
+      sonDurum = "ag";
+    }
+  }
+  throw new Error(`gelen dosya okunamadi (${sonDurum})`);
 }
 
 // main.jsx acilista bir kez cagirir; App'ten once kurulur ki soguk
