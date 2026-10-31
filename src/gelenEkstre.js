@@ -1,6 +1,8 @@
 // Paylas -> Borcama: iOS'ta PDF "Borcama'da ac" ile gelince dosya
-// Documents/Inbox'a kopyalanir ve adresi appUrlOpen ile web'e ulasir
-// (file:///.../Documents/Inbox/<ad>.pdf). Adres, uygulama hazir olana
+// uygulamanin gelen kutusuna kopyalanir ve adresi appUrlOpen ile web'e ulasir.
+// Kaynaga gore iki yer var: Mail, Dosyalar ve banka uygulamalari
+// file:///.../Documents/Inbox/<ad>.pdf, Onizleme (Preview) ise
+// file:///.../tmp/com.borcama.app-Inbox/<ad>.pdf veriyor. Adres, uygulama hazir olana
 // (giris, Face ID, veri yuklemesi) kadar burada bekler; App aboneligi alir,
 // dosyayi okur ve ekstre penceresini acar. Islenen adres oturum boyunca bir
 // daha islenmez: webview yeniden yuklenince getLaunchUrl ayni adresi tekrar
@@ -18,7 +20,7 @@ export function gelenPdfAdresiMi(adres) {
   } catch {
     return false;
   }
-  return /\/Inbox\/[^/]+\.pdf$/i.test(yol);
+  return /\/(Documents\/Inbox|tmp\/[^/]+-Inbox)\/[^/]+\.pdf$/i.test(yol);
 }
 
 export function gelenDosyaAdi(adres) {
