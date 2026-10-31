@@ -11,10 +11,14 @@ import {
 
 const ADRES = "file:///var/mobile/Containers/Data/Application/ABC/Documents/Inbox/Ekim%20Ekstresi.pdf";
 
-test("gelen PDF adresi: yalniz Inbox altindaki .pdf dosyasi", () => {
+test("gelen PDF adresi: yalniz gelen kutularindaki .pdf dosyasi", () => {
   assert.equal(gelenPdfAdresiMi(ADRES), true);
   assert.equal(gelenPdfAdresiMi(ADRES.replace(".pdf", ".PDF")), true);
+  // Onizleme (Preview) dosyayi tmp/<paket>-Inbox altina koyuyor.
+  assert.equal(gelenPdfAdresiMi("file:///var/mobile/Containers/Data/Application/ABC/tmp/com.borcama.app-Inbox/Ekstre.pdf"), true);
   assert.equal(gelenPdfAdresiMi("file:///x/Documents/Ekstre.pdf"), false);
+  assert.equal(gelenPdfAdresiMi("file:///x/tmp/Ekstre.pdf"), false);
+  assert.equal(gelenPdfAdresiMi("file:///x/Library/Inbox/Ekstre.pdf"), false);
   assert.equal(gelenPdfAdresiMi("https://borcama.com/auth-callback#a=b"), false);
   assert.equal(gelenPdfAdresiMi("borcama://auth-callback"), false);
   assert.equal(gelenPdfAdresiMi(undefined), false);

@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- iPhone: Önizleme (Preview) uygulamasından Paylaş → Borcama ile gönderilen ekstre işlenmiyordu, uygulama yalnızca açılıyordu; artık ekstre penceresi açılıyor.
+
 ## [1.77.1] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 46). Build 45 TestFlight'a yüklenmedi; 1.77.0'ın iOS içeriği 46 ile çıkıyor.
