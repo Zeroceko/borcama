@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Düzeltildi
+
+- iPhone giriş ekranında klavye açılınca alt bölüm e-posta alanının üstüne biniyordu (iPhone 11, öneri çubuğu açık). Klavye açıkken altta yalnız "Kod gönder" kalıyor; klavye yerine oturunca odaktaki alan yeniden görünür alana kaydırılıyor.
+- iPhone'da uygulama içi bir pencere (ekstre, ödeme, borç…) açıkken alttaki sekme çubuğu pencerenin üstüne biniyordu; pencere açıkken çubuk gizleniyor.
+- iPhone'da ekstre penceresindeki tarih alanları ("Ekstre dönemi", "Kesim tarihi", "Son ödeme tarihi") ekrandan taşıyordu.
+- Paylaş → Borcama: dosya alınır alınmaz Borçlar'da ekstre penceresi "hazırlanıyor" ile açılıyor; dosya okunamazsa pencere nedenini yazıyor ve dosyayı elle seçmeyi sunuyor (önceden hiçbir şey görünmüyordu). Adında boşluk, Türkçe harf ve parantez olan dosyalar için ikinci okuma yolu eklendi. Okuma hatası Sentry'ye yalnız durum koduyla gidiyor.
+
 ## [1.77.1] - 2026-10-31
 
 Web ve iOS aynı sürüm (iOS build 46). Build 45 TestFlight'a yüklenmedi; 1.77.0'ın iOS içeriği 46 ile çıkıyor.

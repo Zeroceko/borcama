@@ -1418,6 +1418,12 @@ html.borcama-native .oa .dil-dugmesi.oa-cip {
 
 .oa-guvence svg { flex: none; margin-top: 2px; }
 
+/* Klavye acikken (useKlavye) alt bolumde yalniz ana dugme kalir; gecis,
+   yasal ve guvence satirlari alanlarin ustune binmesin diye gizlenir. */
+.oa.oa-klavye-acik .oa-alt .oa-gecis,
+.oa.oa-klavye-acik .oa-alt .oa-yasal-satir,
+.oa.oa-klavye-acik .oa-alt .oa-guvence { display: none; }
+
 /* Gonderildi */
 .oa-posta { display: grid; justify-items: center; padding-top: 28px; text-align: center; }
 

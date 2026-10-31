@@ -5,6 +5,7 @@ import {
   gelenAdresiAl,
   gelenDosyaAdi,
   gelenEkstreAboneOl,
+  gelenDosyaAdresAdaylari,
   gelenEkstreIslendi,
   gelenPdfAdresiMi,
 } from "./gelenEkstre.js";
@@ -55,4 +56,13 @@ test("gelen ekstre: soguk acilistaki baslangic adresi bir kez kuyruga girer", ()
   _sifirla();
   assert.equal(gelenAdresiAl(baslangic), false);
   delete globalThis.sessionStorage;
+});
+
+test("gelen dosya adres adaylari: Turkce, bosluk ve parantezli ad yeniden kodlanir", () => {
+  const kodlu = "file:///var/x/Documents/Inbox/23%20Ekim%202026%20(G%C3%BCncel%20Ekstrem).pdf";
+  const adaylar = gelenDosyaAdresAdaylari(kodlu);
+  assert.equal(adaylar[0], kodlu);
+  assert.ok(adaylar.every((a) => a.startsWith("file:///var/x/Documents/Inbox/")));
+  const ham = "file:///var/x/Documents/Inbox/23 Ekim (Güncel).pdf";
+  assert.deepEqual(gelenDosyaAdresAdaylari(ham), [ham, "file:///var/x/Documents/Inbox/23%20Ekim%20(G%C3%BCncel).pdf"]);
 });

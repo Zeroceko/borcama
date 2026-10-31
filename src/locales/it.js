@@ -743,6 +743,7 @@ const it_ = {
   "odemeler.modal.krediSifirlar": "Azzera il saldo residuo del prestito.",
   "ekstre.pdfHazirlanamadi": "Impossibile preparare il PDF su questo dispositivo. Riavvia l'app e riprova.",
   "ekstre.okunamadi": "Impossibile leggere l'estratto conto. Prova con un altro file.",
+  "ekstre.paylasilanAcilamadi": "Impossibile aprire il file condiviso. Puoi selezionarlo qui sotto per riprovare.",
   "ekstre.asama.render": "Preparazione pagina PDF ({sayfa}/{toplam})",
   "ekstre.asama.bitti": "Estratto conto letto",
   "ekstre.asama.hazirlik": "Preparazione del file",

@@ -4,6 +4,7 @@ export const tr = {
   // Ekstre okuma penceresi
   "ekstre.pdfHazirlanamadi": "PDF bu {ortam} hazırlanamadı. {yenileme} tekrar deneyin.",
   "ekstre.okunamadi": "Ekstre okunamadı. Lütfen başka bir dosya deneyin.",
+  "ekstre.paylasilanAcilamadi": "Paylaştığın dosya açılamadı. Aşağıdan dosyayı seçerek tekrar deneyebilirsin.",
   "ekstre.asama.render": "PDF sayfası hazırlanıyor ({sayfa}/{toplam})",
   "ekstre.asama.bitti": "Ekstre okundu",
   "ekstre.asama.hazirlik": "Dosya hazırlanıyor",
@@ -158,6 +159,7 @@ export const en = {
   // Statement reader
   "ekstre.pdfHazirlanamadi": "The PDF couldn't be prepared on this device. Restart the app and try again.",
   "ekstre.okunamadi": "Couldn't read the statement. Please try another file.",
+  "ekstre.paylasilanAcilamadi": "The file you shared couldn't be opened. You can pick it below to try again.",
   "ekstre.asama.render": "Preparing PDF page ({sayfa}/{toplam})",
   "ekstre.asama.bitti": "Statement read",
   "ekstre.asama.hazirlik": "Preparing file",

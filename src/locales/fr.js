@@ -743,6 +743,7 @@ const fr_ = {
   "odemeler.modal.krediSifirlar": "Solde le reste du prêt.",
   "ekstre.pdfHazirlanamadi": "Le PDF n'a pas pu être préparé sur cet appareil. Redémarrez l'app et réessayez.",
   "ekstre.okunamadi": "Impossible de lire le relevé. Essayez un autre fichier.",
+  "ekstre.paylasilanAcilamadi": "Impossible d'ouvrir le fichier partagé. Vous pouvez le sélectionner ci-dessous pour réessayer.",
   "ekstre.asama.render": "Préparation de la page PDF ({sayfa}/{toplam})",
   "ekstre.asama.bitti": "Relevé lu",
   "ekstre.asama.hazirlik": "Préparation du fichier",
