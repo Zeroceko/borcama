@@ -743,6 +743,7 @@ const de_ = {
   "odemeler.modal.krediSifirlar": "Setzt die verbleibende Kreditschuld auf null.",
   "ekstre.pdfHazirlanamadi": "Das PDF konnte auf diesem Gerät nicht vorbereitet werden. Starte die App neu und versuch es noch einmal.",
   "ekstre.okunamadi": "Die Abrechnung konnte nicht gelesen werden. Bitte versuch eine andere Datei.",
+  "ekstre.paylasilanAcilamadi": "Die geteilte Datei konnte nicht geöffnet werden. Wähl sie unten aus, um es erneut zu versuchen.",
   "ekstre.asama.render": "PDF-Seite wird vorbereitet ({sayfa}/{toplam})",
   "ekstre.asama.bitti": "Abrechnung gelesen",
   "ekstre.asama.hazirlik": "Datei wird vorbereitet",

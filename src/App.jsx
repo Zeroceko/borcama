@@ -124,6 +124,7 @@ import { kurulumYoluMu } from "./kurulumTaslagi.js";
 import { aylikPlanOdemesi, ilkAyKartKmhOdemesi, senaryoYasamButcesi, yasamButcesiKaydi, yasamButcesiTutari } from "./yasamButcesi.js";
 import { bekleyenSonucuOku, bekleyenSonucuTemizle, uygulamaIciGit } from "./onboardingKoprusu.js";
 import { hoverKoru } from "./hoverKoru.js";
+import * as Sentry from "@sentry/react";
 import { gelenEkstreAboneOl, gelenEkstreDosyasi, gelenEkstreIslendi } from "./gelenEkstre.js";
 import {
   paraBiriminiFormatla,
@@ -697,6 +698,9 @@ const CSS = hoverKoru(`
 .bt-alan{display:grid;grid-template-rows:minmax(38px,auto) 44px;align-content:start;gap:5px;min-width:0;font-size:12px;font-weight:600;color:var(--dim)}
 .bt-input{padding:10px 13px;border-radius:10px;border:1.5px solid var(--line-soft);font-size:14px;color:var(--text);
   background:var(--panel);font-family:'Space Grotesk',sans-serif;width:100%;height:44px;min-width:0}
+/* iOS'ta tarih alanlari kendi genisligini dayatip pencereden tasiyordu. */
+.bt-input[type="date"],.bt-input[type="month"]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;box-sizing:border-box;text-align:left}
+.bt-input[type="date"]::-webkit-date-and-time-value,.bt-input[type="month"]::-webkit-date-and-time-value{text-align:left}
 .bt-input:focus{outline:none;border-color:var(--line);box-shadow:0 0 0 3px color-mix(in srgb,${LIME} 48%,transparent)}
 .bt-input::placeholder{color:var(--faint)}
 .bt-form-butonlar{display:flex;gap:8px;margin-top:14px}
@@ -2309,7 +2313,8 @@ export default function BorcTakip() {
   };
   const [borcKategori, setBorcKategori] = useState("cards");
   const [ekstreYuklemeIstegi, setEkstreYuklemeIstegi] = useState(0);
-  // Paylas -> Borcama ile gelen PDF: { adres, dosya } (gelenEkstre.js).
+  // Paylas -> Borcama ile gelen PDF (gelenEkstre.js): { adres } alinir alinmaz,
+  // sonra { adres, dosya } ya da { adres, hata }.
   const [gelenEkstre, setGelenEkstre] = useState(null);
   const [odemeFiltresi, setOdemeFiltresi] = useState("bekleyen");
   const [hizliMenuAcik, setHizliMenuAcik] = useState(false);
@@ -2907,17 +2912,24 @@ export default function BorcTakip() {
       window.history.pushState({}, "", yol);
   }
 
-  // Paylas -> Borcama: veri yuklendikten sonra gelen PDF Borclar'da ekstre
-  // penceresiyle acilir; dosya okunamazsa Inbox'tan silinip birakilir.
+  // Paylas -> Borcama: veri yuklendikten sonra Borclar'a gecilir ve ekstre
+  // penceresi hemen "hazirlaniyor" ile acilir (kullanici bir sey oldugunu
+  // gorur); dosya okununca okuma baslar, okunamazsa pencere nedenini soyler
+  // ve dosyayi elle secmeyi sunar. Dosya bellege alindiktan sonra Inbox'tan
+  // silinir. Hata Sentry'ye yalniz durum koduyla gider (dosya adi yok).
   const gelenEkstreGeldi = useRef(null);
   gelenEkstreGeldi.current = async (adres) => {
+    setForm(null);
+    setBorcKategori("cards");
+    setSekme("borclar");
+    setGelenEkstre({ adres });
     try {
       const dosya = await gelenEkstreDosyasi(adres);
-      setForm(null);
-      setBorcKategori("cards");
-      setSekme("borclar");
-      setGelenEkstre({ adres, dosya });
-    } catch {
+      setGelenEkstre((onceki) => (onceki?.adres === adres ? { adres, dosya } : onceki));
+    } catch (hata) {
+      Sentry.captureException(new Error(`paylas-ekstre: ${String(hata?.message || "okunamadi").slice(0, 80)}`));
+      setGelenEkstre((onceki) => (onceki?.adres === adres ? { adres, hata: true } : onceki));
+    } finally {
       gelenEkstreIslendi(adres);
     }
   };
@@ -3575,7 +3587,20 @@ export default function BorcTakip() {
     // (cikis, hukuki sayfalar) gizleniyor; aksi halde giris ekraninin
     // uzerinde asili kalirdi.
     sekmeCubugunuGoster(true);
-    return () => sekmeCubugunuGoster(false);
+    // Pencere (ekstre, odeme, borc...) acikken native cubuk pencerenin
+    // altina biniyordu: pencere varken cubuk gizlenir, kapaninca doner.
+    let pencereAcik = false;
+    const gozcu = new MutationObserver(() => {
+      const var_ = Boolean(document.querySelector(".bt-modal-arka"));
+      if (var_ === pencereAcik) return;
+      pencereAcik = var_;
+      sekmeCubugunuGoster(!var_);
+    });
+    gozcu.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      gozcu.disconnect();
+      sekmeCubugunuGoster(false);
+    };
   }, []);
   useEffect(() => {
     if (!nativeSekmeCubuguVarMi) return;
@@ -7917,17 +7942,28 @@ function BorcUzerindenOdemeModal({
   );
 }
 
-function StatementImportModal({ cards, initialCardId = "", initialFile = null, onClose, onUse, onManual }) {
+function StatementImportModal({ cards, initialCardId = "", gelen = null, onClose, onUse, onManual }) {
   const [result, setResult] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [selectedCard, setSelectedCard] = useState(initialCardId);
   const [automaticCardMatch, setAutomaticCardMatch] = useState(null);
-  // Paylas -> Borcama: dosya hazir geldiyse secici atlanir, okuma baslar.
+  // Paylas -> Borcama: dosya beklenirken "hazirlaniyor", gelince secici
+  // atlanip okuma baslar; okunamadiysa neden yazilir, dosya elle secilebilir.
   useEffect(() => {
-    if (initialFile) handleFile(initialFile);
-  }, [initialFile]);
+    if (!gelen) return;
+    if (gelen.dosya) {
+      handleFile(gelen.dosya);
+    } else if (gelen.hata) {
+      setBusy(false);
+      setProgress(null);
+      setError(t("ekstre.paylasilanAcilamadi"));
+    } else {
+      setBusy(true);
+      setProgress({ stage: "prepare", progress: 0, page: 1, pages: 1 });
+    }
+  }, [gelen?.dosya, gelen?.hata]);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -8648,7 +8684,6 @@ function Borclar({
   const [ekstreAkisKarti, setEkstreAkisKarti] = useState(null);
   const [manuelEkstreSecimiAcik, setManuelEkstreSecimiAcik] = useState(false);
   const [ekstreYuklemePenceresi, setEkstreYuklemePenceresi] = useState(false);
-  const [ekstreIlkDosya, setEkstreIlkDosya] = useState(null);
   const [krediEklemeSecimiAcik, setKrediEklemeSecimiAcik] = useState(false);
   const [krediPlaniYuklemePenceresi, setKrediPlaniYuklemePenceresi] = useState(false);
   const [ekstreArsiviAcik, setEkstreArsiviAcik] = useState(false);
@@ -8669,20 +8704,20 @@ function Borclar({
     setBaslangicSecimiAcik(true);
     ekstreYuklemeIsteginiTuket?.();
   }, [ekstreYuklemeIstegi, ekstreYuklemeIsteginiTuket]);
-  // Paylas -> Borcama: dosya hazir; ekstre penceresi onunla acilir,
-  // eslesen kart secili gelir ve kullanici onaylar.
+  // Paylas -> Borcama: ekstre penceresi gelen dosyayla acilir (once
+  // "hazirlaniyor", sonra okuma); eslesen kart secili gelir, kullanici onaylar.
+  // Pencere kapaninca gelen dosya birakilir.
   useEffect(() => {
-    if (!gelenEkstre || yalnizPanel) return;
+    if (!gelenEkstre?.adres || yalnizPanel) return;
     setEkstreAkisKarti(null);
     setBaslangicSecimiAcik(false);
     if (belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) {
-      setEkstreIlkDosya(gelenEkstre.dosya);
       setEkstreYuklemePenceresi(true);
     } else {
       manuelEkstreAkisiniAc();
+      gelenEkstreyiTuket?.();
     }
-    gelenEkstreyiTuket?.();
-  }, [gelenEkstre]);
+  }, [gelenEkstre?.adres]);
   useEffect(() => {
     if (!ekstreArsiviAcik && !silinecekYukleme) return undefined;
     const onceki = document.body.style.overflow;
@@ -10120,11 +10155,11 @@ function Borclar({
         <StatementImportModal
           cards={veri.cards}
           initialCardId={ekstreAkisKarti?.id || ""}
-          initialFile={ekstreIlkDosya}
+          gelen={yalnizPanel ? null : gelenEkstre}
           onClose={() => {
             setEkstreYuklemePenceresi(false);
             setEkstreAkisKarti(null);
-            setEkstreIlkDosya(null);
+            if (gelenEkstre) gelenEkstreyiTuket?.();
           }}
           onUse={belgedenEkstreKaydet}
           onManual={manuelEkstreAkisiniAc}

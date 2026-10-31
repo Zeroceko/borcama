@@ -743,6 +743,7 @@ const es_ = {
   "odemeler.modal.krediSifirlar": "Pone a cero el saldo pendiente del préstamo.",
   "ekstre.pdfHazirlanamadi": "No se ha podido preparar el PDF en este dispositivo. Reinicia la app e inténtalo de nuevo.",
   "ekstre.okunamadi": "No se ha podido leer el extracto. Prueba con otro archivo.",
+  "ekstre.paylasilanAcilamadi": "No se ha podido abrir el archivo compartido. Puedes seleccionarlo abajo para volver a intentarlo.",
   "ekstre.asama.render": "Preparando página del PDF ({sayfa}/{toplam})",
   "ekstre.asama.bitti": "Extracto leído",
   "ekstre.asama.hazirlik": "Preparando archivo",
