@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.79.0] - 2026-11-01
+
+Web ve iOS aynı sürüm (iOS build 51). Değişiklik yalnız web giriş/kayıt ekranında; iPhone uygulamasına etkisi yok, App Store için build 50 geçerli.
+
 ### Değişti
 
 - Web giriş ve kayıt ekranı yenilendi: solda marka sahnesi (süzülen örnek borç kartı ve slogan), sağda sekmeli form. Kayıt varsayılan olarak şifresiz (e-postaya 6 haneli kod); istenirse şifre belirlenerek hesap açılır (şifre gücü göstergesiyle). Girişte kodla ya da şifreyle girilir. Hatalar ilgili alanın altında gösterilir; gizli bir tuzak alanı botların isteğini engeller. iPhone uygulamasındaki giriş ekranı değişmedi.
