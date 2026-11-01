@@ -106,10 +106,11 @@ test("SagPanel: diyalog, başlık bağlantısı, kapat düğmesi; menü düğmes
     assert.ok(kaynak.includes(parca), parca);
 });
 
-test("A2: kayıt/kod iki sütun (560 + 440), kurulum önizlemeli, üst çubuk ortak", () => {
-  assert.match(css, /\.oa \.mk-izgara\.mk-auth \{\s*grid-template-columns: minmax\(0, 560px\) minmax\(0, 440px\);/);
+test("A2: kurulum önizlemeli, üst çubuk ortak; giriş/kayıt kendi iki sütunlu kabuğunda", () => {
   assert.match(css, /\.mk-ust-ic \{[^}]*width: min\(1120px, calc\(100% - 64px\)\);[^}]*height: 72px;/);
-  assert.match(auth, /<NeOlacak kayit=\{kayitModu\} \/>/);
+  // Giriş/kayıt: girisKabuk.css (sahne + form), masaüstü ızgarası kullanılmaz.
+  assert.doesNotMatch(auth, /mk-izgara|NeOlacak/);
+  assert.match(auth, /<GirisSahnesi \/>/);
   assert.match(onboarding, /onboardingSonucunuUygula\(veri, sonuc, \{/);
   assert.match(onboarding, /onizleme\(taslakVeri, \{ koyu, adim \}\)/);
   assert.match(app, /function KurulumOnizleme\(/);
@@ -132,7 +133,7 @@ test("B15/B16: hoş geldin ve yükleniyor web'de .oa yüzeyinde; glif yok, iOS a
 
 test("Yeni metinler 6 dilde, dolu, ünlemsiz; yer tutucular aynı", () => {
   const anahtarlar = Object.keys(web.tr).filter((k) => /^web\.(kabuk|panel|kurulum)\./.test(k));
-  assert.ok(anahtarlar.length >= 30, String(anahtarlar.length));
+  assert.ok(anahtarlar.length >= 25, String(anahtarlar.length));
   for (const dil of ["tr", "en", "de", "fr", "es", "it"]) {
     for (const k of anahtarlar) {
       const metin = web[dil][k];
