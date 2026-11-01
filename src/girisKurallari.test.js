@@ -111,7 +111,7 @@ test("sahne yalnız dekor; düzen 760 px altında üst üste, hareket azaltmada 
   assert.match(css, /rotate\(-4deg\)/);
   assert.match(css, /font: 400 clamp\(34px, 4vw, 56px\) \/ 0\.98 var\(--oa-baslik-yazi\);[\s\S]+text-wrap: balance;/);
   const azalt = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
-  assert.match(azalt, /\.gk-top, \.gk-kart, \.gk-panel \{ animation: none; \}/);
+  assert.match(azalt, /\.gk-kart, \.gk-panel \{ animation: none; \}/);
   assert.match(azalt, /\.gk-gosterge[^{]*\{ transition: none; \}/);
 });
 

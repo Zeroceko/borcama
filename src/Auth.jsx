@@ -1693,15 +1693,14 @@ function KodAlani({ deger, onChange, onTamam, hata }) {
   );
 }
 
-// Sol marka sahnesi (yalniz dekor): hap bicimleri, koyu blok, ziplayan top,
-// suzulen ornek borc karti ve slogan. Karttaki veri ornektir.
+// Sol marka sahnesi (yalniz dekor): hap bicimleri, koyu blok, suzulen ornek
+// borc karti ve slogan. Karttaki veri ornektir.
 function GirisSahnesi() {
   return (
     <div className="gk-sahne" aria-hidden="true">
       <span className="gk-sekil gk-hap bir" />
       <span className="gk-sekil gk-hap iki" />
       <span className="gk-sekil gk-blok" />
-      <span className="gk-sekil gk-top" />
       <div className="gk-kart-yer">
         <div className="gk-kart">
           <div className="ust">

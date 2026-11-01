@@ -53,21 +53,6 @@
   background: var(--oa-ink);
 }
 
-.gk-top {
-  top: 18%;
-  left: 62%;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--oa-coral);
-  animation: gk-zipla 1.6s cubic-bezier(0.5, 0, 0.5, 1) infinite alternate;
-}
-
-@keyframes gk-zipla {
-  from { transform: translateY(0); }
-  to { transform: translateY(-26px); }
-}
-
 /* Kart: yer tutucu egik (-4 derece), ic kart 6 sn'de +/-14 px suzulur. */
 .gk-kart-yer {
   position: absolute;
@@ -331,7 +316,6 @@
   .gk-hap.bir { top: 6%; left: -18%; width: 56%; height: 22%; }
   .gk-hap.iki { top: 8%; right: -14%; width: 40%; height: 17%; }
   .gk-blok { top: -16%; right: -6%; width: 26%; height: 36%; border-radius: 28px; }
-  .gk-top { top: 36%; left: 8%; width: 30px; height: 30px; }
   .gk-kart-yer { top: 37%; left: 60%; width: 210px; transform: translate(-50%, -50%) rotate(-4deg); }
   .gk-kart { padding: 14px 16px 12px; border-radius: 20px; }
   .gk-kart .ust { margin-bottom: 4px; }
@@ -343,7 +327,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gk-top, .gk-kart, .gk-panel { animation: none; }
+  .gk-kart, .gk-panel { animation: none; }
   .gk-gosterge, .gk-sekmeler [role="tab"], .gk .oa-dugme, .gk-guc .cubuk i { transition: none; }
   .gk .oa-dugme:hover:not(:disabled), .gk .oa-dugme:active:not(:disabled) { transform: none; }
 }
