@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { FINANSAL_SOZLUK } from "../src/financialGlossary.js";
+import { REHBER_KAYNAKLARI, REHBERLER, guncellemeTarihiMetni, rehberBul } from "../src/seoRehberler.js";
 
 const SITE = "https://borcama.com";
 const DIST = join(process.cwd(), "dist");
@@ -16,24 +17,17 @@ const tools = [
   ["kidem-tazminati-hesaplama", "Kıdem Tazminatı Hesaplama 2026", "2026 kıdem tazminatı tavanına göre maaş ve çalışma sürenle tahmini net kıdem tazminatını hesapla."],
 ];
 
-const guides = [
-  ["2026-brut-net-maas-nasil-hesaplanir", "2026 Brütten Nete Maaş Nasıl Hesaplanır?", "2026 brüt maaştan net maaşa geçerken SGK, işsizlik primi, gelir vergisi ve damga vergisinin nasıl uygulandığını öğrenin."],
-  ["2026-kidem-tazminati-nasil-hesaplanir", "2026 Kıdem Tazminatı Nasıl Hesaplanır?", "2026 kıdem tazminatı hesabında brüt ücret, düzenli ek ödemeler, çalışma süresi, tavan ve damga vergisinin etkisini öğrenin."],
-  ["mevduat-faizi-net-getiri-nasil-hesaplanir", "Mevduat Faizi Net Getiri Nasıl Hesaplanır?", "Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini ve vade sonu net getirisini hesaplamayı öğrenin."],
-  ["32-gunluk-mevduat-faizi-nasil-hesaplanir", "32 Günlük Mevduat Faizi Nasıl Hesaplanır?", "32 günlük vadeli mevduatta ana para, yıllık brüt faiz ve stopajla net kazanç ve vade sonu toplamın nasıl hesaplandığını öğrenin."],
-  ["100-bin-tl-mevduat-getirisi-nasil-hesaplanir", "100 Bin TL Mevduat Getirisi Nasıl Hesaplanır?", "100.000 TL için bankanın verdiği yıllık faiz, seçtiğin vade ve stopaj oranıyla tahmini net mevduat getirisini hesaplayın."],
-  ["borclarimi-nasil-duzenlerim", "Borçlarımı Nasıl Düzenlerim?", "Borçlarını tek listede toplamak, ödeme önceliğini belirlemek ve sürdürülebilir bir aylık plan kurmak için adım adım rehber."],
-  ["kredi-karti-borcu-nasil-takip-edilir", "Kredi Kartı Borcu Nasıl Takip Edilir?", "Dönem borcu, asgari ödeme ve son ödeme tarihini düzenli takip etmek için uygulanabilir yöntemler."],
-  ["asgari-odeme-borcu-nasil-etkiler", "Asgari Ödeme Yapmak Borcu Nasıl Etkiler?", "Kredi kartında asgari ödeme sonrası kalan borcun ve faizin nasıl değiştiğini sade örneklerle öğren."],
-  ["birden-fazla-bankadaki-borclar-nasil-yonetilir", "Birden Fazla Bankadaki Borçlar Nasıl Yönetilir?", "Farklı bankalardaki kredi, kart ve ek hesap borçlarını tek aylık planda düzenleme rehberi."],
-  ["borc-kapatma-plani-nasil-hazirlanir", "Borç Kapatma Planı Nasıl Hazırlanır?", "Aylık bütçe, zorunlu ödemeler ve faiz oranlarıyla gerçekçi bir borç kapatma planı hazırla."],
-];
+// Rehberler SPA ile aynı veri kaynağından gelir; başlık, bölüm, SSS ve kaynaklar JavaScript'siz HTML'de de okunur.
+const guides = REHBERLER.map((rehber) => [rehber.slug, rehber.title, rehber.description]);
 
 const toolLinks = tools.map(([slug, title]) => [`/araclar/${slug}`, title]);
 const guideLinks = guides.map(([slug, title]) => [`/rehber/${slug}`, title]);
 const glossaryLinks = FINANSAL_SOZLUK.map((terim) => [`/finansal-sozluk/${terim.slug}`, terim.title]);
+const cardDebtGuides = ["kredi-karti-faiz-oranlari-2026", "kredi-karti-borcu-yapilandirma", "kredi-karti-borcu-odenmezse-ne-olur"].map((slug) => [`/rehber/${slug}`, rehberBul(slug).title]);
 const guideByTool = {
-  "borc-kapatma-hesaplayici": [["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"]],
+  "borc-kapatma-hesaplayici": [["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"], ...cardDebtGuides],
+  "kredi-karti-asgari-odeme-hesaplayici": [["/rehber/asgari-odeme-borcu-nasil-etkiler", "Asgari ödeme yapmak borcu nasıl etkiler?"], ...cardDebtGuides],
+  "borc-odeme-plani": [cardDebtGuides[1], cardDebtGuides[2], ["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"]],
   "brut-net-maas-hesaplama": [["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş rehberi"]],
   "kidem-tazminati-hesaplama": [["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı rehberi"]],
   "mevduat-faizi-hesaplama": [
@@ -58,17 +52,40 @@ const pages = [
   { path: "/araclar", title: "Finans ve Ödeme Hesaplama Araçları", description: "Borç, kredi kartı, mevduat, kredi taksiti, maaş ve kıdem tazminatı için ücretsiz hesaplama araçları.", links: toolLinks, type: "CollectionPage" },
   ...tools.map(([slug, title, description]) => ({ path: `/araclar/${slug}`, title, description, sections: staticSections[`/araclar/${slug}`] || [], links: [...(guideByTool[slug] || []), ...toolLinks.filter(([path]) => path !== `/araclar/${slug}`)], type: "WebApplication" })),
   { path: "/rehber", title: "Borç ve Ödeme Rehberi", description: "Borç düzenleme, kredi kartı takibi ve borç kapatma planı hakkında sade ve uygulanabilir rehberler.", links: guideLinks, type: "CollectionPage" },
-  ...guides.map(([slug, title, description]) => ({ path: `/rehber/${slug}`, title, description, links: guideLinks.filter(([path]) => path !== `/rehber/${slug}`), type: "Article" })),
+  ...REHBERLER.map((rehber) => ({
+    path: `/rehber/${rehber.slug}`,
+    title: rehber.title,
+    heading: rehber.h1,
+    description: rehber.description,
+    updated: rehber.guncellendi,
+    published: rehber.published,
+    lead: rehber.intro,
+    sections: [...rehber.sections, ...(rehber.sss || [])],
+    faq: rehber.sss || [],
+    sources: (REHBER_KAYNAKLARI[rehber.slug] || []).map(([url, label]) => [label, url]),
+    links: [
+      [`/araclar/${rehber.tool}`, tools.find(([slug]) => slug === rehber.tool)[1]],
+      ...(rehber.araclar || []).map((slug) => [`/araclar/${slug}`, tools.find(([aracSlug]) => aracSlug === slug)[1]]),
+      ...(rehber.ilgiliRehberler || []).map((slug) => [`/rehber/${slug}`, rehberBul(slug).title]),
+      ...(rehber.terimler || []).map((slug) => FINANSAL_SOZLUK.find((terim) => terim.slug === slug)).map((terim) => [`/finansal-sozluk/${terim.slug}`, terim.title]),
+      ["/register?plan=free", "Borcama'da ücretsiz borç planını oluştur"],
+    ],
+    type: "Article",
+  })),
   { path: "/finansal-sozluk", title: "Finansal Sözlük", description: "Faiz, temerrüt, kredi kartı ekstresi, kalan anapara, nakit akışı ve borç yönetimi terimlerini sade örneklerle öğrenin.", links: glossaryLinks, type: "CollectionPage" },
   ...FINANSAL_SOZLUK.map((terim) => ({
     path: `/finansal-sozluk/${terim.slug}`,
     title: terim.seoTitle || `${terim.title} Nedir?`,
     heading: terim.h1,
     description: terim.seoDescription || `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`,
-    sections: [["Kısaca nasıl çalışır?", terim.detail], ["Basit örnek", terim.example], ...(terim.ekBolumler || []), ["Borcama'da ne anlama gelir?", terim.borcama], ...(terim.sss || [])],
+    sections: [...(terim.borcKoprusu ? [[terim.borcKoprusu.baslik, terim.borcKoprusu.aciklama]] : []), ["Kısaca nasıl çalışır?", terim.detail], ["Basit örnek", terim.example], ...(terim.ekBolumler || []), ["Borcama'da ne anlama gelir?", terim.borcama], ...(terim.sss || [])],
     faq: terim.sss || [],
     sources: terim.kaynaklar || [],
-    links: terim.related.map((slug) => FINANSAL_SOZLUK.find((item) => item.slug === slug)).filter(Boolean).map((item) => [`/finansal-sozluk/${item.slug}`, item.title]),
+    links: [
+      ...(terim.rehberler || []).map((slug) => [`/rehber/${slug}`, rehberBul(slug).title]),
+      ...(terim.borcKoprusu?.araclar || []).map((slug) => [`/araclar/${slug}`, tools.find(([aracSlug]) => aracSlug === slug)[1]]),
+      ...terim.related.map((slug) => FINANSAL_SOZLUK.find((item) => item.slug === slug)).filter(Boolean).map((item) => [`/finansal-sozluk/${item.slug}`, item.title]),
+    ],
     type: "Article",
     term: terim,
   })),
@@ -93,7 +110,7 @@ function escapeHtml(value) {
 function staticBody(page) {
   const links = page.links.map(([path, label]) => `<li><a href="${path}">${escapeHtml(label)}</a></li>`).join("");
   const sections = (page.sections || []).map(([title, body]) => `<section><h2>${escapeHtml(title)}</h2><p>${escapeHtml(body)}</p></section>`).join("");
-  return `<div id="root"><main class="seo-prerender"><a href="/">Borcama</a><h1>${escapeHtml(page.heading || page.title)}</h1><p>${escapeHtml(page.description)}</p>${sections}${(page.sources || []).length ? `<section><h2>Kaynaklar</h2><ul>${page.sources.map(([label, url]) => `<li><a href="${url}" rel="noreferrer">${escapeHtml(label)}</a></li>`).join("")}</ul></section>` : ""}<nav aria-label="İlgili sayfalar"><h2>İlgili hesaplama ve rehberler</h2><ul>${links}</ul></nav></main></div>`;
+  return `<div id="root"><main class="seo-prerender"><a href="/">Borcama</a><h1>${escapeHtml(page.heading || page.title)}</h1>${page.updated ? `<p>Son güncelleme: <time datetime="${page.updated}">${guncellemeTarihiMetni(page.updated)}</time></p>` : ""}<p>${escapeHtml(page.description)}</p>${page.lead ? `<p>${escapeHtml(page.lead)}</p>` : ""}${sections}${(page.sources || []).length ? `<section><h2>Kaynaklar</h2><ul>${page.sources.map(([label, url]) => `<li><a href="${url}" rel="noreferrer">${escapeHtml(label)}</a></li>`).join("")}</ul></section>` : ""}<nav aria-label="İlgili sayfalar"><h2>İlgili hesaplama ve rehberler</h2><ul>${links}</ul></nav></main></div>`;
 }
 
 const baseHtml = await readFile(join(DIST, "index.html"), "utf8");
@@ -114,6 +131,8 @@ for (const page of pages) {
         "@type": page.type,
         name: page.title,
         headline: page.type === "Article" ? page.title : undefined,
+        datePublished: page.published,
+        dateModified: page.updated || page.published,
         description: page.description,
         url: canonical,
         applicationCategory: page.type === "WebApplication" ? "FinanceApplication" : undefined,

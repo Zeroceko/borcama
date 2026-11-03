@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+### Eklendi
+
+- Kredi kartı borcu olanlar için üç yeni rehber: "Kredi kartı faiz oranları (Kasım 2026)" TCMB'nin bu ayki azami akdi, gecikme ve nakit avans/KMH oranlarını örnek bir borçla anlatıyor; "Kredi kartı borcu yapılandırma (2026)" BDDK'nın 2026 kararındaki vade, faiz sınırı ve kart limiti kurallarını ve bankaya sorulacakları topluyor; "Kredi kartı borcu ödenmezse ne olur?" gecikme faizinden icra takibine ve zamanaşımına kadar süreci kanun maddeleriyle sırasıyla anlatıyor. Her rehberde son güncelleme tarihi, sık sorulan sorular, resmî kaynaklar ve ilgili hesaplayıcılara bağlantı var.
+
+### Değişti
+
+- Finansal Sözlük'teki "Tasfiye" sayfasına SPK fon tasfiyesindeki son gelişmeler (1 ve 27 Ekim 2026, 7596 sayılı Kanun) tarih ve kaynakla eklendi. Sayfanın başına, kart ya da kredi borcu olan okuru yeni rehberlere ve borç kapatma hesaplayıcısına yönlendiren "Kredi kartı veya kredi borcun mu var?" bölümü kondu.
+- Borç kapatma, asgari ödeme ve borç ödeme planı araçlarıyla ilgili sözlük terimleri ve borç rehberleri yeni kart borcu rehberlerine bağlantı veriyor.
+- Rehber sayfaları JavaScript açılmadan da bölümleri, sık sorulan soruları ve kaynaklarıyla birlikte okunuyor; arama motorlarına giden sayfa başlıkları uygulamadakiyle aynı.
+
 ## [1.79.0] - 2026-11-01
 
 Web ve iOS aynı sürüm (iOS build 51). Değişiklik yalnız web giriş/kayıt ekranında; iPhone uygulamasına etkisi yok, App Store için build 50 geçerli.
