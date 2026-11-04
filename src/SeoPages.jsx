@@ -33,15 +33,22 @@ import {
   paraGirdisiniFormatla,
   turkLirasiFormatla,
 } from "./currencyInput.js";
+import {
+  BDDK_KAYNAK,
+  GIB_ASGARI_2026,
+  GIB_VERGI_2026,
+  KIDEM_2026,
+  REHBER_KAYNAKLARI,
+  REHBER_UYARILARI,
+  REHBERLER,
+  SGK_2026,
+  TCMB_KAYNAK,
+  guncellemeTarihiMetni,
+  rehberBul,
+} from "./seoRehberler.js";
 import "./SeoPages.css";
 
 const SITE = "https://borcama.com";
-const BDDK_KAYNAK = "https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349";
-const TCMB_KAYNAK = "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Bankacilik%2BVerileri/Kredi_Karti_Islemlerinde_Uygulanacak_Azami_Faiz_Oranlari";
-const GIB_VERGI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2Fgelir-vergisi-tarifeleri%2Fgelir-vergisi-tarifesi-2026.pdf";
-const GIB_ASGARI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2FAsgariUcrettenYapilanKesintiler.pdf";
-const SGK_2026 = "https://www.sgk.gov.tr/Content/Post/2e0c9e1a-2cfe-4456-af10-49d3de0c58ba/Prime-Esas-Kazanc-Miktarlari-2026-01-14-10-35-39";
-const KIDEM_2026 = "https://www.csgb.gov.tr/tr/istatistikler/calisma-hayati-istatistikleri/kidem-tazminati-tavan-miktari/";
 
 const ARACLAR = [
   { slug: "borc-kapatma-hesaplayici", icon: CircleDollarSign, title: "Borç kapatma hesaplayıcı", text: "Aylık ödeme ve faiz oranına göre tahmini kapanış süresini gör." },
@@ -54,146 +61,16 @@ const ARACLAR = [
   { slug: "kidem-tazminati-hesaplama", icon: Calculator, title: "Kıdem tazminatı hesaplama", text: "Maaşın ve çalışma sürene göre tahmini kıdem tazminatını gör." },
 ];
 
-const REHBERLER = [
-  {
-    slug: "2026-brut-net-maas-nasil-hesaplanir",
-    title: "2026 Brütten Nete Maaş Nasıl Hesaplanır?",
-    description: "2026 brüt maaştan net maaşa geçerken SGK, işsizlik primi, gelir vergisi ve damga vergisinin nasıl uygulandığını sade bir örnekle öğrenin.",
-    published: "2026-08-24",
-    intro: "Brüt maaş, kesintiler yapılmadan önceki toplam tutardır. Net maaş ise çalışanın eline geçen tutarı ifade eder. Aradaki farkı tek bir oran değil, birkaç ayrı kesinti belirler.",
-    sections: [
-      ["Brüt maaştan hangi kesintiler yapılır?", "Çalışan payı olarak SGK primi ve işsizlik sigortası primi ayrılır. Ardından gelir vergisi matrahına göre gelir vergisi ve brüt tutar üzerinden damga vergisi hesaplanır. Asgari ücret vergi istisnası da sonuçta dikkate alınır."],
-      ["Net maaş neden aylar ilerledikçe değişebilir?", "Gelir vergisi yıl içindeki toplam vergi matrahına göre kademeli hesaplanır. Bir üst vergi dilimine geçildiğinde, brüt maaş aynı kalsa bile ele geçen net tutar azalabilir."],
-      ["Netten brüte hesaplama nasıl yapılır?", "Hedeflenen net tutarı verecek brüt maaş, kesintiler ve vergi dilimi birlikte hesaba katılarak bulunur. Bu nedenle net tutara sabit bir yüzde eklemek doğru sonuç vermeyebilir."],
-      ["Hesaplamada hangi ayı seçmelisin?", "Maaşının bordroya yansıyacağı ayı seç. Araç, aynı brüt maaşı yılbaşından beri aldığın varsayımıyla o aya kadarki toplam matrahı tahmin eder."],
-    ],
-    tool: "brut-net-maas-hesaplama",
-  },
-  {
-    slug: "2026-kidem-tazminati-nasil-hesaplanir",
-    title: "2026 Kıdem Tazminatı Nasıl Hesaplanır?",
-    description: "2026 kıdem tazminatı hesabında brüt ücret, düzenli ek ödemeler, çalışma süresi, tavan ve damga vergisinin etkisini öğrenin.",
-    published: "2026-08-24",
-    intro: "Kıdem tazminatı tutarı; hesaba esas aylık kazanç, toplam çalışma süresi ve ilgili dönemdeki kıdem tazminatı tavanına göre tahmin edilir. Hak kazanma durumu ise işten ayrılma nedenine göre ayrıca değerlendirilir.",
-    sections: [
-      ["Hesaba esas aylık tutar nedir?", "Brüt maaşa, her ay düzenli sağlanan para ve para ile ölçülebilen bazı menfaatler eklenebilir. Düzensiz veya tek seferlik ödemelerin durumu farklı olabileceğinden bordro kayıtlarını esas al."],
-      ["Kıdem tazminatı tavanı nasıl etkiler?", "Hesaba esas aylık kazanç ilgili dönem tavanını aşıyorsa hesaplama tavan tutar üzerinden yapılır. Tavan yıl içinde güncellenebildiği için işten ayrılma tarihindeki tutar önemlidir."],
-      ["Çalışma süresi nasıl eklenir?", "Tam yıllara ek olarak artan ay ve günler de oranlanarak hesaba katılır. Başlangıç ve bitiş tarihlerini işveren kayıtlarından kontrol etmek sonucu daha doğru yapar."],
-      ["Net tutara nasıl ulaşılır?", "Tahmini brüt tazminattan damga vergisi düşülerek net tutar bulunur. Kesin bordroda yasal durum ve kayıtlar sonucu etkileyebileceğinden aracı bir ön hesap olarak kullan."],
-    ],
-    tool: "kidem-tazminati-hesaplama",
-  },
-  {
-    slug: "mevduat-faizi-net-getiri-nasil-hesaplanir",
-    title: "Mevduat Faizi Net Getiri Nasıl Hesaplanır?",
-    description: "Ana para, yıllık brüt faiz, vade günü ve stopaj oranıyla mevduatın brüt faizini ve vade sonu net getirisini hesaplamayı öğrenin.",
-    published: "2026-08-24",
-    intro: "Bankanın ilan ettiği mevduat faizi genellikle yıllık brüt orandır. Hesabına geçecek net kazanç için vade süresi ve stopaj kesintisi de hesaba katılmalıdır.",
-    sections: [
-      ["Brüt faiz nasıl bulunur?", "Ana para, yıllık brüt faiz oranı ve vade günü birlikte kullanılır. Kısa vadede yıllık oranın yalnızca vade gününe karşılık gelen kısmı kazanılır."],
-      ["Stopaj net getiriyi nasıl etkiler?", "Stopaj, brüt faiz kazancı üzerinden kesilir. Oran; mevduatın türüne, açılış veya yenileme tarihine ve vadeye göre değişebileceği için bankanın teklifinde yazan oranı kullan."],
-      ["Vade sonu toplam tutar nedir?", "Ana paraya, stopaj düşüldükten sonra kalan net faiz eklenir. Vade sonunda hesabında görmeyi beklediğin yaklaşık toplam budur."],
-      ["Teklifleri karşılaştırırken neye bakmalısın?", "Yalnızca ilan edilen faiz oranını değil; vade gününü, stopajı, hoş geldin oranının geçerlilik süresini ve vade sonu net tutarı birlikte karşılaştır."],
-    ],
-    tool: "mevduat-faizi-hesaplama",
-  },
-  {
-    slug: "32-gunluk-mevduat-faizi-nasil-hesaplanir",
-    title: "32 Günlük Mevduat Faizi Nasıl Hesaplanır?",
-    description: "32 günlük vadeli mevduatta ana para, yıllık brüt faiz ve stopajla net kazanç ve vade sonu toplamın nasıl hesaplandığını öğrenin.",
-    published: "2026-08-31",
-    intro: "32 günlük mevduat getirisi, bankanın verdiği yıllık brüt oranın 32 güne düşen kısmıdır. Net kazanç için brüt faizden bankanın bildirdiği stopaj kesilir.",
-    sections: [
-      ["32 günlük brüt faiz formülü", "Ana para, yıllık brüt faiz oranı ve 32 gün çarpılır; sonuç 365 gün ve 100'e bölünür. Bankaların gün hesabı ve ürün koşulları farklılaşabildiği için teklif belgesini kontrol et."],
-      ["Net getiri nasıl bulunur?", "Brüt faiz kazancından stopaj tutarı çıkarılır. Stopaj oranını varsaymak yerine bankanın ilgili mevduat için bildirdiği güncel oranı hesaplayıcıya yaz."],
-      ["Vade sonu toplam nedir?", "Ana para ile net faiz kazancının toplamıdır. Bu rakam, vade bozulmadığı ve oranın teklif boyunca geçerli olduğu varsayımıyla hesaplanır."],
-      ["Teklifleri nasıl karşılaştırmalısın?", "Aynı ana para ve 32 günü kullanarak farklı bankaların brüt oranlarını ayrı ayrı hesapla. Karar verirken net getiri kadar erken çekim, alt bakiye ve kampanya süresi koşullarına da bak."],
-    ],
-    tool: "mevduat-faizi-hesaplama",
-  },
-  {
-    slug: "100-bin-tl-mevduat-getirisi-nasil-hesaplanir",
-    title: "100 Bin TL Mevduat Getirisi Nasıl Hesaplanır?",
-    description: "100.000 TL için bankanın verdiği yıllık faiz, seçtiğin vade ve stopaj oranıyla tahmini net mevduat getirisini hesaplayın.",
-    published: "2026-08-31",
-    intro: "100 bin TL'nin getirisi sabit değildir; bankanın sunduğu yıllık brüt faiz, vade günü ve stopaj oranına göre değişir. Bu nedenle güncel teklifteki rakamlarla hesap yapmak gerekir.",
-    sections: [
-      ["Hesap için hangi bilgiler gerekir?", "Ana para alanına 100.000 TL, faiz alanına bankanın yıllık brüt oranını, vade alanına paranın hesapta kalacağı günü ve stopaj alanına bankanın bildirdiği oranı gir."],
-      ["Faiz oranı neden yıllıktır?", "Bankalar mevduat oranını genellikle yıllık brüt olarak sunar. Hesaplayıcı bu oranı seçtiğin gün sayısına oranlayarak vade kazancını tahmin eder."],
-      ["Brüt ve net kazanç arasındaki fark", "Brüt kazanç kesinti öncesidir. Net kazanç, brüt faizden stopaj düşüldükten sonra kalan ve ana paraya eklenecek tahmini tutardır."],
-      ["Sonuç neden banka teklifinden farklı olabilir?", "Valör, vade bozulması, kampanya süresi, alt ve üst bakiye sınırları ile bankanın gün hesabı sonucu etkileyebilir. Kesin tutar için bankanın vade sonu teklifini esas al."],
-    ],
-    tool: "mevduat-faizi-hesaplama",
-  },
-  {
-    slug: "borclarimi-nasil-duzenlerim",
-    title: "Borçlarımı Nasıl Düzenlerim? Adım Adım Başlangıç Rehberi",
-    description: "Dağınık kredi kartı, kredi ve ek hesap borçlarını tek listede toplamak ve uygulanabilir bir aylık plan kurmak için sade rehber.",
-    intro: "Borçları düzenlemenin ilk adımı daha fazla hesap yapmak değil, eksiksiz bir fotoğraf çekmektir. Tutarlar tek yerde olmadığında hangi ödemenin öncelikli olduğunu görmek zorlaşır.",
-    sections: [
-      ["1. Bütün borçları tek listeye yaz", "Her kart, kredi ve ek hesap için kalan borcu, aylık faiz oranını, asgari veya zorunlu ödemeyi ve son ödeme tarihini kaydet. Banka uygulamaları arasında gidip gelmek yerine aynı tarihli tek bir tablo kullan."],
-      ["2. Bu ayın zorunlu tutarını ayır", "Toplam borç ile bu ay ödenmesi gereken tutar aynı şey değildir. Önce gecikmeyi önleyecek zorunlu ödemeleri, sonra ek ödeme için kullanabileceğin gerçek bütçeyi belirle."],
-      ["3. Tek bir öncelik yöntemi seç", "Maliyeti azaltmak istiyorsan faiz oranı en yüksek borca, hızlı ilerleme hissi istiyorsan bakiyesi en küçük borca odaklan. Yöntemden daha önemlisi, her ay aynı sistemi uygulamaktır."],
-      ["4. Haftalık beş dakikalık kontrol yap", "Yeni ekstreleri, yaptığın ödemeleri ve değişen tarihleri güncelle. Planın gerçek hayata uymadığını fark edersen tutarı değiştir; planı tamamen bırakma."],
-    ],
-    tool: "borc-odeme-plani",
-  },
-  {
-    slug: "kredi-karti-borcu-nasil-takip-edilir",
-    title: "Kredi Kartı Borcu Nasıl Takip Edilir?",
-    description: "Dönem borcu, asgari ödeme, son ödeme tarihi ve devreden bakiye kavramlarıyla kredi kartı borcunu düzenli takip etme rehberi.",
-    intro: "Kredi kartı borcunu takip ederken yalnızca güncel bakiyeye bakmak yeterli değildir. Ekstre dönemi, son ödeme tarihi ve ödeme sonrası devreden tutar birlikte izlenmelidir.",
-    sections: [
-      ["Ekstre ile güncel borcu ayır", "Dönem borcu kesilmiş ekstrenin tutarıdır. Güncel borç ise ekstre kesildikten sonra yaptığın yeni harcamaları da içerebilir. Aylık planı ekstre tutarı üzerinden kur."],
-      ["Dört bilgiyi birlikte kaydet", "Her kart için ekstre tarihi, son ödeme tarihi, dönem borcu ve bankanın bildirdiği asgari tutarı yaz. Kısmi ödeme yaptığında kalan tutarı da aynı dönemde güncelle."],
-      ["Yeni harcamayı eski borçtan ayır", "Borç azalırken kartı kullanmaya devam etmek ilerlemeyi gizleyebilir. Mümkünse plan döneminde yeni harcamaları ayrı izle ve aylık net değişime bak."],
-      ["Tek bir aylık özet kullan", "Tüm kartların toplam dönem borcu, toplam asgari ödemesi ve ödenen tutarı tek ekranda olduğunda gecikme riski ve gerçek ilerleme daha kolay görülür."],
-    ],
-    tool: "kredi-karti-asgari-odeme-hesaplayici",
-  },
-  {
-    slug: "asgari-odeme-borcu-nasil-etkiler",
-    title: "Asgari Ödeme Yapmak Borcu Nasıl Etkiler?",
-    description: "Kredi kartında asgari ödeme tutarı, kalan borç ve faiz etkisini sade bir örnekle anlayın.",
-    intro: "Asgari tutarı ödemek, bankanın bildirdiği son ödeme yükümlülüğünü karşılamaya yardımcı olur; ancak dönem borcunun tamamı kapanmadığı için kalan tutar maliyet oluşturmaya devam edebilir.",
-    sections: [
-      ["Asgari tutar nasıl belirlenir?", "BDDK'nın 1 Ekim 2026 tarihli kararında kart limiti 100 bin TL ve altındaki kartlar için dönem borcunun yüzde 20'si, bu sınırın üzerindeki kartlar için yüzde 40'ı esas alınır. Bankanın ekstrende bildirdiği tutar her zaman önceliklidir."],
-      ["Kalan borç neden önemlidir?", "Asgari ödeme sonrası kalan bakiye sonraki döneme devreder. Uygulanacak oran bankaya, borç türüne ve güncel düzenlemelere göre değişebilir."],
-      ["Ek ödeme neyi değiştirir?", "Asgari tutarın üzerindeki her ödeme ana bakiyeyi daha hızlı azaltabilir. Bunun etkisini değerlendirirken yeni harcamaları ve bankanın uyguladığı gerçek oranı da hesaba kat."],
-      ["Hangi rakama güvenmelisin?", "Hesaplayıcılar planlama için tahmin sunar. Kesin asgari ödeme, faiz ve vergi tutarları için bankanın ekstresini ve güncel sözleşmeni esas al."],
-    ],
-    tool: "kredi-karti-asgari-odeme-hesaplayici",
-  },
-  {
-    slug: "birden-fazla-bankadaki-borclar-nasil-yonetilir",
-    title: "Birden Fazla Bankadaki Borçlar Nasıl Yönetilir?",
-    description: "Farklı bankalardaki kart, kredi ve ek hesap borçlarını tek aylık düzende takip etmek için uygulanabilir yöntem.",
-    intro: "Birden fazla bankayla çalışırken asıl zorluk borç sayısı değil, bilgilerin farklı ekranlarda kalmasıdır. Amaç bütün hesapları tek bir aylık karar tablosuna dönüştürmektir.",
-    sections: [
-      ["Ortak bir kesim tarihi fotoğrafı oluştur", "Bakiyeleri mümkün olduğunca aynı gün kaydet. Böylece bir bankadaki eski bakiye ile diğerindeki yeni bakiyeyi yanlış karşılaştırmazsın."],
-      ["Tarihleri kronolojik sırala", "Son ödeme tarihlerini ayın günlerine göre diz. Gelir tarihinden önce ve sonra gelen ödemeleri görmek nakit akışını planlamayı kolaylaştırır."],
-      ["Zorunlu ve isteğe bağlı ödemeyi ayır", "Tüm asgari veya taksit tutarları zorunlu katmandır. Bunun üzerindeki bütçeyi seçtiğin tek bir borca yönlendirerek ilerlemeyi daha okunur hale getir."],
-      ["Aylık net değişimi izle", "Sadece yaptığın ödeme toplamına değil, ay başı ve ay sonu toplam borç farkına bak. Yeni harcamalar varsa bu fark gerçek ilerlemeyi daha iyi gösterir."],
-    ],
-    tool: "aylik-odeme-takvimi",
-  },
-  {
-    slug: "borc-kapatma-plani-nasil-hazirlanir",
-    title: "Borç Kapatma Planı Nasıl Hazırlanır?",
-    description: "Aylık bütçe, asgari ödemeler, faiz ve öncelik sırasıyla gerçekçi bir borç kapatma planı hazırlayın.",
-    intro: "İyi bir borç kapatma planı en iyimser rakama değil, her ay sürdürülebilecek tutara dayanır. Planın temel girdileri toplam bakiye, zorunlu ödemeler, aylık maliyet ve ek ödeme bütçesidir.",
-    sections: [
-      ["Gerçek aylık bütçeyi belirle", "Barınma, fatura, gıda ve ulaşım gibi temel giderlerden sonra düzenli ayırabileceğin tutarı kullan. Tek seferlik iyimser bir rakam planı erken bozabilir."],
-      ["Faiz veya kartopu yöntemini seç", "Faiz yöntemi en yüksek aylık oranlı borcu öne alır. Kartopu yöntemi ise en küçük bakiyeyi önce kapatarak daha erken tamamlanan kalemler oluşturur."],
-      ["Kapanan borcun ödemesini devret", "Bir borç bittiğinde o kalem için ayırdığın tutarı harcamaya döndürmek yerine sıradaki borca ekle. Planı hızlandıran ana etki budur."],
-      ["Planı her ekstrede yenile", "Faiz oranı, yeni harcama veya gelir değiştiğinde tahmini bitiş tarihi de değişir. Hesabı bir söz değil, güncellenen bir yol haritası olarak kullan."],
-    ],
-    tool: "borc-odeme-plani",
-  },
+const KART_BORCU_REHBERLERI = [
+  ["/rehber/kredi-karti-faiz-oranlari-2026", "Kredi kartı faiz oranları (Kasım 2026)"],
+  ["/rehber/kredi-karti-borcu-yapilandirma", "Kredi kartı borcu yapılandırma (2026)"],
+  ["/rehber/kredi-karti-borcu-odenmezse-ne-olur", "Kredi kartı borcu ödenmezse ne olur?"],
 ];
 
 const TOOL_GUIDES = {
-  "/araclar/borc-kapatma-hesaplayici": [["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"]],
+  "/araclar/borc-kapatma-hesaplayici": [["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"], ...KART_BORCU_REHBERLERI],
+  "/araclar/kredi-karti-asgari-odeme-hesaplayici": [["/rehber/asgari-odeme-borcu-nasil-etkiler", "Asgari ödeme yapmak borcu nasıl etkiler?"], ...KART_BORCU_REHBERLERI],
+  "/araclar/borc-odeme-plani": [KART_BORCU_REHBERLERI[1], KART_BORCU_REHBERLERI[2], ["/rehber/borc-kapatma-plani-nasil-hazirlanir", "Borç kapatma planı nasıl hazırlanır?"]],
   "/araclar/brut-net-maas-hesaplama": [["/rehber/2026-brut-net-maas-nasil-hesaplanir", "2026 brütten nete maaş nasıl hesaplanır?"]],
   "/araclar/kidem-tazminati-hesaplama": [["/rehber/2026-kidem-tazminati-nasil-hesaplanir", "2026 kıdem tazminatı nasıl hesaplanır?"]],
   "/araclar/mevduat-faizi-hesaplama": [
@@ -201,29 +78,6 @@ const TOOL_GUIDES = {
     ["/rehber/32-gunluk-mevduat-faizi-nasil-hesaplanir", "32 günlük mevduat faizi nasıl hesaplanır?"],
     ["/rehber/100-bin-tl-mevduat-getirisi-nasil-hesaplanir", "100 bin TL mevduat getirisi nasıl hesaplanır?"],
   ],
-};
-
-const REHBER_KAYNAKLARI = {
-  "2026-brut-net-maas-nasil-hesaplanir": [
-    [GIB_VERGI_2026, "GİB 2026 gelir vergisi tarifesi"],
-    [GIB_ASGARI_2026, "GİB 2026 asgari ücret kesintileri"],
-    [SGK_2026, "SGK 2026 prime esas kazanç sınırları"],
-  ],
-  "2026-kidem-tazminati-nasil-hesaplanir": [
-    [KIDEM_2026, "Çalışma Bakanlığı kıdem tazminatı tavanı"],
-  ],
-  "asgari-odeme-borcu-nasil-etkiler": [
-    [BDDK_KAYNAK, "BDDK asgari ödeme kararı"],
-    [TCMB_KAYNAK, "TCMB kredi kartı azami faiz oranları"],
-  ],
-};
-
-const REHBER_UYARILARI = {
-  "2026-brut-net-maas-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin tutar için işvereninin hazırladığı maaş bordrosunu esas al.",
-  "2026-kidem-tazminati-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Hak kazanma durumu ve kesin tutar için çalışma kayıtlarını ve güncel mevzuatı esas al.",
-  "mevduat-faizi-net-getiri-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin getiri ve kesinti için bankanın güncel teklifini esas al.",
-  "32-gunluk-mevduat-faizi-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin getiri ve kesinti için bankanın güncel teklifini esas al.",
-  "100-bin-tl-mevduat-getirisi-nasil-hesaplanir": "Bu içerik genel bilgilendirme amaçlıdır. Kesin getiri ve kesinti için bankanın güncel teklifini esas al.",
 };
 
 export function seoYoluMu(yol) {
@@ -247,7 +101,7 @@ export default function SeoSayfasi({ yol }) {
   }
   if (yol === "/rehber") return <RehberAna />;
   const slug = yol.replace("/rehber/", "");
-  const rehber = REHBERLER.find((item) => item.slug === slug);
+  const rehber = rehberBul(slug);
   return rehber ? <RehberDetay rehber={rehber} /> : <AraclarAna />;
 }
 
@@ -481,7 +335,7 @@ function Disclaimer({ text = "Sonuçlar yaklaşık planlama içindir; finansal t
 }
 
 function SourceNote() {
-  return <aside className="seo-sources"><b>Güncel kaynak notu</b><p>Asgari ödeme kuralı için <a href={BDDK_KAYNAK} target="_blank" rel="noreferrer">BDDK kararını</a>; kredi kartı azami faizleri için her ay güncellenen <a href={TCMB_KAYNAK} target="_blank" rel="noreferrer">TCMB tablosunu</a> esas alıyoruz. Son kontrol: 2 Ekim 2026.</p></aside>;
+  return <aside className="seo-sources"><b>Güncel kaynak notu</b><p>Asgari ödeme kuralı için <a href={BDDK_KAYNAK} target="_blank" rel="noreferrer">BDDK kararını</a>; kredi kartı azami faizleri için her ay güncellenen <a href={TCMB_KAYNAK} target="_blank" rel="noreferrer">TCMB tablosunu</a> esas alıyoruz. Son kontrol: 3 Kasım 2026.</p></aside>;
 }
 
 function OfficialSources({ children }) {
@@ -540,7 +394,7 @@ function FinansalSozlukDetay({ terim }) {
     mainEntity: { "@type": "DefinedTerm", name: terim.title, description: terim.definition, inDefinedTermSet: `${SITE}/finansal-sozluk` },
   }), [path, terim]);
   useSeo({ title: terim.seoTitle || `${terim.title} Nedir?`, description: terim.seoDescription || `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`, path, schema });
-  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.h1 || `${terim.title} nedir?`}</h1><p className="seo-article-lead">{terim.definition}</p><div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section>{(terim.ekBolumler || []).map(([baslik, metin]) => <section key={baslik}><h2>{baslik}</h2><p>{metin}</p></section>)}<section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div><UrunKoprusu kicker="TANIMI ÖĞRENDİN. ŞİMDİ KENDİ TABLONU GÖR." baslik="Bunu kendi kart, kredi ve ödemelerinde gör." redirect="/debts" id="sozluk-sonraki-adim"/>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}{terim.sss?.length > 0 && <Faq items={terim.sss} baslik="Sık sorulan sorular"/>}{terim.kaynaklar?.length > 0 && <GuideSources items={terim.kaynaklar.map(([etiket, adres]) => [adres, etiket])}/>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
+  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.h1 || `${terim.title} nedir?`}</h1><p className="seo-article-lead">{terim.definition}</p>{terim.borcKoprusu && <RehberBaglantilari baslik={terim.borcKoprusu.baslik} aciklama={terim.borcKoprusu.aciklama} baglantilar={[...rehberBaglantilari({ ilgiliRehberler: terim.rehberler }), ...rehberBaglantilari({ araclar: terim.borcKoprusu.araclar })]}/>}<div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section>{(terim.ekBolumler || []).map(([baslik, metin]) => <section key={baslik}><h2>{baslik}</h2><p>{metin}</p></section>)}<section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div><UrunKoprusu kicker="TANIMI ÖĞRENDİN. ŞİMDİ KENDİ TABLONU GÖR." baslik="Bunu kendi kart, kredi ve ödemelerinde gör." redirect="/debts" id="sozluk-sonraki-adim"/>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}{!terim.borcKoprusu && <RehberBaglantilari baslik="Bu konuda rehberler" baglantilar={rehberBaglantilari({ ilgiliRehberler: terim.rehberler })}/>}{terim.sss?.length > 0 && <Faq items={terim.sss} baslik="Sık sorulan sorular"/>}{terim.kaynaklar?.length > 0 && <GuideSources items={terim.kaynaklar.map(([etiket, adres]) => [adres, etiket])}/>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
 }
 
 function slugifyCategory(category) {
@@ -554,10 +408,24 @@ function RehberAna() {
 }
 
 function RehberDetay({ rehber }) {
-  const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:rehber.published || "2026-08-22", dateModified:rehber.published || "2026-08-22" }), [rehber]);
+  const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:rehber.published || "2026-08-22", dateModified:rehber.guncellendi || rehber.published || "2026-08-22" }), [rehber]);
   useSeo({ title:rehber.title, description:rehber.description, path:`/rehber/${rehber.slug}`, schema });
   const uyari = REHBER_UYARILARI[rehber.slug] || "Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.";
-  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.title}</h1><p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div><UrunKoprusu kicker="REHBERİ OKUDUN. ŞİMDİ UYGULA." baslik="Bu adımları kendi borçlarınla Borcama'da uygula." redirect="/debts" id="rehber-sonraki-adim"/><GuideSources items={REHBER_KAYNAKLARI[rehber.slug]}/><p className="seo-editorial">{uyari}</p></article></main></Layout>;
+  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.h1 || rehber.title}</h1>{rehber.guncellendi && <p className="seo-article-date">Son güncelleme: <time dateTime={rehber.guncellendi}>{guncellemeTarihiMetni(rehber.guncellendi)}</time></p>}<p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>{rehber.sss?.length > 0 && <Faq items={rehber.sss} baslik="Sık sorulan sorular"/>}<UrunKoprusu kicker="REHBERİ OKUDUN. ŞİMDİ UYGULA." baslik="Bu adımları kendi borçlarınla Borcama'da uygula." redirect="/debts" id="rehber-sonraki-adim"/><RehberBaglantilari baslik="İlgili hesaplayıcı ve rehberler" baglantilar={rehberBaglantilari(rehber)}/><GuideSources items={REHBER_KAYNAKLARI[rehber.slug]}/><p className="seo-editorial">{uyari}</p></article></main></Layout>;
+}
+
+// Rehberin ek araçları, ilgili rehberleri ve sözlük terimleri; yalnız var olan sayfalara bağlanır.
+function rehberBaglantilari({ araclar = [], ilgiliRehberler = [], terimler = [] }) {
+  return [
+    ...araclar.map((slug) => ARACLAR.find((arac) => arac.slug === slug)).filter(Boolean).map((arac) => [`/araclar/${arac.slug}`, "Ücretsiz hesaplayıcı", arac.title, Calculator]),
+    ...ilgiliRehberler.map(rehberBul).filter(Boolean).map((item) => [`/rehber/${item.slug}`, "Adım adım rehber", item.title, BookOpen]),
+    ...terimler.map(finansalSozlukTerimi).filter(Boolean).map((terim) => [`/finansal-sozluk/${terim.slug}`, "Finansal sözlük", terim.title, BookOpen]),
+  ];
+}
+
+function RehberBaglantilari({ baslik, aciklama, baglantilar }) {
+  if (!baglantilar.length) return null;
+  return <section className="seo-related-guides" aria-label={baslik}><h2>{baslik}</h2>{aciklama && <p>{aciklama}</p>}{baglantilar.map(([href, etiket, metin, Icon]) => <a className="seo-related-guide" href={href} key={href}><Icon/><span><b>{etiket}</b><strong>{metin}</strong></span><ArrowRight/></a>)}</section>;
 }
 
 // Araç, sözlük ve rehber sayfalarından ürüne geçiş. Sayfadaki tutarlar kayıt

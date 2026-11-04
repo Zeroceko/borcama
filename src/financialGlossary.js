@@ -23,6 +23,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Vadesi 15 Eylül olan bir taksit sözleşmede belirtilen süre ve koşullarda ödenmezse gecikme ve temerrüt hükümleri gündeme gelebilir.",
     borcama: "Yaklaşan ödeme günlerini aynı takvimde görmek, ödeme vadesi geçmeden eksik bütçeyi fark etmene yardımcı olur; Borcama hukuki durum tespiti yapmaz.",
     related: ["temerrut-faizi", "son-odeme-tarihi", "gecikme-faizi"],
+    rehberler: ["kredi-karti-borcu-odenmezse-ne-olur"],
     tool: "aylik-odeme-takvimi",
   },
   {
@@ -42,7 +43,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     seoTitle: "Borcun Tasfiyesi Ne Demek? Kredi Kartı, Banka ve Fon Tasfiyesi",
     seoDescription: "Borcun tasfiyesi, borcun ödenerek veya alacaklıyla anlaşılarak kapatılması demektir. Kredi kartı borcunda, bankacılıkta ve SPK'nın Eylül 2026 fon tasfiye kararında ne anlama geldiğini sade dille öğrenin.",
     h1: "Tasfiye ne demek? Borcun tasfiyesi ve fon tasfiyesi",
-    guncellendi: "2026-10-11",
+    guncellendi: "2026-11-03",
     definition: "Tasfiye, bir borç, hesap, şirket ya da fonla ilgili mali ilişkinin sonuçlandırılıp kapatılmasıdır. Borcun tasfiyesi çoğunlukla borcun ödenerek veya alacaklıyla anlaşılarak kapatılması anlamında kullanılır.",
     detail: "Finansal bağlama göre tasfiye; borcun kapatılması, bir varlığın nakde çevrilmesi veya bir kurumun alacak ve yükümlülüklerinin sonuçlandırılması anlamına gelebilir. Günlük aramalarda 'tasviye' diye de yazılsa da doğru yazım 'tasfiye'dir; işlemin hukuki sonucu ilgili belgeye göre değerlendirilir.",
     example: "Kredi kartının bütün borcunu ödeyip kartı kapattığında ya da bankayla yaptığın ödeme planının son taksitini ödediğinde borç ilişkisi sona erer; buna borcun tasfiyesi denir. Kapanışı bankadan yazılı olarak teyit etmek en sağlıklı yoldur.",
@@ -51,6 +52,7 @@ const TEMEL_FINANSAL_SOZLUK = [
       ["Kredi kartı borcunun tasfiyesi", "Kart borcunun tamamı ödenip hesap kapatıldığında veya bankayla yapılan ödeme planının son taksiti ödendiğinde kart borcu tasfiye edilmiş olur. Banka mesajında 'tasfiye' kelimesi geçiyorsa hangi işlemi anlattığını (kapanış, yapılandırma ya da takip) bankandan yazılı olarak sor. Bankacılıkta 'tasfiye olunacak alacak' ifadesi ise farklıdır: ödenmeyip takibe alınan alacakları anlatır."],
       ["Tasfiye, yapılandırma ve ibra farkı", "Yapılandırmada borç bitmez; vade, taksit veya faiz koşulları yeniden düzenlenir. İbra, alacaklının borçluyu borçtan kurtardığını belgeyle kabul etmesidir. Tasfiye ise borç ilişkisinin ödeme ya da anlaşma sonunda tamamen sonuçlanmasıdır. Bir borcun yapılandırılması, o borcun tasfiye edildiği anlamına gelmez."],
       ["Gündemde: SPK'nın fon tasfiye kararı (Eylül 2026)", "Sermaye Piyasası Kurulu, 17 Eylül 2026 tarihli kararıyla yedi portföy yönetim şirketinin kurucusu olduğu 131 yatırım fonunun tasfiyesine karar verdi; SPK'nın 23 Eylül 2026 açıklamasına göre bu fonlarda 455 bin 758 tekil yatırımcı bulunuyor. Fon tasfiyesinde fonun varlıkları satılarak nakde çevrilir ve elde edilen tutar yatırımcılara payları oranında ödenir. SPK 1 Ekim 2026'da Tera, Pusula, Atlas ve Hedef Portföy'ün fonlarında mutabakatı tamamlanan yatırımcılara, her fon için 1 milyon TL'yi aşmayacak ara ödeme yapılacağını duyurdu. Aynı kelime kullanılsa da fon tasfiyesi yatırımcının alacağını, borcun tasfiyesi ise borçlunun borcunu sonuçlandırır. Süreç devam ettiği için güncel ödeme ve takvim bilgisini SPK duyurularından ve KAP'tan takip et."],
+      ["Güncelleme (3 Kasım 2026): fon tasfiyesinde son durum", "1 Ekim 2026: SPK, A1 Capital, Bulls ve Pardus Portföy'ün kurucusu olduğu fonlarda tasfiyenin önce unvanında 'para piyasası' geçen fonlardan, yatırımcı sayısı en fazla olandan en aza doğru yürütüleceğini duyurdu. 27 Ekim 2026: 7596 sayılı Tasfiyesine Karar Verilen Bazı Yatırım Fonları Hakkında Kanun, 33413 sayılı Resmî Gazete'de yayımlanarak yürürlüğe girdi. SPK aynı gün tasfiye ve ödemelere ilişkin usul ve esasları belirledi: Tera Portföy fonlarının tasfiyesini Türkiye İş Bankası, Pusula ve Atlas Portföy fonlarınınkini T.C. Ziraat Bankası yürütecek. Ara ödemeler para piyasası fonlarından başlayacak; fon başına ara ödeme, endeksleme yapılmadan hesaplanan net yatırım tutarını ve 1 milyon TL'yi aşmayacak. Ara ödemede katılma payları geri alınmıyor; iadeler nihai tasfiye ödemesinde yapılacak."],
       ["Borcunun kapandığını nasıl teyit edersin?", "Bankadan borcun kapandığını gösteren yazı veya ilişik kesme belgesi iste ve sakla. Hakkında icra takibi varsa dosyanın durumunu e-Devlet'teki icra dosyası sorgulamasından kontrol et. Kredi kayıtlarının nasıl göründüğünü e-Devlet üzerinden başvurabileceğin Risk Merkezi raporundan izleyebilirsin."],
     ],
     sss: [
@@ -63,10 +65,20 @@ const TEMEL_FINANSAL_SOZLUK = [
       ["SPK · Tasfiye konusu fonlardaki yatırımcı sayısı (23 Eylül 2026)", "https://spk.gov.tr/duyurular/basin-duyurulari/2026/tasfiye-konusu-fonlardaki-yatirimci-sayisina-iliskin-aciklama"],
       ["SPK · Tasfiyedeki fonlara ilişkin ara ödeme duyurusu (1 Ekim 2026)", "https://spk.gov.tr/duyurular/basin-duyurulari/2026/tasfiyedeki-fonlara-iliskin-ara-odeme-duyurusu"],
       ["SPK Bülteni 2026/61", "https://spk.gov.tr/data/6aac56ff8f95db07100fd82d/2026-61.pdf"],
+      ["SPK · A1 Capital, Bulls ve Pardus fonlarında tasfiye süreci (1 Ekim 2026)", "https://spk.gov.tr/duyurular/basin-duyurulari/2026/a1-capital-portfoy-yonetimi-a-s-bulls-portfoy-yonetimi-a-s-ve-pardus-portfoy-yonetimi-a-s-nin-kurucusu-oldugu-fonlara-iliskin-tasfiye-sureci-hakkinda-duyuru"],
+      ["SPK · Tasfiye ve ödemelere ilişkin usul ve esaslar (27 Ekim 2026)", "https://spk.gov.tr/duyurular/basin-duyurulari/2026/basin-duyurusu_27102026"],
+      ["Resmî Gazete · 27 Ekim 2026, sayı 33413 (7596 sayılı Kanun)", "https://www.resmigazete.gov.tr/eskiler/2026/10/20261027.htm"],
       ["e-Devlet · İcra dosyası sorgulama", "https://www.turkiye.gov.tr/adalet-icra-dosyasi-sorgulama"],
       ["e-Devlet · Risk Merkezi raporu başvurusu", "https://www.turkiye.gov.tr/turkiye-bankalar-birligi-risk-merkezi-raporu-basvurusu"],
     ],
     related: ["borc-yapilandirma", "ibra", "takipteki-alacak", "icra-takibi", "risk-raporu", "bank-run"],
+    // Aramaların çoğu fon haberinden geliyor; borcu olan okura sayfanın başında yol gösterilir.
+    borcKoprusu: {
+      baslik: "Kredi kartı veya kredi borcun mu var?",
+      aciklama: "Bu sayfaya fon haberleri için geldiysen aşağıda güncel durum var. Kendi kart ya da kredi borcunu düzenlemek istiyorsan bu rehberlerle başla; borcunun kaç ayda kapanacağını ücretsiz hesapla.",
+      araclar: ["borc-kapatma-hesaplayici"],
+    },
+    rehberler: ["kredi-karti-borcu-yapilandirma", "kredi-karti-borcu-odenmezse-ne-olur", "kredi-karti-faiz-oranlari-2026"],
   },
   {
     slug: "bank-run",
@@ -106,6 +118,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Dönem borcun 20.000 TL ve ekstredeki asgari ödeme 8.000 TL ise 8.000 TL ödemek kartı tamamen kapatmaz. Kalan 12.000 TL devreden bakiye olur.",
     borcama: "Borcama'da dönem borcu, asgari ödeme ve yaptığın ödeme ayrı tutulur; böylece yalnızca asgariyi ödediğinde geriye ne kaldığını görebilirsin.",
     related: ["donem-borcu", "devreden-bakiye", "akdi-faiz"],
+    rehberler: ["kredi-karti-faiz-oranlari-2026", "kredi-karti-borcu-odenmezse-ne-olur", "asgari-odeme-borcu-nasil-etkiler"],
     tool: "kredi-karti-asgari-odeme-hesaplayici",
   },
   {
@@ -168,6 +181,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Kart borcunun tamamını kapatmadığında devreden tutara uygulanacak normal dönem maliyetinin temel bileşenlerinden biri akdi faizdir.",
     borcama: "Kendi oranını girdiysen hesaplarda o kullanılır; oran yoksa uygun ürün için güncel resmî referans ayrı bir tahmin olarak değerlendirilir.",
     related: ["gecikme-faizi", "efektif-faiz-orani", "bsmv"],
+    rehberler: ["kredi-karti-faiz-oranlari-2026"],
     tool: "borc-kapatma-hesaplayici",
   },
   {
@@ -179,6 +193,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Son ödeme tarihinde gereken tutarın bir kısmı eksik kalırsa banka, geciken bölüm için sözleşmedeki kurala göre maliyet hesaplayabilir.",
     borcama: "Ödeme tarihlerini tek takvimde tutmak, gecikme riskini ödeme gerçekleşmeden görmene yardımcı olur.",
     related: ["akdi-faiz", "son-odeme-tarihi", "devreden-bakiye"],
+    rehberler: ["kredi-karti-faiz-oranlari-2026", "kredi-karti-borcu-odenmezse-ne-olur"],
   },
   {
     slug: "efektif-faiz-orani",
@@ -252,6 +267,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "50.000 TL limitli ek hesabın 12.000 TL eksi bakiyedeyse açık borcun 12.000 TL, kalan kullanılabilir limitin kabaca 38.000 TL'dir.",
     borcama: "Ek hesap borcunu sıfırladıktan sonra yeniden kullandığında aynı hesaba yeni borç ekleyebilir ve eski ödemeleri koruyabilirsin.",
     related: ["nakit-akisi", "akdi-faiz", "borc-yapilandirma"],
+    rehberler: ["kredi-karti-faiz-oranlari-2026", "kredi-karti-borcu-yapilandirma"],
   },
   {
     slug: "borc-yapilandirma",
@@ -262,6 +278,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Aylık 15.000 TL ödeme 8.000 TL'ye düşerken vade uzuyorsa kısa vadeli rahatlama karşılığında toplam geri ödeme yükselebilir.",
     borcama: "Yapılandırılmış borcu kart bakiyesinden ayırıp ayrı kredi planı olarak izlemek çifte sayımı önler.",
     related: ["toplam-geri-odeme", "aylik-taksit", "efektif-faiz-orani"],
+    rehberler: ["kredi-karti-borcu-yapilandirma"],
     tool: "borc-odeme-plani",
   },
   {
@@ -429,6 +446,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "10.000 TL nakit avans kullandığında geri ödeme; çekilen tutara ek olarak işlem tarihinden itibaren oluşan maliyetleri içerebilir.",
     borcama: "Nakit avansı kart borcunun içinde takip edebilirsin; doğru maliyet için bankanın ekstre ve sözleşmesindeki oranları kullanmalısın.",
     related: ["taksitli-nakit-avans", "akdi-faiz", "kart-limiti"],
+    rehberler: ["kredi-karti-faiz-oranlari-2026"],
   },
   {
     slug: "taksitli-nakit-avans",
@@ -449,6 +467,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Aylık taksidin ödeme günü geldiğinde o taksit muaccel olur. Sözleşmedeki koşullar oluşmadan bütün kalan taksitler otomatik olarak aynı anlama gelmez.",
     borcama: "Ödeme gününü ve kalan taksitleri gösterir; bir borcun hukuken tamamen muaccel olup olmadığını banka bildirimi veya sözleşme olmadan belirlemez.",
     related: ["temerrut", "son-odeme-tarihi", "tasfiye"],
+    rehberler: ["kredi-karti-borcu-odenmezse-ne-olur"],
   },
   {
     slug: "takipteki-alacak",
@@ -459,6 +478,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Ödemesi geciken kredi için bankadan takip veya yasal süreç bildirimi geldiyse güncel bakiye ve ödeme seçenekleri doğrudan bankadan doğrulanmalıdır.",
     borcama: "Borcama ödeme geçmişini ve kalan tutarı takip eder; resmî takip statüsü ya da hukuki sonuç üretmez.",
     related: ["temerrut", "tasfiye", "borc-yapilandirma"],
+    rehberler: ["kredi-karti-borcu-odenmezse-ne-olur", "kredi-karti-borcu-yapilandirma"],
   },
   {
     slug: "ibra",
@@ -691,6 +711,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Ödenmeyen bir borç için ödeme emri tebliğ edildiğinde belgedeki süreler, dosya numarası ve talep edilen tutar dikkatle kontrol edilir.",
     borcama: "Gecikmiş borcu ve ödeme planını görünür tutar; icra dosyasının hukuki durumunu belirlemez veya resmî süreleri takip etmez.",
     related: ["odeme-emri", "haciz", "temerrut"],
+    rehberler: ["kredi-karti-borcu-odenmezse-ne-olur"],
   },
   {
     slug: "haciz",
@@ -711,6 +732,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Belge tebliğ edildiğinde borcun sana ait olup olmadığını, talep edilen kalemleri ve işlem yapılabilecek son tarihi kontrol etmek gerekir.",
     borcama: "Borcama ödeme günlerini hatırlatır; resmî ödeme emrine cevap vermez ve hukuki süre hesabı yapmaz.",
     related: ["icra-takibi", "haciz", "alacak"],
+    rehberler: ["kredi-karti-borcu-odenmezse-ne-olur"],
   },
   {
     slug: "konkordato",
@@ -871,6 +893,7 @@ const TEMEL_FINANSAL_SOZLUK = [
     example: "Son ödeme tarihi ayın 10'u olan taksidin 12'sinde ödenmesi, banka kayıtlarında iki günlük gecikme olarak değerlendirilebilir.",
     borcama: "Son ödeme tarihlerini tek takvimde göstererek yaklaşan yükümlülükleri önceden fark etmene yardım eder; resmî gecikme kaydını banka belirler.",
     related: ["son-odeme-tarihi", "gecikme-faizi", "temerrut"],
+    rehberler: ["kredi-karti-borcu-odenmezse-ne-olur"],
   },
   {
     slug: "kredi-maliyeti",
