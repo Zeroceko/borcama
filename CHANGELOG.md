@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.80.0] - 2026-11-04
+
+Web ve iOS aynı sürüm (iOS build 52). Değişiklik yalnız web içerik sayfalarında; iPhone uygulamasına etkisi yok.
+
 ### Eklendi
 
 - Kredi kartı borcu olanlar için üç yeni rehber: "Kredi kartı faiz oranları (Kasım 2026)" TCMB'nin bu ayki azami akdi, gecikme ve nakit avans/KMH oranlarını örnek bir borçla anlatıyor; "Kredi kartı borcu yapılandırma (2026)" BDDK'nın 2026 kararındaki vade, faiz sınırı ve kart limiti kurallarını ve bankaya sorulacakları topluyor; "Kredi kartı borcu ödenmezse ne olur?" gecikme faizinden icra takibine ve zamanaşımına kadar süreci kanun maddeleriyle sırasıyla anlatıyor. Her rehberde son güncelleme tarihi, sık sorulan sorular, resmî kaynaklar ve ilgili hesaplayıcılara bağlantı var.
