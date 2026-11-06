@@ -55,11 +55,11 @@ test("CRM alanı yeni kabuğa yönlenir; Vercel yeni yolları yalnız CRM alanı
     readFile(new URL("./main.jsx", import.meta.url), "utf8"),
     readFile(new URL("../vercel.json", import.meta.url), "utf8"),
   ]);
-  assert.match(main, /crmAlani && \["\/backoffice", "\/kullanicilar", "\/buyume", "\/iletisim"\]\.includes\(yol\)/);
+  assert.match(main, /crmAlani && \["\/backoffice", "\/gunluk", "\/kullanicilar", "\/buyume", "\/iletisim"\]\.includes\(yol\)/);
   assert.match(main, /function KimlikliCrm/);
   assert.match(main, /yonetimYetkisiVar\(session\)/);
   const rewrites = JSON.parse(vercel).rewrites;
-  for (const yol of ["/kullanicilar", "/buyume", "/iletisim"]) {
+  for (const yol of ["/gunluk", "/kullanicilar", "/buyume", "/iletisim"]) {
     const kural = rewrites.find((r) => r.source === yol);
     assert.equal(kural?.has?.[0]?.value, "crm.borcama.com");
   }
@@ -77,7 +77,8 @@ test("önceki dönem eksikse karşılaştırma işaretlenir; Büyüme yeni olay 
   assert.match(edge, /async function olcumOlaylari\(admin/);
   assert.match(edge, /analytics = \{ \.\.\.analytics, olcum: await olcumOlaylari\(admin\) \}/);
   const olcum = edge.slice(edge.indexOf("async function olcumOlaylari"), edge.indexOf("async function funnelIstatistikleri"));
-  assert.match(olcum, /\.select\("session_id,event_name,path,created_at"\)/);
+  // Yalnız oturum, olay, yol, kaynak ve zaman okunur; tıklama kimliği vb. yok.
+  assert.match(olcum, /\.select\("session_id,event_name,path,source,medium,created_at"\)/);
 });
 
 test("İletişim: özet yeni, gönderim eski onaylı ekranda; CRM kabuğu eski Analytics/Marketing'i doğrudan kullanmaz", async () => {

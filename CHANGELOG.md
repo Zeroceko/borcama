@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.81.0] - 2026-11-06
+
+Web ve iOS aynı sürüm (iOS build 53). Değişiklik yalnız CRM'de; iPhone uygulamasına ve borcama.com'a etkisi yok.
+
+### Eklendi
+
+- CRM'e "Günlük" ekranı eklendi (crm.borcama.com/gunluk). Seçilen günün ziyaret, kayıt ekranı, yeni hesap ve doğrulanan sayıları önceki 7 günün ortalamasıyla karşılaştırılıyor. Ekranda Türkiye saatine göre saat saat ziyaret, kaynaklar (Google, direct, Instagram vb.), giriş sayfaları ve günün kısa yorumu var. Altta son 30 günün gün gün tablosu duruyor; satıra basınca o günün ayrıntısı açılıyor. Oturum kimliği ve kullanıcı bilgisi ekrana gelmiyor.
+
 ## [1.80.0] - 2026-11-04
 
 Web ve iOS aynı sürüm (iOS build 52). Değişiklik yalnız web içerik sayfalarında; iPhone uygulamasına etkisi yok.

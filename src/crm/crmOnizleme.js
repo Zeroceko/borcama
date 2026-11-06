@@ -46,6 +46,12 @@ export function crmOnizlemeVerisi() {
       debt_payoff_tool: { landing_visit: 40, result_view: 31, product_click: 4, register_view: 3, sign_up: 1, first_debt_or_statement: 1 },
       deposit_tool: { landing_visit: 22, result_view: 18, product_click: 1, register_view: 1, sign_up: 0, first_asset: 0 },
       olcum: { available: true,
+        oturumlar: Array.from({ length: 30 }, (_, g) => Array.from({ length: 3 + ((g * 7) % 9) }, (_, j) => {
+          const kaynak = ["google", "", "google", "ig", "", "bing"][(g + j) % 6];
+          const giris = ["/finansal-sozluk/tasfiye", "/", "/rehber/kredi-karti-faiz-oranlari-2026", "/araclar/borc-kapatma-hesaplayici", "/"][(g * 3 + j) % 5];
+          const olaylar = ["landing_visit", ...(giris === "/" && j % 2 ? ["landing_scroll_half"] : []), ...(j % 5 === 1 ? ["register_view"] : [])];
+          return { t: saatOnce(g * 24 + ((j * 5 + g) % 20) + 0.5), giris, kaynak, kanal: kaynak === "google" || kaynak === "bing" ? "organic" : kaynak ? "social" : "", olaylar };
+        })).flat(),
         son_7_gun: { ana: { ziyaret: 30, yari: 12, cta: 4, icerik_gecis: 0, kayit_ekrani: 4 }, sozluk: { ziyaret: 14, yari: 0, cta: 0, icerik_gecis: 2, kayit_ekrani: 1 }, araclar: { ziyaret: 9, yari: 0, cta: 0, icerik_gecis: 1, kayit_ekrani: 1 } },
         son_30_gun: { ana: { ziyaret: 120, yari: 45, cta: 14, icerik_gecis: 0, kayit_ekrani: 13 }, sozluk: { ziyaret: 60, yari: 0, cta: 0, icerik_gecis: 6, kayit_ekrani: 3 }, araclar: { ziyaret: 40, yari: 0, cta: 0, icerik_gecis: 5, kayit_ekrani: 3 }, rehber: { ziyaret: 12, yari: 0, cta: 0, icerik_gecis: 1, kayit_ekrani: 0 } } },
     },
