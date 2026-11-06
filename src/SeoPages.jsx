@@ -1,5 +1,5 @@
 import { APP_STORE_URL } from "./appStore.js";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -11,6 +11,7 @@ import {
   Plus,
   Trash2,
   WalletCards,
+  X,
 } from "lucide-react";
 import { funnelEtkinligiKaydet, funnelTiklamasiKaydedipGit } from "./funnelAnalytics.js";
 import {
@@ -34,9 +35,22 @@ import {
   turkLirasiFormatla,
 } from "./currencyInput.js";
 import {
+  BIRIKIM_KAYIT_ADRESI,
+  BORC_KAYIT_ADRESI,
+  ICERIK_YERLERI,
+  birikimKutusu,
+  miniBorcHesabi,
+  rehberHesabiGosterilsinMi,
+  sozlukHesabiGosterilsinMi,
+  yapiskanCubukGorunsunMu,
+  yapiskanKapatildiMi,
+  yapiskaniKapat,
+} from "./icerikDonusum.js";
+import {
   BDDK_KAYNAK,
   GIB_ASGARI_2026,
   GIB_VERGI_2026,
+  KART_ORTA_KADEME_AZAMI_AKDI_FAIZ,
   KIDEM_2026,
   REHBER_KAYNAKLARI,
   REHBER_UYARILARI,
@@ -184,9 +198,9 @@ function ToolLayout({ title, metaTitle, lead, path, schema, children, afterConte
   return <Layout><main><Breadcrumb path={path} title={title}/><Hero title={title} lead={lead}/><section className="seo-section seo-shell"><div className="seo-tool-layout">{bolumler[0]}<div className="seo-result-column">{bolumler.slice(1)}</div></div>{afterContent}{guides.length > 0 && <section className="seo-related-guides" aria-label="İlgili rehberler"><h2>Hesabını daha iyi anla</h2>{guides.map(([href, label]) => <a className="seo-related-guide" href={href} key={href}><BookOpen/><span><b>Adım adım rehber</b><strong>{label}</strong></span><ArrowRight/></a>)}</section>}{faq.length > 0 && <Faq items={faq}/>} {showSources && <SourceNote/>}{showCta && <Cta/>}</section></main></Layout>;
 }
 
-function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint }) {
+function NumberField({ label, value, onChange, suffix = "TL", step = "100", min = "0", hint, placeholder }) {
   const para = suffix === "TL";
-  return <label className="seo-field"><span>{label}</span><div><input type={para ? "text" : "number"} inputMode="decimal" min={para ? undefined : min} step={para ? undefined : step} value={para ? paraGirdisiniFormatla(value) : value} onChange={(event) => onChange(para ? paraGirdisiniCoz(event.target.value) : event.target.value)}/><b>{suffix}</b></div>{hint && <small>{hint}</small>}</label>;
+  return <label className="seo-field"><span>{label}</span><div><input type={para ? "text" : "number"} inputMode="decimal" min={para ? undefined : min} step={para ? undefined : step} value={para ? paraGirdisiniFormatla(value) : value} placeholder={placeholder} onChange={(event) => onChange(para ? paraGirdisiniCoz(event.target.value) : event.target.value)}/><b>{suffix}</b></div>{hint && <small>{hint}</small>}</label>;
 }
 
 function Money({ value }) {
@@ -394,7 +408,9 @@ function FinansalSozlukDetay({ terim }) {
     mainEntity: { "@type": "DefinedTerm", name: terim.title, description: terim.definition, inDefinedTermSet: `${SITE}/finansal-sozluk` },
   }), [path, terim]);
   useSeo({ title: terim.seoTitle || `${terim.title} Nedir?`, description: terim.seoDescription || `${terim.definition} Sade açıklama, örnek ve Borcama'daki karşılığını görün.`, path, schema });
-  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.h1 || `${terim.title} nedir?`}</h1><p className="seo-article-lead">{terim.definition}</p>{terim.borcKoprusu && <RehberBaglantilari baslik={terim.borcKoprusu.baslik} aciklama={terim.borcKoprusu.aciklama} baglantilar={[...rehberBaglantilari({ ilgiliRehberler: terim.rehberler }), ...rehberBaglantilari({ araclar: terim.borcKoprusu.araclar })]}/>}<div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section>{(terim.ekBolumler || []).map(([baslik, metin]) => <section key={baslik}><h2>{baslik}</h2><p>{metin}</p></section>)}<section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div><UrunKoprusu kicker="TANIMI ÖĞRENDİN. ŞİMDİ KENDİ TABLONU GÖR." baslik="Bunu kendi kart, kredi ve ödemelerinde gör." redirect="/debts" id="sozluk-sonraki-adim"/>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}{!terim.borcKoprusu && <RehberBaglantilari baslik="Bu konuda rehberler" baglantilar={rehberBaglantilari({ ilgiliRehberler: terim.rehberler })}/>}{terim.sss?.length > 0 && <Faq items={terim.sss} baslik="Sık sorulan sorular"/>}{terim.kaynaklar?.length > 0 && <GuideSources items={terim.kaynaklar.map(([etiket, adres]) => [adres, etiket])}/>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article></main></Layout>;
+  const hesapli = sozlukHesabiGosterilsinMi(terim);
+  const birikim = birikimKutusu(terim.slug);
+  return <Layout><main><Breadcrumb path={path} title={terim.title}/><article className="seo-article seo-glossary-article seo-shell"><span className="seo-glossary-category">{terim.category}</span><h1>{terim.h1 || `${terim.title} nedir?`}</h1><p className="seo-article-lead">{terim.definition}</p>{birikim && <BirikimKutusu kutu={birikim}/>}{terim.borcKoprusu && <RehberBaglantilari baslik={terim.borcKoprusu.baslik} aciklama={terim.borcKoprusu.aciklama} baglantilar={[...rehberBaglantilari({ ilgiliRehberler: terim.rehberler }), ...rehberBaglantilari({ araclar: terim.borcKoprusu.araclar })]}/>}{hesapli && <MiniBorcHesabi yer={ICERIK_YERLERI.SOZLUK_HESAP}/>}<div className="seo-article-body"><section><h2>Kısaca nasıl çalışır?</h2><p>{terim.detail}</p></section><section className="seo-glossary-example"><h2>Basit örnek</h2><p>{terim.example}</p></section>{(terim.ekBolumler || []).map(([baslik, metin]) => <section key={baslik}><h2>{baslik}</h2><p>{metin}</p></section>)}<section><h2>Borcama'da ne anlama gelir?</h2><p>{terim.borcama}</p></section></div><UrunKoprusu kicker="TANIMI ÖĞRENDİN. ŞİMDİ KENDİ TABLONU GÖR." baslik="Bunu kendi kart, kredi ve ödemelerinde gör." redirect="/debts" id="sozluk-sonraki-adim" yer={ICERIK_YERLERI.SOZLUK_SON}/>{terim.tool && <div className="seo-article-tool"><Calculator/><div><b>Rakamlarınla kontrol et</b><p>Tanımı kendi tutarlarınla ücretsiz bir hesaba dönüştür.</p></div><a className="seo-btn" href={`/araclar/${terim.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>}{!terim.borcKoprusu && <RehberBaglantilari baslik="Bu konuda rehberler" baglantilar={rehberBaglantilari({ ilgiliRehberler: terim.rehberler })}/>}{terim.sss?.length > 0 && <Faq items={terim.sss} baslik="Sık sorulan sorular"/>}{terim.kaynaklar?.length > 0 && <GuideSources items={terim.kaynaklar.map(([etiket, adres]) => [adres, etiket])}/>}<section className="seo-glossary-related" aria-label="İlgili finansal terimler"><h2>İlgili terimler</h2><div>{related.map((item) => <a href={`/finansal-sozluk/${item.slug}`} key={item.slug}><strong>{item.title}</strong><span>{item.definition}</span><ArrowRight size={16}/></a>)}</div></section><p className="seo-editorial">Bu açıklama genel bilgilendirme amaçlıdır; finansal veya hukuki tavsiye değildir. Kesin oran ve yükümlülük için güncel sözleşmeni ve resmî belgeyi esas al.</p></article>{hesapli && <YapiskanKayitCubugu yer={ICERIK_YERLERI.SOZLUK_YAPISKAN}/>}</main></Layout>;
 }
 
 function slugifyCategory(category) {
@@ -410,8 +426,9 @@ function RehberAna() {
 function RehberDetay({ rehber }) {
   const schema = useMemo(() => ({ "@context":"https://schema.org", "@type":"Article", headline:rehber.title, description:rehber.description, mainEntityOfPage:`${SITE}/rehber/${rehber.slug}`, author:{"@type":"Organization",name:"Borcama"}, publisher:{"@type":"Organization",name:"Borcama",logo:{"@type":"ImageObject",url:`${SITE}/borcama-logo.png`}}, datePublished:rehber.published || "2026-08-22", dateModified:rehber.guncellendi || rehber.published || "2026-08-22" }), [rehber]);
   useSeo({ title:rehber.title, description:rehber.description, path:`/rehber/${rehber.slug}`, schema });
+  const hesapli = rehberHesabiGosterilsinMi(rehber);
   const uyari = REHBER_UYARILARI[rehber.slug] || "Bu içerik genel bilgilendirme amaçlıdır ve finansal tavsiye değildir. Kesin tutarlar için banka ekstreni ve güncel sözleşmeni esas al.";
-  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.h1 || rehber.title}</h1>{rehber.guncellendi && <p className="seo-article-date">Son güncelleme: <time dateTime={rehber.guncellendi}>{guncellemeTarihiMetni(rehber.guncellendi)}</time></p>}<p className="seo-article-lead">{rehber.intro}</p><div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>{rehber.sss?.length > 0 && <Faq items={rehber.sss} baslik="Sık sorulan sorular"/>}<UrunKoprusu kicker="REHBERİ OKUDUN. ŞİMDİ UYGULA." baslik="Bu adımları kendi borçlarınla Borcama'da uygula." redirect="/debts" id="rehber-sonraki-adim"/><RehberBaglantilari baslik="İlgili hesaplayıcı ve rehberler" baglantilar={rehberBaglantilari(rehber)}/><GuideSources items={REHBER_KAYNAKLARI[rehber.slug]}/><p className="seo-editorial">{uyari}</p></article></main></Layout>;
+  return <Layout><main><Breadcrumb path={`/rehber/${rehber.slug}`} title={rehber.title}/><article className="seo-article seo-shell"><h1>{rehber.h1 || rehber.title}</h1>{rehber.guncellendi && <p className="seo-article-date">Son güncelleme: <time dateTime={rehber.guncellendi}>{guncellemeTarihiMetni(rehber.guncellendi)}</time></p>}<p className="seo-article-lead">{rehber.intro}</p>{hesapli && <MiniBorcHesabi yer={ICERIK_YERLERI.REHBER_HESAP}/>}<div className="seo-article-body">{rehber.sections.map(([title, body]) => <section key={title}><h2>{title}</h2><p>{body}</p></section>)}</div><div className="seo-article-tool"><Calculator/><div><b>Rakamlarını ücretsiz hesapla</b><p>Bu rehberi kendi tutarlarınla uygulanabilir bir plana dönüştür.</p></div><a className="seo-btn" href={`/araclar/${rehber.tool}`}>Aracı aç <ArrowRight size={14}/></a></div>{rehber.sss?.length > 0 && <Faq items={rehber.sss} baslik="Sık sorulan sorular"/>}<UrunKoprusu kicker="REHBERİ OKUDUN. ŞİMDİ UYGULA." baslik="Bu adımları kendi borçlarınla Borcama'da uygula." redirect="/debts" id="rehber-sonraki-adim" yer={ICERIK_YERLERI.REHBER_SON}/><RehberBaglantilari baslik="İlgili hesaplayıcı ve rehberler" baglantilar={rehberBaglantilari(rehber)}/><GuideSources items={REHBER_KAYNAKLARI[rehber.slug]}/><p className="seo-editorial">{uyari}</p></article>{hesapli && <YapiskanKayitCubugu yer={ICERIK_YERLERI.REHBER_YAPISKAN}/>}</main></Layout>;
 }
 
 // Rehberin ek araçları, ilgili rehberleri ve sözlük terimleri; yalnız var olan sayfalara bağlanır.
@@ -428,15 +445,110 @@ function RehberBaglantilari({ baslik, aciklama, baglantilar }) {
   return <section className="seo-related-guides" aria-label={baslik}><h2>{baslik}</h2>{aciklama && <p>{aciklama}</p>}{baglantilar.map(([href, etiket, metin, Icon]) => <a className="seo-related-guide" href={href} key={href}><Icon/><span><b>{etiket}</b><strong>{metin}</strong></span><ArrowRight/></a>)}</section>;
 }
 
+// Sözlük ve rehberde, tanımın hemen altında "Borcum ne zaman biter?" mini
+// hesabı. Faiz alanı faiz rehberindeki TCMB orta kademe oranıyla değiştirilebilir
+// örnek olarak dolar; tutar alanları boş başlar. Tutarlar kayıt bağlantısına ve
+// ölçüme eklenmez: olay yalnız yerleşim adını (`yer`) taşır.
+function MiniBorcHesabi({ yer }) {
+  const [borc, setBorc] = useState("");
+  const [faiz, setFaiz] = useState(KART_ORTA_KADEME_AZAMI_AKDI_FAIZ.oran);
+  const [odeme, setOdeme] = useState("");
+  const [dokunuldu, setDokunuldu] = useState(false);
+  const olculdu = useRef(false);
+  const sonuc = useMemo(() => miniBorcHesabi({ borc, aylikFaiz: faiz, aylikOdeme: odeme }), [borc, faiz, odeme]);
+  // Sonuç, kullanıcı bir alanı değiştirdikten ve yazmayı bıraktıktan sonra bir kez ölçülür.
+  useEffect(() => {
+    if (!dokunuldu || sonuc.durum !== "tamam" || olculdu.current) return undefined;
+    const zamanlayici = setTimeout(() => {
+      olculdu.current = true;
+      funnelEtkinligiKaydet("debt_payoff_result_view", null, { yer });
+    }, 800);
+    return () => clearTimeout(zamanlayici);
+  }, [dokunuldu, sonuc.durum, sonuc.ay, yer]);
+  const degistir = (ayarla) => (deger) => {
+    setDokunuldu(true);
+    ayarla(deger);
+  };
+  const tikla = (olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click", yer);
+  const baslikId = `${yer}-baslik`;
+  const { donem, kademe } = KART_ORTA_KADEME_AZAMI_AKDI_FAIZ;
+  return <section className="seo-mini-hesap" aria-labelledby={baslikId}><div className="seo-mini-hesap-ust"><span className="seo-product-bridge-kicker">ÜCRETSİZ HESAPLA</span><h2 id={baslikId}>Borcum ne zaman biter?</h2></div><div className="seo-mini-hesap-alanlar"><NumberField label="Borç tutarı" value={borc} onChange={degistir(setBorc)} placeholder="Örn. 50.000"/><NumberField label="Her ay ödeyebileceğin" value={odeme} onChange={degistir(setOdeme)} placeholder="Örn. 5.000"/><NumberField label="Aylık faiz" value={faiz} onChange={degistir(setFaiz)} suffix="%" step="0.01" hint={`Örnek: ${donem} TCMB azami kart faizi (${kademe}). Kendi oranını yazabilirsin.`}/></div><div className="seo-mini-hesap-sonuc" aria-live="polite">{sonuc.durum === "tamam" ? <><p>Bu ödemeyle borcun yaklaşık <strong>{sonuc.sure}</strong> içinde biter.</p><dl><div><dt>Kapanış süresi</dt><dd>{sonuc.sure}</dd></div><div><dt>Toplam faiz</dt><dd><Money value={sonuc.toplamFaiz}/></dd></div></dl></> : sonuc.durum === "bos" ? <p>Borç tutarını ve her ay ayırabileceğin ödemeyi yaz; kapanış süresini ve toplam faizi hemen gör.</p> : sonuc.durum === "cok-uzun" ? <div className="seo-warning">Bu ödemeyle borç 50 yılda kapanmıyor; aylık ödemeyi artırmayı dene.</div> : <Warning reason={sonuc.durum}/>}</div><div className="seo-mini-hesap-aksiyon"><a className="seo-btn" href={BORC_KAYIT_ADRESI} onClick={tikla}>{sonuc.durum === "tamam" ? "Bu planı kaydet ve takip et — ücretsiz" : "Borç planını ücretsiz oluştur"} <ArrowRight size={15}/></a><small>Tahminidir; oran değişikliği, yeni harcama ve masraflar sonucu değiştirir. Yazdığın tutarlar bu sayfada kalır, kayıt bağlantısına ve ölçüme eklenmez; hesabını açınca borcunu bir kez eklemen yeterli.</small></div></section>;
+}
+
+// Fon / yatırımcı niyetiyle gelenlere (tasfiye, bank run) Varlıklar ekranının
+// gerçekten desteklediği şeyler: fon ve BES payı, mevduat, altın, döviz.
+function BirikimKutusu({ kutu }) {
+  const tikla = (olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click", kutu.yer);
+  return <section className="seo-birikim-kutusu" aria-labelledby="birikim-kutusu-baslik"><span className="seo-product-bridge-kicker">{kutu.kicker}</span><h2 id="birikim-kutusu-baslik">Birikimini ve borcunu tek yerde gör.</h2><p>Yatırım fonu ve BES paylarını, mevduatını, altınını ve dövizini Borcama'nın Varlıklar ekranına ekle; kartlarını ve kredilerini aynı hesapta takip et.</p><a className="seo-btn" href={BIRIKIM_KAYIT_ADRESI} onClick={tikla}>Ücretsiz hesabını aç <ArrowRight size={15}/></a><small>Borcama yatırım tavsiyesi vermez ve fon tasfiye ödemelerini takip etmez; ödeme takvimi ve tutarı için SPK ve KAP duyurularını esas al. Kart bilgisi gerekmez.</small></section>;
+}
+
+function oturumDeposu() {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+// Mobilde sayfanın ~%40'ı geçilince alttan çıkan ince kayıt çubuğu. Çerez/ölçüm
+// bandı açıkken, sayfa sonu köprüsü ekrandayken ve klavye açıkken görünmez;
+// kapatılınca oturum boyunca bir daha çıkmaz.
+function YapiskanKayitCubugu({ yer }) {
+  const [kapali, setKapali] = useState(() => typeof window === "undefined" || yapiskanKapatildiMi(oturumDeposu()));
+  const [gorunur, setGorunur] = useState(false);
+  useEffect(() => {
+    if (kapali) return undefined;
+    const mobilSorgu = window.matchMedia ? window.matchMedia("(max-width: 767px)") : null;
+    let kare = 0;
+    const hesapla = () => {
+      kare = 0;
+      const kopru = document.querySelector(".seo-product-bridge")?.getBoundingClientRect();
+      const aktif = document.activeElement;
+      setGorunur(yapiskanCubukGorunsunMu({
+        scrollY: window.scrollY,
+        innerHeight: window.innerHeight,
+        scrollHeight: document.documentElement.scrollHeight,
+        mobil: Boolean(mobilSorgu?.matches),
+        izinBandiAcik: Boolean(document.querySelector(".gac")),
+        kopruGorunur: Boolean(kopru && kopru.top < window.innerHeight && kopru.bottom > 0),
+        girdiOdakta: Boolean(aktif && /^(INPUT|TEXTAREA|SELECT)$/.test(aktif.tagName)),
+      }));
+    };
+    const planla = () => {
+      if (!kare) kare = window.requestAnimationFrame(hesapla);
+    };
+    hesapla();
+    const pencereOlaylari = ["scroll", "resize", "borcama:google-consent-change"];
+    pencereOlaylari.forEach((ad) => window.addEventListener(ad, planla, { passive: true }));
+    document.addEventListener("focusin", planla);
+    document.addEventListener("focusout", planla);
+    mobilSorgu?.addEventListener?.("change", planla);
+    return () => {
+      if (kare) window.cancelAnimationFrame(kare);
+      pencereOlaylari.forEach((ad) => window.removeEventListener(ad, planla));
+      document.removeEventListener("focusin", planla);
+      document.removeEventListener("focusout", planla);
+      mobilSorgu?.removeEventListener?.("change", planla);
+    };
+  }, [kapali]);
+  if (kapali) return null;
+  const kapat = () => {
+    yapiskaniKapat(oturumDeposu());
+    setKapali(true);
+  };
+  const tikla = (olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click", yer);
+  return <><div className="seo-yapiskan-bosluk" aria-hidden="true"/>{gorunur && <div className="seo-yapiskan" role="region" aria-label="Ücretsiz borç planı"><span>Borçlarını ücretsiz plana dönüştür</span><a className="seo-btn" href={BORC_KAYIT_ADRESI} onClick={tikla}>Başla <ArrowRight size={14}/></a><button type="button" aria-label="Kayıt çubuğunu kapat" onClick={kapat}><X size={17}/></button></div>}</>;
+}
+
 // Araç, sözlük ve rehber sayfalarından ürüne geçiş. Sayfadaki tutarlar kayıt
 // bağlantısına veya ölçüme eklenmez; olay yalnız hangi sayfadan geçildiğini tutar.
-function UrunKoprusu({ kicker, baslik, redirect, id }) {
-  const tikla = (olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click");
+function UrunKoprusu({ kicker, baslik, redirect, id, yer = "" }) {
+  const tikla = (olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click", yer);
   return <section className="seo-product-bridge" aria-labelledby={id}><span className="seo-product-bridge-kicker">{kicker}</span><h2 id={id}>{baslik}</h2><p>Kartlarını, kredilerini ve ek hesaplarını ekle; kalan borcu, ödeme günlerini ve aylık yükünü tek yerde takip et.</p><ul><li><WalletCards size={17}/> Bütün borçlarını tek tabloda gör</li><li><CalendarDays size={17}/> Ödeme günlerini ve zorunlu tutarları takip et</li><li><ListChecks size={17}/> İlk kapatacağın borcu kendi kayıtlarınla planla</li></ul><div className="seo-product-actions"><a className="seo-btn" href={`/register?plan=free&redirect=${encodeURIComponent(redirect)}`} onClick={tikla}>Ücretsiz hesabını aç <ArrowRight size={15}/></a></div><small>Kart bilgisi gerekmez. Ücretsiz paket hep açık.</small></section>;
 }
 
 function Cta() {
-  return <section className="seo-cta"><div><h2>Planını her ay Borcama’da takip et.</h2><p>Kartlarını, kredilerini, ekstrelerini ve yaptığın ödemeleri tek yerde gör.</p></div><a className="seo-btn dark" href="/register?plan=free" onClick={(olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click")}>Ücretsiz hesabını aç <ArrowRight size={15}/></a></section>;
+  return <section className="seo-cta"><div><h2>Planını her ay Borcama’da takip et.</h2><p>Kartlarını, kredilerini, ekstrelerini ve yaptığın ödemeleri tek yerde gör.</p></div><a className="seo-btn dark" href="/register?plan=free" onClick={(olay) => funnelTiklamasiKaydedipGit(olay, "content_product_click", ICERIK_YERLERI.ALT_CTA)}>Ücretsiz hesabını aç <ArrowRight size={15}/></a></section>;
 }
 
 function toolSchema(name, path) {

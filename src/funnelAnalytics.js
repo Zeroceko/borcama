@@ -2,6 +2,7 @@ import { supabase, supabaseHazir } from "./supabaseClient.js";
 import { edinimKaynaginiOlustur } from "./acquisition.js";
 import { aktifLandingDeneyiOku } from "./landingExperiment.js";
 import { olayiKaydedipGit, otomasyonTarayicisiMi } from "./funnelNavigation.js";
+import { yerlesimliKaynak } from "./icerikYerleri.js";
 export { edinimKaynaginiOlustur } from "./acquisition.js";
 
 const OTURUM_ANAHTARI = "borcama:funnel-session";
@@ -53,13 +54,15 @@ export function funnelKaynakBilgisi() {
   return kaynakBilgisi();
 }
 
-export function funnelEtkinligiKaydet(eventName, experiment = null) {
+// `yer`: içerik sayfasındaki yerleşim (ör. "sozluk_hesap"); yalnız bilinen
+// değerler bu olayın `content` alanına yazılır, oturumun kaynağı değişmez.
+export function funnelEtkinligiKaydet(eventName, experiment = null, { yer = "" } = {}) {
   if (!supabaseHazir || !IZINLI_ETKINLIKLER.has(eventName)) return false;
   if (otomasyonTarayicisiMi()) return false;
   const kaydet = async () => {
     const sessionId = oturumKimligi();
     if (!sessionId) return false;
-    const kaynak = kaynakBilgisi();
+    const kaynak = yerlesimliKaynak(kaynakBilgisi(), yer);
     const deney = experiment || aktifLandingDeneyiOku();
     try {
       const { data, error } = await supabase.functions.invoke("analytics-event", {
@@ -86,7 +89,7 @@ export function funnelEtkinligiKaydet(eventName, experiment = null) {
 }
 
 // Kayda giden bağlantı tıklamalarında olayın sayfa değişmeden yazılmasını bekler.
-export function funnelTiklamasiKaydedipGit(olay, eventName) {
+export function funnelTiklamasiKaydedipGit(olay, eventName, yer = "") {
   const baglanti = olay?.currentTarget?.closest?.("a") || olay?.target?.closest?.("a");
-  return olayiKaydedipGit(olay, baglanti, () => funnelEtkinligiKaydet(eventName));
+  return olayiKaydedipGit(olay, baglanti, () => funnelEtkinligiKaydet(eventName, null, { yer }));
 }
