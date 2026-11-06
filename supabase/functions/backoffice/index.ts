@@ -153,12 +153,11 @@ async function kullaniciKampanyaGecmisi(
 // v1.61.0 ölçüm olayları: son 30 gün, tekil oturum. Giriş sayfası grubuna göre ayrılır.
 async function olcumOlaylari(admin: ReturnType<typeof createClient>) {
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
-  const satirlar: Array<{ session_id: string; event_name: string; path: string; created_at: string }> = [];
+  const satirlar: Array<{ session_id: string; event_name: string; path: string; source: string | null; medium: string | null; created_at: string }> = [];
   for (let sayfa = 0; sayfa < 20; sayfa++) {
     const { data, error } = await admin.from("analytics_events")
-      .select("session_id,event_name,path,created_at")
+      .select("session_id,event_name,path,source,medium,created_at")
       .gte("created_at", since)
-      .in("event_name", ["landing_visit", "landing_scroll_half", "landing_cta_click", "content_product_click", "register_view"])
       .order("created_at").range(sayfa * 1000, sayfa * 1000 + 999);
     if (error) throw new Error("OLCUM_UNAVAILABLE");
     satirlar.push(...(data || []));
@@ -194,7 +193,21 @@ async function olcumOlaylari(admin: ReturnType<typeof createClient>) {
     }
     return sonuc;
   };
-  return { available: true, son_7_gun: say(7), son_30_gun: say(30), olcum_baslangici: "2026-10-10" };
+  // CRM "Günlük" ekranı için oturum özeti: oturum kimliği ve kullanıcı bilgisi yok.
+  // t ilk olayın zamanı; giris sayfaya giriş yolu (yoksa yalnız kayıt ekranı açılmış).
+  const ozet = new Map<string, { t: string; giris: string; kaynak: string; kanal: string; olaylar: Set<string> }>();
+  for (const r of satirlar) {
+    const o = ozet.get(r.session_id) || { t: r.created_at, giris: "", kaynak: r.source || "", kanal: r.medium || "", olaylar: new Set<string>() };
+    if (r.event_name === "landing_visit" && !o.giris) {
+      o.giris = String(r.path || "/").split("?")[0].replace(/\/+$/, "") || "/";
+      if (r.source) o.kaynak = r.source;
+      if (r.medium) o.kanal = r.medium;
+    }
+    o.olaylar.add(r.event_name);
+    ozet.set(r.session_id, o);
+  }
+  const oturumlar = [...ozet.values()].map((o) => ({ t: o.t, giris: o.giris, kaynak: o.kaynak, kanal: o.kanal, olaylar: [...o.olaylar] }));
+  return { available: true, son_7_gun: say(7), son_30_gun: say(30), olcum_baslangici: "2026-10-10", oturumlar };
 }
 
 async function funnelIstatistikleri(admin: ReturnType<typeof createClient>) {

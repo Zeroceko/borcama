@@ -246,7 +246,7 @@ function Kok() {
     const ek = yol.slice("/crm-preview".length) || "/";
     return <CrmApp preview {...crmSayfasi(ek)} />;
   }
-  if (crmAlani && ["/backoffice", "/kullanicilar", "/buyume", "/iletisim"].includes(yol))
+  if (crmAlani && ["/backoffice", "/gunluk", "/kullanicilar", "/buyume", "/iletisim"].includes(yol))
     return supabaseHazir ? <KimlikliCrm {...crmSayfasi(yol === "/backoffice" ? "/" : yol)} /> : <YapilandirmaEksik />;
   if (crmAlani && yol.startsWith("/backoffice/user/"))
     return supabaseHazir ? <KimlikliCrm sayfa="kullanici" userId={decodeURIComponent(yol.slice("/backoffice/user/".length))} /> : <YapilandirmaEksik />;
@@ -318,10 +318,10 @@ function KimlikliBackoffice({ userId = "" }) {
   return <Backoffice userId={userId} />;
 }
 
-// Yeni CRM kabuğu: "/" Bugün, "/kullanicilar", "/user/:id", "/buyume", "/iletisim".
+// Yeni CRM kabuğu: "/" Bugün, "/gunluk", "/kullanicilar", "/user/:id", "/buyume", "/iletisim".
 function crmSayfasi(ek) {
   if (ek.startsWith("/user/")) return { sayfa: "kullanici", userId: decodeURIComponent(ek.slice("/user/".length)) };
-  return { sayfa: { "/kullanicilar": "kullanicilar", "/buyume": "buyume", "/iletisim": "iletisim" }[ek] || "bugun" };
+  return { sayfa: { "/gunluk": "gunluk", "/kullanicilar": "kullanicilar", "/buyume": "buyume", "/iletisim": "iletisim" }[ek] || "bugun" };
 }
 
 function KimlikliCrm({ sayfa, userId = "" }) {

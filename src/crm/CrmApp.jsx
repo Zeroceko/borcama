@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BarChart3, Gift, Home, Mail, MessageSquare, RefreshCw, Search, Timer, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, CalendarDays, Gift, Home, Mail, MessageSquare, RefreshCw, Search, Timer, Trash2, UserRound, Users } from "lucide-react";
 import { supabase } from "../supabaseClient.js";
 import { CRM_ALANI } from "../yonetimUrls.js";
 import Backoffice from "../Backoffice.jsx";
 import Buyume from "./Buyume.jsx";
+import Gunluk from "./Gunluk.jsx";
 import Iletisim from "./Iletisim.jsx";
 import {
   SEGMENTLER,
@@ -19,12 +20,13 @@ import "./crm.css";
 
 const MENU = [
   ["bugun", "Bugün", Home],
+  ["gunluk", "Günlük", CalendarDays],
   ["kullanicilar", "Kullanıcılar", Users],
   ["buyume", "Büyüme", BarChart3],
   ["iletisim", "İletişim", Mail],
 ];
 
-const YOL_EKI = { bugun: "/", kullanicilar: "/kullanicilar", buyume: "/buyume", iletisim: "/iletisim" };
+const YOL_EKI = { bugun: "/", gunluk: "/gunluk", kullanicilar: "/kullanicilar", buyume: "/buyume", iletisim: "/iletisim" };
 
 // CRM alanında kısa yollar, yerel önizlemede /crm-preview altı, ana alanda CRM'e tam adres.
 export function crmYolu(sayfa, { preview = false, userId = "" } = {}) {
@@ -79,7 +81,7 @@ async function backofficeVerisi() {
 
 export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }) {
   const [yenileme, setYenileme] = useState(0);
-  const veriGerekli = sayfa === "bugun" || sayfa === "kullanicilar" || sayfa === "buyume" || sayfa === "iletisim";
+  const veriGerekli = sayfa === "bugun" || sayfa === "gunluk" || sayfa === "kullanicilar" || sayfa === "buyume" || sayfa === "iletisim";
   const [veri, setVeri] = useState(() => (preview ? crmOnizlemeVerisi() : null));
   const [hata, setHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -97,9 +99,10 @@ export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }
   }, [veriGerekli, preview, yenileme]);
 
   const aktifMenu = sayfa === "kullanici" ? "kullanicilar" : sayfa;
-  const baslik = { bugun: "Bugün", kullanicilar: "Kullanıcılar", kullanici: "Kullanıcı detayı", buyume: "Büyüme", iletisim: "İletişim" }[sayfa];
+  const baslik = { bugun: "Bugün", gunluk: "Günlük", kullanicilar: "Kullanıcılar", kullanici: "Kullanıcı detayı", buyume: "Büyüme", iletisim: "İletişim" }[sayfa];
   const altBaslik = {
     bugun: "Kim geldi, kim takıldı, kime bakmak gerekiyor.",
+    gunluk: "Gün gün trafik, kaynaklar ve kayıt adımları.",
     kullanicilar: "Segment seç, ara, detaya git.",
     kullanici: "Üyelik, kayıt geçmişi ve iletişim.",
     buyume: "Ziyaretten kayda huni ve kanallar.",
@@ -133,6 +136,7 @@ export default function CrmApp({ sayfa = "bugun", userId = "", preview = false }
         {hata && <div className="crm-hata" role="alert">{hata} <button type="button" className="crm-btn" onClick={() => setYenileme((x) => x + 1)}>Tekrar dene</button></div>}
         {veriGerekli && !veri && !hata && <div className="crm-yukleniyor">Yükleniyor…</div>}
         {sayfa === "bugun" && veri && <Bugun veri={veri} preview={preview} />}
+        {sayfa === "gunluk" && veri && <Gunluk veri={veri} />}
         {sayfa === "kullanicilar" && veri && <Kullanicilar veri={veri} preview={preview} />}
         {sayfa === "kullanici" && <><div className="crm-gomulu" key={`k${yenileme}`}><Backoffice userId={userId} preview={preview} /></div><KullaniciSil userId={userId} preview={preview} /></>}
         {sayfa === "buyume" && veri && <Buyume veri={veri} />}

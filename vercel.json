@@ -492,6 +492,16 @@
       "destination": "/index.html"
     },
     {
+      "source": "/gunluk",
+      "has": [
+        {
+          "type": "host",
+          "value": "crm.borcama.com"
+        }
+      ],
+      "destination": "/index.html"
+    },
+    {
       "source": "/buyume",
       "has": [
         {
