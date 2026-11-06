@@ -92,6 +92,7 @@ export function gunDetayi(oturumlar = [], gun) {
   const saatler = Array(24).fill(0);
   const kaynaklar = new Map();
   const sayfalar = new Map();
+  const yerler = new Map();
   for (const o of oturumlar) {
     if (trGunu(o.t) !== gun || !o.giris) continue;
     const ol = new Set(o.olaylar || []);
@@ -109,8 +110,14 @@ export function gunDetayi(oturumlar = [], gun) {
     s.urune += urune;
     s.kayitEkrani += kayit;
     sayfalar.set(o.giris, s);
+    if (o.yer) {
+      const y = yerler.get(o.yer) || { ad: o.yer, ziyaret: 0, kayitEkrani: 0 };
+      y.ziyaret += 1;
+      y.kayitEkrani += kayit;
+      yerler.set(o.yer, y);
+    }
   }
-  return { saatler, kaynaklar: sirala(kaynaklar), sayfalar: sirala(sayfalar) };
+  return { saatler, kaynaklar: sirala(kaynaklar), sayfalar: sirala(sayfalar), yerler: sirala(yerler) };
 }
 
 const yuzdeFark = (deger, ort) => Math.round(((deger - ort) / ort) * 100);

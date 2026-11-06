@@ -45,7 +45,8 @@ test("sözlük, rehber ve borç araçları ürüne ölçülen bir köprü kurar"
   const seo = await oku("./SeoPages.jsx");
   for (const id of ["sozluk-sonraki-adim", "rehber-sonraki-adim", "asgari-sonraki-adim", "kredi-sonraki-adim", "borc-plani-sonraki-adim", "takvim-sonraki-adim"])
     assert.match(seo, new RegExp(`id="${id}"`));
-  assert.match(seo, /funnelTiklamasiKaydedipGit\(olay, "content_product_click"\)/);
+  // İçerik köprüleri yerleşim adını (sozluk_son, rehber_son, alt_cta…) üçüncü argümanla taşır.
+  assert.match(seo, /funnelTiklamasiKaydedipGit\(olay, "content_product_click", (yer|ICERIK_YERLERI\.[A-Z_]+|kutu\.yer)\)/);
   assert.match(seo, /funnelTiklamasiKaydedipGit\(olay, "debt_payoff_product_click"\)/);
   assert.doesNotMatch(seo, /UrunKoprusu[^;]*(borc|tutar|value)=\{/);
 });

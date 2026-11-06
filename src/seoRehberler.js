@@ -3,6 +3,11 @@
 
 export const BDDK_KAYNAK = "https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349";
 export const TCMB_KAYNAK = "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Bankacilik%2BVerileri/Kredi_Karti_Islemlerinde_Uygulanacak_Azami_Faiz_Oranlari";
+// Faiz rehberindeki TCMB tablosunun orta kademesi (30.000–180.000 TL dönem
+// borcu) için azami aylık akdi faiz. İçerik içi mini hesapta yalnız kullanıcının
+// değiştirebileceği bir örnek olarak doldurulur; rehber metniyle eşliği testte
+// kontrol edilir, tablo güncellenince ikisi birlikte değişir.
+export const KART_ORTA_KADEME_AZAMI_AKDI_FAIZ = Object.freeze({ oran: "3.75", donem: "Kasım 2026", kademe: "30.000–180.000 TL dönem borcu" });
 export const GIB_VERGI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2Fgelir-vergisi-tarifeleri%2Fgelir-vergisi-tarifesi-2026.pdf";
 export const GIB_ASGARI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2FAsgariUcrettenYapilanKesintiler.pdf";
 export const SGK_2026 = "https://www.sgk.gov.tr/Content/Post/2e0c9e1a-2cfe-4456-af10-49d3de0c58ba/Prime-Esas-Kazanc-Miktarlari-2026-01-14-10-35-39";

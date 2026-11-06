@@ -26,3 +26,52 @@
 @container seo-sonuc (max-width:520px){.seo-summary{grid-template-columns:1fr}}
 .seo-article-date{margin:18px 0 0;color:#536057;font:700 13px 'JetBrains Mono'}.seo-related-guides>p{margin:0 0 6px;color:#48544d;font-size:16px;line-height:1.7}.seo-article-lead+.seo-related-guides{margin:0 0 54px;padding:24px;border:2px solid var(--green);border-radius:20px;background:#eef5e4}
 @media(max-width:650px){.seo-article-lead+.seo-related-guides{padding:16px}}
+/* İçerik içi kayda geçiş: mini hesap, birikim kutusu, mobil yapışkan çubuk */
+.seo-birikim-kutusu+.seo-related-guides{margin:0 0 54px;padding:24px;border:2px solid var(--green);border-radius:20px;background:#eef5e4}
+.seo-mini-hesap{margin:0 0 54px;padding:24px;border:2px solid var(--ink);border-radius:20px;background:#fff;box-shadow:6px 6px 0 var(--lime)}
+.seo-mini-hesap-ust h2{margin:12px 0 0;font-size:26px;line-height:1.1}
+.seo-mini-hesap-alanlar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 14px}
+.seo-mini-hesap .seo-field input{padding:12px;font-size:16px}
+.seo-mini-hesap .seo-field small{font-size:12px;line-height:1.45}
+.seo-mini-hesap-sonuc{margin-top:18px;padding:16px;border-radius:14px;background:#f4f8ec}
+.seo-mini-hesap-sonuc>p{margin:0;color:#3f4c45;font-size:15px;line-height:1.55}
+.seo-mini-hesap-sonuc strong{color:var(--green)}
+.seo-mini-hesap-sonuc dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 0}
+.seo-mini-hesap-sonuc dl div{min-width:0;padding:12px;border-radius:12px;background:#fff}
+.seo-mini-hesap-sonuc dt{color:#5f685f;font-size:12px;font-weight:800}
+.seo-mini-hesap-sonuc dd{margin:4px 0 0;color:var(--ink);font:800 18px 'JetBrains Mono';overflow-wrap:anywhere}
+.seo-mini-hesap-sonuc .seo-warning{padding:0;background:none}
+.seo-mini-hesap-aksiyon{display:grid;gap:10px;justify-items:start;margin-top:16px}
+.seo-mini-hesap-aksiyon small{color:#657068;font-size:12px;line-height:1.5}
+.seo-birikim-kutusu{max-width:800px;margin:0 0 24px;padding:22px;border:2px solid var(--green);border-radius:20px;background:var(--ice)}
+.seo-birikim-kutusu h2{margin:12px 0 8px;font-size:24px;line-height:1.15}
+.seo-birikim-kutusu p{margin:0 0 14px;color:#3f4c45;font-size:15px;line-height:1.6}
+.seo-birikim-kutusu small{display:block;margin-top:12px;color:#536057;font-size:12px;line-height:1.5}
+.seo-yapiskan,.seo-yapiskan-bosluk{display:none}
+@media(max-width:767px){
+.seo:has(.seo-yapiskan-bosluk) .seo-footer{padding-bottom:calc(117px + env(safe-area-inset-bottom,0px))}
+.seo-yapiskan{position:fixed;z-index:1500;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px)) 14px;border-top:2px solid var(--ink);background:var(--green);color:#fff;box-shadow:0 -8px 24px #14160f26}
+.seo-yapiskan span{flex:1;min-width:0;overflow:hidden;font-size:clamp(12px,3.5vw,14px);font-weight:800;line-height:1.25;white-space:nowrap;text-overflow:ellipsis}
+.seo-yapiskan .seo-btn{flex:0 0 auto;gap:6px;min-height:40px;padding:8px 12px;font-size:14px}
+.seo-yapiskan button{flex:0 0 auto;display:grid;place-items:center;width:32px;height:40px;padding:0;border:0;border-radius:999px;background:transparent;color:#d6e2dc;cursor:pointer}
+}
+@media(max-width:767px) and (prefers-reduced-motion:no-preference){.seo-yapiskan{animation:seo-yapiskan-gir .22s ease-out}}
+@keyframes seo-yapiskan-gir{from{transform:translateY(100%)}to{transform:none}}
+@media(max-width:650px){
+.seo-mini-hesap{padding:16px;box-shadow:4px 4px 0 var(--lime)}
+.seo-mini-hesap-ust h2{font-size:22px}
+.seo-mini-hesap-alanlar{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+.seo-mini-hesap-alanlar .seo-field{margin-top:12px}
+.seo-mini-hesap-alanlar .seo-field:last-child{grid-column:1/-1}
+.seo-mini-hesap .seo-field>span{font-size:13px}
+.seo-mini-hesap .seo-field input{padding:11px 10px}
+.seo-mini-hesap .seo-field input::placeholder{font-size:13px}
+.seo-mini-hesap .seo-field b{padding:0 10px}
+.seo-mini-hesap-sonuc{margin-top:14px;padding:12px}
+.seo-mini-hesap-sonuc dd{font-size:16px}
+.seo-mini-hesap-aksiyon .seo-btn{width:100%;text-align:center}
+.seo-birikim-kutusu{padding:16px}
+.seo-birikim-kutusu h2{font-size:21px}
+.seo-birikim-kutusu .seo-btn{width:100%}
+.seo-birikim-kutusu+.seo-related-guides{padding:16px}
+}
