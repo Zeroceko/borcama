@@ -12,10 +12,11 @@ export const BIRIKIM_KAYIT_ADRESI = "/register?plan=free&redirect=%2Fassets";
 
 // "Borcum ne zaman biter?" hesabının göründüğü sözlük terimleri:
 // - "Kredi kartı" kategorisinin tamamı,
-// - "Borç yönetimi" kategorisinin tamamı (alacaklı bakışı olan "alacak" hariç),
+// - "Borç yönetimi" kategorisinin tamamı (alacaklı bakışı olan "alacak" ve
+//   okuru çoğunlukla fon haberiyle gelen "tasfiye" hariç; orada birikim kutusu var),
 // - diğer kategorilerden borçlu okurun aradığı aşağıdaki terimler.
 const HESAP_KATEGORILERI = new Set(["Kredi kartı", "Borç yönetimi"]);
-const HESAP_DISI_TERIMLER = new Set(["alacak"]);
+const HESAP_DISI_TERIMLER = new Set(["alacak", "tasfiye"]);
 export const HESAPLI_EK_TERIMLER = Object.freeze([
   // Faiz ve maliyet
   "faiz", "akdi-faiz", "gecikme-faizi", "temerrut-faizi", "kredi-karti-faizi", "yapilandirma-faizi",

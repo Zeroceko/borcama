@@ -73,6 +73,16 @@ test("gün detayı: saatler, kaynaklar ve giriş sayfaları sıralı", () => {
   assert.equal(d.saatler.reduce((a, b) => a + b, 0), 3);
   assert.deepEqual(d.kaynaklar.map((k) => [k.ad, k.ziyaret, k.kayitEkrani]), [["google", 2, 1], ["direct", 1, 0]]);
   assert.deepEqual(d.sayfalar.map((s) => [s.ad, s.ziyaret, s.urune]), [["/finansal-sozluk/tasfiye", 2, 0], ["/araclar/borc-kapatma-hesaplayici", 1, 1]]);
+  assert.deepEqual(d.yerler, []);
+});
+
+test("içerikten ürüne geçiş yeri gün detayında sayılır", () => {
+  const oturumlar = [
+    { ...oturum("2026-11-06T08:00:00Z", "/finansal-sozluk/asgari-odeme", "google", ["content_product_click", "register_view"]), yer: "sozluk_hesap" },
+    { ...oturum("2026-11-06T09:00:00Z", "/finansal-sozluk/faiz", "google", ["content_product_click"]), yer: "sozluk_hesap" },
+    { ...oturum("2026-11-06T10:00:00Z", "/finansal-sozluk/tasfiye", "", ["content_product_click"]), yer: "tasfiye_birikim" },
+  ];
+  assert.deepEqual(gunDetayi(oturumlar, "2026-11-06").yerler.map((y) => [y.ad, y.ziyaret, y.kayitEkrani]), [["sozluk_hesap", 2, 1], ["tasfiye_birikim", 1, 0]]);
 });
 
 test("gün yorumu ortalamayla karşılaştırır, baskın kaynağı ve sayfayı söyler", () => {
@@ -94,7 +104,7 @@ test("Backoffice oturum özetinde kimlik yok; Günlük menüde ve CRM yolunda", 
     readFile(new URL("./crm/CrmApp.jsx", import.meta.url), "utf8"),
     readFile(new URL("./main.jsx", import.meta.url), "utf8"),
   ]);
-  assert.match(edge, /const oturumlar = \[\.\.\.ozet\.values\(\)\]\.map\(\(o\) => \(\{ t: o\.t, giris: o\.giris, kaynak: o\.kaynak, kanal: o\.kanal, olaylar: \[\.\.\.o\.olaylar\] \}\)\);/);
+  assert.match(edge, /const oturumlar = \[\.\.\.ozet\.values\(\)\]\.map\(\(o\) => \(\{ t: o\.t, giris: o\.giris, kaynak: o\.kaynak, kanal: o\.kanal, yer: o\.yer, olaylar: \[\.\.\.o\.olaylar\] \}\)\);/);
   assert.match(crm, /\["gunluk", "Günlük", CalendarDays\]/);
   assert.match(main, /"\/gunluk": "gunluk"/);
 });

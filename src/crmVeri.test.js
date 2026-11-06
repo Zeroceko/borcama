@@ -78,7 +78,7 @@ test("önceki dönem eksikse karşılaştırma işaretlenir; Büyüme yeni olay 
   assert.match(edge, /analytics = \{ \.\.\.analytics, olcum: await olcumOlaylari\(admin\) \}/);
   const olcum = edge.slice(edge.indexOf("async function olcumOlaylari"), edge.indexOf("async function funnelIstatistikleri"));
   // Yalnız oturum, olay, yol, kaynak ve zaman okunur; tıklama kimliği vb. yok.
-  assert.match(olcum, /\.select\("session_id,event_name,path,source,medium,created_at"\)/);
+  assert.match(olcum, /\.select\("session_id,event_name,path,source,medium,content,created_at"\)/);
 });
 
 test("İletişim: özet yeni, gönderim eski onaylı ekranda; CRM kabuğu eski Analytics/Marketing'i doğrudan kullanmaz", async () => {

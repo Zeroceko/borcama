@@ -54,9 +54,9 @@ describe("içerik yerleşimi ölçümü", () => {
 
 describe("hesabın göründüğü sayfalar", () => {
   it("borçla ilgili sözlük terimlerinde görünür, birikim ve bütçe terimlerinde görünmez", () => {
-    for (const slug of ["asgari-odeme", "kredi-karti-borcu", "ek-hesap-kmh", "kmh-borcu", "faiz", "gecikme-faizi", "akdi-faiz", "borc-yapilandirma", "kart-yapilandirma", "tasfiye", "borc-kapatma-plani", "icra-takibi", "kalan-anapara"])
+    for (const slug of ["asgari-odeme", "kredi-karti-borcu", "ek-hesap-kmh", "kmh-borcu", "faiz", "gecikme-faizi", "akdi-faiz", "borc-yapilandirma", "kart-yapilandirma", "borc-kapatma-plani", "icra-takibi", "kalan-anapara"])
       assert.ok(sozlukHesabiGosterilsinMi(finansalSozlukTerimi(slug)), slug);
-    for (const slug of ["alacak", "bank-run", "mevduat-faizi", "stopaj", "butce", "enflasyon", "politika-faizi", "kur-makasi"])
+    for (const slug of ["alacak", "tasfiye", "bank-run", "mevduat-faizi", "stopaj", "butce", "enflasyon", "politika-faizi", "kur-makasi"])
       assert.equal(sozlukHesabiGosterilsinMi(finansalSozlukTerimi(slug)), false, slug);
     assert.equal(sozlukHesabiGosterilsinMi(null), false);
   });

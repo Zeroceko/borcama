@@ -6,6 +6,18 @@ import { gunDetayi, gunlukSeri, gunYorumu, oncekiOrtalama, sayfaAdi } from "./gu
 const sayi = (v) => (v === null || v === undefined ? "—" : new Intl.NumberFormat("tr-TR").format(v));
 const gunAdi = (gun, uzun = false) => new Intl.DateTimeFormat("tr-TR", { timeZone: "UTC", day: "numeric", month: uzun ? "long" : "short", weekday: uzun ? "long" : "short" }).format(new Date(`${gun}T12:00:00Z`));
 
+const YER_ADLARI = {
+  sozluk_hesap: "Sözlük · mini hesap",
+  rehber_hesap: "Rehber · mini hesap",
+  sozluk_yapiskan: "Sözlük · mobil alt çubuk",
+  rehber_yapiskan: "Rehber · mobil alt çubuk",
+  tasfiye_birikim: "Tasfiye · birikim kutusu",
+  bank_run_birikim: "Bank run · birikim kutusu",
+  sozluk_son: "Sözlük · sayfa sonu",
+  rehber_son: "Rehber · sayfa sonu",
+  alt_cta: "Araç · alt bağlantı",
+};
+
 // CRM Günlük ekranı: seçilen günün trafiği, kaynakları, giriş sayfaları ve
 // kayıt adımları; altta son 30 günün gün gün tablosu.
 export default function Gunluk({ veri }) {
@@ -57,6 +69,13 @@ export default function Gunluk({ veri }) {
           <Liste satirlar={detay.sayfalar} ad={(p) => sayfaAdi(p.ad)} urune />
         </section>
       </div>
+
+      {detay.yerler.length > 0 && (
+        <section className="crm-kart crm-ilgi">
+          <h3 className="crm-arac-baslik">İçerikten ürüne geçtiği yer <small>Oturumun ilk tıkladığı blok</small></h3>
+          <Liste satirlar={detay.yerler} ad={(y) => YER_ADLARI[y.ad] || y.ad} />
+        </section>
+      )}
 
       <section className="crm-kart">
         <h2>Son 30 gün <small>Satıra basınca o gün açılır</small></h2>

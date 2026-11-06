@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.82.0] - 2026-11-06
+
+Web ve iOS aynı sürüm (iOS build 54). Değişiklik yalnız web içerik sayfalarında ve CRM'de; iPhone uygulamasına etkisi yok.
+
 ### Eklendi
 
 - Finansal Sözlük'teki borçla ilgili terimlerde (kredi kartı, borç yönetimi, faiz, kredi, KMH, icra gibi) ve kredi kartı/borç rehberlerinde, tanımın hemen altında "Borcum ne zaman biter?" mini hesabı var: borç tutarını, aylık ödemeyi ve faizi yazınca tahmini kapanış süresini ve toplam faizi gösteriyor; faiz alanına örnek olarak TCMB'nin Kasım 2026 orta kademe azami kart faizi (%3,75) yazılı ve değiştirilebiliyor. Yazılan tutarlar kayıt bağlantısına ve ölçüme eklenmiyor.
@@ -13,6 +17,7 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 ### Değişti
 
 - Ölçüm: içerik sayfalarındaki kayıt bağlantıları ve mini hesap sonucu, olayın `content` alanında hangi yerleşimden geldiğini taşıyor (sozluk_hesap, rehber_hesap, sozluk_yapiskan, rehber_yapiskan, tasfiye_birikim, bank_run_birikim, sozluk_son, rehber_son, alt_cta). Yeni olay adı veya veritabanı değişikliği yok.
+- CRM Günlük ekranında "İçerikten ürüne geçtiği yer" listesi var: o gün içerik sayfalarından ürüne geçen oturumların hangi bloktan (mini hesap, mobil çubuk, birikim kutusu, sayfa sonu) geldiği ve kaçının kayıt ekranına ulaştığı görülüyor.
 
 ## [1.81.0] - 2026-11-06
 
