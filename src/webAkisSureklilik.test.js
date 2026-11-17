@@ -219,8 +219,11 @@ test("B8/B13: web bitişi yenilemesiz, iOS yeniden yükler; kurulum sonrası tek
   assert.match(onboarding, /window\.location\.assign\("\/summary"\)/);
   const app = await oku("./App.jsx");
   assert.match(app, /onBitti=\{kurulumuBitir\}/);
-  assert.match(app, /bt-aktivasyon bt-aktivasyon-devam/);
-  // Kurulumdan sonraki kartta "Adım n/3" sayacı yok.
-  const devam = app.slice(app.indexOf("if (kurulumSonrasi) {"), app.indexOf("const aktifAdim"));
-  assert.doesNotMatch(devam, /aktivasyon\.sayac/);
+  // Kurulum sonrası tek kart: Bugün'ün en üstündeki "Bugün yapman gereken"
+  // kartı; ayrı aktivasyon kutusu yok. Kurulumdan sonra "Adım n/3" sayacı
+  // gösterilmez (bugunAksiyonu.test.js davranışı doğrular).
+  assert.match(app, /<BugunAksiyonKarti aksiyon=\{bugunAksiyonu\}/);
+  assert.doesNotMatch(app, /<AktivasyonKutusu/);
+  const aksiyon = await oku("./bugunAksiyonu.js");
+  assert.match(aksiyon, /adim: kurulumSonrasi \? null/);
 });

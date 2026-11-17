@@ -104,7 +104,7 @@ export const tr = {
   "kabuk.rehber.2.etiket": "Ödemeler",
   "kabuk.rehber.2.baslik": "İlk planın ödeme kaydıyla güncellensin.",
   "kabuk.rehber.2.aciklama": "Bekleyen ödemeleri tek listede gör. Kart ödemeni minimum, kısmi veya tamamı olarak gir; kalan tutarlar kendiliğinden güncellensin.",
-  "kabuk.rehber.2.madde1": "Toplam borç ile zorunlu minimumu ayrı gör",
+  "kabuk.rehber.2.madde1": "Toplam borcunu ve bu ay en az ödemen gerekeni ayrı gör",
   "kabuk.rehber.2.madde2": "Ödeme kayıtlarını geçmişte dönem bazında kontrol et",
   "kabuk.rehber.2.kartBaslik": "Aylık ödeme listesi",
   "kabuk.rehber.2.kartDeger": "%50 tamamlandı",

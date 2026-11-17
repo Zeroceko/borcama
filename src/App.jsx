@@ -178,6 +178,7 @@ import {
   getActivationState,
   getMonthlyBalancePresentation,
 } from "./productActivation.js";
+import { bugunAksiyonunuSec } from "./bugunAksiyonu.js";
 import { buildTodayDebtPlan } from "./todayDebtPlan.js";
 import {
   expenseInstallmentAmountForPeriod,
@@ -598,7 +599,7 @@ const CSS = hoverKoru(`
 .bt-banka-bar div{height:100%;background:${LIME}}
 
 .bt-hero2{background:var(--summary-soft);border:1px solid var(--line-soft);border-radius:20px;padding:clamp(18px,4vw,30px)}
-.bt-bugun-aksiyon{min-width:0;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-areas:"ikon icerik" "ikon aksiyon";column-gap:13px;row-gap:13px;align-content:center;padding:18px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:18px;background:var(--panel);box-shadow:0 10px 24px #14160f0a}.bt-bugun-aksiyon.acil{border-left-color:${CORAL};background:color-mix(in srgb,${CORAL} 7%,var(--panel))}.bt-bugun-aksiyon-ikon{grid-area:ikon;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK}}.bt-bugun-aksiyon.acil .bt-bugun-aksiyon-ikon{background:${CORAL}}.bt-bugun-aksiyon-icerik{grid-area:icerik;min-width:0;align-self:center}.bt-bugun-aksiyon h3{margin:0;color:var(--text);font:800 clamp(20px,2.5vw,25px)/1.08 'Space Grotesk',sans-serif}.bt-bugun-aksiyon p{margin:7px 0 0;color:var(--dim);font-size:12px;line-height:1.45}.bt-bugun-aksiyon p b{color:var(--text)}.bt-bugun-aksiyon .bt-btn{grid-area:aksiyon;justify-self:start;min-height:40px}
+.bt-bugun-aksiyon{min-width:0;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-areas:"ikon icerik" "ikon aksiyon";column-gap:13px;row-gap:13px;align-content:center;padding:18px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:18px;background:var(--panel);box-shadow:0 10px 24px #14160f0a}.bt-bugun-yapilacak.acil{border-left-color:${CORAL};background:color-mix(in srgb,${CORAL} 7%,var(--panel))}.bt-bugun-aksiyon-ikon{grid-area:ikon;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK}}.bt-bugun-yapilacak.acil .bt-bugun-aksiyon-ikon{background:${CORAL}}.bt-bugun-aksiyon-icerik{grid-area:icerik;min-width:0;align-self:center}.bt-bugun-aksiyon h3{margin:0;color:var(--text);font:800 clamp(20px,2.5vw,25px)/1.08 'Space Grotesk',sans-serif}.bt-bugun-aksiyon p{margin:7px 0 0;color:var(--dim);font-size:12px;line-height:1.45}.bt-bugun-aksiyon p b{color:var(--text)}.bt-bugun-aksiyon .bt-btn{grid-area:aksiyon;justify-self:start;min-height:40px}
 .bt-bugun-odemeler{background:var(--summary-soft);border:1px solid var(--line-soft);border-radius:20px;padding:clamp(18px,4vw,26px)}.bt-bugun-bolum-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.bt-bugun-bolum-head h2{margin:0;color:var(--text);font:800 clamp(20px,3vw,25px)/1.1 'Space Grotesk',sans-serif}.bt-bugun-bolum-head p{margin:5px 0 0;color:var(--dim);font-size:11.5px}.bt-bugun-bolum-head .bt-link{white-space:nowrap}.bt-bugun-odeme-listesi{display:grid;gap:8px}.bt-bugun-odeme{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel)}.bt-bugun-odeme-ikon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:${LIME};color:${INK};font:800 11px 'JetBrains Mono',monospace}.bt-bugun-odeme.gecikmis .bt-bugun-odeme-ikon{background:${CORAL}}.bt-bugun-odeme strong{display:block;color:var(--text);font-size:13.5px;line-height:1.25}.bt-bugun-odeme small{display:block;margin-top:3px;color:var(--dim);font-size:11px}.bt-bugun-odeme.gecikmis small{color:${CORAL};font-weight:750}.bt-bugun-odeme-tutar{text-align:right}.bt-bugun-odeme-tutar b{display:block;color:var(--text);font:750 14px 'JetBrains Mono',monospace}.bt-bugun-odeme-tutar span{display:block;margin-top:3px;color:var(--dim);font-size:11px}.bt-bugun-odeme-bos{padding:20px;border:1px dashed var(--line-soft);border-radius:14px;background:var(--panel);color:var(--dim);font-size:12px;text-align:center}
 .bt-bugun-icgoru{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px 17px;border:1px solid var(--line-soft);border-left:5px solid ${LIME};border-radius:17px;background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:0 7px 20px #14160f08}.bt-bugun-icgoru:hover{background:color-mix(in srgb,${LIME} 8%,var(--panel))}.bt-bugun-icgoru>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,${LIME} 45%,var(--panel2));color:${INK}}.bt-bugun-icgoru strong{display:block;font-size:13.5px}.bt-bugun-icgoru small{display:block;margin-top:3px;color:var(--dim);font-size:11px;line-height:1.4}
 .bt-bugun-icgoruler{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.bt-pro-senaryo{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border:1px solid color-mix(in srgb,${LIME} 55%,var(--line-soft));border-radius:22px;background:linear-gradient(135deg,#173c30 0%,#0b2d25 68%,#12382e 100%);color:#f8f5e8;box-shadow:7px 7px 0 color-mix(in srgb,${CORAL} 78%,transparent)}.bt-pro-senaryo:after{content:"";position:absolute;right:-45px;top:-55px;width:145px;height:145px;border-radius:50%;background:color-mix(in srgb,${LIME} 76%,transparent);opacity:.88}.bt-pro-senaryo-ust{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#dbe7d9;font-size:11px;font-weight:750}.bt-pro-senaryo-rozet{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid color-mix(in srgb,${LIME} 75%,transparent);border-radius:999px;background:#0b241e;color:${LIME};font-weight:850}.bt-pro-senaryo-ana{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.bt-pro-senaryo h2{max-width:720px;margin:0;color:#fffaf0;font:800 clamp(25px,4vw,36px)/1.04 'Space Grotesk',sans-serif}.bt-pro-senaryo p{max-width:760px;margin:10px 0 0;color:#c7d1ca;font-size:12.5px;line-height:1.55}.bt-pro-senaryo .bt-btn{white-space:nowrap}.bt-pro-senaryo-metrikler{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:24px;overflow:hidden;border:1px solid #ffffff26;border-radius:15px;background:#ffffff26}.bt-pro-senaryo-metrikler>div{padding:15px 17px;background:#0d2b24}.bt-pro-senaryo-metrikler span{display:block;color:#aebdb5;font-size:11px;line-height:1.35}.bt-pro-senaryo-metrikler strong{display:block;margin-top:6px;color:#fffaf0;font:750 clamp(15px,2.4vw,19px) 'JetBrains Mono',monospace}.bt-pro-senaryo .bt-pro-senaryo-not{position:relative;z-index:1;margin:12px 0 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0d;color:#e6ece7}.bt-pro-senaryo.kilitli{background:linear-gradient(135deg,#173c30,#12382e)}
@@ -611,6 +612,7 @@ const CSS = hoverKoru(`
 @media(max-width:700px){.bt-plan-senaryo-ust{flex-direction:column;gap:14px}.bt-plan-senaryo-grid{grid-template-columns:1fr 1fr}.bt-plan-senaryo-not{grid-template-columns:1fr}.bt-plan-karar{grid-template-columns:1fr}.bt-plan-cozum{padding:15px 13px}.bt-plan-cozum-actions{display:grid;grid-template-columns:1fr}.bt-plan-cozum-actions .bt-btn{width:100%}.bt-plan-senaryo-actions{justify-content:stretch}.bt-plan-senaryo-actions .bt-btn{width:100%}}
 @media(max-width:620px){.bt-plan-kisayol{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-plan-kisayol-ikon{width:38px;height:38px}.bt-plan-kisayol .bt-btn{grid-column:1/-1;width:100%;justify-content:center}}
 @media(max-width:700px){.bt-aktivasyon{grid-template-columns:1fr;gap:18px;padding:18px}.bt-aktivasyon-aksiyon,.bt-aktivasyon-aksiyon>.bt-btn{width:100%;justify-self:stretch}.bt-aktivasyon-aksiyon>.bt-btn{justify-content:center}.bt-aktivasyon-aksiyon{justify-items:stretch}.bt-aktivasyon-ilerleme{max-width:none}}
+.bt-bugun-yapilacak .bt-bugun-yapilacak-metin{margin:0;color:var(--text);font:700 clamp(17px,2.3vw,21px)/1.32 'Space Grotesk',sans-serif;text-wrap:pretty}.bt-bugun-yapilacak.acil{border-color:color-mix(in srgb,${CORAL} 62%,var(--line-soft));background:linear-gradient(110deg,color-mix(in srgb,${CORAL} 12%,var(--panel)),var(--panel))}.bt-bugun-yapilacak.acil .bt-aktivasyon-sayac{color:color-mix(in srgb,${CORAL} 78%,var(--text))}.bt-bugun-yapilacak .bt-aktivasyon-aksiyon{gap:8px}.bt-bugun-yapilacak .bt-aktivasyon-aksiyon .bt-btn{white-space:nowrap}
 .bt-aktivasyon.bt-aktivasyon-devam{border:0;background:var(--panel);box-shadow:none}.bt-aktivasyon-devam .bt-aktivasyon-aksiyon{gap:8px}.bt-aktivasyon-ikincil{min-height:36px;padding:6px 4px;border:0;background:none;color:var(--text);font:700 13.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-ozet-kisa-link{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .bt-yasam-butcesi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end}.bt-yasam-butcesi-kopya p{margin:7px 0 0;max-width:520px;color:var(--dim);font-size:13.5px;line-height:1.45}.bt-yasam-butcesi-alan{display:flex;gap:10px;align-items:flex-end}.bt-yasam-butcesi-alan .bt-alan{width:200px;grid-template-rows:auto 44px}.bt-yasam-butcesi-alan .bt-btn{min-height:44px}.bt-yasam-butcesi-sonuc{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;color:var(--dim);font-size:13px}.bt-yasam-butcesi-sonuc:empty{display:none}.bt-yasam-butcesi-sonuc b{color:var(--text);font-family:'JetBrains Mono',monospace}
 @media(max-width:700px){.bt-yasam-butcesi{grid-template-columns:1fr}.bt-yasam-butcesi-alan .bt-alan{flex:1;width:auto}}
@@ -4067,6 +4069,8 @@ export default function BorcTakip() {
           if (!rehber.oneri) return null;
           // Kurulumda Bugün ekranında büyük kart var; ilk adım atılmadan şerit gösterilmez.
           if (rehber.asama === "kurulum" && (anaSekme === "ozet" || rehber.kurulum.tamamlanan === 0)) return null;
+          // Ödeme hatırlatması Bugün'de üstteki "Bugün yapman gereken" kartında; iki kez söylenmez.
+          if (anaSekme === "ozet" && rehber.oneri.tur === "odeme") return null;
           if (form) return null;
           return <RehberSeridi oneri={rehber.oneri} onAksiyon={rehberAksiyonu} onErtele={(id) => ayarKaydet({ rehber: rehberiErtele(veri.ayarlar?.rehber, id) })} onKapat={(id) => ayarKaydet({ rehber: rehberOnerisiniKapat(veri.ayarlar?.rehber, id) })} />;
         })()}
@@ -6150,60 +6154,33 @@ function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
   );
 }
 
-function AktivasyonKutusu({ durum, onBaslat, kurulumSonrasi = false }) {
-  if (durum.tamam || !durum.siradaki) return null;
-  // Kurulumu bitiren kullanici: borc ve gelir kurulumda girildi; kurulumun
-  // devami olan tek kart (B13), sayac yok.
-  if (kurulumSonrasi) {
-    const hareket = durum.gorevler.find((gorev) => gorev.id === "activity");
-    if (!hareket || hareket.tamam) return null;
-    return (
-      <section className="bt-aktivasyon bt-aktivasyon-devam" aria-label={t("ozet.aktivasyon.sonAdimAria")}>
-        <div className="bt-aktivasyon-kopya">
-          <h2>{t("ozet.aktivasyon.sonAdimBaslik")}</h2>
-          <p>{t("ozet.aktivasyon.sonAdimAciklama")}</p>
-        </div>
-        <div className="bt-aktivasyon-aksiyon">
-          <button className="bt-btn birincil" type="button" onClick={() => onBaslat(hareket)}>
-            {t("ozet.aktivasyon.harcamaEkle")} <ChevronRight size={16} />
-          </button>
-          <button className="bt-aktivasyon-ikincil" type="button" onClick={() => onBaslat({ id: "payment" })}>
-            {t("ozet.aktivasyon.odemeGir")}
-          </button>
-        </div>
-      </section>
-    );
-  }
-  const aktifAdim = Math.min(durum.tamamlanan + 1, durum.toplam);
+// Bugün'ün en üstündeki tek talimat: bir cümle, bir ana düğme. Seçim mantığı
+// bugunAksiyonu.js'te; kurulum adımı da buradan gösterilir (ayrı aktivasyon
+// kutusu yok). Kurulumu bitiren kullanıcıda (B13) "Adım n/3" sayacı yok.
+function BugunAksiyonKarti({ aksiyon, onAksiyon }) {
+  if (!aksiyon?.aksiyon) return null;
   return (
-    <section className="bt-aktivasyon" aria-label={t("ozet.aktivasyon.aria")}>
+    <section
+      className={"bt-aktivasyon bt-bugun-yapilacak " + (aksiyon.ton || "")}
+      aria-label={t("ozet.bugunAksiyon.baslik")}
+      data-aksiyon={aksiyon.tur}
+    >
       <div className="bt-aktivasyon-kopya">
         <span className="bt-aktivasyon-sayac">
-          {t("ozet.aktivasyon.sayac", { aktif: aktifAdim, toplam: durum.toplam })}
+          {t("ozet.bugunAksiyon.baslik")}
+          {aksiyon.adim ? ` · ${t("ozet.bugunAksiyon.sayac", aksiyon.adim)}` : ""}
         </span>
-        <h2>{durum.siradaki.baslik}</h2>
-        <p>{durum.siradaki.aciklama}</p>
-        <div
-          className="bt-aktivasyon-ilerleme"
-          aria-label={t("ozet.aktivasyon.ilerlemeAria", { tamam: durum.tamamlanan, toplam: durum.toplam })}
-        >
-          {durum.gorevler.map((gorev, index) => (
-            <span
-              className={gorev.tamam ? "tamam" : index === durum.tamamlanan ? "sirada" : ""}
-              key={gorev.id}
-              aria-hidden="true"
-            />
-          ))}
-        </div>
+        <p className="bt-bugun-yapilacak-metin">{aksiyon.metin}</p>
       </div>
       <div className="bt-aktivasyon-aksiyon">
-        <button
-          className="bt-btn birincil"
-          type="button"
-          onClick={() => onBaslat(durum.siradaki)}
-        >
-          {durum.tamamlanan === 0 ? t("ozet.aktivasyon.basla") : t("ortak.devamEt")} <ChevronRight size={16} />
+        <button className="bt-btn birincil" type="button" onClick={() => onAksiyon(aksiyon.aksiyon)}>
+          {aksiyon.aksiyon.etiket} <ChevronRight size={16} />
         </button>
+        {aksiyon.ikincil && (
+          <button className="bt-aktivasyon-ikincil" type="button" onClick={() => onAksiyon(aksiyon.ikincil)}>
+            {aksiyon.ikincil.etiket}
+          </button>
+        )}
       </div>
     </section>
   );
@@ -6351,6 +6328,56 @@ function Ozet({
     borcsuzlukSenaryosu.status === "ok" && onerilenBorcsuzlukSenaryosu?.status === "ok"
       ? Math.max(borcsuzlukSenaryosu.months - onerilenBorcsuzlukSenaryosu.months, 0)
       : 0;
+  // Bugün yapman gereken: tek kart, tek düğme (bugunAksiyonu.js).
+  const aylikEksik = borcsuzlukSenaryosu.status === "structural_gap"
+    ? Math.max(borcsuzlukSenaryosu.monthlyGap || 0, 0)
+    : aylikDenge.tutar !== null && aylikDenge.tutar < 0
+      ? -aylikDenge.tutar
+      : 0;
+  const enCokKategori = buAyHarcama.adet > 0
+    ? Object.entries(buAyHarcama.kategoriler || {})
+        .filter(([kategori, tutar]) => kategori && kategori !== "undefined" && tutar > 0)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || null
+    : null;
+  const odemeKaynagi = (odeme) => {
+    const id = String(odeme.id || "");
+    if (id.startsWith("kart-")) return (veri?.cards || []).find((k) => "kart-" + k.id === id);
+    if (id.startsWith("kredi-")) return (veri?.loans || []).find((k) => "kredi-" + k.id === id);
+    return null;
+  };
+  const bugunAksiyonu = bugunAksiyonunuSec({
+    odemeler: yaklasan.map((odeme) => {
+      const eklendi = odemeKaynagi(odeme)?.eklendi;
+      const eklendiTarih = eklendi ? new Date(eklendi) : null;
+      return {
+        ...odeme,
+        gun: kalanGun(odeme.tarih),
+        eklendiGun: eklendiTarih && !Number.isNaN(eklendiTarih.getTime()) ? kalanGun(eklendiTarih) : undefined,
+      };
+    }),
+    aktivasyon,
+    kurulumSonrasi,
+    aylikEksik,
+    azaltimYetmez: onerilenBorcsuzlukSenaryosu?.status === "structural_gap",
+    yasamHarcamasi: borcsuzlukSenaryosu.status === "structural_gap"
+      ? borcsuzlukSenaryosu.livingBudget
+      : aylikDenge.tahmini
+        ? yasamButcesi
+        : buAyHarcama.adet > 0
+          ? buAyHarcama.toplam
+          : null,
+    enCokKategori: enCokKategori ? tDeger(enCokKategori) : null,
+    artan: aylikDenge.tutar !== null && aylikDenge.tutar > 0 ? aylikDenge.tutar : 0,
+    enPahaliBorc: bugunBorcPlani.priorityItems[0] || null,
+    // Kapatma sırası Pro'da; ücretsiz kullanıcıya borç adı verilmez.
+    borcAdiGoster: Boolean(proAktif),
+    tutarYaz: (tutar, birim) => tutarGoster(tutar, birim),
+  });
+  const bugunAksiyonunuUygula = (aksiyon) => {
+    if (!aksiyon) return;
+    if (aksiyon.hedef === "aktivasyon") return aktivasyonAdiminiBaslat(aksiyon.gorev);
+    setSekme(aksiyon.hedef);
+  };
   const odemeZamani = (odeme) => {
     const gun = kalanGun(odeme.tarih);
     if (gun < 0) return gunGecikti(-gun);
@@ -6369,15 +6396,15 @@ function Ozet({
         <span className="bt-bugun-bos-ikon"><ReceiptText size={25} /></span>
         <h1>{t("ozet.bos.baslik")}</h1>
         <p>{t("ozet.bos.aciklama")}</p>
-        <AktivasyonKutusu durum={aktivasyon} kurulumSonrasi={kurulumSonrasi} onBaslat={aktivasyonAdiminiBaslat} />
+        <BugunAksiyonKarti aksiyon={bugunAksiyonu} onAksiyon={bugunAksiyonunuUygula} />
       </div>
     );
   }
 
   return (
     <div className="bt-stack">
-      {!onizleme && !aktivasyon.tamam && (
-        <AktivasyonKutusu durum={aktivasyon} kurulumSonrasi={kurulumSonrasi} onBaslat={aktivasyonAdiminiBaslat} />
+      {!onizleme && (
+        <BugunAksiyonKarti aksiyon={bugunAksiyonu} onAksiyon={bugunAksiyonunuUygula} />
       )}
       {/* Onizlemede plan adiminda, kurulumun plan kartiyla ayni tutar en ustte. */}
       {onizleme && ["plan", "hazir"].includes(onizleme.adim) && aylikDenge.tutar !== null && (

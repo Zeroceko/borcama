@@ -6,11 +6,11 @@ export const tr = {
   "plan.borclaraDon": "Borçlara dön",
   "plan.faizYuku": "Tahmini aylık faiz yükü",
 
-  "plan.kilit.baslik": "Borç planından ilk sinyalin hazır",
+  "plan.kilit.baslik": "Borç planından ilk önerin hazır",
   "plan.kilit.aciklama":
     "Ücretsiz planda borçlarını ve ödemelerini takip edebilirsin. Pro, bu kayıtlardan hangi borca önce odaklanacağını ve harcama değişikliklerinin olası sonucunu hesaplar.",
-  "plan.kilit.kayitTekil": "{n} değişken faizli borç kaydına göre",
-  "plan.kilit.kayitCogul": "{n} değişken faizli borç kaydına göre",
+  "plan.kilit.kayitTekil": "Her ay faiz işleyen {n} borcuna göre",
+  "plan.kilit.kayitCogul": "Her ay faiz işleyen {n} borcuna göre",
   "plan.kilit.proBaslik": "Bu faiz yükünü azaltmak için kişisel sıranı gör",
   "plan.kilit.proAciklama":
     "Pro; gelirini, sabit kredi taksitlerini ve yaşam harcamanı birlikte değerlendirir. Çığ ve kartopu yöntemlerini, borçsuzluk süresini ve harcama senaryolarını tek planda karşılaştırır.",
@@ -49,19 +49,19 @@ export const tr = {
   "plan.hedefAyCogul": "Hedef: {n} ay",
   "plan.ekPlan": "Ek plan gerekir",
 
-  "plan.acik.baslik": "AYLIK BÜTÇE AÇIĞIN",
+  "plan.acik.baslik": "BU AY EKSİK KALAN",
   "plan.acik.aciklama":
-    "Zorunlu ödemeleri aksatmamak için gelir, harcama veya ödeme planında bu kadar alan açmalısın.",
+    "Ödemelerini aksatmamak için gelirini artırman, harcamanı kısman ya da ödemelerini hafifletmen gereken tutar.",
   "plan.sinir.baslik": "GÜVENLİ HARCAMA SINIRIN",
-  "plan.sinir.aciklama": "Mevcut kayıtlarına göre zorunlu ödemeleri aksatmayan yaklaşık sınır.",
+  "plan.sinir.aciklama": "Kayıtlarına göre ödemelerini aksatmadan harcayabileceğin yaklaşık tutar.",
   "plan.detay.nasil": "Rakamlar nasıl hesaplandı?",
   "plan.aylikGelir": "Aylık gelir",
   "plan.sabitTaksit": "Sabit kredi taksitleri",
   "plan.yasamHarcamasi": "Mevcut yaşam harcaması",
   "plan.enAzOdeme": "Planda kart ve KMH için gereken en az ödeme",
   "plan.kalan": "Kredi ve yaşam giderinden sonra kalan",
-  "plan.kalanNot": "Eksi tutar, kart ödemelerinden önce de açık olduğunu gösterir",
-  "plan.toplamAcik": "Toplam aylık bütçe açığı",
+  "plan.kalanNot": "Eksi tutar, kart ödemelerinden önce bile paranın yetmediğini gösterir",
+  "plan.toplamAcik": "Bu ay eksik kalan",
   "plan.toplamAcikNot": "Yaşam giderleri, kredi taksitleri ve kart/KMH asgarileri birlikte",
   "plan.onerilenAylik": "Önerilen aylık yaşam harcaması",
   "plan.gunluk": "Bu bütçenin günlük karşılığı",
@@ -70,10 +70,10 @@ export const tr = {
   "plan.kapanabilirCogul": "Kart ve KMH yaklaşık {n} ayda kapanabilir",
   "plan.asiyorTekil": "Kart ve KMH borcunun kapanması {n} ayı aşıyor",
   "plan.asiyorCogul": "Kart ve KMH borcunun kapanması {n} ayı aşıyor",
-  "plan.acikNeden": "Açık neden oluşuyor?",
+  "plan.acikNeden": "Param neden yetmiyor?",
   "plan.planNasil": "Plan nasıl hesaplandı?",
   "plan.acikAciklama":
-    "{gelir} gelirden {taksit} kredi taksiti ve {yasam} mevcut yaşam harcaması çıkınca kart ve KMH için {kalan} kalıyor. Eksi tutar varsa bu da açığa dahildir. Planda en az {enAz} ödenmesi gerektiği için {acik} eksik oluşuyor. Güvenlik tamponu yalnızca bu zorunlu ödemeler karşılandıktan sonra biriktirilir; bu açığa dahil değildir.",
+    "{gelir} gelirinden {taksit} kredi taksiti ve {yasam} yaşam harcaması çıkınca kart ve KMH için {kalan} kalıyor. Eksi tutar varsa o da eksiğe eklenir. Kartlara en az {enAz} ödemen gerektiği için {acik} eksik kalıyor. Kenara ayrılan para ancak bu ödemeler yapıldıktan sonra birikir; bu eksiğe dahil değil.",
   "plan.planAciklama":
     "Gelirden kredi taksitleri ve yaşam harcaması düşülür. Kart/KMH faizi vergi ve fonlarla birlikte ay ay hesaplanır; asgariler önce ödenir, kalan para en yüksek maliyetli borca gider. Güvenlik tamponu bir kez birikir ve yeni kart/KMH borcu eklenmediği varsayılır.",
   "plan.planAciklamaVergisiz":
@@ -81,19 +81,19 @@ export const tr = {
 
   "plan.cozum.baslik": "Şimdi yapacağın 2 adım",
   "plan.cozum.amac":
-    "Amaç, açığı büyütmeden zorunlu ödemeleri karşılamak ve yeni borç oluşmasını durdurmak.",
+    "Amaç, eksiği büyütmeden ödemelerini yapmak ve yeni borç oluşmasını durdurmak.",
   "plan.cozum.adim1Baslik": "Yeni kart ve KMH borcu oluşturma.",
-  "plan.cozum.adim1": "Yeni harcama, bu ayki açığı doğrudan büyütür.",
+  "plan.cozum.adim1": "Her yeni harcama bu ayki eksiği büyütür.",
   "plan.cozum.yetersizBaslik": "Harcama kısıntısı tek başına yeterli değil.",
   "plan.cozum.yetersiz":
-    "Yaşam harcaması ayrılmasa bile zorunlu ödemeler için ayda {tutar} eksik kalıyor. En az bu tutarda ek gelir gerekir veya bankanla ödeme planı ve yapılandırma seçeneklerini görüşmelisin.",
+    "Hiç harcama yapmasan bile ödemeler için ayda {tutar} eksik kalıyor. Ya en az bu kadar ek gelir bulmalısın ya da bankanla ödeme planı ve yapılandırmayı konuşmalısın.",
   "plan.cozum.sinirBaslik": "Yaşam harcamasını bu ay en fazla {tutar} seviyesinde tut.",
   "plan.cozum.sinir": "Bu, mevcut düzeyden {tutar} yani yaklaşık %{yuzde} azaltım demek.",
   "plan.cozum.otuzBaslik": "%30 azaltım daha gerçekçiyse",
   "plan.cozum.otuz":
-    ", aylık yaşam bütçen {butce} olur; zorunlu ödemeler için yine {acik} eksik kalır. Bu fark için ek gelir yaratman veya bankanla ödeme planı ve yapılandırma seçeneklerini görüşmen gerekir.",
+    ", aylık yaşam bütçen {butce} olur; ödemeler için yine {acik} eksik kalır. Bu fark için ek gelir bulman ya da bankanla ödeme planı ve yapılandırmayı konuşman gerekir.",
   "plan.harcamalariIncele": "Harcamaları incele",
-  "plan.zorunluAc": "Zorunlu ödemeleri aç",
+  "plan.zorunluAc": "Ödemelerini aç",
 
   "plan.senaryoKarsilastir": "Farklı harcama senaryolarını karşılaştır",
   "plan.senaryo.azalirsa": "Yaşam harcaması %{yuzde} azalırsa",
@@ -102,8 +102,8 @@ export const tr = {
   "plan.senaryo.kapanirTekil": "Kart ve KMH yaklaşık {n} ayda kapanır; tahmini faiz {faiz}.",
   "plan.senaryo.kapanirCogul": "Kart ve KMH yaklaşık {n} ayda kapanır; tahmini faiz {faiz}.",
   "plan.senaryo.altmis": "Kart ve KMH borcunun kapanması 60 ayı aşar.",
-  "plan.senaryo.acik": "Zorunlu ödemeler için ayda {tutar} açık kalır.",
-  "plan.senaryo.acikGider": "Giderler ve zorunlu borç ödemeleri için ayda {tutar} açık kalır.",
+  "plan.senaryo.acik": "Ödemeler için ayda {tutar} eksik kalır.",
+  "plan.senaryo.acikGider": "Giderler ve borç ödemeleri için ayda {tutar} eksik kalır.",
 
   "plan.mevcutPlan": "Mevcut plan",
   "plan.yaklasikTekil": "Yaklaşık {n} ay",
@@ -168,10 +168,10 @@ export const tr = {
   "plan.senaryoMetni.missing_spending_history.baslik2": "Harcama hedefini hesaplamak için birkaç kayıt daha ekle",
   "plan.senaryoMetni.missing_spending_history.neden":
     "Borcama rastgele günlük limit üretmez; kayıtlı ekstre ve harcamaları kullanır.",
-  "plan.senaryoMetni.structural_gap.baslik1": "Gelir, mevcut giderler ve zorunlu borç ödemelerine yetmiyor",
-  "plan.senaryoMetni.structural_gap.baslik2": "Bu ayın zorunlu ödemelerinde bütçe açığı var",
+  "plan.senaryoMetni.structural_gap.baslik1": "Gelirin; harcamalarına ve borç ödemelerine yetmiyor",
+  "plan.senaryoMetni.structural_gap.baslik2": "Bu ay paran ödemelere yetmiyor",
   "plan.senaryoMetni.structural_gap.neden":
-    "Kredi taksitleri, mevcut yaşam harcaması ve kart/KMH için gereken en az ödeme aynı ayda geliri aşıyor.",
+    "Kredi taksitlerin, harcamaların ve kartlara ödemen gereken en az tutar bu ay gelirinden fazla.",
   "plan.senaryoMetni.interest_only.baslik1": "Kartlara kalan bütçe faizi ancak karşılıyor",
   "plan.senaryoMetni.interest_only.baslik2": "Ödeme var, ancak ana para yeterince küçülmüyor",
   "plan.senaryoMetni.interest_only.neden": "Borcu azaltmak için aylık faizin üzerinde ana para ödemesi gerekir.",
@@ -205,8 +205,8 @@ export const en = {
   "plan.kilit.baslik": "Your first debt plan insight is ready",
   "plan.kilit.aciklama":
     "On the free plan you can track your debts and payments. Pro uses these records to work out which debt to focus on first and what spending changes could achieve.",
-  "plan.kilit.kayitTekil": "Based on {n} variable-rate debt",
-  "plan.kilit.kayitCogul": "Based on {n} variable-rate debts",
+  "plan.kilit.kayitTekil": "Based on {n} debt that charges interest every month",
+  "plan.kilit.kayitCogul": "Based on {n} debts that charge interest every month",
   "plan.kilit.proBaslik": "See your personal order for cutting this interest",
   "plan.kilit.proAciklama":
     "Pro looks at your income, fixed loan installments and living expenses together. It compares the avalanche and snowball methods, your time to debt-free and spending scenarios in one plan.",
@@ -256,7 +256,7 @@ export const en = {
   "plan.enAzOdeme": "Minimum card and overdraft payment needed in the plan",
   "plan.kalan": "Left after loans and living expenses",
   "plan.kalanNot": "A negative amount means there's a gap even before card payments",
-  "plan.toplamAcik": "Total monthly budget gap",
+  "plan.toplamAcik": "Short this month",
   "plan.toplamAcikNot": "Living expenses, loan installments and card/overdraft minimums combined",
   "plan.onerilenAylik": "Recommended monthly living expenses",
   "plan.gunluk": "Daily equivalent of this budget",
@@ -265,7 +265,7 @@ export const en = {
   "plan.kapanabilirCogul": "Cards and overdraft could be paid off in about {n} months",
   "plan.asiyorTekil": "Paying off cards and overdraft takes more than {n} month",
   "plan.asiyorCogul": "Paying off cards and overdraft takes more than {n} months",
-  "plan.acikNeden": "Why is there a gap?",
+  "plan.acikNeden": "Why isn't my money enough?",
   "plan.planNasil": "How was the plan calculated?",
   "plan.acikAciklama":
     "From {gelir} of income, after {taksit} in loan installments and {yasam} in current living expenses, {kalan} is left for cards and overdraft. A negative amount is part of the gap too. The plan needs at least {enAz} in payments, so you're short {acik}. The safety buffer is only built after these required payments are covered; it isn't part of this gap.",
@@ -297,8 +297,8 @@ export const en = {
   "plan.senaryo.kapanirTekil": "Cards and overdraft paid off in about {n} month; estimated interest {faiz}.",
   "plan.senaryo.kapanirCogul": "Cards and overdraft paid off in about {n} months; estimated interest {faiz}.",
   "plan.senaryo.altmis": "Paying off cards and overdraft takes more than 60 months.",
-  "plan.senaryo.acik": "A gap of {tutar} a month remains for required payments.",
-  "plan.senaryo.acikGider": "A gap of {tutar} a month remains for expenses and required debt payments.",
+  "plan.senaryo.acik": "Payments are {tutar} short each month.",
+  "plan.senaryo.acikGider": "Expenses and debt payments are {tutar} short each month.",
 
   "plan.mevcutPlan": "Current plan",
   "plan.yaklasikTekil": "About {n} month",
@@ -359,8 +359,8 @@ export const en = {
   "plan.senaryoMetni.missing_spending_history.baslik2": "Add a few more records to calculate a spending goal",
   "plan.senaryoMetni.missing_spending_history.neden":
     "Borcama doesn't make up a daily limit; it uses your saved statements and expenses.",
-  "plan.senaryoMetni.structural_gap.baslik1": "Income doesn't cover current expenses and required debt payments",
-  "plan.senaryoMetni.structural_gap.baslik2": "There's a budget gap in this month's required payments",
+  "plan.senaryoMetni.structural_gap.baslik1": "Your income doesn't cover your spending and debt payments",
+  "plan.senaryoMetni.structural_gap.baslik2": "Your money doesn't cover this month's payments",
   "plan.senaryoMetni.structural_gap.neden":
     "Loan installments, current living expenses and the minimum needed for cards/overdraft exceed income in the same month.",
   "plan.senaryoMetni.interest_only.baslik1": "The budget left for cards barely covers the interest",
