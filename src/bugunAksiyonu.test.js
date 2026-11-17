@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { bugunAksiyonunuSec, haftalikTasarruf, kurtulunanFaiz } from "./bugunAksiyonu.js";
+import { bugunAksiyonunuSec, bugunKartiAnahtari, haftalikTasarruf, kurtulunanFaiz } from "./bugunAksiyonu.js";
 import { getActivationState } from "./productActivation.js";
 
 const tamamAktivasyon = getActivationState({
@@ -161,4 +161,15 @@ test("kurtulunan faiz bakiyeyi aşan tutar için bakiyeyle sınırlanır", () =>
   assert.equal(kurtulunanFaiz({ artan: 10000, borc: { faiz: 5, bakiye: 2000 } }), 100);
   assert.equal(kurtulunanFaiz({ artan: 10000, borc: { faiz: 0, bakiye: 2000 } }), 0);
   assert.equal(kurtulunanFaiz({ artan: 0, borc: { faiz: 5, bakiye: 2000 } }), 0);
+});
+
+test("kapatılan kart o gün gizli; ertesi gün ya da konu değişince yeniden görünür", () => {
+  const gun = new Date(2026, 10, 17, 10);
+  const yarin = new Date(2026, 10, 18, 9);
+  const odeme = { tur: "yaklasan", odeme: { id: "kart-1" }, aksiyon: {} };
+  assert.equal(bugunKartiAnahtari(odeme, gun), "yaklasan:kart-1:2026-11-17");
+  assert.notEqual(bugunKartiAnahtari(odeme, yarin), bugunKartiAnahtari(odeme, gun));
+  assert.notEqual(bugunKartiAnahtari({ ...odeme, odeme: { id: "kredi-2" } }, gun), bugunKartiAnahtari(odeme, gun));
+  assert.equal(bugunKartiAnahtari({ tur: "kurulum", gorev: { id: "activity" } }, gun), "kurulum:activity:2026-11-17");
+  assert.equal(bugunKartiAnahtari(null, gun), null);
 });

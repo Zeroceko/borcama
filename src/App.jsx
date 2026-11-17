@@ -178,7 +178,7 @@ import {
   getActivationState,
   getMonthlyBalancePresentation,
 } from "./productActivation.js";
-import { bugunAksiyonunuSec } from "./bugunAksiyonu.js";
+import { bugunAksiyonunuSec, bugunKartiAnahtari } from "./bugunAksiyonu.js";
 import { buildTodayDebtPlan } from "./todayDebtPlan.js";
 import {
   expenseInstallmentAmountForPeriod,
@@ -613,6 +613,7 @@ const CSS = hoverKoru(`
 @media(max-width:620px){.bt-plan-kisayol{grid-template-columns:38px minmax(0,1fr);padding:13px}.bt-plan-kisayol-ikon{width:38px;height:38px}.bt-plan-kisayol .bt-btn{grid-column:1/-1;width:100%;justify-content:center}}
 @media(max-width:700px){.bt-aktivasyon{grid-template-columns:1fr;gap:18px;padding:18px}.bt-aktivasyon-aksiyon,.bt-aktivasyon-aksiyon>.bt-btn{width:100%;justify-self:stretch}.bt-aktivasyon-aksiyon>.bt-btn{justify-content:center}.bt-aktivasyon-aksiyon{justify-items:stretch}.bt-aktivasyon-ilerleme{max-width:none}}
 .bt-bugun-yapilacak .bt-bugun-yapilacak-metin{margin:0;color:var(--text);font:700 clamp(17px,2.3vw,21px)/1.32 'Space Grotesk',sans-serif;text-wrap:pretty}.bt-bugun-yapilacak.acil{border-color:color-mix(in srgb,${CORAL} 62%,var(--line-soft));background:linear-gradient(110deg,color-mix(in srgb,${CORAL} 12%,var(--panel)),var(--panel))}.bt-bugun-yapilacak.acil .bt-aktivasyon-sayac{color:color-mix(in srgb,${CORAL} 78%,var(--text))}.bt-bugun-yapilacak .bt-aktivasyon-aksiyon{gap:8px}.bt-bugun-yapilacak .bt-aktivasyon-aksiyon .bt-btn{white-space:nowrap}
+.bt-bugun-kart{display:grid;gap:14px;padding:clamp(18px,4vw,24px);border:1px solid var(--line-soft);border-radius:20px;background:var(--panel);box-shadow:0 8px 24px #14160f08}.bt-bugun-kart.acil{border-color:color-mix(in srgb,${CORAL} 55%,var(--line-soft))}.bt-bugun-kart-etiket{color:var(--summary-muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.bt-bugun-kart.acil .bt-bugun-kart-etiket{color:${CORAL}}.bt-bugun-kart-metin{margin:0;color:var(--text);font:700 clamp(17px,2.3vw,21px)/1.32 'Space Grotesk',sans-serif;text-wrap:pretty}.bt-bugun-kart-eylemler{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.bt-bugun-kart-ana,.bt-bugun-kart-ikincil{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 18px;border-radius:999px;font:800 14px 'Space Grotesk',sans-serif;white-space:nowrap;cursor:pointer}.bt-bugun-kart-ana{border:1.5px solid ${INK};background:${LIME};color:${INK};box-shadow:3px 3px 0 ${CORAL}}.bt-bugun-kart-ana:active{transform:translate(2px,2px);box-shadow:1px 1px 0 ${CORAL}}.bt-bugun-kart-ikincil{border:1.5px solid var(--text);background:transparent;color:var(--text)}.bt-bugun-kart-kapat{min-height:44px;margin-left:auto;padding:10px 4px;border:0;background:none;color:var(--dim);font:700 13.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-bugun-bos .bt-bugun-kart{width:100%;margin-top:5px}
 .bt-aktivasyon.bt-aktivasyon-devam{border:0;background:var(--panel);box-shadow:none}.bt-aktivasyon-devam .bt-aktivasyon-aksiyon{gap:8px}.bt-aktivasyon-ikincil{min-height:36px;padding:6px 4px;border:0;background:none;color:var(--text);font:700 13.5px 'Space Grotesk',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.bt-ozet-kisa-link{display:inline;padding:0;border:0;background:none;color:inherit;font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .bt-yasam-butcesi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end}.bt-yasam-butcesi-kopya p{margin:7px 0 0;max-width:520px;color:var(--dim);font-size:13.5px;line-height:1.45}.bt-yasam-butcesi-alan{display:flex;gap:10px;align-items:flex-end}.bt-yasam-butcesi-alan .bt-alan{width:200px;grid-template-rows:auto 44px}.bt-yasam-butcesi-alan .bt-btn{min-height:44px}.bt-yasam-butcesi-sonuc{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;color:var(--dim);font-size:13px}.bt-yasam-butcesi-sonuc:empty{display:none}.bt-yasam-butcesi-sonuc b{color:var(--text);font-family:'JetBrains Mono',monospace}
 @media(max-width:700px){.bt-yasam-butcesi{grid-template-columns:1fr}.bt-yasam-butcesi-alan .bt-alan{flex:1;width:auto}}
@@ -6154,33 +6155,53 @@ function RehberSeridi({ oneri, onAksiyon, onErtele, onKapat }) {
   );
 }
 
-// Bugün'ün en üstündeki tek talimat: bir cümle, bir ana düğme. Seçim mantığı
-// bugunAksiyonu.js'te; kurulum adımı da buradan gösterilir (ayrı aktivasyon
-// kutusu yok). Kurulumu bitiren kullanıcıda (B13) "Adım n/3" sayacı yok.
+// Bugün'ün en üstündeki tek talimat: bir cümle, ana düğme, varsa ikinci
+// düğme ve "Kapat". Seçim mantığı bugunAksiyonu.js'te; kurulum adımı da
+// buradan gösterilir (ayrı aktivasyon kutusu yok). Kurulumu bitiren
+// kullanıcıda (B13) "Adım n/3" sayacı yok. Kapatılan kart o gün gizli kalır.
+const BUGUN_KAPALI_ANAHTARI = "borcama_bugun_kapali";
+function bugunKapaliOku() {
+  try {
+    return localStorage.getItem(BUGUN_KAPALI_ANAHTARI);
+  } catch {
+    return null;
+  }
+}
 function BugunAksiyonKarti({ aksiyon, onAksiyon }) {
-  if (!aksiyon?.aksiyon) return null;
+  const [kapali, setKapali] = useState(bugunKapaliOku);
+  const anahtar = bugunKartiAnahtari(aksiyon);
+  if (!aksiyon?.aksiyon || (anahtar && kapali === anahtar)) return null;
+  const kapat = () => {
+    try {
+      localStorage.setItem(BUGUN_KAPALI_ANAHTARI, anahtar);
+    } catch {
+      /* depolama kapalıysa yalnız bu oturumda gizlenir */
+    }
+    setKapali(anahtar);
+  };
   return (
     <section
-      className={"bt-aktivasyon bt-bugun-yapilacak " + (aksiyon.ton || "")}
+      className={"bt-bugun-kart " + (aksiyon.ton || "")}
       aria-label={t("ozet.bugunAksiyon.baslik")}
       data-aksiyon={aksiyon.tur}
     >
-      <div className="bt-aktivasyon-kopya">
-        <span className="bt-aktivasyon-sayac">
-          {t("ozet.bugunAksiyon.baslik")}
-          {aksiyon.adim ? ` · ${t("ozet.bugunAksiyon.sayac", aksiyon.adim)}` : ""}
-        </span>
-        <p className="bt-bugun-yapilacak-metin">{aksiyon.metin}</p>
-      </div>
-      <div className="bt-aktivasyon-aksiyon">
-        <button className="bt-btn birincil" type="button" onClick={() => onAksiyon(aksiyon.aksiyon)}>
+      <span className="bt-bugun-kart-etiket">
+        {t("ozet.bugunAksiyon.baslik")}
+        {aksiyon.adim ? ` · ${t("ozet.bugunAksiyon.sayac", aksiyon.adim)}` : ""}
+      </span>
+      <p className="bt-bugun-kart-metin">{aksiyon.metin}</p>
+      <div className="bt-bugun-kart-eylemler">
+        <button className="bt-bugun-kart-ana" type="button" onClick={() => onAksiyon(aksiyon.aksiyon)}>
           {aksiyon.aksiyon.etiket} <ChevronRight size={16} />
         </button>
         {aksiyon.ikincil && (
-          <button className="bt-aktivasyon-ikincil" type="button" onClick={() => onAksiyon(aksiyon.ikincil)}>
+          <button className="bt-bugun-kart-ikincil" type="button" onClick={() => onAksiyon(aksiyon.ikincil)}>
             {aksiyon.ikincil.etiket}
           </button>
         )}
+        <button className="bt-bugun-kart-kapat" type="button" onClick={kapat}>
+          {t("ortak.kapat")}
+        </button>
       </div>
     </section>
   );

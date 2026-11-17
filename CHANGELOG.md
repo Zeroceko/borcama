@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.83.2] - 2026-11-18
+
+Web ve iOS aynı sürüm (iOS build 57).
+
+### Değişti
+
+- Bugün ekranındaki "Bugün yapman gereken" kartı uygulamanın kart tasarımına uyduruldu: beyaz kart, büyük harfli etiket, mercan gölgeli ana düğme, çerçeveli ikinci düğme. Karta "Kapat" eklendi; kapatılan kart o gün gizli kalır, ertesi gün ya da yapılacak iş değişince yeniden görünür.
+
 ## [1.83.1] - 2026-11-17
 
 Web ve iOS aynı sürüm (iOS build 56).

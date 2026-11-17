@@ -11,6 +11,16 @@ export const HAFTADA_GUN = 7;
 export const AYDA_HAFTA = 4.3;
 export const YAKLASAN_GUN_SINIRI = 7;
 
+// "Kapat": kart o gün için gizlenir. Anahtar kartın türü, konusu (ödeme ya da
+// kurulum adımı) ve günüdür; ertesi gün ya da yapılacak iş değişince kart
+// yeniden görünür.
+export function bugunKartiAnahtari(aksiyon, tarih = new Date()) {
+  if (!aksiyon?.tur) return null;
+  const konu = aksiyon.odeme?.id ?? aksiyon.odeme?.anahtar ?? aksiyon.gorev?.id ?? "";
+  const gun = [tarih.getFullYear(), String(tarih.getMonth() + 1).padStart(2, "0"), String(tarih.getDate()).padStart(2, "0")].join("-");
+  return `${aksiyon.tur}:${konu}:${gun}`;
+}
+
 const sayi = (deger) => {
   const n = Number(deger);
   return Number.isFinite(n) ? n : 0;
