@@ -114,7 +114,7 @@ export const tr = {
   "onboarding.yasam.kendim": "Kendim yazayım",
   "onboarding.yasam.etiket": "Aylık yaşam harcaması",
   "onboarding.yasam.yanki": "Ay sonunda yaklaşık {tutar} kalır.",
-  "onboarding.yasam.acik": "Ay sonunda yaklaşık {tutar} açık var.",
+  "onboarding.yasam.acik": "Ay sonunda yaklaşık {tutar} eksik kalıyor.",
 
   "onboarding.plan.baslikGri": "İşte",
   "onboarding.plan.baslik": "plan.",

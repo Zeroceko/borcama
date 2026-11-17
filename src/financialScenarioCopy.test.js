@@ -52,6 +52,6 @@ test("senaryo metinleri web'de (tr) bugünkü Türkçe metni gösterir", () => {
   );
   assert.equal(
     FINANCIAL_SCENARIO_COPY.structural_gap.titles[0],
-    "Gelir, mevcut giderler ve zorunlu borç ödemelerine yetmiyor",
+    "Gelirin; harcamalarına ve borç ödemelerine yetmiyor",
   );
 });

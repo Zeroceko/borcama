@@ -4,6 +4,18 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+Web ve iOS (aynı React kodu; iPhone'a yeni build ile gider).
+
+### Eklendi
+
+- Bugün ekranının en üstünde tek bir "Bugün yapman gereken" kartı var: bir cümle ve bir düğme. Sıra: gecikmiş ödeme → 7 gün içindeki ödeme → eksik kurulum adımı (borç, maaş, ilk harcama) → para ayı çıkarmıyorsa tasarruf önerisi → para artıyorsa ne yapacağın → yapılacak bir şey yoksa sakin bir not. Kurulum adımı artık ayrı bir kutuda değil, bu kartta gösteriliyor; ödeme hatırlatması Bugün'de iki kez çıkmıyor.
+- Gelir harcamaya yetmediğinde ücretsiz kullanıcılar da somut öneri görüyor: "Bu ay paran ₺X yetmiyor. Haftada ₺Y daha az harcarsan ayı çıkarırsın." Harcama kaydı varsa en çok para giden kategori de yazıyor; sadece harcamayı kısmak yetmiyorsa bunu açıkça söyleyip borç planına yönlendiriyor.
+- Para artıyorsa Pro kullanıcıya hangi borca yatırırsa ayda yaklaşık ne kadar faizden kurtulacağı, faiz işleyen borcu olmayana kenara koyması öneriliyor.
+
+### Değişti
+
+- Bugün, Plan, Ödemeler, kurulum ve asistan metinleri halk diliyle sadeleşti: "Aylık açık" yerine "Bu ay paran ₺X yetmiyor", "₺X açık" yerine "₺X eksik", "Kalan zorunlu ödeme" yerine "Bu ay ödemen gereken", "Aylık denge" yerine "Ay sonu", "Değişken faizli" yerine "her ay faiz işleyen", "finansal sinyal tarandı" yerine "konuya baktık".
+
 ## [1.82.0] - 2026-11-06
 
 Web ve iOS aynı sürüm (iOS build 54). Değişiklik yalnız web içerik sayfalarında ve CRM'de; iPhone uygulamasına etkisi yok.
