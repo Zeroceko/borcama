@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.83.1] - 2026-11-17
+
+Web ve iOS aynı sürüm (iOS build 56).
+
+### Düzeltildi
+
+- Bugün ekranındaki "Bugün yapman gereken" etiketi koyu temada da okunuyor (renk temaya göre ayarlanıyor; açık temada görünüm aynı).
+
 ## [1.83.0] - 2026-11-17
 
 Web ve iOS aynı sürüm (iOS build 55). Bugün ekranı değişikliği iPhone'a bu build ile gider.
