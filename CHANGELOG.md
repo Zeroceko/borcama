@@ -4,6 +4,10 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.83.0] - 2026-11-17
+
+Web ve iOS aynı sürüm (iOS build 55). Bugün ekranı değişikliği iPhone'a bu build ile gider.
+
 Web ve iOS (aynı React kodu; iPhone'a yeni build ile gider).
 
 ### Eklendi
