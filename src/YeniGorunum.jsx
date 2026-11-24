@@ -25,12 +25,22 @@ const KATEGORI_RENKLERI = ["#cdf564", "#ffb3a6", "#c9b6ff", "#ff6f59", "#9fd0ff"
 const ROZET_RENKLERI = ["#b9c8ff", "#7fd6a6", "#9fd0ff", "#c9b6ff", "#ffb3a6", "#e3d9a8"];
 
 export const YENI_CSS = `
-.bt-feedback-trigger{bottom:calc(84px + env(safe-area-inset-bottom,0px))!important;left:auto!important;right:calc(50% - 280px - 260px)!important}
 @media(max-width:899px){.bt-feedback-trigger{display:none!important}}
 #bt-app-kok{--yg-ok:#2f8a4c;--yg-ok-bg:#e2f2de;--yg-warn:#b87500;--yg-warn-bg:#fbefd2;--yg-bad:#d8432c;--yg-bad-bg:#ffe3dc;--yg-soft:color-mix(in srgb,var(--text) 7%,transparent)}
 .yg-kok{padding-bottom:110px}
 #bt-app-kok.mk-koyu{--yg-ok:#7fd38f;--yg-ok-bg:#1f3322;--yg-warn:#f2bb55;--yg-warn-bg:#3a2e14;--yg-bad:#ff8a74;--yg-bad-bg:#3d1e18}
 .yg-sayfa{max-width:560px;margin:0 auto;display:grid;gap:18px}
+.yg-iki>.yg-kolon-sol,.yg-iki>.yg-kolon-sag{display:contents}
+.yg-iki>.yg-kolon-sag>*{order:1}
+.yg-iki>.yg-kolon-sol>.yg-ikincil{order:2}
+@media(min-width:900px){
+.yg-kok{padding-bottom:48px}
+.yg-sayfa{max-width:none}
+.yg-sayfa.yg-iki{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:start}
+.yg-iki>.yg-kolon-sol,.yg-iki>.yg-kolon-sag{display:grid;gap:18px;align-content:start;min-width:0}
+.yg-iki>.yg-kolon-sol{position:sticky;top:16px}
+.yg-iki>.yg-kolon-sag>*,.yg-iki>.yg-kolon-sol>.yg-ikincil{order:0}
+}
 .yg-ust-etiket{font:700 11px 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
 .yg-manset{background:${LIME};color:${INK};border-radius:22px;padding:20px;box-shadow:5px 5px 0 ${INK}}
 .yg-manset.acil{background:${CORAL}}
@@ -99,21 +109,6 @@ export const YENI_CSS = `
 .yg-sekme[aria-current="page"]{background:${LIME};color:${INK}}
 .yg-fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;border:0;background:${CORAL};color:${INK};box-shadow:3px 3px 0 ${INK};display:grid;place-items:center;z-index:41;cursor:pointer}
 .yg-fab svg{width:26px;height:26px}
-.yg-sekme-ekle{display:none}
-@media(min-width:900px){
-.yg-kok{padding-bottom:48px}
-.yg-altbar{top:104px;bottom:auto;left:max(24px,calc(50% - 280px - 244px));right:auto;width:200px;background:transparent;border:0;padding:0}
-.yg-altbar-ic{display:flex;flex-direction:column;gap:6px;max-width:none;margin:0}
-.yg-sekme{display:flex;align-items:center;gap:12px;padding:11px 14px;font-size:15px;text-align:left;color:var(--text)}
-.yg-sekme:hover{background:var(--yg-soft)}
-.yg-sekme[aria-current="page"]:hover{background:${LIME}}
-.yg-sekme svg{width:20px;height:20px}
-.yg-sekme-ekle{display:flex;background:${CORAL};color:${INK};box-shadow:3px 3px 0 ${INK};margin-bottom:10px;font-weight:700}
-.yg-sekme-ekle:hover{background:${CORAL};filter:brightness(1.04)}
-.yg-fab{display:none}
-.bt-feedback-trigger{bottom:24px!important}
-}
-@media(min-width:900px) and (max-width:1139px){.yg-kok{padding-left:236px}}
 .yg-ortu{position:fixed;inset:0;background:rgba(10,10,8,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center}
 .yg-tabaka{background:var(--panel);color:var(--text);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:16px max(18px,env(safe-area-inset-left,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-right,0px));max-height:88vh;overflow:auto}
 @media(min-width:900px){.yg-ortu{align-items:center}.yg-tabaka{border-radius:24px}}
@@ -211,9 +206,6 @@ export function YeniAltBar({ sekme, onSec, onEkle, onDahaFazla }) {
     <>
       <nav className="yg-altbar" aria-label={t("yeni.menuAria")}>
         <div className="yg-altbar-ic">
-          <button type="button" className="yg-sekme yg-sekme-ekle" onClick={onEkle}>
-            <Plus aria-hidden="true" />{t("yeni.sekme.ekle")}
-          </button>
           {sekmeler.map(([k, ad, Ikon]) => (
             <button key={k} type="button" className="yg-sekme" aria-current={sekme === k ? "page" : undefined} onClick={() => onSec(k)}>
               <Ikon aria-hidden="true" />{ad}
@@ -380,22 +372,11 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
     );
   }
   return (
-    <div className="yg-sayfa">
+    <div className="yg-sayfa yg-iki">
+      <div className="yg-kolon-sol">
       {manset}
-      {gruplar.map((g) => (
-        <section key={g.kova} aria-label={KOVA[g.kova][0]}>
-          <div className="yg-grup-baslik">
-            <span className="yg-nokta" style={{ background: KOVA[g.kova][1] }} />
-            {KOVA[g.kova][0]}
-            <span className="yg-sayac">{g.acikToplam > 0 ? para(g.acikToplam) : t("yeni.kova.tamam")}</span>
-          </div>
-          <div className="yg-liste">
-            {g.odemeler.map((o) => <OdemeSatiri key={o.id} o={o} para={para} onOdedim={onOdedim} />)}
-          </div>
-        </section>
-      ))}
       {ayOzeti.toplam > 0 && (
-        <section className="yg-kart">
+        <section className="yg-kart yg-ikincil">
           <h2>{t("yeni.ay.baslik")}</h2>
           <p>
             {ayOzeti.odenen + 0.01 >= ayOzeti.toplam
@@ -412,7 +393,7 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
       {trend.length >= 2 && (() => {
         const fark = trend[trend.length - 1].tutar - trend[0].tutar;
         return (
-          <section className="yg-kart">
+          <section className="yg-kart yg-ikincil">
             <h2>{fark <= 0 ? t("yeni.trend.azaliyor") : t("yeni.trend.artiyor")}</h2>
             <p>
               {fark <= 0
@@ -423,6 +404,21 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
           </section>
         );
       })()}
+      </div>
+      <div className="yg-kolon-sag">
+      {gruplar.map((g) => (
+        <section key={g.kova} aria-label={KOVA[g.kova][0]}>
+          <div className="yg-grup-baslik">
+            <span className="yg-nokta" style={{ background: KOVA[g.kova][1] }} />
+            {KOVA[g.kova][0]}
+            <span className="yg-sayac">{g.acikToplam > 0 ? para(g.acikToplam) : t("yeni.kova.tamam")}</span>
+          </div>
+          <div className="yg-liste">
+            {g.odemeler.map((o) => <OdemeSatiri key={o.id} o={o} para={para} onOdedim={onOdedim} />)}
+          </div>
+        </section>
+      ))}
+      </div>
     </div>
   );
 }
@@ -453,7 +449,8 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
   const [nedenAcik, setNedenAcik] = useState(false);
   const bos = !krediler.length && !kartlar.length && !ekHesaplar.length;
   return (
-    <div className="yg-sayfa">
+    <div className="yg-sayfa yg-iki">
+      <div className="yg-kolon-sol">
       <section className="yg-kart">
         <div className="yg-ozet-borc">
           <div style={{ minWidth: 0 }}>
@@ -475,6 +472,14 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
           ))}
         </div>
       </section>
+      {planCumlesi && (
+        <section className="yg-plan yg-ikincil">
+          <div className="yg-ust-etiket" style={{ color: LIME }}>{t("yeni.plan.etiket")}</div>
+          <p style={{ marginBottom: 0 }}>{planCumlesi}</p>
+        </section>
+      )}
+      </div>
+      <div className="yg-kolon-sag">
       {bos && (
         <div className="yg-bos">
           <span>{t("yeni.borc.bos")}</span>
@@ -542,12 +547,7 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
           ))}
         </div>
       )}
-      {planCumlesi && (
-        <section className="yg-plan">
-          <div className="yg-ust-etiket" style={{ color: LIME }}>{t("yeni.plan.etiket")}</div>
-          <p style={{ marginBottom: 0 }}>{planCumlesi}</p>
-        </section>
-      )}
+      </div>
     </div>
   );
 }
@@ -591,7 +591,8 @@ export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYuk
     : t("yeni.harcama.icgoruTekKart", { kart: kartAdi, kategori: enCok?.kategori || "", tutar: para(enCok?.tutar || 0) });
   const enBuyuk = enCok?.tutar || 1;
   return (
-    <div className="yg-sayfa">
+    <div className="yg-sayfa yg-iki">
+      <div className="yg-kolon-sol">
       <div>
         <div className="yg-ust-etiket">{ayMetni}</div>
         <div className="yg-buyuk">{para(ozet.toplam)}</div>
@@ -617,6 +618,8 @@ export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYuk
           ))}
         </div>
       </section>
+      </div>
+      <div className="yg-kolon-sag">
       <section aria-label={t("yeni.harcama.liste")}>
         <div className="yg-grup-baslik">
           {t("yeni.harcama.liste")}
@@ -636,6 +639,7 @@ export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYuk
         )}
       </section>
       <button type="button" className="yg-btn cizgi" onClick={onHarcamaEkle} style={{ justifySelf: "start" }}>{t("yeni.ekle.harcama")}</button>
+      </div>
     </div>
   );
 }

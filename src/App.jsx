@@ -4246,7 +4246,14 @@ export default function BorcTakip() {
                 ]}
               />
             )}
-            {!yeniMi && (
+            {yeniMi && masaustu && (
+              <div className="mk-ekle-kap">
+                <button type="button" className="mk-ekle" onClick={() => setYeniTabaka({ tur: "ekle" })}>
+                  <Plus size={16} strokeWidth={2.4} aria-hidden="true" /> {t("web.kabuk.ekle")}
+                </button>
+              </div>
+            )}
+            {(!yeniMi || masaustu) && (
             <button
               className={
                 "bt-settings-link " + (sekme === "ayarlar" ? "aktif" : "")
@@ -4295,6 +4302,24 @@ export default function BorcTakip() {
           </div>
         )}
 
+        {yeniMi && masaustu && (
+          <nav className="bt-nav bt-nav-ana" aria-label={t("yeni.menuAria")}>
+            {[
+              ["ozet", t("yeni.sekme.bugun"), CalendarCheck],
+              ["borclarim", t("yeni.sekme.borclarim"), CreditCard],
+              ["harcamalarim", t("yeni.sekme.harcamalarim"), ReceiptText],
+            ].map(([k, ad, Ikon]) => (
+              <button key={k} type="button" className={"bt-pill " + (sekme === k ? "aktif" : "pasif")} aria-current={sekme === k ? "page" : undefined} onClick={() => yeniSekmeSec(k)}>
+                <Ikon aria-hidden="true" />
+                <span>{ad}</span>
+              </button>
+            ))}
+            <button className="bt-pill bt-assistant-nav" type="button" onClick={() => yeniDahaFazla("asistan")}>
+              <Sparkles aria-hidden="true" />
+              <span>{t("kabuk.sor")}</span>
+            </button>
+          </nav>
+        )}
         {!yeniMi && (
         <nav className={"bt-nav bt-nav-ana" + (nativeSekmeCubuguVarMi ? " bt-nav-gizli" : "")}>
           {[
@@ -4686,12 +4711,12 @@ export default function BorcTakip() {
       {yeniMi && !yukleniyor && (
         <>
           <style>{YENI_CSS}</style>
-          <YeniAltBar
+          {!masaustu && <YeniAltBar
             sekme={sekme}
             onSec={yeniSekmeSec}
             onEkle={() => setYeniTabaka({ tur: "ekle" })}
             onDahaFazla={() => setYeniTabaka({ tur: "daha" })}
-          />
+          />}
           {yeniTabaka?.tur === "daha" && <DahaFazlaTabakasi onSec={yeniDahaFazla} onKapat={() => setYeniTabaka(null)} gorusVar={!nativeMi} />}
           {yeniTabaka?.tur === "ekle" && <EkleTabakasi onSec={yeniEkle} onKapat={() => setYeniTabaka(null)} />}
           {yeniTabaka?.tur === "kart" && (() => {

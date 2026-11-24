@@ -12,7 +12,6 @@ export const tr = {
   "yeni.sekme.borclarim": "Borçlarım",
   "yeni.sekme.harcamalarim": "Harcamalarım",
   "yeni.sekme.dahaFazla": "Daha fazla",
-  "yeni.sekme.ekle": "Ekle",
   "yeni.geriAl": "Geri al",
 
   "yeni.zaman.gecikti": "{n} gün gecikti",
@@ -214,7 +213,6 @@ export const en = {
   "yeni.sekme.borclarim": "My debts",
   "yeni.sekme.harcamalarim": "My spending",
   "yeni.sekme.dahaFazla": "More",
-  "yeni.sekme.ekle": "Add",
   "yeni.geriAl": "Undo",
 
   "yeni.zaman.gecikti": "{n} days late",
