@@ -24,7 +24,7 @@ test("rehber slugları benzersiz ve bağlantıları çalışan sayfalara gider",
 test("kredi kartı borcu rehberleri tarihli, SSS'li ve resmî kaynaklı", () => {
   for (const slug of KART_BORCU_REHBERLERI) {
     const rehber = rehberBul(slug);
-    assert.equal(rehber.guncellendi, "2026-11-03", slug);
+    assert.equal(rehber.guncellendi, "2026-11-24", slug);
     assert.ok(rehber.h1 && rehber.sss.length >= 3, slug);
     assert.ok(rehber.description.length <= 200, slug);
     const kaynaklar = REHBER_KAYNAKLARI[slug];
@@ -34,12 +34,13 @@ test("kredi kartı borcu rehberleri tarihli, SSS'li ve resmî kaynaklı", () => 
   assert.equal(guncellemeTarihiMetni("2026-11-03"), "3 Kasım 2026");
 });
 
-test("faiz rehberi TCMB Kasım 2026 tablosundaki oranları taşır", () => {
+test("faiz rehberi TCMB Aralık 2026 tablosundaki oranları taşır", () => {
   const metin = JSON.stringify(rehberBul("kredi-karti-faiz-oranlari-2026"));
-  for (const oran of ["3,25", "3,55", "3,75", "4,05", "4,25", "4,55", "2,98", "3,28"]) assert.ok(metin.includes(`yüzde ${oran}`), oran);
+  for (const oran of ["3,08", "3,38", "3,58", "3,88", "4,08", "4,38", "2,86", "2,94"]) assert.ok(metin.includes(`yüzde ${oran}`), oran);
   assert.match(metin, /30\.000 TL/);
   assert.match(metin, /180\.000 TL/);
-  assert.match(JSON.stringify(rehberBul("kredi-karti-borcu-yapilandirma")), /yüzde 3,11/);
+  assert.match(JSON.stringify(rehberBul("kredi-karti-borcu-yapilandirma")), /yüzde 2,94/);
+  assert.match(metin, /yüzde 30/);
 });
 
 test("tasfiye sayfası borçlu okuru kart borcu rehberlerine ve hesaplayıcıya yönlendirir", () => {

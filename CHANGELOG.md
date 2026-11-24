@@ -4,6 +4,15 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.84.0] - 2026-11-24
+
+Web ve iOS aynı sürüm (iOS build 58).
+
+### Değişti
+- Kredi kartı azami faizleri: TCMB referans oranı 1 Aralık 2026'dan itibaren %3,11'den %2,94'e indi. Uygulama 1 Aralık 00:00 (TSİ) itibarıyla yeni tabloyu kullanır: akdi %3,08 / %3,58 / %4,08, gecikme %3,38 / %3,88 / %4,38; KMH ve nakit avans varsayılanı %4,08. Öncesinde eski tablo geçerli kalır. Toplam borç özeti (edge) aynı tarihle geçer.
+- Asgari ödeme: BDDK 19 Kasım 2026 tarihli 11605 sayılı kararla üç kademe. Limit 100 bin TL ve altı %20, 100–200 bin TL (dahil) %30, 200 bin TL üstü %40. Limit düşürme önerisi mevcut orana göre hesaplanır.
+- Kredi kartı faiz rehberi Aralık 2026'ya, yapılandırma ve "ödenmezse" rehberleri yeni referans ve gecikme oranlarına, asgari ödeme hesaplayıcısı ve rehberi yeni kademelere güncellendi.
+
 ## [1.83.2] - 2026-11-18
 
 Web ve iOS aynı sürüm (iOS build 57).

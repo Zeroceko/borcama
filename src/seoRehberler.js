@@ -1,13 +1,14 @@
 // Rehber sayfalarının tek veri kaynağı: SeoPages.jsx (SPA) ve
 // scripts/prerender-seo.mjs (JavaScript'siz HTML) aynı içeriği buradan okur.
 
-export const BDDK_KAYNAK = "https://www.bddk.org.tr/Mevzuat/DokumanGetir/1349";
+// 11605 sayılı kararın (19 Kasım 2026) tekil belge bağlantısı yayımlanana kadar kurul kararları listesi.
+export const BDDK_KAYNAK = "https://www.bddk.org.tr/Mevzuat/Liste/56";
 export const TCMB_KAYNAK = "https://www.tcmb.gov.tr/wps/wcm/connect/TR/TCMB%2BTR/Main%2BMenu/Istatistikler/Bankacilik%2BVerileri/Kredi_Karti_Islemlerinde_Uygulanacak_Azami_Faiz_Oranlari";
 // Faiz rehberindeki TCMB tablosunun orta kademesi (30.000–180.000 TL dönem
 // borcu) için azami aylık akdi faiz. İçerik içi mini hesapta yalnız kullanıcının
 // değiştirebileceği bir örnek olarak doldurulur; rehber metniyle eşliği testte
 // kontrol edilir, tablo güncellenince ikisi birlikte değişir.
-export const KART_ORTA_KADEME_AZAMI_AKDI_FAIZ = Object.freeze({ oran: "3.75", donem: "Kasım 2026", kademe: "30.000–180.000 TL dönem borcu" });
+export const KART_ORTA_KADEME_AZAMI_AKDI_FAIZ = Object.freeze({ oran: "3.58", donem: "Aralık 2026", kademe: "30.000–180.000 TL dönem borcu" });
 export const GIB_VERGI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2Fgelir-vergisi-tarifeleri%2Fgelir-vergisi-tarifesi-2026.pdf";
 export const GIB_ASGARI_2026 = "https://cdn.gib.gov.tr/api/gibportal-file/file/getFileResources?objectKey=arsiv%2Fyardim-kaynaklar%2Fyararli-bilgiler%2FAsgariUcrettenYapilanKesintiler.pdf";
 export const SGK_2026 = "https://www.sgk.gov.tr/Content/Post/2e0c9e1a-2cfe-4456-af10-49d3de0c58ba/Prime-Esas-Kazanc-Miktarlari-2026-01-14-10-35-39";
@@ -26,28 +27,29 @@ const EDEVLET_RISK_RAPORU = "https://www.turkiye.gov.tr/turkiye-bankalar-birligi
 const EDEVLET_ICRA_DOSYASI = "https://www.turkiye.gov.tr/adalet-icra-dosyasi-sorgulama";
 
 export const REHBERLER = [
-  // Kredi kartı borcu rehberleri (Kasım 2026). Rakamlar resmî kaynaktan
+  // Kredi kartı borcu rehberleri (Kasım 2026; faiz ve asgari 24 Kasım'da güncellendi). Rakamlar resmî kaynaktan
   // doğrulanır; TCMB tablosu her ay yenilendiği için faiz sayfası aylık
   // kontrol edilip `guncellendi` tarihi değiştirilir.
   {
     slug: "kredi-karti-faiz-oranlari-2026",
-    title: "Kredi Kartı Faiz Oranları Kasım 2026",
-    h1: "Kredi kartı faiz oranları (Kasım 2026): akdi, gecikme ve nakit avans faizi",
-    description: "TCMB'nin Kasım 2026 için ilan ettiği kredi kartı azami akdi ve gecikme faizi, nakit avans ve KMH oranı, örnek bir borçta TL karşılığı ve asgari ödemeyle ilişkisi.",
+    title: "Kredi Kartı Faiz Oranları Aralık 2026",
+    h1: "Kredi kartı faiz oranları (Aralık 2026): akdi, gecikme ve nakit avans faizi",
+    description: "TCMB 1 Aralık 2026'dan itibaren kredi kartı azami faizlerini düşürdü: yeni akdi ve gecikme faizi, nakit avans ve KMH oranı, örnek bir borçta TL karşılığı ve asgari ödemenin yeni kademeleri.",
     published: "2026-11-03",
-    guncellendi: "2026-11-03",
-    intro: "Kredi kartında bankaların uygulayabileceği en yüksek aylık faiz oranlarını Türkiye Cumhuriyet Merkez Bankası (TCMB) belirler ve tabloyu her ay yeniden yayımlar. Bankalar bu sınırları aşmamak koşuluyla kendi oranlarını serbestçe belirler. Kasım 2026'da TL kartlardaki azami oranlar, dönem borcunun büyüklüğüne göre üç kademede uygulanıyor.",
+    guncellendi: "2026-11-24",
+    intro: "Kredi kartında bankaların uygulayabileceği en yüksek aylık faiz oranlarını Türkiye Cumhuriyet Merkez Bankası (TCMB) belirler. TCMB, kart faizlerinde kullanılan aylık referans oranı 1 Aralık 2026'dan itibaren yüzde 3,11'den yüzde 2,94'e indirdi; böylece bütün kademelerde azami oranlar 0,17 puan düştü. Bu, Ocak 2026'dan bu yana tablodaki ilk değişiklik. Bankalar bu sınırları aşmamak koşuluyla kendi oranlarını serbestçe belirler.",
     sections: [
-      ["Kasım 2026 azami faiz oranları (TL kartlar)", "TCMB tablosuna göre 1 Kasım 2026'dan itibaren aylık azami oranlar şöyle: dönem borcu 30.000 TL'nin altındaysa akdi faiz yüzde 3,25, gecikme faizi yüzde 3,55; 30.000 ile 180.000 TL arasındaysa akdi faiz yüzde 3,75, gecikme faizi yüzde 4,05; 180.000 TL'nin üzerindeyse akdi faiz yüzde 4,25, gecikme faizi yüzde 4,55. En üst kademe, dönem borcuna bakılmaksızın kurumsal kredi kartlarında da geçerli. Tablodaki oranlar Ocak 2026'dan bu yana değişmedi."],
-      ["Nakit avans ve ek hesap (KMH) faizi", "Nakit çekim ve nakit kullanımı işlemlerinde Kasım 2026 için azami oran aylık yüzde 4,25 akdi faiz, yüzde 4,55 gecikme faizidir; TCMB bu oranların kredili mevduat hesapları (KMH) için de geçerli olduğunu belirtiyor. Kanuna göre nakit kullanımında faiz, hesap kesim tarihi yerine işlem tarihinden itibaren işletilebilir; bu yüzden nakit avans kısa sürede de maliyet doğurur. Yabancı para kart işlemlerinde azami oranlar aylık yüzde 2,98 akdi, yüzde 3,28 gecikme faizidir."],
+      ["Aralık 2026 azami faiz oranları (TL kartlar)", "1 Aralık 2026'dan itibaren aylık azami oranlar şöyle: dönem borcu 30.000 TL'nin altındaysa akdi faiz yüzde 3,08, gecikme faizi yüzde 3,38; 30.000 ile 180.000 TL arasındaysa akdi faiz yüzde 3,58, gecikme faizi yüzde 3,88; 180.000 TL'nin üzerindeyse akdi faiz yüzde 4,08, gecikme faizi yüzde 4,38. En üst kademe, dönem borcuna bakılmaksızın kurumsal kredi kartlarında da geçerli. Kasım 2026'ya kadar aynı kademelerde akdi faiz yüzde 3,25, 3,75 ve 4,25; gecikme faizi yüzde 3,55, 4,05 ve 4,55 idi."],
+      ["Nakit avans ve ek hesap (KMH) faizi", "Nakit çekim ve nakit kullanımı işlemlerinde 1 Aralık 2026'dan itibaren azami oran aylık yüzde 4,08 akdi faiz, yüzde 4,38 gecikme faizidir (önceki oranlar yüzde 4,25 ve 4,55); TCMB bu oranların kredili mevduat hesapları (KMH) için de geçerli olduğunu belirtiyor. Kanuna göre nakit kullanımında faiz, hesap kesim tarihi yerine işlem tarihinden itibaren işletilebilir; bu yüzden nakit avans kısa sürede de maliyet doğurur. Yabancı para kart işlemlerinde azami akdi faiz yüzde 2,98'den yüzde 2,86'ya indi."],
       ["Faiz ne zaman işler?", "Dönem borcunun tamamını son ödeme tarihine kadar ödediğinde devreden bakiye kalmaz. Bir kısmını ödersen faiz kalan bakiye üzerinden hesaplanır: asgari tutarı ya da daha fazlasını ödediysen akdi faiz, asgari tutarın altında ödediysen gecikme faizi uygulanır (5464 sayılı Banka Kartları ve Kredi Kartları Kanunu, madde 26). Aynı maddeye göre kart borçlarında bileşik faiz uygulanamaz ve hesap kesim tarihiyle son ödeme tarihi arasında en az on gün olmalıdır. Ekstrende faizle birlikte vergi kalemleri ayrıca gösterilebilir; kesin tutar ekstrede yazar."],
-      ["Örnek: 50.000 TL dönem borcu", "Kart limitin 80.000 TL, dönem borcun 50.000 TL olsun. Limit 100.000 TL'nin altında olduğu için asgari ödeme dönem borcunun yüzde 20'si, yani 10.000 TL'dir. Asgariyi ödersen kalan 40.000 TL'ye bu kademede en fazla yüzde 3,75 akdi faiz uygulanabilir; bir aylık faiz en fazla 1.500 TL eder. 5.000 TL ödersen asgarinin altında kaldığın için kalan 45.000 TL'ye en fazla yüzde 4,05 gecikme faizi uygulanabilir; bu da yaklaşık 1.822 TL eder. Tamamını ödersen devreden bakiye ve faiz oluşmaz. Örnek azami oranlarla ve vergiler hariç hesaplanmıştır; bankanın oranı daha düşük olabilir."],
-      ["Asgari ödemeyle ilişkisi", "BDDK'nın 1 Ekim 2026 tarihli 11581 sayılı kararına göre asgari ödeme, limiti 100.000 TL ve altındaki kartlarda dönem borcunun yüzde 20'si, limiti 100.000 TL'nin üzerindeki kartlarda yüzde 40'ıdır. Asgariyi ödemek gecikme faizinden korur ama kalan bakiye akdi faizle büyümeye devam eder. Banka Kartları ve Kredi Kartları Hakkında Yönetmelik'e göre bir takvim yılında asgari tutarı toplam üç kez ödenmeyen kart nakit kullanımına, üst üste üç kez ödenmeyen kart alışverişe de kapatılır."],
+      ["Örnek: 50.000 TL dönem borcu", "Kart limitin 80.000 TL, dönem borcun 50.000 TL olsun. Limit 100.000 TL ve altında olduğu için asgari ödeme dönem borcunun yüzde 20'si, yani 10.000 TL'dir. Asgariyi ödersen kalan 40.000 TL'ye Aralık 2026'dan itibaren bu kademede en fazla yüzde 3,58 akdi faiz uygulanabilir; bir aylık faiz en fazla 1.432 TL eder (eski oranla 1.500 TL). 5.000 TL ödersen asgarinin altında kaldığın için kalan 45.000 TL'ye en fazla yüzde 3,88 gecikme faizi uygulanabilir; bu da yaklaşık 1.746 TL eder. Tamamını ödersen devreden bakiye ve faiz oluşmaz. Örnek azami oranlarla ve vergiler hariç hesaplanmıştır; bankanın oranı daha düşük olabilir."],
+      ["Asgari ödemeyle ilişkisi", "BDDK'nın 19 Kasım 2026 tarihli 11605 sayılı kararına göre asgari ödeme, kart limiti 100.000 TL ve altındaysa dönem borcunun yüzde 20'si, 100.000 TL'nin üzerinde ve 200.000 TL'ye kadarsa (200.000 TL dahil) yüzde 30'u, 200.000 TL'nin üzerindeyse yüzde 40'ıdır. Önceki kuralda 100.000 TL'nin üzerindeki bütün kartlarda oran yüzde 40'tı. Asgariyi ödemek gecikme faizinden korur ama kalan bakiye akdi faizle büyümeye devam eder. Banka Kartları ve Kredi Kartları Hakkında Yönetmelik'e göre bir takvim yılında asgari tutarı toplam üç kez ödenmeyen kart nakit kullanımına, üst üste üç kez ödenmeyen kart alışverişe de kapatılır."],
       ["Oranlar her ay güncellenir", "TCMB azami oran tablosunu her ay yeniden yayımlar; bu sayfa da tabloya göre güncellenir ve son kontrol tarihi sayfanın başında yazar. Sana uygulanan gerçek oran kart sözleşmende ve ekstrende yer alır. Kanuna göre banka faiz oranını artıracaksa bunu en az 30 gün önceden bildirmek zorundadır; bildirimden sonra 60 gün içinde borcun tamamını ödeyip kartı kullanmayı bırakırsan artıştan etkilenmezsin (5464 sayılı Kanun, madde 25)."],
     ],
     sss: [
-      ["Kredi kartı faiz oranı Kasım 2026'da kaç?", "TCMB'nin TL kartlar için ilan ettiği azami aylık akdi faiz, dönem borcuna göre yüzde 3,25, 3,75 veya 4,25; azami gecikme faizi yüzde 3,55, 4,05 veya 4,55. Bankan bu sınırların altında bir oran uygulayabilir."],
-      ["Nakit avans faizi ne kadar?", "Kasım 2026'da nakit çekim ve kredili mevduat hesabı (KMH) için azami akdi faiz aylık yüzde 4,25, azami gecikme faizi yüzde 4,55."],
+      ["Kredi kartı faiz oranı Aralık 2026'da kaç?", "1 Aralık 2026'dan itibaren TCMB'nin TL kartlar için azami aylık akdi faizi, dönem borcuna göre yüzde 3,08, 3,58 veya 4,08; azami gecikme faizi yüzde 3,38, 3,88 veya 4,38. Bankan bu sınırların altında bir oran uygulayabilir."],
+      ["Nakit avans faizi ne kadar?", "1 Aralık 2026'dan itibaren nakit çekim ve kredili mevduat hesabı (KMH) için azami akdi faiz aylık yüzde 4,08, azami gecikme faizi yüzde 4,38."],
+      ["Asgari ödeme oranı kaç?", "BDDK'nın 19 Kasım 2026 kararıyla kart limiti 100.000 TL ve altındaysa yüzde 20, 100.000–200.000 TL arasındaysa (200.000 TL dahil) yüzde 30, 200.000 TL'nin üzerindeyse yüzde 40."],
       ["Asgari ödersem gecikme faizi öder miyim?", "Hayır. Asgari tutarı veya daha fazlasını ödersen kalan bakiyeye akdi faiz uygulanır. Gecikme faizi, asgari tutarın altında ödeme yaptığında devreye girer."],
       ["Ekstremdeki oran bu tablodan neden farklı?", "Tablo bankaların aşamayacağı üst sınırı gösterir. Bankan daha düşük bir oran uygulayabilir; ayrıca ekstrede faizin yanında vergi kalemleri de görünebilir."],
     ],
@@ -62,12 +64,12 @@ export const REHBERLER = [
     h1: "Kredi kartı borcu yapılandırma (2026): kurallar, faiz ve bankaya sorulacaklar",
     description: "BDDK'nın 2026 kararına göre kredi kartı borcu yapılandırmasında azami vade, faiz sınırı, kart limiti ve başvuru süresi; bankaya sorman gerekenler ve kendi ödeme planınla karşılaştırma.",
     published: "2026-11-03",
-    guncellendi: "2026-11-03",
+    guncellendi: "2026-11-24",
     intro: "Kredi kartı borcu yapılandırma, kart borcunun bankayla anlaşılarak yeni bir taksitli ödeme planına bağlanmasıdır. 2026'daki çerçeveyi BDDK'nın 29 Ocak 2026 tarihli 11366 sayılı kararı çizdi. Aşağıda kararın ne getirdiğini, faiz sınırını, kart kullanımına etkisini ve karar vermeden önce bankaya sorman gerekenleri bulacaksın.",
     sections: [
       ["2026 kararı ne getirdi?", "BDDK'nın 11366 sayılı kararına göre, karar tarihi itibarıyla son ödeme tarihinde dönem borcu kısmen ya da tamamen ödenmemiş bireysel kredi kartlarının borcu, kart sahibi karar tarihinden itibaren 3 ay içinde talep ederse en fazla 48 ay vadeyle yeniden yapılandırılabildi. Yapılandırmaya bekleyen taksitli işlemler de dahil edildi. Aynı karar, ödemesi 30 günden fazla gecikmiş ihtiyaç kredileri ve kredili mevduat hesapları (KMH) için de ek kredi kullandırmadan 48 aya kadar yapılandırma imkânı tanıdı. Daha önce 26 Eylül 2024 tarihli 10972 sayılı kararda kart borçları için üst sınır 60 aydı."],
       ["Taksit, limit ve kart kullanımı", "Kararda yapılandırma taksitinin her ay kartın asgari ödeme tutarına ekleneceği yazıyor. Yapılandırılan borcun yüzde 50'si ödenene kadar banka, kart sahibine tanıdığı kart limitlerini artırmıyor. Yapılandırma tutarı kart limitini aşarsa aşan kısım limit aşımı sayılmıyor. Kararda kartın kapatılmasını zorunlu kılan bir hüküm yok; kartın kullanıma açık kalıp kalmayacağını bankana sor."],
-      ["Yapılandırmada faiz sınırı", "TCMB'nin azami faiz tablosundaki açıklamaya göre BDDK'nın 2024, 2025 ve 2026 tarihli yapılandırma kararları kapsamında yapılandırılan kart borçlarında aylık akdi faiz, TCMB'nin aylık referans oranını aşamaz; Kasım 2026 için referans oran yüzde 3,11. Bu yapılandırmalarda gecikme olursa uygulanabilecek azami oran, kredi kartı tablosundaki en yüksek gecikme faizidir. Oran kart faizinin üst kademelerinden düşük olsa da vade uzadıkça ödenen toplam faiz artar."],
+      ["Yapılandırmada faiz sınırı", "TCMB'nin azami faiz tablosundaki açıklamaya göre BDDK'nın 2024, 2025 ve 2026 tarihli yapılandırma kararları kapsamında yapılandırılan kart borçlarında aylık akdi faiz, TCMB'nin aylık referans oranını aşamaz; referans oran Kasım 2026'da yüzde 3,11 iken 1 Aralık 2026'dan itibaren yüzde 2,94. Bu yapılandırmalarda gecikme olursa uygulanabilecek azami oran, kredi kartı tablosundaki en yüksek gecikme faizidir. Oran kart faizinin üst kademelerinden düşük olsa da vade uzadıkça ödenen toplam faiz artar."],
       ["Başvuru süresi doldu mu?", "11366 sayılı karardaki başvuru süresi karar tarihinden itibaren 3 ay, yani Nisan 2026 sonuna kadardı. 3 Kasım 2026 itibarıyla BDDK'nın yayımladığı kurul kararları arasında kredi kartı borçları için yeni bir yapılandırma dönemi açan karar bulunmuyor. Bankan sana farklı bir taksitlendirme ya da kredi teklifi sunarsa, teklifin hangi düzenlemeye dayandığını, faiz oranını ve toplam geri ödemeyi yazılı olarak iste."],
       ["Kredi kaydına (Risk Merkezi) etkisi", "Bankalar müşterilerinin kredi ve kart bilgilerini Türkiye Bankalar Birliği bünyesindeki Risk Merkezi'ne bildirmekle yükümlüdür (5411 sayılı Bankacılık Kanunu, ek madde 1). Yapılandırmanın raporunda nasıl görüneceği ve kredi notuna etkisi kişiden kişiye değişir. Yapılandırmadan önce ve sonra Risk Merkezi raporunu e-Devlet üzerinden alarak kendi kaydını kontrol edebilirsin."],
       ["Bankaya sorman gerekenler", "Yapılandırılacak toplam tutar, bekleyen taksitler dahil ne kadar? Aylık faiz oranı ve vade sonunda ödeyeceğin toplam tutar ne? Taksit asgari ödemeye eklenince her ay toplam ne ödeyeceksin? Kart kullanıma açık kalacak mı, limitin değişecek mi? Erken kapatırsan ne olur? Bir taksiti kaçırırsan hangi faiz uygulanır? Cevapları sözleşme veya ödeme planı olarak yazılı al."],
@@ -75,7 +77,7 @@ export const REHBERLER = [
     ],
     sss: [
       ["Kredi kartı borcu kaç ay yapılandırılabilir?", "BDDK'nın 29 Ocak 2026 tarihli kararında üst sınır 48 aydı; başvuru süresi karar tarihinden itibaren 3 aydı. Eylül 2024 kararında bu sınır 60 ay olarak uygulanmıştı."],
-      ["Yapılandırmada faiz oranı ne olur?", "TCMB'ye göre BDDK kararları kapsamındaki kart borcu yapılandırmalarında aylık akdi faiz, aylık referans oranı aşamaz. Kasım 2026'da bu oran yüzde 3,11."],
+      ["Yapılandırmada faiz oranı ne olur?", "TCMB'ye göre BDDK kararları kapsamındaki kart borcu yapılandırmalarında aylık akdi faiz, aylık referans oranı aşamaz. Bu oran 1 Aralık 2026'dan itibaren yüzde 2,94 (Kasım 2026'da yüzde 3,11)."],
       ["Yapılandırma yaparsam kartım kapanır mı?", "Kararda zorunlu kapatma hükmü yok. Ancak yapılandırılan borcun yarısı ödenene kadar kart limitin artırılmaz. Kartının durumunu bankana sor."],
       ["Başvuru süresini kaçırdım, ne yapabilirim?", "Bankanla görüşüp sunabileceği taksitlendirme veya ödeme seçeneklerini yazılı iste. Aynı anda kendi bütçenle bir ödeme planı çıkar; böylece teklifi toplam maliyet üzerinden karşılaştırabilirsin."],
     ],
@@ -90,10 +92,10 @@ export const REHBERLER = [
     h1: "Kredi kartı borcu ödenmezse ne olur? Adım adım süreç",
     description: "Kredi kartı borcu ödenmezse gecikme faizi, kartın kapatılması, Risk Merkezi kaydı, ihtarname, icra takibi ve zamanaşımı nasıl işler? Kanun maddeleriyle sakin bir anlatım ve ilk adım.",
     published: "2026-11-03",
-    guncellendi: "2026-11-03",
+    guncellendi: "2026-11-24",
     intro: "Kredi kartı borcunu ödeyememek korkutucu olabilir ama süreç bir günde değil, aşama aşama ilerler ve çoğu aşamada bankayla konuşup plan yapma şansın vardır. Aşağıda kanunda yazan adımları sırasıyla ve kaynaklarıyla anlatıyoruz. Bu sayfa hukuki tavsiye değildir; resmî bir belge aldıysan süreleri kaçırmamak için uzman desteği almayı düşün.",
     sections: [
-      ["1. Son ödeme tarihi geçince: gecikme faizi", "Asgari tutarın altında ödeme yaparsan kalan bakiyeye akdi faiz yerine gecikme faizi uygulanır (5464 sayılı Banka Kartları ve Kredi Kartları Kanunu, madde 26). Kanun, asgari tutar ödenmediğinde ödenmeyen tutar için sözleşmedeki gecikme faizi dışında bir yükümlülük getirilemeyeceğini de söyler (madde 24). Kasım 2026'da TL kartlarda azami gecikme faizi, dönem borcuna göre aylık yüzde 3,55 ile 4,55 arasındadır."],
+      ["1. Son ödeme tarihi geçince: gecikme faizi", "Asgari tutarın altında ödeme yaparsan kalan bakiyeye akdi faiz yerine gecikme faizi uygulanır (5464 sayılı Banka Kartları ve Kredi Kartları Kanunu, madde 26). Kanun, asgari tutar ödenmediğinde ödenmeyen tutar için sözleşmedeki gecikme faizi dışında bir yükümlülük getirilemeyeceğini de söyler (madde 24). 1 Aralık 2026'dan itibaren TL kartlarda azami gecikme faizi, dönem borcuna göre aylık yüzde 3,38 ile 4,38 arasındadır."],
       ["2. Kartın kullanımı kısıtlanır", "Banka Kartları ve Kredi Kartları Hakkında Yönetmelik'e göre bir takvim yılında asgari tutarı toplam üç kez ödenmeyen kart nakit kullanımına, üst üste üç kez ödenmeyen kart nakit kullanımıyla birlikte alışverişe de kapatılır. Bu kartların limiti dönem borcunun tamamı ödenene kadar artırılamaz (madde 22)."],
       ["3. Risk Merkezi (KKB) kaydı", "Bankalar müşterilerinin kredi ve kart bilgilerini Türkiye Bankalar Birliği bünyesindeki Risk Merkezi'ne bildirmekle yükümlüdür (5411 sayılı Bankacılık Kanunu, ek madde 1). Ödeme gecikmeleri bu kayıtlara yansıyabilir ve yeni kredi ya da kart başvurularını etkileyebilir. Kendi kaydını e-Devlet'teki Risk Merkezi raporu başvurusuyla görebilirsin."],
       ["4. Borcun tamamının istenmesi ve ihtarname", "Ödemeler uzun süre yapılmazsa banka, sözleşmedeki hükümlere dayanarak kalan borcun tamamını talep edebilir ve bunu bir ihtarnameyle bildirebilir. Bu aşamada borç muaccel, yani hemen istenebilir hale gelir. İhtarname aldığında tarihini, tutarı ve verilen süreyi not et; bankayla ödeme planı konuşmak için hâlâ geç değildir."],
@@ -217,7 +219,7 @@ export const REHBERLER = [
     description: "Kredi kartında asgari ödeme tutarı, kalan borç ve faiz etkisini sade bir örnekle anlayın.",
     intro: "Asgari tutarı ödemek, bankanın bildirdiği son ödeme yükümlülüğünü karşılamaya yardımcı olur; ancak dönem borcunun tamamı kapanmadığı için kalan tutar maliyet oluşturmaya devam edebilir.",
     sections: [
-      ["Asgari tutar nasıl belirlenir?", "BDDK'nın 1 Ekim 2026 tarihli kararında kart limiti 100 bin TL ve altındaki kartlar için dönem borcunun yüzde 20'si, bu sınırın üzerindeki kartlar için yüzde 40'ı esas alınır. Bankanın ekstrende bildirdiği tutar her zaman önceliklidir."],
+      ["Asgari tutar nasıl belirlenir?", "BDDK'nın 19 Kasım 2026 tarihli 11605 sayılı kararına göre kart limiti 100 bin TL ve altındaysa dönem borcunun yüzde 20'si, 100 bin TL'nin üzerinde ve 200 bin TL'ye kadarsa (dahil) yüzde 30'u, 200 bin TL'nin üzerindeyse yüzde 40'ı esas alınır. Bankanın ekstrende bildirdiği tutar her zaman önceliklidir."],
       ["Kalan borç neden önemlidir?", "Asgari ödeme sonrası kalan bakiye sonraki döneme devreder. Uygulanacak oran bankaya, borç türüne ve güncel düzenlemelere göre değişebilir."],
       ["Ek ödeme neyi değiştirir?", "Asgari tutarın üzerindeki her ödeme ana bakiyeyi daha hızlı azaltabilir. Bunun etkisini değerlendirirken yeni harcamaları ve bankanın uyguladığı gerçek oranı da hesaba kat."],
       ["Hangi rakama güvenmelisin?", "Hesaplayıcılar planlama için tahmin sunar. Kesin asgari ödeme, faiz ve vergi tutarları için bankanın ekstresini ve güncel sözleşmeni esas al."],
@@ -265,12 +267,12 @@ export const REHBER_KAYNAKLARI = {
     [KIDEM_2026, "Çalışma Bakanlığı kıdem tazminatı tavanı"],
   ],
   "asgari-odeme-borcu-nasil-etkiler": [
-    [BDDK_KAYNAK, "BDDK asgari ödeme kararı"],
+    [BDDK_KURUL_KARARLARI, "BDDK · 11605 sayılı asgari ödeme kararı (19 Kasım 2026)"],
     [TCMB_KAYNAK, "TCMB kredi kartı azami faiz oranları"],
   ],
   "kredi-karti-faiz-oranlari-2026": [
-    [TCMB_KAYNAK, "TCMB · Kredi kartı işlemlerinde azami faiz oranları (Kasım 2026)"],
-    [BDDK_KAYNAK, "BDDK · 11581 sayılı asgari ödeme kararı (1 Ekim 2026)"],
+    [TCMB_KAYNAK, "TCMB · Kredi kartı işlemlerinde azami faiz oranları (Aralık 2026)"],
+    [BDDK_KURUL_KARARLARI, "BDDK · Kurul kararları (11605 sayılı asgari ödeme kararı, 19 Kasım 2026)"],
     [KANUN_5464, "5464 sayılı Banka Kartları ve Kredi Kartları Kanunu"],
     [KART_YONETMELIGI, "Banka Kartları ve Kredi Kartları Hakkında Yönetmelik"],
   ],

@@ -141,7 +141,7 @@ const fr_ = {
   "cekirdek.oneri.gecikmis.aksiyon": "Ouvrir les paiements",
   "cekirdek.oneri.limit.etiket": "Scénario de charge mensuelle",
   "cekirdek.oneri.limit.baslik": "Revoyez votre plafond {banka}",
-  "cekirdek.oneri.limit.aciklama": "Si le plafond de votre carte peut être abaissé à 100 000 ₺ ou moins, le taux légal du paiement minimum sur les relevés suivants peut passer d'environ 40 % à 20 %.",
+  "cekirdek.oneri.limit.aciklama": "Si le plafond de votre carte peut être abaissé à 100 000 ₺ ou moins, le taux légal du paiement minimum sur les relevés suivants peut passer à 20 % (aujourd'hui 30 % ou 40 % selon votre plafond).",
   "cekirdek.oneri.limit.etki": "Minimum estimé {dusuk} au lieu de {mevcut} · écart mensuel {fark}",
   "cekirdek.oneri.limit.uyari": "Cela ne réduit ni votre dette ni vos intérêts. Si vous payez moins, le solde reporté et les intérêts du mois suivant peuvent augmenter ; la banque décide séparément des changements de plafond.",
   "cekirdek.oneri.kartiIncele": "Voir la carte",

@@ -19,7 +19,9 @@ export function krediKartiBorcu(kayit: Record<string, unknown>) {
   if (!yeniModel) return (guvenliSayi(kayit.donemIciToplam) || guvenliSayi(kayit.borc)) + guvenliSayi(kayit.donemIciEklenen);
   const ekstre = guvenliSayi(kayit.toplamEkstreBorcu) || guvenliSayi(kayit.oncekiDonemBorcu);
   const devreden = Math.max(ekstre - Math.min(guvenliSayi(kayit.yapilanOdeme), ekstre), 0);
-  const oran = ekstre >= 180000 ? 4.25 : ekstre >= 30000 ? 3.75 : 3.25;
+  // TCMB azami akdi faiz; 1 Aralik 2026'dan itibaren 0,17 puan dusuk tablo.
+  const yeni = Date.now() >= Date.UTC(2026, 10, 30, 21);
+  const oran = ekstre >= 180000 ? (yeni ? 4.08 : 4.25) : ekstre >= 30000 ? (yeni ? 3.58 : 3.75) : (yeni ? 3.08 : 3.25);
   return devreden + (devreden * oran) / 100;
 }
 

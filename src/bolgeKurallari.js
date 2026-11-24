@@ -20,23 +20,36 @@ export function turkiyeKurallariGecerli(birim = kullaniciParaBirimi()) {
 
 // KKDF %15 + BSMV %15: faiz tutarina eklenen toplam vergi-fon orani.
 export const TURKIYE_VERGI_FON_ORANI = 0.3;
-export const TURKIYE_KMH_VARSAYILAN_FAIZI = 4.25;
 
 export function vergiFonOrani(birim = kullaniciParaBirimi()) {
   return turkiyeKurallariGecerli(birim) ? TURKIYE_VERGI_FON_ORANI : 0;
 }
 
 // TCMB kredi karti azami akdi ve gecikme faizi (aylik %), bakiye dilimine gore.
-export function tcmbKartAzamiFaizi(bakiye) {
-  if (bakiye >= 180000) return 4.25;
-  if (bakiye >= 30000) return 3.75;
-  return 3.25;
+// 1 Aralik 2026'dan itibaren referans oran %3,11'den %2,94'e indi; her kademe
+// 0,17 puan dustu. Tarih parametresi gecis gununu dogru hesaplamak icin.
+export const TCMB_ARALIK_2026_GECIS = Date.UTC(2026, 10, 30, 21); // 1 Aralik 00:00 TSI
+function yeniTablo(tarih) {
+  return new Date(tarih ?? Date.now()).getTime() >= TCMB_ARALIK_2026_GECIS;
 }
 
-export function tcmbKartAzamiGecikmeFaizi(bakiye) {
-  if (bakiye >= 180000) return 4.55;
-  if (bakiye >= 30000) return 4.05;
-  return 3.55;
+export function tcmbKartAzamiFaizi(bakiye, tarih) {
+  const yeni = yeniTablo(tarih);
+  if (bakiye >= 180000) return yeni ? 4.08 : 4.25;
+  if (bakiye >= 30000) return yeni ? 3.58 : 3.75;
+  return yeni ? 3.08 : 3.25;
+}
+
+export function tcmbKartAzamiGecikmeFaizi(bakiye, tarih) {
+  const yeni = yeniTablo(tarih);
+  if (bakiye >= 180000) return yeni ? 4.38 : 4.55;
+  if (bakiye >= 30000) return yeni ? 3.88 : 4.05;
+  return yeni ? 3.38 : 3.55;
+}
+
+// Nakit avans / KMH azami akdi faizi kartin en ust kademesine esittir.
+export function turkiyeKmhVarsayilanFaizi(tarih) {
+  return tcmbKartAzamiFaizi(180000, tarih);
 }
 
 function girilenOran(oran) {
@@ -122,13 +135,13 @@ export function kartFaizOranlari(bakiye, girilen, birim = kullaniciParaBirimi(),
   return { akdi: ortalama, gecikme: ortalama, referans: false, varsayilan: true, bilinmiyor: false };
 }
 
-// Ek hesap (KMH / overdraft / Dispo) icin oran. TRY'de girilmemisse %4,25
+// Ek hesap (KMH / overdraft / Dispo) icin oran. TRY'de girilmemisse TCMB ust kademesi
 // urun referansi; TRY disinda ulke ortalamasi. ABD'de overdraft faiz yerine
 // ucretle isledigi icin ortalama 0 ve `ucretle` isaretlenir.
 export function ekHesapFaizOrani(girilen, birim = kullaniciParaBirimi(), profil = bolgeProfili(birim)) {
   const oran = girilenOran(girilen);
   if (oran > 0) return { oran, tahmini: false, varsayilan: false, ucretle: false };
-  if (turkiyeKurallariGecerli(birim)) return { oran: TURKIYE_KMH_VARSAYILAN_FAIZI, tahmini: true, varsayilan: false, ucretle: false };
+  if (turkiyeKurallariGecerli(birim)) return { oran: turkiyeKmhVarsayilanFaizi(), tahmini: true, varsayilan: false, ucretle: false };
   const ortalama = aylik((profil || BOLGE_PROFILLERI.VARSAYILAN).ekHesapYillikFaiz);
   return { oran: ortalama, tahmini: false, varsayilan: true, ucretle: ortalama === 0 };
 }
