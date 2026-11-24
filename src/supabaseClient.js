@@ -3,7 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabaseHazir = Boolean(url && anonKey);
-export const demoModu = import.meta.env.DEV && !supabaseHazir;
+// Vercel önizlemesinde Supabase ayarı yoksa (VITE_ONIZLEME_DEMO=1) gerçek veriye
+// dokunmadan demo verisiyle açılır. Production'da Supabase ayarlı olduğu için etkisizdir.
+export const demoModu =
+  (import.meta.env.DEV || import.meta.env.VITE_ONIZLEME_DEMO === "1") && !supabaseHazir;
 
 if (!supabaseHazir) {
   console.warn(
