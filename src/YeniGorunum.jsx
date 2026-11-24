@@ -1,6 +1,7 @@
 // Yeni görünüm: 3 sekme (Bugün, Borçlarım, Harcamalarım) + Daha fazla.
 // Veri ve kayıt işlemleri App.jsx'ten gelir; bu dosya yalnız çizer. Klasik
 // görünüm bu bileşenleri hiç bağlamaz.
+import { BankaRozeti } from "./BankaRozeti.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2,
@@ -22,7 +23,6 @@ const INK = "#14160f";
 const LIME = "#cdf564";
 const CORAL = "#ff6f59";
 const KATEGORI_RENKLERI = ["#cdf564", "#ffb3a6", "#c9b6ff", "#ff6f59", "#9fd0ff", "#e3d9a8", "#7fd6a6", "#f2bb55"];
-const ROZET_RENKLERI = ["#b9c8ff", "#7fd6a6", "#9fd0ff", "#c9b6ff", "#ffb3a6", "#e3d9a8"];
 
 export const YENI_CSS = `
 @media(max-width:899px){.bt-feedback-trigger{display:none!important}}
@@ -38,16 +38,15 @@ export const YENI_CSS = `
 .yg-sayfa{max-width:none}
 .yg-sayfa.yg-iki{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:start}
 .yg-iki>.yg-kolon-sol,.yg-iki>.yg-kolon-sag{display:grid;gap:18px;align-content:start;min-width:0}
-.yg-iki>.yg-kolon-sol{position:sticky;top:16px}
 .yg-iki>.yg-kolon-sag>*,.yg-iki>.yg-kolon-sol>.yg-ikincil{order:0}
 }
-.yg-ust-etiket{font:700 11px 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+.yg-ust-etiket{font:700 11.5px 'Space Grotesk',sans-serif;color:var(--dim)}
 .yg-manset{background:${LIME};color:${INK};border-radius:22px;padding:20px;box-shadow:5px 5px 0 ${INK}}
 .yg-manset.acil{background:${CORAL}}
 .yg-manset.tamam{background:var(--yg-ok-bg);color:var(--text);box-shadow:5px 5px 0 var(--yg-ok)}
 .yg-manset h1{font:700 clamp(20px,5vw,24px)/1.22 'Space Grotesk',sans-serif;margin:8px 0 4px;text-wrap:balance}
 .yg-manset .yg-ust-etiket{color:inherit;opacity:.75}
-.yg-manset-tutar{font:700 30px 'JetBrains Mono',monospace;margin:4px 0 14px;font-variant-numeric:tabular-nums}
+.yg-manset-tutar{font:800 30px 'Archivo Black',sans-serif;margin:4px 0 14px;font-variant-numeric:tabular-nums}
 .yg-manset-alt{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .yg-manset-alt small{font-size:12.5px;opacity:.85;flex:1 1 180px}
 .yg-btn{border:0;border-radius:999px;padding:11px 18px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer}
@@ -56,16 +55,16 @@ export const YENI_CSS = `
 .yg-btn.cizgi{background:transparent;color:var(--text);border:1.5px solid var(--text)}
 .yg-grup-baslik{display:flex;align-items:center;gap:8px;margin:0 0 8px;font:700 13.5px 'Space Grotesk',sans-serif;color:var(--text)}
 .yg-nokta{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
-.yg-grup-baslik .yg-sayac{margin-left:auto;font:700 12px 'JetBrains Mono',monospace;color:var(--dim)}
+.yg-grup-baslik .yg-sayac{margin-left:auto;font:700 12.5px 'Space Grotesk',sans-serif;color:var(--dim)}
 .yg-liste{display:grid;gap:8px}
 .yg-odeme{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;padding:12px}
 .yg-odeme.gecikti{border-color:var(--yg-bad);background:var(--yg-bad-bg)}
 .yg-odeme.soluk{opacity:.6}
 .yg-rozet{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font:700 11.5px 'JetBrains Mono',monospace;color:${INK};flex:none}
-.yg-ad{font-weight:700;color:var(--text);line-height:1.25;overflow-wrap:anywhere}
+.yg-ad{font-weight:700;font-size:14.5px;color:var(--text);line-height:1.25;overflow-wrap:anywhere}
 .yg-alt{font-size:12.5px;color:var(--dim);margin-top:2px}
 .yg-sag{text-align:right;display:grid;gap:6px;justify-items:end}
-.yg-para{font:700 15px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text)}
+.yg-para{font:800 16px 'Archivo Black',sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text)}
 .yg-odedim{border:1.5px solid var(--text);background:transparent;color:var(--text);border-radius:999px;padding:5px 11px;font:700 12.5px 'Space Grotesk',sans-serif;cursor:pointer}
 .yg-odedim.tamam{background:var(--yg-ok);border-color:var(--yg-ok);color:#fff}
 .yg-durum{display:inline-block;font:700 11px 'Space Grotesk',sans-serif;padding:2px 8px;border-radius:999px;margin-top:4px}
@@ -74,7 +73,7 @@ export const YENI_CSS = `
 .yg-durum.yesil{background:var(--yg-ok-bg);color:var(--yg-ok)}
 .yg-durum.ara{background:color-mix(in srgb,var(--yg-ok-bg) 55%,var(--yg-warn-bg));color:var(--yg-warn)}
 .yg-kart{background:var(--panel);border:1px solid var(--line-soft);border-radius:20px;padding:18px}
-.yg-kart h2{font:700 18px 'Space Grotesk',sans-serif;margin:0 0 4px;color:var(--text);text-wrap:balance}
+.yg-kart h2{font:400 18px 'Archivo Black',sans-serif;margin:0 0 4px;color:var(--text);text-wrap:balance}
 .yg-kart p{margin:0;color:var(--dim);font-size:13.5px}
 .yg-ilerleme{height:10px;border-radius:999px;background:var(--yg-soft);overflow:hidden;margin:12px 0 6px}
 .yg-ilerleme i{display:block;height:100%;background:${LIME};border-right:2px solid ${INK}}
@@ -83,14 +82,14 @@ export const YENI_CSS = `
 .yg-bag{background:none;border:0;padding:0;color:var(--text);text-decoration:underline;text-underline-offset:3px;font:600 13px 'Space Grotesk',sans-serif;margin-top:10px;cursor:pointer}
 .yg-aciklama{margin-top:8px;font-size:13px;color:var(--dim);background:var(--yg-soft);padding:10px 12px;border-radius:12px}
 .yg-ozet-borc{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:14px;align-items:center}
-.yg-buyuk{font:700 30px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;margin:4px 0;color:var(--text)}
+.yg-buyuk{font:800 29px 'Archivo Black',sans-serif;font-variant-numeric:tabular-nums;margin:4px 0;color:var(--text)}
 .yg-lejant{display:grid;gap:4px;margin-top:10px;font-size:12.5px;color:var(--text)}
 .yg-lejant span{display:flex;align-items:center;gap:6px}
-.yg-lejant b{margin-left:auto;font-family:'JetBrains Mono',monospace}
+.yg-lejant b{margin-left:auto;font-family:'Archivo Black',sans-serif;font-weight:800}
 .yg-borc{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;padding:14px;color:var(--text);cursor:pointer;font:inherit}
 .yg-borc-ust{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .yg-borc-ust>span{display:flex;gap:10px;align-items:center;min-width:0}
-.yg-bolum{font:700 12px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:6px 0 -8px}
+.yg-bolum{font:700 15px 'Space Grotesk',sans-serif;color:var(--text);margin:6px 0 -8px}
 .yg-plan{background:${INK};color:#f4efe0;border-radius:20px;padding:18px}
 .yg-plan p{margin:6px 0 12px;font-size:15.5px}
 .yg-plan b{color:${LIME}}
@@ -121,7 +120,7 @@ export const YENI_CSS = `
 .yg-secenek .yg-para{margin-left:auto}
 .yg-tablo{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:6px}
 .yg-tablo td{padding:7px 2px;border-bottom:1px solid var(--line-soft);color:var(--text)}
-.yg-tablo td:last-child{text-align:right;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.yg-tablo td:last-child{text-align:right;font-family:'Archivo Black',sans-serif;font-variant-numeric:tabular-nums}
 .yg-tablo tr.vurgu td{font-weight:700;border-bottom:2px solid var(--text)}
 .yg-alt-baslik{font:700 16px 'Space Grotesk',sans-serif;margin:18px 0 8px;color:var(--text)}
 .yg-senaryo{display:grid;gap:8px}
@@ -144,19 +143,6 @@ export const YENI_CSS = `
 @media (prefers-reduced-motion: no-preference){.yg-tabaka{animation:yg-yukari .2s ease-out}@keyframes yg-yukari{from{transform:translateY(24px);opacity:.5}}}
 `;
 
-const bas = (metin = "") =>
-  String(metin)
-    .split(/[\s·]+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 3)
-    .toLocaleUpperCase("tr-TR");
-const rozetRengi = (metin = "") => {
-  let h = 0;
-  for (const c of String(metin)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return ROZET_RENKLERI[h % ROZET_RENKLERI.length];
-};
 const oranYaz = (oran) => Number(oran || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 
 export function YeniTabaka({ baslik, onKapat, children }) {
@@ -252,7 +238,7 @@ function OdemeSatiri({ o, para, onOdedim }) {
   const gosterilenTutar = o.tur === "kart" && o.kartDurumu === "minimum" ? o.kalanToplam : o.odendi && o.tur === "kredi" ? o.hedef : o.tutar;
   return (
     <div className={"yg-odeme" + (o.gun < 0 && !o.odendi ? " gecikti" : "") + (kapandi ? " soluk" : "")}>
-      <span className="yg-rozet" style={{ background: rozetRengi(o.ad) }}>{bas(o.banka || o.ad)}</span>
+      <BankaRozeti banka={o.banka || o.ad} boyut={42} />
       <div style={{ minWidth: 0 }}>
         <div className="yg-ad">{o.ad}</div>
         <div className="yg-alt">{odemeAltMetni(o, para)}</div>
@@ -491,7 +477,7 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
           {krediler.map((k) => (
             <button key={k.id} type="button" className="yg-borc" onClick={() => onKredi(k)}>
               <div className="yg-borc-ust">
-                <span><span className="yg-rozet" style={{ background: rozetRengi(k.ad), width: 36, height: 36 }}>{bas(k.banka)}</span><b className="yg-ad">{k.ad}</b></span>
+                <span><BankaRozeti banka={k.banka} boyut={38} /><b className="yg-ad">{k.ad}</b></span>
                 <span className="yg-para">{para(k.kalan, k.paraBirimi)}</span>
               </div>
               {k.taksit ? (
@@ -516,7 +502,7 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
           {kartlar.map((k) => (
             <button key={k.id} type="button" className="yg-borc" onClick={() => onKart(k)}>
               <div className="yg-borc-ust">
-                <span><span className="yg-rozet" style={{ background: rozetRengi(k.ad), width: 36, height: 36 }}>{bas(k.banka)}</span><b className="yg-ad">{k.ad}</b></span>
+                <span><BankaRozeti banka={k.banka} boyut={38} /><b className="yg-ad">{k.ad}</b></span>
                 <span className="yg-para">{para(k.kalanToplam, k.paraBirimi)}</span>
               </div>
               <div className="yg-alt" style={{ marginTop: 6 }}>
@@ -538,7 +524,7 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
           {ekHesaplar.map((k) => (
             <button key={k.id} type="button" className="yg-borc" onClick={() => onEkHesap(k)}>
               <div className="yg-borc-ust">
-                <span><span className="yg-rozet" style={{ background: rozetRengi(k.ad), width: 36, height: 36 }}>{bas(k.banka)}</span><b className="yg-ad">{k.ad}</b></span>
+                <span><BankaRozeti banka={k.banka} boyut={38} /><b className="yg-ad">{k.ad}</b></span>
                 <span className="yg-para">{para(k.kalan, k.paraBirimi)}</span>
               </div>
               <div className="yg-alt" style={{ marginTop: 6 }}>{t("yeni.borc.ekHesapAlt", { oran: oranYaz(k.oran), tutar: para(k.aylikFaiz, k.paraBirimi) })}</div>

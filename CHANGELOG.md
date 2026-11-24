@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.1] - 2026-11-24
+
+Web ve iOS aynı sürüm (iOS build 62).
+
+### Düzeltildi
+- Borcama 2.0 masaüstü: sol sütun sayfa kayarken üst başlığın altında kesik görünüyordu; artık sayfayla birlikte kayar.
+- Borcama 2.0 banka logoları ve yazı tipleri klasik görünümle aynı (banka logosu rozeti, tutarlarda Archivo Black, metinde Space Grotesk).
+
 ## [2.0.0] - 2026-11-24
 
 Web ve iOS aynı sürüm (iOS build 61).
