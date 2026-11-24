@@ -27,6 +27,22 @@ export function sekmeCubuguHazirla(sekmeSecildi) {
   return true;
 }
 
+// Klasik ve Borcama 2.0 farkli sekmeler kullanir. Simgeler SF Symbols adlari.
+export function sekmeCubuguDuzeni(yeni, secili) {
+  const duzen = yeni
+    ? {
+        anahtarlar: ["ozet", "borclarim", "harcamalarim", "daha"],
+        basliklar: [t("yeni.sekme.bugun"), t("yeni.sekme.borclarim"), t("yeni.sekme.harcamalarim"), t("yeni.sekme.dahaFazla")],
+        simgeler: ["calendar", "creditcard.fill", "chart.pie.fill", "line.3.horizontal"],
+      }
+    : {
+        anahtarlar: ["ozet", "borclar", "hareketler", "varliklar"],
+        basliklar: [t("sekme.ozet"), t("sekme.borclar"), t("sekme.hareketler"), t("sekme.varliklar")],
+        simgeler: ["chart.bar.fill", "creditcard.fill", "arrow.left.arrow.right", "banknote.fill"],
+      };
+  kanal()?.postMessage({ tip: "duzen", ...duzen, secili: secili || "" });
+}
+
 export function sekmeCubugunuSec(anahtar) {
   kanal()?.postMessage({ tip: "sec", anahtar });
 }

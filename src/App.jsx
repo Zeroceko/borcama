@@ -12,6 +12,7 @@ import {
   sekmeCubuguTemasi,
   sekmeCubugunuGoster,
   sekmeCubugunuSec,
+  sekmeCubuguDuzeni,
 } from "./nativeSekmeCubugu.js";
 import { BiyometrikAyar } from "./BiyometrikKilit.jsx";
 import OdemeHatirlatmaAyari from "./OdemeHatirlatmaAyari.jsx";
@@ -3496,7 +3497,7 @@ export default function BorcTakip() {
   // ulasiyoruz ki dinleyici ilk render'daki eski durumu tasimasin.
   const sekmeGidisRef = useRef(null);
   useEffect(() => {
-    sekmeGidisRef.current = anaSekmeyeGit;
+    sekmeGidisRef.current = yeniMi ? yeniNativeSekme : anaSekmeyeGit;
   });
   useEffect(() => {
     if (!nativeSekmeCubuguVarMi) return;
@@ -3509,8 +3510,8 @@ export default function BorcTakip() {
     // altina biniyordu: pencere varken cubuk gizlenir, kapaninca doner.
     let pencereAcik = false;
     const gozcu = new MutationObserver(() => {
-      // Yeni görünümde web alt çubuğu kullanılır; native çubuk gizlenir.
-      const var_ = Boolean(document.querySelector(".bt-modal-arka, [data-yeni-gorunum]"));
+      // Borcama 2.0 panelleri (.yg-ortu) de pencere gibi cubugu gizler.
+      const var_ = Boolean(document.querySelector(".bt-modal-arka, .yg-ortu"));
       if (var_ === pencereAcik) return;
       pencereAcik = var_;
       sekmeCubugunuGoster(!var_);
@@ -3525,6 +3526,16 @@ export default function BorcTakip() {
     if (!nativeSekmeCubuguVarMi) return;
     sekmeCubuguTemasi(isDark);
   }, [isDark]);
+  // Native cubuk Klasik / Borcama 2.0 duzenine gore sekmelerini degistirir.
+  useEffect(() => {
+    if (!nativeSekmeCubuguVarMi) return;
+    sekmeCubuguDuzeni(yeniMi, yeniMi ? sekme : anaSekme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yeniMi]);
+  useEffect(() => {
+    if (!nativeSekmeCubuguVarMi || !yeniMi) return;
+    sekmeCubugunuSec(["ozet", "borclarim", "harcamalarim"].includes(sekme) ? sekme : "");
+  }, [yeniMi, sekme, yeniTabaka]);
   // Web: sayfa zemini (kaydirma cubugu boslugu dahil, kabuk.css) temayla
   // ayni; kurulum acikken akis kendi zeminini yazar.
   useEffect(() => {
@@ -3532,7 +3543,7 @@ export default function BorcTakip() {
     document.body.style.backgroundColor = temaRenkleri.bg;
   }, [temaRenkleri.bg, kurulumAcik]);
   useEffect(() => {
-    if (!nativeSekmeCubuguVarMi) return;
+    if (!nativeSekmeCubuguVarMi || yeniMi) return;
     sekmeCubugunuSec(anaSekme);
     // Native sekme cubugunda kullanici yeni sekmenin en ustunden baslamayi
     // bekler; onceki ekranin kaydirma konumu tasinmiyor.
@@ -4024,6 +4035,15 @@ export default function BorcTakip() {
     if (tur === "kart") return yeniPanelAc("borclar", { liste: "cards", veri: {} }, "cards");
     if (tur === "kredi") return yeniPanelAc("borclar", { liste: "loans", veri: {} }, "loans");
     if (tur === "ek") return yeniPanelAc("borclar", { liste: "overdrafts", veri: {} }, "od");
+  };
+  // iOS native cubugu: "Daha fazla" bir sayfa degil, panel acar.
+  const yeniNativeSekme = (k) => {
+    if (k === "daha") {
+      setYeniTabaka({ tur: "daha" });
+      sekmeCubugunuSec(["ozet", "borclarim", "harcamalarim"].includes(sekme) ? sekme : "");
+      return;
+    }
+    yeniSekmeSec(k);
   };
   const yeniSekmeSec = (k) => {
     setYeniTabaka(null);
@@ -4592,6 +4612,7 @@ export default function BorcTakip() {
         <>
           <style>{YENI_CSS}</style>
           {!masaustu && <YeniAltBar
+            nativeCubuk={nativeSekmeCubuguVarMi}
             sekme={sekme}
             onSec={yeniSekmeSec}
             onEkle={() => setYeniTabaka({ tur: "ekle" })}

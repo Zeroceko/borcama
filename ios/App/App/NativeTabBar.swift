@@ -14,12 +14,15 @@ import Capacitor
 class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandler, UITabBarDelegate {
 
     // Web tarafindaki sekme anahtarlari ile cubuk sirasi ayni olmali.
-    private static let anahtarlar = ["ozet", "borclar", "hareketler", "varliklar"]
+    // Klasik duzen varsayilan; Borcama 2.0 secilince web "duzen" mesajiyla
+    // kendi sekmelerini (anahtar, baslik, simge) gonderir.
+    private static let varsayilanAnahtarlar = ["ozet", "borclar", "hareketler", "varliklar"]
     private static let varsayilanBasliklar = ["Bugün", "Borçlar", "Hareketler", "Varlıklar"]
+    private var anahtarlar = BorcamaBridgeViewController.varsayilanAnahtarlar
     // Etiketler web tarafindan secili dilde gelir (hazirla mesajindaki
     // "basliklar"); gelmezse Turkce varsayilanlar kullanilir.
     private var basliklar = BorcamaBridgeViewController.varsayilanBasliklar
-    private static let simgeler = [
+    private var simgeler = [
         "chart.bar.fill",
         "creditcard.fill",
         "arrow.left.arrow.right",
@@ -180,12 +183,14 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             switch tip {
             case "hazirla":
                 if let gelen = govde["basliklar"] as? [String],
-                   gelen.count == Self.anahtarlar.count,
+                   gelen.count == self.anahtarlar.count,
                    !gelen.contains(where: { $0.isEmpty }) {
                     self.basliklar = gelen
                 }
                 self.cubuguKur()
                 AcilisPerdesi.kaldir()
+            case "duzen":
+                self.duzeniUygula(govde)
             case "sec":
                 if let anahtar = govde["anahtar"] as? String { self.secileniAyarla(anahtar) }
             case "tema":
@@ -221,15 +226,7 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
         cubuk = yeni
         temayiUygula(koyuTema)
 
-        yeni.items = Self.anahtarlar.indices.map { sira in
-            let oge = UITabBarItem(
-                title: self.basliklar[sira],
-                image: UIImage(systemName: Self.simgeler[sira]),
-                tag: sira
-            )
-            oge.accessibilityLabel = self.basliklar[sira]
-            return oge
-        }
+        yeni.items = ogeleriOlustur()
         yeni.selectedItem = yeni.items?.first
         // Genislik sabitlenmiyor; cubuk pencereyle birlikte uzayip kisaliyor.
         // .automatic: dar pencerede (iPhone, Split View) ogeler genislige
@@ -266,11 +263,40 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
             name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
+    private func ogeleriOlustur() -> [UITabBarItem] {
+        anahtarlar.indices.map { sira in
+            let oge = UITabBarItem(
+                title: basliklar[sira],
+                image: UIImage(systemName: simgeler[sira]),
+                tag: sira
+            )
+            oge.accessibilityLabel = basliklar[sira]
+            return oge
+        }
+    }
+
+    // Web'den gelen sekme duzeni (Klasik / Borcama 2.0). Uc dizi ayni
+    // uzunlukta ve bos degilse uygulanir; cubuk kuruluysa ogeler yenilenir.
+    private func duzeniUygula(_ govde: [String: Any]) {
+        guard let yeniAnahtarlar = govde["anahtarlar"] as? [String],
+              let yeniBasliklar = govde["basliklar"] as? [String],
+              let yeniSimgeler = govde["simgeler"] as? [String],
+              !yeniAnahtarlar.isEmpty,
+              yeniAnahtarlar.count == yeniBasliklar.count,
+              yeniAnahtarlar.count == yeniSimgeler.count else { return }
+        anahtarlar = yeniAnahtarlar
+        basliklar = yeniBasliklar
+        simgeler = yeniSimgeler
+        guard let cubuk else { return }
+        cubuk.items = ogeleriOlustur()
+        secileniAyarla(govde["secili"] as? String ?? "")
+    }
+
     private func secileniAyarla(_ anahtar: String) {
         guard let ogeler = cubuk?.items else { return }
         // Ayarlar gibi sekmelerden biri olmayan ekranlarda hicbiri secili
         // gorunmemeli; aksi halde onceki sekme yanik kaliyor.
-        guard let sira = Self.anahtarlar.firstIndex(of: anahtar), sira < ogeler.count else {
+        guard let sira = anahtarlar.firstIndex(of: anahtar), sira < ogeler.count else {
             cubuk?.selectedItem = nil
             return
         }
@@ -390,8 +416,8 @@ class BorcamaBridgeViewController: CAPBridgeViewController, WKScriptMessageHandl
 
     func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         let sira = item.tag
-        guard sira >= 0, sira < Self.anahtarlar.count else { return }
-        let anahtar = Self.anahtarlar[sira]
+        guard sira >= 0, sira < anahtarlar.count else { return }
+        let anahtar = anahtarlar[sira]
         let js = "window.dispatchEvent(new CustomEvent('borcamaSekmeSecildi',"
             + "{detail:{anahtar:'\(anahtar)'}}))"
         webView?.evaluateJavaScript(js, completionHandler: nil)

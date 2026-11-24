@@ -82,6 +82,7 @@ export const YENI_CSS = `
 .yg-bag{background:none;border:0;padding:0;color:var(--text);text-decoration:underline;text-underline-offset:3px;font:600 13px 'Space Grotesk',sans-serif;margin-top:10px;cursor:pointer}
 .yg-aciklama{margin-top:8px;font-size:13px;color:var(--dim);background:var(--yg-soft);padding:10px 12px;border-radius:12px}
 .yg-ozet-borc{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:14px;align-items:center}
+.yg-halka{width:112px;height:112px;display:block}
 .yg-buyuk{font:800 29px 'Archivo Black',sans-serif;font-variant-numeric:tabular-nums;margin:4px 0;color:var(--text)}
 .yg-lejant{display:grid;gap:4px;margin-top:10px;font-size:12.5px;color:var(--text)}
 .yg-lejant span{display:flex;align-items:center;gap:6px}
@@ -108,9 +109,12 @@ export const YENI_CSS = `
 .yg-sekme[aria-current="page"]{background:${LIME};color:${INK}}
 .yg-fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;border:0;background:${CORAL};color:${INK};box-shadow:3px 3px 0 ${INK};display:grid;place-items:center;z-index:41;cursor:pointer}
 .yg-fab svg{width:26px;height:26px}
+.yg-fab.yg-fab-native{bottom:calc(min(var(--sekme-cubugu,56px),120px) + env(safe-area-inset-bottom,0px) + 14px)}
 .yg-ortu{position:fixed;inset:0;background:rgba(10,10,8,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center}
 .yg-tabaka{background:var(--panel);color:var(--text);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:16px max(18px,env(safe-area-inset-left,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-right,0px));max-height:88vh;overflow:auto}
 @media(min-width:900px){.yg-ortu{align-items:center}.yg-tabaka{border-radius:24px}}
+html.borcama-native .yg-ortu.bt-modal-arka{padding:var(--guvenli-ust,0px) 0 0;align-items:flex-end;overflow:visible}
+html.borcama-native .yg-ortu.bt-modal-arka>*{margin:0}
 .yg-tabaka-ust{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .yg-tabaka h3{font:700 19px 'Space Grotesk',sans-serif;margin:2px 0 0}
 .yg-kapat{border:0;background:var(--yg-soft);color:var(--text);width:34px;height:34px;border-radius:10px;display:grid;place-items:center;cursor:pointer;flex:none}
@@ -182,7 +186,15 @@ export function YeniToast({ toast, onBitti }) {
   );
 }
 
-export function YeniAltBar({ sekme, onSec, onEkle, onDahaFazla }) {
+export function YeniAltBar({ sekme, onSec, onEkle, onDahaFazla, nativeCubuk = false }) {
+  // iOS'ta sekmeler isletim sisteminin cubugunda; burada yalniz "+" kalir.
+  if (nativeCubuk) {
+    return (
+      <button className="yg-fab yg-fab-native" type="button" aria-label={t("yeni.ekle.baslik")} onClick={onEkle}>
+        <Plus aria-hidden="true" />
+      </button>
+    );
+  }
   const sekmeler = [
     ["ozet", t("yeni.sekme.bugun"), CalendarDays],
     ["borclarim", t("yeni.sekme.borclarim"), CreditCard],
@@ -416,7 +428,7 @@ function Halka({ dilimler }) {
   const r = 46, c = 60;
   const enBuyuk = dilimler.slice().sort((a, b) => b.tutar - a.tutar)[0];
   return (
-    <svg viewBox="0 0 120 120" role="img" aria-label={t("yeni.borc.dagilimAria")}>
+    <svg className="yg-halka" width="112" height="112" viewBox="0 0 120 120" role="img" aria-label={t("yeni.borc.dagilimAria")}>
       {dilimler.filter((d) => d.tutar > 0).map((d) => {
         const pay = d.tutar / toplam;
         if (pay >= 0.999) return <circle key={d.ad} cx={c} cy={c} r={r} fill="none" stroke={d.renk} strokeWidth="18" />;
