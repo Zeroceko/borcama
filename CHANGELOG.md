@@ -4,6 +4,17 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.2] - 2026-11-24
+
+Web ve iOS aynı sürüm (iOS build 63).
+
+### Değişti
+- iOS: Borcama 2.0 seçiliyken telefonun kendi alt menüsü (native sekme çubuğu) 2.0 sekmelerini gösterir: Bugün, Borçlarım, Harcamalarım, Daha fazla. Klasik'e dönünce klasik sekmeler geri gelir. "+" düğmesi menünün üstünde durur.
+
+### Düzeltildi
+- iOS: Borcama 2.0 panelleri ekranın altına kadar iner (klasik pencerelerin alt boşluk kuralı 2.0 panellerine uygulanıyordu).
+- Borcama 2.0 borç dağılımı halkası iPhone'da ekrandan taşıyordu; sabit boyuta alındı.
+
 ## [2.0.1] - 2026-11-24
 
 Web ve iOS aynı sürüm (iOS build 62).
