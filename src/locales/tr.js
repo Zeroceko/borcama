@@ -19,6 +19,7 @@ import { tr as islemler } from "./bolumler/islemler.js";
 import { tr as paraBirimi } from "./bolumler/para-birimi.js";
 import { tr as web } from "./bolumler/web.js";
 import { tr as onboarding } from "./bolumler/onboarding.js";
+import { tr as yeniGorunum } from "./bolumler/yeni-gorunum.js";
 
 // Türkçe sözlük: uygulamanın kaynak dili. Her anahtarın metni ekranda
 // bugün görünen metnin birebir aynısıdır; eksik İngilizce anahtar buraya düşer.
@@ -46,6 +47,7 @@ const tr = {
   ...paraBirimi,
   ...web,
   ...onboarding,
+  ...yeniGorunum,
 
   // Onboarding (karşılama ekranındaki misafir bağlantısı; App Review notunda geçer)
   "onboarding.karar.misafir": "Hesap açmadan devam et",

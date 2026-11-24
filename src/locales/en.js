@@ -19,6 +19,7 @@ import { en as islemler } from "./bolumler/islemler.js";
 import { en as paraBirimi } from "./bolumler/para-birimi.js";
 import { en as web } from "./bolumler/web.js";
 import { en as onboarding } from "./bolumler/onboarding.js";
+import { en as yeniGorunum } from "./bolumler/yeni-gorunum.js";
 
 // English dictionary. Used in the iOS app and in the web app's in-app screens (landing/SEO pages stay Turkish).
 // Missing keys fall back to Turkish (src/locales/tr.js).
@@ -45,6 +46,7 @@ const en = {
   ...paraBirimi,
   ...web,
   ...onboarding,
+  ...yeniGorunum,
 
   // Onboarding: karşılama ekranındaki misafir bağlantısı (App Review notunda geçer)
   "onboarding.karar.misafir": "Continue without an account",
