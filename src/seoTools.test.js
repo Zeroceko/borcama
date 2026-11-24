@@ -18,9 +18,12 @@ test("100 bin TL ve altı kart limitinde asgari oran yüzde 20'dir", () => {
   assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 100_000 }).tahminiAsgari, 4_000);
 });
 
-test("100 bin TL üstü kart limitinde asgari oran yüzde 40'tır", () => {
-  assert.equal(krediKartiAsgariOrani(100_001), 0.4);
-  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 100_001 }).tahminiAsgari, 8_000);
+test("100–200 bin TL limitte asgari oran yüzde 30, 200 bin TL üstünde yüzde 40 (BDDK 11605)", () => {
+  assert.equal(krediKartiAsgariOrani(100_001), 0.3);
+  assert.equal(krediKartiAsgariOrani(200_000), 0.3);
+  assert.equal(krediKartiAsgariOrani(200_001), 0.4);
+  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 100_001 }).tahminiAsgari, 6_000);
+  assert.equal(krediKartiAsgariOdemeHesapla({ donemBorcu: 20_000, kartLimiti: 250_000 }).tahminiAsgari, 8_000);
 });
 
 test("borç kapatma hesabı faiz ve son kısmi ödemeyi içerir", () => {

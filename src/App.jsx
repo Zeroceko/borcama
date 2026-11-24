@@ -1513,7 +1513,7 @@ function ekHesapHesabi(k) {
   const kullanilan = Math.max(+k.kullanilan || 0, 0);
   const odeme = Math.min(Math.max(+k.yapilanOdeme || 0, 0), kullanilan);
   const kalan = Math.max(kullanilan - odeme, 0);
-  // TRY'de oran girilmemisse %4,25 referans; TRY disinda varsayim yok.
+  // TRY'de oran girilmemisse TCMB ust kademe referansi; TRY disinda varsayim yok.
   const { oran, tahmini, varsayilan, ucretle } = ekHesapFaizOrani(k.faiz, kayitParaBirimi(k));
   return { kullanilan, odeme, kalan, oran, faiz: (kalan * oran) / 100, tahmini, varsayilan, ucretle };
 }
@@ -1741,7 +1741,7 @@ function borcamaOnerileriniHesapla({
       hesap.onceki <= 0 ||
       hesap.onceki > KREDI_KARTI_ASGARI_LIMIT_ESIGI
     ) return;
-    const mevcutMinimum = hesap.onceki * 0.4;
+    const mevcutMinimum = hesap.onceki * krediKartiAsgariOrani(limit);
     const dusukLimitMinimumu = hesap.onceki * 0.2;
     const fark = Math.max(mevcutMinimum - dusukLimitMinimumu, 0);
     if (fark < 250) return;

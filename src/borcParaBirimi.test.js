@@ -17,6 +17,9 @@ import {
   bolgeProfili,
   ekHesapFaizOrani,
   kartFaizOranlari,
+  tcmbKartAzamiFaizi,
+  tcmbKartAzamiGecikmeFaizi,
+  turkiyeKmhVarsayilanFaizi,
   tryKaydiVar,
   vergiFonOrani,
 } from "./bolgeKurallari.js";
@@ -78,10 +81,10 @@ test("kurallar borç bazında: İngiltere'deki kullanıcının GBP kartı İngil
   assert.equal(vergiFonOrani(gbpBirim), 0);
 
   const turkiye = kartFaizOranlari(50000, "", tlBirim, bolgeProfili(tlBirim, "GB"));
-  assert.deepEqual(turkiye, { akdi: 3.75, gecikme: 4.05, referans: true, varsayilan: false, bilinmiyor: false });
+  assert.deepEqual(turkiye, { akdi: tcmbKartAzamiFaizi(50000), gecikme: tcmbKartAzamiGecikmeFaizi(50000), referans: true, varsayilan: false, bilinmiyor: false });
   assert.equal(yasalAsgariUygulanir(tlBirim), true);
   assert.equal(vergiFonOrani(tlBirim), 0.3);
-  assert.equal(ekHesapFaizOrani("", tlBirim).oran, 4.25);
+  assert.equal(ekHesapFaizOrani("", tlBirim).oran, turkiyeKmhVarsayilanFaizi());
   // GB cihazında EUR borç euro bölgesi ortalamasına düşer.
   assert.equal(bolgeProfili("EUR", "GB").kod, "EURO");
 });

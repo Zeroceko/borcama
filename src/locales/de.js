@@ -141,7 +141,7 @@ const de_ = {
   "cekirdek.oneri.gecikmis.aksiyon": "Zahlungen öffnen",
   "cekirdek.oneri.limit.etiket": "Szenario Monatsbelastung",
   "cekirdek.oneri.limit.baslik": "Prüfe dein Kreditlimit bei {banka}",
-  "cekirdek.oneri.limit.aciklama": "Wenn dein Kreditlimit auf 100.000 ₺ oder weniger gesenkt werden kann, sinkt die gesetzliche Mindestzahlungsquote auf späteren Abrechnungen eventuell von etwa 40 % auf 20 %.",
+  "cekirdek.oneri.limit.aciklama": "Wenn dein Kreditlimit auf 100.000 ₺ oder weniger gesenkt werden kann, sinkt die gesetzliche Mindestzahlungsquote auf späteren Abrechnungen eventuell auf 20 % (derzeit je nach Limit 30 % oder 40 %).",
   "cekirdek.oneri.limit.etki": "Geschätztes Minimum {dusuk} statt {mevcut} · monatliche Differenz {fark}",
   "cekirdek.oneri.limit.uyari": "Deine Schulden und Zinsen sinken dadurch nicht. Zahlst du weniger, können der übertragene Saldo und die Zinsen im Folgemonat steigen; über Limitänderungen entscheidet die Bank separat.",
   "cekirdek.oneri.kartiIncele": "Karte prüfen",

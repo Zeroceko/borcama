@@ -10,6 +10,9 @@ import {
   belgeOkumaAcik,
   ekHesapFaizOrani,
   kartFaizOranlari,
+  tcmbKartAzamiFaizi,
+  tcmbKartAzamiGecikmeFaizi,
+  turkiyeKmhVarsayilanFaizi,
   turkiyeKurallariGecerli,
   vergiFonOrani,
 } from "./bolgeKurallari.js";
@@ -24,9 +27,20 @@ test("web (varsayılan TRY) Türkiye kurallarını uygular", () => {
 });
 
 test("TRY'de kart oranı TCMB azami diliminden gelir, girilen oran değiştirmez", () => {
-  assert.deepEqual(kartFaizOranlari(10000, 2, "TRY"), { akdi: 3.25, gecikme: 3.55, referans: true, varsayilan: false, bilinmiyor: false });
-  assert.equal(kartFaizOranlari(50000, "", "TRY").akdi, 3.75);
-  assert.equal(kartFaizOranlari(200000, "", "TRY").gecikme, 4.55);
+  assert.deepEqual(kartFaizOranlari(10000, 2, "TRY"), { akdi: tcmbKartAzamiFaizi(10000), gecikme: tcmbKartAzamiGecikmeFaizi(10000), referans: true, varsayilan: false, bilinmiyor: false });
+  assert.equal(kartFaizOranlari(50000, "", "TRY").akdi, tcmbKartAzamiFaizi(50000));
+  assert.equal(kartFaizOranlari(200000, "", "TRY").gecikme, tcmbKartAzamiGecikmeFaizi(200000));
+});
+
+test("TCMB tablosu 1 Aralık 2026 00:00 TSİ'de 0,17 puan düşer", () => {
+  const kasim = new Date("2026-11-30T23:59:00+03:00");
+  const aralik = new Date("2026-12-01T00:00:00+03:00");
+  assert.deepEqual([10000, 50000, 200000].map((b) => tcmbKartAzamiFaizi(b, kasim)), [3.25, 3.75, 4.25]);
+  assert.deepEqual([10000, 50000, 200000].map((b) => tcmbKartAzamiGecikmeFaizi(b, kasim)), [3.55, 4.05, 4.55]);
+  assert.deepEqual([10000, 50000, 200000].map((b) => tcmbKartAzamiFaizi(b, aralik)), [3.08, 3.58, 4.08]);
+  assert.deepEqual([10000, 50000, 200000].map((b) => tcmbKartAzamiGecikmeFaizi(b, aralik)), [3.38, 3.88, 4.38]);
+  assert.equal(turkiyeKmhVarsayilanFaizi(kasim), 4.25);
+  assert.equal(turkiyeKmhVarsayilanFaizi(aralik), 4.08);
 });
 
 test("TRY dışında girilen oran geçerli, girilmemişse ülke ortalaması (yıllık / 12) kullanılır", () => {
@@ -39,8 +53,8 @@ test("TRY dışında girilen oran geçerli, girilmemişse ülke ortalaması (yı
   assert.equal(vergiFonOrani("USD"), 0);
 });
 
-test("ek hesap: TRY'de %4,25 referans, TRY dışında ülke ortalaması; ABD'de ücretle işler", () => {
-  assert.deepEqual(ekHesapFaizOrani("", "TRY"), { oran: 4.25, tahmini: true, varsayilan: false, ucretle: false });
+test("ek hesap: TRY'de TCMB üst kademe referansı, TRY dışında ülke ortalaması; ABD'de ücretle işler", () => {
+  assert.deepEqual(ekHesapFaizOrani("", "TRY"), { oran: turkiyeKmhVarsayilanFaizi(), tahmini: true, varsayilan: false, ucretle: false });
   assert.deepEqual(ekHesapFaizOrani("3", "TRY"), { oran: 3, tahmini: false, varsayilan: false, ucretle: false });
   assert.deepEqual(ekHesapFaizOrani("1.5", "GBP"), { oran: 1.5, tahmini: false, varsayilan: false, ucretle: false });
   assert.ok(Math.abs(ekHesapFaizOrani("", "GBP", bolgeProfili("GBP", "GB")).oran - 39.9 / 12) < 0.001);

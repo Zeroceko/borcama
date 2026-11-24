@@ -141,7 +141,7 @@ const es_ = {
   "cekirdek.oneri.gecikmis.aksiyon": "Abrir pagos",
   "cekirdek.oneri.limit.etiket": "Escenario de carga mensual",
   "cekirdek.oneri.limit.baslik": "Revisa el límite de crédito de {banka}",
-  "cekirdek.oneri.limit.aciklama": "Si tu límite de crédito puede bajar a ₺100.000 o menos, el porcentaje legal de pago mínimo en los siguientes extractos podría bajar de aproximadamente el 40 % al 20 %.",
+  "cekirdek.oneri.limit.aciklama": "Si tu límite de crédito puede bajar a ₺100.000 o menos, el porcentaje legal de pago mínimo en los siguientes extractos podría bajar al 20 % (ahora 30 % o 40 % según tu límite).",
   "cekirdek.oneri.limit.etki": "Pago mínimo estimado de {dusuk} en lugar de {mevcut} · diferencia mensual {fark}",
   "cekirdek.oneri.limit.uyari": "Esto no reduce tu deuda ni los intereses. Si pagas menos, el saldo aplazado y los intereses del mes siguiente pueden crecer; el banco decide por separado sobre los cambios de límite.",
   "cekirdek.oneri.kartiIncele": "Revisar tarjeta",

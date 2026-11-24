@@ -141,7 +141,7 @@ const it_ = {
   "cekirdek.oneri.gecikmis.aksiyon": "Apri pagamenti",
   "cekirdek.oneri.limit.etiket": "Scenario di spesa mensile",
   "cekirdek.oneri.limit.baslik": "Rivedi il fido della carta {banka}",
-  "cekirdek.oneri.limit.aciklama": "Se il fido della carta può scendere a ₺100.000 o meno, la percentuale minima di legge sui prossimi estratti conto può passare da circa il 40% al 20%.",
+  "cekirdek.oneri.limit.aciklama": "Se il fido della carta può scendere a ₺100.000 o meno, la percentuale minima di legge sui prossimi estratti conto può passare al 20% (oggi 30% o 40% in base al fido).",
   "cekirdek.oneri.limit.etki": "Minimo stimato {dusuk} invece di {mevcut} · differenza mensile {fark}",
   "cekirdek.oneri.limit.uyari": "Questo non riduce né il debito né gli interessi. Se paghi di meno, il saldo riportato e gli interessi del mese successivo possono aumentare; la banca valuta a parte la modifica del fido.",
   "cekirdek.oneri.kartiIncele": "Esamina carta",
