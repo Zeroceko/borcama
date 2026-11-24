@@ -1,16 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  bekleyenOdemeler,
   borcTrendi,
+  dahaFazlaMaddeleri,
   enAcilOdeme,
   gorunumOku,
   gorunumYaz,
+  harcamaListesi,
   harcamaOzeti,
   kartOdemeDurumu,
   kartSenaryolari,
   odemeKovasi,
   odemeleriGrupla,
   taksitNumarasi,
+  yeniSekmeKarsiligi,
 } from "./yeniGorunum.js";
 
 test("görünüm seçimi varsayılan klasik, depolama hatasında da klasik", () => {
@@ -99,4 +103,41 @@ test("harcama özeti kategori ve kart filtresi", () => {
   assert.equal(hepsi.toplam, 280);
   assert.deepEqual(hepsi.kategoriler.map((k) => k.kategori), ["Market", "Akaryakıt", "Diğer"]);
   assert.deepEqual(harcamaOzeti(kalemler, "a").kategoriler, [{ kategori: "Akaryakıt", tutar: 120 }, { kategori: "Market", tutar: 100 }]);
+});
+
+test("Borcama 2.0 klasik sekmeye düşmez: klasik sekmeler 2.0 karşılığına çevrilir", () => {
+  for (const s of ["ozet", "borclarim", "harcamalarim", "ayarlar"]) assert.equal(yeniSekmeKarsiligi(s), s);
+  assert.equal(yeniSekmeKarsiligi("borclar"), "borclarim");
+  assert.equal(yeniSekmeKarsiligi("plan"), "borclarim");
+  assert.equal(yeniSekmeKarsiligi("harcamalar"), "harcamalarim");
+  assert.equal(yeniSekmeKarsiligi("sabit-giderler"), "harcamalarim");
+  for (const s of ["odemeler", "varliklar", "sabit-gelirler", "gelir", "ozet-klasik", undefined]) assert.equal(yeniSekmeKarsiligi(s), "ozet");
+});
+
+test("Daha fazla yalnız ayarlar, asistan, görüş ve klasik geçişi içerir", () => {
+  assert.deepEqual(dahaFazlaMaddeleri(), ["ayarlar", "asistan", "klasik"]);
+  assert.deepEqual(dahaFazlaMaddeleri({ gorusVar: true }), ["ayarlar", "asistan", "gorus", "klasik"]);
+});
+
+test("harcama listesi yeniden eskiye, tarihsiz sonda, kart filtresi uygulanır", () => {
+  const kalemler = [
+    { id: "a", tarih: "2026-03-02", tutar: 10, kartId: "k1" },
+    { id: "b", tarih: "", tutar: 50, kartId: null },
+    { id: "c", tarih: "2026-03-09", tutar: 20, kartId: "k2" },
+    { id: "d", tarih: "2026-03-09", tutar: 30, kartId: "k1" },
+  ];
+  assert.deepEqual(harcamaListesi(kalemler).map((k) => k.id), ["d", "c", "a", "b"]);
+  assert.deepEqual(harcamaListesi(kalemler, "k1").map((k) => k.id), ["d", "a"]);
+  assert.equal(kalemler[0].id, "a");
+});
+
+test("ödeme gir listesi yalnız bu ay açık olanları gösterir", () => {
+  const liste = bekleyenOdemeler([
+    { id: 1, tur: "kredi", tutar: 100, odendi: false },
+    { id: 2, tur: "kredi", tutar: 100, odendi: true },
+    { id: 3, tur: "kart", kalanToplam: 500, kartDurumu: "minimum" },
+    { id: 4, tur: "kart", kalanToplam: 0, kartDurumu: "tamami" },
+    { id: 5, tur: "kredi", tutar: 100, gelecek: true },
+  ]);
+  assert.deepEqual(liste.map((o) => o.id), [1, 3]);
 });

@@ -124,3 +124,46 @@ export function harcamaOzeti(kalemler = [], kartId = "hepsi") {
     .sort((a, b) => b.tutar - a.tutar);
   return { toplam: yuvarla(kategoriler.reduce((t, k) => t + k.tutar, 0)), kategoriler };
 }
+
+// Borcama 2.0'da yalnız bu sekmeler çizilir; klasik sekme adı gelirse
+// (adres, bildirim, eski akış) en yakın 2.0 sekmesine çevrilir.
+export const YENI_SEKMELER = ["ozet", "borclarim", "harcamalarim", "ayarlar"];
+const YENI_SEKME_ESLEMESI = {
+  borclar: "borclarim",
+  plan: "borclarim",
+  harcamalar: "harcamalarim",
+  "sabit-giderler": "harcamalarim",
+};
+export function yeniSekmeKarsiligi(sekme) {
+  if (YENI_SEKMELER.includes(sekme)) return sekme;
+  return YENI_SEKME_ESLEMESI[sekme] || "ozet";
+}
+
+// "Daha fazla" yalnız bu maddeleri gösterir; hiçbiri klasik ekrana gitmez.
+export function dahaFazlaMaddeleri({ gorusVar = false } = {}) {
+  return ["ayarlar", "asistan", ...(gorusVar ? ["gorus"] : []), "klasik"];
+}
+
+// Harcamalarım listesi: yeni tarihten eskiye; tarihsiz (sabit) kalemler sonda.
+export function harcamaListesi(kalemler = [], kartId = "hepsi") {
+  return kalemler
+    .filter((k) => kartId === "hepsi" || k.kartId === kartId)
+    .slice()
+    .sort((a, b) => {
+      const ta = a.tarih || "";
+      const tb = b.tarih || "";
+      if (ta === tb) return (+b.tutar || 0) - (+a.tutar || 0);
+      if (!ta) return 1;
+      if (!tb) return -1;
+      return ta < tb ? 1 : -1;
+    });
+}
+
+// Bugün "Ödeme gir": bu ay ödenmemiş (gelecek ay olmayan) satırlar.
+export function bekleyenOdemeler(odemeler = []) {
+  return odemeler.filter((o) => {
+    if (o.gelecek) return false;
+    if (o.tur === "kart") return o.kartDurumu !== "tamami" && (+o.kalanToplam || 0) > 0.01;
+    return !o.odendi && (+o.tutar || 0) > 0.01;
+  });
+}
