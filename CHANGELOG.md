@@ -4,6 +4,16 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.0] - 2026-11-24
+
+Web ve iOS aynı sürüm (iOS build 61).
+
+### Değişti
+- Borcama 2.0: Ayarlar → Görünüm → Uygulama düzeni artık "Klasik / Borcama 2.0". Varsayılan Klasik; mevcut kullanıcılar için hiçbir şey değişmez.
+- Borcama 2.0 klasik ekranlardan ayrıldı: kredi, kart ve ek hesap ayrıntısı, düzenleme ve silme; kart, kredi, ek hesap, harcama, ödeme ve hesap özeti ekleme 2.0'ın kendi panellerinde açılır. Kayıt ve doğrulama klasikle aynı kodu kullanır.
+- Mobilde "Daha fazla" yalnız Ayarlar, Borcama'ya sor, Görüş bildir ve Klasik görünüme geç içerir. Borç planı, sabit giderler, gelirler, varlıklar, ödeme geçmişi, ekstre arşivi ve kart yapılandırma Klasik görünümde durur.
+- Masaüstünde Borcama 2.0 klasik düzeni kullanır: üstte yatay sekmeler, başlıkta "+ Ekle" ve Ayarlar, iki sütunlu içerik; alt menü yalnız mobilde.
+
 ## [1.85.0] - 2026-11-24
 
 Web ve iOS aynı sürüm (iOS build 60).
