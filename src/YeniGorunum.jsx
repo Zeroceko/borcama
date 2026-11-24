@@ -99,7 +99,21 @@ export const YENI_CSS = `
 .yg-sekme[aria-current="page"]{background:${LIME};color:${INK}}
 .yg-fab{position:fixed;right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));bottom:calc(86px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;border:0;background:${CORAL};color:${INK};box-shadow:3px 3px 0 ${INK};display:grid;place-items:center;z-index:41;cursor:pointer}
 .yg-fab svg{width:26px;height:26px}
-@media(min-width:900px){.yg-fab{right:calc(50% - 280px - 80px)}}
+.yg-sekme-ekle{display:none}
+@media(min-width:900px){
+.yg-kok{padding-bottom:48px}
+.yg-altbar{top:104px;bottom:auto;left:max(24px,calc(50% - 280px - 244px));right:auto;width:200px;background:transparent;border:0;padding:0}
+.yg-altbar-ic{display:flex;flex-direction:column;gap:6px;max-width:none;margin:0}
+.yg-sekme{display:flex;align-items:center;gap:12px;padding:11px 14px;font-size:15px;text-align:left;color:var(--text)}
+.yg-sekme:hover{background:var(--yg-soft)}
+.yg-sekme[aria-current="page"]:hover{background:${LIME}}
+.yg-sekme svg{width:20px;height:20px}
+.yg-sekme-ekle{display:flex;background:${CORAL};color:${INK};box-shadow:3px 3px 0 ${INK};margin-bottom:10px;font-weight:700}
+.yg-sekme-ekle:hover{background:${CORAL};filter:brightness(1.04)}
+.yg-fab{display:none}
+.bt-feedback-trigger{bottom:24px!important}
+}
+@media(min-width:900px) and (max-width:1139px){.yg-kok{padding-left:236px}}
 .yg-ortu{position:fixed;inset:0;background:rgba(10,10,8,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center}
 .yg-tabaka{background:var(--panel);color:var(--text);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:16px max(18px,env(safe-area-inset-left,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-right,0px));max-height:88vh;overflow:auto}
 @media(min-width:900px){.yg-ortu{align-items:center}.yg-tabaka{border-radius:24px}}
@@ -197,6 +211,9 @@ export function YeniAltBar({ sekme, onSec, onEkle, onDahaFazla }) {
     <>
       <nav className="yg-altbar" aria-label={t("yeni.menuAria")}>
         <div className="yg-altbar-ic">
+          <button type="button" className="yg-sekme yg-sekme-ekle" onClick={onEkle}>
+            <Plus aria-hidden="true" />{t("yeni.sekme.ekle")}
+          </button>
           {sekmeler.map(([k, ad, Ikon]) => (
             <button key={k} type="button" className="yg-sekme" aria-current={sekme === k ? "page" : undefined} onClick={() => onSec(k)}>
               <Ikon aria-hidden="true" />{ad}
