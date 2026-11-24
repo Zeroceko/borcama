@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.85.0] - 2026-11-24
+
+Web ve iOS aynı sürüm (iOS build 60).
+
+### Eklendi
+- Yeni görünüm (isteğe bağlı): Ayarlar → Görünüm → Uygulama düzeni ile Klasik / Yeni arasında geçiş. Varsayılan Klasik; mevcut kullanıcılar için hiçbir şey değişmez. Yeni görünümde üç sekme var: Bugün (gecikti / bugün / yarın / bu hafta / sonraki 30 gün ödemeleri, "8. taksit / 24" gibi taksit bilgisi), Borçlarım (kart hesap özeti; tamamı, minimum ya da hiç ödenmezse oluşacak faiz) ve Harcamalarım (kategori dağılımı, kart filtresi). "Daha fazla" menüsünden klasik ekranların hepsine ulaşılır.
+- Kart için "Ödedim" artık Tamamını / Minimumu / Başka tutar seçeneği sunar; işlem "Geri al" ile geri alınabilir.
+
 ## [1.84.1] - 2026-11-24
 
 Web ve iOS aynı sürüm (iOS build 59).
