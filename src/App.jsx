@@ -112,7 +112,7 @@ import {
   CreditCard,
   UserRound,
 } from "lucide-react";
-import { AcilirMenu, SagPanel, panelTetikleyicisiniAyarla, useMasaustu } from "./MasaustuKabuk.jsx";
+import { AcilirMenu, PanelZorla, SagPanel, panelTetikleyicisiniAyarla, useMasaustu } from "./MasaustuKabuk.jsx";
 import { belgeKaydiParaBirimi, readStatementFile } from "./statementImport.js";
 import { validateStatementResult } from "./statementParser.js";
 import { formatStatementTransactionDate } from "./statementTransactions.js";
@@ -238,8 +238,12 @@ import {
   KartOdemeTabakasi,
   DahaFazlaTabakasi,
   EkleTabakasi,
+  EkHesapDetayTabakasi,
+  HarcamaTabakasi,
+  KrediDetayTabakasi,
+  OdemeSecTabakasi,
 } from "./YeniGorunum.jsx";
-import { borcTrendi, gorunumOku, gorunumYaz, gunlukFaiz, kartOdemeDurumu, kartSenaryolari, taksitNumarasi } from "./yeniGorunum.js";
+import { borcTrendi, gorunumOku, gorunumYaz, gunlukFaiz, harcamaListesi, kartOdemeDurumu, kartSenaryolari, taksitNumarasi, yeniSekmeKarsiligi } from "./yeniGorunum.js";
 
 /* ---------------- Sabit tasarım tokenları ---------------- */
 const INK = "#14160f";
@@ -2949,7 +2953,8 @@ export default function BorcTakip() {
   gelenEkstreGeldi.current = async (adres) => {
     setForm(null);
     setBorcKategori("cards");
-    setSekme("borclar");
+    if (yeniMi) setPanelKonagi("borclar");
+    else setSekme("borclar");
     setGelenEkstre({ adres });
     try {
       const dosya = await gelenEkstreDosyasi(adres);
@@ -3863,6 +3868,16 @@ export default function BorcTakip() {
     setForm(null);
     setSekme("ozet");
   }
+  // Borcama 2.0'da klasik sekme ekranı açılmaz: adres, bildirim ya da eski
+  // bir akış klasik sekmeye götürürse en yakın 2.0 sekmesine dönülür.
+  useEffect(() => {
+    if (!yeniMi) return;
+    const hedef = yeniSekmeKarsiligi(sekme);
+    if (hedef === sekme) return;
+    setSekmeState(hedef);
+    const yol = SEKME_YOLLARI[hedef] || SEKME_YOLLARI.ozet;
+    if (window.location.pathname !== yol) window.history.replaceState({}, "", yol);
+  }, [yeniMi, sekme]);
   const yeniModel = useMemo(() => {
     if (!yeniMi) return null;
     const simdi = bugun();
@@ -3941,6 +3956,7 @@ export default function BorcTakip() {
           kartDurumu: kartM ? kartM.durum : null,
           kalanFaiz: kartM ? kartM.senaryo.minimum.faiz : 0,
           kartId: kayitKart?.id || null,
+          krediId: kredi?.id || null,
           taksit: kredi ? krediTaksiti(kredi, { gelecek: o.gelecek, buAyOdendi: !o.gelecek && o.odendi }) : null,
         };
       })
@@ -3968,7 +3984,7 @@ export default function BorcTakip() {
     const ekHesaplar = (veri.overdrafts || [])
       .map((k) => ({ k, h: ekHesapHesabi(k) }))
       .filter(({ h }) => h.kalan > 0)
-      .map(({ k, h }) => ({ id: k.id, kayit: k, ad: (k.banka || t("ortak.banka")) + " · " + t("yeni.borc.dilim.ek"), banka: k.banka || "", kalan: h.kalan, oran: h.oran, aylikFaiz: h.faiz, paraBirimi: yabanciBirim(k) || undefined }));
+      .map(({ k, h }) => ({ id: k.id, kayit: k, ad: (k.banka || t("ortak.banka")) + " · " + t("yeni.borc.dilim.ek"), banka: k.banka || "", kalan: h.kalan, limit: +k.limit || 0, oran: h.oran, aylikFaiz: h.faiz, paraBirimi: yabanciBirim(k) || undefined }));
     // Harcamalar: bu ayki giderler (klasik "Ay içindeki harcama" ile aynı kural), karta bağlananlar kartla eşlenir.
     const ay = ayAnahtari(simdi);
     const harcamaKalemleri = [];
@@ -3979,7 +3995,18 @@ export default function BorcTakip() {
         : kart
           ? expenseInstallmentAmountForPeriod(h, kart, ay)
           : (h.tarih || "").startsWith(ay) ? +h.tutar || 0 : 0;
-      if (tutar > 0) harcamaKalemleri.push({ kategori: h.kategori ? tDeger(h.kategori) : "", tutar, kartId: kart?.id || null });
+      if (tutar > 0)
+        harcamaKalemleri.push({
+          id: h.id,
+          kayit: h,
+          ad: h.aciklama || (h.kategori ? tDeger(h.kategori) : t("yeni.harcama.adsiz")),
+          kategori: h.kategori ? tDeger(h.kategori) : "",
+          tutar,
+          kartId: kart?.id || null,
+          kartAdi: kart ? (kart.banka || "") + (kart.ad ? " " + kart.ad : "") : "",
+          tarih: h.tekrar === "Her ay" ? "" : h.tarih || "",
+          tarihMetni: h.tekrar === "Her ay" ? t("yeni.harcama.herAy") : h.tarih ? kisaTarih(new Date(h.tarih + "T12:00:00")) : "",
+        });
     });
     const harcamaKartlari = (veri.cards || []).map((k) => ({ id: k.id, ad: (k.banka || "") + (k.ad ? " " + k.ad : "") }));
     kartlar.forEach((k) => {
@@ -4061,12 +4088,37 @@ export default function BorcTakip() {
       tur: "kartOde",
       odeme: { anahtar: kart.anahtar, ad: kart.ad, tutar: kart.minimumKalan, kalanToplam: kart.kalanToplam, paraBirimi: kart.paraBirimi },
     });
-  const yeniEkstreYukle = (kartId) => {
+  // Borcama 2.0: formlar ve yükleme akışları sayfa değiştirmeden panelde
+  // açılır (klasik sekmeye geçilmez); kaydetme mantığı klasikle aynıdır.
+  // Borcama 2.0'da panel Borclar'ı paylaşımdan gelen ekstreyi de işler
+  // (klasik Borclar sayfası 2.0'da hiç çizilmez).
+  const borclarPanelOzellikleri = { ...borclarOzellikleri, gelenPanelde: yeniMi };
+  const yeniPanelAc = (konak, formDegeri = null, kategori = null) => {
     setYeniTabaka(null);
-    setBorcKategori("cards");
-    setForm(null);
-    setSekme("borclar");
+    if (kategori) setBorcKategori(kategori);
+    setPanelKonagi(konak);
+    setForm(formDegeri);
+  };
+  const yeniEkstreYukle = () => {
+    yeniPanelAc("borclar", null, "cards");
     setEkstreYuklemeIstegi((eski) => eski + 1);
+  };
+  const yeniDuzenle = (liste, kayit) => {
+    const kategori = { cards: "cards", loans: "loans", overdrafts: "od" }[liste];
+    yeniPanelAc(liste === "expenses" ? "harcamalar" : "borclar", { liste, veri: { ...kayit } }, kategori);
+  };
+  const yeniSilRef = useRef(null);
+  yeniSilRef.current = (liste, id) => {
+    const islem = (veri.activityHistory || []).find((x) => !x.geriAlindi && x.geriAl?.tip === "liste" && x.geriAl.liste === liste && x.geriAl.id === id);
+    if (islem) {
+      islemiGeriAl(islem.id);
+      setYeniToast({ metin: t("yeni.sil.geriAlindi") });
+    }
+  };
+  const yeniSil = (liste, kayit, ad) => {
+    setYeniTabaka(null);
+    sil(liste, kayit.id);
+    setYeniToast({ metin: t("yeni.sil.silindi", { ad }), geriAl: () => yeniSilRef.current?.(liste, kayit.id) });
   };
   const yeniDahaFazla = (hedef) => {
     setYeniTabaka(null);
@@ -4074,31 +4126,24 @@ export default function BorcTakip() {
     if (hedef === "klasik") return gorunumDegistir("klasik");
     if (hedef === "asistan") return misafir ? uygulamaIciGit("/register") : setAsistanPenceresi(true);
     if (hedef === "gorus") return setGeriBildirimPenceresi(true);
-    if (hedef === "borclar") setBorcKategori("cards");
-    setSekme(hedef);
+    if (hedef === "ayarlar") {
+      setSekme("ayarlar");
+      window.scrollTo?.({ top: 0 });
+    }
   };
   const yeniEkle = (tur) => {
     setYeniTabaka(null);
-    setForm(null);
     if (tur === "ekstre") return yeniEkstreYukle();
     if (tur === "kredi-plan") {
-      setBorcKategori("loans");
-      setSekme("borclar");
+      yeniPanelAc("borclar", null, "loans");
       setKrediPlaniIstegi((eski) => eski + 1);
       return;
     }
-    if (tur === "harcama") {
-      setSekme("harcamalar");
-      setForm({ liste: "expenses", veri: {} });
-      return;
-    }
-    if (tur === "odeme") {
-      setOdemeFiltresi("bekleyen");
-      setSekme("odemeler");
-      setOdemeFormuIstegi((eski) => eski + 1);
-      return;
-    }
-    setBorcTuruSecimiAcik(true);
+    if (tur === "harcama") return yeniPanelAc("harcamalar", { liste: "expenses", veri: {} });
+    if (tur === "odeme") return setYeniTabaka({ tur: "odemeSec" });
+    if (tur === "kart") return yeniPanelAc("borclar", { liste: "cards", veri: {} }, "cards");
+    if (tur === "kredi") return yeniPanelAc("borclar", { liste: "loans", veri: {} }, "loans");
+    if (tur === "ek") return yeniPanelAc("borclar", { liste: "overdrafts", veri: {} }, "od");
   };
   const yeniSekmeSec = (k) => {
     setYeniTabaka(null);
@@ -4187,7 +4232,7 @@ export default function BorcTakip() {
                 <Sparkles size={14} /> {t("kabuk.proyaGec")}
               </button>
             )}
-            {masaustu && (
+            {masaustu && !yeniMi && (
               <AcilirMenu
                 sinif="mk-ekle-kap"
                 etiket={t("web.kabuk.ekle.menu")}
@@ -4201,6 +4246,7 @@ export default function BorcTakip() {
                 ]}
               />
             )}
+            {!yeniMi && (
             <button
               className={
                 "bt-settings-link " + (sekme === "ayarlar" ? "aktif" : "")
@@ -4212,6 +4258,7 @@ export default function BorcTakip() {
             >
               <Settings size={14} /> {t("kabuk.ayarlar")}
             </button>
+            )}
             {masaustu && (
               <AcilirMenu
                 sinif="mk-hesap-kap"
@@ -4346,6 +4393,7 @@ export default function BorcTakip() {
           const kaynakKayit = (o) => String(o.id || "").startsWith("kart-")
             ? veri.cards.find((k) => "kart-" + k.id === o.id)
             : String(o.id || "").startsWith("kredi-") ? veri.loans.find((k) => "kredi-" + k.id === o.id) : null;
+          if (yeniMi) return null;
           const rehber = rehberDurumu(veri, { simdi: new Date(), yaklasan: yaklasan.map((o) => ({ ...o, eklendi: kaynakKayit(o)?.eklendi })) });
           if (!rehber.oneri) return null;
           // Kurulumda Bugün ekranında büyük kart var; ilk adım atılmadan şerit gösterilmez.
@@ -4403,7 +4451,7 @@ export default function BorcTakip() {
                 {hata}
               </div>
             )}
-            {((sekme === "ozet" && !yeniMi) || (yeniMi && (sekme === "ozet-klasik" || (sekme === "ozet" && yeniKurulum)))) && (
+            {sekme === "ozet" && !yeniMi && (
               <Ozet
                 veri={veri}
                 toplamlar={toplamlar}
@@ -4519,7 +4567,7 @@ export default function BorcTakip() {
                 temaSec={temaSec}
                 temaAyari={temaAyari}
                 parolaAc={() => setParolaPenceresi(true)}
-                rehberAc={() => rehberAdiminaGit(0)}
+                rehberAc={yeniMi ? null : () => rehberAdiminaGit(0)}
                 cikisYap={cikisYap}
                 hesabiSil={hesabiSil}
                 gorunum={gorunum}
@@ -4528,8 +4576,10 @@ export default function BorcTakip() {
             )}
             {yeniMi && yeniModel && (
               <div className="yg-kok" data-yeni-gorunum="">
-                {sekme === "ozet" && !yeniKurulum && (
+                {sekme === "ozet" && (
                   <YeniBugun
+                    bos={yeniKurulum}
+                    onEkle={yeniEkle}
                     odemeler={yeniModel.odemeler}
                     ayOzeti={yeniModel.ayOzeti}
                     trend={yeniModel.trend}
@@ -4550,10 +4600,8 @@ export default function BorcTakip() {
                     planCumlesi={yeniModel.planCumlesi}
                     para={(n, birim) => fmt0(n, birim)}
                     onKart={(k) => setYeniTabaka({ tur: "kart", kartId: k.id })}
-                    onKredi={() => { setBorcKategori("loans"); setForm(null); setSekme("borclar"); }}
-                    onEkHesap={() => { setBorcKategori("od"); setForm(null); setSekme("borclar"); }}
-                    onPlan={() => setSekme("plan")}
-                    onTumBorclar={() => { setBorcKategori("cards"); setForm(null); setSekme("borclar"); }}
+                    onKredi={(k) => setYeniTabaka({ tur: "kredi", id: k.id })}
+                    onEkHesap={(k) => setYeniTabaka({ tur: "ek", id: k.id })}
                   />
                 )}
                 {sekme === "harcamalarim" && (
@@ -4564,8 +4612,7 @@ export default function BorcTakip() {
                     para={(n, birim) => fmt0(n, birim)}
                     onEkstreYukle={() => yeniEkstreYukle()}
                     onHarcamaEkle={() => yeniEkle("harcama")}
-                    onTumHarcamalar={() => { setForm(null); setSekme("harcamalar"); }}
-                    onSabitGiderler={() => { setForm(null); setSekme("sabit-giderler"); }}
+                    onHarcama={(h) => setYeniTabaka({ tur: "harcama", harcama: h })}
                   />
                 )}
               </div>
@@ -4574,12 +4621,12 @@ export default function BorcTakip() {
         )}
         {/* "+ Ekle" baska sekmedeyken formu tasiyan bilesen listesiz baglanir;
             formu ve secicileri sag panelde (masaustu), sayfa yerinde kalir. */}
-        {masaustu && panelKonagi && !yukleniyor && (
-          <>
+        {(masaustu || yeniMi) && panelKonagi && !yukleniyor && (
+          <PanelZorla.Provider value={yeniMi}>
             {panelKonagi === "harcamalar" && sekme !== "harcamalar" && <Harcamalar {...harcamalarOzellikleri} yalnizPanel />}
             {panelKonagi === "odemeler" && sekme !== "odemeler" && <Odemeler {...odemelerOzellikleri} yalnizPanel />}
-            {panelKonagi === "borclar" && sekme !== "borclar" && <Borclar {...borclarOzellikleri} yalnizPanel />}
-          </>
+            {panelKonagi === "borclar" && sekme !== "borclar" && <Borclar {...borclarPanelOzellikleri} yalnizPanel />}
+          </PanelZorla.Provider>
         )}
       </div>
       {(() => {
@@ -4656,16 +4703,60 @@ export default function BorcTakip() {
                 para={(n, birim) => fmt0(n, birim)}
                 onKapat={() => setYeniTabaka(null)}
                 onOde={() => yeniKartOde(kart)}
-                onEkstreYukle={() => yeniEkstreYukle(kart.id)}
-                onDuzenle={() => {
-                  setYeniTabaka(null);
-                  setBorcKategori("cards");
-                  setSekme("borclar");
-                  setForm({ liste: "cards", veri: { ...kart.kayit } });
-                }}
+                onEkstreYukle={() => yeniEkstreYukle()}
+                onDuzenle={() => yeniDuzenle("cards", kart.kayit)}
+                onSil={() => yeniSil("cards", kart.kayit, kart.ad)}
               />
             );
           })()}
+          {yeniTabaka?.tur === "kredi" && (() => {
+            const kredi = yeniModel?.krediler.find((k) => k.id === yeniTabaka.id);
+            if (!kredi) return null;
+            const ilgili = yeniModel.odemeler.filter((o) => o.krediId === kredi.id);
+            const odeme = ilgili.find((o) => !o.gelecek) || ilgili[0] || null;
+            return (
+              <KrediDetayTabakasi
+                kredi={kredi}
+                odeme={odeme}
+                para={(n, birim) => fmt0(n, birim)}
+                onKapat={() => setYeniTabaka(null)}
+                onOdedim={(o) => { setYeniTabaka(null); yeniOdedim(o); }}
+                onDuzenle={() => yeniDuzenle("loans", kredi.kayit)}
+                onSil={() => yeniSil("loans", kredi.kayit, kredi.ad)}
+              />
+            );
+          })()}
+          {yeniTabaka?.tur === "ek" && (() => {
+            const hesap = yeniModel?.ekHesaplar.find((k) => k.id === yeniTabaka.id);
+            if (!hesap) return null;
+            return (
+              <EkHesapDetayTabakasi
+                hesap={hesap}
+                para={(n, birim) => fmt0(n, birim)}
+                onKapat={() => setYeniTabaka(null)}
+                onOdemeGir={() => yeniPanelAc("borclar", { liste: "overdrafts", veri: hesap.kayit, odemeGir: true }, "od")}
+                onDuzenle={() => yeniDuzenle("overdrafts", hesap.kayit)}
+                onSil={() => yeniSil("overdrafts", hesap.kayit, hesap.ad)}
+              />
+            );
+          })()}
+          {yeniTabaka?.tur === "harcama" && (
+            <HarcamaTabakasi
+              harcama={yeniTabaka.harcama}
+              para={(n, birim) => fmt0(n, birim)}
+              onKapat={() => setYeniTabaka(null)}
+              onDuzenle={() => yeniDuzenle("expenses", yeniTabaka.harcama.kayit)}
+              onSil={() => yeniSil("expenses", yeniTabaka.harcama.kayit, yeniTabaka.harcama.ad)}
+            />
+          )}
+          {yeniTabaka?.tur === "odemeSec" && yeniModel && (
+            <OdemeSecTabakasi
+              odemeler={yeniModel.odemeler}
+              para={(n, birim) => fmt0(n, birim)}
+              onKapat={() => setYeniTabaka(null)}
+              onSec={(o) => { setYeniTabaka(null); yeniOdedim(o); }}
+            />
+          )}
           {yeniTabaka?.tur === "kartOde" && (
             <KartOdemeTabakasi
               odeme={yeniTabaka.odeme}
@@ -6188,7 +6279,7 @@ function Ayarlar({
               </div>
             </div>
           )}
-          <div className="bt-setting-row">
+          {rehberAc && <div className="bt-setting-row">
             <div>
               <strong>{t("ayarlar.gorunum.rehber")}</strong>
               <small>{t("ayarlar.gorunum.rehberAciklama")}</small>
@@ -6196,7 +6287,7 @@ function Ayarlar({
             <button className="bt-btn kucuk ikincil" onClick={rehberAc}>
               <BookOpen size={14} /> {t("ayarlar.gorunum.rehberiAc")}
             </button>
-          </div>
+          </div>}
         </section>
         {!nativeMi && <section className="bt-settings-card">
           <div className="bt-settings-title">
@@ -9132,6 +9223,7 @@ function Borclar({
   // "+ Ekle" baska sekmedeyken: liste cizilmez, yalniz form paneli ve
   // ekleme secicileri/pencereleri.
   yalnizPanel = false,
+  gelenPanelde = false,
 }) {
   // Masaustunde formlar ve ekleme secicileri sag panelde; liste yerinde (B11).
   const masaustu = useMasaustu();
@@ -9176,7 +9268,7 @@ function Borclar({
   // "hazirlaniyor", sonra okuma); eslesen kart secili gelir, kullanici onaylar.
   // Pencere kapaninca gelen dosya birakilir.
   useEffect(() => {
-    if (!gelenEkstre?.adres || yalnizPanel) return;
+    if (!gelenEkstre?.adres || (yalnizPanel && !gelenPanelde)) return;
     setEkstreAkisKarti(null);
     setBaslangicSecimiAcik(false);
     if (belgeOkumaAcik(undefined, tumBorcKayitlari(veri))) {
@@ -10624,7 +10716,7 @@ function Borclar({
         <StatementImportModal
           cards={veri.cards}
           initialCardId={ekstreAkisKarti?.id || ""}
-          gelen={yalnizPanel ? null : gelenEkstre}
+          gelen={yalnizPanel && !gelenPanelde ? null : gelenEkstre}
           onClose={() => {
             setEkstreYuklemePenceresi(false);
             setEkstreAkisKarti(null);

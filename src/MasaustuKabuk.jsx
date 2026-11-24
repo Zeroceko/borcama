@@ -4,7 +4,7 @@
 // Burada ayrıca uygulamanın sağdan açılan paneli (SagPanel) ve üst çubuk
 // menüleri (AcilirMenu) var. iOS ve <1024 px'te hiçbiri çizilmez; mevcut
 // düzen aynen kalır.
-import React, { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { nativeMi } from "./platform.js";
@@ -18,8 +18,13 @@ function masaustuMu() {
   return window.matchMedia(MASAUSTU_SORGUSU).matches;
 }
 
+// Borcama 2.0 (yeni görünüm) formları sayfa değiştirmeden açar: bu bağlamın
+// altında formlar her ekran boyunda (iOS dahil) SagPanel'de çizilir.
+export const PanelZorla = createContext(false);
+
 // Web'de ve ≥1024 px'te true; pencere daralınca anında false olur.
 export function useMasaustu() {
+  const zorla = useContext(PanelZorla);
   const [masaustu, setMasaustu] = useState(masaustuMu);
   useEffect(() => {
     if (nativeMi || typeof window.matchMedia !== "function") return undefined;
@@ -29,7 +34,7 @@ export function useMasaustu() {
     sorgu.addEventListener?.("change", dinle);
     return () => sorgu.removeEventListener?.("change", dinle);
   }, []);
-  return masaustu;
+  return zorla || masaustu;
 }
 
 // Uygulamanın başlığıyla aynı logo dosyası; kabuklar arasında logo yerinden

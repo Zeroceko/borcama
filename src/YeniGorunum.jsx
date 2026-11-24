@@ -3,19 +3,20 @@
 // görünüm bu bileşenleri hiç bağlamaz.
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Building2,
   CalendarDays,
   CreditCard,
   FileText,
-  LayoutGrid,
   Menu,
   PieChart,
   Plus,
   ReceiptText,
+  Wallet,
   X,
   ChevronRight,
 } from "lucide-react";
 import { t } from "./i18n.js";
-import { enAcilOdeme, harcamaOzeti, kartSenaryolari, odemeleriGrupla } from "./yeniGorunum.js";
+import { bekleyenOdemeler, dahaFazlaMaddeleri, enAcilOdeme, harcamaListesi, harcamaOzeti, kartSenaryolari, odemeleriGrupla } from "./yeniGorunum.js";
 
 const INK = "#14160f";
 const LIME = "#cdf564";
@@ -126,6 +127,11 @@ export const YENI_CSS = `
 .yg-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(156px + env(safe-area-inset-bottom,0px));background:${INK};color:#f4efe0;padding:11px 16px;border-radius:14px;font-size:13.5px;z-index:70;display:flex;gap:14px;align-items:center;width:max-content;max-width:min(440px,calc(100% - 32px))}
 .yg-toast span{min-width:0}
 .yg-toast button{white-space:nowrap;flex:none;background:none;border:0;color:${LIME};font-weight:700;padding:0;cursor:pointer}
+.sag-panel{padding-top:env(safe-area-inset-top,0px)}
+.yg-harcama{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:11px 13px;color:var(--text);font:inherit;cursor:pointer}
+.yg-harcama .yg-alt{grid-column:1/-1;margin-top:0}
+.yg-sil{background:transparent;border:0;color:var(--yg-bad);font:700 13.5px 'Space Grotesk',sans-serif;padding:11px 6px;cursor:pointer}
+.yg-sil.onay{background:var(--yg-bad);color:#fff;border-radius:999px;padding:11px 18px}
 @media (prefers-reduced-motion: no-preference){.yg-tabaka{animation:yg-yukari .2s ease-out}@keyframes yg-yukari{from{transform:translateY(24px);opacity:.5}}}
 `;
 
@@ -282,7 +288,7 @@ function TrendGrafigi({ noktalar, para, ayAdi }) {
   );
 }
 
-export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tarihMetni }) {
+export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tarihMetni, bos = false, onEkle }) {
   const gruplar = useMemo(() => odemeleriGrupla(odemeler), [odemeler]);
   const acil = useMemo(() => enAcilOdeme(odemeler), [odemeler]);
   const KOVA = {
@@ -292,6 +298,31 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
     buHafta: [t("yeni.kova.buHafta"), "var(--yg-warn)"],
     sonraki: [t("yeni.kova.sonraki"), "var(--dim)"],
   };
+  if (bos) {
+    return (
+      <div className="yg-sayfa">
+        <section className="yg-manset">
+          <div className="yg-ust-etiket">{t("yeni.sekme.bugun")}</div>
+          <h1>{t("yeni.bos.baslik")}</h1>
+          <small>{t("yeni.bos.aciklama")}</small>
+        </section>
+        <div>
+          <button type="button" className="yg-secenek" onClick={() => onEkle("ekstre")}>
+            <ReceiptText aria-hidden="true" />
+            <span><b>{t("yeni.ekle.ekstre")}</b><small>{t("yeni.ekle.ekstreAlt")}</small></span>
+          </button>
+          <button type="button" className="yg-secenek" onClick={() => onEkle("kart")}>
+            <CreditCard aria-hidden="true" />
+            <span><b>{t("yeni.ekle.kart")}</b><small>{t("yeni.ekle.kartAlt")}</small></span>
+          </button>
+          <button type="button" className="yg-secenek" onClick={() => onEkle("kredi")}>
+            <Building2 aria-hidden="true" />
+            <span><b>{t("yeni.ekle.kredi")}</b><small>{t("yeni.ekle.krediAlt")}</small></span>
+          </button>
+        </div>
+      </div>
+    );
+  }
   let manset;
   if (!acil) {
     manset = (
@@ -401,7 +432,7 @@ function Halka({ dilimler }) {
   );
 }
 
-export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, kartlar, ekHesaplar, planCumlesi, para, onKart, onKredi, onEkHesap, onPlan, onTumBorclar }) {
+export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, kartlar, ekHesaplar, planCumlesi, para, onKart, onKredi, onEkHesap }) {
   const [nedenAcik, setNedenAcik] = useState(false);
   const bos = !krediler.length && !kartlar.length && !ekHesaplar.length;
   return (
@@ -497,26 +528,22 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
       {planCumlesi && (
         <section className="yg-plan">
           <div className="yg-ust-etiket" style={{ color: LIME }}>{t("yeni.plan.etiket")}</div>
-          <p>{planCumlesi}</p>
-          <button type="button" className="yg-btn ana" onClick={onPlan}>{t("yeni.plan.gor")}</button>
+          <p style={{ marginBottom: 0 }}>{planCumlesi}</p>
         </section>
       )}
-      <button type="button" className="yg-secenek" onClick={onTumBorclar}>
-        <LayoutGrid aria-hidden="true" />
-        <span><b>{t("yeni.borc.tumIslemler")}</b><small>{t("yeni.borc.tumIslemlerAlt")}</small></span>
-        <ChevronRight size={18} style={{ marginLeft: "auto" }} aria-hidden="true" />
-      </button>
     </div>
   );
 }
 
-export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYukle, onHarcamaEkle, onTumHarcamalar, onSabitGiderler }) {
+export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYukle, onHarcamaEkle, onHarcama }) {
   const [kart, setKart] = useState("hepsi");
   const kartAdlari = useMemo(() => {
     const kullanilan = new Set(kalemler.map((k) => k.kartId).filter(Boolean));
     return kartlar.filter((k) => kullanilan.has(k.id));
   }, [kalemler, kartlar]);
   const ozet = useMemo(() => harcamaOzeti(kalemler, kart), [kalemler, kart]);
+  const liste = useMemo(() => harcamaListesi(kalemler, kart), [kalemler, kart]);
+  const [gosterilen, setGosterilen] = useState(20);
   if (!kalemler.length) {
     return (
       <div className="yg-sayfa">
@@ -529,7 +556,6 @@ export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYuk
             <button type="button" className="yg-btn ana" onClick={onEkstreYukle}>{t("yeni.ekle.ekstre")}</button>
             <button type="button" className="yg-btn cizgi" onClick={onHarcamaEkle}>{t("yeni.ekle.harcama")}</button>
           </div>
-          <button type="button" className="yg-bag" onClick={onSabitGiderler}>{t("yeni.harcama.sabit")}</button>
         </div>
       </div>
     );
@@ -574,21 +600,30 @@ export function YeniHarcamalarim({ kalemler, kartlar, ayMetni, para, onEkstreYuk
           ))}
         </div>
       </section>
-      <button type="button" className="yg-secenek" onClick={onTumHarcamalar}>
-        <ReceiptText aria-hidden="true" />
-        <span><b>{t("yeni.harcama.tumu")}</b><small>{t("yeni.harcama.tumuAlt")}</small></span>
-        <ChevronRight size={18} style={{ marginLeft: "auto" }} aria-hidden="true" />
-      </button>
-      <button type="button" className="yg-secenek" onClick={onSabitGiderler}>
-        <CalendarDays aria-hidden="true" />
-        <span><b>{t("yeni.harcama.sabit")}</b><small>{t("yeni.harcama.sabitAlt")}</small></span>
-        <ChevronRight size={18} style={{ marginLeft: "auto" }} aria-hidden="true" />
-      </button>
+      <section aria-label={t("yeni.harcama.liste")}>
+        <div className="yg-grup-baslik">
+          {t("yeni.harcama.liste")}
+          <span className="yg-sayac">{liste.length}</span>
+        </div>
+        <div className="yg-liste">
+          {liste.slice(0, gosterilen).map((h, i) => (
+            <button key={(h.id || "h") + "-" + i} type="button" className="yg-harcama" onClick={() => onHarcama(h)}>
+              <b className="yg-ad">{h.ad}</b>
+              <span className="yg-para">{para(h.tutar)}</span>
+              <span className="yg-alt">{[h.tarihMetni, h.kategori, h.kartAdi].filter(Boolean).join(" · ")}</span>
+            </button>
+          ))}
+        </div>
+        {liste.length > gosterilen && (
+          <button type="button" className="yg-bag" onClick={() => setGosterilen((n) => n + 20)}>{t("yeni.harcama.dahaFazla", { n: liste.length - gosterilen })}</button>
+        )}
+      </section>
+      <button type="button" className="yg-btn cizgi" onClick={onHarcamaEkle} style={{ justifySelf: "start" }}>{t("yeni.ekle.harcama")}</button>
     </div>
   );
 }
 
-export function KartDetayTabakasi({ kart, para, onKapat, onOde, onEkstreYukle, onDuzenle }) {
+export function KartDetayTabakasi({ kart, para, onKapat, onOde, onEkstreYukle, onDuzenle, onSil }) {
   const s = kart.senaryo;
   const v = kart.vergiOrani > 0;
   return (
@@ -627,6 +662,7 @@ export function KartDetayTabakasi({ kart, para, onKapat, onOde, onEkstreYukle, o
         {kart.kalanToplam > 0.01 && <button type="button" className="yg-btn ana" onClick={onOde}>{t("yeni.odeme.odedim")}</button>}
         <button type="button" className="yg-btn cizgi" onClick={onEkstreYukle}>{t("yeni.kart.yeniOzet")}</button>
         <button type="button" className="yg-btn cizgi" onClick={onDuzenle}>{t("yeni.kart.tumKart")}</button>
+        <SilDugmesi onSil={onSil} />
       </div>
     </YeniTabaka>
   );
@@ -674,25 +710,19 @@ export function KartOdemeTabakasi({ odeme, para, onKapat, onKaydet }) {
   );
 }
 
+const DAHA_FAZLA_METIN = {
+  ayarlar: ["yeni.daha.ayarlar", "yeni.daha.ayarlarAlt"],
+  asistan: ["yeni.daha.asistan", "yeni.daha.asistanAlt"],
+  gorus: ["yeni.daha.gorus", "yeni.daha.gorusAlt"],
+  klasik: ["yeni.daha.klasik", "yeni.daha.klasikAlt"],
+};
+
 export function DahaFazlaTabakasi({ onSec, onKapat, gorusVar = false }) {
-  const maddeler = [
-    ["ozet-klasik", t("yeni.daha.ozet"), t("yeni.daha.ozetAlt")],
-    ["odemeler", t("yeni.daha.odemeler"), t("yeni.daha.odemelerAlt")],
-    ["borclar", t("yeni.daha.borclar"), t("yeni.daha.borclarAlt")],
-    ["plan", t("yeni.daha.plan"), t("yeni.daha.planAlt")],
-    ["sabit-gelirler", t("yeni.daha.gelirGider"), t("yeni.daha.gelirGiderAlt")],
-    ["gelir", t("yeni.daha.tekGelir"), t("yeni.daha.tekGelirAlt")],
-    ["varliklar", t("yeni.daha.varliklar"), t("yeni.daha.varliklarAlt")],
-    ["asistan", t("yeni.daha.asistan"), t("yeni.daha.asistanAlt")],
-    ["ayarlar", t("yeni.daha.ayarlar"), t("yeni.daha.ayarlarAlt")],
-    ...(gorusVar ? [["gorus", t("yeni.daha.gorus"), t("yeni.daha.gorusAlt")]] : []),
-    ["klasik", t("yeni.daha.klasik"), t("yeni.daha.klasikAlt")],
-  ];
   return (
     <YeniTabaka baslik={t("yeni.sekme.dahaFazla")} onKapat={onKapat}>
-      {maddeler.map(([k, ad, alt]) => (
+      {dahaFazlaMaddeleri({ gorusVar }).map((k) => (
         <button key={k} type="button" className="yg-secenek" onClick={() => onSec(k)}>
-          <span><b>{ad}</b><small>{alt}</small></span>
+          <span><b>{t(DAHA_FAZLA_METIN[k][0])}</b><small>{t(DAHA_FAZLA_METIN[k][1])}</small></span>
           <ChevronRight size={18} style={{ marginLeft: "auto" }} aria-hidden="true" />
         </button>
       ))}
@@ -702,11 +732,13 @@ export function DahaFazlaTabakasi({ onSec, onKapat, gorusVar = false }) {
 
 export function EkleTabakasi({ onSec, onKapat }) {
   const maddeler = [
-    ["kredi-plan", FileText, t("yeni.ekle.krediPlan"), t("yeni.ekle.krediPlanAlt")],
     ["ekstre", ReceiptText, t("yeni.ekle.ekstre"), t("yeni.ekle.ekstreAlt")],
+    ["kredi-plan", FileText, t("yeni.ekle.krediPlan"), t("yeni.ekle.krediPlanAlt")],
     ["harcama", Plus, t("yeni.ekle.harcama"), t("yeni.ekle.harcamaAlt")],
     ["odeme", CalendarDays, t("yeni.ekle.odeme"), t("yeni.ekle.odemeAlt")],
-    ["borc", CreditCard, t("yeni.ekle.elle"), t("yeni.ekle.elleAlt")],
+    ["kart", CreditCard, t("yeni.ekle.kart"), t("yeni.ekle.kartAlt")],
+    ["kredi", Building2, t("yeni.ekle.kredi"), t("yeni.ekle.krediAlt")],
+    ["ek", Wallet, t("yeni.ekle.ek"), t("yeni.ekle.ekAlt")],
   ];
   return (
     <YeniTabaka baslik={t("yeni.ekle.baslik")} onKapat={onKapat}>
@@ -716,6 +748,115 @@ export function EkleTabakasi({ onSec, onKapat }) {
           <span><b>{ad}</b><small>{alt}</small></span>
         </button>
       ))}
+    </YeniTabaka>
+  );
+}
+
+// İki adımlı silme: ilk dokunuş sorar, ikincisi siler (sonra "Geri al" çıkar).
+function SilDugmesi({ onSil }) {
+  const [soruyor, setSoruyor] = useState(false);
+  if (!onSil) return null;
+  return soruyor ? (
+    <button type="button" className="yg-sil onay" onClick={onSil}>{t("yeni.sil.evet")}</button>
+  ) : (
+    <button type="button" className="yg-sil" onClick={() => setSoruyor(true)}>{t("yeni.sil.sil")}</button>
+  );
+}
+
+export function KrediDetayTabakasi({ kredi, odeme, para, onKapat, onOdedim, onDuzenle, onSil }) {
+  const birim = kredi.paraBirimi;
+  return (
+    <YeniTabaka baslik={kredi.ad} onKapat={onKapat}>
+      {odeme && !odeme.odendi && odeme.gun < 0 && (
+        <div className="yg-icgoru" style={{ background: "var(--yg-bad-bg)", marginBottom: 12 }}>
+          {t("yeni.kredi.gecikti", { n: -odeme.gun, tutar: para(odeme.tutar, birim) })}
+        </div>
+      )}
+      <table className="yg-tablo">
+        <tbody>
+          <tr className="vurgu"><td>{t("yeni.kredi.kalan")}</td><td>{para(kredi.kalan, birim)}</td></tr>
+          <tr><td>{t("yeni.kredi.aylik")}</td><td>{para(kredi.aylik, birim)}</td></tr>
+          {kredi.taksit && <tr><td>{t("yeni.kredi.taksit")}</td><td>{kredi.taksit.odenen} / {kredi.taksit.toplam}</td></tr>}
+          <tr><td>{t("yeni.kredi.odemeGunu")}</td><td style={{ fontFamily: "inherit" }}>{kredi.odemeGunu ? t("yeni.kredi.herAyGun", { gun: kredi.odemeGunu }) : "—"}</td></tr>
+          {odeme && (
+            <tr><td>{t("yeni.kredi.sonraki")}</td><td>{odeme.odendi ? t("yeni.durum.odendi") : `${odeme.tarihMetni} · ${para(odeme.tutar, birim)}`}</td></tr>
+          )}
+        </tbody>
+      </table>
+      {kredi.taksit && <div className="yg-ilerleme"><i style={{ width: (kredi.taksit.odenen / kredi.taksit.toplam) * 100 + "%" }} /></div>}
+      {kredi.kartEkstresinde && <p className="yg-not">{t("yeni.borc.kartEkstresinde")}</p>}
+      <div className="yg-dugmeler">
+        {odeme && !odeme.gelecek && !kredi.kartEkstresinde && (
+          <button type="button" className={"yg-btn " + (odeme.odendi ? "cizgi" : "ana")} onClick={() => onOdedim(odeme)}>
+            {odeme.odendi ? t("yeni.odeme.odendiGeriAl") : t("yeni.odeme.odedim")}
+          </button>
+        )}
+        <button type="button" className="yg-btn cizgi" onClick={onDuzenle}>{t("yeni.duzenle")}</button>
+        <SilDugmesi onSil={onSil} />
+      </div>
+    </YeniTabaka>
+  );
+}
+
+export function EkHesapDetayTabakasi({ hesap, para, onKapat, onOdemeGir, onDuzenle, onSil }) {
+  const birim = hesap.paraBirimi;
+  return (
+    <YeniTabaka baslik={hesap.ad} onKapat={onKapat}>
+      <table className="yg-tablo">
+        <tbody>
+          <tr className="vurgu"><td>{t("yeni.ek.kalan")}</td><td>{para(hesap.kalan, birim)}</td></tr>
+          {hesap.limit > 0 && <tr><td>{t("yeni.ek.limit")}</td><td>{para(hesap.limit, birim)}</td></tr>}
+          <tr><td>{t("yeni.ek.oran")}</td><td>%{oranYaz(hesap.oran)}</td></tr>
+          <tr><td>{t("yeni.ek.aylikFaiz")}</td><td>≈ {para(hesap.aylikFaiz, birim)}</td></tr>
+          <tr><td>{t("yeni.ek.gunlukFaiz")}</td><td>≈ {para(hesap.aylikFaiz / 30, birim)}</td></tr>
+        </tbody>
+      </table>
+      <p className="yg-not">{t("yeni.ek.not")}</p>
+      <div className="yg-dugmeler">
+        <button type="button" className="yg-btn ana" onClick={onOdemeGir}>{t("yeni.ek.odemeGir")}</button>
+        <button type="button" className="yg-btn cizgi" onClick={onDuzenle}>{t("yeni.duzenle")}</button>
+        <SilDugmesi onSil={onSil} />
+      </div>
+    </YeniTabaka>
+  );
+}
+
+export function HarcamaTabakasi({ harcama, para, onKapat, onDuzenle, onSil }) {
+  return (
+    <YeniTabaka baslik={harcama.ad} onKapat={onKapat}>
+      <table className="yg-tablo">
+        <tbody>
+          <tr className="vurgu"><td>{t("yeni.harcama.tutar")}</td><td>{para(harcama.tutar)}</td></tr>
+          {harcama.tarihMetni && <tr><td>{t("yeni.harcama.tarih")}</td><td style={{ fontFamily: "inherit" }}>{harcama.tarihMetni}</td></tr>}
+          {harcama.kategori && <tr><td>{t("yeni.harcama.kategori")}</td><td style={{ fontFamily: "inherit" }}>{harcama.kategori}</td></tr>}
+          {harcama.kartAdi && <tr><td>{t("yeni.harcama.kart")}</td><td style={{ fontFamily: "inherit" }}>{harcama.kartAdi}</td></tr>}
+        </tbody>
+      </table>
+      <div className="yg-dugmeler">
+        <button type="button" className="yg-btn ana" onClick={onDuzenle}>{t("yeni.duzenle")}</button>
+        <SilDugmesi onSil={onSil} />
+      </div>
+    </YeniTabaka>
+  );
+}
+
+export function OdemeSecTabakasi({ odemeler, para, onSec, onKapat }) {
+  const liste = bekleyenOdemeler(odemeler);
+  return (
+    <YeniTabaka baslik={t("yeni.odemeSec.baslik")} onKapat={onKapat}>
+      {liste.length ? (
+        <>
+          <p style={{ margin: "0 0 12px", color: "var(--dim)", fontSize: 13.5 }}>{t("yeni.odemeSec.aciklama")}</p>
+          {liste.map((o) => (
+            <button key={o.id} type="button" className="yg-secenek" onClick={() => onSec(o)}>
+              <span><b>{o.ad}</b><small>{o.tarihMetni}</small></span>
+              <span className="yg-para">{para(o.tur === "kart" ? o.kalanToplam : o.tutar, o.paraBirimi)}</span>
+            </button>
+          ))}
+        </>
+      ) : (
+        <p style={{ margin: 0, color: "var(--dim)" }}>{t("yeni.odemeSec.bos")}</p>
+      )}
     </YeniTabaka>
   );
 }
