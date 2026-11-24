@@ -16,7 +16,8 @@ describe("düzenli borç ödemeleri", () => {
     ];
 
     assert.equal(duzenliBorcOdemeleri(krediler, tarih).length, 2);
-    assert.equal(buAyDuzenliBorcToplami(krediler, tarih), 12500);
+    // Kart yapılandırması taksiti kart ekstresinde geldiği için ayrıca sayılmaz.
+    assert.equal(buAyDuzenliBorcToplami(krediler, tarih), 10000);
   });
 
   it("gelecek ay başlayan krediyi gösterir fakat bu ayın toplamına katmaz", () => {
@@ -27,4 +28,19 @@ describe("düzenli borç ödemeleri", () => {
     assert.equal(duzenliBorcOdemeleri(krediler, tarih)[0].buAyOdenecek, false);
     assert.equal(buAyDuzenliBorcToplami(krediler, tarih), 0);
   });
+});
+
+it("kart ekstresine eklenen yapılandırma taksiti aylık yüke ayrıca eklenmez", async () => {
+  const { kartEkstresiyleOdenir } = await import("./loanSchedule.js");
+  const tarih = new Date(2026, 10, 24);
+  const yapilandirma = { id: "y", kaynak: "card_restructuring", kalanBorc: 12000, taksit: 1000, kalanTaksit: 12, ilkOdemeTarihi: "2026-10-05" };
+  const ayri = { ...yapilandirma, id: "a", kartEkstresineEklenir: false };
+  const kredi = { id: "k", kalanBorc: 5000, taksit: 500, kalanTaksit: 10 };
+  assert.equal(kartEkstresiyleOdenir(yapilandirma), true);
+  assert.equal(kartEkstresiyleOdenir(ayri), false);
+  assert.equal(kartEkstresiyleOdenir(kredi), false);
+  const liste = duzenliBorcOdemeleri([yapilandirma, kredi], tarih);
+  assert.equal(liste.find((o) => o.id === "y").kartEkstresinde, true);
+  assert.equal(buAyDuzenliBorcToplami([yapilandirma, kredi], tarih), 500);
+  assert.equal(buAyDuzenliBorcToplami([ayri, kredi], tarih), 1500);
 });

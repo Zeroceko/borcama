@@ -158,7 +158,7 @@ import { revenueCatProHakkiniSenkronizeEt } from "./revenuecatSync.js";
 import { aktiviteOlaylariniCikar } from "./activityEvents.js";
 import { aktiviteleriKaydet, bekleyenOnboardingOlaylariniGonder } from "./activityLog.js";
 import { calculateRevolvingDebtScenario } from "./financialScenario.js";
-import { loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
+import { kartEkstresiyleOdenir, loanIsDueInMonth, loanPaymentKey, loanStartsInMonths } from "./loanSchedule.js";
 import { rehberDurumu, rehberiErtele, rehberiMezunEt, rehberOnerisiniKapat } from "./borcamaRehberi.js";
 import {
   gecmisleKapananKrediAlanlari,
@@ -2027,7 +2027,8 @@ function useBugunHesaplari(veri, kurTablosu, fiyatlar) {
       }
     });
     veri.loans.forEach((k) => {
-      if ((+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun())) {
+      // Kart ekstresine eklenen yapılandırma taksiti kartın ödemesiyle ödenir.
+      if ((+k.kalanBorc || 0) > 0 && loanIsDueInMonth(k, bugun()) && !kartEkstresiyleOdenir(k)) {
         const anahtar = "kredi-" + k.id + "-" + ay;
         const odemeKaydi = veri.loanPaymentHistory?.[ay]?.[k.id];
         const taksit = +k.taksit || 0;
@@ -2061,7 +2062,7 @@ function useBugunHesaplari(veri, kurTablosu, fiyatlar) {
     const yil = simdi.getFullYear();
     const ay = simdi.getMonth() + 1;
     return veri.loans
-      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0 && loanIsDueInMonth(k, new Date(yil, ay, 1)))
+      .filter((k) => (+k.kalanBorc || 0) > 0 && (+k.taksit || 0) > 0 && loanIsDueInMonth(k, new Date(yil, ay, 1)) && !kartEkstresiyleOdenir(k))
       .map((k) => {
         const gun = Math.min(
           Math.max(parseInt(k.odemeGunu) || 1, 1),
@@ -9059,7 +9060,7 @@ function Borclar({
       }
     });
     veri.loans.forEach((k) => {
-      if (!loanIsDueInMonth(k, bugun())) return;
+      if (!loanIsDueInMonth(k, bugun()) || kartEkstresiyleOdenir(k)) return;
       const tarih = buAyOdemeTarihi(k.odemeGunu);
       const gun = -kalanGun(tarih);
       const odendi = !!veri.paid?.["kredi-" + k.id + "-" + ay];
@@ -11700,6 +11701,7 @@ function BorclarSatiri({
           (+k.kalanTaksit > 0 ? t("borcSatir.kredi.taksitKaldi", { n: krediPlanOzeti.remainingInstallments }) : "") +
           (buAyKrediOdendi ? t("borcSatir.kredi.buAykiOdendi") : "");
     if (k.ilkOdemeTarihi) altMeta += t("borcSatir.kredi.ilkTaksit", { tarih: isoTarihGoster(k.ilkOdemeTarihi) });
+    if (!arsiv && kartEkstresiyleOdenir(k)) altMeta += t("borcSatir.kredi.kartEkstresinde");
     if (!arsiv && !k._gelecek && krediPlanOzeti.remainingPaymentTotal > 0) {
       tutarEtiketi = t("borcSatir.kredi.toplamKalanOdeme");
       altYazi = krediPlanOzeti.financingCostIsKnown
@@ -14673,6 +14675,7 @@ function Harcamalar({
                   </div>
                   <div className="bt-satir-meta">
                     {odeme.yapilandirma ? t("gelirGider.harcama.yapilandirma") : t("gelirGider.harcama.krediTaksiti")}
+                    {odeme.kartEkstresinde && <> · {t("gelirGider.harcama.kartEkstresinde")}</>}
                     {odeme.kalanTaksit > 0 && <> · {t("gelirGider.harcama.taksitKaldi", { n: odeme.kalanTaksit })}</>}
                     {!odeme.buAyOdenecek && odeme.ilkOdemeTarihi && (
                       <> · {t("gelirGider.harcama.tarihindeBaslar", { tarih: isoTarihGoster(odeme.ilkOdemeTarihi) })}</>
@@ -14682,7 +14685,9 @@ function Harcamalar({
                 <div style={{ textAlign: "right" }}>
                   <div className="bt-satir-tutar">{fmt(odeme.taksit)}</div>
                   <div className="bt-satir-meta">
-                    {odeme.buAyOdenecek ? t("gelirGider.harcama.buAyOdenecek") : t("gelirGider.harcama.henuzBaslamadi")}
+                    {odeme.kartEkstresinde
+                      ? t("gelirGider.harcama.kartlaOdenir")
+                      : odeme.buAyOdenecek ? t("gelirGider.harcama.buAyOdenecek") : t("gelirGider.harcama.henuzBaslamadi")}
                   </div>
                 </div>
               </div>

@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [1.84.1] - 2026-11-24
+
+Web ve iOS aynı sürüm (iOS build 59).
+
+### Düzeltildi
+- Kart borcu yapılandırması: taksit kart ekstresine eklendiği halde ayrı bir ödeme gibi "gecikti / yaklaşıyor" uyarısı veriyor ve aylık yüke ikinci kez ekleniyordu. Artık yapılandırma taksiti kartın ödemesiyle ödenmiş sayılır; ayrı uyarı, bildirim ve aylık toplam oluşmaz. Kredi satırında ve düzenli ödemelerde "Taksit kart ekstrene ekleniyor" notu görünür.
+
 ## [1.84.0] - 2026-11-24
 
 Web ve iOS aynı sürüm (iOS build 58).
