@@ -1,4 +1,4 @@
-import { loanIsDueInMonth } from "./loanSchedule.js";
+import { kartEkstresiyleOdenir, loanIsDueInMonth } from "./loanSchedule.js";
 
 const pozitifSayi = (deger) => {
   const sayi = Number(deger);
@@ -20,6 +20,7 @@ export function duzenliBorcOdemeleri(krediler = [], tarih = new Date()) {
       kalanTaksit: Math.floor(pozitifSayi(kredi.kalanTaksit)),
       ilkOdemeTarihi: kredi.ilkOdemeTarihi || "",
       yapilandirma: kredi.kaynak === "card_restructuring",
+      kartEkstresinde: kartEkstresiyleOdenir(kredi),
       buAyOdenecek: loanIsDueInMonth(kredi, tarih),
     }))
     .sort(
@@ -30,6 +31,6 @@ export function duzenliBorcOdemeleri(krediler = [], tarih = new Date()) {
 
 export function buAyDuzenliBorcToplami(krediler = [], tarih = new Date()) {
   return duzenliBorcOdemeleri(krediler, tarih)
-    .filter((odeme) => odeme.buAyOdenecek)
+    .filter((odeme) => odeme.buAyOdenecek && !odeme.kartEkstresinde)
     .reduce((toplam, odeme) => toplam + odeme.taksit, 0);
 }
