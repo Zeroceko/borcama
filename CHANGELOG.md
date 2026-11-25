@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.7] - 2026-11-25
+
+Web ve iOS aynı sürüm (iOS build 68).
+
+### Değişti
+- Web kayıt: Kullanıcı Sözleşmesi ve KVKK Aydınlatma onayları formun en üstüne, Apple ve e-posta seçeneklerinin önüne taşındı. "Apple ile devam et" onaylar işaretlenene kadar pasif.
+
 ## [2.0.6] - 2026-11-25
 
 Web ve iOS aynı sürüm (iOS build 67).
