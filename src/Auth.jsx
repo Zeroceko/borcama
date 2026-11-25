@@ -904,7 +904,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
         className="oa-apple"
         type="button"
         onClick={appleIleGiris}
-        disabled={appleYukleniyor || gonderiliyor}
+        disabled={appleYukleniyor || gonderiliyor || (!nativeMi && kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu))}
       >
         <svg width="16" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
           <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
@@ -1096,12 +1096,42 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
       : !parolali ? kodGonder : kayitModu ? parolaylaKayit : parolaylaGiris;
     const guc = parolaGucu(parola);
     const yeniHesapOnayi = kayitModu || girisHesapYok;
+    // Kayitta onaylar en ustte: Apple ve e-posta yolu ayni onayla baslar.
+    const onaylar = (
+      <div className="oa-onaylar">
+        {onayKutusu("onay-sozlesme", sozlesmeKabul, setSozlesmeKabul, (
+          <Ceviri
+            anahtar="auth.onay.sozlesme"
+            degerler={{
+              baglanti: (
+                <button type="button" onClick={(e) => { e.stopPropagation(); setYasalMetin("terms"); }}>
+                  {t("auth.kullaniciSozlesmesi")}
+                </button>
+              ),
+            }}
+          />
+        ))}
+        {onayKutusu("onay-aydinlatma", aydinlatmaOkundu, setAydinlatmaOkundu, (
+          <Ceviri
+            anahtar="auth.onay.aydinlatma"
+            degerler={{
+              baglanti: (
+                <button type="button" onClick={(e) => { e.stopPropagation(); setYasalMetin("privacy"); }}>
+                  {t("auth.aydinlatmaMetni")}
+                </button>
+              ),
+            }}
+          />
+        ))}
+      </div>
+    );
     govde = (
       <>
         <h1 className="gk-baslik">{t(kayitModu ? "auth.web.kayit.baslik" : "auth.web.giris.baslik")}</h1>
         <p className="gk-alt-satir">{t(kayitModu ? "auth.web.kayit.alt" : "auth.web.giris.alt")}</p>
         <ModSekmeleri kayit={kayitModu} degistir={modDegistir} />
         <div role="tabpanel" id="gk-panel" aria-labelledby={kayitModu ? "gk-sekme-kayit" : "gk-sekme-giris"}>
+          {kayitModu && onaylar}
           {appleDugmesiCiz()}
           <form id={formId} className="oa-form" onSubmit={onSubmit} noValidate>
             {epostaAlani}
@@ -1163,34 +1193,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
               <span><b>{t("auth.giris.hesapYokBaslik")}</b> {t("auth.giris.hesapYokAciklama")}</span>
             </div>
           )}
-          {yeniHesapOnayi && (
-            <div className="oa-onaylar">
-              {onayKutusu("onay-sozlesme", sozlesmeKabul, setSozlesmeKabul, (
-                <Ceviri
-                  anahtar="auth.onay.sozlesme"
-                  degerler={{
-                    baglanti: (
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setYasalMetin("terms"); }}>
-                        {t("auth.kullaniciSozlesmesi")}
-                      </button>
-                    ),
-                  }}
-                />
-              ))}
-              {onayKutusu("onay-aydinlatma", aydinlatmaOkundu, setAydinlatmaOkundu, (
-                <Ceviri
-                  anahtar="auth.onay.aydinlatma"
-                  degerler={{
-                    baglanti: (
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setYasalMetin("privacy"); }}>
-                        {t("auth.aydinlatmaMetni")}
-                      </button>
-                    ),
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          {!kayitModu && girisHesapYok && onaylar}
           {!kayitModu && parolali && (
             <div className="oa-satir-ara">
               <label>
