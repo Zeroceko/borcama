@@ -4,6 +4,18 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.5] - 2026-11-25
+
+Web ve iOS aynı sürüm (iOS build 66).
+
+### Eklendi
+- Borcama 2.0, Borçlarım: Ana karttaki borç türlerine (kredi, kart, ek hesap, diğer) dokunarak toplamdan ve halkadan çıkarılıp geri eklenebilir; seçim cihazda hatırlanır. Toplam sayaçla, halka dilimleri kayarak güncellenir.
+
+### Değişti
+- Borcama 2.0: Sekme geçişlerinde zıplama giderildi; kaydırma yeni sayfa çizilmeden sıfırlanır, sayfa yumuşak girer.
+- Borcama 2.0, Bugün: "Ödedim" sonrası ana kartın rengi yumuşak geçer, kart kısa bir parlama ve ışıltıyla güncellenir.
+- Borcama 2.0: Düğme ve kartlarda basma geri bildirimi, ilerleme çubuklarında geçiş. Hareket azaltma ayarı açıksa animasyonlar kapalı.
+
 ## [2.0.4] - 2026-11-25
 
 Web ve iOS aynı sürüm (iOS build 65).

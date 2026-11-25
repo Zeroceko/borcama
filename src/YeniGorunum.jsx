@@ -42,6 +42,30 @@ export const YENI_CSS = `
 .yg-iki>.yg-kolon-sol{position:sticky;top:var(--yg-ust-bosluk,96px);max-height:calc(100vh - var(--yg-ust-bosluk,96px) - 16px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px 8px 8px 2px;margin:-2px -8px -8px -2px}
 .yg-cipler{flex-wrap:wrap;overflow-x:visible}
 }
+.yg-manset{position:relative;isolation:isolate}
+.yg-manset-ic{position:relative;z-index:1}
+.yg-lejant-dugme{display:flex;align-items:center;gap:6px;width:100%;background:none;border:0;border-radius:10px;padding:5px 6px;margin:0 -6px;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.yg-lejant-dugme:hover{background:var(--yg-soft)}
+.yg-lejant-dugme b{margin-left:auto;font-family:'Archivo Black',sans-serif;font-weight:800}
+.yg-lejant-dugme[aria-pressed="false"]{color:var(--dim)}
+.yg-lejant-dugme[aria-pressed="false"] .yg-nokta{background:transparent!important;box-shadow:inset 0 0 0 2px var(--dim)}
+.yg-lejant-dugme[aria-pressed="false"] b{text-decoration:line-through;font-weight:400;opacity:.7}
+.yg-lejant-ipucu{font-size:11.5px;color:var(--dim);margin-top:6px}
+@media (prefers-reduced-motion: no-preference){
+.yg-kok>.yg-sayfa{animation:yg-gir .28s cubic-bezier(.2,.7,.2,1) both}
+@keyframes yg-gir{from{opacity:0;transform:translateY(8px)}}
+.yg-manset{transition:background-color .7s ease,color .7s ease,box-shadow .7s ease}
+.yg-manset-ic{animation:yg-icerik .45s ease both}
+@keyframes yg-icerik{from{opacity:0;transform:translateY(6px)}}
+.yg-manset.parla::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;animation:yg-parla 1.3s ease-out both}
+@keyframes yg-parla{0%{box-shadow:0 0 0 0 #cdf56400}25%{box-shadow:0 0 38px 12px #cdf564b3}100%{box-shadow:0 0 0 0 #cdf56400}}
+.yg-manset.parla::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;background:linear-gradient(110deg,transparent 35%,#ffffff8c 50%,transparent 65%) no-repeat;background-size:250% 100%;animation:yg-isilti 1s ease-out both}
+@keyframes yg-isilti{from{background-position:130% 0}to{background-position:-30% 0}}
+.yg-borc,.yg-btn,.yg-cip,.yg-secenek,.yg-lejant-dugme{transition:transform .15s ease,background-color .25s ease,color .25s ease,opacity .25s ease,border-color .25s ease}
+.yg-borc:active,.yg-btn:active,.yg-cip:active,.yg-secenek:active,.yg-lejant-dugme:active{transform:scale(.97)}
+.yg-ilerleme i{transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.yg-dilim{transition:stroke-dasharray .55s cubic-bezier(.2,.7,.2,1),stroke-dashoffset .55s cubic-bezier(.2,.7,.2,1)}
+}
 .yg-ust-etiket{font:700 11.5px 'Space Grotesk',sans-serif;color:var(--dim)}
 .yg-manset{background:${LIME};color:${INK};border-radius:22px;padding:20px;box-shadow:5px 5px 0 ${INK}}
 .yg-manset.acil{background:${CORAL}}
@@ -300,6 +324,17 @@ function TrendGrafigi({ noktalar, para, ayAdi }) {
 export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tarihMetni, bos = false, onEkle }) {
   const gruplar = useMemo(() => odemeleriGrupla(odemeler), [odemeler]);
   const acil = useMemo(() => enAcilOdeme(odemeler), [odemeler]);
+  const [parla, setParla] = useState(false);
+  const oncekiAcil = useRef(null);
+  const acilAnahtari = acil ? [acil.tur, acil.id ?? acil.ad, acil.gun, acil.tutar].join("|") : "tamam";
+  useEffect(() => {
+    const onceki = oncekiAcil.current;
+    oncekiAcil.current = acilAnahtari;
+    if (onceki === null || onceki === acilAnahtari) return undefined;
+    setParla(true);
+    const zaman = setTimeout(() => setParla(false), 1400);
+    return () => clearTimeout(zaman);
+  }, [acilAnahtari]);
   const KOVA = {
     gecikti: [t("yeni.kova.gecikti"), "var(--yg-bad)"],
     bugun: [t("yeni.kova.bugun"), "var(--yg-warn)"],
@@ -332,14 +367,17 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
       </div>
     );
   }
-  let manset;
+  let mansetSinif = "yg-manset";
+  let mansetAnahtar = "tamam";
+  let mansetIcerik;
   if (!acil) {
-    manset = (
-      <section className="yg-manset tamam">
+    mansetSinif += " tamam";
+    mansetIcerik = (
+      <>
         <div className="yg-ust-etiket">{t("yeni.sekme.bugun")}</div>
         <h1>{odemeler.length ? t("yeni.manset.hepsiTamam") : t("yeni.manset.odemeYok")}</h1>
         <small>{t("yeni.manset.hatirlatacagiz")}</small>
-      </section>
+      </>
     );
   } else {
     const banka = acil.banka || acil.ad;
@@ -359,8 +397,10 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
       : acil.tur === "kredi"
         ? t("yeni.manset.ekKredi")
         : t("yeni.manset.ekKart");
-    manset = (
-      <section className={"yg-manset" + (acil.gun < 0 ? " acil" : "")}>
+    if (acil.gun < 0) mansetSinif += " acil";
+    mansetAnahtar = [acil.tur, acil.id ?? acil.ad, acil.gun, acil.tutar].join("|");
+    mansetIcerik = (
+      <>
         <div className="yg-ust-etiket">{acil.gun < 0 ? t("yeni.manset.onceBu") : t("yeni.manset.siradaki")}</div>
         <h1>{cumle}</h1>
         <div className="yg-manset-tutar">{para(acil.tutar, acil.paraBirimi)}</div>
@@ -368,9 +408,17 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
           <button type="button" className="yg-btn koyu" onClick={() => onOdedim(acil)}>{t("yeni.odeme.odedim")}</button>
           <small>{ek}</small>
         </div>
-      </section>
+      </>
     );
   }
+  if (parla) mansetSinif += " parla";
+  // Aynı <section> yerinde kalır; renk CSS geçişiyle yumuşar, içerik
+  // anahtarla yeniden girer. Ödeme işlenince (anahtar değişince) kart parlar.
+  const manset = (
+    <section className={mansetSinif}>
+      <div key={mansetAnahtar} className="yg-manset-ic">{mansetIcerik}</div>
+    </section>
+  );
   return (
     <div className="yg-sayfa yg-iki">
       <div className="yg-kolon-sol">
@@ -426,18 +474,32 @@ export function YeniBugun({ odemeler, ayOzeti, trend, para, ayAdi, onOdedim, tar
 function Halka({ dilimler }) {
   const toplam = dilimler.reduce((t2, d) => t2 + d.tutar, 0);
   if (!toplam) return null;
-  let aci = -Math.PI / 2;
-  const r = 46, c = 60;
+  const r = 46, c = 60, cevre = 2 * Math.PI * r;
   const enBuyuk = dilimler.slice().sort((a, b) => b.tutar - a.tutar)[0];
+  let bas = 0;
+  // Dilimler hep çizilir (gizli olan 0 uzunlukta); türe dokununca yaylar
+  // stroke-dasharray geçişiyle kayar.
   return (
     <svg className="yg-halka" width="112" height="112" viewBox="0 0 120 120" role="img" aria-label={t("yeni.borc.dagilimAria")}>
-      {dilimler.filter((d) => d.tutar > 0).map((d) => {
-        const pay = d.tutar / toplam;
-        if (pay >= 0.999) return <circle key={d.ad} cx={c} cy={c} r={r} fill="none" stroke={d.renk} strokeWidth="18" />;
-        const a2 = aci + pay * Math.PI * 2;
-        const yol = `M${c + r * Math.cos(aci)},${c + r * Math.sin(aci)} A${r},${r} 0 ${a2 - aci > Math.PI ? 1 : 0} 1 ${c + r * Math.cos(a2)},${c + r * Math.sin(a2)}`;
-        aci = a2;
-        return <path key={d.ad} d={yol} fill="none" stroke={d.renk} strokeWidth="18" />;
+      <circle cx={c} cy={c} r={r} fill="none" stroke="var(--yg-soft)" strokeWidth="18" />
+      {dilimler.map((d) => {
+        const uzunluk = (Math.max(d.tutar, 0) / toplam) * cevre;
+        const dilim = (
+          <circle
+            key={d.anahtar || d.ad}
+            className="yg-dilim"
+            cx={c}
+            cy={c}
+            r={r}
+            fill="none"
+            stroke={d.renk}
+            strokeWidth="18"
+            transform={`rotate(-90 ${c} ${c})`}
+            style={{ strokeDasharray: `${uzunluk} ${cevre - uzunluk}`, strokeDashoffset: -bas }}
+          />
+        );
+        bas += uzunluk;
+        return dilim;
       })}
       <text x="60" y="58" textAnchor="middle" fontSize="15" fontWeight="700" fill="var(--text)">%{Math.round((enBuyuk.tutar / toplam) * 100)}</text>
       <text x="60" y="74" textAnchor="middle" fontSize="11" fill="var(--dim)">{enBuyuk.ad.toLocaleLowerCase("tr-TR")}</text>
@@ -445,17 +507,69 @@ function Halka({ dilimler }) {
   );
 }
 
+const BORC_GIZLI_ANAHTARI = "borcama_borc_gizli";
+function gizliTurleriOku() {
+  try {
+    const liste = JSON.parse(localStorage.getItem(BORC_GIZLI_ANAHTARI) || "[]");
+    return Array.isArray(liste) ? liste : [];
+  } catch {
+    return [];
+  }
+}
+
+// Sayı değişince kısa bir sayaç animasyonu (hareket azaltma açıksa doğrudan).
+function useSayac(hedef, sure = 550) {
+  const [deger, setDeger] = useState(hedef);
+  const onceki = useRef(hedef);
+  useEffect(() => {
+    const baslangic = onceki.current;
+    onceki.current = hedef;
+    const azalt = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (azalt || baslangic === hedef || typeof requestAnimationFrame === "undefined") {
+      setDeger(hedef);
+      return undefined;
+    }
+    let kare;
+    const t0 = performance.now();
+    const adim = (an) => {
+      const p = Math.min((an - t0) / sure, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      setDeger(baslangic + (hedef - baslangic) * e);
+      if (p < 1) kare = requestAnimationFrame(adim);
+    };
+    kare = requestAnimationFrame(adim);
+    return () => cancelAnimationFrame(kare);
+  }, [hedef, sure]);
+  return deger;
+}
+
 export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, kartlar, ekHesaplar, planCumlesi, para, onKart, onKredi, onEkHesap }) {
   const [nedenAcik, setNedenAcik] = useState(false);
+  const [gizli, setGizli] = useState(gizliTurleriOku);
   const bos = !krediler.length && !kartlar.length && !ekHesaplar.length;
+  const mevcut = dilimler.filter((d) => d.tutar > 0);
+  const gizliMi = (d) => gizli.includes(d.anahtar || d.ad);
+  const gorunurDilimler = dilimler.map((d) => (gizliMi(d) ? { ...d, tutar: 0 } : d));
+  const filtreli = mevcut.some(gizliMi);
+  const gosterilenToplam = filtreli ? gorunurDilimler.reduce((a, d) => a + Math.max(d.tutar, 0), 0) : toplam;
+  const sayac = useSayac(gosterilenToplam);
+  const turDegistir = (d) => {
+    const anahtar = d.anahtar || d.ad;
+    const acikKalan = mevcut.filter((x) => !gizliMi(x) && (x.anahtar || x.ad) !== anahtar);
+    // Son görünen tür kapatılamaz; halka ve toplam boş kalmasın.
+    if (!gizli.includes(anahtar) && acikKalan.length === 0) return;
+    const yeni = gizli.includes(anahtar) ? gizli.filter((k) => k !== anahtar) : [...gizli, anahtar];
+    setGizli(yeni);
+    try { localStorage.setItem(BORC_GIZLI_ANAHTARI, JSON.stringify(yeni)); } catch { /* yalnız bu oturum */ }
+  };
   return (
     <div className="yg-sayfa yg-iki">
       <div className="yg-kolon-sol">
       <section className="yg-kart">
         <div className="yg-ozet-borc">
           <div style={{ minWidth: 0 }}>
-            <div className="yg-ust-etiket">{t("yeni.borc.toplam")}</div>
-            <div className="yg-buyuk">{para(toplam)}</div>
+            <div className="yg-ust-etiket">{filtreli ? t("yeni.borc.seciliToplam") : t("yeni.borc.toplam")}</div>
+            <div className="yg-buyuk">{para(Math.round(sayac))}</div>
             {gunlukFaizTutari > 0 && (
               <>
                 <p>{t("yeni.borc.gunlukFaiz", { tutar: para(gunlukFaizTutari) })}</p>
@@ -463,14 +577,23 @@ export function YeniBorclarim({ toplam, dilimler, gunlukFaizTutari, krediler, ka
               </>
             )}
           </div>
-          <Halka dilimler={dilimler} />
+          <Halka dilimler={gorunurDilimler} />
         </div>
         {nedenAcik && <div className="yg-aciklama">{t("yeni.borc.faizAciklama")}</div>}
-        <div className="yg-lejant">
-          {dilimler.filter((d) => d.tutar > 0).map((d) => (
-            <span key={d.ad}><i className="yg-nokta" style={{ background: d.renk }} />{d.ad}<b>{para(d.tutar)}</b></span>
+        <div className="yg-lejant" role="group" aria-label={t("yeni.borc.turlerAria")}>
+          {mevcut.map((d) => (
+            <button
+              key={d.anahtar || d.ad}
+              type="button"
+              className="yg-lejant-dugme"
+              aria-pressed={!gizliMi(d)}
+              onClick={() => turDegistir(d)}
+            >
+              <i className="yg-nokta" style={{ background: d.renk }} />{d.ad}<b>{para(d.tutar)}</b>
+            </button>
           ))}
         </div>
+        {mevcut.length > 1 && <div className="yg-lejant-ipucu">{t("yeni.borc.lejantIpucu")}</div>}
       </section>
       {planCumlesi && (
         <section className="yg-plan yg-ikincil">

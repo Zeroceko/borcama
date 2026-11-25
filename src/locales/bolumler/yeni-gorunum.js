@@ -6,6 +6,9 @@ export const tr = {
   "ayarlar.gorunum.duzenAciklama": "Borcama 2.0'ı dene: Bugün, Borçlarım ve Harcamalarım; daha sade. Klasik: önceki düzen. Verilerin ikisinde de aynı.",
   "ayarlar.gorunum.klasik": "Klasik",
   "ayarlar.gorunum.yeni": "Borcama 2.0",
+  "yeni.borc.seciliToplam": "Seçtiğin borçlar",
+  "yeni.borc.turlerAria": "Toplama giren borç türleri",
+  "yeni.borc.lejantIpucu": "Bir türe dokun, toplamdan çıkar ya da geri ekle.",
 
   "yeni.duyuru.rozet": "Yeni",
   "yeni.duyuru.baslik": "Borcama 2.0'ı dene",
@@ -224,6 +227,9 @@ export const en = {
   "ayarlar.gorunum.duzenAciklama": "Try Borcama 2.0: Today, My debts and My spending, simpler. Classic: the previous layout. Your data is the same in both.",
   "ayarlar.gorunum.klasik": "Classic",
   "ayarlar.gorunum.yeni": "Borcama 2.0",
+  "yeni.borc.seciliToplam": "Selected debts",
+  "yeni.borc.turlerAria": "Debt types in the total",
+  "yeni.borc.lejantIpucu": "Tap a type to remove it from the total or add it back.",
 
   "yeni.duyuru.rozet": "New",
   "yeni.duyuru.baslik": "Try Borcama 2.0",
