@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.4] - 2026-11-25
+
+Web ve iOS aynı sürüm (iOS build 65).
+
+### Eklendi
+- Web ve iOS: Klasik görünümdeki kullanıcıya bir kez "Borcama 2.0'ı dene" penceresi çıkar; yenilikleri sıralar, tek dokunuşla 2.0'a geçirir. "Şimdilik Klasik kalsın" ile kapanır. Görüldü bilgisi hesap ayarlarına yazılır, web ve iPhone'da yeniden çıkmaz. Ayarlar → Uygulama düzeni'nden her zaman değiştirilebilir.
+
 ## [2.0.3] - 2026-11-25
 
 Web ve iOS aynı sürüm (iOS build 64).
