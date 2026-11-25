@@ -1,10 +1,12 @@
-import { iosMu } from "./platform.js";
+import { iosMu, nativeMi } from "./platform.js";
 import { supabase } from "./supabaseClient.js";
 import { t } from "./i18n.js";
 
-// Apple ile giris yalniz iOS uygulamasinda sunuluyor. Tarayici surumunde ve
-// Android'de dugme hic cizilmiyor; akis orada e-posta ve parola ile surer.
-export const appleGirisiVarMi = iosMu;
+// Apple ile giris iOS uygulamasinda native, tarayicida Apple'in web akisi
+// (Services ID, Supabase OAuth) ile. Apple ayni ekip altindaki uygulama ve
+// web kimligine ayni kullanici kimligini verir; "E-postami gizle" diyen de
+// web'de ayni hesaba duser. Android kabugunda simdilik yok.
+export const appleGirisiVarMi = iosMu || !nativeMi;
 
 // Apple, yeniden oynatma saldirisina karsi istege bir nonce bekliyor: istege
 // nonce'un SHA-256 ozeti, dogrulamaya ise ham hali gonderilir. Supabase ham
@@ -32,8 +34,18 @@ export function appleHataMesaji(hata) {
 
 // Apple'dan kimlik belirtecini alir ve Supabase oturumunu kurar. Basarili
 // olursa true doner; kullanici vazgecerse hata firlatmadan false doner.
-export async function appleIleGirisYap() {
+export async function appleIleGirisYap(donusYolu = "/summary") {
   if (!appleGirisiVarMi) return false;
+  if (!iosMu) {
+    // Tarayici Apple'a gider, oturum donuste (?code=) kurulur; bu cagri
+    // basariliysa sayfa zaten ayrilmis olur.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo: window.location.origin + donusYolu },
+    });
+    if (error) throw error;
+    return false;
+  }
   const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
   const hamNonce = hamNonceUret();
   const sonuc = await SignInWithApple.authorize({
