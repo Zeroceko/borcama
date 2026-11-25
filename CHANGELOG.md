@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.8] - 2026-11-25
+
+Web ve iOS aynı sürüm (iOS build 69).
+
+### Değişti
+- Web kayıt: 2.0.7'deki onay sırası geri alındı; ekran 2.0.6'daki düzene döndü (Apple düğmesi üstte, onaylar formun altında).
+
 ## [2.0.7] - 2026-11-25
 
 Web ve iOS aynı sürüm (iOS build 68).
