@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { demoModu, supabase } from "./supabaseClient.js";
 import { apiAdresi, dokunusGeriBildirimi, nativeMi, yenilemeYonergesi, yenilemeYonergesiKucuk, ortamSozcugu } from "./platform.js";
@@ -3544,6 +3544,11 @@ export default function BorcTakip() {
     if (nativeMi || kurulumAcik) return;
     document.body.style.backgroundColor = temaRenkleri.bg;
   }, [temaRenkleri.bg, kurulumAcik]);
+  // 2.0 sekme geçişi: kaydırma yeni sayfa çizilmeden sıfırlanır; önce eski
+  // sayfa yukarı fırlayıp sonra içerik değişince oluşan zıplama olmaz.
+  useLayoutEffect(() => {
+    if (yeniMi) window.scrollTo(0, 0);
+  }, [sekme, yeniMi]);
   useEffect(() => {
     if (!nativeSekmeCubuguVarMi || yeniMi) return;
     sekmeCubugunuSec(anaSekme);
@@ -3909,10 +3914,10 @@ export default function BorcTakip() {
       k.enCok = liste.length ? liste.map(([kat, tutar]) => `${kat} ${fmt0(tutar)}`).join(" · ") : "";
     });
     const dilimler = [
-      { ad: t("yeni.borc.dilim.kredi"), tutar: toplamlar.kredi, renk: "#b9c8ff" },
-      { ad: t("yeni.borc.dilim.kart"), tutar: toplamlar.kart, renk: CORAL },
-      { ad: t("yeni.borc.dilim.ek"), tutar: toplamlar.ek, renk: LIME },
-      { ad: t("yeni.borc.dilim.diger"), tutar: toplamlar.diger, renk: "#d8c9a0" },
+      { anahtar: "kredi", ad: t("yeni.borc.dilim.kredi"), tutar: toplamlar.kredi, renk: "#b9c8ff" },
+      { anahtar: "kart", ad: t("yeni.borc.dilim.kart"), tutar: toplamlar.kart, renk: CORAL },
+      { anahtar: "ek", ad: t("yeni.borc.dilim.ek"), tutar: toplamlar.ek, renk: LIME },
+      { anahtar: "diger", ad: t("yeni.borc.dilim.diger"), tutar: toplamlar.diger, renk: "#d8c9a0" },
     ];
     let planCumlesi = "";
     if (etkinPro) {
@@ -4051,7 +4056,6 @@ export default function BorcTakip() {
     setYeniTabaka(null);
     setForm(null);
     setSekme(k);
-    window.scrollTo?.({ top: 0 });
   };
 
   return (
