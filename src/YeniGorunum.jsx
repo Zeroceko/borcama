@@ -39,6 +39,8 @@ export const YENI_CSS = `
 .yg-sayfa.yg-iki{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:start}
 .yg-iki>.yg-kolon-sol,.yg-iki>.yg-kolon-sag{display:grid;gap:18px;align-content:start;min-width:0}
 .yg-iki>.yg-kolon-sag>*,.yg-iki>.yg-kolon-sol>.yg-ikincil{order:0}
+.yg-iki>.yg-kolon-sol{position:sticky;top:var(--yg-ust-bosluk,96px);max-height:calc(100vh - var(--yg-ust-bosluk,96px) - 16px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px 8px 8px 2px;margin:-2px -8px -8px -2px}
+.yg-cipler{flex-wrap:wrap;overflow-x:visible}
 }
 .yg-ust-etiket{font:700 11.5px 'Space Grotesk',sans-serif;color:var(--dim)}
 .yg-manset{background:${LIME};color:${INK};border-radius:22px;padding:20px;box-shadow:5px 5px 0 ${INK}}

@@ -4,6 +4,14 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.3] - 2026-11-25
+
+Web ve iOS aynı sürüm (iOS build 64).
+
+### Değişti
+- Web (Borcama 2.0, masaüstü): Sol sütun sağdaki liste kayarken yerinde sabit kalır.
+- Web (Borcama 2.0, masaüstü): Harcamalarım'daki kart çipleri yatay kaydırma yerine alt alta sarılır; bütün kartlar görünür.
+
 ## [2.0.2] - 2026-11-24
 
 Web ve iOS aynı sürüm (iOS build 63).
