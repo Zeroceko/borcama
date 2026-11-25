@@ -4,6 +4,13 @@ Borcama'nın kullanıcıya, yönetime ve entegrasyonlara yansıyan değişiklikl
 
 ## Unreleased
 
+## [2.0.6] - 2026-11-25
+
+Web ve iOS aynı sürüm (iOS build 67).
+
+### Eklendi
+- Web: Giriş ve kayıt ekranında "Apple ile giriş yap". Apple'ın web akışı (Services ID com.borcama.web, Supabase OAuth) kullanılır; iPhone'da Apple ile açılan hesapla aynı hesaba girilir, "E-postamı gizle" seçenler dahil. Web'de kayıt, e-posta kaydında olduğu gibi sözleşme onayıyla başlar.
+
 ## [2.0.5] - 2026-11-25
 
 Web ve iOS aynı sürüm (iOS build 66).

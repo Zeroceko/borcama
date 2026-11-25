@@ -773,12 +773,18 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
 
   async function appleIleGiris() {
     if (appleYukleniyor) return;
+    // Web'de kayit sozlesme onayiyla baslar (e-posta kaydi gibi).
+    if (!nativeMi && kayitModu && (!sozlesmeKabul || !aydinlatmaOkundu)) {
+      setHata(t("auth.hata.sozlesme"));
+      return;
+    }
     setAppleYukleniyor(true);
     setHata("");
     try {
-      const girildi = await appleIleGirisYap();
-      if (!girildi) return;
+      // Tarayicida sayfa Apple'a gidip doner; kalicilik tercihi once yazilir.
       oturumKalicilginiYaz();
+      const girildi = await appleIleGirisYap(sonrakiSayfa);
+      if (!girildi) return;
       uygulamaIciGit(sonrakiSayfa);
     } catch (appleHatasi) {
       // Kullanici Apple ekranini kapatirsa mesaj bos doner; hata gostermiyoruz.
@@ -889,6 +895,28 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
         <input type="text" name="website" tabIndex={-1} autoComplete="off" value={tuzak} onChange={(e) => setTuzak(e.target.value)} />
       </label>
     </div>
+  );
+
+  // Apple ile giris dugmesi: iOS'ta native, web'de Apple'in web akisi.
+  const appleDugmesiCiz = () => appleGirisiVarMi && (
+    <>
+      <button
+        className="oa-apple"
+        type="button"
+        onClick={appleIleGiris}
+        disabled={appleYukleniyor || gonderiliyor}
+      >
+        <svg width="16" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
+          <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
+        </svg>
+        {appleYukleniyor
+          ? t("auth.apple.yukleniyor")
+          : kayitModu
+            ? t("auth.apple.devam")
+            : t("auth.apple.giris")}
+      </button>
+      <div className="oa-yada" aria-hidden="true">{t("auth.yaDa")}</div>
+    </>
   );
 
   let govde;
@@ -1074,6 +1102,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
         <p className="gk-alt-satir">{t(kayitModu ? "auth.web.kayit.alt" : "auth.web.giris.alt")}</p>
         <ModSekmeleri kayit={kayitModu} degistir={modDegistir} />
         <div role="tabpanel" id="gk-panel" aria-labelledby={kayitModu ? "gk-sekme-kayit" : "gk-sekme-giris"}>
+          {appleDugmesiCiz()}
           <form id={formId} className="oa-form" onSubmit={onSubmit} noValidate>
             {epostaAlani}
             {parolali && parolaAlani(
@@ -1230,26 +1259,7 @@ export function GirisEkrani({ redirectTo = "/summary", kayitModu: kayitBaslangic
       </>
     );
   } else {
-    const appleDugmesi = appleGirisiVarMi && (
-      <>
-        <button
-          className="oa-apple"
-          type="button"
-          onClick={appleIleGiris}
-          disabled={appleYukleniyor || gonderiliyor}
-        >
-          <svg width="16" height="18" viewBox="0 0 14 17" fill="currentColor" aria-hidden="true">
-            <path d="M11.6 9.02c.02 2.3 2.02 3.07 2.04 3.08-.02.05-.32 1.1-1.06 2.18-.64.94-1.3 1.87-2.35 1.89-1.03.02-1.36-.61-2.53-.61-1.18 0-1.54.59-2.51.63-1.01.04-1.78-1.01-2.42-1.94C1.46 12.33.46 8.85 1.8 6.5c.67-1.17 1.86-1.91 3.15-1.93.99-.02 1.93.67 2.53.67.61 0 1.75-.83 2.95-.71.5.02 1.91.2 2.81 1.53-.07.05-1.68.98-1.66 2.96M9.7 3.3c.53-.64.89-1.54.79-2.43-.76.03-1.69.51-2.24 1.15-.49.57-.92 1.48-.8 2.36.85.06 1.71-.43 2.25-1.08" />
-          </svg>
-          {appleYukleniyor
-            ? t("auth.apple.yukleniyor")
-            : kayitModu
-              ? t("auth.apple.devam")
-              : t("auth.apple.giris")}
-        </button>
-        <div className="oa-yada" aria-hidden="true">{t("auth.yaDa")}</div>
-      </>
-    );
+    const appleDugmesi = appleDugmesiCiz();
     // Kod modu varsayilan; parola formu yalniz web'de "Parolayla gir" ile.
     const linkModu = kayitModu || yontem === "kod";
     const onSubmit = linkModu
